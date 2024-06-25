@@ -1,0 +1,24 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:dashboard="http://typo3.org/ns/TYPO3/CMS/Dashboard/ViewHelpers"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<div class="widget-content-title d-flex align-items-center">
+    <span class="d-flex align-items-center">
+        <core:icon identifier="content-thumbtack" size="small"/> <span class="mx-3">{record.title}</span>
+    </span>
+</div>
+<div class="widget-content-main "
+     style="--mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 0) 0) 100% 90% / 100% 100% repeat-x;-webkit-mask: var(--mask);mask: var(--mask);">
+    <f:sanitize.html>{record.content}</f:sanitize.html>
+</div>
+
+<div class="widget-content-footer">
+    <f:if condition="{button}">
+        <dashboard:widget.button button="{button}" class="widget-cta">{f:translate(id: button.title, default:
+            button.title)}
+        </dashboard:widget.button>
+    </f:if>
+</div>
+
+</html>

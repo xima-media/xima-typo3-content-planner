@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="messages">
+		<header/>
+		<body>
+			<trans-unit id="status">
+				<source>Status</source>
+			</trans-unit>
+			<trans-unit id="status.danger">
+				<source>Pending</source>
+			</trans-unit>
+			<trans-unit id="status.info">
+				<source>In progress</source>
+			</trans-unit>
+			<trans-unit id="status.warning">
+				<source>Needs review</source>
+			</trans-unit>
+			<trans-unit id="status.success">
+				<source>Completed</source>
+			</trans-unit>
+			<trans-unit id="comment">
+				<source>Content Planner Comment</source>
+			</trans-unit>
+			<trans-unit id="note">
+				<source>Content Planner Note</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

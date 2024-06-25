@@ -1,0 +1,149 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Xima\XimaContentPlanner\:
+    resource: '../Classes/*'
+    exclude: '../Classes/Domain/Model/*'
+
+  Xima\XimaContentPlanner\EventListener\DrawBackendHeaderListener:
+      tags:
+          -   name: event.listener
+              identifier: 'xima-content-planner/backend/modify-page-module-content'
+
+  Xima\XimaContentPlanner\EventListener\AfterPageTreeItemsPreparedListener:
+      tags:
+          -   name: event.listener
+              identifier: 'xima-content-planner/backend/modify-page-tree-items'
+
+  dashboard.widget.ContentStatus-danger:
+      class: 'Xima\XimaContentPlanner\Widgets\ContentStatusWidget'
+      arguments:
+          $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+          $options:
+              refreshAvailable: true
+              status: 'danger'
+      tags:
+          -   name: dashboard.widget
+              identifier: 'contentStatus-danger'
+              groupNames: 'contentPlanner'
+              title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.danger.title'
+              description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.danger.description'
+              iconIdentifier: 'flag-red'
+              height: 'medium'
+              width: 'small'
+
+  dashboard.widget.ContentStatus-info:
+      class: 'Xima\XimaContentPlanner\Widgets\ContentStatusWidget'
+      arguments:
+          $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+          $options:
+              refreshAvailable: true
+              status: 'info'
+      tags:
+          -   name: dashboard.widget
+              identifier: 'contentStatus-info'
+              groupNames: 'contentPlanner'
+              title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.info.title'
+              description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.info.description'
+              iconIdentifier: 'flag-blue'
+              height: 'medium'
+              width: 'small'
+
+  dashboard.widget.ContentStatus-warning:
+      class: 'Xima\XimaContentPlanner\Widgets\ContentStatusWidget'
+      arguments:
+          $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+          $options:
+              refreshAvailable: true
+              status: 'warning'
+      tags:
+          -   name: dashboard.widget
+              identifier: 'contentStatus-warning'
+              groupNames: 'contentPlanner'
+              title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.warning.title'
+              description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.warning.description'
+              iconIdentifier: 'flag-yellow'
+              height: 'medium'
+              width: 'small'
+
+  dashboard.widget.ContentStatus-success:
+      class: 'Xima\XimaContentPlanner\Widgets\ContentStatusWidget'
+      arguments:
+          $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+          $options:
+              refreshAvailable: true
+              status: 'success'
+      tags:
+          -   name: dashboard.widget
+              identifier: 'contentStatus-success'
+              groupNames: 'contentPlanner'
+              title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.success.title'
+              description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.success.description'
+              iconIdentifier: 'flag-green'
+              height: 'medium'
+              width: 'small'
+
+  dashboard.widget.ContentStatus-current:
+      class: 'Xima\XimaContentPlanner\Widgets\ContentStatusWidget'
+      arguments:
+          $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+          $options:
+              refreshAvailable: true
+              currentUserAssignee: true
+      tags:
+          -   name: dashboard.widget
+              identifier: 'contentStatus-current'
+              groupNames: 'contentPlanner'
+              title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.current.title'
+              description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.current.description'
+              iconIdentifier: 'flag-gray'
+              height: 'medium'
+              width: 'small'
+
+  dashboard.widget.ContentStatus-comments:
+      class: 'Xima\XimaContentPlanner\Widgets\ContentCommentWidget'
+      arguments:
+          $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\ContentCommentDataProvider'
+          $options:
+              refreshAvailable: true
+              currentUserAssignee: true
+      tags:
+          -   name: dashboard.widget
+              identifier: 'contentStatus-comment'
+              groupNames: 'contentPlanner'
+              title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.comment.title'
+              description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.comment.description'
+              iconIdentifier: 'content-message'
+              height: 'medium'
+              width: 'medium'
+
+  dashboard.widget.ContentStatus-overview:
+      class: 'TYPO3\CMS\Dashboard\Widgets\DoughnutChartWidget'
+      arguments:
+          $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\StatusOverviewDataProvider'
+          $options:
+              icon: 'content-widget-chart-pie'
+      tags:
+          -   name: dashboard.widget
+              identifier: 'contentStatus-overview'
+              groupNames: 'contentPlanner'
+              title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.overview.title'
+              description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.overview.description'
+              iconIdentifier: 'content-widget-chart-pie'
+              height: 'medium'
+
+  dashboard.widget.ContentStatus-note:
+      class: 'Xima\XimaContentPlanner\Widgets\ContentNoteWidget'
+      arguments:
+          $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\ContentNoteDataProvider'
+      tags:
+          -   name: dashboard.widget
+              identifier: 'contentStatus-note'
+              groupNames: 'contentPlanner'
+              title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.note.title'
+              description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.note.description'
+              iconIdentifier: 'content-thumbtack'
+              height: 'medium'

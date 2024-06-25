@@ -1,0 +1,80 @@
+<html xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<div class="accordion">
+    <div class="callout callout-{data.tx_ximacontentplanner_status}">
+        <div class="media">
+            <div class="media-left">
+                <span class="icon-emphasized">
+                <core:icon identifier="{icon}" size="small"/>
+                </span>
+            </div>
+            <div class="media-body">
+                <div class="callout-body d-flex align-items-center">
+                    <be:link.editRecord uid="{data.uid}" table="pages"
+                                        fields="tx_ximacontentplanner_status,tx_ximacontentplanner_assignee,tx_ximacontentplanner_comments"
+                                        returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                                        title="Edit page properties" class="d-flex align-items-center  flex-grow-1">
+                        Content Status: <strong>
+                        <f:translate
+                            key="LLL:EXT:xima_content_planner/Resources/Private/Language/locallang_be.xlf:status.{data.tx_ximacontentplanner_status}"/>
+                    </strong>
+                    </be:link.editRecord>
+                    <div class="btn-group">
+                        <f:if condition="{data.tx_ximacontentplanner_assignee}">
+                            <div class="ml-auto d-flex align-items-center btn btn-default btn-sm"
+                                 style="background-color: transparent">
+                                <be:avatar backendUser="{data.tx_ximacontentplanner_assignee}" size="16"
+                                           showIcon="true"/>
+                                <span class="mx-2">{assignee}</span>
+                            </div>
+                        </f:if>
+                        <f:if condition="{comments}">
+                            <button class="accordion-button btn btn-default btn-sm" type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne"
+                                    style="background-color: transparent">
+                                <core:icon identifier="content-message" size="small"/>
+                                {comments -> f:count()}
+                                <core:icon identifier="actions-caret-down" size="small"/>
+                            </button>
+                        </f:if>
+                        <be:link.editRecord uid="{data.uid}" table="pages"
+                                            fields="tx_ximacontentplanner_status,tx_ximacontentplanner_assignee,tx_ximacontentplanner_comments"
+                                            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                                            title="Edit page properties" class="btn btn-default btn-sm"
+                                            style="background-color: transparent">
+                            <core:icon identifier="actions-document-edit" size="small"/>
+                        </be:link.editRecord>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <f:if condition="{comments}">
+        <div id="collapseOne" class="accordion-collapse collapse"
+             data-bs-parent="#accordionExample">
+            <div class="accordion-body">
+                <f:for each="{comments}" as="comment">
+                    <div class="alert alert-secondary mb-2 px-2 ml-3 d-flex align-items-center"
+                         style="background-color: #fefefe;margin-left:3rem;padding:.5rem;">
+                        <div class="mx-3">
+                            <core:icon identifier="content-message" size="small"/>
+                        </div>
+                        <div class="mx-3 d-flex align-items-center">
+                            <be:avatar backendUser="{comment.author}" size="16" showIcon="true"/>
+                            <strong class="mx-3">{comment.user}</strong>
+                        </div>
+                        <div class="pt-3 flex-grow-1">
+                            <f:sanitize.html>{comment.content}</f:sanitize.html>
+                        </div>
+                        <div class="ml-auto">
+                            <small>{comment.date}</small>
+                        </div>
+                    </div>
+                </f:for>
+            </div>
+        </div>
+    </f:if>
+</div>

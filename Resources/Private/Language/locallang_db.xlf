@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+	<file source-language="en" datatype="plaintext" original="messages">
+		<header/>
+		<body>
+			<trans-unit id="pages.tx_ximacontentplanner_status">
+				<source>Status</source>
+			</trans-unit>
+			<trans-unit id="pages.tx_ximacontentplanner_comments">
+				<source>Comments</source>
+			</trans-unit>
+			<trans-unit id="pages.tx_ximacontentplanner_assignee">
+				<source>Assignee</source>
+			</trans-unit>
+			<trans-unit id="tx_ximacontentplanner_comment.content">
+				<source>Content</source>
+			</trans-unit>
+			<trans-unit id="tx_ximacontentplanner_comment.author">
+				<source>Author</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

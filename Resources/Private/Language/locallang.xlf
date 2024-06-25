@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+	<file source-language="en" datatype="plaintext" original="messages">
+		<header/>
+		<body>
+			<trans-unit id="dashboard.contentPlanner">
+				<source>Content Planner</source>
+			</trans-unit>
+			<trans-unit id="dashboard.contentPlanner.description">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widget_group.contentPlanner">
+				<source>Content Planner</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.danger.title">
+				<source>Content Status: Danger</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.danger.description">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.info.title">
+				<source>Content Status: Info</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.info.description">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.warning.title">
+				<source>Content Status: Warning</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.warning.description">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.success.title">
+				<source>Content Status: Success</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.success.description">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.current.title">
+				<source>Content Status: Current Assignee</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.current.description">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.overview.title">
+				<source>Content Status Overview</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.overview.description">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.comment.title">
+				<source>Content Status Recent Comments</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.comment.description">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.header.flag">
+				<source>Status</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.header.title">
+				<source>Page</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.header.tstamp">
+				<source>Changed</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.header.assignee">
+				<source>Assignee</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.header.author">
+				<source>Author</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.header.comment">
+				<source>Comment</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.header.page">
+				<source>Page</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
