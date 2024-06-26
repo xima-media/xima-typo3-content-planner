@@ -56,6 +56,9 @@ call_user_func(function () {
             'config' => [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
+                'items' => [
+                    ['-- Not assigned --', 0],
+                ],
                 'foreign_table' => 'be_users',
                 'resetSelection' => true,
                 'eval' => 'null',
