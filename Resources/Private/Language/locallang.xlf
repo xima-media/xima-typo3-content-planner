@@ -7,7 +7,7 @@
 				<source>Content Planner</source>
 			</trans-unit>
 			<trans-unit id="dashboard.contentPlanner.description">
-				<source>ToDo</source>
+				<source>Overview dashboard for content status information</source>
 			</trans-unit>
 			<trans-unit id="widget_group.contentPlanner">
 				<source>Content Planner</source>
@@ -16,43 +16,43 @@
 				<source>Content Status: Danger</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.danger.description">
-				<source>ToDo</source>
+				<source>Display all pages with content status: danger</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.info.title">
 				<source>Content Status: Info</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.info.description">
-				<source>ToDo</source>
+				<source>Display all pages with content status: info</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.warning.title">
 				<source>Content Status: Warning</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.warning.description">
-				<source>ToDo</source>
+				<source>Display all pages with content status: warning</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.success.title">
 				<source>Content Status: Success</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.success.description">
-				<source>ToDo</source>
+				<source>Display all pages with content status: success</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.current.title">
 				<source>Content Status: Current Assignee</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.current.description">
-				<source>ToDo</source>
+				<source>Display all pages with your assignment</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.overview.title">
 				<source>Content Status Overview</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.overview.description">
-				<source>ToDo</source>
+				<source>Display a donut chart with the distribution of content status</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.comment.title">
 				<source>Content Status Recent Comments</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.comment.description">
-				<source>ToDo</source>
+				<source>Display the recent content comments</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.header.flag">
 				<source>Status</source>
