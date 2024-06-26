@@ -6,6 +6,7 @@ namespace Xima\XimaContentPlanner\Backend\ContextMenu\ItemProviders;
 
 use TYPO3\CMS\Backend\ContextMenu\ItemProviders\AbstractProvider;
 use Xima\XimaContentPlanner\Configuration;
+use Xima\XimaContentPlanner\Utility\VisibilityUtility;
 
 class StatusItemProvider extends AbstractProvider
 {
@@ -93,6 +94,10 @@ class StatusItemProvider extends AbstractProvider
      */
     public function addItems(array $items): array
     {
+        if (!VisibilityUtility::checkContentStatusVisibility()) {
+            return $items;
+        }
+
         $this->initDisabledItems();
         // renders an item based on the configuration from $this->itemsConfiguration
         $localItems = $this->prepareItems($this->itemsConfiguration);

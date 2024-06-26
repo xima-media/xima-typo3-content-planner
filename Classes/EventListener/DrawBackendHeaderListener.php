@@ -11,6 +11,7 @@ use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaContentPlanner\Configuration;
+use Xima\XimaContentPlanner\Utility\VisibilityUtility;
 
 /*
  * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Events/Events/Backend/ModifyPageLayoutContentEvent.html#modifypagelayoutcontentevent
@@ -23,6 +24,10 @@ final class DrawBackendHeaderListener
 
     public function __invoke(ModifyPageLayoutContentEvent $event): void
     {
+        if (!VisibilityUtility::checkContentStatusVisibility()) {
+            return;
+        }
+
         $id = (int)($event->getRequest()->getQueryParams()['id'] ?? 0);
         $pageInfo = $this->pageRepository->getPage($id);
         if (empty($pageInfo)) {

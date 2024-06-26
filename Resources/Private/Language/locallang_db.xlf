@@ -18,6 +18,18 @@
 			<trans-unit id="tx_ximacontentplanner_comment.author">
 				<source>Author</source>
 			</trans-unit>
+			<trans-unit id="be_users.tx_ximacontentplanner_hide">
+				<source>Disable the display of content planner status</source>
+			</trans-unit>
+			<trans-unit id="permission.group">
+				<source>Content Planner</source>
+			</trans-unit>
+			<trans-unit id="permission.content_status">
+				<source>Content Status</source>
+			</trans-unit>
+			<trans-unit id="permission.content_status.description">
+				<source>Allow the usage of content status within pages</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
