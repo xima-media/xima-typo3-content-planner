@@ -35,7 +35,7 @@
                     </thead>
                     <tbody>
                     <f:for each="{records}" as="record">
-                        <tr>
+                        <tr {f:if(condition: record.is_current, then: 'style="background-color:#FFF3E0"')}>
                             <td>
                                 <f:be.link route="web_layout" parameters="{id: record.uid}" title="{record.title}">
                                     <span title="{record.status}">

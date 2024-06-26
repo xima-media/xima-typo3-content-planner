@@ -45,8 +45,7 @@ class ContentStatusWidget implements WidgetInterface
             'configuration' => $this->configuration,
             'records' => $this->dataProvider->getItemsByDemand($status, $assignee, $maxResults),
             'options' => $this->options,
-            'icon' => $icon,
-            'highlight' => $assignee ? true : false,
+            'icon' => $icon
         ]);
         return $view->render();
     }

@@ -75,6 +75,7 @@ class ContentStatusDataProvider implements ListDataProviderInterface
             'assignee' => (int)$result['tx_ximacontentplanner_assignee'],
             'assignee_name' => DrawBackendHeaderListener::getBackendUsernameById((int)$result['tx_ximacontentplanner_assignee']),
             'comments' => $result['tx_ximacontentplanner_comments'],
+            'is_current' => (int)$result['tx_ximacontentplanner_assignee'] === $GLOBALS['BE_USER']->user['uid'],
         ];
     }
 }
