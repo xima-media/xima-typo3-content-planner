@@ -12,9 +12,11 @@ This extension provides a page status functionality to support the planning of c
 
 ## Features
 
-* Extended page properties for status and comments
-* PageTree
-* Dashboard preset for content planning
+* Extended page properties for content status and additional comments
+* PageTree quick status change
+* Dashboard for content planning
+
+![Backend](./Documentation/Images/backend.png)
 
 ## Requirements
 
@@ -31,6 +33,13 @@ composer require xima/xima-content-planner
 # Usage
 
 ...
+
+![WalkThrough](./Documentation/Images/walk-through.gif)
+
+### Dashboard
+
+![Dashboard](./Documentation/Images/dashboard.png)
+
 
 ## License
 
