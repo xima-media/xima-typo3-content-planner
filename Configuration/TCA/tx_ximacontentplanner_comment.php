@@ -1,6 +1,6 @@
 <?php
 
-use Xima\XimaSitepackage\Configuration;
+use Xima\XimaContentPlanner\Configuration;
 
 return [
     'ctrl' => [
