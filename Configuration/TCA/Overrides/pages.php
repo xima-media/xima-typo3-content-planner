@@ -6,14 +6,12 @@ use Xima\XimaContentPlanner\Configuration;
 defined('TYPO3') or die('Access denied.');
 
 call_user_func(function () {
-    /**
-     * Define custom fields
-     */
     $temporaryColumns = [
         'tx_ximacontentplanner_status' => [
             'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximacontentplanner_status',
             'config' => [
                 'items' => [
+                    ['-- stateless --', null],
                     ['LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:status.danger', 'danger', 'flag-red'],
                     ['LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:status.info', 'info', 'flag-blue'],
                     ['LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:status.warning', 'warning', 'flag-yellow'],
