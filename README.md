@@ -2,9 +2,9 @@
 
 ![Extension icon](Resources/Public/Icons/Extension.svg)
 
-# TYPO3 extension `xima_typo3_manual`
+# TYPO3 extension `xima_content_planner`
 
-[![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/v12/orange)](https://extensions.typo3.org/extension/xima_typo3_manual)
+[![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/v12/orange)]()
 
 </div>
 
