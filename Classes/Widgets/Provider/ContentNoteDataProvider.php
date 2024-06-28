@@ -12,7 +12,7 @@ class ContentNoteDataProvider
     /**
      * @throws \Doctrine\DBAL\Exception
      */
-    public function getItem(): array
+    public function getItem(): array|bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximacontentplanner_note');
 
