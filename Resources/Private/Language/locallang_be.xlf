@@ -24,6 +24,34 @@
 			<trans-unit id="note">
 				<source>Content Planner Note</source>
 			</trans-unit>
+			<!-- history -->
+			<trans-unit id="history.pages.2.set.tx_ximacontentplanner_status">
+				<source><![CDATA[The <em>status</em> was set to <strong>%s</strong>.]]></source>
+			</trans-unit>
+			<trans-unit id="history.pages.2.unset.tx_ximacontentplanner_status">
+				<source><![CDATA[The <em>status</em>  was unset from <strong>%s</strong>.]]></source>
+			</trans-unit>
+			<trans-unit id="history.pages.2.change.tx_ximacontentplanner_status">
+				<source><![CDATA[The <em>status</em>  was changed from <strong>%s</strong> to <strong>%s</strong>.]]></source>
+			</trans-unit>
+			<trans-unit id="history.pages.2.set.tx_ximacontentplanner_assignee">
+				<source><![CDATA[The <em>assignee</em> was set to <strong>%s</strong>.]]></source>
+			</trans-unit>
+			<trans-unit id="history.pages.2.unset.tx_ximacontentplanner_assignee">
+				<source><![CDATA[The <em>assignee</em> was unset from <strong>%s</strong>.]]></source>
+			</trans-unit>
+			<trans-unit id="history.pages.2.change.tx_ximacontentplanner_assignee">
+				<source><![CDATA[The <em>assignee</em> was changed from <strong>%s</strong> to <strong>%s</strong>.]]></source>
+			</trans-unit>
+			<trans-unit id="history.comment.1">
+				<source><![CDATA[A new <em>comment</em> has been added.]]></source>
+			</trans-unit>
+			<trans-unit id="history.comment.2">
+				<source><![CDATA[A <em>comment</em> was updated.]]></source>
+			</trans-unit>
+			<trans-unit id="history.comment.4">
+				<source><![CDATA[A <em>comment</em> was been removed.]]></source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

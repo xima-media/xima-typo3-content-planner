@@ -8,7 +8,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use Xima\XimaContentPlanner\Configuration;
-use Xima\XimaContentPlanner\EventListener\DrawBackendHeaderListener;
+use Xima\XimaContentPlanner\Utility\ContentUtility;
 
 class ContentCommentDataProvider implements ListDataProviderInterface
 {
@@ -59,7 +59,7 @@ class ContentCommentDataProvider implements ListDataProviderInterface
             'status' => $result['status'],
             'status_icon' => Configuration::STATUS_ICONS[$result['status']],
             'author' => (int)$result['author'],
-            'author_name' => DrawBackendHeaderListener::getBackendUsernameById((int)$result['author']),
+            'author_name' => ContentUtility::getBackendUsernameById((int)$result['author']),
         ];
     }
 }

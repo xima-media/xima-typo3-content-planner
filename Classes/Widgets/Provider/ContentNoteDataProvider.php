@@ -16,7 +16,7 @@ class ContentNoteDataProvider
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximacontentplanner_note');
 
-        $result = $queryBuilder
+        return $queryBuilder
             ->select(
                 'uid',
                 'title',
@@ -26,8 +26,6 @@ class ContentNoteDataProvider
 
             ->orderBy('tstamp', 'DESC')
             ->executeQuery()
-            ->fetchAssociative()
-        ;
-        return $result;
+            ->fetchAssociative();
     }
 }

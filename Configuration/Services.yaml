@@ -147,3 +147,16 @@ services:
               description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.note.description'
               iconIdentifier: 'content-thumbtack'
               height: 'medium'
+
+  dashboard.widget.ContentStatus-update:
+    class: 'Xima\XimaContentPlanner\Widgets\ContentUpdateWidget'
+    arguments:
+      $dataProvider: '@Xima\XimaContentPlanner\Widgets\Provider\ContentUpdateDataProvider'
+    tags:
+      -   name: dashboard.widget
+          identifier: 'contentStatus-update'
+          groupNames: 'contentPlanner'
+          title: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.update.title'
+          description: 'LLL:EXT:xima_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.update.description'
+          iconIdentifier: 'content-thumbtack'
+          height: 'medium'

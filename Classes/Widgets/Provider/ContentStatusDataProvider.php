@@ -7,8 +7,7 @@ namespace Xima\XimaContentPlanner\Widgets\Provider;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
-use Xima\XimaContentPlanner\Configuration;
-use Xima\XimaContentPlanner\EventListener\DrawBackendHeaderListener;
+use Xima\XimaContentPlanner\Domain\Model\Dto\StatusItem;
 
 class ContentStatusDataProvider implements ListDataProviderInterface
 {
@@ -56,26 +55,11 @@ class ContentStatusDataProvider implements ListDataProviderInterface
 
         foreach ($results as $result) {
             try {
-                $items[] = $this->createListItem($result);
+                $items[] = StatusItem::create($result);
             } catch (\Exception $e) {
             }
         }
 
         return $items;
-    }
-
-    private function createListItem(array $result): array
-    {
-        return [
-            'uid' => $result['uid'],
-            'title' => $result['title'],
-            'tstamp' => $result['tstamp'],
-            'status' => $result['tx_ximacontentplanner_status'],
-            'status_icon' => Configuration::STATUS_ICONS[$result['tx_ximacontentplanner_status']],
-            'assignee' => (int)$result['tx_ximacontentplanner_assignee'],
-            'assignee_name' => DrawBackendHeaderListener::getBackendUsernameById((int)$result['tx_ximacontentplanner_assignee']),
-            'comments' => $result['tx_ximacontentplanner_comments'],
-            'is_current' => (int)$result['tx_ximacontentplanner_assignee'] === $GLOBALS['BE_USER']->user['uid'],
-        ];
     }
 }

@@ -41,6 +41,26 @@ parameters:
 			path: Classes/Controller/TreeController.php
 
 		-
+			message: "#^Result of && is always false\\.$#"
+			count: 2
+			path: Classes/Domain/Model/Dto/HistoryItem.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between null and '' will always evaluate to false\\.$#"
+			count: 1
+			path: Classes/Domain/Model/Dto/HistoryItem.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: Classes/Domain/Model/Dto/HistoryItem.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: Classes/Domain/Model/Dto/StatusItem.php
+
+		-
 			message: "#^Call to method getItems\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\AfterPageTreeItemsPreparedEvent\\.$#"
 			count: 1
 			path: Classes/EventListener/AfterPageTreeItemsPreparedListener.php
@@ -123,7 +143,67 @@ parameters:
 		-
 			message: "#^Call to method assignMultiple\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
 			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Call to method render\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Call to method setFormat\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Call to method setPartialRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Call to method setTemplatePathAndFilename\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Call to method setTemplateRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView not found\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Parameter \\$buttonProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Parameter \\$configuration of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Parameter \\$dataProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$buttonProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface as its type\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$configuration has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface as its type\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
+
+		-
+			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$dataProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface as its type\\.$#"
+			count: 1
+			path: Classes/Widgets/AbstractWidget.php
 
 		-
 			message: "#^Call to method getItems\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
@@ -131,124 +211,9 @@ parameters:
 			path: Classes/Widgets/ContentCommentWidget.php
 
 		-
-			message: "#^Call to method render\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Call to method setFormat\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Call to method setPartialRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Call to method setTemplatePathAndFilename\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Call to method setTemplateRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView not found\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Parameter \\$buttonProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentCommentWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Parameter \\$configuration of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentCommentWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Parameter \\$dataProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentCommentWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentCommentWidget\\:\\:\\$buttonProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface as its type\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentCommentWidget\\:\\:\\$configuration has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface as its type\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentCommentWidget\\:\\:\\$dataProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface as its type\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentCommentWidget.php
-
-		-
-			message: "#^Call to method assignMultiple\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			message: "#^Call to method getItem\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
 			count: 1
 			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Call to method render\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Call to method setFormat\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Call to method setPartialRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Call to method setTemplatePathAndFilename\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Call to method setTemplateRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView not found\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Parameter \\$buttonProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentNoteWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Parameter \\$configuration of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentNoteWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentNoteWidget\\:\\:\\$buttonProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface as its type\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentNoteWidget\\:\\:\\$configuration has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface as its type\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
-
-		-
-			message: "#^Call to method assignMultiple\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
 
 		-
 			message: "#^Call to method getItemsByDemand\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
@@ -256,66 +221,6 @@ parameters:
 			path: Classes/Widgets/ContentStatusWidget.php
 
 		-
-			message: "#^Call to method render\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			message: "#^Call to method getItems\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
 			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Call to method setFormat\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Call to method setPartialRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Call to method setTemplatePathAndFilename\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Call to method setTemplateRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView not found\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Parameter \\$buttonProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentStatusWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Parameter \\$configuration of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentStatusWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Parameter \\$dataProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentStatusWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentStatusWidget\\:\\:\\$buttonProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface as its type\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentStatusWidget\\:\\:\\$configuration has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface as its type\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\ContentStatusWidget\\:\\:\\$dataProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface as its type\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
-			message: "#^Access to constant EXT_KEY on an unknown class Xima\\\\XimaSitepackage\\\\Configuration\\.$#"
-			count: 3
-			path: Configuration/TCA/tx_ximacontentplanner_comment.php
+			path: Classes/Widgets/ContentUpdateWidget.php

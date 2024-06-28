@@ -24,23 +24,26 @@
                             <f:translate key="widgets.contentStatus.header.tstamp" extensionName="XimaContentPlanner"/>
                         </th>
                         <th>
-                            <f:translate key="widgets.contentStatus.header.assignee"
+                            <f:translate key="widgets.contentStatus.header.user"
                                          extensionName="XimaContentPlanner"/>
                         </th>
                         <th>
-                            <f:translate key="widgets.contentStatus.header.comments"
+                            <f:translate key="widgets.contentStatus.header.change"
                                          extensionName="XimaContentPlanner"/>
                         </th>
                     </tr>
                     </thead>
                     <tbody>
                     <f:for each="{records}" as="record">
+                        <f:if condition="{record.historyData}">
                         <tr {f:if(condition: record.assignedToCurrentUser, then: 'style="background-color:#FFF3E0"')}>
                             <td>
-                                <f:be.link route="web_layout" parameters="{id: record.uid}" title="{record.title}">
+                                <f:be.link route="web_layout" parameters="{id: record.data.recuid}" title="{record.data.title}">
+                                    <f:if condition="{record.pageStatus}">
                                     <span title="{record.pageStatus}">
                                         <core:icon identifier="{record.pageStatusIcon}" size="small"/>
                                     </span>
+                                    </f:if>
                                     <strong>{f:if(condition: record.pageTitle, then: '{record.pageTitle -> f:format.raw()}',
                                         else: '[{f:translate(key:
                                         \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}</strong>
@@ -50,17 +53,16 @@
                                 <f:format.date format="d.m.Y H:i">{record.data.tstamp}</f:format.date>
                             </td>
                             <td style="display: flex;gap: 10px;">
-                                <f:if condition="{record.pageAssignee}">
-                                    <be:avatar backendUser="{record.pageAssignee}" size="20"/>
-                                    {record.pageAssigneeName}
+                                <f:if condition="{record.data.userid}">
+                                    <be:avatar backendUser="{record.data.userid}" size="20"/>
+                                    {record.data.username}
                                 </f:if>
                             </td>
                             <td>
-                                <f:if condition="{record.data.tx_ximacontentplanner_comments}">
-                                    {record.data.tx_ximacontentplanner_comments} <core:icon identifier="content-message" size="small"/>
-                                </f:if>
+                                {record.historyData -> f:format.raw()}
                             </td>
                         </tr>
+                        </f:if>
                     </f:for>
                     </tbody>
                 </table>
@@ -77,4 +79,5 @@
         </f:else>
     </f:if>
 </div>
+
 </html>
