@@ -4,7 +4,7 @@
 		<header/>
 		<body>
 			<trans-unit id="status">
-				<source>Status</source>
+				<source>Content Status</source>
 			</trans-unit>
 			<trans-unit id="status.danger">
 				<source>Pending</source>
@@ -17,6 +17,9 @@
 			</trans-unit>
 			<trans-unit id="status.success">
 				<source>Completed</source>
+			</trans-unit>
+			<trans-unit id="reset">
+				<source>Reset Status</source>
 			</trans-unit>
 			<trans-unit id="comment">
 				<source>Content Planner Comment</source>

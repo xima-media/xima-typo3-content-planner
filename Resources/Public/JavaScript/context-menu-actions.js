@@ -23,6 +23,10 @@ class ContextMenuActions {
     ContextMenuActions.changeStatus(table, uid, "success");
   }
 
+  reset(table, uid) {
+    ContextMenuActions.changeStatus(table, uid, "");
+  }
+
   static changeStatus(table, uid, status) {
     if (table === 'pages') {
       new AjaxRequest(top.TYPO3.settings.RecordCommit.moduleUrl + "&data[" + table + "][" + uid + "][tx_ximacontentplanner_status]=" + status)

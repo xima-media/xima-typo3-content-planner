@@ -40,6 +40,12 @@ class StatusItemProvider extends AbstractProvider
                     'iconIdentifier' => 'flag-green',
                     'callbackAction' => 'success',
                 ],
+                'reset' => [
+                    'type' => 'item',
+                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset',
+                    'iconIdentifier' => 'actions-close',
+                    'callbackAction' => 'reset',
+                ],
             ],
         ],
     ];
