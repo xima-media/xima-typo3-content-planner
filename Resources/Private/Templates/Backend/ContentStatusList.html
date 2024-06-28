@@ -1,6 +1,7 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:dashboard="http://typo3.org/ns/TYPO3/CMS/Dashboard/ViewHelpers"
       xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:xcp="Xima\XimaContentPlanner\ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <div class="widget-content-title d-flex align-items-center">
@@ -68,11 +69,7 @@
         </f:then>
         <f:else>
             <div class="row widget-no-items-found">
-                <div class="col-xs-12">
-                    <p>
-                        <f:translate key="widgets.recentUpdates.empty" extensionName="XimaContentPlanner"/>
-                    </p>
-                </div>
+                <f:render partial="Empty" />
             </div>
         </f:else>
     </f:if>

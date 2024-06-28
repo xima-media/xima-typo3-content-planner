@@ -46,3 +46,4 @@ composer require xima/xima-content-planner
 This project is licensed
 under [GNU General Public License 2.0 (or later)](LICENSE.md).
 
+Relax icons by Chattapat from <a href="https://thenounproject.com/browse/icons/term/relax/" target="_blank" title="relax Icons">Noun Project</a> (CC BY 3.0)

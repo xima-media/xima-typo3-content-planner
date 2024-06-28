@@ -70,11 +70,7 @@
         </f:then>
         <f:else>
             <div class="row widget-no-items-found">
-                <div class="col-xs-12">
-                    <p>
-                        <f:translate key="widgets.recentUpdates.empty" extensionName="XimaContentPlanner"/>
-                    </p>
-                </div>
+                <f:render partial="Empty" />
             </div>
         </f:else>
     </f:if>
