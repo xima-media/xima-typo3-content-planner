@@ -27,6 +27,11 @@ services:
           -   name: event.listener
               identifier: 'xima-typo3-content-planner/backend/modify-page-tree-items'
 
+  Xima\XimaTypo3ContentPlanner\EventListener\ModifyButtonBarEventListener:
+    tags:
+      - name: event.listener
+        identifier: 'xima-typo3-content-planner/backend/modify-button-bar'
+
   dashboard.widget.ContentStatus-danger:
       class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
       arguments:
