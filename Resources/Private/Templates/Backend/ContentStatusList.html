@@ -1,13 +1,13 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:dashboard="http://typo3.org/ns/TYPO3/CMS/Dashboard/ViewHelpers"
       xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
-      xmlns:xcp="Xima\XimaContentPlanner\ViewHelpers"
+      xmlns:xcp="Xima\XimaTypo3ContentPlanner\ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <div class="widget-content-title d-flex align-items-center">
     <core:icon identifier="{icon}" size="small"/>
     <span class="mx-3">
-        <f:translate key="{configuration.title}" extensionName="XimaContentPlanner"/>
+        <f:translate key="{configuration.title}" extensionName="XimaTypo3ContentPlanner"/>
     </span>
 </div>
 <div class="widget-content-main"
@@ -19,18 +19,18 @@
                     <thead>
                     <tr>
                         <th>
-                            <f:translate key="widgets.contentStatus.header.title" extensionName="XimaContentPlanner"/>
+                            <f:translate key="widgets.contentStatus.header.title" extensionName="XimaTypo3ContentPlanner"/>
                         </th>
                         <th>
-                            <f:translate key="widgets.contentStatus.header.tstamp" extensionName="XimaContentPlanner"/>
+                            <f:translate key="widgets.contentStatus.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
                         </th>
                         <th>
                             <f:translate key="widgets.contentStatus.header.assignee"
-                                         extensionName="XimaContentPlanner"/>
+                                         extensionName="XimaTypo3ContentPlanner"/>
                         </th>
                         <th>
                             <f:translate key="widgets.contentStatus.header.comments"
-                                         extensionName="XimaContentPlanner"/>
+                                         extensionName="XimaTypo3ContentPlanner"/>
                         </th>
                     </tr>
                     </thead>
@@ -57,8 +57,8 @@
                                 </f:if>
                             </td>
                             <td>
-                                <f:if condition="{record.data.tx_ximacontentplanner_comments}">
-                                    {record.data.tx_ximacontentplanner_comments} <core:icon identifier="content-message" size="small"/>
+                                <f:if condition="{record.data.tx_ximatypo3contentplanner_comments}">
+                                    {record.data.tx_ximatypo3contentplanner_comments} <core:icon identifier="content-message" size="small"/>
                                 </f:if>
                             </td>
                         </tr>

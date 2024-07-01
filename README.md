@@ -2,7 +2,7 @@
 
 ![Extension icon](Resources/Public/Icons/Extension.svg)
 
-# TYPO3 extension `xima_content_planner`
+# TYPO3 extension `xima_typo3_content_planner`
 
 [![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/v12/orange)]()
 
@@ -27,7 +27,7 @@ This extension provides a page status functionality to support the planning of c
 ### Composer
 
 ``` bash
-composer require xima/xima-content-planner
+composer require xima/xima-typo3-content-planner
 ```
 
 # Usage

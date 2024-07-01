@@ -6,6 +6,6 @@ return [
         'backend.contextmenu',
     ],
     'imports' => [
-        '@xima/ximacontentplanner/' => 'EXT:xima_content_planner/Resources/Public/JavaScript/',
+        '@xima/ximatypo3contentplanner/' => 'EXT:xima_typo3_content_planner/Resources/Public/JavaScript/',
     ],
 ];

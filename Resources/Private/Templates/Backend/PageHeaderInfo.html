@@ -1,7 +1,7 @@
 <html xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers" data-namespace-typo3-fluid="true">
 
 <div class="accordion">
-    <div class="callout callout-{data.tx_ximacontentplanner_status}">
+    <div class="callout callout-{data.tx_ximatypo3contentplanner_status}">
         <div class="media">
             <div class="media-left">
                 <span class="icon-emphasized">
@@ -11,19 +11,19 @@
             <div class="media-body">
                 <div class="callout-body d-flex align-items-center">
                     <be:link.editRecord uid="{data.uid}" table="pages"
-                                        fields="tx_ximacontentplanner_status,tx_ximacontentplanner_assignee,tx_ximacontentplanner_comments"
+                                        fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
                                         returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
                                         title="Edit page properties" class="d-flex align-items-center  flex-grow-1">
                         Content Status: <strong>
                         <f:translate
-                            key="LLL:EXT:xima_content_planner/Resources/Private/Language/locallang_be.xlf:status.{data.tx_ximacontentplanner_status}"/>
+                            key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status.{data.tx_ximatypo3contentplanner_status}"/>
                     </strong>
                     </be:link.editRecord>
                     <div class="btn-group">
-                        <f:if condition="{data.tx_ximacontentplanner_assignee}">
+                        <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
                             <div class="ml-auto d-flex align-items-center btn btn-default btn-sm"
                                  style="background-color: transparent">
-                                <be:avatar backendUser="{data.tx_ximacontentplanner_assignee}" size="16"
+                                <be:avatar backendUser="{data.tx_ximatypo3contentplanner_assignee}" size="16"
                                            showIcon="true"/>
                                 <span class="mx-2">{assignee}</span>
                             </div>
@@ -40,7 +40,7 @@
                             </button>
                         </f:if>
                         <be:link.editRecord uid="{data.uid}" table="pages"
-                                            fields="tx_ximacontentplanner_status,tx_ximacontentplanner_assignee,tx_ximacontentplanner_comments"
+                                            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
                                             returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
                                             title="Edit page properties" class="btn btn-default btn-sm"
                                             style="background-color: transparent">

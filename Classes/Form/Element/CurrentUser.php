@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Form\Element;
+namespace Xima\XimaTypo3ContentPlanner\Form\Element;
 
 use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;

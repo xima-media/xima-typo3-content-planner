@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Widgets\Provider;
+namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
-use Xima\XimaContentPlanner\Configuration;
-use Xima\XimaContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class ContentCommentDataProvider implements ListDataProviderInterface
 {
@@ -17,7 +17,7 @@ class ContentCommentDataProvider implements ListDataProviderInterface
      */
     public function getItems(): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximacontentplanner_comment');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');
 
         $query = $queryBuilder
             ->select(
@@ -27,9 +27,9 @@ class ContentCommentDataProvider implements ListDataProviderInterface
                 'c.author as author',
                 'c.foreign_uid as pid',
                 'p.title as title',
-                'p.tx_ximacontentplanner_status as status',
+                'p.tx_ximatypo3contentplanner_status as status',
             )
-            ->from('tx_ximacontentplanner_comment', 'c')
+            ->from('tx_ximatypo3contentplanner_comment', 'c')
             ->leftJoin('c', 'pages', 'p', 'c.foreign_uid = p.uid')
             ->setMaxResults(20)
             ->orderBy('tstamp', 'DESC');

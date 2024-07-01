@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Utility;
+namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -26,11 +26,11 @@ class ContentUtility
 
     public static function getPageComments(int $pageId): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximacontentplanner_comment');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');
 
         $comments = $queryBuilder
             ->select('*')
-            ->from('tx_ximacontentplanner_comment')
+            ->from('tx_ximatypo3contentplanner_comment')
             ->where(
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($pageId, \PDO::PARAM_INT)),
                 $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter('pages', \PDO::PARAM_STR))

@@ -1,27 +1,27 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Access to an undefined property Xima\\\\XimaContentPlanner\\\\Backend\\\\ContextMenu\\\\ItemProviders\\\\StatusItemProvider\\:\\:\\$disabledItems\\.$#"
+			message: "#^Access to an undefined property Xima\\\\XimaTypo3ContentPlanner\\\\Backend\\\\ContextMenu\\\\ItemProviders\\\\StatusItemProvider\\:\\:\\$disabledItems\\.$#"
 			count: 1
 			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
 
 		-
-			message: "#^Access to an undefined property Xima\\\\XimaContentPlanner\\\\Backend\\\\ContextMenu\\\\ItemProviders\\\\StatusItemProvider\\:\\:\\$table\\.$#"
+			message: "#^Access to an undefined property Xima\\\\XimaTypo3ContentPlanner\\\\Backend\\\\ContextMenu\\\\ItemProviders\\\\StatusItemProvider\\:\\:\\$table\\.$#"
 			count: 1
 			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
 
 		-
-			message: "#^Call to an undefined method Xima\\\\XimaContentPlanner\\\\Backend\\\\ContextMenu\\\\ItemProviders\\\\StatusItemProvider\\:\\:initDisabledItems\\(\\)\\.$#"
+			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Backend\\\\ContextMenu\\\\ItemProviders\\\\StatusItemProvider\\:\\:initDisabledItems\\(\\)\\.$#"
 			count: 1
 			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
 
 		-
-			message: "#^Call to an undefined method Xima\\\\XimaContentPlanner\\\\Backend\\\\ContextMenu\\\\ItemProviders\\\\StatusItemProvider\\:\\:prepareItems\\(\\)\\.$#"
+			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Backend\\\\ContextMenu\\\\ItemProviders\\\\StatusItemProvider\\:\\:prepareItems\\(\\)\\.$#"
 			count: 1
 			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
 
 		-
-			message: "#^Call to an undefined method Xima\\\\XimaContentPlanner\\\\Controller\\\\TreeController\\:\\:getBackendUser\\(\\)\\.$#"
+			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Controller\\\\TreeController\\:\\:getBackendUser\\(\\)\\.$#"
 			count: 1
 			path: Classes/Controller/TreeController.php
 
@@ -36,7 +36,7 @@ parameters:
 			path: Classes/Controller/TreeController.php
 
 		-
-			message: "#^Method Xima\\\\XimaContentPlanner\\\\Controller\\\\TreeController\\:\\:initializePageTreeRepository\\(\\) has invalid return type TYPO3\\\\CMS\\\\Backend\\\\Tree\\\\Repository\\\\PageTreeRepository\\.$#"
+			message: "#^Method Xima\\\\XimaTypo3ContentPlanner\\\\Controller\\\\TreeController\\:\\:initializePageTreeRepository\\(\\) has invalid return type TYPO3\\\\CMS\\\\Backend\\\\Tree\\\\Repository\\\\PageTreeRepository\\.$#"
 			count: 1
 			path: Classes/Controller/TreeController.php
 
@@ -71,7 +71,7 @@ parameters:
 			path: Classes/EventListener/AfterPageTreeItemsPreparedListener.php
 
 		-
-			message: "#^Parameter \\$event of method Xima\\\\XimaContentPlanner\\\\EventListener\\\\AfterPageTreeItemsPreparedListener\\:\\:__invoke\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\AfterPageTreeItemsPreparedEvent\\.$#"
+			message: "#^Parameter \\$event of method Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\AfterPageTreeItemsPreparedListener\\:\\:__invoke\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\AfterPageTreeItemsPreparedEvent\\.$#"
 			count: 1
 			path: Classes/EventListener/AfterPageTreeItemsPreparedListener.php
 
@@ -106,27 +106,27 @@ parameters:
 			path: Classes/EventListener/DrawBackendHeaderListener.php
 
 		-
-			message: "#^Parameter \\$event of method Xima\\\\XimaContentPlanner\\\\EventListener\\\\DrawBackendHeaderListener\\:\\:__invoke\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\ModifyPageLayoutContentEvent\\.$#"
+			message: "#^Parameter \\$event of method Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\DrawBackendHeaderListener\\:\\:__invoke\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\ModifyPageLayoutContentEvent\\.$#"
 			count: 1
 			path: Classes/EventListener/DrawBackendHeaderListener.php
 
 		-
-			message: "#^Access to an undefined property Xima\\\\XimaContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:\\$data\\.$#"
+			message: "#^Access to an undefined property Xima\\\\XimaTypo3ContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:\\$data\\.$#"
 			count: 1
 			path: Classes/Form/Element/CurrentUser.php
 
 		-
-			message: "#^Call to an undefined method Xima\\\\XimaContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:initializeResultArray\\(\\)\\.$#"
+			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:initializeResultArray\\(\\)\\.$#"
 			count: 1
 			path: Classes/Form/Element/CurrentUser.php
 
 		-
-			message: "#^Call to an undefined method Xima\\\\XimaContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:mergeChildReturnIntoExistingResult\\(\\)\\.$#"
+			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:mergeChildReturnIntoExistingResult\\(\\)\\.$#"
 			count: 1
 			path: Classes/Form/Element/CurrentUser.php
 
 		-
-			message: "#^Call to an undefined method Xima\\\\XimaContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:renderFieldInformation\\(\\)\\.$#"
+			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:renderFieldInformation\\(\\)\\.$#"
 			count: 1
 			path: Classes/Form/Element/CurrentUser.php
 
@@ -176,32 +176,32 @@ parameters:
 			path: Classes/Widgets/AbstractWidget.php
 
 		-
-			message: "#^Parameter \\$buttonProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface\\.$#"
+			message: "#^Parameter \\$buttonProvider of method Xima\\\\XimaTypo3ContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface\\.$#"
 			count: 1
 			path: Classes/Widgets/AbstractWidget.php
 
 		-
-			message: "#^Parameter \\$configuration of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface\\.$#"
+			message: "#^Parameter \\$configuration of method Xima\\\\XimaTypo3ContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface\\.$#"
 			count: 1
 			path: Classes/Widgets/AbstractWidget.php
 
 		-
-			message: "#^Parameter \\$dataProvider of method Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
+			message: "#^Parameter \\$dataProvider of method Xima\\\\XimaTypo3ContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
 			count: 1
 			path: Classes/Widgets/AbstractWidget.php
 
 		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$buttonProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface as its type\\.$#"
+			message: "#^Property Xima\\\\XimaTypo3ContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$buttonProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ButtonProviderInterface as its type\\.$#"
 			count: 1
 			path: Classes/Widgets/AbstractWidget.php
 
 		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$configuration has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface as its type\\.$#"
+			message: "#^Property Xima\\\\XimaTypo3ContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$configuration has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\WidgetConfigurationInterface as its type\\.$#"
 			count: 1
 			path: Classes/Widgets/AbstractWidget.php
 
 		-
-			message: "#^Property Xima\\\\XimaContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$dataProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface as its type\\.$#"
+			message: "#^Property Xima\\\\XimaTypo3ContentPlanner\\\\Widgets\\\\AbstractWidget\\:\\:\\$dataProvider has unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface as its type\\.$#"
 			count: 1
 			path: Classes/Widgets/AbstractWidget.php
 

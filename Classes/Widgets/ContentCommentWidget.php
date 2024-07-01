@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Widgets;
+namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 class ContentCommentWidget extends AbstractWidget
 {
     public function renderWidgetContent(): string
     {
         return $this->render(
-            'EXT:xima_content_planner/Resources/Private/Templates/Backend/ContentCommentList.html',
+            'EXT:xima_typo3_content_planner/Resources/Private/Templates/Backend/ContentCommentList.html',
             [
                 'configuration' => $this->configuration,
                 'records' => $this->dataProvider->getItems(),

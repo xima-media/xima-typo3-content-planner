@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Widgets;
+namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -11,7 +11,7 @@ use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use Xima\XimaContentPlanner\Widgets\Provider\ContentNoteDataProvider;
+use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentNoteDataProvider;
 
 abstract class AbstractWidget implements WidgetInterface
 {
@@ -32,8 +32,8 @@ abstract class AbstractWidget implements WidgetInterface
         // preparing view
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         $view->setFormat('html');
-        $view->setTemplateRootPaths(['EXT:xima_content_planner/Resources/Private/Templates/']);
-        $view->setPartialRootPaths(['EXT:xima_content_planner/Resources/Private/Partials/']);
+        $view->setTemplateRootPaths(['EXT:xima_typo3_content_planner/Resources/Private/Templates/']);
+        $view->setPartialRootPaths(['EXT:xima_typo3_content_planner/Resources/Private/Partials/']);
         $view->setTemplatePathAndFilename($template);
 
         $view->assignMultiple($templateArguments);

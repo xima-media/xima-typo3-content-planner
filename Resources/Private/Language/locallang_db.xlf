@@ -3,22 +3,22 @@
 	<file source-language="en" datatype="plaintext" original="messages">
 		<header/>
 		<body>
-			<trans-unit id="pages.tx_ximacontentplanner_status">
+			<trans-unit id="pages.tx_ximatypo3contentplanner_status">
 				<source>Status</source>
 			</trans-unit>
-			<trans-unit id="pages.tx_ximacontentplanner_comments">
+			<trans-unit id="pages.tx_ximatypo3contentplanner_comments">
 				<source>Comments</source>
 			</trans-unit>
-			<trans-unit id="pages.tx_ximacontentplanner_assignee">
+			<trans-unit id="pages.tx_ximatypo3contentplanner_assignee">
 				<source>Assignee</source>
 			</trans-unit>
-			<trans-unit id="tx_ximacontentplanner_comment.content">
+			<trans-unit id="tx_ximatypo3contentplanner_comment.content">
 				<source>Content</source>
 			</trans-unit>
-			<trans-unit id="tx_ximacontentplanner_comment.author">
+			<trans-unit id="tx_ximatypo3contentplanner_comment.author">
 				<source>Author</source>
 			</trans-unit>
-			<trans-unit id="be_users.tx_ximacontentplanner_hide">
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide">
 				<source>Disable the display of content planner status</source>
 			</trans-unit>
 			<trans-unit id="permission.group">

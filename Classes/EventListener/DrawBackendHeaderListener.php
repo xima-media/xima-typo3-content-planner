@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\EventListener;
+namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\ModifyPageLayoutContentEvent;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use Xima\XimaContentPlanner\Configuration;
-use Xima\XimaContentPlanner\Utility\ContentUtility;
-use Xima\XimaContentPlanner\Utility\VisibilityUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 /*
  * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Events/Events/Backend/ModifyPageLayoutContentEvent.html#modifypagelayoutcontentevent
@@ -33,18 +33,18 @@ final class DrawBackendHeaderListener
         if (empty($pageInfo)) {
             return;
         }
-        if (!$pageInfo['tx_ximacontentplanner_status']) {
+        if (!$pageInfo['tx_ximatypo3contentplanner_status']) {
             return;
         }
 
         $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplatePathAndFilename('EXT:xima_content_planner/Resources/Private/Templates/Backend/PageHeaderInfo.html');
+        $view->setTemplatePathAndFilename('EXT:xima_typo3_content_planner/Resources/Private/Templates/Backend/PageHeaderInfo.html');
 
         $view->assignMultiple([
             'data' => $pageInfo,
-            'assignee' => ContentUtility::getBackendUsernameById((int)$pageInfo['tx_ximacontentplanner_assignee']),
-            'icon' => Configuration::STATUS_ICONS[$pageInfo['tx_ximacontentplanner_status']],
-            'comments' => $pageInfo['tx_ximacontentplanner_comments'] ? ContentUtility::getPageComments($id) : [],
+            'assignee' => ContentUtility::getBackendUsernameById((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
+            'icon' => Configuration::STATUS_ICONS[$pageInfo['tx_ximatypo3contentplanner_status']],
+            'comments' => $pageInfo['tx_ximatypo3contentplanner_comments'] ? ContentUtility::getPageComments($id) : [],
         ]);
         $event->addHeaderContent($view->render());
     }

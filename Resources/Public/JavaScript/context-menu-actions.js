@@ -1,5 +1,5 @@
 /**
- * Module: @xima/ximacontentplanner/context-menu-actions
+ * Module: @xima/ximatypo3contentplanner/context-menu-actions
  *
  * JavaScript to handle the click action of the "Hello World" context menu item
  */
@@ -29,7 +29,7 @@ class ContextMenuActions {
 
   static changeStatus(table, uid, status) {
     if (table === 'pages') {
-      new AjaxRequest(top.TYPO3.settings.RecordCommit.moduleUrl + "&data[" + table + "][" + uid + "][tx_ximacontentplanner_status]=" + status)
+      new AjaxRequest(top.TYPO3.settings.RecordCommit.moduleUrl + "&data[" + table + "][" + uid + "][tx_ximatypo3contentplanner_status]=" + status)
         .get()
         .then(function (result) {
           if (result.response.ok) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\ViewHelpers;
+namespace Xima\XimaTypo3ContentPlanner\ViewHelpers;
 
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;

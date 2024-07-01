@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Widgets\Provider;
+namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
-use Xima\XimaContentPlanner\Domain\Model\Dto\HistoryItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\HistoryItem;
 
 class ContentUpdateDataProvider implements ListDataProviderInterface
 {
@@ -33,7 +33,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
             ->leftJoin('h', 'pages', 'p', 'h.recuid = p.uid')
             ->leftJoin('h', 'be_users', 'b', 'h.userid = b.uid')
             ->setMaxResults(20)
-            ->andWhere('(h.history_data LIKE "%tx_ximacontentplanner%" AND h.tablename = "pages") OR (h.tablename = "tx_ximacontentplanner_comment")')
+            ->andWhere('(h.history_data LIKE "%tx_ximatypo3contentplanner%" AND h.tablename = "pages") OR (h.tablename = "tx_ximatypo3contentplanner_comment")')
             ->orderBy('h.tstamp', 'DESC');
 
         $items = [];

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Backend\ContextMenu\ItemProviders;
+namespace Xima\XimaTypo3ContentPlanner\Backend\ContextMenu\ItemProviders;
 
 use TYPO3\CMS\Backend\ContextMenu\ItemProviders\AbstractProvider;
-use Xima\XimaContentPlanner\Configuration;
-use Xima\XimaContentPlanner\Utility\VisibilityUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 class StatusItemProvider extends AbstractProvider
 {
@@ -86,7 +86,7 @@ class StatusItemProvider extends AbstractProvider
     protected function getAdditionalAttributes(string $itemName): array
     {
         return [
-            'data-callback-module' => '@xima/ximacontentplanner/context-menu-actions',
+            'data-callback-module' => '@xima/ximatypo3contentplanner/context-menu-actions',
         ];
     }
 

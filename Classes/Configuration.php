@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner;
+namespace Xima\XimaTypo3ContentPlanner;
 
 class Configuration
 {
-    final public const EXT_KEY = 'xima_content_planner';
-    final public const EXT_NAME = 'XimaContentPlanner';
+    final public const EXT_KEY = 'xima_typo3_content_planner';
+    final public const EXT_NAME = 'XimaTypo3ContentPlanner';
 
     final public const STATUS_DANGER = 'danger';
     final public const STATUS_INFO = 'info';

@@ -1,14 +1,14 @@
 <?php
 
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use Xima\XimaContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 defined('TYPO3') or die('Access denied.');
 
 call_user_func(function () {
     $temporaryColumns = [
-        'tx_ximacontentplanner_status' => [
-            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximacontentplanner_status',
+        'tx_ximatypo3contentplanner_status' => [
+            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
             'config' => [
                 'items' => [
                     ['-- stateless --', null],
@@ -26,12 +26,12 @@ call_user_func(function () {
                 ],
             ],
         ],
-        'tx_ximacontentplanner_comments' => [
-            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximacontentplanner_comments',
+        'tx_ximatypo3contentplanner_comments' => [
+            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_comments',
             'config' => [
                 'foreign_field' => 'foreign_uid',
                 'foreign_sortby' => 'sorting',
-                'foreign_table' => 'tx_ximacontentplanner_comment',
+                'foreign_table' => 'tx_ximatypo3contentplanner_comment',
                 'foreign_table_field' => 'foreign_table',
                 'type' => 'inline',
                 'appearance' => [
@@ -48,9 +48,9 @@ call_user_func(function () {
                 ],
             ],
         ],
-        'tx_ximacontentplanner_assignee' => [
+        'tx_ximatypo3contentplanner_assignee' => [
             'exclude' => 1,
-            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximacontentplanner_assignee',
+            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee',
             'config' => [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
@@ -66,8 +66,8 @@ call_user_func(function () {
         ],
     ];
 
-    $GLOBALS['TCA']['pages']['palettes']['tx_ximacontentplanner'] = [
-        'showitem' => 'tx_ximacontentplanner_status,tx_ximacontentplanner_assignee,--linebreak--,tx_ximacontentplanner_comments',
+    $GLOBALS['TCA']['pages']['palettes']['tx_ximatypo3contentplanner'] = [
+        'showitem' => 'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,--linebreak--,tx_ximatypo3contentplanner_comments',
     ];
     ExtensionManagementUtility::addTCAcolumns(
         'pages',
@@ -75,6 +75,6 @@ call_user_func(function () {
     );
     ExtensionManagementUtility::addToAllTCAtypes(
         'pages',
-        '--div--;Content  Planner,--palette--;;tx_ximacontentplanner'
+        '--div--;Content  Planner,--palette--;;tx_ximatypo3contentplanner'
     );
 });

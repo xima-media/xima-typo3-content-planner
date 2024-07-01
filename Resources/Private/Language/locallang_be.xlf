@@ -28,22 +28,22 @@
 				<source>Content Planner Note</source>
 			</trans-unit>
 			<!-- history -->
-			<trans-unit id="history.pages.2.set.tx_ximacontentplanner_status">
+			<trans-unit id="history.pages.2.set.tx_ximatypo3contentplanner_status">
 				<source><![CDATA[The <em>status</em> was set to <strong>%s</strong>.]]></source>
 			</trans-unit>
-			<trans-unit id="history.pages.2.unset.tx_ximacontentplanner_status">
+			<trans-unit id="history.pages.2.unset.tx_ximatypo3contentplanner_status">
 				<source><![CDATA[The <em>status</em>  was unset from <strong>%s</strong>.]]></source>
 			</trans-unit>
-			<trans-unit id="history.pages.2.change.tx_ximacontentplanner_status">
+			<trans-unit id="history.pages.2.change.tx_ximatypo3contentplanner_status">
 				<source><![CDATA[The <em>status</em>  was changed from <strong>%s</strong> to <strong>%s</strong>.]]></source>
 			</trans-unit>
-			<trans-unit id="history.pages.2.set.tx_ximacontentplanner_assignee">
+			<trans-unit id="history.pages.2.set.tx_ximatypo3contentplanner_assignee">
 				<source><![CDATA[The <em>assignee</em> was set to <strong>%s</strong>.]]></source>
 			</trans-unit>
-			<trans-unit id="history.pages.2.unset.tx_ximacontentplanner_assignee">
+			<trans-unit id="history.pages.2.unset.tx_ximatypo3contentplanner_assignee">
 				<source><![CDATA[The <em>assignee</em> was unset from <strong>%s</strong>.]]></source>
 			</trans-unit>
-			<trans-unit id="history.pages.2.change.tx_ximacontentplanner_assignee">
+			<trans-unit id="history.pages.2.change.tx_ximatypo3contentplanner_assignee">
 				<source><![CDATA[The <em>assignee</em> was changed from <strong>%s</strong> to <strong>%s</strong>.]]></source>
 			</trans-unit>
 			<trans-unit id="history.comment.1">

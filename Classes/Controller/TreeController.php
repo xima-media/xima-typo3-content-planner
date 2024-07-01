@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Controller;
+namespace Xima\XimaTypo3ContentPlanner\Controller;
 
 use TYPO3\CMS\Backend\Tree\Repository\PageTreeRepository;
 use TYPO3\CMS\Core\Database\Query\Restriction\DocumentTypeExclusionRestriction;
@@ -10,8 +10,8 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * XClass the original \TYPO3\CMS\Backend\Controller\Page\TreeController to add the tx_ximacontentplanner_status field to additionalFieldsToQuery of the PageTreeRepository
- * Will be used within the AfterPageTreeItemsPreparedListener to display the tx_ximacontentplanner_status in the page tree
+ * XClass the original \TYPO3\CMS\Backend\Controller\Page\TreeController to add the tx_ximatypo3contentplanner_status field to additionalFieldsToQuery of the PageTreeRepository
+ * Will be used within the AfterPageTreeItemsPreparedListener to display the tx_ximatypo3contentplanner_status in the page tree
  */
 class TreeController extends \TYPO3\CMS\Backend\Controller\Page\TreeController
 {
@@ -29,7 +29,7 @@ class TreeController extends \TYPO3\CMS\Backend\Controller\Page\TreeController
         $pageTreeRepository = GeneralUtility::makeInstance(
             PageTreeRepository::class,
             $backendUser->workspace,
-            ['subtitle', 'tx_ximacontentplanner_status'],
+            ['subtitle', 'tx_ximatypo3contentplanner_status'],
             $additionalQueryRestrictions
         );
         $pageTreeRepository->setAdditionalWhereClause($backendUser->getPagePermsClause(Permission::PAGE_SHOW));

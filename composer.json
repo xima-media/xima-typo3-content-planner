@@ -1,5 +1,5 @@
 {
-	"name": "xima/xima-content-planner",
+	"name": "xima/xima-typo3-content-planner",
 	"description": "This extension provides a page status functionality to support the planning of content work.",
 	"type": "typo3-cms-extension",
 	"license": [
@@ -24,12 +24,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Xima\\XimaContentPlanner\\": "Classes/"
+			"Xima\\XimaTypo3ContentPlanner\\": "Classes/"
 		}
 	},
 	"extra": {
 		"typo3/cms": {
-			"extension-key": "xima_content_planner"
+			"extension-key": "xima_typo3_content_planner"
 		}
 	},
 	"config": {

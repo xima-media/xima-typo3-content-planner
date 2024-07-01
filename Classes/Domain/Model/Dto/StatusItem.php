@@ -1,9 +1,9 @@
 <?php
 
-namespace Xima\XimaContentPlanner\Domain\Model\Dto;
+namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
-use Xima\XimaContentPlanner\Configuration;
-use Xima\XimaContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class StatusItem
 {
@@ -19,7 +19,7 @@ class StatusItem
 
     public function getAssignedToCurrentUser(): bool
     {
-        return ((int)$this->data['tx_ximacontentplanner_assignee']) === $GLOBALS['BE_USER']->user['uid'];
+        return ((int)$this->data['tx_ximatypo3contentplanner_assignee']) === $GLOBALS['BE_USER']->user['uid'];
     }
 
     public function getPageTitle(): ?string
@@ -29,21 +29,21 @@ class StatusItem
 
     public function getPageStatus(): ?string
     {
-        return $this->data['tx_ximacontentplanner_status'];
+        return $this->data['tx_ximatypo3contentplanner_status'];
     }
 
     public function getPageStatusIcon(): string
     {
-        return Configuration::STATUS_ICONS[$this->data['tx_ximacontentplanner_status']];
+        return Configuration::STATUS_ICONS[$this->data['tx_ximatypo3contentplanner_status']];
     }
 
     public function getPageAssignee(): ?string
     {
-        return $this->data['tx_ximacontentplanner_assignee'];
+        return $this->data['tx_ximatypo3contentplanner_assignee'];
     }
 
     public function getPageAssigneeName(): ?string
     {
-        return ContentUtility::getBackendUsernameById((int)$this->data['tx_ximacontentplanner_assignee']);
+        return ContentUtility::getBackendUsernameById((int)$this->data['tx_ximatypo3contentplanner_assignee']);
     }
 }

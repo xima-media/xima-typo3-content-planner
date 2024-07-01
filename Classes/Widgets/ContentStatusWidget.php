@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Widgets;
+namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
-use Xima\XimaContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 class ContentStatusWidget extends AbstractWidget
 {
@@ -15,7 +15,7 @@ class ContentStatusWidget extends AbstractWidget
         $maxResults = isset($this->options['maxResults']) ? (int)$this->options['maxResults'] : 20;
         $icon = $status ? Configuration::STATUS_ICONS[$status] : 'status-user-backend';
         return $this->render(
-            'EXT:xima_content_planner/Resources/Private/Templates/Backend/ContentStatusList.html',
+            'EXT:xima_typo3_content_planner/Resources/Private/Templates/Backend/ContentStatusList.html',
             [
                 'configuration' => $this->configuration,
                 'records' => $this->dataProvider->getItemsByDemand($status, $assignee, $maxResults),

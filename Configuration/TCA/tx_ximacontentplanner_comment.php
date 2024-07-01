@@ -1,6 +1,6 @@
 <?php
 
-use Xima\XimaContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 return [
     'ctrl' => [
@@ -42,7 +42,7 @@ return [
         ],
         'content' => [
             'exclude' => 1,
-            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:tx_ximacontentplanner_comment.content',
+            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:tx_ximatypo3contentplanner_comment.content',
             'config' => [
                 'enableRichtext' => true,
                 'type' => 'text',
@@ -54,7 +54,7 @@ return [
         ],
         'author' => [
             'exclude' => 1,
-            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:tx_ximacontentplanner_comment.author',
+            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:tx_ximatypo3contentplanner_comment.author',
             'config' => [
                 'type' => 'user',
                 'readOnly' => true,

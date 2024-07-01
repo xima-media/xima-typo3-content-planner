@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Widgets\Provider;
+namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
-use Xima\XimaContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 class StatusOverviewDataProvider implements ChartDataProviderInterface
 {
@@ -44,7 +44,7 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
             ->from('pages')
             ->andWhere(
                 $queryBuilder->expr()->eq(
-                    'tx_ximacontentplanner_status',
+                    'tx_ximatypo3contentplanner_status',
                     $queryBuilder->createNamedParameter($status, Connection::PARAM_STR)
                 ),
             )
@@ -55,7 +55,7 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
     protected function calculateStatusCounts(): void
     {
         foreach (Configuration::STATUS_COLORS as $status => $color) {
-            $this->labels[] = $this->getLanguageService()->sL('LLL:EXT:xima_content_planner/Resources/Private/Language/locallang_be.xlf:status.' . $status);
+            $this->labels[] = $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status.' . $status);
             $this->data[] = $this->countPageStatus($status);
             $this->colors[] = $color;
         }

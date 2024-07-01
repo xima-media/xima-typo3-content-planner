@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Xima\XimaContentPlanner\Widgets\Provider;
+namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
-use Xima\XimaContentPlanner\Domain\Model\Dto\StatusItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 
 class ContentStatusDataProvider implements ListDataProviderInterface
 {
@@ -30,22 +30,22 @@ class ContentStatusDataProvider implements ListDataProviderInterface
                 'uid',
                 'title',
                 'tstamp',
-                'tx_ximacontentplanner_status',
-                'tx_ximacontentplanner_assignee',
-                'tx_ximacontentplanner_comments',
+                'tx_ximatypo3contentplanner_status',
+                'tx_ximatypo3contentplanner_assignee',
+                'tx_ximatypo3contentplanner_comments',
             )
             ->from('pages')
             ->setMaxResults($maxResults)
-            ->andWhere('tx_ximacontentplanner_status IS NOT NULL')
+            ->andWhere('tx_ximatypo3contentplanner_status IS NOT NULL')
             ->orderBy('tstamp', 'DESC');
 
         if ($status) {
-            $query->andWhere('tx_ximacontentplanner_status = :status')
+            $query->andWhere('tx_ximatypo3contentplanner_status = :status')
                 ->setParameter('status', $status);
         }
 
         if ($assignee) {
-            $query->andWhere('tx_ximacontentplanner_assignee = :assignee')
+            $query->andWhere('tx_ximatypo3contentplanner_assignee = :assignee')
                 ->setParameter('assignee', $assignee);
         }
 
