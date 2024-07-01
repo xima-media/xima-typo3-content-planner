@@ -20,7 +20,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
         return $this->fetchUpdateData();
     }
 
-    public function fetchUpdateData(bool $relevanteUpdatesForCurrentUser = false, ?int $tstamp = null, ?int $maxItems = null): array
+    public function fetchUpdateData(bool $relevanteUpdatesForCurrentUser = false, ?int $beUser = null, ?int $tstamp = null, ?int $maxItems = null): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_history');
 
@@ -50,7 +50,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
             $query
                 ->andWhere('h.userid != :userid')
                 ->andWhere('p.tx_ximatypo3contentplanner_assignee = :userid')
-                ->setParameter('userid', $GLOBALS['BE_USER']->user['uid']);
+                ->setParameter('userid', $beUser ?: $GLOBALS['BE_USER']->user['uid']);
         }
 
         if ($tstamp) {
@@ -70,7 +70,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
         }
 
         if ($relevanteUpdatesForCurrentUser) {
-            $additionalItems = $this->getRecentRelevantCommentsForUser();
+            $additionalItems = $this->getRecentRelevantCommentsForUser($beUser);
             $items = array_merge($items, $additionalItems);
 
             // sort by tstamp
@@ -89,7 +89,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
     /*
      * It's a workaround to fetch all comments and afterwards filter them by assigned pages, because this information is serialized and cannot be filtered within the query
      */
-    private function getRecentRelevantCommentsForUser(): array
+    private function getRecentRelevantCommentsForUser(?int $beUser = null): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_history');
 
@@ -109,7 +109,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
             ->andWhere('h.userid != :userid')
             ->andWhere('h.tablename = "tx_ximatypo3contentplanner_comment"')
             ->orderBy('h.tstamp', 'DESC')
-            ->setParameter('userid', $GLOBALS['BE_USER']->user['uid']);
+            ->setParameter('userid', $beUser ?: $GLOBALS['BE_USER']->user['uid']);
 
         $assignedPages = ContentUtility::getAssignedPages();
         // only get uids from assigned pages

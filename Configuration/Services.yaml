@@ -32,6 +32,12 @@ services:
       - name: event.listener
         identifier: 'xima-typo3-content-planner/backend/modify-button-bar'
 
+  Xima\XimaTypo3ContentPlanner\Command\NotifyUpdateCommand:
+    tags:
+      - name: console.command
+        command: 'content-planner:notifiy-update'
+        description: 'A command to notify users about relevant updates in the content planner.'
+
   dashboard.widget.ContentStatus-danger:
       class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
       arguments:
