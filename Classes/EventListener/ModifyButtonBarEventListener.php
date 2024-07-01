@@ -11,6 +11,7 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyButtonBarEventListener
 {
@@ -20,6 +21,10 @@ final class ModifyButtonBarEventListener
 
     public function __invoke(ModifyButtonBarEvent $event): void
     {
+        if (!VisibilityUtility::checkContentStatusVisibility()) {
+            return;
+        }
+
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
         $pageId = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? 0);
