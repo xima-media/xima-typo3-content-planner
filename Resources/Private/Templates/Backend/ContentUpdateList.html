@@ -13,60 +13,35 @@
      style="--mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 0) 0) 100% 90% / 100% 100% repeat-x;-webkit-mask: var(--mask);mask: var(--mask);">
     <f:if condition="{records}">
         <f:then>
-            <div class="widget-table-wrapper">
-                <table class="widget-table">
-                    <thead>
-                    <tr>
-                        <th>
-                            <f:translate key="widgets.contentStatus.header.title" extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                        <th>
-                            <f:translate key="widgets.contentStatus.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                        <th>
-                            <f:translate key="widgets.contentStatus.header.user"
-                                         extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                        <th>
-                            <f:translate key="widgets.contentStatus.header.change"
-                                         extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <f:for each="{records}" as="record">
-                        <f:if condition="{record.historyData}">
-                        <tr {f:if(condition: record.assignedToCurrentUser, then: 'style="background-color:#FFF3E0"')}>
-                            <td>
-                                <f:be.link route="web_layout" parameters="{id: record.data.recuid}" title="{record.data.title}">
-                                    <f:if condition="{record.pageStatus}">
-                                    <span title="{record.pageStatus}">
-                                        <core:icon identifier="{record.pageStatusIcon}" size="small"/>
-                                    </span>
-                                    </f:if>
-                                    <strong>{f:if(condition: record.pageTitle, then: '{record.pageTitle -> f:format.raw()}',
-                                        else: '[{f:translate(key:
-                                        \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}</strong>
-                                </f:be.link>
-                            </td>
-                            <td>
-                                <f:format.date format="d.m.Y H:i">{record.data.tstamp}</f:format.date>
-                            </td>
-                            <td style="display: flex;gap: 10px;">
-                                <f:if condition="{record.data.userid}">
-                                    <be:avatar backendUser="{record.data.userid}" size="20"/>
-                                    {record.data.username}
-                                </f:if>
-                            </td>
-                            <td>
-                                {record.historyData -> f:format.raw()}
-                            </td>
-                        </tr>
-                        </f:if>
-                    </f:for>
-                    </tbody>
-                </table>
-            </div>
+            <ul style="list-style:none;padding:0;margin:-20px;">
+            <f:for each="{records}" as="record">
+                <li style="padding:20px;border-bottom:1px solid #e0e0e0;{f:if(condition: record.assignedToCurrentUser, then: 'background-color:#FFF3E0;')}">
+                {record.historyData -> f:format.raw()}
+                <f:if condition="{record.data.userid}">
+                    by
+                    <div style="display:inline-block;">
+                        <be:avatar backendUser="{record.data.userid}" size="10" showIcon="true"/>
+                    </div>
+                    <u>{record.data.username}</u>
+                </f:if>
+                <span class="text-muted small">{record.timeAgo}</span>
+                <br/>
+                <div class="mt-2 small">
+                    <f:be.link route="web_layout" parameters="{id: record.data.recuid}" title="{record.data.title}">
+                    <core:iconForRecord table="pages" row="{record.data}"/>
+                    <f:if condition="{record.pageStatus}">
+                            <span title="{record.pageStatus}">
+                                <core:icon identifier="{record.pageStatusIcon}" size="small"/>
+                            </span>
+                    </f:if>
+                    {f:if(condition: record.pageTitle, then: '{record.pageTitle -> f:format.raw()}',
+                    else: '[{f:translate(key:
+                    \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}
+                    </f:be.link>
+                </div>
+                </li>
+            </f:for>
+            </ul>
         </f:then>
         <f:else>
             <div class="row widget-no-items-found">

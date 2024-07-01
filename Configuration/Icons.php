@@ -9,6 +9,14 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:xima_typo3_content_planner/Resources/Public/Icons/flag-black.svg',
     ],
+    'flag-white' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:xima_typo3_content_planner/Resources/Public/Icons/flag-white.svg',
+    ],
+    'flag-toolbar' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:xima_typo3_content_planner/Resources/Public/Icons/flag-toolbar.svg',
+    ],
     'flag-blue' => [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:xima_typo3_content_planner/Resources/Public/Icons/flag-blue.svg',

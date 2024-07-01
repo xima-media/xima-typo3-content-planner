@@ -24,6 +24,21 @@ class ContentUtility
         return $page;
     }
 
+    public static function getAssignedPages(): array|bool
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+
+        $pages = $queryBuilder
+            ->select('*')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_assignee', $queryBuilder->createNamedParameter($GLOBALS['BE_USER']->user['uid'], \PDO::PARAM_INT))
+            )
+            ->executeQuery()->fetchAllAssociative();
+
+        return $pages;
+    }
+
     public static function getPageComments(int $pageId): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');

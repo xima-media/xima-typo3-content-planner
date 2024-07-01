@@ -38,7 +38,7 @@
                     <f:for each="{records}" as="record">
                         <tr {f:if(condition: record.assignedToCurrentUser, then: 'style="background-color:#FFF3E0"')}>
                             <td>
-                                <f:be.link route="web_layout" parameters="{id: record.uid}" title="{record.title}">
+                                <f:be.link route="web_layout" parameters="{id: record.data.uid}" title="{record.title}">
                                     <span title="{record.pageStatus}">
                                         <core:icon identifier="{record.pageStatusIcon}" size="small"/>
                                     </span>

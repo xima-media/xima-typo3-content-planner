@@ -96,6 +96,44 @@
 			<trans-unit id="widgets.contentStatus.header.change">
 				<source>Change note</source>
 			</trans-unit>
+
+			<!-- time ago -->
+			<trans-unit id="timeAgo.years">
+				<source>%s years ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.year">
+				<source>%s year ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.months">
+				<source>%s months ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.month">
+				<source>%s month ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.days">
+				<source>%s days ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.day">
+				<source>%s day ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.hours">
+				<source>%s hours ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.hour">
+				<source>%s hour ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.minutes">
+				<source>%s minutes ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.minute">
+				<source>%s minute ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.seconds">
+				<source>%s seconds ago</source>
+			</trans-unit>
+			<trans-unit id="timeAgo.second">
+				<source>%s second ago</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

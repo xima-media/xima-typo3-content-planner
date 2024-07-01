@@ -8,6 +8,15 @@ services:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
 
+  cache.ximatypo3contentplanner_toolbarcache:
+    class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
+    factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
+    arguments: [ 'ximatypo3contentplanner_toolbarcache' ]
+
+  Xima\XimaTypo3ContentPlanner\Backend\ToolbarItems\UpdateItem:
+    arguments:
+      $cache: '@cache.ximatypo3contentplanner_toolbarcache'
+
   Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener:
       tags:
           -   name: event.listener

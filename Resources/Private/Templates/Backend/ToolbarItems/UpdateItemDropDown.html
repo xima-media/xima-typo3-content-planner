@@ -1,0 +1,47 @@
+<html data-namespace-typo3-fluid="true"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers">
+
+<p class="h3 dropdown-headline">
+    <core:icon identifier="flag-gray" size="small"/>
+    Content Planner: Relevant Updates
+</p>
+<p class="dropdown-item-text">Find recent updates on content, you're currently assigned to.</p>
+<ul class="dropdown-list">
+    <f:if condition="{data}">
+        <f:then>
+            <f:for each="{data}" as="record">
+                <li>
+                    <f:be.link route="web_layout" parameters="{id: record.data.recuid}" title="{record.data.title}"
+                               class="dropdown-item">
+                        {record.historyData -> f:format.raw()}
+                        <f:if condition="{record.data.userid}">
+                            by
+                            <div style="display:inline-block;">
+                                <be:avatar backendUser="{record.data.userid}" size="10" showIcon="true"/>
+                            </div>
+                            <u>{record.data.username}</u>
+                        </f:if>
+                        <span class="text-muted small" style="display: inline-block;white-space: nowrap;width: auto;">{record.timeAgo}</span>
+                        <br/>
+                        <div class="mt-2 small">
+                            <core:iconForRecord table="pages" row="{record.data}"/>
+                            <f:if condition="{record.pageStatus}">
+                            <span title="{record.pageStatus}">
+                                <core:icon identifier="{record.pageStatusIcon}" size="small"/>
+                            </span>
+                            </f:if>
+                            {f:if(condition: record.pageTitle, then: '{record.pageTitle -> f:format.raw()}',
+                            else: '[{f:translate(key:
+                            \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}
+                        </div>
+                    </f:be.link>
+                </li>
+            </f:for>
+        </f:then>
+        <f:else>
+            <div style="min-height: 200px;position:relative;">
+                <f:render partial="Empty"/>
+            </div>
+        </f:else>
+    </f:if>
+</ul>

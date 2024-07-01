@@ -13,3 +13,8 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1719240005] = [
     'priority' => 40,
     'class' => \Xima\XimaTypo3ContentPlanner\Form\Element\CurrentUser::class,
 ];
+
+// Custom toolbar item
+$GLOBALS['TYPO3_CONF_VARS']['BE']['toolbarItems'][1719820170] = \Xima\XimaTypo3ContentPlanner\Backend\ToolbarItems\UpdateItem::class;
+
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['ximatypo3contentplanner_toolbarcache'] ??= [];

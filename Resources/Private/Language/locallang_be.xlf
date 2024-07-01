@@ -29,31 +29,31 @@
 			</trans-unit>
 			<!-- history -->
 			<trans-unit id="history.pages.2.set.tx_ximatypo3contentplanner_status">
-				<source><![CDATA[The <em>status</em> was set to <strong>%s</strong>.]]></source>
+				<source><![CDATA[The <em>status</em> was set to <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.pages.2.unset.tx_ximatypo3contentplanner_status">
-				<source><![CDATA[The <em>status</em>  was unset from <strong>%s</strong>.]]></source>
+				<source><![CDATA[The <em>status</em>  was unset from <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.pages.2.change.tx_ximatypo3contentplanner_status">
-				<source><![CDATA[The <em>status</em>  was changed from <strong>%s</strong> to <strong>%s</strong>.]]></source>
+				<source><![CDATA[The <em>status</em>  was changed from <strong>%s</strong> to <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.pages.2.set.tx_ximatypo3contentplanner_assignee">
-				<source><![CDATA[The <em>assignee</em> was set to <strong>%s</strong>.]]></source>
+				<source><![CDATA[The <em>assignee</em> was set to <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.pages.2.unset.tx_ximatypo3contentplanner_assignee">
-				<source><![CDATA[The <em>assignee</em> was unset from <strong>%s</strong>.]]></source>
+				<source><![CDATA[The <em>assignee</em> was unset from <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.pages.2.change.tx_ximatypo3contentplanner_assignee">
-				<source><![CDATA[The <em>assignee</em> was changed from <strong>%s</strong> to <strong>%s</strong>.]]></source>
+				<source><![CDATA[The <em>assignee</em> was changed from <strong>%s</strong> to <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.comment.1">
-				<source><![CDATA[A new <em>comment</em> has been added.]]></source>
+				<source><![CDATA[A new <em>comment</em> has been added]]></source>
 			</trans-unit>
 			<trans-unit id="history.comment.2">
-				<source><![CDATA[A <em>comment</em> was updated.]]></source>
+				<source><![CDATA[A <em>comment</em> was updated]]></source>
 			</trans-unit>
 			<trans-unit id="history.comment.4">
-				<source><![CDATA[A <em>comment</em> was been removed.]]></source>
+				<source><![CDATA[A <em>comment</em> was been removed]]></source>
 			</trans-unit>
 		</body>
 	</file>

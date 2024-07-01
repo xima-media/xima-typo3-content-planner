@@ -6,6 +6,7 @@ use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
 
 class HistoryItem
 {
@@ -44,6 +45,12 @@ class HistoryItem
     public function getPageStatusIcon(): string
     {
         return Configuration::STATUS_ICONS[ContentUtility::getPage((int)$this->data['recuid'])['tx_ximatypo3contentplanner_status']];
+    }
+
+    public function getTimeAgo(): string
+    {
+        $x = DiffUtility::timeAgo($this->data['tstamp']);
+        return DiffUtility::timeAgo($this->data['tstamp']);
     }
 
     public function getRawHistoryData(): array
