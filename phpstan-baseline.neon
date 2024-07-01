@@ -21,6 +21,26 @@ parameters:
 			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
 
 		-
+			message: "#^Call to method assignMultiple\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 2
+			path: Classes/Backend/ToolbarItems/UpdateItem.php
+
+		-
+			message: "#^Call to method setPartialRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Backend/ToolbarItems/UpdateItem.php
+
+		-
+			message: "#^Call to method setTemplatePathAndFilename\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 2
+			path: Classes/Backend/ToolbarItems/UpdateItem.php
+
+		-
+			message: "#^Class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView not found\\.$#"
+			count: 2
+			path: Classes/Backend/ToolbarItems/UpdateItem.php
+
+		-
 			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Controller\\\\TreeController\\:\\:getBackendUser\\(\\)\\.$#"
 			count: 1
 			path: Classes/Controller/TreeController.php
@@ -109,6 +129,51 @@ parameters:
 			message: "#^Parameter \\$event of method Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\DrawBackendHeaderListener\\:\\:__invoke\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\ModifyPageLayoutContentEvent\\.$#"
 			count: 1
 			path: Classes/EventListener/DrawBackendHeaderListener.php
+
+		-
+			message: "#^Call to method buildUriFromRoute\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"
+			count: 4
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Call to method getButtonBar\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\ModifyButtonBarEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Call to method getButtons\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\ModifyButtonBarEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Call to method setButtons\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\ModifyButtonBarEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Call to method setLabel\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\Buttons\\\\DropDown\\\\DropDownItem\\.$#"
+			count: 2
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Class TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\Buttons\\\\DropDown\\\\DropDownItem not found\\.$#"
+			count: 2
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Parameter \\$event of method Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\ModifyButtonBarEventListener\\:\\:__invoke\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\ModifyButtonBarEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Parameter \\$uriBuilder of method Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\ModifyButtonBarEventListener\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Property Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\ModifyButtonBarEventListener\\:\\:\\$uriBuilder has unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder as its type\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
 
 		-
 			message: "#^Access to an undefined property Xima\\\\XimaTypo3ContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:\\$data\\.$#"

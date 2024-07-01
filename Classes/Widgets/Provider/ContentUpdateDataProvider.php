@@ -74,7 +74,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
             $items = array_merge($items, $additionalItems);
 
             // sort by tstamp
-            usort($items, function($a, $b) {
+            usort($items, function ($a, $b) {
                 return $b->data['tstamp'] <=> $a->data['tstamp'];
             });
 
@@ -89,7 +89,8 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
     /*
      * It's a workaround to fetch all comments and afterwards filter them by assigned pages, because this information is serialized and cannot be filtered within the query
      */
-    private function getRecentRelevantCommentsForUser(): array {
+    private function getRecentRelevantCommentsForUser(): array
+    {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_history');
 
         $query = $queryBuilder
@@ -112,7 +113,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
 
         $assignedPages = ContentUtility::getAssignedPages();
         // only get uids from assigned pages
-        $uids = array_map(function($page) {
+        $uids = array_map(function ($page) {
             return $page['uid'];
         }, $assignedPages);
 
@@ -130,5 +131,4 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
         }
         return $items;
     }
-
 }

@@ -6,14 +6,15 @@ use TYPO3\CMS\Backend\Toolbar\ToolbarItemInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentUpdateDataProvider;
 
 class UpdateItem implements ToolbarItemInterface
 {
     public function __construct(private readonly ContentUpdateDataProvider $contentUpdateDataProvider, private readonly FrontendInterface $cache)
-    {}
+    {
+    }
 
     /**
      * Checks whether the user has access to this toolbar item
@@ -100,8 +101,8 @@ class UpdateItem implements ToolbarItemInterface
         return 50;
     }
 
-    private function getRelevantUpdates(): array {
-
+    private function getRelevantUpdates(): array
+    {
         $cacheIdentifier = sha1('contentplanner_toolbarcache' . $GLOBALS['BE_USER']->user['uid']);
         $data = $this->cache->get($cacheIdentifier);
         if ($data === false) {
@@ -111,6 +112,5 @@ class UpdateItem implements ToolbarItemInterface
         }
 
         return $data ?: [];
-
     }
 }
