@@ -68,15 +68,19 @@ class ContentUtility
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
 
         $userRecord = $queryBuilder
-            ->select('username')
+            ->select('username', 'realName')
             ->from('be_users')
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($userId, \PDO::PARAM_INT))
             )
-            ->executeQuery()->fetchOne();
+            ->executeQuery()->fetchAssociative();
 
         if ($userRecord) {
-            return htmlspecialchars($userRecord, ENT_QUOTES, 'UTF-8');
+            $user = $userRecord['username'];
+            if ($userRecord['realName']) {
+                $user = $userRecord['realName'] . ' (' . $user . ')';
+            }
+            return htmlspecialchars($user, ENT_QUOTES, 'UTF-8');
         }
 
         return '';

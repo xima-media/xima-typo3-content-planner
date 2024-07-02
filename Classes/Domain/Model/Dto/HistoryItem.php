@@ -53,12 +53,34 @@ class HistoryItem
         return DiffUtility::timeAgo($this->data['tstamp']);
     }
 
+    public function getUser(): string
+    {
+        return $this->data['realName'] ? $this->data['realName'] . ' (' . $this->data['username'] . ')' : $this->data['username'];
+    }
+
+    public function getChangeTypeIcon(): string
+    {
+        switch ($this->data['tablename']) {
+            case 'pages':
+                switch (array_key_first($this->data['raw_history']['newRecord'])) {
+                    case 'tx_ximatypo3contentplanner_status':
+                        return Configuration::STATUS_ICONS[$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status']];
+                    case 'tx_ximatypo3contentplanner_assignee':
+                        return 'actions-user';
+                }
+            case 'tx_ximatypo3contentplanner_comment':
+                return 'actions-comment';
+        }
+        return 'actions-open
+';
+    }
+
     public function getRawHistoryData(): array
     {
         return json_decode($this->data['history_data'], true);
     }
 
-    public function getHistoryData(): string
+    public function getHistoryData(): string|bool
     {
         $data = $this->getRawHistoryData();
         $tablename = $this->data['tablename'];
@@ -68,63 +90,14 @@ class HistoryItem
          * ToDo: Add more cases for different actions
          */
         if ($tablename === 'pages' && $actiontype === RecordHistoryStore::ACTION_MODIFY) {
-            return $this->checkDiff($data, $actiontype);
+            return DiffUtility::checkPagesDiff($data, $actiontype);
         }
 
         if ($tablename === 'tx_ximatypo3contentplanner_comment') {
             return $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype);
         }
 
-        return '';
-    }
-
-    private function checkDiff(array $data, int $actiontype): string
-    {
-        $old = $data['oldRecord'];
-        $new = $data['newRecord'];
-        $diff = [];
-
-        foreach ($old as $key => $value) {
-            if ($key !== 'l10n_diffsource') {
-                $oldValue = $value;
-                $newValue = $new[$key];
-                if ($oldValue !== $newValue) {
-                    $diff[] = $this->makeDiffReadable($key, $actiontype, $oldValue, $newValue);
-                }
-            }
-        }
-        return implode('<br/>', $diff);
-    }
-
-    private function makeDiffReadable(string $field, int $actiontype, string|int|null $old, string|int|null $new)
-    {
-        // set value
-        if (($old === null || $old === '') && ($new === null && $new === '')) {
-            return '';
-        }
-        if ($old === null || $old === '') {
-            return sprintf($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.pages.' . $actiontype . '.set.' . $field), $this->prepareValue($field, $new));
-        }
-        // reset value
-        if ($new === null || $new === '') {
-            return sprintf($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.pages.' . $actiontype . '.unset.' . $field), $this->prepareValue($field, $old));
-        }
-        // change value
-        if ($old !== $new) {
-            return sprintf($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.pages.' . $actiontype . '.change.' . $field), $this->prepareValue($field, $old), $this->prepareValue($field, $new));
-        }
-        return '';
-    }
-
-    private function prepareValue(string $field, string|int $value): string
-    {
-        switch ($field) {
-            case 'tx_ximatypo3contentplanner_status':
-                return $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status.' . $value);
-            case 'tx_ximatypo3contentplanner_assignee':
-                return ContentUtility::getBackendUsernameById((int)$value);
-        }
-        return $value;
+        return false;
     }
 
     protected function getLanguageService(): LanguageService
