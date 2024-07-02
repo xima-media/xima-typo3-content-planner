@@ -155,16 +155,21 @@ services:
               iconIdentifier: 'content-widget-chart-pie'
               height: 'medium'
 
-  dashboard.widget.ContentStatus-note:
-      class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentNoteWidget'
+  Xima\XimaTypo3ContentPlanner\Widgets\Provider\CreateNoteButtonProvider:
+    arguments:
+      $title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.notes.button'
+
+  dashboard.widget.ContentStatus-notes:
+      class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentNotesWidget'
       arguments:
-          $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentNoteDataProvider'
+          $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentNotesDataProvider'
+          $buttonProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\CreateNoteButtonProvider'
       tags:
           -   name: dashboard.widget
-              identifier: 'contentStatus-note'
+              identifier: 'contentStatus-notes'
               groupNames: 'contentPlanner'
-              title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.note.title'
-              description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.note.description'
+              title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.notes.title'
+              description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentStatus.notes.description'
               iconIdentifier: 'content-thumbtack'
               height: 'medium'
 

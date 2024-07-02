@@ -41,6 +41,36 @@ parameters:
 			path: Classes/Backend/ToolbarItems/UpdateItem.php
 
 		-
+			message: "#^Call to method findAll\\(\\) on an unknown class TYPO3\\\\CMS\\\\Beuser\\\\Domain\\\\Repository\\\\BackendUserRepository\\.$#"
+			count: 1
+			path: Classes/Command/NotifyUpdateCommand.php
+
+		-
+			message: "#^Call to method getEmail\\(\\) on an unknown class TYPO3\\\\CMS\\\\Beuser\\\\Domain\\\\Model\\\\BackendUser\\.$#"
+			count: 2
+			path: Classes/Command/NotifyUpdateCommand.php
+
+		-
+			message: "#^Call to method getUsername\\(\\) on an unknown class TYPO3\\\\CMS\\\\Beuser\\\\Domain\\\\Model\\\\BackendUser\\.$#"
+			count: 1
+			path: Classes/Command/NotifyUpdateCommand.php
+
+		-
+			message: "#^Class TYPO3\\\\CMS\\\\Beuser\\\\Domain\\\\Repository\\\\BackendUserRepository not found\\.$#"
+			count: 1
+			path: Classes/Command/NotifyUpdateCommand.php
+
+		-
+			message: "#^Parameter \\$user of method Xima\\\\XimaTypo3ContentPlanner\\\\Command\\\\NotifyUpdateCommand\\:\\:notify\\(\\) has invalid type TYPO3\\\\CMS\\\\Beuser\\\\Domain\\\\Model\\\\BackendUser\\.$#"
+			count: 1
+			path: Classes/Command/NotifyUpdateCommand.php
+
+		-
+			message: "#^Variable \\$systemConfiguration on left side of \\?\\? is never defined\\.$#"
+			count: 1
+			path: Classes/Command/NotifyUpdateCommand.php
+
+		-
 			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Controller\\\\TreeController\\:\\:getBackendUser\\(\\)\\.$#"
 			count: 1
 			path: Classes/Controller/TreeController.php
@@ -276,9 +306,9 @@ parameters:
 			path: Classes/Widgets/ContentCommentWidget.php
 
 		-
-			message: "#^Call to method getItem\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
+			message: "#^Call to method getItems\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
 			count: 1
-			path: Classes/Widgets/ContentNoteWidget.php
+			path: Classes/Widgets/ContentNotesWidget.php
 
 		-
 			message: "#^Call to method getItemsByDemand\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
@@ -289,3 +319,13 @@ parameters:
 			message: "#^Call to method getItems\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
 			count: 1
 			path: Classes/Widgets/ContentUpdateWidget.php
+
+		-
+			message: "#^Call to method buildUriFromRoute\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"
+			count: 2
+			path: Classes/Widgets/Provider/CreateNoteButtonProvider.php
+
+		-
+			message: "#^Class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder not found\\.$#"
+			count: 1
+			path: Classes/Widgets/Provider/CreateNoteButtonProvider.php

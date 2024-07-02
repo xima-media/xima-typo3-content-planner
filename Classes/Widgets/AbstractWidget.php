@@ -11,7 +11,6 @@ use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentNoteDataProvider;
 
 abstract class AbstractWidget implements WidgetInterface
 {
@@ -19,7 +18,7 @@ abstract class AbstractWidget implements WidgetInterface
 
     public function __construct(
         protected readonly WidgetConfigurationInterface $configuration,
-        protected readonly ListDataProviderInterface|ContentNoteDataProvider $dataProvider,
+        protected readonly ListDataProviderInterface $dataProvider,
         protected readonly ?ButtonProviderInterface $buttonProvider = null,
         protected array $options = []
     ) {

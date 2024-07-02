@@ -39,12 +39,17 @@
                                 <core:icon identifier="actions-caret-down" size="small"/>
                             </button>
                         </f:if>
+                        <a href="#" id="new-comment-modal" class="btn btn-default btn-sm" style="background-color: transparent" data-pid="{pid}" data-userid="{userid}">
+                            <core:icon identifier="content-message-dots" size="small"/>
+                            New
+                        </a>
                         <be:link.editRecord uid="{data.uid}" table="pages"
                                             fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
                                             returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
                                             title="Edit page properties" class="btn btn-default btn-sm"
                                             style="background-color: transparent">
                             <core:icon identifier="actions-document-edit" size="small"/>
+                            Edit
                         </be:link.editRecord>
                     </div>
                 </div>
@@ -58,7 +63,7 @@
             <div class="accordion-body">
                 <f:for each="{comments}" as="comment">
                     <div class="alert alert-secondary mb-2 px-2 ml-3 d-flex align-items-center"
-                         style="background-color: #fefefe;margin-left:3rem;padding:.5rem;">
+                         style="background-color: #fefefe;margin-left:3rem;padding:.5rem;" data-comment-uid="{comment.uid}">
                         <div class="mx-3">
                             <core:icon identifier="content-message" size="small"/>
                         </div>

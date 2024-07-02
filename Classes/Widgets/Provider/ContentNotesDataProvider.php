@@ -6,26 +6,30 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 
-class ContentNoteDataProvider
+class ContentNotesDataProvider implements ListDataProviderInterface
 {
     /**
      * @throws \Doctrine\DBAL\Exception
      */
-    public function getItem(): array|bool
+    public function getItems(): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_note');
 
-        return $queryBuilder
+        $results = $queryBuilder
             ->select(
                 'uid',
+                'tstamp',
                 'title',
-                'content'
+                'content',
+                'icon'
             )
             ->from('tx_ximatypo3contentplanner_note')
 
             ->orderBy('tstamp', 'DESC')
             ->executeQuery()
-            ->fetchAssociative();
+            ->fetchAllAssociative();
+        return $results ?: [];
     }
 }

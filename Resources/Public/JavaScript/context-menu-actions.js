@@ -1,7 +1,5 @@
 /**
  * Module: @xima/ximatypo3contentplanner/context-menu-actions
- *
- * JavaScript to handle the click action of the "Hello World" context menu item
  */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 
