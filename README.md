@@ -50,6 +50,8 @@ Change the page status:
 - In the page tree context menu
 - In the page backend header
 
+> **Hint**: By default the auto assignee feature is enabled. The assignee is automatically set to the current user when the status is changed from stateless to a new state.
+
 ![WalkThrough](./Documentation/Images/walk-through.gif)
 
 ## Dashboard
@@ -62,9 +64,11 @@ Add custom notes to the dashboard to influence the content planning.
 
 # Configuration
 
-The content planner abilities are part of a custom permission and needed to be granted to the dedicated user group(s) (except admins).
+Feature toggles are available, see `ext_localconf.php` for configuration options.
 
-Every user can disable the content planner features in the user settings.
+The content planner abilities are part of a **custom permission** and needed to be granted to the dedicated user group/s (except admins).
+
+Every user can easily disable the content planner features in the user settings.
 
 ## License
 

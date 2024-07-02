@@ -63,6 +63,9 @@ class HistoryItem
             case 'pages':
                 switch (array_key_first($this->data['raw_history']['newRecord'])) {
                     case 'tx_ximatypo3contentplanner_status':
+                        if (!array_key_exists($this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status'], Configuration::STATUS_ICONS)) {
+                            return 'flag-gray';
+                        }
                         return Configuration::STATUS_ICONS[$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status']];
                     case 'tx_ximatypo3contentplanner_assignee':
                         return 'actions-user';
