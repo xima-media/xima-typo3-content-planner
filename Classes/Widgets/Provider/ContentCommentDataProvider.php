@@ -31,7 +31,7 @@ class ContentCommentDataProvider implements ListDataProviderInterface
             )
             ->from('tx_ximatypo3contentplanner_comment', 'c')
             ->leftJoin('c', 'pages', 'p', 'c.foreign_uid = p.uid')
-            ->setMaxResults(20)
+            ->setMaxResults(10)
             ->orderBy('tstamp', 'DESC');
 
         $items = [];

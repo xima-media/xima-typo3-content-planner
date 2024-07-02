@@ -17,7 +17,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
      */
     public function getItems(): array
     {
-        return $this->fetchUpdateData();
+        return $this->fetchUpdateData(maxItems: 15);
     }
 
     public function fetchUpdateData(bool $relevanteUpdatesForCurrentUser = false, ?int $beUser = null, ?int $tstamp = null, ?int $maxItems = null): array
@@ -34,6 +34,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
                 'h.tablename as tablename',
                 'h.history_data as history_data',
                 'b.username as username',
+                'b.realName as realName',
             )
             ->from('sys_history', 'h')
             ->leftJoin('h', 'pages', 'p', 'h.recuid = p.uid')
@@ -42,7 +43,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
             ->orderBy('h.tstamp', 'DESC');
 
         if ($maxItems) {
-            $query->setMaxResults($maxItems);
+            $query->setMaxResults($maxItems*2);
         }
 
         // Filter for relevant history entries, which are not created by the current user
@@ -77,10 +78,16 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
             usort($items, function ($a, $b) {
                 return $b->data['tstamp'] <=> $a->data['tstamp'];
             });
+        }
 
-            if ($maxItems) {
-                $items = array_slice($items, 0, $maxItems);
+        foreach ($items as $key => $item) {
+            if ($item->getHistoryData() === '') {
+                unset($items[$key]);
             }
+        }
+
+        if ($maxItems) {
+            $items = array_slice($items, 0, $maxItems);
         }
 
         return $items;

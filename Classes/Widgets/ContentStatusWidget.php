@@ -15,7 +15,7 @@ class ContentStatusWidget extends AbstractWidget
         $maxResults = isset($this->options['maxResults']) ? (int)$this->options['maxResults'] : 20;
         $icon = $status ? Configuration::STATUS_ICONS[$status] : 'status-user-backend';
         return $this->render(
-            'EXT:xima_typo3_content_planner/Resources/Private/Templates/Backend/ContentStatusList.html',
+            'EXT:xima_typo3_content_planner/Resources/Private/Templates/Backend/Widgets/ContentStatusList.html',
             [
                 'configuration' => $this->configuration,
                 'records' => $this->dataProvider->getItemsByDemand($status, $assignee, $maxResults),
