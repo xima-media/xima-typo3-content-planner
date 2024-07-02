@@ -49,7 +49,6 @@ class HistoryItem
 
     public function getTimeAgo(): string
     {
-        $x = DiffUtility::timeAgo($this->data['tstamp']);
         return DiffUtility::timeAgo($this->data['tstamp']);
     }
 
@@ -68,6 +67,7 @@ class HistoryItem
                     case 'tx_ximatypo3contentplanner_assignee':
                         return 'actions-user';
                 }
+                break;
             case 'tx_ximatypo3contentplanner_comment':
                 return 'actions-comment';
         }
