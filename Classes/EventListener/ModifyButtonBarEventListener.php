@@ -27,7 +27,7 @@ final class ModifyButtonBarEventListener
 
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
-        $pageId = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? 0);
+        $pageId = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] :  0));
 
         $page = ContentUtility::getPage($pageId);
         $buttonBar = $event->getButtonBar();

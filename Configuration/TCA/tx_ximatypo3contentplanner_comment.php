@@ -61,5 +61,20 @@ return [
                 'renderType' => 'currentUser',
             ],
         ],
+        'foreign_table' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
+        'foreign_uid' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
+        'pid' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
     ],
 ];
