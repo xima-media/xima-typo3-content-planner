@@ -54,11 +54,14 @@
 			<trans-unit id="widgets.contentStatus.comment.description">
 				<source>Display the recent content comments</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.note.title">
-				<source>Content Status Note</source>
+			<trans-unit id="widgets.contentStatus.notes.title">
+				<source>Content Status Notes</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.note.description">
-				<source>Display the content status note</source>
+			<trans-unit id="widgets.contentStatus.notes.description">
+				<source>Display the content status notes</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentStatus.notes.button">
+				<source>New</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.update.title">
 				<source>Content Status Recent Updates</source>
@@ -95,6 +98,13 @@
 			</trans-unit>
 			<trans-unit id="widgets.contentStatus.header.change">
 				<source>Change note</source>
+			</trans-unit>
+
+			<trans-unit id="button.modal.footer.close">
+				<source>Cancel</source>
+			</trans-unit>
+			<trans-unit id="button.modal.footer.save">
+				<source>Save</source>
 			</trans-unit>
 
 			<!-- time ago -->

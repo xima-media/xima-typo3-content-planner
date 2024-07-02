@@ -21,6 +21,12 @@
 			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide">
 				<source>Disable the display of content planner status</source>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_note.title">
+				<source>Title</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_note.text">
+				<source>Text</source>
+			</trans-unit>
 			<trans-unit id="permission.group">
 				<source>Content Planner</source>
 			</trans-unit>

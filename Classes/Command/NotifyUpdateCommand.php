@@ -91,9 +91,10 @@ final class NotifyUpdateCommand extends Command
             ->format(FluidEmail::FORMAT_HTML)
             ->setTemplate('ContentUpdates')
             ->setRequest($request)
-            ->assignMultiple([
+            ->assignMultiple(
+                [
                     'data' => $updates,
-                    'user' => $user
+                    'user' => $user,
                 ]
             );
         GeneralUtility::makeInstance(MailerInterface::class)->send($email);

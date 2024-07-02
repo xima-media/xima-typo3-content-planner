@@ -6,6 +6,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\ModifyPageLayoutContentEvent;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Resource\FileRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
@@ -38,13 +39,20 @@ final class DrawBackendHeaderListener
         }
 
         $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplatePathAndFilename('EXT:xima_typo3_content_planner/Resources/Private/Templates/Backend/PageHeaderInfo.html');
+        $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Backend/PageHeaderInfo.html');
+
+        /** @var PageRenderer $pageRenderer */
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/new-comment-modal.js');
+        $pageRenderer->addInlineLanguageLabelFile('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf');
 
         $view->assignMultiple([
             'data' => $pageInfo,
             'assignee' => ContentUtility::getBackendUsernameById((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
             'icon' => Configuration::STATUS_ICONS[$pageInfo['tx_ximatypo3contentplanner_status']],
             'comments' => $pageInfo['tx_ximatypo3contentplanner_comments'] ? ContentUtility::getPageComments($id) : [],
+            'pid' => $id,
+            'userid' => $GLOBALS['BE_USER']->user['uid'],
         ]);
         $event->addHeaderContent($view->render());
     }
