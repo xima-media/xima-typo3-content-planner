@@ -22,8 +22,7 @@ class ContentNotesDataProvider implements ListDataProviderInterface
                 'uid',
                 'tstamp',
                 'title',
-                'content',
-                'icon'
+                'content'
             )
             ->from('tx_ximatypo3contentplanner_note')
 
