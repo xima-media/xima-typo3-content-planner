@@ -2,17 +2,19 @@
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
-use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class StatusItem
 {
     public array $data = [];
+    public ?Status $status = null;
 
     public static function create(array $pageRow): static
     {
         $item = new static();
         $item->data = $pageRow;
+        $item->status = ContentUtility::getStatus($pageRow['tx_ximatypo3contentplanner_status']);
 
         return $item;
     }
@@ -29,12 +31,12 @@ class StatusItem
 
     public function getPageStatus(): ?string
     {
-        return $this->data['tx_ximatypo3contentplanner_status'];
+        return $this->status->getTitle();
     }
 
     public function getPageStatusIcon(): string
     {
-        return Configuration::STATUS_ICONS[$this->data['tx_ximatypo3contentplanner_status']];
+        return $this->status->getColoredIcon();
     }
 
     public function getPageAssignee(): ?string

@@ -9,22 +9,48 @@ class Configuration
     final public const EXT_KEY = 'xima_typo3_content_planner';
     final public const EXT_NAME = 'XimaTypo3ContentPlanner';
 
-    final public const STATUS_DANGER = 'danger';
-    final public const STATUS_INFO = 'info';
-    final public const STATUS_WARNING = 'warning';
-    final public const STATUS_SUCCESS = 'success';
+    final public const STATUS_ICON_FLAG = 'flag';
+    final public const STATUS_ICON_HEART = 'heart';
+    final public const STATUS_ICON_TAG = 'tag';
+    final public const STATUS_ICON_STAR = 'star';
+    final public const STATUS_ICON_INFO = 'info';
 
     final public const STATUS_ICONS = [
-        self::STATUS_DANGER => 'flag-red',
-        self::STATUS_INFO => 'flag-blue',
-        self::STATUS_WARNING => 'flag-yellow',
-        self::STATUS_SUCCESS => 'flag-green',
+        self::STATUS_ICON_FLAG,
+        self::STATUS_ICON_HEART,
+        self::STATUS_ICON_TAG,
+        self::STATUS_ICON_STAR,
+        self::STATUS_ICON_INFO,
+
     ];
 
+    final public const STATUS_COLOR_BLACK = 'black';
+    final public const STATUS_COLOR_BLUE = 'blue';
+    final public const STATUS_COLOR_GREEN = 'green';
+    final public const STATUS_COLOR_YELLOW = 'yellow';
+    final public const STATUS_COLOR_RED = 'red';
+    final public const STATUS_COLOR_GRAY = 'gray';
+
     final public const STATUS_COLORS = [
-        self::STATUS_DANGER => '#f8d7da',
-        self::STATUS_INFO => '#cce5ff',
-        self::STATUS_WARNING => '#fff3cd',
-        self::STATUS_SUCCESS => '#d4edda',
+        self::STATUS_COLOR_BLACK,
+        self::STATUS_COLOR_BLUE,
+        self::STATUS_COLOR_GREEN,
+        self::STATUS_COLOR_YELLOW,
+        self::STATUS_COLOR_RED,
+        self::STATUS_COLOR_GRAY,
+    ];
+
+    final public const STATUS_COLOR_CODES = [
+        self::STATUS_COLOR_RED => '#f8d7da',
+        self::STATUS_COLOR_BLUE => '#cce5ff',
+        self::STATUS_COLOR_YELLOW => '#fff3cd',
+        self::STATUS_COLOR_GREEN => '#d4edda',
+    ];
+
+    final public const STATUS_COLOR_ALERTS = [
+        self::STATUS_COLOR_RED => 'danger',
+        self::STATUS_COLOR_BLUE => 'info',
+        self::STATUS_COLOR_YELLOW => 'warning',
+        self::STATUS_COLOR_GREEN => 'success',
     ];
 }

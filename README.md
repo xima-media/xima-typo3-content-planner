@@ -42,7 +42,7 @@ By default they are four different status available:
 - *Needs review*: The page is ready for review.
 - *Completed*: The page is published.
 
-> **Hint**: Rename the status by overriding the translation to fit your needs.
+> **Hint**: The status are content generated on the root page. Add/remove/adjust them to fit your needs.
 
 Change the page status:
 

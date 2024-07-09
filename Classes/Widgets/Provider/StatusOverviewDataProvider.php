@@ -10,9 +10,14 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
 class StatusOverviewDataProvider implements ChartDataProviderInterface
 {
+    public function __construct(protected StatusRepository $statusRepository)
+    {
+    }
+
     protected array $labels = [];
     protected array $data = [];
     protected array $colors = [];
@@ -35,7 +40,7 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
     /**
      * @throws \Doctrine\DBAL\Exception
      */
-    public function countPageStatus(string $status = null): int
+    public function countPageStatus(int $status = null): int
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
@@ -45,7 +50,7 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'tx_ximatypo3contentplanner_status',
-                    $queryBuilder->createNamedParameter($status, Connection::PARAM_STR)
+                    $queryBuilder->createNamedParameter($status, Connection::PARAM_INT)
                 ),
             )
             ->executeQuery()
@@ -54,10 +59,10 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
 
     protected function calculateStatusCounts(): void
     {
-        foreach (Configuration::STATUS_COLORS as $status => $color) {
-            $this->labels[] = $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status.' . $status);
-            $this->data[] = $this->countPageStatus($status);
-            $this->colors[] = $color;
+        foreach ($this->statusRepository->findAll() as $status) {
+            $this->labels[] = $status->getTitle();
+            $this->data[] = $this->countPageStatus($status->getUid());
+            $this->colors[] = Configuration::STATUS_COLOR_CODES[$status->getColor()];
         }
     }
 

@@ -4,7 +4,6 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
 
@@ -39,12 +38,12 @@ class HistoryItem
 
     public function getPageStatus(): ?string
     {
-        return ContentUtility::getPage((int)$this->data['recuid'])['tx_ximatypo3contentplanner_status'];
+        return ContentUtility::getStatus(ContentUtility::getPage((int)$this->data['recuid'])['tx_ximatypo3contentplanner_status'])?->getTitle();
     }
 
     public function getPageStatusIcon(): string
     {
-        return Configuration::STATUS_ICONS[ContentUtility::getPage((int)$this->data['recuid'])['tx_ximatypo3contentplanner_status']];
+        return ContentUtility::getStatus(ContentUtility::getPage((int)$this->data['recuid'])['tx_ximatypo3contentplanner_status'])->getColoredIcon();
     }
 
     public function getTimeAgo(): string
@@ -63,10 +62,11 @@ class HistoryItem
             case 'pages':
                 switch (array_key_first($this->data['raw_history']['newRecord'])) {
                     case 'tx_ximatypo3contentplanner_status':
-                        if (!array_key_exists($this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status'], Configuration::STATUS_ICONS)) {
+                        $status = ContentUtility::getStatus((int)$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status']);
+                        if (!$status) {
                             return 'flag-gray';
                         }
-                        return Configuration::STATUS_ICONS[$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status']];
+                        return $status->getColoredIcon();
                     case 'tx_ximatypo3contentplanner_assignee':
                         return 'actions-user';
                 }

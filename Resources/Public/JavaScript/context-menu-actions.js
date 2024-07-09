@@ -5,20 +5,8 @@ import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 
 class ContextMenuActions {
 
-  danger(table, uid) {
-    ContextMenuActions.changeStatus(table, uid, "danger");
-  }
-
-  info(table, uid) {
-    ContextMenuActions.changeStatus(table, uid, "info");
-  }
-
-  warning(table, uid) {
-    ContextMenuActions.changeStatus(table, uid, "warning");
-  }
-
-  success(table, uid) {
-    ContextMenuActions.changeStatus(table, uid, "success");
+  change(table, uid, n) {
+    ContextMenuActions.changeStatus(table, uid, n.status);
   }
 
   reset(table, uid) {

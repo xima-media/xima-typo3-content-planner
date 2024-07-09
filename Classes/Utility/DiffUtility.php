@@ -77,11 +77,11 @@ class DiffUtility
         return false;
     }
 
-    private static function preparePageAttributeValue(string $field, string|int $value): string|int
+    private static function preparePageAttributeValue(string $field, string|int $value): string|int|null
     {
         switch ($field) {
             case 'tx_ximatypo3contentplanner_status':
-                return self::getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status.' . $value);
+                return ContentUtility::getStatus((int)$value)?->getTitle();
             case 'tx_ximatypo3contentplanner_assignee':
                 return ContentUtility::getBackendUsernameById((int)$value);
         }

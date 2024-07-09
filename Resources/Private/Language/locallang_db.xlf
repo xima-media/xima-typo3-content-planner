@@ -27,6 +27,15 @@
 			<trans-unit id="tx_ximatypo3contentplanner_note.text">
 				<source>Text</source>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.title">
+				<source>Title</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.icon">
+				<source>Icon</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.color">
+				<source>Color</source>
+			</trans-unit>
 			<trans-unit id="permission.group">
 				<source>Content Planner</source>
 			</trans-unit>

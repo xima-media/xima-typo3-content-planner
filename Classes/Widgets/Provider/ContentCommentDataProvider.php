@@ -7,7 +7,6 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
-use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class ContentCommentDataProvider implements ListDataProviderInterface
@@ -56,8 +55,8 @@ class ContentCommentDataProvider implements ListDataProviderInterface
             'title' => $result['title'],
             'tstamp' => $result['tstamp'],
             'content' => $result['content'],
-            'status' => $result['status'],
-            'status_icon' => Configuration::STATUS_ICONS[$result['status']],
+            'status' => ContentUtility::getStatus((int)$result['status'])?->getTitle(),
+            'status_icon' =>  ContentUtility::getStatus((int)$result['status'])?->getColoredIcon(),
             'author' => (int)$result['author'],
             'author_name' => ContentUtility::getBackendUsernameById((int)$result['author']),
         ];

@@ -9,13 +9,13 @@ use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyButtonBarEventListener
 {
-    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder)
+    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, protected StatusRepository $statusRepository)
     {
     }
 
@@ -30,6 +30,7 @@ final class ModifyButtonBarEventListener
         $pageId = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] :  0));
 
         $page = ContentUtility::getPage($pageId);
+        $status = $page['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($page['tx_ximatypo3contentplanner_status']) : null;
         $buttonBar = $event->getButtonBar();
 
         $buttons = $event->getButtons();
@@ -38,15 +39,15 @@ final class ModifyButtonBarEventListener
             ->setLabel('Dropdown')
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
             ->setIcon($this->iconFactory->getIcon(
-                $page['tx_ximatypo3contentplanner_status'] ? Configuration::STATUS_ICONS[$page['tx_ximatypo3contentplanner_status']] : 'flag-gray'
+                $status ? $status->getColoredIcon() : 'flag-gray'
             ))
         ;
 
-        foreach (Configuration::STATUS_ICONS as $status => $icon) {
+        foreach ($this->statusRepository->findAll() as $statusItem) {
             $dropDownButton->addItem(
                 GeneralUtility::makeInstance(DropDownItem::class)
-                    ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status.' . $status))
-                    ->setIcon($this->iconFactory->getIcon(Configuration::STATUS_ICONS[$status]))
+                    ->setLabel($statusItem->getTitle())
+                    ->setIcon($this->iconFactory->getIcon($statusItem->getColoredIcon()))
                     ->setHref(
                         $this->uriBuilder->buildUriFromRoute(
                             'tce_db',
@@ -54,7 +55,7 @@ final class ModifyButtonBarEventListener
                                 'data' => [
                                     'pages' => [
                                         $pageId => [
-                                            'tx_ximatypo3contentplanner_status' => $status,
+                                            'tx_ximatypo3contentplanner_status' => $statusItem->getUid(),
                                         ],
                                     ],
                                 ],

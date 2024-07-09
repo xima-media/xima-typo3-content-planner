@@ -12,11 +12,8 @@ call_user_func(function () {
             'config' => [
                 'items' => [
                     ['-- stateless --', null],
-                    ['LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:status.danger', 'danger', 'flag-red'],
-                    ['LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:status.info', 'info', 'flag-blue'],
-                    ['LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:status.warning', 'warning', 'flag-yellow'],
-                    ['LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:status.success', 'success', 'flag-green'],
                 ],
+                'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
                 'type' => 'select',
                 'renderType' => 'selectSingle',
                 'fieldWizard' => [

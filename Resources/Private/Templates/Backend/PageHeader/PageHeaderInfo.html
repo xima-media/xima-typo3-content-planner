@@ -1,7 +1,7 @@
 <html xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers" data-namespace-typo3-fluid="true">
 
 <div class="accordion">
-    <div class="callout callout-{data.tx_ximatypo3contentplanner_status}">
+    <div class="callout callout-{type}">
         <div class="media">
             <div class="media-left">
                 <span class="icon-emphasized">
@@ -15,8 +15,7 @@
                                         returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
                                         title="Edit page properties" class="d-flex align-items-center  flex-grow-1">
                         Content Status: <strong>
-                        <f:translate
-                            key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status.{data.tx_ximatypo3contentplanner_status}"/>
+                        {status.title}
                     </strong>
                     </be:link.editRecord>
                     <div class="btn-group">

@@ -6,9 +6,17 @@ namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
 class ContentUtility
 {
+    public static function getStatus(int $statusId): ?Status
+    {
+        $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
+        return $statusRepository->findByUid($statusId);
+    }
+
     public static function getPage(int $pageId): array|bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');

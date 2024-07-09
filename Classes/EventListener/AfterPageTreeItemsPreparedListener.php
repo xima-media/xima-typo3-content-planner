@@ -6,6 +6,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 /*
@@ -22,7 +23,10 @@ final class AfterPageTreeItemsPreparedListener
         $items = $event->getItems();
         foreach ($items as &$item) {
             if (isset($item['_page']['tx_ximatypo3contentplanner_status'])) {
-                $item['backgroundColor'] = Configuration::STATUS_COLORS[$item['_page']['tx_ximatypo3contentplanner_status']];
+                $status = ContentUtility::getStatus($item['_page']['tx_ximatypo3contentplanner_status']);
+                if ($status) {
+                    $item['backgroundColor'] = Configuration::STATUS_COLOR_CODES[$status->getColor()];
+                }
             }
         }
 
