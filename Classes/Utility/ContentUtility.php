@@ -11,8 +11,11 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
 class ContentUtility
 {
-    public static function getStatus(int $statusId): ?Status
+    public static function getStatus(?int $statusId): ?Status
     {
+        if (!$statusId) {
+            return null;
+        }
         $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
         return $statusRepository->findByUid($statusId);
     }
@@ -21,30 +24,60 @@ class ContentUtility
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
-        $page = $queryBuilder
+        return $queryBuilder
             ->select('*')
             ->from('pages')
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($pageId, \PDO::PARAM_INT))
             )
             ->executeQuery()->fetchAssociative();
-
-        return $page;
     }
 
     public static function getAssignedPages(): array|bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
-        $pages = $queryBuilder
+        return $queryBuilder
             ->select('*')
             ->from('pages')
             ->where(
                 $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_assignee', $queryBuilder->createNamedParameter($GLOBALS['BE_USER']->user['uid'], \PDO::PARAM_INT))
             )
             ->executeQuery()->fetchAllAssociative();
+    }
 
-        return $pages;
+    public static function getPagesByFilter(?string $search = null, ?int $status = null, ?int $assignee = null): array|bool
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+
+        $query = $queryBuilder
+            ->select('*')
+            ->from('pages')
+            ->andWhere(
+                $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status')
+            )
+            ->orderBy('tstamp', 'DESC')
+        ;
+
+        if ($search) {
+            $query->andWhere(
+                $queryBuilder->expr()->like('title', $queryBuilder->createNamedParameter('%' . $search . '%', \PDO::PARAM_STR))
+            );
+        }
+
+        if ($status) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_status', $queryBuilder->createNamedParameter($status, \PDO::PARAM_INT))
+            );
+        }
+
+        if ($assignee) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_assignee', $queryBuilder->createNamedParameter($assignee, \PDO::PARAM_INT))
+            );
+        }
+
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     public static function getPageComments(int $pageId): array
@@ -65,6 +98,23 @@ class ContentUtility
             $comment['user'] = self::getBackendUsernameById($comment['author']);
         }
         return $comments;
+    }
+
+    public static function getBackendUserById(?int $userId): array|bool
+    {
+        if (!$userId) {
+            return false;
+        }
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+
+        return $queryBuilder
+            ->select('*')
+            ->from('be_users')
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($userId, \PDO::PARAM_INT))
+            )
+            ->executeQuery()->fetchAssociative();
     }
 
     public static function getBackendUsernameById(?int $userId): string
@@ -92,5 +142,18 @@ class ContentUtility
         }
 
         return '';
+    }
+
+    public static function getBackendUsers(): array
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+
+        $query = $queryBuilder
+            ->select('uid', 'username')
+            ->from('be_users')
+            ->orderBy('username', 'ASC');
+
+        return $query->executeQuery()
+            ->fetchAllAssociative();
     }
 }

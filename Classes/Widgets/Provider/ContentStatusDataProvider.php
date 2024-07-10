@@ -7,10 +7,17 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class ContentStatusDataProvider implements ListDataProviderInterface
 {
+    public function __construct(protected readonly StatusRepository $statusRepository)
+    {
+    }
+
     /**
      * @throws \Doctrine\DBAL\Exception
      */
@@ -18,10 +25,11 @@ class ContentStatusDataProvider implements ListDataProviderInterface
     {
         return $this->getItemsByDemand();
     }
+
     /**
      * @throws \Doctrine\DBAL\Exception
      */
-    public function getItemsByDemand(?string $status = null, ?int $assignee = null, int $maxResults = 20): array
+    public function getItemsByDemand(?int $status = null, ?int $assignee = null, int $maxResults = 20): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
@@ -61,5 +69,15 @@ class ContentStatusDataProvider implements ListDataProviderInterface
         }
 
         return $items;
+    }
+
+    public function getStatus(): QueryResultInterface|array
+    {
+        return $this->statusRepository->findAll();
+    }
+
+    public function getUsers(): array
+    {
+        return ContentUtility::getBackendUsers();
     }
 }

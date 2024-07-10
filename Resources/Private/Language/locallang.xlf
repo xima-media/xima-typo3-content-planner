@@ -12,91 +12,73 @@
 			<trans-unit id="widget_group.contentPlanner">
 				<source>Content Planner</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.danger.title">
-				<source>Content Status: Pending</source>
+			<trans-unit id="widgets.contentPlanner.status.title">
+				<source>Content Planner Status</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.danger.description">
-				<source>Display all pages with content status: Pending</source>
+			<trans-unit id="widgets.contentPlanner.status.description">
+				<source>Display all pages with content status</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.info.title">
-				<source>Content Status: In progress</source>
+			<trans-unit id="widgets.contentPlanner.current.title">
+				<source>Content Planner Current Assignee</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.info.description">
-				<source>Display all pages with content status: In progress</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentStatus.warning.title">
-				<source>Content Status: Needs review</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentStatus.warning.description">
-				<source>Display all pages with content status: Needs review</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentStatus.success.title">
-				<source>Content Status: Completed</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentStatus.success.description">
-				<source>Display all pages with content status: Completed</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentStatus.current.title">
-				<source>Content Status: Current Assignee</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentStatus.current.description">
+			<trans-unit id="widgets.contentPlanner.current.description">
 				<source>Display all pages with your assignment</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.overview.title">
-				<source>Content Status Overview</source>
+			<trans-unit id="widgets.contentPlanner.overview.title">
+				<source>Content Planner Overview</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.overview.description">
+			<trans-unit id="widgets.contentPlanner.overview.description">
 				<source>Display a donut chart with the distribution of content status</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.comment.title">
-				<source>Content Status Recent Comments</source>
+			<trans-unit id="widgets.contentPlanner.comment.title">
+				<source>Content Planner Recent Comments</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.comment.description">
+			<trans-unit id="widgets.contentPlanner.comment.description">
 				<source>Display the recent content comments</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.notes.title">
-				<source>Content Status Notes</source>
+			<trans-unit id="widgets.contentPlanner.notes.title">
+				<source>Content Planner Notes</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.notes.description">
+			<trans-unit id="widgets.contentPlanner.notes.description">
 				<source>Display the content status notes</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.notes.button">
+			<trans-unit id="widgets.contentPlanner.notes.button">
 				<source>New</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.update.title">
-				<source>Content Status Recent Updates</source>
+			<trans-unit id="widgets.contentPlanner.update.title">
+				<source>Content Planner Recent Updates</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.update.description">
+			<trans-unit id="widgets.contentPlanner.update.description">
 				<source>Display the recent updates according to content status changes</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.flag">
+			<trans-unit id="widgets.contentPlanner.header.flag">
 				<source>Status</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.title">
+			<trans-unit id="widgets.contentPlanner.header.title">
 				<source>Page</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.tstamp">
+			<trans-unit id="widgets.contentPlanner.header.tstamp">
 				<source>Changed</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.assignee">
+			<trans-unit id="widgets.contentPlanner.header.assignee">
 				<source>Assignee</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.author">
+			<trans-unit id="widgets.contentPlanner.header.author">
 				<source>Author</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.comment">
+			<trans-unit id="widgets.contentPlanner.header.comment">
 				<source>Comment</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.comments">
+			<trans-unit id="widgets.contentPlanner.header.comments">
 				<source>Comments</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.page">
+			<trans-unit id="widgets.contentPlanner.header.page">
 				<source>Page</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.user">
+			<trans-unit id="widgets.contentPlanner.header.user">
 				<source>User</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentStatus.header.change">
+			<trans-unit id="widgets.contentPlanner.header.change">
 				<source>Change note</source>
 			</trans-unit>
 

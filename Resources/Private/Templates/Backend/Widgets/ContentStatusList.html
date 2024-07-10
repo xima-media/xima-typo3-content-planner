@@ -1,7 +1,5 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-      xmlns:dashboard="http://typo3.org/ns/TYPO3/CMS/Dashboard/ViewHelpers"
       xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
-      xmlns:xcp="Xima\XimaTypo3ContentPlanner\ViewHelpers"
       data-namespace-typo3-fluid="true">
 
 <div class="widget-content-title d-flex align-items-center">
@@ -10,68 +8,98 @@
         <f:translate key="{configuration.title}" extensionName="XimaTypo3ContentPlanner"/>
     </span>
 </div>
-<div class="widget-content-main"
-     style="--mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 0) 0) 100% 90% / 100% 100% repeat-x;-webkit-mask: var(--mask);mask: var(--mask);">
-    <f:if condition="{records}">
-        <f:then>
-            <div class="widget-table-wrapper">
-                <table class="widget-table">
-                    <thead>
-                    <tr>
-                        <th>
-                            <f:translate key="widgets.contentStatus.header.title" extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                        <th>
-                            <f:translate key="widgets.contentStatus.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                        <th>
-                            <f:translate key="widgets.contentStatus.header.assignee"
-                                         extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                        <th>
-                            <f:translate key="widgets.contentStatus.header.comments"
-                                         extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <f:for each="{records}" as="record">
-                        <tr {f:if(condition: record.assignedToCurrentUser, then: 'style="background-color:#FFF3E0"')}>
-                            <td>
-                                <f:be.link route="web_layout" parameters="{id: record.data.uid}" title="{record.title}">
-                                    <span title="{record.pageStatus}">
-                                        <core:icon identifier="{record.pageStatusIcon}" size="small"/>
-                                    </span>
-                                    <strong>{f:if(condition: record.pageTitle, then: '{record.pageTitle -> f:format.raw()}',
-                                        else: '[{f:translate(key:
-                                        \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}</strong>
-                                </f:be.link>
-                            </td>
-                            <td>
-                                <f:format.date format="d.m.Y H:i">{record.data.tstamp}</f:format.date>
-                            </td>
-                            <td style="display: flex;gap: 10px;">
-                                <f:if condition="{record.pageAssignee}">
-                                    <be:avatar backendUser="{record.pageAssignee}" size="20"/>
-                                    {record.pageAssigneeName}
-                                </f:if>
-                            </td>
-                            <td>
-                                <f:if condition="{record.data.tx_ximatypo3contentplanner_comments}">
-                                    {record.data.tx_ximatypo3contentplanner_comments} <core:icon identifier="content-message" size="small"/>
-                                </f:if>
-                            </td>
-                        </tr>
-                    </f:for>
-                    </tbody>
-                </table>
-            </div>
-        </f:then>
-        <f:else>
-            <div class="row widget-no-items-found">
-                <f:render partial="Empty" />
-            </div>
-        </f:else>
+<div class="widget-content-main widget-contentPlanner-status">
+    <input type="hidden" name="currentBackendUser" value="{currentBackendUser}"/>
+    <f:if condition="{filter}">
+        <div class="widget-filter">
+            <form class="widget-filter-form d-flex align-items-center">
+                <div class="form-row">
+                    <div class="form-group align-self-end">
+                        <div class="input-group">
+                            <button type="submit" class="btn btn-default disabled">
+                                <span class="visually-hidden"><f:translate
+                                    id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></span>
+                                <core:icon identifier="actions-search"/>
+                            </button>
+                            <input type="text" name="search" class="form-control form-control-clearable"
+                                   placeholder="{f:translate(key: 'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.enterSearchString')}">
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+
+                        <div class="input-group">
+                            <button type="submit" class="btn btn-default disabled">
+                                <span class="visually-hidden"><f:translate
+                                    id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></span>
+                                <core:icon identifier="flag-gray"/>
+                            </button>
+                            <select name="status" id="status" class="form-select">
+                                <option value="">-</option>
+                                <f:for each="{filter.status}" as="status">
+                                    <option value="{status.uid}">{status.title}</option>
+                                </f:for>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="users" class="form-label">Assignee</label>
+
+                        <div class="input-group">
+                            <button type="submit" class="btn btn-default disabled">
+                                <span class="visually-hidden"><f:translate
+                                    id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></span>
+                                <core:icon identifier="actions-user"/>
+                            </button>
+                            <select name="assignee" id="users" class="form-select">
+                                <option value="">-</option>
+                                <f:for each="{filter.users}" as="user">
+                                    <option value="{user.uid}">{user.username}</option>
+                                </f:for>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group align-self-end">
+                        <button class="btn btn-default widget-filter-reset" type="reset">
+                            <core:icon identifier="actions-close" size="small"/>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
     </f:if>
+    <div class="widget-table-wrapper">
+        <table class="widget-table">
+            <thead class="hide">
+            <tr>
+                <th>
+                    <f:translate key="widgets.contentPlanner.header.title" extensionName="XimaTypo3ContentPlanner"/>
+                </th>
+                <th>
+                    <f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
+                </th>
+                <th>
+                    <f:translate key="widgets.contentPlanner.header.assignee"
+                                 extensionName="XimaTypo3ContentPlanner"/>
+                </th>
+                <th>
+                    <f:translate key="widgets.contentPlanner.header.comments"
+                                 extensionName="XimaTypo3ContentPlanner"/>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <div class="row widget-no-items-found">
+        <f:render partial="Empty"/>
+    </div>
+    <div class="widget-loading hide">
+        <core:icon identifier="spinner-circle" size="large"/>
+    </div>
 </div>
 </html>
