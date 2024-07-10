@@ -34,40 +34,27 @@ class NewCommentModal {
               btnClass: 'btn-primary',
               trigger: function (event, modal) {
                 const message = modal.querySelector('#new-comment-message').value;
-
-                // need to add existing comment uids to datahandler to not overwrite them
-                // todo: simplify
-                const commentUids = document.querySelectorAll('*[data-comment-uid]');
-                // aggregate comment uids and implode them with comma
-                let commentUidString = '';
-                commentUids.forEach((commentUid, index) => {
-                  commentUidString += commentUid.getAttribute('data-comment-uid');
-                  if (index < commentUids.length - 1) {
-                    commentUidString += ',';
-                  }
-                });
-
+                const identifier = 'NEW' + Math.floor(Math.random() * 999999);
                 new AjaxRequest(top.TYPO3.settings.RecordCommit.moduleUrl)
                   .post({
                     data: {
                       tx_ximatypo3contentplanner_comment: {
-                        NEW_1719856625: {
+                        [identifier]: {
                           content: message,
                           author: userid,
-                          foreign_table: 'pages',
-                          foreign_uid: pid,
                           pid: pid
                         }
                       },
                       pages: {
                         [pid]: {
-                          tx_ximatypo3contentplanner_comments: 'NEW_1719856625' + (commentUidString ? ',' + commentUidString : '')
+                          tx_ximatypo3contentplanner_comments: identifier
                         }
                       }
                     }
                   })
                   .then(function (result) {
                     if (result.response.ok) {
+                      console.log(result.response)
                       top.TYPO3.Notification.success('Status', 'Comment successfully added.');
                       Viewport.ContentContainer.refresh();
                     } else {
