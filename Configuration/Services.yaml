@@ -32,6 +32,16 @@ services:
       - name: event.listener
         identifier: 'xima-typo3-content-planner/backend/modify-button-bar'
 
+  Xima\XimaTypo3ContentPlanner\EventListener\RenderAdditionalContentToRecordListListener:
+    tags:
+      - name: event.listener
+        identifier: 'xima-typo3-content-planner/backend/render-additional-content-to-record-list'
+
+  Xima\XimaTypo3ContentPlanner\EventListener\ModifyRecordListRecordActionsListener:
+    tags:
+      - name: event.listener
+        identifier: 'xima-typo3-content-planner/backend/modify-record-list-record-actions'
+
   Xima\XimaTypo3ContentPlanner\Command\NotifyUpdateCommand:
     tags:
       - name: console.command

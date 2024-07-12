@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'ximatypo3contentplanner_filterpages' => [
-        'path' => '/content-planner/pages',
-        'target' => \Xima\XimaTypo3ContentPlanner\Controller\PageController::class . '::filterAction',
+    'ximatypo3contentplanner_filterrecords' => [
+        'path' => '/content-planner/records',
+        'target' => \Xima\XimaTypo3ContentPlanner\Controller\RecordController::class . '::filterAction',
     ],
 ];

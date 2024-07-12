@@ -11,6 +11,7 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 class ContentStatusDataProvider implements ListDataProviderInterface
 {
@@ -33,33 +34,26 @@ class ContentStatusDataProvider implements ListDataProviderInterface
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
-        $query = $queryBuilder
-            ->select(
-                'uid',
-                'title',
-                'tstamp',
-                'tx_ximatypo3contentplanner_status',
-                'tx_ximatypo3contentplanner_assignee',
-                'tx_ximatypo3contentplanner_comments',
-            )
-            ->from('pages')
-            ->setMaxResults($maxResults)
-            ->andWhere('tx_ximatypo3contentplanner_status IS NOT NULL')
-            ->orderBy('tstamp', 'DESC');
-
+        $additionalWhere = '';
+        $additionalParams = [
+            'limit' => $maxResults,
+        ];
         if ($status) {
-            $query->andWhere('tx_ximatypo3contentplanner_status = :status')
-                ->setParameter('status', $status);
+            $additionalWhere .= ' AND tx_ximatypo3contentplanner_status = :status';
+            $additionalParams['status'] = $status;
         }
-
         if ($assignee) {
-            $query->andWhere('tx_ximatypo3contentplanner_assignee = :assignee')
-                ->setParameter('assignee', $assignee);
+            $additionalWhere .= ' AND tx_ximatypo3contentplanner_assignee = :assignee';
+            $additionalParams['assignee'] = $assignee;
         }
+        $sqlArray = [];
+        foreach (ExtensionUtility::getRecordTables() as $table) {
+            $sqlArray[] = '(SELECT "' . $table . '" as tablename, uid, title, tstamp, tx_ximatypo3contentplanner_status, tx_ximatypo3contentplanner_assignee, tx_ximatypo3contentplanner_comments FROM ' . $table . ' WHERE tx_ximatypo3contentplanner_status IS NOT NULL' . $additionalWhere . ')';
+        }
+        $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
 
-        $items = [];
-        $results = $query->executeQuery()
-            ->fetchAllAssociative();
+        $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
+        $results = $statement->fetchAllAssociative();
 
         foreach ($results as $result) {
             try {

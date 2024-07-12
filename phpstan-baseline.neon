@@ -52,6 +52,11 @@ parameters:
 
 		-
 			message: "#^Call to method getEmail\\(\\) on an unknown class TYPO3\\\\CMS\\\\Beuser\\\\Domain\\\\Model\\\\BackendUser\\.$#"
+			count: 2
+			path: Classes/Command/NotifyUpdateCommand.php
+
+		-
+			message: "#^Call to method getUsername\\(\\) on an unknown class TYPO3\\\\CMS\\\\Beuser\\\\Domain\\\\Model\\\\BackendUser\\.$#"
 			count: 1
 			path: Classes/Command/NotifyUpdateCommand.php
 
@@ -62,11 +67,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\$user of method Xima\\\\XimaTypo3ContentPlanner\\\\Command\\\\NotifyUpdateCommand\\:\\:notify\\(\\) has invalid type TYPO3\\\\CMS\\\\Beuser\\\\Domain\\\\Model\\\\BackendUser\\.$#"
-			count: 1
-			path: Classes/Command/NotifyUpdateCommand.php
-
-		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: Classes/Command/NotifyUpdateCommand.php
 
@@ -96,13 +96,28 @@ parameters:
 			path: Classes/Controller/TreeController.php
 
 		-
+			message: "#^Call to method buildUriFromRoute\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"
+			count: 2
+			path: Classes/Domain/Model/Dto/CommentItem.php
+
+		-
+			message: "#^Class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder not found\\.$#"
+			count: 2
+			path: Classes/Domain/Model/Dto/CommentItem.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: Classes/Domain/Model/Dto/CommentItem.php
+
+		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
 			count: 1
 			path: Classes/Domain/Model/Dto/HistoryItem.php
 
 		-
 			message: "#^Call to method buildUriFromRoute\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"
-			count: 1
+			count: 2
 			path: Classes/Domain/Model/Dto/StatusItem.php
 
 		-
@@ -117,7 +132,7 @@ parameters:
 
 		-
 			message: "#^Class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder not found\\.$#"
-			count: 1
+			count: 2
 			path: Classes/Domain/Model/Dto/StatusItem.php
 
 		-
@@ -177,7 +192,7 @@ parameters:
 
 		-
 			message: "#^Call to method buildUriFromRoute\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"
-			count: 4
+			count: 6
 			path: Classes/EventListener/ModifyButtonBarEventListener.php
 
 		-
@@ -219,6 +234,71 @@ parameters:
 			message: "#^Property Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\ModifyButtonBarEventListener\\:\\:\\$uriBuilder has unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder as its type\\.$#"
 			count: 1
 			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Variable \\$status might not be defined\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Variable \\$uid might not be defined\\.$#"
+			count: 6
+			path: Classes/EventListener/ModifyButtonBarEventListener.php
+
+		-
+			message: "#^Call to method buildUriFromRoute\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"
+			count: 5
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: "#^Call to method getRecord\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\RecordList\\\\Event\\\\ModifyRecordListRecordActionsEvent\\.$#"
+			count: 3
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: "#^Call to method getTable\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\RecordList\\\\Event\\\\ModifyRecordListRecordActionsEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: "#^Call to method hasAction\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\RecordList\\\\Event\\\\ModifyRecordListRecordActionsEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: "#^Call to method setAction\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\RecordList\\\\Event\\\\ModifyRecordListRecordActionsEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: "#^Parameter \\$event of method Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\ModifyRecordListRecordActionsListener\\:\\:__invoke\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\RecordList\\\\Event\\\\ModifyRecordListRecordActionsEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: "#^Parameter \\$uriBuilder of method Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\ModifyRecordListRecordActionsListener\\:\\:__construct\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: "#^Property Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\ModifyRecordListRecordActionsListener\\:\\:\\$uriBuilder has unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder as its type\\.$#"
+			count: 1
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: "#^Call to method addContentAbove\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\RenderAdditionalContentToRecordListEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/RenderAdditionalContentToRecordListListener.php
+
+		-
+			message: "#^Call to method getRequest\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\RenderAdditionalContentToRecordListEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/RenderAdditionalContentToRecordListListener.php
+
+		-
+			message: "#^Parameter \\$event of method Xima\\\\XimaTypo3ContentPlanner\\\\EventListener\\\\RenderAdditionalContentToRecordListListener\\:\\:__invoke\\(\\) has invalid type TYPO3\\\\CMS\\\\Backend\\\\Controller\\\\Event\\\\RenderAdditionalContentToRecordListEvent\\.$#"
+			count: 1
+			path: Classes/EventListener/RenderAdditionalContentToRecordListListener.php
 
 		-
 			message: "#^Access to an undefined property Xima\\\\XimaTypo3ContentPlanner\\\\Form\\\\Element\\\\CurrentUser\\:\\:\\$data\\.$#"
@@ -326,11 +406,6 @@ parameters:
 			path: Classes/Widgets/ContentNotesWidget.php
 
 		-
-			message: "#^Call to method getItemsByDemand\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
-			count: 1
-			path: Classes/Widgets/ContentStatusWidget.php
-
-		-
 			message: "#^Call to method getStatus\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
 			count: 1
 			path: Classes/Widgets/ContentStatusWidget.php
@@ -344,6 +419,11 @@ parameters:
 			message: "#^Call to method getItems\\(\\) on an unknown class TYPO3\\\\CMS\\\\Dashboard\\\\Widgets\\\\ListDataProviderInterface\\.$#"
 			count: 1
 			path: Classes/Widgets/ContentUpdateWidget.php
+
+		-
+			message: "#^Variable \\$items might not be defined\\.$#"
+			count: 1
+			path: Classes/Widgets/Provider/ContentStatusDataProvider.php
 
 		-
 			message: "#^Call to method buildUriFromRoute\\(\\) on an unknown class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder\\.$#"

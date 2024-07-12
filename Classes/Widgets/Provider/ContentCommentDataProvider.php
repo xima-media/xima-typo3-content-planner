@@ -7,7 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
 class ContentCommentDataProvider implements ListDataProviderInterface
 {
@@ -21,15 +21,12 @@ class ContentCommentDataProvider implements ListDataProviderInterface
         $query = $queryBuilder
             ->select(
                 'c.uid',
-                'c.content as content',
-                'c.tstamp as tstamp',
-                'c.author as author',
-                'c.foreign_uid as pid',
-                'p.title as title',
-                'p.tx_ximatypo3contentplanner_status as status',
+                'c.content',
+                'c.tstamp',
+                'c.foreign_uid',
+                'c.foreign_table',
             )
             ->from('tx_ximatypo3contentplanner_comment', 'c')
-            ->leftJoin('c', 'pages', 'p', 'c.foreign_uid = p.uid')
             ->setMaxResults(10)
             ->orderBy('tstamp', 'DESC');
 
@@ -39,26 +36,11 @@ class ContentCommentDataProvider implements ListDataProviderInterface
 
         foreach ($results as $result) {
             try {
-                $items[] = $this->createListItem($result);
+                $items[] = CommentItem::create($result);
             } catch (\Exception $e) {
             }
         }
 
         return $items;
-    }
-
-    private function createListItem(array $result): array
-    {
-        return [
-            'uid' => $result['uid'],
-            'pid' => $result['pid'],
-            'title' => $result['title'],
-            'tstamp' => $result['tstamp'],
-            'content' => $result['content'],
-            'status' => ContentUtility::getStatus((int)$result['status'])?->getTitle(),
-            'status_icon' =>  ContentUtility::getStatus((int)$result['status'])?->getColoredIcon(),
-            'author' => (int)$result['author'],
-            'author_name' => ContentUtility::getBackendUsernameById((int)$result['author']),
-        ];
     }
 }

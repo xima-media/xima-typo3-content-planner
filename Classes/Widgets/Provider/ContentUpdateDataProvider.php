@@ -7,6 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\HistoryItem;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
@@ -24,6 +25,11 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_history');
 
+        $tablesArray = array_merge(['pages'], $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
+        // surround every table with quotes
+        $tables = implode(',', array_map(function ($table) {
+            return '"' . $table . '"';
+        }, $tablesArray));
         $query = $queryBuilder
             ->select(
                 'h.uid',
@@ -39,7 +45,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
             ->from('sys_history', 'h')
             ->leftJoin('h', 'pages', 'p', 'h.recuid = p.uid')
             ->leftJoin('h', 'be_users', 'b', 'h.userid = b.uid')
-            ->andWhere('(h.history_data LIKE "%tx_ximatypo3contentplanner%" AND h.tablename = "pages") OR (h.tablename = "tx_ximatypo3contentplanner_comment")')
+            ->andWhere('(h.history_data LIKE "%tx_ximatypo3contentplanner%" AND h.tablename IN (' . $tables . ')) OR (h.tablename = "tx_ximatypo3contentplanner_comment")')
             ->orderBy('h.tstamp', 'DESC');
 
         if ($maxItems) {

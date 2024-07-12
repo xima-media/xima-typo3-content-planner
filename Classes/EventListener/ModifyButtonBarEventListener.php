@@ -9,6 +9,7 @@ use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
@@ -27,10 +28,27 @@ final class ModifyButtonBarEventListener
 
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
-        $pageId = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] :  0));
 
-        $page = ContentUtility::getPage($pageId);
-        $status = $page['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($page['tx_ximatypo3contentplanner_status']) : null;
+        if (isset($request->getQueryParams()['edit'])) {
+            $table = array_key_first($request->getQueryParams()['edit']);
+        } else {
+            $table = 'pages';
+        }
+
+        if ($table === 'pages') {
+            $uid = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] : 0));
+            $page = ContentUtility::getPage($uid);
+            $status = $page['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($page['tx_ximatypo3contentplanner_status']) : null;
+        } else {
+            if (in_array($table, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'])) {
+                $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
+                $record = ContentUtility::getExtensionRecord($table, $uid);
+                if (!$record) {
+                    return;
+                }
+                $status = $record['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($record['tx_ximatypo3contentplanner_status']) : null;
+            }
+        }
         $buttonBar = $event->getButtonBar();
 
         $buttons = $event->getButtons();
@@ -40,8 +58,7 @@ final class ModifyButtonBarEventListener
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
             ->setIcon($this->iconFactory->getIcon(
                 $status ? $status->getColoredIcon() : 'flag-gray'
-            ))
-        ;
+            ));
 
         foreach ($this->statusRepository->findAll() as $statusItem) {
             $dropDownButton->addItem(
@@ -53,18 +70,29 @@ final class ModifyButtonBarEventListener
                             'tce_db',
                             [
                                 'data' => [
-                                    'pages' => [
-                                        $pageId => [
+                                    $table => [
+                                        $uid => [
                                             'tx_ximatypo3contentplanner_status' => $statusItem->getUid(),
                                         ],
                                     ],
                                 ],
-                                'redirect' => (string)$this->uriBuilder->buildUriFromRoute(
-                                    'web_layout',
-                                    [
-                                        'id' =>  $pageId,
-                                    ]
-                                ),
+                                'redirect' => $table === 'pages' ?
+                                    (string)$this->uriBuilder->buildUriFromRoute(
+                                        'web_layout',
+                                        [
+                                            'id' => $uid,
+                                        ]
+                                    ) :
+                                    (string)$this->uriBuilder->buildUriFromRoute(
+                                        'record_edit',
+                                        [
+                                            'edit' => [
+                                                $table => [
+                                                    $uid => 'edit',
+                                                ],
+                                            ],
+                                        ]
+                                    ),
                             ]
                         )
                     )
@@ -79,18 +107,29 @@ final class ModifyButtonBarEventListener
                         'tce_db',
                         [
                             'data' => [
-                                'pages' => [
-                                    $pageId => [
+                                $table => [
+                                    $uid => [
                                         'tx_ximatypo3contentplanner_status' => '',
                                     ],
                                 ],
                             ],
-                            'redirect' => (string)$this->uriBuilder->buildUriFromRoute(
-                                'web_layout',
-                                [
-                                    'id' =>  $pageId,
-                                ]
-                            ),
+                            'redirect' => $table === 'pages' ?
+                                (string)$this->uriBuilder->buildUriFromRoute(
+                                    'web_layout',
+                                    [
+                                        'id' => $uid,
+                                    ]
+                                ) :
+                                (string)$this->uriBuilder->buildUriFromRoute(
+                                    'record_edit',
+                                    [
+                                        'edit' => [
+                                            $table => [
+                                                $uid => 'edit',
+                                            ],
+                                        ],
+                                    ]
+                                ),
                         ]
                     )
                 )

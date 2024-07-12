@@ -46,38 +46,38 @@ class ContentUtility
             ->executeQuery()->fetchAllAssociative();
     }
 
-    public static function getPagesByFilter(?string $search = null, ?int $status = null, ?int $assignee = null): array|bool
+    public static function getRecordsByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, int $maxResults = 20): array|bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
-        $query = $queryBuilder
-            ->select('*')
-            ->from('pages')
-            ->andWhere(
-                $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status')
-            )
-            ->orderBy('tstamp', 'DESC')
-        ;
-
+        $additionalWhere = '';
+        $additionalParams = [
+            'limit' => $maxResults,
+        ];
         if ($search) {
-            $query->andWhere(
-                $queryBuilder->expr()->like('title', $queryBuilder->createNamedParameter('%' . $search . '%', \PDO::PARAM_STR))
-            );
+            $additionalWhere .= ' AND (title LIKE :search OR uid = :uid)';
+            $additionalParams['search'] = '%' . $search . '%';
+            $additionalParams['uid'] = $search;
         }
-
         if ($status) {
-            $query->andWhere(
-                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_status', $queryBuilder->createNamedParameter($status, \PDO::PARAM_INT))
-            );
+            $additionalWhere .= ' AND tx_ximatypo3contentplanner_status = :status';
+            $additionalParams['status'] = $status;
         }
-
         if ($assignee) {
-            $query->andWhere(
-                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_assignee', $queryBuilder->createNamedParameter($assignee, \PDO::PARAM_INT))
-            );
+            $additionalWhere .= ' AND tx_ximatypo3contentplanner_assignee = :assignee';
+            $additionalParams['assignee'] = $assignee;
         }
+        $sqlArray = [];
+        foreach (ExtensionUtility::getRecordTables() as $table) {
+            if ($type && $type !== $table) {
+                continue;
+            }
+            $sqlArray[] = '(SELECT "' . $table . '" as tablename, uid, title, tstamp, tx_ximatypo3contentplanner_status, tx_ximatypo3contentplanner_assignee, tx_ximatypo3contentplanner_comments FROM ' . $table . ' WHERE tx_ximatypo3contentplanner_status IS NOT NULL' . $additionalWhere . ')';
+        }
+        $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
 
-        return $query->executeQuery()->fetchAllAssociative();
+        $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
+        return $statement->fetchAllAssociative();
     }
 
     public static function getPageComments(int $pageId): array
@@ -98,6 +98,23 @@ class ContentUtility
             $comment['user'] = self::getBackendUsernameById($comment['author']);
         }
         return $comments;
+    }
+
+    public static function getComment(int $id): array|bool
+    {
+        if (!$id) {
+            return false;
+        }
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');
+
+        return $queryBuilder
+            ->select('*')
+            ->from('tx_ximatypo3contentplanner_comment')
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT))
+            )
+            ->executeQuery()->fetchAssociative();
     }
 
     public static function getBackendUserById(?int $userId): array|bool
@@ -155,5 +172,45 @@ class ContentUtility
 
         return $query->executeQuery()
             ->fetchAllAssociative();
+    }
+
+    public static function getExtensionRecords(string $table, ?int $pid = null): array
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+
+        $query = $queryBuilder
+            ->select('uid', 'title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
+            ->from($table)
+            ->andWhere(
+                $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status')
+            )
+            ->orderBy('tstamp', 'DESC');
+
+        if ($pid) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT))
+            );
+        }
+
+        return $query->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    public static function getExtensionRecord(string $table, int $uid): array|bool
+    {
+        if (!$table && !$uid) {
+            return false;
+        }
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+
+        $query = $queryBuilder
+            ->select('*')
+            ->from($table)->andWhere(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
+            );
+
+        return $query->executeQuery()
+            ->fetchAssociative();
     }
 }

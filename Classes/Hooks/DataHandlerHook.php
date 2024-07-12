@@ -7,6 +7,8 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 final class DataHandlerHook
 {
@@ -20,7 +22,7 @@ final class DataHandlerHook
      */
     public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler &$dataHandler)
     {
-        if ($table === 'pages') {
+        if (ExtensionUtility::isRegisteredRecordTable($table)) {
             if (!MathUtility::canBeInterpretedAsInteger($id)) {
                 return;
             }
@@ -36,13 +38,16 @@ final class DataHandlerHook
             }
 
             // auto reset assignee if status is set to null
-            if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['pages']['autoAssignment']) {
+            if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoAssignment']) {
                 $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
             }
 
-            // auto assign user if status is set
-            if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] !== null && $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['pages']['autoUnassignment']) {
-                $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = $GLOBALS['BE_USER']->getUserId();
+            // auto assign user if status is initially set
+            if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] !== null && $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoUnassignment']) {
+                $preRecord = ContentUtility::getExtensionRecord($table, $id);
+                if ($preRecord['tx_ximatypo3contentplanner_status'] === null) {
+                    $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = $GLOBALS['BE_USER']->getUserId();
+                }
             }
         }
     }

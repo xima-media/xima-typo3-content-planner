@@ -16,6 +16,7 @@ content work, e.g. a migration process.
 * Extended page properties for content status, assignee and additional comments
 * Extensive dashboard for detailed content planning
 * Recent updates widget for quick access to the latest changes
+* Extend database records with status behavior
 
 ![Backend](./Documentation/Images/backend.png)
 
@@ -69,6 +70,35 @@ Feature toggles are available, see `ext_localconf.php` for configuration options
 The content planner abilities are part of a **custom permission** and needed to be granted to the dedicated user group/s (except admins).
 
 Every user can easily disable the content planner features in the user settings.
+
+# Additional record tables
+
+If you want to extend the content planner to other record tables (e.g. news), follow the steps below:
+
+1. Extend the TCA (e.g. `Configuration/TCA/Overrides/tx_news_domain_model_news.php`):
+
+```php
+\Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility::addContentPlannerTabToTCA('tx_news_domain_model_news');
+```
+
+2. Extend the database fields (`ext_tables.sql`):
+
+```sql
+CREATE TABLE tx_news_domain_model_news
+(
+	tx_ximatypo3contentplanner_status   int(11) DEFAULT NULL,
+	tx_ximatypo3contentplanner_assignee int(11) DEFAULT NULL,
+	tx_ximatypo3contentplanner_comments int(11) unsigned default '0' not null,
+);
+```
+
+3. Register the table in the `ext_localconf.php`:
+
+```php
+$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['xima_typo3_content_planner']['registerAdditionalRecordTables'][] = 'tx_news_domain_model_news';
+```
+
+
 
 ## License
 

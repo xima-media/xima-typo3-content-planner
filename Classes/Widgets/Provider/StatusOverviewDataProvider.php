@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class StatusOverviewDataProvider implements ChartDataProviderInterface
 {
@@ -37,24 +35,9 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
         ];
     }
 
-    /**
-     * @throws \Doctrine\DBAL\Exception
-     */
     public function countPageStatus(int $status = null): int
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-
-        return (int)$queryBuilder
-            ->count('*')
-            ->from('pages')
-            ->andWhere(
-                $queryBuilder->expr()->eq(
-                    'tx_ximatypo3contentplanner_status',
-                    $queryBuilder->createNamedParameter($status, Connection::PARAM_INT)
-                ),
-            )
-            ->executeQuery()
-            ->fetchOne();
+        return count(ContentUtility::getRecordsByFilter(null, $status));
     }
 
     protected function calculateStatusCounts(): void

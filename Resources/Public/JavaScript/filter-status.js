@@ -42,7 +42,7 @@ class FilterStatus {
     widget.querySelector('.widget-no-items-found').classList.add('hide');
     widget.parentElement.parentElement.querySelector('.widget-waiting').classList.remove('hide');
     widget.querySelector('.widget-table-wrapper').classList.add('hide');
-    new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterpages)
+    new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterrecords)
       .withQueryArguments(queryArguments)
       .get()
       .then(async (response) => {
@@ -55,7 +55,7 @@ class FilterStatus {
         }
         resolved.forEach(function (item) {
           html += '<tr ' + (item.assignedToCurrentUser ? 'class="current"' : '') + '>' +
-            '<td><a href="' + item.pageLink + '">' + item.statusIcon + ' <strong>' + item.pageTitle + '</strong></a></td>' +
+            '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>' +
             '<td>' + item.updated + '</td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
             '<td>' + (item.data.tx_ximatypo3contentplanner_comments > 0 ? item.comments : '') + '</td>' +

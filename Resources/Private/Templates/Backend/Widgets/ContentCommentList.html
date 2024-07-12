@@ -1,5 +1,4 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-      xmlns:dashboard="http://typo3.org/ns/TYPO3/CMS/Dashboard/ViewHelpers"
       xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
@@ -9,8 +8,7 @@
         <f:translate key="{configuration.title}" extensionName="XimaTypo3ContentPlanner"/>
     </span>
 </div>
-<div class="widget-content-main"
-     style="--mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 0) 0) 100% 90% / 100% 100% repeat-x;-webkit-mask: var(--mask);mask: var(--mask);">
+<div class="widget-content-main">
     <f:if condition="{records}">
         <f:then>
             <div class="widget-table-wrapper">
@@ -20,26 +18,25 @@
                             <td>
                                 <div class="d-flex align-items-center" style="gap:10px;">
                                     <core:icon identifier="content-message" size="small"/>
-                                    <f:be.link route="web_layout" parameters="{id: record.pid}" title="{record.title}">
+                                    <a href="{record.recordLink}">
                                     <span title="{record.status}">
-                                <core:icon identifier="{record.status_icon}" size="small"/>
-                                </span>
-                                        <strong>{f:if(condition: record.title, then: '{record.title -> f:format.raw()}',
-                                            else: '[{f:translate(key:
-                                            \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}</strong>
-                                    </f:be.link>
-                                    <f:if condition="{record.author}">
+                                        <core:icon identifier="{record.statusIcon}" size="small"/>
+                                    </span>
+                                        <core:icon identifier="{record.recordIcon}" size="small"/>
+                                        <strong>{record.title}</strong>
+                                    </a>
+                                    <f:if condition="{record.authorName}">
                                         <div>
                                             <div style="display:inline-block;">
-                                                <be:avatar backendUser="{record.author}" size="10"/>
+                                                <be:avatar backendUser="{record.data.author}" size="10" showIcon="true"/>
                                             </div>
-                                            {record.author_name}
+                                            {record.authorName}
                                         </div>
                                     </f:if>
-                                    <small>{record.tstamp -> f:format.date(format:'d.m.Y')}</small>
+                                    <small>{record.data.tstamp -> f:format.date(format:'d.m.Y')}</small>
                                 </div>
 
-                                <p>{record.content -> f:sanitize.html()}</p>
+                                <p>{record.data.content -> f:sanitize.html()}</p>
                             </td>
 
                         </tr>
