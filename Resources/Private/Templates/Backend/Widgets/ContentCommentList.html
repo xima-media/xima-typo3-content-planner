@@ -26,7 +26,7 @@
                                             <core:icon identifier="{record.recordIcon}" size="small"/>
                                             <strong>{record.title}</strong>
                                         </a>
-                                        <f:if condition="{record.authorName}">
+                                        <f:if condition="{record.data.author}">
                                             <div>
                                                 <div style="display:inline-block;">
                                                     <be:avatar backendUser="{record.data.author}" size="10"

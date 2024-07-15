@@ -22,6 +22,7 @@ class ContentCommentDataProvider implements ListDataProviderInterface
             ->select(
                 'c.uid',
                 'c.content',
+                'c.author',
                 'c.tstamp',
                 'c.foreign_uid',
                 'c.foreign_table',
