@@ -11,40 +11,26 @@
 <div class="widget-content-main">
     <f:if condition="{records}">
         <f:then>
-            <div class="widget-table-wrapper">
-                <table class="widget-table">
                     <f:for each="{records}" as="record">
                         <f:if condition="{record.relatedRecord}">
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center" style="gap:10px;">
-                                        <core:icon identifier="content-message" size="small"/>
-                                        <a href="{record.recordLink}">
-                                    <span title="{record.status}">
-                                        <core:icon identifier="{record.statusIcon}" size="small"/>
-                                    </span>
+                            <div class="d-flex align-items-center widget-contentPlanner--comment">
+                                <be:avatar backendUser="{record.data.author}" size="40"
+                                           showIcon="true"/>
+                                <div class="d-flex flex-column flex-grow-1">
+                                    <div><strong>{record.authorName}</strong> <small>{record.data.tstamp -> f:format.date(format:'d.m.Y
+                                        H:i')}</small></div>
+                                    <div class="text">{record.data.content -> f:sanitize.html()}</div>
+                                    <a href="{record.recordLink}">
+                                        <small>
+                                            <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
                                             <core:icon identifier="{record.recordIcon}" size="small"/>
-                                            <strong>{record.title}</strong>
-                                        </a>
-                                        <f:if condition="{record.data.author}">
-                                            <div>
-                                                <div style="display:inline-block;">
-                                                    <be:avatar backendUser="{record.data.author}" size="10"
-                                                               showIcon="true"/>
-                                                </div>
-                                                {record.authorName}
-                                            </div>
-                                        </f:if>
-                                        <small>{record.data.tstamp -> f:format.date(format:'d.m.Y')}</small>
-                                    </div>
-
-                                    <p>{record.data.content -> f:sanitize.html()}</p>
-                                </td>
-                            </tr>
+                                            {record.title}
+                                        </small>
+                                    </a>
+                                </div>
+                            </div>
                         </f:if>
                     </f:for>
-                </table>
-            </div>
         </f:then>
         <f:else>
             <div class="row widget-no-items-found">

@@ -2,6 +2,7 @@
  * Module: @xima/ximatypo3contentplanner/filter-status
  */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
+import CommentsModal from "@xima/ximatypo3contentplanner/comments-modal.js";
 
 class FilterStatus {
 
@@ -64,13 +65,23 @@ class FilterStatus {
 
           html += '<td><small>' + item.updated + '</small></td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
-            '<td>' + (item.data.tx_ximatypo3contentplanner_comments > 0 ? item.comments : '') + '</td>' +
+            '<td>' + (item.data.tx_ximatypo3contentplanner_comments > 0 ? '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>' : '') + '</td>' +
             '</tr>';
         });
         let table = widget.querySelector('table tbody');
         table.innerHTML = html;
         widget.parentElement.parentElement.querySelector('.widget-waiting').classList.add('hide');
         widget.querySelector('.widget-table-wrapper').classList.remove('hide');
+
+        widget.querySelectorAll('.contentPlanner--comments').forEach(item => {
+          item.addEventListener('click', e => {
+            e.preventDefault();
+            const url = e.currentTarget.getAttribute('href');
+            const table = e.currentTarget.getAttribute('data-table');
+            const id = e.currentTarget.getAttribute('data-id');
+            CommentsModal.fetchComments(url, table, id);
+          });
+        });
       });
   }
 }

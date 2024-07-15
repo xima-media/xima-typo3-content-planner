@@ -28,14 +28,12 @@
                             </div>
                         </f:if>
                         <f:if condition="{comments}">
-                            <button class="accordion-button btn btn-default btn-sm" type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#collapseOne"
-                                    aria-expanded="true" aria-controls="collapseOne"
+                            <button class="btn btn-default btn-sm contentPlanner--comments" type="button"
+                                    data-table="pages"
+                                    data-id="{data.uid}"
                                     style="background-color: transparent">
                                 <core:icon identifier="content-message" size="small"/>
                                 {comments -> f:count()}
-                                <core:icon identifier="actions-caret-down" size="small"/>
                             </button>
                         </f:if>
                         <a href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
@@ -57,31 +55,4 @@
             </div>
         </div>
     </div>
-
-    <f:if condition="{comments}">
-        <div id="collapseOne" class="accordion-collapse collapse"
-             data-bs-parent="#accordionExample">
-            <div class="accordion-body">
-                <f:for each="{comments}" as="comment">
-                    <div class="alert alert-secondary mb-2 px-2 ml-3 d-flex align-items-center"
-                         style="background-color: #fefefe;margin-left:3rem;padding:.5rem;"
-                         data-comment-uid="{comment.uid}">
-                        <div class="mx-3">
-                            <core:icon identifier="content-message" size="small"/>
-                        </div>
-                        <div class="mx-3 d-flex align-items-center">
-                            <be:avatar backendUser="{comment.author}" size="16" showIcon="true"/>
-                            <strong class="mx-3">{comment.user}</strong>
-                        </div>
-                        <div class="pt-3 flex-grow-1">
-                            <f:sanitize.html>{comment.content}</f:sanitize.html>
-                        </div>
-                        <div class="ml-auto">
-                            <small>{comment.date}</small>
-                        </div>
-                    </div>
-                </f:for>
-            </div>
-        </div>
-    </f:if>
 </div>

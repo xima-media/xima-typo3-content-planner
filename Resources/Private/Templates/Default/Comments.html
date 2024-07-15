@@ -1,0 +1,57 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:if condition="{comments}">
+    <f:then>
+        <f:comment><!-- ToDo: use css file --></f:comment>
+        <style>
+            .widget-contentPlanner--comment {
+                border-bottom: 1px solid #f9f9f9;
+                padding-bottom: 1rem;
+                gap:1rem;
+                margin-bottom:2rem;
+            }
+            .text {
+                position: relative;
+                display: inline-block;
+                padding: 10px;
+                background-color: #f9f9f9;
+                margin: 1rem 0;
+            }
+            .text::after {
+                content: " ";
+                position: absolute;
+                top: 50%;
+                right: 100%;
+                margin-top: -.75rem;
+                border-width: .75rem;
+                border-style: solid;
+                border-color: transparent #f9f9f9 transparent transparent;
+            }
+        </style>
+        <f:for each="{comments}" as="record">
+            <div class="d-flex align-items-center widget-contentPlanner--comment">
+                <be:avatar backendUser="{record.data.author}" size="40"
+                           showIcon="true"/>
+                <div class="d-flex flex-column flex-grow-1">
+                    <div><strong>{record.authorName}</strong> <small>{record.data.tstamp -> f:format.date(format:'d.m.Y
+                        H:i')}</small></div>
+                    <div class="text">{record.data.content -> f:sanitize.html()}</div>
+                    <a href="{record.recordLink}">
+                        <small>
+                            <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
+                            <core:icon identifier="{record.recordIcon}" size="small"/>
+                            {record.title}
+                        </small>
+                    </a>
+                </div>
+            </div>
+        </f:for>
+    </f:then>
+    <f:else>
+        <div class="row widget-no-items-found">
+            <f:render partial="Empty"/>
+        </div>
+    </f:else>
+</f:if>

@@ -8,6 +8,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
@@ -100,7 +101,7 @@ class ContentUtility
         return $results;
     }
 
-    public static function getPageComments(int $pageId): array
+    public static function getComments(int $id, string $table): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');
 
@@ -108,16 +109,21 @@ class ContentUtility
             ->select('*')
             ->from('tx_ximatypo3contentplanner_comment')
             ->where(
-                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($pageId, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter('pages', \PDO::PARAM_STR))
+                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, \PDO::PARAM_STR))
             )
+            ->orderBy('tstamp', 'DESC')
             ->executeQuery()->fetchAllAssociative();
 
-        foreach ($comments as &$comment) {
-            $comment['date'] = date('d.m.Y H:i', $comment['crdate']);
-            $comment['user'] = self::getBackendUsernameById($comment['author']);
+        $items = [];
+        foreach ($comments as $result) {
+            try {
+                $items[] = CommentItem::create($result);
+            } catch (\Exception $e) {
+            }
         }
-        return $comments;
+
+        return $items;
     }
 
     public static function getComment(int $id): array|bool

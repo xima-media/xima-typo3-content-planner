@@ -2,7 +2,6 @@
  * Module: @xima/ximatypo3contentplanner/new-comment-modal
  */
 import Modal from "@typo3/backend/modal.js";
-import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 import Viewport from "@typo3/backend/viewport.js";
 
 

@@ -6,6 +6,7 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\AdditionalCssInterface;
 use TYPO3\CMS\Dashboard\Widgets\ButtonProviderInterface;
@@ -14,6 +15,7 @@ use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetInterface;
 use TYPO3\CMS\Fluid\View\StandaloneView;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface, JavaScriptInterface
 {
@@ -34,9 +36,12 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
         // preparing view
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         $view->setFormat('html');
-        $view->setTemplateRootPaths(['EXT:xima_typo3_content_planner/Resources/Private/Templates/']);
-        $view->setPartialRootPaths(['EXT:xima_typo3_content_planner/Resources/Private/Partials/']);
+        $view->setTemplateRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/']);
+        $view->setPartialRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Partials/']);
         $view->setTemplatePathAndFilename($template);
+
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->addInlineLanguageLabelFile('EXT:ximatypo3contentplanner/Resources/Private/Language/locallang.xlf');
 
         $view->assignMultiple($templateArguments);
         return $view->render();
@@ -51,13 +56,14 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
 
     public function getCssFiles(): array
     {
-        return ['EXT:xima_typo3_content_planner/Resources/Public/Css/Widgets.css'];
+        return ['EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Widgets.css'];
     }
 
     public function getJavaScriptModuleInstructions(): array
     {
         return [
             JavaScriptModuleInstruction::create('@xima/ximatypo3contentplanner/filter-status.js'),
+            JavaScriptModuleInstruction::create('@xima/ximatypo3contentplanner/comments-modal.js'),
         ];
     }
 }

@@ -76,6 +76,46 @@ parameters:
 			path: Classes/Command/NotifyUpdateCommand.php
 
 		-
+			message: "#^Call to method assign\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Controller/RecordController.php
+
+		-
+			message: "#^Call to method render\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Controller/RecordController.php
+
+		-
+			message: "#^Call to method setLayoutRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Controller/RecordController.php
+
+		-
+			message: "#^Call to method setPartialRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Controller/RecordController.php
+
+		-
+			message: "#^Call to method setTemplate\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Controller/RecordController.php
+
+		-
+			message: "#^Call to method setTemplateRootPaths\\(\\) on an unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Controller/RecordController.php
+
+		-
+			message: "#^Class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView not found\\.$#"
+			count: 1
+			path: Classes/Controller/RecordController.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$view contains unknown class TYPO3\\\\CMS\\\\Fluid\\\\View\\\\StandaloneView\\.$#"
+			count: 1
+			path: Classes/Controller/RecordController.php
+
+		-
 			message: "#^Call to an undefined method Xima\\\\XimaTypo3ContentPlanner\\\\Controller\\\\TreeController\\:\\:getBackendUser\\(\\)\\.$#"
 			count: 1
 			path: Classes/Controller/TreeController.php
@@ -133,6 +173,21 @@ parameters:
 		-
 			message: "#^Class TYPO3\\\\CMS\\\\Backend\\\\Routing\\\\UriBuilder not found\\.$#"
 			count: 2
+			path: Classes/Domain/Model/Dto/StatusItem.php
+
+		-
+			message: "#^Comparison operation \"\\<\\=\" between array\\<TYPO3\\\\CMS\\\\Core\\\\Site\\\\Entity\\\\Site\\> and 1 results in an error\\.$#"
+			count: 1
+			path: Classes/Domain/Model/Dto/StatusItem.php
+
+		-
+			message: "#^Method Xima\\\\XimaTypo3ContentPlanner\\\\Domain\\\\Model\\\\Dto\\\\StatusItem\\:\\:getSite\\(\\) should return string\\|null but returns false\\.$#"
+			count: 1
+			path: Classes/Domain/Model/Dto/StatusItem.php
+
+		-
+			message: "#^Ternary operator condition is always true\\.$#"
+			count: 1
 			path: Classes/Domain/Model/Dto/StatusItem.php
 
 		-

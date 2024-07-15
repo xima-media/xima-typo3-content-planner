@@ -96,7 +96,7 @@ services:
               title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.title'
               description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.description'
               iconIdentifier: 'content-message'
-              height: 'medium'
+              height: 'large'
               width: 'medium'
 
   dashboard.widget.ContentStatus-overview:
