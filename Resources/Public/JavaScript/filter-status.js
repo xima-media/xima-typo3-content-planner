@@ -13,6 +13,7 @@ class FilterStatus {
 
         if (currentBackendUser) {
           FilterStatus.search(widget, {assignee: currentBackendUser});
+          widget.classList.add('widget-contentPlanner-status--assigned');
         } else {
           FilterStatus.search(widget);
           let queryArguments = {};

@@ -55,7 +55,7 @@
 				<source>Status</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.title">
-				<source>Page</source>
+				<source>Record</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.tstamp">
 				<source>Changed</source>
