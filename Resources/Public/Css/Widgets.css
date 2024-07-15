@@ -80,6 +80,7 @@
     background-color: #f5f5f5;
 }
 
-.widget-contentPlanner-status--assigned table tr > th:nth-child(3), .widget-contentPlanner-status--assigned table tr > td:nth-child(3) {
+.widget-contentPlanner-status--assigned table tr > th:nth-child(2), .widget-contentPlanner-status--assigned table tr > td:nth-child(2),
+.widget-contentPlanner-status--assigned table tr > th:nth-child(4), .widget-contentPlanner-status--assigned table tr > td:nth-child(4){
     display: none;
 }

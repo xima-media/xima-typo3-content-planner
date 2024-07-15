@@ -56,8 +56,13 @@ class FilterStatus {
         }
         resolved.forEach(function (item) {
           html += '<tr ' + (item.assignedToCurrentUser ? 'class="current"' : '') + '>' +
-            '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>' +
-            '<td>' + item.updated + '</td>' +
+            '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>';
+
+          if (item.site) {
+            html += '<td>' + item.site + '</td>';
+          }
+
+          html += '<td><small>' + item.updated + '</small></td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
             '<td>' + (item.data.tx_ximatypo3contentplanner_comments > 0 ? item.comments : '') + '</td>' +
             '</tr>';

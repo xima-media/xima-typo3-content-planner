@@ -52,6 +52,7 @@ class ContentUtility
 
         $defaultSelects = [
             'uid',
+            'pid',
             'title',
             'tstamp',
             'tx_ximatypo3contentplanner_status',

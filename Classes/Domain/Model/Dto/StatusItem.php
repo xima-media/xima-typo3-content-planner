@@ -6,6 +6,7 @@ use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
@@ -89,6 +90,18 @@ class StatusItem
         return $this->data['tx_ximatypo3contentplanner_comments'] . ' ' . $icon->render();
     }
 
+    public function getSite(): ?string
+    {
+        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+        if ($siteFinder->getAllSites() <= 1) {
+            return false;
+        }
+        $site = $siteFinder->getSiteByPageId($this->data['pid']);
+        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+        $icon = $iconFactory->getIcon('apps-pagetree-folder-root', 'small');
+        return $icon->render() . ' ' . $site->getAttribute('websiteTitle') ?: $site->getIdentifier();
+    }
+
     public function toArray(): array
     {
         return [
@@ -104,6 +117,7 @@ class StatusItem
             'assigneeAvatar' => $this->getAssigneeAvatar(),
             'assignedToCurrentUser' => $this->getAssignedToCurrentUser(),
             'comments' => $this->getComments(),
+            'site' => $this->getSite(),
         ];
     }
 }
