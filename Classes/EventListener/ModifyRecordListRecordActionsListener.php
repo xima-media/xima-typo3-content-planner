@@ -70,6 +70,7 @@ final class ModifyRecordListRecordActionsListener
                 $action .= '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $statusEntry->getTitle() . '">'
                     . $this->iconFactory->getIcon($statusEntry->getColoredIcon(), Icon::SIZE_SMALL)->render() . $statusEntry->getTitle() . '</a></li>';
             }
+            $action .= '<li><hr class="dropdown-divider"></li>';
             $url = $this->uriBuilder->buildUriFromRoute(
                 'tce_db',
                 [

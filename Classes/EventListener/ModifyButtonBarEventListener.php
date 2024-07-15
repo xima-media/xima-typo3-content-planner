@@ -4,6 +4,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownDivider;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItem;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -98,6 +99,7 @@ final class ModifyButtonBarEventListener
                     )
             );
         }
+        $dropDownButton->addItem(GeneralUtility::makeInstance(DropDownDivider::class));
         $dropDownButton->addItem(
             GeneralUtility::makeInstance(DropDownItem::class)
                 ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))

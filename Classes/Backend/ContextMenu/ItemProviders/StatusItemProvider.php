@@ -57,6 +57,7 @@ class StatusItemProvider extends AbstractProvider
                 'callbackAction' => 'change',
             ];
         }
+        $this->itemsConfiguration['wrap']['childItems']['divider'] = ['type' => 'divider',];
 
         $this->itemsConfiguration['wrap']['childItems']['reset'] = [
             'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset',
