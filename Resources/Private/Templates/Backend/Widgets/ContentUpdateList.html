@@ -14,7 +14,7 @@
         <f:then>
             <ul style="list-style:none;padding:0;margin:-20px;">
                 <f:for each="{records}" as="record">
-                    <f:if condition="{record.historyData}">
+                    <f:if condition="{record.historyData} && {record.relatedRecord}">
                         <li style="border-bottom:1px solid #e0e0e0;{f:if(condition: record.assignedToCurrentUser, then: 'background-color:#FFF3E0;')}">
                             <div class="d-flex align-items-center">
                                 <div class="icon-emphasized"

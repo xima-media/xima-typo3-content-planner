@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
@@ -22,15 +24,8 @@ class ContentUtility
 
     public static function getPage(int $pageId): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-
-        return $queryBuilder
-            ->select('*')
-            ->from('pages')
-            ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($pageId, \PDO::PARAM_INT))
-            )
-            ->executeQuery()->fetchAssociative();
+        $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
+        return $pageRepository->getPage($pageId);
     }
 
     public static function getAssignedPages(): array|bool
@@ -54,6 +49,16 @@ class ContentUtility
         $additionalParams = [
             'limit' => $maxResults,
         ];
+
+        $defaultSelects = [
+            'uid',
+            'title',
+            'tstamp',
+            'tx_ximatypo3contentplanner_status',
+            'tx_ximatypo3contentplanner_assignee',
+            'tx_ximatypo3contentplanner_comments',
+        ];
+
         if ($search) {
             $additionalWhere .= ' AND (title LIKE :search OR uid = :uid)';
             $additionalParams['search'] = '%' . $search . '%';
@@ -72,12 +77,26 @@ class ContentUtility
             if ($type && $type !== $table) {
                 continue;
             }
-            $sqlArray[] = '(SELECT "' . $table . '" as tablename, uid, title, tstamp, tx_ximatypo3contentplanner_status, tx_ximatypo3contentplanner_assignee, tx_ximatypo3contentplanner_comments FROM ' . $table . ' WHERE tx_ximatypo3contentplanner_status IS NOT NULL' . $additionalWhere . ')';
+
+            if ($table === 'pages') {
+                $selects = array_merge($defaultSelects, ['"' . $table . '" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
+            } else {
+                $selects = array_merge($defaultSelects, ['"' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
+            }
+
+            $sqlArray[] = '(SELECT ' . implode(',', $selects) . ' FROM ' . $table . ' WHERE tx_ximatypo3contentplanner_status IS NOT NULL' . $additionalWhere . ')';
         }
         $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
 
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
-        return $statement->fetchAllAssociative();
+        $results =  $statement->fetchAllAssociative();
+
+        foreach ($results as $key => $record) {
+            if (!PermissionUtility::checkAccessForRecord($record['tablename'], $record)) {
+                unset($results[$key]);
+            }
+        }
+        return $results;
     }
 
     public static function getPageComments(int $pageId): array
@@ -196,22 +215,12 @@ class ContentUtility
             ->fetchAllAssociative();
     }
 
-    public static function getExtensionRecord(string $table, int $uid): array|bool
+    public static function getExtensionRecord(?string $table, ?int $uid): array|bool
     {
         if (!$table && !$uid) {
             return false;
         }
-
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-
-        $query = $queryBuilder
-            ->select('*')
-            ->from($table)->andWhere(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)),
-            );
-
-        return $query->executeQuery()
-            ->fetchAssociative();
+        return BackendUtility::getRecord($table, $uid);
     }
 
     public static function clearStatusOfExtensionRecords(string $table, int $status): void

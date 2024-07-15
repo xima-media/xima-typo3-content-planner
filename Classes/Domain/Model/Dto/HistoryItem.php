@@ -10,10 +10,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 
 class HistoryItem
 {
     public array $data = [];
+    public array|bool $relatedRecord = [];
 
     public static function create(array $sysHistoryRow): static
     {
@@ -39,28 +41,37 @@ class HistoryItem
         return $this->getRelatedRecord()['title'];
     }
 
-    private function getRelatedRecord(): array|bool
+    public function getRelatedRecord(): array|bool
     {
-        switch ($this->data['tablename']) {
-            case 'pages':
-                $this->data['relatedRecordTablename'] = 'pages';
-                return ContentUtility::getPage((int)$this->data['recuid']);
-            case 'tx_ximatypo3contentplanner_comment':
-                if ($this->data['raw_history']['foreign_table'] && $this->data['raw_history']['foreign_uid']) {
-                    $table = $this->data['raw_history']['foreign_table'];
-                    $uid = (int)$this->data['raw_history']['foreign_uid'];
-                } else {
-                    $comment = ContentUtility::getComment((int)$this->data['recuid']);
-                    $table = $comment['foreign_table'];
-                    $uid = (int)$comment['foreign_uid'];
-                }
-                $this->data['relatedRecordTablename'] = $table;
+        if (empty($this->relatedRecord)) {
+            switch ($this->data['tablename']) {
+                case 'pages':
+                    $this->data['relatedRecordTablename'] = 'pages';
+                    $this->relatedRecord = ContentUtility::getPage((int)$this->data['recuid']);
+                    // no break
+                case 'tx_ximatypo3contentplanner_comment':
+                    if ($this->data['raw_history']['foreign_table'] && $this->data['raw_history']['foreign_uid']) {
+                        $table = $this->data['raw_history']['foreign_table'];
+                        $uid = (int)$this->data['raw_history']['foreign_uid'];
+                    } else {
+                        $comment = ContentUtility::getComment((int)$this->data['recuid']);
+                        $table = $comment['foreign_table'];
+                        $uid = (int)$comment['foreign_uid'];
+                    }
+                    $this->data['relatedRecordTablename'] = $table;
 
-                return ContentUtility::getExtensionRecord($table, $uid);
-            default:
-                $this->data['relatedRecordTablename'] = $this->data['tablename'];
-                return ContentUtility::getExtensionRecord($this->data['tablename'], (int)$this->data['recuid']);
+                    $this->relatedRecord = ContentUtility::getExtensionRecord($table, $uid);
+                    // no break
+                default:
+                    $this->data['relatedRecordTablename'] = $this->data['tablename'];
+                    $this->relatedRecord = ContentUtility::getExtensionRecord($this->data['tablename'], (int)$this->data['recuid']);
+            }
         }
+
+        if (!PermissionUtility::checkAccessForRecord($this->data['tablename'], $this->relatedRecord)) {
+            $this->relatedRecord = false;
+        }
+        return $this->relatedRecord;
     }
 
     public function getStatus(): ?string

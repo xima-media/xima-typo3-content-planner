@@ -26,7 +26,6 @@ final class DataHandlerHook
         }
     }
 
-
     /**
      * Hook: processCmdmap_preProcess
      */

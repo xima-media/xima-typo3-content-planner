@@ -25,7 +25,6 @@ $GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths'][486] = 'EXT:xima_typo3_
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = \Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook::class;
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass'][] = \Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook::class;
 
-
 // Feature toggles
 $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoAssignment'] = true;
 $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoUnassignment'] = true;

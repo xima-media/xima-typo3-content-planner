@@ -136,7 +136,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
 
         foreach ($results as $result) {
             try {
-                if (in_array(json_decode($result['history_data'], true)['pid'], $uids)) {
+                if (!is_null($result['history_data']) && in_array(json_decode($result['history_data'], true)['pid'], $uids)) {
                     $items[] = HistoryItem::create($result);
                 }
             } catch (\Exception $e) {

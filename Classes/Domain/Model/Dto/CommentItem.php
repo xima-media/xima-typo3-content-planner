@@ -8,6 +8,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 
 class CommentItem
 {
@@ -33,6 +34,11 @@ class CommentItem
         if (empty($this->relatedRecord)) {
             $this->relatedRecord = ContentUtility::getExtensionRecord($this->data['foreign_table'], (int)$this->data['foreign_uid']);
         }
+
+        if (!PermissionUtility::checkAccessForRecord($this->data['foreign_table'], $this->relatedRecord)) {
+            $this->relatedRecord = false;
+        }
+
         return $this->relatedRecord;
     }
 
