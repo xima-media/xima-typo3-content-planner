@@ -213,4 +213,17 @@ class ContentUtility
         return $query->executeQuery()
             ->fetchAssociative();
     }
+
+    public static function clearStatusOfExtensionRecords(string $table, int $status): void
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+
+        $queryBuilder
+            ->update($table)
+            ->set('tx_ximatypo3contentplanner_status', null)
+            ->where(
+                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_status', $status)
+            )
+            ->executeQuery();
+    }
 }
