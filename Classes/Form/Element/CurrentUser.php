@@ -48,7 +48,7 @@ class CurrentUser extends AbstractFormElement
         $html[] =            '<input type="hidden" readonly value="' . $itemValue . '" ';
         $html[]=               GeneralUtility::implodeAttributes($attributes, true);
         $html[]=            ' />';
-        $html[]=            '<div class="d-flex align-items-center mx-3">' . $avatar->render($backendUser->user) . $itemDisplay . '</div>';
+        $html[]=            '<div class="d-flex align-items-center">' . $avatar->render($backendUser->user) . ' <div class="mx-2">' . $itemDisplay . '</div></div>';
         $html[] =         '</div>';
         $html[] =      '</div>';
         $html[] =   '</div>';
