@@ -23,7 +23,7 @@ class UpdateItem implements ToolbarItemInterface
      */
     public function checkAccess(): bool
     {
-        return VisibilityUtility::checkContentStatusVisibility();
+        return VisibilityUtility::checkContentStatusVisibility() && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['relevantUpdates'];
     }
 
     /**
