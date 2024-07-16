@@ -48,7 +48,7 @@ class HistoryItem
                 case 'pages':
                     $this->data['relatedRecordTablename'] = 'pages';
                     $this->relatedRecord = ContentUtility::getPage((int)$this->data['recuid']);
-                    // no break
+                    break;
                 case 'tx_ximatypo3contentplanner_comment':
                     if ($this->data['raw_history']['foreign_table'] && $this->data['raw_history']['foreign_uid']) {
                         $table = $this->data['raw_history']['foreign_table'];
@@ -61,7 +61,7 @@ class HistoryItem
                     $this->data['relatedRecordTablename'] = $table;
 
                     $this->relatedRecord = ContentUtility::getExtensionRecord($table, $uid);
-                    // no break
+                    break;
                 default:
                     $this->data['relatedRecordTablename'] = $this->data['tablename'];
                     $this->relatedRecord = ContentUtility::getExtensionRecord($this->data['tablename'], (int)$this->data['recuid']);
