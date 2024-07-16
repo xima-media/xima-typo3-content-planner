@@ -3,6 +3,7 @@
  */
 import Modal from "@typo3/backend/modal.js";
 import Viewport from "@typo3/backend/viewport.js";
+import Notification from "@typo3/backend/notification.js";
 
 
 class NewCommentModal {
@@ -33,7 +34,26 @@ class NewCommentModal {
                 modal.hideModal();
               }
             }
-          ]
+          ],
+          callback: (modal) => {
+            const iframe = modal.querySelector('.modal-body iframe');
+            let loadCount = 0;
+            function onIframeLoad(event) {
+              if (loadCount > 0) {
+                // workaround: it's the second time the iframe is loaded, so we can assume the comment was saved
+                Viewport.ContentContainer.refresh();
+                modal.hideModal();
+                Notification.success('New comment', 'Successfully saved comment to record.');
+              }
+              loadCount++;
+              iframe.removeEventListener('load', onIframeLoad);
+              setTimeout(function () {
+                iframe.addEventListener('load', onIframeLoad);
+              }, 0);
+            }
+
+            iframe.addEventListener('load', onIframeLoad);
+          },
         });
       })
     }
