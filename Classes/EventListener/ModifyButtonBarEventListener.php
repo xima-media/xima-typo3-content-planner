@@ -6,6 +6,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownDivider;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItem;
+use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -13,6 +14,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyButtonBarEventListener
@@ -36,22 +38,26 @@ final class ModifyButtonBarEventListener
             $table = 'pages';
         }
 
+        if ($table === 'tx_ximatypo3contentplanner_comment') {
+            $this->removeButtonsExceptSave($event);
+            return;
+        } elseif (!ExtensionUtility::isRegisteredRecordTable($table)) {
+            return;
+        }
+
         if ($table === 'pages') {
             $uid = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] : 0));
             $page = ContentUtility::getPage($uid);
             $status = $page['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($page['tx_ximatypo3contentplanner_status']) : null;
         } else {
-            if (in_array($table, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'])) {
-                $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
-                $record = ContentUtility::getExtensionRecord($table, $uid);
-                if (!$record) {
-                    return;
-                }
-                $status = $record['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($record['tx_ximatypo3contentplanner_status']) : null;
+            $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
+            $record = ContentUtility::getExtensionRecord($table, $uid);
+            if (!$record) {
+                return;
             }
+            $status = $record['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($record['tx_ximatypo3contentplanner_status']) : null;
         }
         $buttonBar = $event->getButtonBar();
-
         $buttons = $event->getButtons();
         $buttons['right'] ??= [];
         $dropDownButton = $buttonBar->makeDropDownButton()
@@ -138,6 +144,22 @@ final class ModifyButtonBarEventListener
         );
 
         $buttons['right'][] = [$dropDownButton];
+        $event->setButtons($buttons);
+    }
+
+    private function removeButtonsExceptSave(ModifyButtonBarEvent $event): void {
+        $buttons = [];
+
+        foreach ($event->getButtons() as $position => $buttonGroup) {
+            if ($position === 'right') {
+                continue;
+            }
+            foreach ($buttonGroup as $button) {
+                if ($button[0] instanceof InputButton && str_contains($button[0]->getName(),'_save')) {
+                    $buttons[$position][] = $button;
+                }
+            }
+        }
         $event->setButtons($buttons);
     }
 
