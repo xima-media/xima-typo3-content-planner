@@ -96,7 +96,7 @@ class StatusItem
         if ($siteFinder->getAllSites() <= 1) {
             return false;
         }
-        $site = $siteFinder->getSiteByPageId($this->data['pid']);
+        $site = $siteFinder->getSiteByPageId($this->data['tablename'] === 'pages' ? $this->data['uid'] : $this->data['pid']);
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $icon = $iconFactory->getIcon('apps-pagetree-folder-root', 'small');
         return $icon->render() . ' ' . $site->getAttribute('websiteTitle') ?: $site->getIdentifier();
