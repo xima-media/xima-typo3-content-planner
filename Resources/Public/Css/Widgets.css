@@ -29,7 +29,8 @@
     height: 100%;
     opacity: 0.125;
     background-position: 50% 55%;
-    background-size: 25%;"
+    background-size: 25%;
+"
 }
 
 .widget-content-main table tr.current {
@@ -45,6 +46,7 @@
     padding-top: 4rem;
     height: 100%;
 }
+
 .widget-content-main {
     /*--mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 0) 0) 100% 90% / 100% 100% repeat-x;-webkit-mask: var(--mask);mask: var(--mask);*/
 }
@@ -64,7 +66,7 @@
     display: none;
 }
 
-.widget-content-main .widget-filter .form-check input[type="radio"]:checked+label{
+.widget-content-main .widget-filter .form-check input[type="radio"]:checked + label {
     font-weight: bold;
 }
 
@@ -81,16 +83,17 @@
 }
 
 .widget-contentPlanner-status--assigned table tr > th:nth-child(2), .widget-contentPlanner-status--assigned table tr > td:nth-child(2),
-.widget-contentPlanner-status--assigned table tr > th:nth-child(4), .widget-contentPlanner-status--assigned table tr > td:nth-child(4){
+.widget-contentPlanner-status--assigned table tr > th:nth-child(4), .widget-contentPlanner-status--assigned table tr > td:nth-child(4) {
     display: none;
 }
 
 .widget-contentPlanner--comment {
     border-bottom: 1px solid #f9f9f9;
     padding-bottom: 1rem;
-    gap:1rem;
-    margin-bottom:2rem;
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
+
 .widget-contentPlanner--comment .text {
     position: relative;
     display: inline-block;
@@ -98,10 +101,41 @@
     background-color: #f9f9f9;
     margin: 1rem 0;
 }
+
 .widget-contentPlanner--comment .text p {
     margin-bottom: 0;
 }
 
 .widget-identifier-contentPlanner-notes .widget-content-footer {
     gap: 1rem;
+}
+
+.update-list {
+    list-style: none;
+    padding: 0;
+    margin: -20px;
+}
+
+.update-list li {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.update-list li.current {
+    background-color: #FFF3E0;
+}
+
+.update-list li .change-type-icon {
+    background-color: #eee;
+    padding: 20px;
+    margin: 0 10px;
+    z-index: 2;
+}
+
+.update-list li .text {
+    margin-left: -31px;
+    padding: 20px;
+    padding-left: 40px;
+    height: 100%;
+    display: block;
+    border-left: 1px solid #ddd;
 }

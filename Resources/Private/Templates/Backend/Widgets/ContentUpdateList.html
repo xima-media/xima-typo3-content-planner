@@ -12,17 +12,15 @@
 <div class="widget-content-main">
     <f:if condition="{records}">
         <f:then>
-            <ul style="list-style:none;padding:0;margin:-20px;">
+            <ul class="update-list">
                 <f:for each="{records}" as="record">
                     <f:if condition="{record.historyData} && {record.relatedRecord}">
-                        <li style="border-bottom:1px solid #e0e0e0;{f:if(condition: record.assignedToCurrentUser, then: 'background-color:#FFF3E0;')}">
+                        <li {f:if(condition: record.assignedToCurrentUser, then: 'class="current"')}>
                             <div class="d-flex align-items-center">
-                                <div class="icon-emphasized"
-                                     style="background-color:#eee;padding: 20px;margin: 0 10px;z-index: 2;">
-                                    <core:icon identifier="{record.changeTypeIcon}" size="small"/>
+                                <div class="change-type-icon icon-emphasized">
+                                    {record.changeTypeIcon -> f:format.raw()}
                                 </div>
-                                <div
-                                    style="margin-left: -31px; padding: 20px; padding-left: 40px; height: 100%; display: block; border-left: 1px solid #ddd;">
+                                <div class="text">
                                     {record.historyData -> f:format.raw()}
                                     <f:if condition="{record.data.userid}">
                                         by
@@ -34,39 +32,11 @@
                                     <span class="text-muted small">{record.timeAgo}</span>
                                     <br/>
                                     <div class="mt-2 small">
-                                        <f:if condition="{record.data.tablename} == 'pages'">
-                                            <f:then>
-                                                <f:be.link route="web_layout" parameters="{id: record.data.recuid}"
-                                                           title="{record.data.title}">
-                                                    <core:icon identifier="{record.recordIcon}" size="small"/>
-                                                    <f:if condition="{record.status}">
-                            <span title="{record.status}">
-                                <core:icon identifier="{record.statusIcon}" size="small"/>
-                            </span>
-                                                    </f:if>
-                                                    {f:if(condition: record.title, then: '{record.title ->
-                                                    f:format.raw()}',
-                                                    else: '[{f:translate(key:
-                                                    \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}
-                                                </f:be.link>
-                                            </f:then>
-                                            <f:else>
-                                                <be:link.editRecord uid="{record.data.recuid}" table="{record.data.tablename}"
-                                                                    title="{record.data.title}">
-                                                    <core:icon identifier="{record.recordIcon}" size="small"/>
-                                                    <f:if condition="{record.status}">
-                            <span title="{record.status}">
-                                <core:icon identifier="{record.statusIcon}" size="small"/>
-                            </span>
-                                                    </f:if>
-                                                    {f:if(condition: record.title, then: '{record.title ->
-                                                    f:format.raw()}',
-                                                    else: '[{f:translate(key:
-                                                    \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}
-                                                </be:link.editRecord>
-                                            </f:else>
-                                        </f:if>
-
+                                        <a href="{record.recordLink}">
+                                            {record.statusIcon -> f:format.raw()}
+                                            {record.recordIcon -> f:format.raw()}
+                                            {record.title}
+                                        </a>
                                     </div>
                                 </div>
                             </div>

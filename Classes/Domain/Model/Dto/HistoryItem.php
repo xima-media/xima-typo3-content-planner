@@ -2,6 +2,7 @@
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -38,7 +39,7 @@ class HistoryItem
 
     public function getTitle(): ?string
     {
-        return $this->getRelatedRecord()['title'];
+        return $this->getRelatedRecord()['title'] ?: $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title');
     }
 
     public function getRelatedRecord(): array|bool
@@ -74,21 +75,35 @@ class HistoryItem
         return $this->relatedRecord;
     }
 
-    public function getStatus(): ?string
+
+    public function getRecordLink(): string
     {
-        return ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status'])?->getTitle();
+        switch ($this->data['tablename']) {
+            case 'pages':
+                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $this->data['uid']]);
+            default:
+                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$this->data['tablename'] => [$this->data['uid'] => 'edit']]]);
+        }
     }
 
-    public function getStatusIcon(): string
+    public function getStatus(): ?string
     {
-        return ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status'])->getColoredIcon();
+        $status = ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        return $status?->getTitle();
+    }
+
+    public function getStatusIcon(): ?string
+    {
+        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+        $status = ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        return $iconFactory->getIcon($status ? $status->getColoredIcon() : 'flag-gray', Icon::SIZE_SMALL)->render();
     }
 
     public function getRecordIcon(): string
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $record = $this->getRelatedRecord();
-        return $iconFactory->getIconForRecord($this->data['relatedRecordTablename'], $record, Icon::SIZE_SMALL)->getIdentifier();
+        return $iconFactory->getIconForRecord($this->data['relatedRecordTablename'], $record, Icon::SIZE_SMALL)->render();
     }
 
     public function getTimeAgo(): string
@@ -103,9 +118,10 @@ class HistoryItem
 
     public function getChangeTypeIcon(): string
     {
+        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         switch ($this->data['tablename']) {
             case 'tx_ximatypo3contentplanner_comment':
-                return 'actions-comment';
+                return $iconFactory->getIcon('actions-comment', Icon::SIZE_SMALL)->render();
             default:
                 if (!ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
                     break;
@@ -114,16 +130,15 @@ class HistoryItem
                     case 'tx_ximatypo3contentplanner_status':
                         $status = ContentUtility::getStatus((int)$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status']);
                         if (!$status) {
-                            return 'flag-gray';
+                            return $iconFactory->getIcon('flag-gray', Icon::SIZE_SMALL)->render();
                         }
-                        return $status->getColoredIcon();
+                        return $iconFactory->getIcon($status->getColoredIcon(), Icon::SIZE_SMALL)->render();
                     case 'tx_ximatypo3contentplanner_assignee':
-                        return 'actions-user';
+                        return $iconFactory->getIcon('actions-user', Icon::SIZE_SMALL)->render();
                 }
                 break;
         }
-        return 'actions-open
-';
+        return $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL)->render();
     }
 
     public function getRawHistoryData(): array
