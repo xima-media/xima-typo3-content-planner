@@ -116,13 +116,19 @@ services:
 
   Xima\XimaTypo3ContentPlanner\Widgets\Provider\CreateNoteButtonProvider:
     arguments:
-      $title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.notes.button'
+      $title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.notes.button.create'
+
+  Xima\XimaTypo3ContentPlanner\Widgets\Provider\ListNoteButtonProvider:
+    arguments:
+      $title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.notes.button.list'
 
   dashboard.widget.ContentStatus-notes:
       class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentNotesWidget'
       arguments:
           $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentNotesDataProvider'
-          $buttonProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\CreateNoteButtonProvider'
+          $buttons:
+            - '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\CreateNoteButtonProvider'
+            - '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ListNoteButtonProvider'
       tags:
           -   name: dashboard.widget
               identifier: 'contentPlanner-notes'

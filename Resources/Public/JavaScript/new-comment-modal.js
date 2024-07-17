@@ -11,8 +11,6 @@ class NewCommentModal {
   constructor() {
     const item = document.querySelector('#new-comment-modal');
     if (item) {
-      const pid = item.getAttribute('data-pid');
-      const userid = item.getAttribute('data-userid');
       item.addEventListener('click', e => {
         e.preventDefault()
         const url = e.currentTarget.getAttribute('href')
@@ -38,6 +36,7 @@ class NewCommentModal {
           callback: (modal) => {
             const iframe = modal.querySelector('.modal-body iframe');
             let loadCount = 0;
+
             function onIframeLoad(event) {
               if (loadCount > 0) {
                 // workaround: it's the second time the iframe is loaded, so we can assume the comment was saved

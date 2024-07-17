@@ -34,12 +34,14 @@
     </f:if>
 </div>
 
-<div class="widget-content-footer">
-    <f:if condition="{button}">
-        <dashboard:widget.button button="{button}" class="widget-cta">
-            <span class="mx-2"><f:translate key="widgets.contentPlanner.notes.button"
-                                            extensionName="XimaTypo3ContentPlanner"/></span>
-        </dashboard:widget.button>
+<div class="widget-content-footer d-flex">
+    <f:if condition="{buttons}">
+        <f:for each="{buttons}" as="button">
+            <dashboard:widget.button button="{button}" class="widget-cta flex-grow-1">
+            <span class="mx-2">
+                <f:translate key="{button.title}" extensionName="XimaTypo3ContentPlanner"/></span>
+            </dashboard:widget.button>
+        </f:for>
     </f:if>
 </div>
 

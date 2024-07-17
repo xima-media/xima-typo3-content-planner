@@ -42,8 +42,11 @@
 			<trans-unit id="widgets.contentPlanner.notes.description">
 				<source>Display the content status notes</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.notes.button">
+			<trans-unit id="widgets.contentPlanner.notes.button.create">
 				<source>New</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.notes.button.list">
+				<source>List</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.update.title">
 				<source>Content Planner Recent Updates</source>

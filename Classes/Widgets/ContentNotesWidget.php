@@ -14,7 +14,7 @@ class ContentNotesWidget extends AbstractWidget
                 'configuration' => $this->configuration,
                 'records' => $this->dataProvider->getItems(),
                 'options' => $this->options,
-                'button' => $GLOBALS['BE_USER']->check('tables_modify', 'tx_ximatypo3contentplanner_note') ? $this->buttonProvider : null,
+                'buttons' => $GLOBALS['BE_USER']->check('tables_modify', 'tx_ximatypo3contentplanner_note') ? $this->buttons : null,
                 'icon' => 'content-thumbtack',
             ]
         );

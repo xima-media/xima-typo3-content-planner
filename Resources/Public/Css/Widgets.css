@@ -101,3 +101,7 @@
 .widget-contentPlanner--comment .text p {
     margin-bottom: 0;
 }
+
+.widget-identifier-contentPlanner-notes .widget-content-footer {
+    gap: 1rem;
+}

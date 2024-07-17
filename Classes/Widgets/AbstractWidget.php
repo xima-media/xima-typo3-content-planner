@@ -25,6 +25,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
         protected readonly WidgetConfigurationInterface $configuration,
         protected readonly ListDataProviderInterface $dataProvider,
         protected readonly ?ButtonProviderInterface $buttonProvider = null,
+        protected readonly array $buttons = [],
         protected array $options = []
     ) {
     }

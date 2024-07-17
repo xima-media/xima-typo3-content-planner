@@ -21,6 +21,10 @@ final class RenderAdditionalContentToRecordListListener
         $records = [];
 
         if ($table) {
+            if (!ExtensionUtility::isRegisteredRecordTable($table)) {
+                return;
+            }
+
             $records[$table] = ContentUtility::getExtensionRecords($table, $pid);
         } else {
             foreach (ExtensionUtility::getRecordTables() as $table) {
