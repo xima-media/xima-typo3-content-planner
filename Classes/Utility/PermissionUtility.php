@@ -14,16 +14,16 @@ class PermissionUtility
         $backendUser = $GLOBALS['BE_USER'];
         /* @var $backendUser \TYPO3\CMS\Core\Authentication\BackendUserAuthentication */
         if ($tablename === 'pages' && !BackendUtility::readPageAccess(
-                $record['uid'],
-                $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
-            )) {
+            $record['uid'],
+            $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
+        )) {
             return false;
         }
 
         if (!$backendUser->check('tables_select', $tablename) || !BackendUtility::readPageAccess(
-                $record['pid'],
-                $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
-            )) {
+            $record['pid'],
+            $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
+        )) {
             return false;
         }
         return true;

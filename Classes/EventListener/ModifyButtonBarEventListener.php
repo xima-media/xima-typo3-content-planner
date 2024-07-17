@@ -11,7 +11,6 @@ use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -41,7 +40,8 @@ final class ModifyButtonBarEventListener
         if ($table === 'tx_ximatypo3contentplanner_comment') {
             $this->removeButtonsExceptSave($event);
             return;
-        } elseif (!ExtensionUtility::isRegisteredRecordTable($table)) {
+        }
+        if (!ExtensionUtility::isRegisteredRecordTable($table)) {
             return;
         }
 
@@ -147,7 +147,8 @@ final class ModifyButtonBarEventListener
         $event->setButtons($buttons);
     }
 
-    private function removeButtonsExceptSave(ModifyButtonBarEvent $event): void {
+    private function removeButtonsExceptSave(ModifyButtonBarEvent $event): void
+    {
         $buttons = [];
 
         foreach ($event->getButtons() as $position => $buttonGroup) {
@@ -155,7 +156,7 @@ final class ModifyButtonBarEventListener
                 continue;
             }
             foreach ($buttonGroup as $button) {
-                if ($button[0] instanceof InputButton && str_contains($button[0]->getName(),'_save')) {
+                if ($button[0] instanceof InputButton && str_contains($button[0]->getName(), '_save')) {
                     $buttons[$position][] = $button;
                 }
             }
