@@ -19,9 +19,9 @@ $GLOBALS['TYPO3_USER_SETTINGS']['columns']['tx_ximatypo3contentplanner_subscribe
     'type' => 'select',
     'table' => 'be_users',
     'items' => [
-        "" => 'Never',
-        "daily" => 'Daily',
-        "weekly" => 'Weekly',
+        '' => 'Never',
+        'daily' => 'Daily',
+        'weekly' => 'Weekly',
     ],
 ];
 

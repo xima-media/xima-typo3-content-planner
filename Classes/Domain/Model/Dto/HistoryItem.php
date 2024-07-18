@@ -172,7 +172,8 @@ class HistoryItem
         return $GLOBALS['LANG'];
     }
 
-    protected function renderIcon(Icon $icon): string {
+    protected function renderIcon(Icon $icon): string
+    {
         return $this->cliContext ? $icon->getAlternativeMarkup('inline') : $icon->render();
     }
 }

@@ -5,14 +5,9 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Command;
 
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Mime\Address;
-use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
-use TYPO3\CMS\Core\Http\NormalizedParams;
-use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -27,7 +22,7 @@ final class NotifyUpdateCommand extends Command
 {
     public const SUBSCRIBE_FREQUENCY = [
         'daily' => 86400,
-        'weekly' => 604800
+        'weekly' => 604800,
     ];
 
     public function __construct(private readonly ContentUpdateDataProvider $contentUpdateDataProvider)
