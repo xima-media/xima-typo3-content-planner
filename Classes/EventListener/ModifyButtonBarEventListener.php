@@ -33,8 +33,10 @@ final class ModifyButtonBarEventListener
 
         if (isset($request->getQueryParams()['edit'])) {
             $table = array_key_first($request->getQueryParams()['edit']);
-        } else {
+        } elseif (isset($request->getQueryParams()['id'])) {
             $table = 'pages';
+        } else {
+            return;
         }
 
         if ($table === 'tx_ximatypo3contentplanner_comment') {
