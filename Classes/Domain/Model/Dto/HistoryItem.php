@@ -75,7 +75,6 @@ class HistoryItem
         return $this->relatedRecord;
     }
 
-
     public function getRecordLink(): string
     {
         switch ($this->data['tablename']) {

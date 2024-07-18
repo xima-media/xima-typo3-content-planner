@@ -15,7 +15,7 @@ final class DataHandlerHook
     /**
      * Hook: processDatamap_preProcessFieldArray
      */
-    public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler &$dataHandler)
+    public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler &$dataHandler): void
     {
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
             return;
@@ -29,7 +29,7 @@ final class DataHandlerHook
     /**
      * Hook: processCmdmap_preProcess
      */
-    public function processCmdmap_preProcess($command, $table, $id, $value, DataHandler $parentObject, bool &$commandIsProcessed)
+    public function processCmdmap_preProcess($command, $table, $id, $value, DataHandler $parentObject, bool &$commandIsProcessed): void
     {
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
             return;
@@ -39,6 +39,21 @@ final class DataHandlerHook
             // Clear all status of records that are assigned to the deleted status
             foreach (ExtensionUtility::getRecordTables() as $table) {
                 ContentUtility::clearStatusOfExtensionRecords($table, $id);
+            }
+        }
+    }
+
+    /**
+     * Hook: processDatamap_beforeStart
+     */
+    public function processDatamap_beforeStart(DataHandler $dataHandler): void
+    {
+        $datamap = $dataHandler->datamap;
+        // Workaround to solve relation of comments created within the modal
+        if (array_key_first($datamap) === 'tx_ximatypo3contentplanner_comment') {
+            $id = array_key_first($datamap['tx_ximatypo3contentplanner_comment']);
+            if (!MathUtility::canBeInterpretedAsInteger($id) && !array_key_exists('pages', $dataHandler->datamap)) {
+                $dataHandler->datamap['pages'][$datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
             }
         }
     }
