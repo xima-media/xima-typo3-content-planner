@@ -79,7 +79,7 @@ final class DataHandlerHook
         // auto assign user if status is initially set
         if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] !== null && $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoUnassignment']) {
             $preRecord = ContentUtility::getExtensionRecord($table, $id);
-            if ($preRecord['tx_ximatypo3contentplanner_status'] === null) {
+            if ($preRecord['tx_ximatypo3contentplanner_status'] === null || $preRecord['tx_ximatypo3contentplanner_status'] === 0) {
                 $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = $GLOBALS['BE_USER']->getUserId();
             }
         }
