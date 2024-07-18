@@ -5,13 +5,25 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 class PermissionUtility
 {
     public static function checkAccessForRecord(string $tablename, $record): bool
     {
+
         $backendUser = $GLOBALS['BE_USER'];
+        if ($backendUser->user === null) {
+            Bootstrap::initializeBackendAuthentication();
+            $backendUser->initializeUserSessionManager();
+            $backendUser = $GLOBALS['BE_USER'];
+        }
+
+        if ($backendUser->user['username'] === '_cli_') {
+            return true;
+        }
+
         /* @var $backendUser \TYPO3\CMS\Core\Authentication\BackendUserAuthentication */
         if ($tablename === 'pages' && !BackendUtility::readPageAccess(
             $record['uid'],

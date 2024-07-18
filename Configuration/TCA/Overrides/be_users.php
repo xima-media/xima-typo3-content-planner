@@ -21,9 +21,23 @@ call_user_func(function () {
                 ],
             ],
         ],
+        'tx_ximatypo3contentplanner_subscribe' => [
+            'exclude' => 1,
+            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_subscribe',
+            'description' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_subscribe.description',
+            'config' => [
+                'type' => 'select',
+                'renderType' => 'selectSingle',
+                'items' => [
+                    ['Never', ''],
+                    ['Daily', 'daily'],
+                    ['Weekly', 'weekly'],
+                ],
+            ],
+        ],
     ];
     $GLOBALS['TCA']['pages']['palettes']['tx_ximatypo3contentplanner'] = [
-        'showitem' => 'tx_ximatypo3contentplanner_hide',
+        'showitem' => 'tx_ximatypo3contentplanner_hide, tx_ximatypo3contentplanner_subscribe',
     ];
 
     ExtensionManagementUtility::addTCAcolumns('be_users', $temporaryColumns);

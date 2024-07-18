@@ -9,19 +9,27 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Mime\Address;
-use TYPO3\CMS\Beuser\Domain\Model\BackendUser;
-use TYPO3\CMS\Beuser\Domain\Repository\BackendUserRepository;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Mail\FluidEmail;
 use TYPO3\CMS\Core\Mail\MailerInterface;
+use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\View\StandaloneView;
+use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\BackendUser;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentUpdateDataProvider;
 
 final class NotifyUpdateCommand extends Command
 {
+    public const SUBSCRIBE_FREQUENCY = [
+        'daily' => 86400,
+        'weekly' => 604800
+    ];
+
     public function __construct(private readonly ContentUpdateDataProvider $contentUpdateDataProvider)
     {
         parent::__construct();
@@ -30,73 +38,70 @@ final class NotifyUpdateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setHelp('A command to notify users about relevant updates in the content planner.')
-            ->addArgument(
-                'period',
-                InputArgument::OPTIONAL,
-                'Get updates since this period (in seconds). Default is 1 day.',
-                86400
-            );
+            ->setHelp('A command to notify users about relevant updates in the content planner.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $period = $input->getArgument('period');
-        $since = time() - $period;
         $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
 
         // ToDo: only regard users with access to the content planner
         foreach ($backendUserRepository->findAll() as $user) {
-            $updates = $this->contentUpdateDataProvider->fetchUpdateData(true, $user->getUid(), $since);
+            if ($user->getEmail() === '' || !(bool)$user->getSubscribe() || ($user->getLastMail() + self::SUBSCRIBE_FREQUENCY[$user->getSubscribe()]) > time()) {
+                continue;
+            }
+            $output->writeln('Checking updates for user ' . $user->getUsername() . ' ...');
+
+            $since = time() - (int)self::SUBSCRIBE_FREQUENCY[$user->getSubscribe()];
+
+            $updates = $this->contentUpdateDataProvider->fetchUpdateData(false, null, $since, null, true);
             if (count($updates) > 0) {
-                $output->writeln('User ' . $user->getUsername() . ' has ' . count($updates) . ' relevant updates.');
-                $this->notify($user, $updates);
+                $output->writeln('User ' . $user->getUsername() . ' has ' . count($updates) . ' updates.');
+                $result = $this->notify($user, $updates);
+
+                if ($result) {
+                    $user->setLastMail(time());
+                    $backendUserRepository->update($user);
+                    // ToDo: why isn't the user updated?
+                }
             }
         }
 
         return Command::SUCCESS;
     }
 
-    private function notify(BackendUser $user, array $updates): void
+    private function notify(BackendUser $user, array $updates): bool
     {
-        if ($user->getEmail() === '') {
-            return;
-        }
-
-        // https://www.derhansen.de/2022/06/using-typo3-fluidemail-in-cli-context.html
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
         $array = $siteFinder->getAllSites();
         $site = reset($array);
 
-        $normalizedParams = new NormalizedParams(
+        $view = GeneralUtility::makeInstance(StandaloneView::class);
+        /** @var StandaloneView $view */
+        $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Email/ContentUpdates.html');
+
+        $view->setTemplateRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/']);
+        $view->setPartialRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Partials/']);
+        $view->setLayoutRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Layouts/']);
+
+        $view->assignMultiple(
             [
-                'HTTP_HOST' => $site->getBase()->getHost(),
-                'HTTPS' => $site->getBase()->getScheme() === 'https' ? 'on' : 'off',
-            ],
-            $systemConfiguration ?? $GLOBALS['TYPO3_CONF_VARS']['SYS'],
-            '',
-            ''
+                'data' => $updates,
+                'user' => $user,
+                'backendUrl' => $site->getBase()->__toString() . '/typo3',
+            ]
         );
 
-        $request = (new ServerRequest())
-            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_FE)
-            ->withAttribute('normalizedParams', $normalizedParams)
-            ->withAttribute('site', $site);
-        $GLOBALS['TYPO3_REQUEST'] = $request;
-
-        $email = new FluidEmail();
+        $email = new MailMessage();
         $email
             ->to(new Address($user->getEmail(), $user->getUsername()))
             ->subject('TYPO3 Content Planner Updates')
-            ->format(FluidEmail::FORMAT_HTML)
-            ->setTemplate('ContentUpdates')
-            ->setRequest($request)
-            ->assignMultiple(
-                [
-                    'data' => $updates,
-                    'user' => $user,
-                ]
+            ->html(
+                // workaround: to resolve the base url in the email
+                str_replace('href="', 'href="' . $site->getBase()->__toString() . '/', $view->render())
             );
         GeneralUtility::makeInstance(MailerInterface::class)->send($email);
+
+        return true;
     }
 }

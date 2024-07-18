@@ -17,12 +17,14 @@ class HistoryItem
 {
     public array $data = [];
     public array|bool $relatedRecord = [];
+    public bool $cliContext = false;
 
-    public static function create(array $sysHistoryRow): static
+    public static function create(array $sysHistoryRow, bool $cliContext = false): static
     {
         $item = new static();
         $item->data = $sysHistoryRow;
         $item->data['raw_history'] = json_decode($sysHistoryRow['history_data'], true);
+        $item->cliContext = $cliContext;
 
         return $item;
     }
@@ -95,14 +97,14 @@ class HistoryItem
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $status = ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
-        return $iconFactory->getIcon($status ? $status->getColoredIcon() : 'flag-gray', Icon::SIZE_SMALL)->render();
+        return $this->renderIcon($iconFactory->getIcon($status ? $status->getColoredIcon() : 'flag-gray', Icon::SIZE_SMALL));
     }
 
     public function getRecordIcon(): string
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $record = $this->getRelatedRecord();
-        return $iconFactory->getIconForRecord($this->data['relatedRecordTablename'], $record, Icon::SIZE_SMALL)->render();
+        return $record ? $this->renderIcon($iconFactory->getIconForRecord($this->data['relatedRecordTablename'], $record, Icon::SIZE_SMALL)) : '';
     }
 
     public function getTimeAgo(): string
@@ -120,7 +122,7 @@ class HistoryItem
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         switch ($this->data['tablename']) {
             case 'tx_ximatypo3contentplanner_comment':
-                return $iconFactory->getIcon('actions-comment', Icon::SIZE_SMALL)->render();
+                return $this->renderIcon($iconFactory->getIcon('actions-comment', Icon::SIZE_SMALL));
             default:
                 if (!ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
                     break;
@@ -129,15 +131,15 @@ class HistoryItem
                     case 'tx_ximatypo3contentplanner_status':
                         $status = ContentUtility::getStatus((int)$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status']);
                         if (!$status) {
-                            return $iconFactory->getIcon('flag-gray', Icon::SIZE_SMALL)->render();
+                            return $this->renderIcon($iconFactory->getIcon('flag-gray', Icon::SIZE_SMALL));
                         }
-                        return $iconFactory->getIcon($status->getColoredIcon(), Icon::SIZE_SMALL)->render();
+                        return $this->renderIcon($iconFactory->getIcon($status->getColoredIcon(), Icon::SIZE_SMALL));
                     case 'tx_ximatypo3contentplanner_assignee':
-                        return $iconFactory->getIcon('actions-user', Icon::SIZE_SMALL)->render();
+                        return $this->renderIcon($iconFactory->getIcon('actions-user', Icon::SIZE_SMALL));
                 }
                 break;
         }
-        return $iconFactory->getIcon('actions-open', Icon::SIZE_SMALL)->render();
+        return $this->renderIcon($iconFactory->getIcon('actions-open', Icon::SIZE_SMALL));
     }
 
     public function getRawHistoryData(): array
@@ -168,5 +170,9 @@ class HistoryItem
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    protected function renderIcon(Icon $icon): string {
+        return $this->cliContext ? $icon->getAlternativeMarkup('inline') : $icon->render();
     }
 }

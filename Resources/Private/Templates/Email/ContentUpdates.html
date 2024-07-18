@@ -1,39 +1,215 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
-<f:layout name="SystemEmail"/>
-<f:section name="Title">
-    Content Planner: Relevant Updates
-</f:section>
-<f:section name="Subject">
-    Content Planner: Relevant Updates
-</f:section>
+<f:layout name="Email" />
 <f:section name="Main">
-    <p class="dropdown-item-text">Find recent updates on content, you're currently assigned to and you may have probably
-        missed.</p>
-    <ul class="dropdown-list">
-        <f:if condition="{data}">
-            <f:then>
-                <f:for each="{data}" as="record">
-                    <f:if condition="{record.historyData}">
-                        <li>
-                            {record.historyData -> f:format.raw()}
-                            <f:if condition="{record.data.userid}">
-                                by
-                                <u>{record.user}</u>
-                            </f:if>
-                            <span class="text-muted small"
-                                  style="display: inline-block;white-space: nowrap;width: auto;font-size:80%;">{record.timeAgo}</span>
-                            <br/>
-                            <div class="mt-2 small">
-                                {f:if(condition: record.pageTitle, then: '{record.pageTitle -> f:format.raw()}',
-                                else: '[{f:translate(key:
-                                \'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title\')}]')}
+    <style>
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+        .update-list {
+            list-style: none;
+            padding: 0;
+            margin: -20px;
+            font-size: 14px;
+        }
+
+        .update-list li {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .update-list li.current {
+            background-color: #FFF3E0;
+        }
+
+        .update-list li .change-type-icon {
+            background-color: #eee;
+            padding: 20px;
+            margin: 0 10px;
+            z-index: 2;
+        }
+
+        .update-list li .text {
+            margin-left: 40px;
+            padding: 20px;
+            padding-left: 50px;
+            height: 100%;
+            display: block;
+            border-left: 1px solid #ddd;
+        }
+        .icon-emphasized {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 100%;
+            position: absolute;
+        }
+        .icon-emphasized svg {
+            width: 24px;
+            height: 24px;
+        }
+        .d-flex {
+            display: flex;
+        }
+        .align-items-center {
+            align-items: center;
+        }
+        .small {
+            font-size: 80%;
+        }
+        .text-muted {
+            color: #6c757d;
+        }
+        .intro-text {
+            margin-bottom: 19px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+    </style>
+
+    <table class="card" role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-radius: 6px; border-collapse: separate !important; width: 100%; overflow: hidden; border: 1px solid #e2e8f0;" bgcolor="#ffffff">
+        <tbody>
+        <tr>
+            <td style="line-height: 24px; font-size: 16px; width: 100%; margin: 0;" align="left" bgcolor="#ffffff">
+                <table class="card-body" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                    <tbody>
+                    <tr>
+                        <td style="line-height: 24px; font-size: 16px; width: 100%; margin: 0; padding: 20px;" align="left">
+                            <h1 class="h3" style="padding-top: 0; padding-bottom: 0; font-weight: 500; vertical-align: baseline; font-size: 28px; line-height: 33.6px; margin: 0;" align="left"><img alt="Logo" style="vertical-align: middle;width:60px;" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTY5IiBoZWlnaHQ9IjE2OSIgdmlld0JveD0iMCAwIDE2OSAxNjkiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgxLDAsMCwxLDEwOC4wMjMsLTI1LjE1ODcpIj4KICAgICAgICA8cmVjdCB4PSItMTA4LjAyMyIgeT0iMjUuMTU5IiB3aWR0aD0iMTY4Ljk4MiIgaGVpZ2h0PSIxNjguOTgyIiBzdHlsZT0iZmlsbDpub25lOyIvPgogICAgICAgIDxjbGlwUGF0aCBpZD0iX2NsaXAxIj4KICAgICAgICAgICAgPHJlY3QgeD0iLTEwOC4wMjMiIHk9IjI1LjE1OSIgd2lkdGg9IjE2OC45ODIiIGhlaWdodD0iMTY4Ljk4MiIvPgogICAgICAgIDwvY2xpcFBhdGg+CiAgICAgICAgPGcgY2xpcC1wYXRoPSJ1cmwoI19jbGlwMSkiPgogICAgICAgICAgICA8ZyB0cmFuc2Zvcm09Im1hdHJpeCgwLjIzODUzNywwLDAsMC4yMzg1MzcsLTc2Ljk5NzQsNDguMjc2NSkiPgogICAgICAgICAgICAgICAgPGcgdHJhbnNmb3JtPSJtYXRyaXgoMS41NjkzOCwwLDAsMS4zNzEwMiwtMTI1LjYxMSwtOTEuNzc1NSkiPgogICAgICAgICAgICAgICAgICAgIDxyZWN0IHg9Ii0yLjgzOSIgeT0iLTMuNzQ5IiB3aWR0aD0iNDUxLjQ0MiIgaGVpZ2h0PSI1MTYuNzU4IiBzdHlsZT0iZmlsbDpyZ2IoMjMsMTY3LDE4Nik7Ii8+CiAgICAgICAgICAgICAgICA8L2c+CiAgICAgICAgICAgICAgICA8cGF0aCBkPSJNNjQsNDA5LjMyN0w2NCw0ODBDNjQsNDk3LjcgNDkuNyw1MTIgMzIsNTEyQzE0LjMsNTEyIDAsNDk3LjcgMCw0ODBMMCwzMkMwLDE0LjMgMTQuMywwIDMyLDBDNDguNjIsMCA2Mi4yNDIsMTIuNjA4IDYzLjg0MywyOC44TDYzLjg0Myw0MDkuMzI3TDY0LDQwOS4zMjdaIiBzdHlsZT0iZmlsbDpyZ2IoMjI4LDIyOCwyMjgpOyIvPgogICAgICAgICAgICAgICAgPHBhdGggZD0iTTY0LDQwOS4zMjdMNjMuODQzLDQwOS4zMjdMNjMuODQzLDI4LjhDNjMuOTQ3LDI5Ljg1MiA2NCwzMC45MiA2NCwzMkw2NCw0OEwxMzMsMzAuN0MxNzEuMSwyMS4yIDIxMS40LDI1LjYgMjQ2LjUsNDMuMkMyOTIuOCw2Ni40IDM0Ny4zLDY2LjQgMzkzLjYsNDMuMkw0MDMuMiwzOC40QzQyMy44LDI4LjEgNDQ4LDQzLjEgNDQ4LDY2LjFMNDQ4LDMxMy43QzQ0OCwzMjcuMSA0MzkuNywzMzkgNDI3LjIsMzQzLjdMMzkyLjUsMzU2LjdDMzQ2LjMsMzc0LjEgMjk1LDM3MS40IDI1MC44LDM0OS4zQzIxMi45LDMzMC40IDE2OS40LDMyNS42IDEyOC4zLDMzNS45TDY0LDM1Mkw2NCw0MDkuMzI3WiIgc3R5bGU9ImZpbGw6d2hpdGU7Ii8+CiAgICAgICAgICAgIDwvZz4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPgo=" /> &nbsp; Content Planner Update</h1>
+                            <table class="s-2 w-full" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;" width="100%">
+                                <tbody>
+                                <tr>
+                                    <td style="line-height: 8px; font-size: 8px; width: 100%; height: 8px; margin: 0;" align="left" width="100%" height="8">
+                                        &#160;
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="s-5 w-full" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;" width="100%">
+                                <tbody>
+                                <tr>
+                                    <td style="line-height: 20px; font-size: 20px; width: 100%; height: 20px; margin: 0;" align="left" width="100%" height="20">
+                                        &#160;
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="hr" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                <tbody>
+                                <tr>
+                                    <td style="line-height: 24px; font-size: 16px; border-top-width: 1px; border-top-color: #e2e8f0; border-top-style: solid; height: 1px; width: 100%; margin: 0;" align="left">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="s-5 w-full" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;" width="100%">
+                                <tbody>
+                                <tr>
+                                    <td style="line-height: 20px; font-size: 20px; width: 100%; height: 20px; margin: 0;" align="left" width="100%" height="20">
+                                        &#160;
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <div class="space-y-3">
+                                <p class="intro-text">Find recent updates on content, you may have probably missed.</p>
+                                <ul class="update-list">
+                                    <f:if condition="{data}">
+                                        <f:then>
+                                            <f:for each="{data}" as="record">
+                                                <f:if condition="{record.historyData}">
+                                                    <li {f:if(condition: record.assignedToCurrentUser, then:
+                                                    'class="current"')}>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="change-type-icon icon-emphasized">
+                                                            {record.changeTypeIcon -> f:format.raw()}
+                                                        </div>
+                                                        <div class="text">
+                                                            {record.historyData -> f:format.raw()}
+                                                            <f:if condition="{record.data.userid}">
+                                                                by
+                                                                <div style="display:inline-block;">
+                                                                </div>
+                                                                <u>{record.user}</u>
+                                                            </f:if>
+                                                            <span class="text-muted small">{record.timeAgo}</span>
+                                                            <br/>
+                                                            <div class="mt-2 small">
+                                                                {record.statusIcon -> f:format.raw()}
+                                                                {record.recordIcon -> f:format.raw()}
+                                                                {record.title}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    </li>
+                                                </f:if>
+                                            </f:for>
+                                        </f:then>
+                                    </f:if>
+                                </ul>
+
+                                <table class="s-3 w-full" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;" width="100%">
+                                    <tbody>
+                                    <tr>
+                                        <td style="line-height: 12px; font-size: 12px; width: 100%; height: 12px; margin: 0;" align="left" width="100%" height="12">
+                                            &#160;
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        </li>
-                    </f:if>
-                </f:for>
-            </f:then>
-        </f:if>
-    </ul>
+                            <table class="s-5 w-full" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;" width="100%">
+                                <tbody>
+                                <tr>
+                                    <td style="line-height: 20px; font-size: 20px; width: 100%; height: 20px; margin: 0;" align="left" width="100%" height="20">
+                                        &#160;
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="hr" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;">
+                                <tbody>
+                                <tr>
+                                    <td style="line-height: 24px; font-size: 16px; border-top-width: 1px; border-top-color: #e2e8f0; border-top-style: solid; height: 1px; width: 100%; margin: 0;" align="left">
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+                                <tbody>
+                                <tr>
+                                    <td align="left">
+                                        <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                            <tbody>
+                                            <tr>
+                                                <td> <a href="{backendUrl}" target="_blank">TYPO3 backend</a> </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="s-5 w-full" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;" width="100%">
+                                <tbody>
+                                <tr>
+                                    <td style="line-height: 20px; font-size: 20px; width: 100%; height: 20px; margin: 0;" align="left" width="100%" height="20">
+                                        &#160;
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </f:section>

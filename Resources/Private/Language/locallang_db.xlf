@@ -19,7 +19,16 @@
 				<source>Author</source>
 			</trans-unit>
 			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide">
-				<source>Disable the display of content planner status</source>
+				<source>Hide content planner</source>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide.description">
+				<source>Disable the display of content planner status information and color within the TYPO3 backend</source>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_subscribe">
+				<source>Subscribe for updates</source>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_subscribe.description">
+				<source>Subscribe to e-mail notification for content planner updates</source>
 			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_note.title">
 				<source>Title</source>
@@ -44,6 +53,9 @@
 			</trans-unit>
 			<trans-unit id="permission.content_status.description">
 				<source>Allow the usage of content status within pages</source>
+			</trans-unit>
+			<trans-unit id="content_planner">
+				<source>Content Planner</source>
 			</trans-unit>
 		</body>
 	</file>
