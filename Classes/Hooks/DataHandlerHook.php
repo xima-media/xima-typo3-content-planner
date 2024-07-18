@@ -29,7 +29,7 @@ final class DataHandlerHook
     /**
      * Hook: processCmdmap_preProcess
      */
-    public function processCmdmap_preProcess($command, $table, $id, $value, DataHandler $parentObject, bool &$commandIsProcessed): void
+    public function processCmdmap_preProcess($command, $table, $id, $value, DataHandler $parentObject, $pasteUpdate): void
     {
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
             return;
