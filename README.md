@@ -11,14 +11,20 @@
 This extension provides a page status functionality to support the planning of
 content work, e.g. a migration process.
 
+![Page](./Documentation/Images/page.png)
+
 ## Features
 
 * Extended page properties for content status, assignee and additional comments
+  * Colorful representation of the status within the backend
+  * Easy change of status
+  * User assignment for distribution of content work
+  * Comments for additional information
 * Extensive dashboard for detailed content planning
-* Recent updates widget for quick access to the latest changes
-* Extend database records with status behavior
-
-![Backend](./Documentation/Images/backend.png)
+  * Custom notes for individual content planning
+  * Recent updates widget for quick access to the latest changes
+  * Filterable content planner record overview
+* Extend additional database records with status behavior
 
 ## Requirements
 
@@ -36,28 +42,32 @@ composer require xima/xima-typo3-content-planner
 
 ## Status
 
-By default they are four different status available:
+By default they are four different default status available:
 
 - *Pending*: The page is not yet ready for editing.
 - *In progress*: The page is currently being edited.
 - *Needs review*: The page is ready for review.
-- *Completed*: The page is published.
+- *Completed*: The page is ready to be published.
 
 > **Hint**: The status are content generated on the root page. Add/remove/adjust them to fit your needs.
 
-Change the page status:
+Change the page status easily:
 
 - In the "Content Planner" tab within the page properties
 - In the page tree context menu
 - In the page backend header
 
+Assign a user to the page to distribute the content work. >our own assignment is highlighted in the dashboard.
+
 > **Hint**: By default the auto assignee feature is enabled. The assignee is automatically set to the current user when the status is changed from stateless to a new state.
 
-![WalkThrough](./Documentation/Images/walk-through.gif)
+Add some helpful comments within the page to support the content work.
+
+![Screencast](./Documentation/Images/screencast-content-planner.gif)
 
 ## Dashboard
 
-The dashboard provides an overview of the content status of all related  pages.
+The dashboard provides an overview of the content status of all related records.
 Use the "Content Planner" preset to easily create a new dashboard.
 Add custom notes to the dashboard to influence the content planning.
 
@@ -69,7 +79,7 @@ Feature toggles are available, see `ext_localconf.php` for configuration options
 
 The content planner abilities are part of a **custom permission** and needed to be granted to the dedicated user group/s (except admins).
 
-Every user can easily disable the content planner features in the user settings.
+Every user can easily disable the content planner features in the user settings to avoid colour overload.
 
 # Additional record tables
 
@@ -97,8 +107,6 @@ CREATE TABLE tx_news_domain_model_news
 ```php
 $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['xima_typo3_content_planner']['registerAdditionalRecordTables'][] = 'tx_news_domain_model_news';
 ```
-
-
 
 ## License
 
