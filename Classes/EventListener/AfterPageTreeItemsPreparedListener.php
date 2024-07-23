@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
@@ -25,7 +26,16 @@ final class AfterPageTreeItemsPreparedListener
             if (isset($item['_page']['tx_ximatypo3contentplanner_status'])) {
                 $status = ContentUtility::getStatus($item['_page']['tx_ximatypo3contentplanner_status']);
                 if ($status) {
-                    $item['backgroundColor'] = Configuration::STATUS_COLOR_CODES[$status->getColor()];
+                    $version = VersionNumberUtility::getCurrentTypo3Version();
+                    if (version_compare($version, '13.0.0', '>=')) {
+                        $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
+                            label: $status->getTitle(),
+                            color: Configuration::STATUS_COLOR_CODES[$status->getColor()],
+                            priority: 1,
+                        );
+                    } else {
+                        $item['backgroundColor'] = Configuration::STATUS_COLOR_CODES[$status->getColor()];
+                    }
                 }
             }
         }

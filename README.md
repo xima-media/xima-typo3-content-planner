@@ -4,7 +4,7 @@
 
 # TYPO3 extension `xima_typo3_content_planner`
 
-[![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/v12/orange)]()
+[![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/v12%20&%20v13/orange)]()
 
 </div>
 
@@ -28,7 +28,7 @@ content work, e.g. a migration process.
 
 ## Requirements
 
-* TYPO3 12.4 & PHP 8.1+
+* TYPO3 12.4 | 13.2 & PHP 8.1+
 
 # Installation
 

@@ -37,7 +37,7 @@ class ContentUtility
             ->select('*')
             ->from('pages')
             ->where(
-                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_assignee', $queryBuilder->createNamedParameter($GLOBALS['BE_USER']->user['uid'], \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_assignee', $queryBuilder->createNamedParameter($GLOBALS['BE_USER']->user['uid'], \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
             )
             ->executeQuery()->fetchAllAssociative();
     }
@@ -109,8 +109,8 @@ class ContentUtility
             ->select('*')
             ->from('tx_ximatypo3contentplanner_comment')
             ->where(
-                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT)),
-                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, \PDO::PARAM_STR))
+                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, \TYPO3\CMS\Core\Database\Connection::PARAM_STR))
             )
             ->orderBy('tstamp', 'DESC')
             ->executeQuery()->fetchAllAssociative();
@@ -138,7 +138,7 @@ class ContentUtility
             ->select('*')
             ->from('tx_ximatypo3contentplanner_comment')
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
             )
             ->executeQuery()->fetchAssociative();
     }
@@ -155,7 +155,7 @@ class ContentUtility
             ->select('*')
             ->from('be_users')
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($userId, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($userId, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
             )
             ->executeQuery()->fetchAssociative();
     }
@@ -172,7 +172,7 @@ class ContentUtility
             ->select('username', 'realName')
             ->from('be_users')
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($userId, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($userId, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
             )
             ->executeQuery()->fetchAssociative();
 
@@ -214,7 +214,7 @@ class ContentUtility
 
         if ($pid) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT))
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
             );
         }
 
