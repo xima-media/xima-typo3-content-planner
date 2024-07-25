@@ -46,7 +46,7 @@ class ContentUtility
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
-        $additionalWhere = '';
+        $additionalWhere = ' AND deleted = 0';
         $additionalParams = [
             'limit' => $maxResults,
         ];
@@ -110,7 +110,8 @@ class ContentUtility
             ->from('tx_ximatypo3contentplanner_comment')
             ->where(
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, \TYPO3\CMS\Core\Database\Connection::PARAM_STR))
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, \TYPO3\CMS\Core\Database\Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq('deleted', 0)
             )
             ->orderBy('tstamp', 'DESC')
             ->executeQuery()->fetchAllAssociative();
@@ -138,7 +139,8 @@ class ContentUtility
             ->select('*')
             ->from('tx_ximatypo3contentplanner_comment')
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('deleted', 0)
             )
             ->executeQuery()->fetchAssociative();
     }
@@ -208,7 +210,8 @@ class ContentUtility
             ->select('uid', 'title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
             ->from($table)
             ->andWhere(
-                $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status')
+                $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status'),
+                $queryBuilder->expr()->eq('deleted', 0)
             )
             ->orderBy('tstamp', 'DESC');
 
