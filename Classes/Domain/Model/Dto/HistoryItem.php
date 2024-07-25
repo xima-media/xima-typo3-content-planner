@@ -13,7 +13,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 
-class HistoryItem
+final class HistoryItem
 {
     public array $data = [];
     public array|bool $relatedRecord = [];
@@ -21,7 +21,7 @@ class HistoryItem
 
     public static function create(array $sysHistoryRow, bool $cliContext = false): static
     {
-        $item = new static();
+        $item = new HistoryItem();
         $item->data = $sysHistoryRow;
         $item->data['raw_history'] = json_decode($sysHistoryRow['history_data'], true);
         $item->cliContext = $cliContext;

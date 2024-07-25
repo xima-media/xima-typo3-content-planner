@@ -10,7 +10,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 
-class CommentItem
+final class CommentItem
 {
     public array $data = [];
     public array|bool $relatedRecord = [];
@@ -18,7 +18,7 @@ class CommentItem
 
     public static function create(array $row): static
     {
-        $item = new static();
+        $item = new CommentItem();
         $item->data = $row;
 
         return $item;

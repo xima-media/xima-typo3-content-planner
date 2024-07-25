@@ -6,6 +6,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownDivider;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItem;
+use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItemInterface;
 use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -70,48 +71,10 @@ final class ModifyButtonBarEventListener
             ));
 
         foreach ($this->statusRepository->findAll() as $statusItem) {
-            $dropDownButton->addItem(
-                GeneralUtility::makeInstance(DropDownItem::class)
-                    ->setLabel($statusItem->getTitle())
-                    ->setIcon($this->iconFactory->getIcon($statusItem->getColoredIcon()))
-                    ->setHref(
-                        $this->uriBuilder->buildUriFromRoute(
-                            'tce_db',
-                            [
-                                'data' => [
-                                    $table => [
-                                        $uid => [
-                                            'tx_ximatypo3contentplanner_status' => $statusItem->getUid(),
-                                        ],
-                                    ],
-                                ],
-                                'redirect' => $table === 'pages' ?
-                                    (string)$this->uriBuilder->buildUriFromRoute(
-                                        'web_layout',
-                                        [
-                                            'id' => $uid,
-                                        ]
-                                    ) :
-                                    (string)$this->uriBuilder->buildUriFromRoute(
-                                        'record_edit',
-                                        [
-                                            'edit' => [
-                                                $table => [
-                                                    $uid => 'edit',
-                                                ],
-                                            ],
-                                        ]
-                                    ),
-                            ]
-                        )
-                    )
-            );
-        }
-        $dropDownButton->addItem(GeneralUtility::makeInstance(DropDownDivider::class));
-        $dropDownButton->addItem(
-            GeneralUtility::makeInstance(DropDownItem::class)
-                ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
-                ->setIcon($this->iconFactory->getIcon('actions-close'))
+            /** @var DropDownItemInterface $statusDropDownItem */
+            $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+                ->setLabel($statusItem->getTitle())
+                ->setIcon($this->iconFactory->getIcon($statusItem->getColoredIcon()))
                 ->setHref(
                     $this->uriBuilder->buildUriFromRoute(
                         'tce_db',
@@ -119,7 +82,7 @@ final class ModifyButtonBarEventListener
                             'data' => [
                                 $table => [
                                     $uid => [
-                                        'tx_ximatypo3contentplanner_status' => '',
+                                        'tx_ximatypo3contentplanner_status' => $statusItem->getUid(),
                                     ],
                                 ],
                             ],
@@ -142,8 +105,47 @@ final class ModifyButtonBarEventListener
                                 ),
                         ]
                     )
+                );
+            $dropDownButton->addItem($statusDropDownItem);
+        }
+        $dropDownButton->addItem(GeneralUtility::makeInstance(DropDownDivider::class));
+
+        /** @var DropDownItemInterface $statusDropDownItem */
+        $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+            ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
+            ->setIcon($this->iconFactory->getIcon('actions-close'))
+            ->setHref(
+                $this->uriBuilder->buildUriFromRoute(
+                    'tce_db',
+                    [
+                        'data' => [
+                            $table => [
+                                $uid => [
+                                    'tx_ximatypo3contentplanner_status' => '',
+                                ],
+                            ],
+                        ],
+                        'redirect' => $table === 'pages' ?
+                            (string)$this->uriBuilder->buildUriFromRoute(
+                                'web_layout',
+                                [
+                                    'id' => $uid,
+                                ]
+                            ) :
+                            (string)$this->uriBuilder->buildUriFromRoute(
+                                'record_edit',
+                                [
+                                    'edit' => [
+                                        $table => [
+                                            $uid => 'edit',
+                                        ],
+                                    ],
+                                ]
+                            ),
+                    ]
                 )
-        );
+            );
+        $dropDownButton->addItem($statusDropDownItem);
 
         $buttons['right'][] = [$dropDownButton];
         $event->setButtons($buttons);

@@ -11,14 +11,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
-class StatusItem
+final class StatusItem
 {
     public array $data = [];
     public ?Status $status = null;
 
     public static function create(array $row): static
     {
-        $item = new static();
+        $item = new StatusItem();
         $item->data = $row;
         $item->status = ContentUtility::getStatus($row['tx_ximatypo3contentplanner_status']);
 
@@ -37,7 +37,7 @@ class StatusItem
 
     public function getStatus(): ?string
     {
-        return $this->status ? $this->status->getTitle() : null;
+        return $this->status?->getTitle();
     }
 
     public function getStatusIcon(): string
@@ -93,13 +93,13 @@ class StatusItem
     public function getSite(): ?string
     {
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
-        if ($siteFinder->getAllSites() <= 1) {
-            return false;
+        if (count($siteFinder->getAllSites()) <= 1) {
+            return null;
         }
         $site = $siteFinder->getSiteByPageId($this->data['tablename'] === 'pages' ? $this->data['uid'] : $this->data['pid']);
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $icon = $iconFactory->getIcon('apps-pagetree-folder-root', 'small');
-        return $icon->render() . ' ' . $site->getAttribute('websiteTitle') ?: $site->getIdentifier();
+        return $icon->render() . ' ' . ($site->getAttribute('websiteTitle') ?: $site->getIdentifier());
     }
 
     public function toArray(): array

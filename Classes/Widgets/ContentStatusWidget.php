@@ -6,6 +6,7 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
 
 class ContentStatusWidget extends AbstractWidget
 {
@@ -15,10 +16,13 @@ class ContentStatusWidget extends AbstractWidget
         $assignee = isset($this->options['currentUserAssignee']) ? $GLOBALS['BE_USER']->getUserId() : null;
         $icon = $assignee ? 'status-user-backend' : 'flag-gray';
         $filterValues = false;
+
+        /** @var ContentStatusDataProvider $dataProvider */
+        $dataProvider = $this->dataProvider;
         if ($filter) {
             $filterValues = [
-                'status' => $this->dataProvider->getStatus(),
-                'users' => $this->dataProvider->getUsers(),
+                'status' => $dataProvider->getStatus(),
+                'users' => $dataProvider->getUsers(),
             ];
             $recordTables = ExtensionUtility::getRecordTables();
             if (count($recordTables) > 1) {
