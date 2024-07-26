@@ -4,7 +4,10 @@
 
 # TYPO3 extension `xima_typo3_content_planner`
 
-[![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/v12%20&%20v13/orange)]()
+[![Latest Stable Version](http://poser.pugx.org/xima/xima-typo3-content-planner/v)](https://packagist.org/packages/xima/xima-typo3-content-planner)
+[![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/12%20&%2013/orange)]()
+[![PHP Version Require](http://poser.pugx.org/xima/xima-typo3-content-planner/require/php)](https://packagist.org/packages/xima/xima-typo3-content-planner)
+[![Total Downloads](http://poser.pugx.org/xima/xima-typo3-content-planner/downloads)](https://packagist.org/packages/xima/xima-typo3-content-planner)
 
 </div>
 
@@ -28,9 +31,9 @@ content work, e.g. a migration process.
 
 ## Requirements
 
-* TYPO3 12.4 | 13.2 & PHP 8.1+
+* TYPO3 >= 12.4 & PHP 8.1+
 
-# Installation
+## Installation
 
 ### Composer
 
@@ -38,9 +41,15 @@ content work, e.g. a migration process.
 composer require xima/xima-typo3-content-planner
 ```
 
-# Usage
+### TER
 
-## Status
+[![TER version](https://typo3-badges.dev/badge/xima_typo3_content_planner/version/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
+
+Download the zip file from [TYPO3 extension repository (TER)](https://extensions.typo3.org/extension/xima_typo3_content_planner)..
+
+## Usage
+
+### Status
 
 By default they are four different default status available:
 
@@ -65,7 +74,7 @@ Add some helpful comments within the page to support the content work.
 
 ![Screencast](./Documentation/Images/screencast-content-planner.gif)
 
-## Dashboard
+### Dashboard
 
 The dashboard provides an overview of the content status of all related records.
 Use the "Content Planner" preset to easily create a new dashboard.
@@ -73,7 +82,7 @@ Add custom notes to the dashboard to influence the content planning.
 
 ![Dashboard](./Documentation/Images/dashboard.png)
 
-# Configuration
+## Configuration
 
 Feature toggles are available, see `ext_localconf.php` for configuration options.
 
@@ -81,7 +90,7 @@ The content planner abilities are part of a **custom permission** and needed to 
 
 Every user can easily disable the content planner features in the user settings to avoid colour overload.
 
-# Additional record tables
+## Additional record tables
 
 If you want to extend the content planner to other record tables (e.g. news), follow the steps below:
 
