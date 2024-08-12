@@ -24,6 +24,8 @@ class ExtensionUtility
                         'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
                         'type' => 'select',
                         'renderType' => 'selectSingle',
+                        'resetSelection' => true,
+                        'eval' => 'null',
                         'fieldWizard' => [
                             'selectIcons' => [
                                 'disabled' => false,
