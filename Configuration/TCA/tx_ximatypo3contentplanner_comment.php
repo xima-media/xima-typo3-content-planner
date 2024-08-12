@@ -53,12 +53,8 @@ return [
             ],
         ],
         'author' => [
-            'exclude' => 1,
-            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:tx_ximatypo3contentplanner_comment.author',
             'config' => [
-                'type' => 'user',
-                'readOnly' => true,
-                'renderType' => 'currentUser',
+                'type' => 'passthrough',
             ],
         ],
         'foreign_table' => [

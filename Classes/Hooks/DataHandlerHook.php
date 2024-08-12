@@ -34,7 +34,6 @@ final class DataHandlerHook
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
             return;
         }
-
         if ($command === 'delete' && $table === 'tx_ximatypo3contentplanner_status') {
             // Clear all status of records that are assigned to the deleted status
             foreach (ExtensionUtility::getRecordTables() as $table) {
@@ -54,6 +53,8 @@ final class DataHandlerHook
             $id = array_key_first($datamap['tx_ximatypo3contentplanner_comment']);
             if (!MathUtility::canBeInterpretedAsInteger($id) && !array_key_exists('pages', $dataHandler->datamap)) {
                 $dataHandler->datamap['pages'][$datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
+                // Set author to current user
+                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
             }
         }
     }
