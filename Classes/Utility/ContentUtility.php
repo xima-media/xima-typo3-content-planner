@@ -230,7 +230,7 @@ class ContentUtility
         if (!$table && !$uid) {
             return false;
         }
-        return BackendUtility::getRecord($table, $uid);
+        return (bool)BackendUtility::getRecord($table, $uid);
     }
 
     public static function clearStatusOfExtensionRecords(string $table, int $status): void

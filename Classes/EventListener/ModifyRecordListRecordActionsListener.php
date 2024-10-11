@@ -34,7 +34,7 @@ final class ModifyRecordListRecordActionsListener
 
             // ToDo: this is necessary cause the status is not in the record, pls check tca for this
             $record = ContentUtility::getExtensionRecord($table, $uid);
-            if (!$record) {
+            if (!is_array($record)) {
                 return;
             }
 
