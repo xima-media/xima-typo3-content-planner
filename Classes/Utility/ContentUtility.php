@@ -54,7 +54,6 @@ class ContentUtility
         $defaultSelects = [
             'uid',
             'pid',
-            'title',
             'tstamp',
             'tx_ximatypo3contentplanner_status',
             'tx_ximatypo3contentplanner_assignee',
@@ -80,10 +79,11 @@ class ContentUtility
                 continue;
             }
 
+            $titleField = $GLOBALS['TCA'][$table]['ctrl']['label'];
             if ($table === 'pages') {
-                $selects = array_merge($defaultSelects, ['"' . $table . '" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
+                $selects = array_merge($defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
             } else {
-                $selects = array_merge($defaultSelects, ['"' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
+                $selects = array_merge($defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
             }
 
             $sqlArray[] = '(SELECT ' . implode(',', $selects) . ' FROM ' . $table . ' WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0' . $additionalWhere . ')';
@@ -207,7 +207,7 @@ class ContentUtility
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
 
         $query = $queryBuilder
-            ->select('uid', 'title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
+            ->select('uid', $GLOBALS['TCA'][$table]['ctrl']['label'] . ' as "title"', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status'),
