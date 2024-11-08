@@ -51,6 +51,9 @@ final class ModifyButtonBarEventListener
         if ($table === 'pages') {
             $uid = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] : 0));
             $page = ContentUtility::getPage($uid);
+            if (!$page) {
+                return;
+            }
             $status = $page['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($page['tx_ximatypo3contentplanner_status']) : null;
         } else {
             $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
