@@ -18,10 +18,10 @@ class RecordController extends ActionController
 {
     public function filterAction(ServerRequestInterface $request): ResponseInterface
     {
-        $search = $request->getQueryParams()['search'];
-        $status = (int)$request->getQueryParams()['status'];
-        $assignee = (int)$request->getQueryParams()['assignee'];
-        $type = $request->getQueryParams()['type'];
+        $search = array_key_exists('search', $request->getQueryParams()) ? $request->getQueryParams()['search'] : null;
+        $status = array_key_exists('status', $request->getQueryParams()) ? (int)$request->getQueryParams()['status'] : null;
+        $assignee = array_key_exists('assignee', $request->getQueryParams()) ? (int)$request->getQueryParams()['assignee'] : null;
+        $type = array_key_exists('type', $request->getQueryParams()) ? $request->getQueryParams()['type'] : null;
 
         $records = ContentUtility::getRecordsByFilter($search, $status, $assignee, $type);
         $result = [];
