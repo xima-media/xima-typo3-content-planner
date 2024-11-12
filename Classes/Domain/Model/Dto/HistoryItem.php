@@ -84,11 +84,12 @@ final class HistoryItem
 
     public function getRecordLink(): string
     {
-        switch ($this->data['tablename']) {
+        $record = $this->getRelatedRecord();
+        switch ($this->data['relatedRecordTablename']) {
             case 'pages':
-                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $this->data['uid']]);
+                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $record['uid']]);
             default:
-                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$this->data['tablename'] => [$this->data['uid'] => 'edit']]]);
+                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$this->data['relatedRecordTablename'] => [$record['uid'] => 'edit']]]);
         }
     }
 
