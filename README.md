@@ -18,14 +18,14 @@ content work, e.g. a migration process.
 ## Features
 
 * Extended page properties for content status, assignee and additional comments
-  * Colorful representation of the status within the backend
-  * Easy change of status
-  * User assignment for distribution of content work
-  * Comments for additional information
+* Colorful representation of the status within the backend
+* Easy change of status
+* User assignment for distribution of content work
+* Comments for additional information
 * Extensive dashboard for detailed content planning
-  * Custom notes for individual content planning
-  * Recent updates widget for quick access to the latest changes
-  * Filterable content planner record overview
+* Custom notes for individual content planning
+* Recent updates widget for quick access to the latest changes
+* Filterable content planner record overview
 * Extend additional database records with status behavior
 
 ## Requirements
@@ -104,9 +104,9 @@ If you want to extend the content planner to other record tables (e.g. news), fo
 ```sql
 CREATE TABLE tx_news_domain_model_news
 (
-	tx_ximatypo3contentplanner_status   int(11) DEFAULT NULL,
-	tx_ximatypo3contentplanner_assignee int(11) DEFAULT NULL,
-	tx_ximatypo3contentplanner_comments int(11) unsigned default '0' not null,
+    tx_ximatypo3contentplanner_status   int(11) DEFAULT NULL,
+    tx_ximatypo3contentplanner_assignee int(11) DEFAULT NULL,
+    tx_ximatypo3contentplanner_comments int(11) unsigned default '0' not null,
 );
 ```
 

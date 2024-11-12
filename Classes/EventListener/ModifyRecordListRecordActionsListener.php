@@ -5,7 +5,6 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -46,7 +45,7 @@ final class ModifyRecordListRecordActionsListener
             $icon = $status ? $status->getColoredIcon() : 'flag-gray';
             $action = '<div class="btn-group" style="margin-left:10px;">
                 <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="' . $title . '">'
-                . $this->iconFactory->getIcon($icon, Icon::SIZE_SMALL)->render() . '</a><ul class="dropdown-menu">';
+                . $this->iconFactory->getIcon($icon, \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value)->render() . '</a><ul class="dropdown-menu">';
 
             foreach ($this->statusRepository->findAll() as $statusEntry) {
                 $url = $this->uriBuilder->buildUriFromRoute(
@@ -68,7 +67,7 @@ final class ModifyRecordListRecordActionsListener
                     ]
                 );
                 $action .= '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $statusEntry->getTitle() . '">'
-                    . $this->iconFactory->getIcon($statusEntry->getColoredIcon(), Icon::SIZE_SMALL)->render() . $statusEntry->getTitle() . '</a></li>';
+                    . $this->iconFactory->getIcon($statusEntry->getColoredIcon(), \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value)->render() . $statusEntry->getTitle() . '</a></li>';
             }
             $action .= '<li><hr class="dropdown-divider"></li>';
             $url = $this->uriBuilder->buildUriFromRoute(
@@ -90,7 +89,7 @@ final class ModifyRecordListRecordActionsListener
                 ]
             );
             $action .= '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '">'
-                . $this->iconFactory->getIcon('actions-close', Icon::SIZE_SMALL)->render() . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '</a></li>';
+                . $this->iconFactory->getIcon('actions-close', \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value)->render() . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '</a></li>';
             $action .= '</ul>';
 
             if ((bool)$record['tx_ximatypo3contentplanner_assignee']) {
@@ -99,7 +98,7 @@ final class ModifyRecordListRecordActionsListener
             }
             if ((bool)$record['tx_ximatypo3contentplanner_comments']) {
                 $action .= '
-                <a class="btn btn-default" title="' . $title . '" href="' . $this->getEditUrl($table, $uid) . '">' . $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render() . ' ' . $record['tx_ximatypo3contentplanner_comments'] . '</a>';
+                <a class="btn btn-default" title="' . $title . '" href="' . $this->getEditUrl($table, $uid) . '">' . $this->iconFactory->getIcon('content-message', \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value)->render() . ' ' . $record['tx_ximatypo3contentplanner_comments'] . '</a>';
             }
             $action .= '</div>';
             $event->setAction(

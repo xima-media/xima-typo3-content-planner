@@ -1,6 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
-      data-namespace-typo3-fluid="true">
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true">
 
 <f:if condition="{comments}">
     <f:then>
@@ -26,7 +26,7 @@
         <f:for each="{comments}" as="record">
             <div class="d-flex widget-contentPlanner--comment">
                 <be:avatar backendUser="{record.data.author}" size="40"
-                           showIcon="true"/>
+                        showIcon="true"/>
                 <div class="d-flex flex-column flex-grow-1">
                     <div><strong>{record.authorName}</strong> <small>{record.data.tstamp -> f:format.date(format:'d.m.Y
                         H:i')}</small></div>

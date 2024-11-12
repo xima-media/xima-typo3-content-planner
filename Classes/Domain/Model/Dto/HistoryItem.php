@@ -97,14 +97,14 @@ final class HistoryItem
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $status = ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
-        return $this->renderIcon($iconFactory->getIcon($status ? $status->getColoredIcon() : 'flag-gray', Icon::SIZE_SMALL));
+        return $this->renderIcon($iconFactory->getIcon($status ? $status->getColoredIcon() : 'flag-gray', \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value));
     }
 
     public function getRecordIcon(): string
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $record = $this->getRelatedRecord();
-        return $record ? $this->renderIcon($iconFactory->getIconForRecord($this->data['relatedRecordTablename'], $record, Icon::SIZE_SMALL)) : '';
+        return $record ? $this->renderIcon($iconFactory->getIconForRecord($this->data['relatedRecordTablename'], $record, \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value)) : '';
     }
 
     public function getTimeAgo(): string
@@ -122,7 +122,7 @@ final class HistoryItem
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         switch ($this->data['tablename']) {
             case 'tx_ximatypo3contentplanner_comment':
-                return $this->renderIcon($iconFactory->getIcon('actions-comment', Icon::SIZE_SMALL));
+                return $this->renderIcon($iconFactory->getIcon('actions-comment', \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value));
             default:
                 if (!ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
                     break;
@@ -131,15 +131,15 @@ final class HistoryItem
                     case 'tx_ximatypo3contentplanner_status':
                         $status = ContentUtility::getStatus((int)$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status']);
                         if (!$status) {
-                            return $this->renderIcon($iconFactory->getIcon('flag-gray', Icon::SIZE_SMALL));
+                            return $this->renderIcon($iconFactory->getIcon('flag-gray', \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value));
                         }
-                        return $this->renderIcon($iconFactory->getIcon($status->getColoredIcon(), Icon::SIZE_SMALL));
+                        return $this->renderIcon($iconFactory->getIcon($status->getColoredIcon(), \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value));
                     case 'tx_ximatypo3contentplanner_assignee':
-                        return $this->renderIcon($iconFactory->getIcon('actions-user', Icon::SIZE_SMALL));
+                        return $this->renderIcon($iconFactory->getIcon('actions-user', \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value));
                 }
                 break;
         }
-        return $this->renderIcon($iconFactory->getIcon('actions-open', Icon::SIZE_SMALL));
+        return $this->renderIcon($iconFactory->getIcon('actions-open', \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value));
     }
 
     public function getRawHistoryData(): array
@@ -154,8 +154,8 @@ final class HistoryItem
         $actiontype = (int)$this->data['actiontype'];
 
         /*
-         * ToDo: Add more cases for different actions
-         */
+        * ToDo: Add more cases for different actions
+        */
         if (ExtensionUtility::isRegisteredRecordTable($tablename) && $actiontype === RecordHistoryStore::ACTION_MODIFY) {
             return DiffUtility::checkRecordDiff($data, $actiontype);
         }

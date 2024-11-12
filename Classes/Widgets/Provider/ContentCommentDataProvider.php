@@ -12,8 +12,8 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 class ContentCommentDataProvider implements ListDataProviderInterface
 {
     /**
-     * @throws \Doctrine\DBAL\Exception
-     */
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function getItems(): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');

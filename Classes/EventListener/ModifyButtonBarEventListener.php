@@ -37,8 +37,6 @@ final class ModifyButtonBarEventListener
             return;
         }
 
-
-
         if (isset($request->getQueryParams()['edit'])) {
             $table = array_key_first($request->getQueryParams()['edit']);
         } elseif (isset($request->getQueryParams()['id'])) {

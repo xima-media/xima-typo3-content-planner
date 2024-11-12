@@ -11,8 +11,8 @@ use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 class ContentNotesDataProvider implements ListDataProviderInterface
 {
     /**
-     * @throws \Doctrine\DBAL\Exception
-     */
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function getItems(): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_note');

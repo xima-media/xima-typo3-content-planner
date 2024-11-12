@@ -46,10 +46,11 @@ return [
             'config' => [
                 'enableRichtext' => true,
                 'type' => 'text',
-                'eval' => 'trim,required',
+                'eval' => 'trim',
                 'cols' => 40,
                 'rows' => 5,
                 'max' => 500,
+                'required' => true,
             ],
         ],
         'author' => [

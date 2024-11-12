@@ -1,5 +1,5 @@
 <html data-namespace-typo3-fluid="true"
-      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers">
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers">
 
 <p class="h3 dropdown-headline">
     <core:icon identifier="flag-gray" size="small"/>
@@ -13,7 +13,7 @@
                 <f:if condition="{record.historyData}">
                     <li>
                         <f:be.link route="web_layout" parameters="{id: record.data.recuid}" title="{record.data.title}"
-                                   class="dropdown-item">
+                                class="dropdown-item">
                             {record.historyData -> f:format.raw()}
                             <f:if condition="{record.data.userid}">
                                 by

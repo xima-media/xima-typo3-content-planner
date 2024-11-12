@@ -18,19 +18,18 @@ class ExtensionUtility
                     'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
                     'config' => [
                         'items' => [
-                            ['-- stateless --', null],
+                            ['label' => '-- stateless --', 'value' => null],
                         ],
-                        'nullable' => true,
                         'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
                         'type' => 'select',
                         'renderType' => 'selectSingle',
                         'resetSelection' => true,
-                        'eval' => 'null',
                         'fieldWizard' => [
                             'selectIcons' => [
                                 'disabled' => false,
                             ],
                         ],
+                        'nullable' => true,
                     ],
                 ],
                 'tx_ximatypo3contentplanner_comments' => [
@@ -61,15 +60,14 @@ class ExtensionUtility
                     'config' => [
                         'type' => 'select',
                         'renderType' => 'selectSingle',
-                        'nullable' => true,
                         'items' => [
-                            ['-- Not assigned --', null],
+                            ['label' => '-- Not assigned --', 'value' => null],
                         ],
                         'foreign_table' => 'be_users',
                         'resetSelection' => true,
-                        'eval' => 'null',
                         'minitems' => 0,
                         'maxitems' => 1,
+                        'nullable' => true,
                     ],
                 ],
             ]

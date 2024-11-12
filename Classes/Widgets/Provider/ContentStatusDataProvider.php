@@ -16,8 +16,8 @@ class ContentStatusDataProvider implements ListDataProviderInterface
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
-     */
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function getItems(): array
     {
         return [];

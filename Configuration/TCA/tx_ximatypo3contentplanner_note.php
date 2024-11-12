@@ -38,7 +38,8 @@ return [
             'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:tx_ximatypo3contentplanner_note.title',
             'config' => [
                 'type' => 'input',
-                'eval' => 'trim,required',
+                'eval' => 'trim',
+                'required' => true,
             ],
         ],
         'content' => [
@@ -47,9 +48,10 @@ return [
             'config' => [
                 'enableRichtext' => true,
                 'type' => 'text',
-                'eval' => 'trim,required',
+                'eval' => 'trim',
                 'cols' => 48,
                 'rows' => 5,
+                'required' => true,
             ],
         ],
     ],

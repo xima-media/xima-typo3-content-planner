@@ -15,7 +15,6 @@ use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class BackendContentModifierMiddleware implements MiddlewareInterface
 {
-
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if ($request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE

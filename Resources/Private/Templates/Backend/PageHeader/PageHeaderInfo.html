@@ -21,9 +21,9 @@
                     <div class="btn-group">
                         <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
                             <div class="ml-auto d-flex align-items-center btn btn-default btn-sm"
-                                 style="background-color: transparent">
+                                style="background-color: transparent">
                                 <be:avatar backendUser="{data.tx_ximatypo3contentplanner_assignee}" size="16"
-                                           showIcon="true"/>
+                                        showIcon="true"/>
                                 <span class="mx-2">{assignee}</span>
                             </div>
                         </f:if>
@@ -37,8 +37,8 @@
                             </button>
                         </f:if>
                         <a href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
-                           id="new-comment-modal" class="btn btn-default btn-sm" style="background-color: transparent"
-                           data-pid="{pid}" data-userid="{userid}">
+                        id="new-comment-modal" class="btn btn-default btn-sm" style="background-color: transparent"
+                        data-pid="{pid}" data-userid="{userid}">
                             <core:icon identifier="content-message-dots" size="small"/>
                             New
                         </a>

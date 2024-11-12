@@ -14,8 +14,8 @@ use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 class ContentUpdateDataProvider implements ListDataProviderInterface
 {
     /**
-     * @throws \Doctrine\DBAL\Exception
-     */
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function getItems(): array
     {
         return $this->fetchUpdateData(maxItems: 15);
@@ -100,8 +100,8 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
     }
 
     /*
-     * It's a workaround to fetch all comments and afterwards filter them by assigned pages, because this information is serialized and cannot be filtered within the query
-     */
+    * It's a workaround to fetch all comments and afterwards filter them by assigned pages, because this information is serialized and cannot be filtered within the query
+    */
     private function getRecentRelevantCommentsForUser(?int $beUser = null): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_history');

@@ -29,9 +29,9 @@ call_user_func(function () {
                 'type' => 'select',
                 'renderType' => 'selectSingle',
                 'items' => [
-                    ['Never', ''],
-                    ['Daily', 'daily'],
-                    ['Weekly', 'weekly'],
+                    ['label' => 'Never', 'value' => ''],
+                    ['label' => 'Daily', 'value' => 'daily'],
+                    ['label' => 'Weekly', 'value' => 'weekly'],
                 ],
             ],
         ],

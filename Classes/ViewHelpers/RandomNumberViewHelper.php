@@ -4,17 +4,13 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\ViewHelpers;
 
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 
 class RandomNumberViewHelper extends AbstractViewHelper
 {
-    use CompileWithRenderStatic;
-
     /**
-     * @var bool
-     */
+    * @var bool
+    */
     protected $escapeOutput = false;
 
     public function initializeArguments(): void
@@ -35,11 +31,8 @@ class RandomNumberViewHelper extends AbstractViewHelper
         );
     }
 
-    public static function renderStatic(
-        array $arguments,
-        \Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        return random_int($arguments['min'], $arguments['max']);
+    public function render()
+    {
+        return random_int($this->arguments['min'], $this->arguments['max']);
     }
 }

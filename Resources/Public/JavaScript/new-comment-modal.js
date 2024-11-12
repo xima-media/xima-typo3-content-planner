@@ -1,6 +1,6 @@
 /**
- * Module: @xima/ximatypo3contentplanner/new-comment-modal
- */
+* Module: @xima/ximatypo3contentplanner/new-comment-modal
+*/
 import Modal from "@typo3/backend/modal.js";
 import Viewport from "@typo3/backend/viewport.js";
 import Notification from "@typo3/backend/notification.js";
