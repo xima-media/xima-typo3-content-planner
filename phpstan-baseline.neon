@@ -1,26 +1,26 @@
 parameters:
-	ignoreErrors:
-		-
-			message: "#^Access to constant SMALL on an unknown class TYPO3\\\\CMS\\\\Core\\\\Imaging\\\\IconSize\\.$#"
-			count: 1
-			path: Classes/Domain/Model/Dto/CommentItem.php
+    ignoreErrors:
+        -
+            message: "#^Access to constant SMALL on an unknown class TYPO3\\\\CMS\\\\Core\\\\Imaging\\\\IconSize\\.$#"
+            count: 1
+            path: Classes/Domain/Model/Dto/CommentItem.php
 
-		-
-			message: "#^Access to constant SMALL on an unknown class TYPO3\\\\CMS\\\\Core\\\\Imaging\\\\IconSize\\.$#"
-			count: 7
-			path: Classes/Domain/Model/Dto/HistoryItem.php
+        -
+            message: "#^Access to constant SMALL on an unknown class TYPO3\\\\CMS\\\\Core\\\\Imaging\\\\IconSize\\.$#"
+            count: 7
+            path: Classes/Domain/Model/Dto/HistoryItem.php
 
-		-
-			message: "#^Access to constant SMALL on an unknown class TYPO3\\\\CMS\\\\Core\\\\Imaging\\\\IconSize\\.$#"
-			count: 1
-			path: Classes/Domain/Model/Dto/StatusItem.php
+        -
+            message: "#^Access to constant SMALL on an unknown class TYPO3\\\\CMS\\\\Core\\\\Imaging\\\\IconSize\\.$#"
+            count: 1
+            path: Classes/Domain/Model/Dto/StatusItem.php
 
-		-
-			message: "#^Instantiated class TYPO3\\\\CMS\\\\Backend\\\\Dto\\\\Tree\\\\Label\\\\Label not found\\.$#"
-			count: 1
-			path: Classes/EventListener/AfterPageTreeItemsPreparedListener.php
+        -
+            message: "#^Instantiated class TYPO3\\\\CMS\\\\Backend\\\\Dto\\\\Tree\\\\Label\\\\Label not found\\.$#"
+            count: 1
+            path: Classes/EventListener/AfterPageTreeItemsPreparedListener.php
 
-		-
-			message: "#^Access to constant SMALL on an unknown class TYPO3\\\\CMS\\\\Core\\\\Imaging\\\\IconSize\\.$#"
-			count: 4
-			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+        -
+            message: "#^Access to constant SMALL on an unknown class TYPO3\\\\CMS\\\\Core\\\\Imaging\\\\IconSize\\.$#"
+            count: 4
+            path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
