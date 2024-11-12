@@ -32,6 +32,13 @@ final class ModifyButtonBarEventListener
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
 
+        if ($request->getAttribute('module') &&
+            !in_array($request->getAttribute('module')->getIdentifier(), ['web_layout', 'record_edit', 'web_list'])) {
+            return;
+        }
+
+
+
         if (isset($request->getQueryParams()['edit'])) {
             $table = array_key_first($request->getQueryParams()['edit']);
         } elseif (isset($request->getQueryParams()['id'])) {
