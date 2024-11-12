@@ -3,6 +3,7 @@
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -55,7 +56,7 @@ final class CommentItem
         if (!$this->getRelatedRecord()) {
             return '';
         }
-        return $iconFactory->getIconForRecord($this->data['foreign_table'], $this->getRelatedRecord(), \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value)->getIdentifier();
+        return $iconFactory->getIconForRecord($this->data['foreign_table'], $this->getRelatedRecord(), Icon::SIZE_SMALL)->getIdentifier();
     }
 
     public function getRecordLink(): string

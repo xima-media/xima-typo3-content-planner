@@ -5,6 +5,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -50,7 +51,7 @@ final class StatusItem
     public function getRecordIcon(): string
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        return $iconFactory->getIconForRecord($this->data['tablename'], $this->data, \TYPO3\CMS\Core\Imaging\IconSize::SMALL->value)->render();
+        return $iconFactory->getIconForRecord($this->data['tablename'], $this->data, Icon::SIZE_SMALL)->render();
     }
 
     public function getRecordLink(): string
