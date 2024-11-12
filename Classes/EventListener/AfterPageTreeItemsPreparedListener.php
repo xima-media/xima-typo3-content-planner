@@ -28,6 +28,7 @@ final class AfterPageTreeItemsPreparedListener
                 if ($status) {
                     $version = VersionNumberUtility::getCurrentTypo3Version();
                     if (version_compare($version, '13.0.0', '>=')) {
+                        // @phpstan-ignore-next-line
                         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
                             label: $status->getTitle(),
                             color: Configuration::STATUS_COLOR_CODES[$status->getColor()],
