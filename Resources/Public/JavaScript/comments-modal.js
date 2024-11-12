@@ -37,7 +37,7 @@ class CommentsModal {
           staticBackdrop: true,
           buttons: [
             {
-              text: TYPO3.lang['button.modal.footer.close'],
+              text: TYPO3.lang !== undefined ? TYPO3.lang['button.modal.footer.close'] : 'Close',
               name: 'close',
               icon: 'actions-close',
               active: true,
