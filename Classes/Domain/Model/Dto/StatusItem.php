@@ -4,6 +4,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -32,7 +33,7 @@ final class StatusItem
 
     public function getTitle(): ?string
     {
-        return $this->data['title'];
+        return $this->data['title'] !== '' ? $this->data['title'] : BackendUtility::getNoRecordTitle();
     }
 
     public function getStatus(): ?string
