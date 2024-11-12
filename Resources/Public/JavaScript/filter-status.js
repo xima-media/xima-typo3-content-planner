@@ -59,7 +59,7 @@ class FilterStatus {
           // ToDo: refactor this
           html += '<tr ' + (item.assignedToCurrentUser ? 'class="current"' : '') + '>' +
             '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>' +
-            '<td>' + item.site + '</td>' +
+            '<td>' + (item.site ?? '') + '</td>' +
             '<td><small>' + item.updated + '</small></td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
             '<td>' + (item.data.tx_ximatypo3contentplanner_comments > 0 ? '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>' : '') + '</td>' +
