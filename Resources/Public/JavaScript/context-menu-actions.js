@@ -14,20 +14,21 @@ class ContextMenuActions {
   }
 
   static changeStatus(table, uid, status) {
-    if (table === 'pages') {
-      new AjaxRequest(top.TYPO3.settings.RecordCommit.moduleUrl + "&data[" + table + "][" + uid + "][tx_ximatypo3contentplanner_status]=" + status)
-        .get()
-        .then(function (result) {
-          if (result.response.ok) {
-            top.TYPO3.Notification.success('Status', 'Page status successfully changed.');
-          } else {
-            top.TYPO3.Notification.error('Status', 'Error changing page status.');
-          }
+    new AjaxRequest(top.TYPO3.settings.RecordCommit.moduleUrl + "&data[" + table + "][" + uid + "][tx_ximatypo3contentplanner_status]=" + status)
+      .get()
+      .then(function (result) {
+        if (result.response.ok) {
+          top.TYPO3.Notification.success('Status', 'Page status successfully changed.');
+        } else {
+          top.TYPO3.Notification.error('Status', 'Error changing page status.');
+        }
 
+        if (table === 'pages') {
           top.document.dispatchEvent(new CustomEvent("typo3:pagetree:refresh"));
-        });
-
-    }
+        } else {
+          top.document.location.reload();
+        }
+      });
   };
 }
 

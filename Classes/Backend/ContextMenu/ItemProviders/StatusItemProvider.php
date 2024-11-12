@@ -27,7 +27,7 @@ class StatusItemProvider extends AbstractProvider
 
     public function canHandle(): bool
     {
-        return $this->table === 'pages';
+        return $this->table === 'pages' || in_array($this->table, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
     }
 
     public function getPriority(): int
