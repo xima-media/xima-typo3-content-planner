@@ -51,7 +51,7 @@ final class DataHandlerHook
         // Workaround to solve relation of comments created within the modal
         if (array_key_first($datamap) === 'tx_ximatypo3contentplanner_comment') {
             $id = array_key_first($datamap['tx_ximatypo3contentplanner_comment']);
-            if (!MathUtility::canBeInterpretedAsInteger($id) && !array_key_exists('pages', $dataHandler->datamap)) {
+            if (!MathUtility::canBeInterpretedAsInteger($id) && !array_key_exists('pages', $dataHandler->datamap) && $datamap['tx_ximatypo3contentplanner_comment'][$id]['foreign_table'] === 'pages') {
                 $dataHandler->datamap['pages'][$datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
                 // Set author to current user
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
