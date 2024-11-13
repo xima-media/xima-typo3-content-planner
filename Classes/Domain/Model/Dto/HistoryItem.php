@@ -46,7 +46,8 @@ final class HistoryItem
 
     public function getTitle(): ?string
     {
-        return array_key_exists('title', $this->getRelatedRecord()) ? $this->getRelatedRecord()['title'] : $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title');
+        $titleField = $GLOBALS['TCA'][$this->data['relatedRecordTablename']]['ctrl']['label'];
+        return array_key_exists($titleField, $this->getRelatedRecord()) ? $this->getRelatedRecord()[$titleField] : $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title');
     }
 
     public function getRelatedRecord(): array|bool

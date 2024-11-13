@@ -5,6 +5,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
@@ -26,7 +27,8 @@ final class CommentItem
 
     public function getTitle(): string
     {
-        return $this->getRelatedRecord() ? $this->getRelatedRecord()['title'] : '';
+        $titleField = $GLOBALS['TCA'][$this->data['foreign_table']]['ctrl']['label'];
+        return $this->getRelatedRecord() ? (array_key_exists($titleField, $this->getRelatedRecord()) ? $this->getRelatedRecord()[$titleField] : $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title')) : $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title');
     }
 
     public function getRelatedRecord(): array|bool
@@ -72,5 +74,10 @@ final class CommentItem
     public function getAuthorName(): ?string
     {
         return ContentUtility::getBackendUsernameById((int)$this->data['author']);
+    }
+
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }
