@@ -225,10 +225,10 @@ class ContentUtility
             ->fetchAllAssociative();
     }
 
-    public static function getExtensionRecord(?string $table, ?int $uid): array|bool
+    public static function getExtensionRecord(?string $table, ?int $uid): array|null
     {
         if (!$table && !$uid) {
-            return false;
+            return null;
         }
         return BackendUtility::getRecord($table, $uid);
     }
