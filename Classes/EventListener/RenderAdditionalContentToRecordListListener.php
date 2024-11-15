@@ -16,6 +16,10 @@ final class RenderAdditionalContentToRecordListListener
             return;
         }
         $request = $event->getRequest();
+
+        if (!array_key_exists('id', $request->getQueryParams())) {
+            return;
+        }
         $pid = (int)$request->getQueryParams()['id'];
         $table = array_key_exists('table', $request->getQueryParams()) ? $request->getQueryParams()['table'] : null;
         $records = [];
