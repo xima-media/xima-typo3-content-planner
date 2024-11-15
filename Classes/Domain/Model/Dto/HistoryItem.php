@@ -33,7 +33,7 @@ final class HistoryItem
     {
         $record = ContentUtility::getExtensionRecord($this->data['tablename'], (int)$this->data['recuid']);
 
-        if ($record === false || !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
+        if ($record === null || !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
             return false;
         }
         return ((int)$record['tx_ximatypo3contentplanner_assignee']) === $GLOBALS['BE_USER']->user['uid'];
