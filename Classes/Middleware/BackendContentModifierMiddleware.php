@@ -34,6 +34,9 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
 
             foreach ($records as $record) {
                 $status = ContentUtility::getStatus($record['tx_ximatypo3contentplanner_status']);
+                if (!$status) {
+                    continue;
+                }
                 $statusColor = Configuration::STATUS_COLOR_CODES[$status->getColor()];
                 $styling[] = '.t3-page-ce[data-uid="' . $record['uid'] . '"]:before { content: "";display:block;box-shadow:var(--pagemodule-element-box-shadow);padding:.5em;border-left: 5px solid ' . $statusColor . ';border-radius: 5px 5px 0 0;background-color:' . $statusColor . '; }';
             }
