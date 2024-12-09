@@ -33,6 +33,9 @@ final class BulkUpdateCommand extends Command
         $table = $input->getArgument('table');
         $uid = (int)$input->getArgument('uid');
         $status = (int)$input->getArgument('status');
+        $recursive = $input->getOption('recursive') !== false;
+        $statusEntity = null;
+
         if ($status === 0) {
             $status = null;
         } else {
@@ -42,8 +45,6 @@ final class BulkUpdateCommand extends Command
                 return Command::FAILURE;
             }
         }
-
-        $recursive = $input->getOption('recursive') !== false;
 
         $count = 0;
         $uids = [$uid];
@@ -63,10 +64,9 @@ final class BulkUpdateCommand extends Command
                 ->executeStatement();
 
             $count++;
-
         }
 
-        $output->writeln(sprintf('Updated %d "%s" records to status "%s".', $count, $table, $statusEntity ? $statusEntity->getTitle() : 'clear'));
+        $output->writeln(sprintf('Updated %d "%s" records to status "%s".', $count, $table, ($statusEntity ? $statusEntity->getTitle() : 'clear')));
 
         return Command::SUCCESS;
     }
@@ -87,7 +87,7 @@ final class BulkUpdateCommand extends Command
     private function flattenArray(array $array): array
     {
         $result = [];
-        array_walk_recursive($array, function($value, $key) use (&$result) {
+        array_walk_recursive($array, function ($value, $key) use (&$result) {
             if ($key === 'uid' || is_int($value)) {
                 $result[] = $value;
             }
