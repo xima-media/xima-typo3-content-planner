@@ -48,6 +48,12 @@ services:
         command: 'content-planner:notifiy-update'
         description: 'A command to notify users about relevant updates in the content planner.'
 
+  Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
+    tags:
+      - name: console.command
+        command: 'content-planner:bulk-update'
+        description: 'A command to perform a bulk operation to content planner entities.'
+
   dashboard.widget.ContentStatus-status:
       class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
       arguments:
