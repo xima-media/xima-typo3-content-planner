@@ -24,9 +24,6 @@
 			<trans-unit id="comment">
 				<source>Content Planner Comment</source>
 			</trans-unit>
-			<trans-unit id="note">
-				<source>Content Planner Note</source>
-			</trans-unit>
 			<!-- history -->
 			<trans-unit id="history.record.2.set.tx_ximatypo3contentplanner_status">
 				<source><![CDATA[The <em>status</em> was set to <strong>%s</strong>]]></source>
