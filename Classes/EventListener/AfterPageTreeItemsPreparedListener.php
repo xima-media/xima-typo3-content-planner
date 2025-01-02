@@ -7,7 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 /*
@@ -15,6 +15,10 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 */
 final class AfterPageTreeItemsPreparedListener
 {
+    public function __construct(protected readonly StatusRepository $statusRepository)
+    {
+    }
+
     public function __invoke(AfterPageTreeItemsPreparedEvent $event): void
     {
         if (!VisibilityUtility::checkContentStatusVisibility()) {
@@ -24,7 +28,7 @@ final class AfterPageTreeItemsPreparedListener
         $items = $event->getItems();
         foreach ($items as &$item) {
             if (isset($item['_page']['tx_ximatypo3contentplanner_status'])) {
-                $status = ContentUtility::getStatus($item['_page']['tx_ximatypo3contentplanner_status']);
+                $status = $this->statusRepository->findByUid($item['_page']['tx_ximatypo3contentplanner_status']);
                 if ($status) {
                     $version = VersionNumberUtility::getCurrentTypo3Version();
                     if (version_compare($version, '13.0.0', '>=')) {

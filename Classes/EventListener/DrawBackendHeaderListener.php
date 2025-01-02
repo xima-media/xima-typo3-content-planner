@@ -20,7 +20,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class DrawBackendHeaderListener
 {
-    public function __construct(protected PageRepository $pageRepository, protected StatusRepository $statusRepository)
+    public function __construct(protected readonly PageRepository $pageRepository, protected readonly StatusRepository $statusRepository)
     {
     }
 
@@ -38,7 +38,7 @@ final class DrawBackendHeaderListener
         if (!$pageInfo['tx_ximatypo3contentplanner_status']) {
             return;
         }
-        $status = ContentUtility::getStatus($pageInfo['tx_ximatypo3contentplanner_status']);
+        $status = $this->statusRepository->findByUid($pageInfo['tx_ximatypo3contentplanner_status']);
 
         if (!$status) {
             return;

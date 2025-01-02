@@ -19,7 +19,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyButtonBarEventListener
 {
-    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, protected StatusRepository $statusRepository)
+    public function __construct(private readonly IconFactory $iconFactory, private readonly UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository)
     {
     }
 
@@ -59,14 +59,14 @@ final class ModifyButtonBarEventListener
             if (!$page) {
                 return;
             }
-            $status = $page['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($page['tx_ximatypo3contentplanner_status']) : null;
+            $status = $page['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($page['tx_ximatypo3contentplanner_status']) : null;
         } else {
             $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
             $record = ContentUtility::getExtensionRecord($table, $uid);
             if (!$record) {
                 return;
             }
-            $status = $record['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($record['tx_ximatypo3contentplanner_status']) : null;
+            $status = $record['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']) : null;
         }
         $buttonBar = $event->getButtonBar();
         $buttons = $event->getButtons();
