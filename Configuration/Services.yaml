@@ -13,11 +13,6 @@ services:
     factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
     arguments: [ 'ximatypo3contentplanner_statuscache' ]
 
-  cache.ximatypo3contentplanner_toolbarcache:
-    class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
-    factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
-    arguments: [ 'ximatypo3contentplanner_toolbarcache' ]
-
   Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
       $cache: "@cache.ximatypo3contentplanner_statuscache"
@@ -26,10 +21,6 @@ services:
     public: true
     arguments:
       $cache: "@cache.ximatypo3contentplanner_statuscache"
-
-  Xima\XimaTypo3ContentPlanner\Backend\ToolbarItems\UpdateItem:
-    arguments:
-      $cache: '@cache.ximatypo3contentplanner_toolbarcache'
 
   Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener:
       tags:
@@ -55,12 +46,6 @@ services:
     tags:
       - name: event.listener
         identifier: 'xima-typo3-content-planner/backend/modify-record-list-record-actions'
-
-  Xima\XimaTypo3ContentPlanner\Command\NotifyUpdateCommand:
-    tags:
-      - name: console.command
-        command: 'content-planner:notifiy-update'
-        description: 'A command to notify users about relevant updates in the content planner.'
 
   Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
     tags:
