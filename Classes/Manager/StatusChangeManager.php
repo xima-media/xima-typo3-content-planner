@@ -11,6 +11,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 class StatusChangeManager
 {
@@ -35,10 +36,9 @@ class StatusChangeManager
         $preRecord = $this->recordRepository->findByUid($table, $id);
 
         // auto assign user if status is initially set
-        if (array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray)
+        if ((!array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray) || $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === null)
             && $incomingFieldArray['tx_ximatypo3contentplanner_status'] !== null
-            && $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === null &&
-            $this->isFeatureEnabled(Configuration::FEATURE_AUTO_ASSIGN)) {
+            && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_AUTO_ASSIGN)) {
             // Check if status was null before
             // ToDo: Check if this is the correct way to get the previous status
             if ($preRecord['tx_ximatypo3contentplanner_status'] === null
@@ -71,11 +71,6 @@ class StatusChangeManager
         if (array_key_exists($field, $incomingFieldArray) && ($incomingFieldArray[$field] === '' || $incomingFieldArray[$field] === 0)) {
             $incomingFieldArray[$field] = null;
         }
-    }
-
-    private function isFeatureEnabled(string $feature): bool
-    {
-        return (bool)$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features'][$feature];
     }
 
     private function isStatusFieldChanged(array $incomingFieldArray, array $preRecord): bool

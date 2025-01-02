@@ -2,6 +2,7 @@
 * Module: @xima/ximatypo3contentplanner/context-menu-actions
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
+import Viewport from "@typo3/backend/viewport.js";
 
 class ContextMenuActions {
 
@@ -11,6 +12,11 @@ class ContextMenuActions {
 
   reset(table, uid) {
     ContextMenuActions.changeStatus(table, uid, "");
+  }
+
+  load(table, uid, n) {
+    // @ToDo: how to navigate here correctly?
+    Viewport.ContentContainer.setUrl(n.uri);
   }
 
   static changeStatus(table, uid, status) {

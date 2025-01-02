@@ -101,7 +101,7 @@ class RecordRepository
     /**
     * @throws \Doctrine\DBAL\Exception
     */
-    public function findByUid(?string $table, ?int $uid): array|null
+    public function findByUid(?string $table, ?int $uid): array|bool|null
     {
         if (!$table && !$uid) {
             return null;

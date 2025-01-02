@@ -53,6 +53,10 @@ class StatusRepository extends Repository
         $query = $this->createQuery();
         $query->matching($query->equals('uid', $uid));
         $result = $query->execute()->getFirst();
+
+        if ($result === null) {
+            return null;
+        }
         $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags([$result]));
         return $result;
     }

@@ -12,15 +12,18 @@ use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyButtonBarEventListener
 {
-    public function __construct(private readonly IconFactory $iconFactory, private readonly UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository)
+    public function __construct(private readonly IconFactory $iconFactory, private readonly UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository, private readonly BackendUserRepository $backendUserRepository)
     {
     }
 
@@ -56,19 +59,16 @@ final class ModifyButtonBarEventListener
 
         if ($table === 'pages') {
             $uid = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] : 0));
-            $page = ContentUtility::getPage($uid);
-            if (!$page) {
-                return;
-            }
-            $status = $page['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($page['tx_ximatypo3contentplanner_status']) : null;
+            $record = ContentUtility::getPage($uid);
         } else {
             $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
             $record = $this->recordRepository->findByUid($table, $uid);
-            if (!$record) {
-                return;
-            }
-            $status = $record['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']) : null;
         }
+        if (!$record) {
+            return;
+        }
+        $status = $record['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']) : null;
+
         $buttonBar = $event->getButtonBar();
         $buttons = $event->getButtons();
         $buttons['right'] ??= [];
@@ -79,6 +79,7 @@ final class ModifyButtonBarEventListener
                 $status ? $status->getColoredIcon() : 'flag-gray'
             ));
 
+        $buttonsToAdd = [];
         foreach ($this->statusRepository->findAll() as $statusItem) {
             /** @var DropDownItemInterface $statusDropDownItem */
             $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
@@ -115,9 +116,9 @@ final class ModifyButtonBarEventListener
                         ]
                     )
                 );
-            $dropDownButton->addItem($statusDropDownItem);
+            $buttonsToAdd[$statusItem->getUid()] = $statusDropDownItem;
         }
-        $dropDownButton->addItem(GeneralUtility::makeInstance(DropDownDivider::class));
+        $buttonsToAdd['divider'] = GeneralUtility::makeInstance(DropDownDivider::class);
 
         /** @var DropDownItemInterface $statusDropDownItem */
         $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
@@ -154,7 +155,47 @@ final class ModifyButtonBarEventListener
                     ]
                 )
             );
-        $dropDownButton->addItem($statusDropDownItem);
+        $buttonsToAdd['reset'] = $statusDropDownItem;
+
+        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_EXTEND_CONTEXT_MENU)) {
+            if ($record['tx_ximatypo3contentplanner_assignee'] || $record['tx_ximatypo3contentplanner_comments']) {
+                $buttonsToAdd['divider2'] = GeneralUtility::makeInstance(DropDownDivider::class);
+            }
+
+            // remove current status from list
+            if (in_array($record['tx_ximatypo3contentplanner_status'], array_keys($buttonsToAdd), true)) {
+                unset($buttonsToAdd[$record['tx_ximatypo3contentplanner_status']]);
+            }
+
+            // remove reset if status is already null
+            if ($record['tx_ximatypo3contentplanner_status'] === null) {
+                unset($buttonsToAdd['divider']);
+                unset($buttonsToAdd['reset']);
+            }
+
+            // assignee
+            if ($record['tx_ximatypo3contentplanner_assignee']) {
+                $username = $this->backendUserRepository->getUsernameByUid($record['tx_ximatypo3contentplanner_assignee']);
+                $assigneeDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+                    ->setLabel($username)
+                    ->setIcon($this->iconFactory->getIcon('actions-user'))
+                    ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
+                $buttonsToAdd['assignee'] = $assigneeDropDownItem;
+            }
+
+            // comments
+            if ($record['tx_ximatypo3contentplanner_comments']) {
+                $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+                    ->setLabel($record['tx_ximatypo3contentplanner_comments'] . ' ' . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'))
+                    ->setIcon($this->iconFactory->getIcon('actions-message'))
+                    ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
+                $buttonsToAdd['comments'] = $commentsDropDownItem;
+            }
+        }
+
+        foreach ($buttonsToAdd as $buttonToAdd) {
+            $dropDownButton->addItem($buttonToAdd);
+        }
 
         $buttons['right'][] = [$dropDownButton];
         $event->setButtons($buttons);

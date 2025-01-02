@@ -92,4 +92,9 @@ class ExtensionUtility
     {
         return in_array($table, self::getRecordTables());
     }
+
+    public static function isFeatureEnabled(string $feature): bool
+    {
+        return array_key_exists($feature, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']) && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features'][$feature];
+    }
 }

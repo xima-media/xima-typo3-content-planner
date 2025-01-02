@@ -23,3 +23,4 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAddit
 
 // Feature toggles
 $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features'][Configuration::FEATURE_AUTO_ASSIGN] = true;
+$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features'][Configuration::FEATURE_EXTEND_CONTEXT_MENU] = true;

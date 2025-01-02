@@ -10,14 +10,17 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyRecordListRecordActionsListener
 {
     protected ServerRequest $request;
-    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository)
+    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository, private readonly BackendUserRepository $backendUserRepository)
     {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
@@ -48,6 +51,8 @@ final class ModifyRecordListRecordActionsListener
                 <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="' . $title . '">'
                 . $this->iconFactory->getIcon($icon, Icon::SIZE_SMALL)->render() . '</a><ul class="dropdown-menu">';
 
+            $actionsToAdd = [];
+
             foreach ($this->statusRepository->findAll() as $statusEntry) {
                 $url = $this->uriBuilder->buildUriFromRoute(
                     'tce_db',
@@ -67,10 +72,12 @@ final class ModifyRecordListRecordActionsListener
                         ),
                     ]
                 );
-                $action .= '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $statusEntry->getTitle() . '">'
+                $actionsToAdd[$statusEntry->getUid()] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $statusEntry->getTitle() . '">'
                     . $this->iconFactory->getIcon($statusEntry->getColoredIcon(), Icon::SIZE_SMALL)->render() . $statusEntry->getTitle() . '</a></li>';
             }
-            $action .= '<li><hr class="dropdown-divider"></li>';
+            $actionsToAdd['divider'] = '<li><hr class="dropdown-divider"></li>';
+
+            // reset
             $url = $this->uriBuilder->buildUriFromRoute(
                 'tce_db',
                 [
@@ -89,18 +96,42 @@ final class ModifyRecordListRecordActionsListener
                     ),
                 ]
             );
-            $action .= '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '">'
+            $actionsToAdd['reset'] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '">'
                 . $this->iconFactory->getIcon('actions-close', Icon::SIZE_SMALL)->render() . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '</a></li>';
-            $action .= '</ul>';
 
-            if ((bool)$record['tx_ximatypo3contentplanner_assignee']) {
-                $action .= '
-                <a class="btn btn-default" title="' . $title . '" href="' . $this->getEditUrl($table, $uid) . '">' . $statusItem->getAssigneeAvatar() . ' ' . $statusItem->getAssigneeName() . '</a>';
+            if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_EXTEND_CONTEXT_MENU)) {
+                if ($record['tx_ximatypo3contentplanner_assignee'] || $record['tx_ximatypo3contentplanner_comments']) {
+                    $actionsToAdd['divider2'] = '<li><hr class="dropdown-divider"></li>';
+                }
+
+                // remove current status from list
+                if (in_array($record['tx_ximatypo3contentplanner_status'], array_keys($actionsToAdd), true)) {
+                    unset($actionsToAdd[$record['tx_ximatypo3contentplanner_status']]);
+                }
+
+                // remove reset if status is already null
+                if ($record['tx_ximatypo3contentplanner_status'] === null) {
+                    unset($actionsToAdd['divider']);
+                    unset($actionsToAdd['reset']);
+                }
+
+                // assignee
+                if ($record['tx_ximatypo3contentplanner_assignee']) {
+                    $username = $this->backendUserRepository->getUsernameByUid($record['tx_ximatypo3contentplanner_assignee']);
+                    $actionsToAdd['assignee'] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid)) . '" title="' . $username . '">' . $statusItem->getAssigneeAvatar() . ' ' . $statusItem->getAssigneeName() . '</a></li>';
+                }
+
+                // comments
+                if ($record['tx_ximatypo3contentplanner_comments']) {
+                    $actionsToAdd['comments'] = '<li><a class="btn btn-default" title="' . $title . '" href="' . UrlHelper::getContentStatusPropertiesEditUrl($table, $uid) . '">' . $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render() . ' ' . $record['tx_ximatypo3contentplanner_comments'] . '</a></li>';
+                }
             }
-            if ((bool)$record['tx_ximatypo3contentplanner_comments']) {
-                $action .= '
-                <a class="btn btn-default" title="' . $title . '" href="' . $this->getEditUrl($table, $uid) . '">' . $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render() . ' ' . $record['tx_ximatypo3contentplanner_comments'] . '</a>';
+
+            foreach ($actionsToAdd as $actionToAdd) {
+                $action .= $actionToAdd;
             }
+
+            $action .= '</ul>';
             $action .= '</div>';
             $event->setAction(
                 $action,
@@ -110,16 +141,6 @@ final class ModifyRecordListRecordActionsListener
                 'delete',
             );
         }
-    }
-
-    private function getEditUrl(string $table, int $uid): string
-    {
-        $params = [
-            'edit' => [$table => [$uid => 'edit']],
-            'returnUrl' => $this->request->getAttribute('normalizedParams')->getRequestUri(),
-            'columnsOnly' => 'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments',
-        ];
-        return (string)$this->uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
     protected function getLanguageService(): LanguageService
