@@ -29,19 +29,6 @@ class ContentUtility
         return $pageRepository->getPage($pageId);
     }
 
-    public static function getAssignedPages(): array|bool
-    {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
-
-        return $queryBuilder
-            ->select('*')
-            ->from('pages')
-            ->where(
-                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_assignee', $queryBuilder->createNamedParameter($GLOBALS['BE_USER']->user['uid'], \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
-            )
-            ->executeQuery()->fetchAllAssociative();
-    }
-
     public static function getRecordsByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, int $maxResults = 20): array|bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
