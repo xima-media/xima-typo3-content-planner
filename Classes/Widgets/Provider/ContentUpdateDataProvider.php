@@ -9,7 +9,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\HistoryItem;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class ContentUpdateDataProvider implements ListDataProviderInterface
 {
