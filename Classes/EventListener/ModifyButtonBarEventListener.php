@@ -12,6 +12,7 @@ use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -19,7 +20,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyButtonBarEventListener
 {
-    public function __construct(private readonly IconFactory $iconFactory, private readonly UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository)
+    public function __construct(private readonly IconFactory $iconFactory, private readonly UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository)
     {
     }
 
@@ -62,7 +63,7 @@ final class ModifyButtonBarEventListener
             $status = $page['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($page['tx_ximatypo3contentplanner_status']) : null;
         } else {
             $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
-            $record = ContentUtility::getExtensionRecord($table, $uid);
+            $record = $this->recordRepository->findByUid($table, $uid);
             if (!$record) {
                 return;
             }

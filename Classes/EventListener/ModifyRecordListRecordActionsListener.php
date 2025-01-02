@@ -10,14 +10,14 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyRecordListRecordActionsListener
 {
     protected ServerRequest $request;
-    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository)
+    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository)
     {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
@@ -33,7 +33,7 @@ final class ModifyRecordListRecordActionsListener
             $uid = $event->getRecord()['uid'];
 
             // ToDo: this is necessary cause the status is not in the record, pls check tca for this
-            $record = ContentUtility::getExtensionRecord($table, $uid);
+            $record = $this->recordRepository->findByUid($table, $uid);
             if (!is_array($record)) {
                 return;
             }

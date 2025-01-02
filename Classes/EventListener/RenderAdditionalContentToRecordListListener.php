@@ -4,14 +4,14 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class RenderAdditionalContentToRecordListListener
 {
-    public function __construct(protected readonly StatusRepository $statusRepository)
+    public function __construct(private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository)
     {
     }
 
@@ -34,10 +34,10 @@ final class RenderAdditionalContentToRecordListListener
                 return;
             }
 
-            $records[$table] = ContentUtility::getExtensionRecords($table, $pid);
+            $records[$table] = $this->recordRepository->findByPid($table, $pid);
         } else {
             foreach (ExtensionUtility::getRecordTables() as $table) {
-                $records[$table] = ContentUtility::getExtensionRecords($table, $pid);
+                $records[$table] = $this->recordRepository->findByPid($table, $pid);
             }
         }
 

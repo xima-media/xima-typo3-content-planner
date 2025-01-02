@@ -6,17 +6,14 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 final class DataHandlerHook
 {
-    protected StatusChangeManager $statusChangeManager;
-    public function __construct(private FrontendInterface $cache)
+    public function __construct(private FrontendInterface $cache, private readonly StatusChangeManager $statusChangeManager)
     {
-        $this->statusChangeManager = GeneralUtility::makeInstance(StatusChangeManager::class);
     }
 
     /**

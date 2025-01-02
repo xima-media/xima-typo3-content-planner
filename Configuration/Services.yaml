@@ -15,12 +15,13 @@ services:
 
   Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
-      $cache: "@cache.ximatypo3contentplanner_statuscache"
+      $cache: '@cache.ximatypo3contentplanner_statuscache'
 
   Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook:
     public: true
     arguments:
-      $cache: "@cache.ximatypo3contentplanner_statuscache"
+      $cache: '@cache.ximatypo3contentplanner_statuscache'
+      $statusChangeManager: '@Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager'
 
   Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener:
       tags:

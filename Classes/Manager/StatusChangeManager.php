@@ -8,15 +8,14 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class StatusChangeManager
 {
-    protected EventDispatcher $eventDispatcher;
-    public function __construct()
+    public function __construct(private readonly EventDispatcher $eventDispatcher, private readonly RecordRepository $recordRepository)
     {
-        $this->eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
     }
 
     public function processContentPlannerFields(array &$incomingFieldArray, $table, $id): void
@@ -33,7 +32,7 @@ class StatusChangeManager
             $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
         }
 
-        $preRecord = ContentUtility::getExtensionRecord($table, $id);
+        $preRecord = $this->recordRepository->findByUid($table, $id);
 
         // auto assign user if status is initially set
         if (array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray)

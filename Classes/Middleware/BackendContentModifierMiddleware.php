@@ -11,12 +11,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\Response;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class BackendContentModifierMiddleware implements MiddlewareInterface
 {
-    public function __construct(protected readonly StatusRepository $statusRepository)
+    public function __construct(private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository)
     {
     }
 
@@ -35,7 +35,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             }
 
             $styling = [];
-            $records = ContentUtility::getExtensionRecords('tt_content', (int)$pid);
+            $records = $this->recordRepository->findByPid('tt_content', (int)$pid);
 
             foreach ($records as $record) {
                 $status = $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);

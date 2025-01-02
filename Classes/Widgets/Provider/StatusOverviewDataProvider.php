@@ -7,12 +7,12 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class StatusOverviewDataProvider implements ChartDataProviderInterface
 {
-    public function __construct(protected StatusRepository $statusRepository)
+    public function __construct(private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository)
     {
     }
 
@@ -37,7 +37,7 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
 
     public function countPageStatus(int $status = null): int
     {
-        return count(ContentUtility::getRecordsByFilter(null, $status));
+        return count($this->recordRepository->findAllByFilter(status: $status));
     }
 
     protected function calculateStatusCounts(): void
