@@ -6,15 +6,17 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 final class DataHandlerHook
 {
+    protected StatusChangeManager $statusChangeManager;
     public function __construct(private FrontendInterface $cache)
     {
+        $this->statusChangeManager = GeneralUtility::makeInstance(StatusChangeManager::class);
     }
 
     /**
@@ -27,7 +29,7 @@ final class DataHandlerHook
         }
 
         if (ExtensionUtility::isRegisteredRecordTable($table)) {
-            $this->processContentPlannerFields($incomingFieldArray, $table, $id);
+            $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, $id);
         }
     }
 
@@ -42,7 +44,7 @@ final class DataHandlerHook
         if ($command === 'delete' && $table === 'tx_ximatypo3contentplanner_status') {
             // Clear all status of records that are assigned to the deleted status
             foreach (ExtensionUtility::getRecordTables() as $table) {
-                ContentUtility::clearStatusOfExtensionRecords($table, $id);
+                $this->statusChangeManager->clearStatusOfExtensionRecords($table, $id);
             }
         }
     }
@@ -67,32 +69,5 @@ final class DataHandlerHook
     public function clearCachePostProc(array $params): void
     {
         $this->cache->flushByTags(array_keys($params['tags']));
-    }
-
-    private function processContentPlannerFields(array &$incomingFieldArray, $table, $id): void
-    {
-        if (!isset($incomingFieldArray['tx_ximatypo3contentplanner_status'])) {
-            return;
-        }
-        if (array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray) && ($incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === '' || $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === 0)) {
-            $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
-        }
-
-        if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] === '' || $incomingFieldArray['tx_ximatypo3contentplanner_status'] === 0) {
-            $incomingFieldArray['tx_ximatypo3contentplanner_status'] = null;
-        }
-
-        // auto reset assignee if status is set to null
-        if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoAssignment']) {
-            $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
-        }
-
-        // auto assign user if status is initially set
-        if (array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray) && $incomingFieldArray['tx_ximatypo3contentplanner_status'] !== null && $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoUnassignment']) {
-            $preRecord = ContentUtility::getExtensionRecord($table, $id);
-            if ($preRecord['tx_ximatypo3contentplanner_status'] === null || $preRecord['tx_ximatypo3contentplanner_status'] === 0) {
-                $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = $GLOBALS['BE_USER']->getUserId();
-            }
-        }
     }
 }

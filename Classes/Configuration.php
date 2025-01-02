@@ -54,5 +54,7 @@ class Configuration
         self::STATUS_COLOR_GREEN => 'success',
     ];
 
+    final public const FEATURE_AUTO_ASSIGN = 'autoAssignment';
+
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 }

@@ -116,6 +116,10 @@ CREATE TABLE tx_news_domain_model_news
 $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['xima_typo3_content_planner']['registerAdditionalRecordTables'][] = 'tx_news_domain_model_news';
 ```
 
+## Events
+
+This extension provides an event to adjust the status change behavior, see 'Classes/Event/StatusChangeEvent.php'.
+
 ## License
 
 This project is licensed
