@@ -4,12 +4,17 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class RenderAdditionalContentToRecordListListener
 {
+    public function __construct(protected readonly StatusRepository $statusRepository)
+    {
+    }
+
     public function __invoke(RenderAdditionalContentToRecordListEvent $event): void
     {
         if (!VisibilityUtility::checkContentStatusVisibility()) {
@@ -43,7 +48,7 @@ final class RenderAdditionalContentToRecordListListener
                 continue;
             }
             foreach ($tableRecords as $tableRecord) {
-                $status = ContentUtility::getStatus($tableRecord['tx_ximatypo3contentplanner_status']);
+                $status = $this->statusRepository->findByUid($tableRecord['tx_ximatypo3contentplanner_status']);
                 if ($status) {
                     $additionalCss .= 'tr[data-table="' . $table . '"][data-uid="' . $tableRecord['uid'] . '"] > td { background-color: ' . Configuration::STATUS_COLOR_CODES[$status->getColor()] . '; } ';
                 }

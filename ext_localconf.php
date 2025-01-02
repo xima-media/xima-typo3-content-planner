@@ -13,6 +13,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Backend\Controller\Page
 $GLOBALS['TYPO3_CONF_VARS']['BE']['toolbarItems'][1719820170] = \Xima\XimaTypo3ContentPlanner\Backend\ToolbarItems\UpdateItem::class;
 
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['ximatypo3contentplanner_toolbarcache'] ??= [];
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['ximatypo3contentplanner_statuscache'] ??= [];
 
 $GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths'][486] = 'EXT:xima_typo3_content_planner/Resources/Private/Templates/Email/';
 

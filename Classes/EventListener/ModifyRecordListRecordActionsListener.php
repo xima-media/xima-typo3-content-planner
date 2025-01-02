@@ -17,7 +17,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 final class ModifyRecordListRecordActionsListener
 {
     protected ServerRequest $request;
-    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, protected StatusRepository $statusRepository)
+    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository)
     {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
@@ -40,7 +40,7 @@ final class ModifyRecordListRecordActionsListener
 
             $statusId = $record['tx_ximatypo3contentplanner_status'];
             $statusItem = StatusItem::create($record);
-            $status = ContentUtility::getStatus($statusId);
+            $status = $this->statusRepository->findByUid($statusId);
 
             $title = $status ? $status->getTitle() : 'Status';
             $icon = $status ? $status->getColoredIcon() : 'flag-gray';

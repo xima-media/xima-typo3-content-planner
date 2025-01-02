@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Hooks;
 
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -12,6 +13,10 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 final class DataHandlerHook
 {
+    public function __construct(private FrontendInterface $cache)
+    {
+    }
+
     /**
     * Hook: processDatamap_preProcessFieldArray
     */
@@ -57,6 +62,11 @@ final class DataHandlerHook
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
             }
         }
+    }
+
+    public function clearCachePostProc(array $params): void
+    {
+        $this->cache->flushByTags(array_keys($params['tags']));
     }
 
     private function processContentPlannerFields(array &$incomingFieldArray, $table, $id): void

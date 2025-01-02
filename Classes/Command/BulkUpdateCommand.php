@@ -12,10 +12,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
 final class BulkUpdateCommand extends Command
 {
+    public function __construct(protected readonly StatusRepository $statusRepository)
+    {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this
@@ -39,7 +44,7 @@ final class BulkUpdateCommand extends Command
         if ($status === 0) {
             $status = null;
         } else {
-            $statusEntity = ContentUtility::getStatus($status);
+            $statusEntity = $this->statusRepository->findByUid($status);
             if ($statusEntity === null) {
                 $output->writeln(sprintf('Status with uid %d not found.', $status));
                 return Command::FAILURE;

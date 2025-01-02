@@ -53,4 +53,6 @@ class Configuration
         self::STATUS_COLOR_YELLOW => 'warning',
         self::STATUS_COLOR_GREEN => 'success',
     ];
+
+    final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 }
