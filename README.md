@@ -89,6 +89,14 @@ The content planner abilities are part of a **custom permission** and needed to 
 
 Every user can easily disable the content planner features in the user settings to avoid colour overload.
 
+## Command
+
+Use the bulk update command to process multiple entities at once. See help for more information regarding the specific usage.
+
+```bash
+vendor/bin/typo3 content-planner:bulk-update --help
+```
+
 ## Additional record tables
 
 If you want to extend the content planner to other record tables (e.g. news), follow the steps below:

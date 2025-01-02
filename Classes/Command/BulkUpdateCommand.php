@@ -29,6 +29,7 @@ final class BulkUpdateCommand extends Command
             ->addArgument('uid', InputArgument::OPTIONAL, 'The uid to update.', 1)
             ->addArgument('status', InputArgument::OPTIONAL, 'The status uid to set. If empty, the status will be cleared.', null)
             ->addOption('recursive', 'r', InputOption::VALUE_OPTIONAL, 'Whether to update pages recursively.', false)
+            ->addOption('assignee', 'a', InputOption::VALUE_REQUIRED, 'The backend user uid to set an assignee for this record.', null)
             ->addUsage('pages 1 4')
             ->setHelp('A command to perform a bulk operation to content planner entities.');
     }
@@ -39,6 +40,7 @@ final class BulkUpdateCommand extends Command
         $uid = (int)$input->getArgument('uid');
         $status = (int)$input->getArgument('status');
         $recursive = $input->getOption('recursive') !== false;
+        $assignee = $input->getOption('assignee');
         $statusEntity = null;
 
         if ($status === 0) {
@@ -60,13 +62,20 @@ final class BulkUpdateCommand extends Command
 
         foreach ($uids as $uid) {
             $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-            $queryBuilder
+            $query = $queryBuilder
                 ->update($table)
                 ->set('tx_ximatypo3contentplanner_status', $status)
                 ->where(
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
                 )
-                ->executeStatement();
+            ;
+            if ($assignee !== null) {
+                if ($assignee === 0) {
+                    $assignee = null;
+                }
+                $query->set('tx_ximatypo3contentplanner_assignee', $assignee);
+            }
+            $query->executeStatement();
 
             $count++;
         }
