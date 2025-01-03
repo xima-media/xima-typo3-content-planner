@@ -128,6 +128,22 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['xima_typo3_content_planner']['registe
 
 This extension provides an event to adjust the status change behavior, see 'Classes/Event/StatusChangeEvent.php'.
 
+## Development
+
+Use the following ddev commands to easily switch the local TYPO3 versions.
+
+```bash
+ddev install 12
+ddev install 13
+```
+
+The setup command adds the status functionality for testing purposes to `sys_category` and `tt_content`.
+
+```bash
+ddev setup
+ddev setup reset
+```
+
 ## License
 
 This project is licensed
