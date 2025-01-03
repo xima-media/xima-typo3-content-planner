@@ -29,7 +29,7 @@ class TreeController extends \TYPO3\CMS\Backend\Controller\Page\TreeController
         $pageTreeRepository = GeneralUtility::makeInstance(
             PageTreeRepository::class,
             $backendUser->workspace,
-            ['subtitle', 'tx_ximatypo3contentplanner_status'],
+            ['tx_ximatypo3contentplanner_status'],
             $additionalQueryRestrictions
         );
         $pageTreeRepository->setAdditionalWhereClause($backendUser->getPagePermsClause(Permission::PAGE_SHOW));

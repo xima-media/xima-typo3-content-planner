@@ -11,10 +11,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\Response;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
 class BackendContentModifierMiddleware implements MiddlewareInterface
 {
+    public function __construct(private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository)
+    {
+    }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if ($request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
@@ -30,10 +35,10 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             }
 
             $styling = [];
-            $records = ContentUtility::getExtensionRecords('tt_content', (int)$pid);
+            $records = $this->recordRepository->findByPid('tt_content', (int)$pid);
 
             foreach ($records as $record) {
-                $status = ContentUtility::getStatus($record['tx_ximatypo3contentplanner_status']);
+                $status = $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
                 if (!$status) {
                     continue;
                 }

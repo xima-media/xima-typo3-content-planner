@@ -10,8 +10,9 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 /*
@@ -20,7 +21,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class DrawBackendHeaderListener
 {
-    public function __construct(protected PageRepository $pageRepository, protected StatusRepository $statusRepository)
+    public function __construct(private readonly PageRepository $pageRepository, private readonly StatusRepository $statusRepository, private readonly CommentRepository $commentRepository, private readonly BackendUserRepository $backendUserRepository)
     {
     }
 
@@ -38,7 +39,7 @@ final class DrawBackendHeaderListener
         if (!$pageInfo['tx_ximatypo3contentplanner_status']) {
             return;
         }
-        $status = ContentUtility::getStatus($pageInfo['tx_ximatypo3contentplanner_status']);
+        $status = $this->statusRepository->findByUid($pageInfo['tx_ximatypo3contentplanner_status']);
 
         if (!$status) {
             return;
@@ -55,11 +56,11 @@ final class DrawBackendHeaderListener
 
         $view->assignMultiple([
             'data' => $pageInfo,
-            'assignee' => ContentUtility::getBackendUsernameById((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
+            'assignee' => $this->backendUserRepository->getUsernameByUid((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
             'icon' => $status->getColoredIcon(),
             'type' => Configuration::STATUS_COLOR_ALERTS[$status->getColor()],
             'status' => $status,
-            'comments' => $pageInfo['tx_ximatypo3contentplanner_comments'] ? ContentUtility::getComments($id, 'pages') : [],
+            'comments' => $pageInfo['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($id, 'pages') : [],
             'pid' => $id,
             'userid' => $GLOBALS['BE_USER']->user['uid'],
         ]);

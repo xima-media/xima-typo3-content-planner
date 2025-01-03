@@ -2,14 +2,12 @@
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
-use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Core\Imaging\Icon;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 final class CommentItem
 {
@@ -27,8 +25,7 @@ final class CommentItem
 
     public function getTitle(): string
     {
-        $titleField = $GLOBALS['TCA'][$this->data['foreign_table']]['ctrl']['label'];
-        return $this->getRelatedRecord() ? (array_key_exists($titleField, $this->getRelatedRecord()) ? $this->getRelatedRecord()[$titleField] : $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title')) : $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title');
+        return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['foreign_table']), $this->getRelatedRecord());
     }
 
     public function getRelatedRecord(): array|bool
@@ -46,38 +43,21 @@ final class CommentItem
 
     public function getStatusIcon(): string
     {
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $status = ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
-        $icon = $iconFactory->getIcon($status ? $status->getColoredIcon() : 'flag-gray', 'small');
-        return $icon->getIdentifier();
+        return IconHelper::getIconByStatusUid((int)$this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
     }
 
     public function getRecordIcon(): string
     {
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        if (!$this->getRelatedRecord()) {
-            return '';
-        }
-        return $iconFactory->getIconForRecord($this->data['foreign_table'], $this->getRelatedRecord(), Icon::SIZE_SMALL)->getIdentifier();
+        return IconHelper::getIconByRecord($this->data['foreign_table'], $this->getRelatedRecord());
     }
 
     public function getRecordLink(): string
     {
-        switch ($this->data['foreign_table']) {
-            case 'pages':
-                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $this->data['foreign_uid']]);
-            default:
-                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$this->data['foreign_table'] => [$this->data['foreign_uid'] => 'edit']]]);
-        }
+        return UrlHelper::getRecordLink($this->data['foreign_table'], (int)$this->data['foreign_uid']);
     }
 
     public function getAuthorName(): ?string
     {
         return ContentUtility::getBackendUsernameById((int)$this->data['author']);
-    }
-
-    protected function getLanguageService(): LanguageService
-    {
-        return $GLOBALS['LANG'];
     }
 }

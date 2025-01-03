@@ -24,18 +24,6 @@
 			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide.description">
 				<source>Disable the display of content planner status information and color within the TYPO3 backend</source>
 			</trans-unit>
-			<trans-unit id="be_users.tx_ximatypo3contentplanner_subscribe">
-				<source>Subscribe for updates</source>
-			</trans-unit>
-			<trans-unit id="be_users.tx_ximatypo3contentplanner_subscribe.description">
-				<source>Subscribe to e-mail notification for content planner updates</source>
-			</trans-unit>
-			<trans-unit id="tx_ximatypo3contentplanner_note.title">
-				<source>Title</source>
-			</trans-unit>
-			<trans-unit id="tx_ximatypo3contentplanner_note.text">
-				<source>Text</source>
-			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_status.title">
 				<source>Title</source>
 			</trans-unit>

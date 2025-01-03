@@ -69,6 +69,8 @@ Assign a user to the page to distribute the content work. >our own assignment is
 
 > **Hint**: By default the auto assignee feature is enabled. The assignee is automatically set to the current user when the status is changed from stateless to a new state.
 
+Configure the auto assignee feature and more in the extension settings.
+
 Add some helpful comments within the page to support the content work.
 
 ![Screencast](./Documentation/Images/screencast-content-planner.gif)
@@ -88,6 +90,14 @@ Feature toggles are available, see `ext_localconf.php` for configuration options
 The content planner abilities are part of a **custom permission** and needed to be granted to the dedicated user group/s (except admins).
 
 Every user can easily disable the content planner features in the user settings to avoid colour overload.
+
+## Command
+
+Use the bulk update command to process multiple entities at once. See help for more information regarding the specific usage.
+
+```bash
+vendor/bin/typo3 content-planner:bulk-update --help
+```
 
 ## Additional record tables
 
@@ -114,6 +124,26 @@ CREATE TABLE tx_news_domain_model_news
 
 ```php
 $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['xima_typo3_content_planner']['registerAdditionalRecordTables'][] = 'tx_news_domain_model_news';
+```
+
+## Events
+
+This extension provides an event to adjust the status change behavior, see 'Classes/Event/StatusChangeEvent.php'.
+
+## Development
+
+Use the following ddev commands to easily switch the local TYPO3 versions.
+
+```bash
+ddev install 12
+ddev install 13
+```
+
+The setup command adds the status functionality for testing purposes to `sys_category` and `tt_content`.
+
+```bash
+ddev setup
+ddev setup reset
 ```
 
 ## License

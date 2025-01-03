@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Hooks;
 
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 final class DataHandlerHook
 {
+    public function __construct(private FrontendInterface $cache, private readonly StatusChangeManager $statusChangeManager)
+    {
+    }
+
     /**
     * Hook: processDatamap_preProcessFieldArray
     */
@@ -22,7 +26,7 @@ final class DataHandlerHook
         }
 
         if (ExtensionUtility::isRegisteredRecordTable($table)) {
-            $this->processContentPlannerFields($incomingFieldArray, $table, $id);
+            $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, $id);
         }
     }
 
@@ -37,7 +41,7 @@ final class DataHandlerHook
         if ($command === 'delete' && $table === 'tx_ximatypo3contentplanner_status') {
             // Clear all status of records that are assigned to the deleted status
             foreach (ExtensionUtility::getRecordTables() as $table) {
-                ContentUtility::clearStatusOfExtensionRecords($table, $id);
+                $this->statusChangeManager->clearStatusOfExtensionRecords($table, $id);
             }
         }
     }
@@ -51,38 +55,27 @@ final class DataHandlerHook
         // Workaround to solve relation of comments created within the modal
         if (array_key_first($datamap) === 'tx_ximatypo3contentplanner_comment') {
             $id = array_key_first($datamap['tx_ximatypo3contentplanner_comment']);
-            if (!MathUtility::canBeInterpretedAsInteger($id) && !array_key_exists('pages', $dataHandler->datamap) && $datamap['tx_ximatypo3contentplanner_comment'][$id]['foreign_table'] === 'pages') {
-                $dataHandler->datamap['pages'][$datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
-                // Set author to current user
+            if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->defaultValues) && !MathUtility::canBeInterpretedAsInteger($id)) {
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
+                $table = null;
+                // @ToDo: Why are default values doesn't seem to be set as expected?
+                foreach ($dataHandler->defaultValues['tx_ximatypo3contentplanner_comment'] as $key => $value) {
+                    if ($key === 'foreign_table') {
+                        $table = $value;
+                    }
+                    $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id][$key] = $value;
+                }
+
+                // @ToDo: how to fix this for other tables?
+                if ($table === 'pages') {
+                    $dataHandler->datamap[$table][$datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
+                }
             }
         }
     }
 
-    private function processContentPlannerFields(array &$incomingFieldArray, $table, $id): void
+    public function clearCachePostProc(array $params): void
     {
-        if (!isset($incomingFieldArray['tx_ximatypo3contentplanner_status'])) {
-            return;
-        }
-        if (array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray) && ($incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === '' || $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === 0)) {
-            $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
-        }
-
-        if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] === '' || $incomingFieldArray['tx_ximatypo3contentplanner_status'] === 0) {
-            $incomingFieldArray['tx_ximatypo3contentplanner_status'] = null;
-        }
-
-        // auto reset assignee if status is set to null
-        if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoAssignment']) {
-            $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
-        }
-
-        // auto assign user if status is initially set
-        if (array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray) && $incomingFieldArray['tx_ximatypo3contentplanner_status'] !== null && $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === null && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']['autoUnassignment']) {
-            $preRecord = ContentUtility::getExtensionRecord($table, $id);
-            if ($preRecord['tx_ximatypo3contentplanner_status'] === null || $preRecord['tx_ximatypo3contentplanner_status'] === 0) {
-                $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = $GLOBALS['BE_USER']->getUserId();
-            }
-        }
+        $this->cache->flushByTags(array_keys($params['tags']));
     }
 }

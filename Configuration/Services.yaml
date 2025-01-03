@@ -8,14 +8,20 @@ services:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
 
-  cache.ximatypo3contentplanner_toolbarcache:
+  cache.ximatypo3contentplanner_statuscache:
     class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
     factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
-    arguments: [ 'ximatypo3contentplanner_toolbarcache' ]
+    arguments: [ 'ximatypo3contentplanner_statuscache' ]
 
-  Xima\XimaTypo3ContentPlanner\Backend\ToolbarItems\UpdateItem:
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
-      $cache: '@cache.ximatypo3contentplanner_toolbarcache'
+      $cache: '@cache.ximatypo3contentplanner_statuscache'
+
+  Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook:
+    public: true
+    arguments:
+      $cache: '@cache.ximatypo3contentplanner_statuscache'
+      $statusChangeManager: '@Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager'
 
   Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener:
       tags:
@@ -41,12 +47,6 @@ services:
     tags:
       - name: event.listener
         identifier: 'xima-typo3-content-planner/backend/modify-record-list-record-actions'
-
-  Xima\XimaTypo3ContentPlanner\Command\NotifyUpdateCommand:
-    tags:
-      - name: console.command
-        command: 'content-planner:notifiy-update'
-        description: 'A command to notify users about relevant updates in the content planner.'
 
   Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
     tags:
@@ -102,8 +102,8 @@ services:
               title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.title'
               description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.description'
               iconIdentifier: 'content-message'
-              height: 'large'
-              width: 'medium'
+              height: 'medium'
+              width: 'small'
 
   dashboard.widget.ContentStatus-overview:
       class: 'TYPO3\CMS\Dashboard\Widgets\DoughnutChartWidget'
@@ -118,30 +118,6 @@ services:
               title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.title'
               description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.description'
               iconIdentifier: 'content-widget-chart-pie'
-              height: 'medium'
-
-  Xima\XimaTypo3ContentPlanner\Widgets\Provider\CreateNoteButtonProvider:
-    arguments:
-      $title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.notes.button.create'
-
-  Xima\XimaTypo3ContentPlanner\Widgets\Provider\ListNoteButtonProvider:
-    arguments:
-      $title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.notes.button.list'
-
-  dashboard.widget.ContentStatus-notes:
-      class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentNotesWidget'
-      arguments:
-          $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentNotesDataProvider'
-          $buttons:
-            - '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\CreateNoteButtonProvider'
-            - '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ListNoteButtonProvider'
-      tags:
-          -   name: dashboard.widget
-              identifier: 'contentPlanner-notes'
-              groupNames: 'contentPlanner'
-              title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.notes.title'
-              description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.notes.description'
-              iconIdentifier: 'content-thumbtack'
               height: 'medium'
 
   dashboard.widget.ContentStatus-update:

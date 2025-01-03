@@ -6,12 +6,12 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
 class ContentStatusDataProvider implements ListDataProviderInterface
 {
-    public function __construct(protected readonly StatusRepository $statusRepository)
+    public function __construct(private readonly StatusRepository $statusRepository, private readonly BackendUserRepository $backendUserRepository)
     {
     }
 
@@ -30,6 +30,6 @@ class ContentStatusDataProvider implements ListDataProviderInterface
 
     public function getUsers(): array
     {
-        return ContentUtility::getBackendUsers();
+        return $this->backendUserRepository->findAll();
     }
 }

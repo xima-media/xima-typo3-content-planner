@@ -12,10 +12,15 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 
 class RecordController extends ActionController
 {
+    public function __construct(private readonly RecordRepository $recordRepository, private readonly CommentRepository $commentRepository)
+    {
+    }
+
     public function filterAction(ServerRequestInterface $request): ResponseInterface
     {
         $search = array_key_exists('search', $request->getQueryParams()) ? $request->getQueryParams()['search'] : null;
@@ -23,7 +28,7 @@ class RecordController extends ActionController
         $assignee = array_key_exists('assignee', $request->getQueryParams()) ? (int)$request->getQueryParams()['assignee'] : null;
         $type = array_key_exists('type', $request->getQueryParams()) ? $request->getQueryParams()['type'] : null;
 
-        $records = ContentUtility::getRecordsByFilter($search, $status, $assignee, $type);
+        $records = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type);
         $result = [];
         foreach ($records as $record) {
             $result[] = StatusItem::create($record)->toArray();
@@ -35,7 +40,7 @@ class RecordController extends ActionController
     {
         $recordId = (int)$request->getQueryParams()['uid'];
         $recordTable = $request->getQueryParams()['table'];
-        $comments = ContentUtility::getComments($recordId, $recordTable);
+        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable);
 
         /** @var StandaloneView $view */
         $view = GeneralUtility::makeInstance(StandaloneView::class);
