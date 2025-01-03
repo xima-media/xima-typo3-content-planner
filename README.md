@@ -69,6 +69,8 @@ Assign a user to the page to distribute the content work. >our own assignment is
 
 > **Hint**: By default the auto assignee feature is enabled. The assignee is automatically set to the current user when the status is changed from stateless to a new state.
 
+Configure the auto assignee feature and more in the extension settings.
+
 Add some helpful comments within the page to support the content work.
 
 ![Screencast](./Documentation/Images/screencast-content-planner.gif)

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 class ExtensionUtility
@@ -95,6 +97,7 @@ class ExtensionUtility
 
     public static function isFeatureEnabled(string $feature): bool
     {
-        return array_key_exists($feature, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features']) && $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['features'][$feature];
+        $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get(Configuration::EXT_KEY);
+        return array_key_exists($feature, $configuration) && $configuration[$feature];
     }
 }

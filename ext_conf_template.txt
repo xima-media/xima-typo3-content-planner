@@ -1,0 +1,6 @@
+# cat=basic/enable; type=boolean; label=Enable the auto assignment of a record with a new status with the current user
+autoAssignment = 1
+# cat=basic/enable; type=boolean; label=Enable the extended menu to show information about assignment and comments
+extendedContextMenu = 1
+# cat=basic/enable; type=boolean; label=Enable the current assignee hint to highlight records assigned to the current user
+currentAssigneeHighlight = 1
