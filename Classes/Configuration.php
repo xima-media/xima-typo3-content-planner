@@ -56,6 +56,7 @@ class Configuration
 
     final public const FEATURE_AUTO_ASSIGN = 'autoAssignment';
     final public const FEATURE_EXTEND_CONTEXT_MENU = 'extendedContextMenu';
+    final public const FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT = 'currentAssigneeHighlight';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 }

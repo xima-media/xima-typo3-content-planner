@@ -2,15 +2,14 @@
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
-use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
+use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 final class StatusItem
 {
@@ -33,7 +32,7 @@ final class StatusItem
 
     public function getTitle(): ?string
     {
-        return $this->data['title'] !== '' ? $this->data['title'] : BackendUtility::getNoRecordTitle();
+        return ExtensionUtility::getTitle('title', $this->data);
     }
 
     public function getStatus(): ?string
@@ -43,25 +42,17 @@ final class StatusItem
 
     public function getStatusIcon(): string
     {
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $icon = $iconFactory->getIcon($this->status ? $this->status->getColoredIcon() : 'flag-gray', 'small');
-        return $icon->render();
+        return IconHelper::getIconByStatus($this->status, true);
     }
 
     public function getRecordIcon(): string
     {
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        return $iconFactory->getIconForRecord($this->data['tablename'], $this->data, Icon::SIZE_SMALL)->render();
+        return IconHelper::getIconByRecord($this->data['tablename'], $this->data, true);
     }
 
     public function getRecordLink(): string
     {
-        switch ($this->data['tablename']) {
-            case 'pages':
-                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $this->data['uid']]);
-            default:
-                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$this->data['tablename'] => [$this->data['uid'] => 'edit']]]);
-        }
+        return UrlHelper::getRecordLink($this->data['tablename'], $this->data['uid']);
     }
 
     public function getAssignee(): ?string
@@ -76,19 +67,12 @@ final class StatusItem
 
     public function getAssigneeAvatar(): ?string
     {
-        $backendUser = ContentUtility::getBackendUserById((int)$this->data['tx_ximatypo3contentplanner_assignee']);
-        if (!$backendUser) {
-            return null;
-        }
-        $avatar = GeneralUtility::makeInstance(Avatar::class);
-        return $avatar->render($backendUser, 15, true);
+        return IconHelper::getAvatarByUserId((int)$this->data['tx_ximatypo3contentplanner_assignee']);
     }
 
     public function getComments(): ?string
     {
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $icon = $iconFactory->getIcon('content-message', 'small');
-        return $this->data['tx_ximatypo3contentplanner_comments'] . ' ' . $icon->render();
+        return $this->data['tx_ximatypo3contentplanner_comments'] . ' ' . IconHelper::getIconByIdentifier('content-message');
     }
 
     public function getSite(): ?string

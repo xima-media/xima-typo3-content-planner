@@ -20,7 +20,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
         return $this->fetchUpdateData(maxItems: 15);
     }
 
-    public function fetchUpdateData(?int $beUser = null, ?int $tstamp = null, ?int $maxItems = null, bool $cliContext = false): array
+    public function fetchUpdateData(?int $beUser = null, ?int $tstamp = null, ?int $maxItems = null): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_history');
 
@@ -62,7 +62,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
 
         foreach ($results as $result) {
             try {
-                $items[] = HistoryItem::create($result, $cliContext);
+                $items[] = HistoryItem::create($result);
             } catch (\Exception $e) {
             }
         }

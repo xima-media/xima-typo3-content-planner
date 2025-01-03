@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -99,5 +100,15 @@ class ExtensionUtility
     {
         $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get(Configuration::EXT_KEY);
         return array_key_exists($feature, $configuration) && $configuration[$feature];
+    }
+
+    public static function getTitleField(string $table): string
+    {
+        return $GLOBALS['TCA'][$table]['ctrl']['label'];
+    }
+
+    public static function getTitle(string $key, array|bool|null $record): string
+    {
+        return $record ? (array_key_exists($key, $record) ? $record[$key] : BackendUtility::getNoRecordTitle()) : BackendUtility::getNoRecordTitle();
     }
 }

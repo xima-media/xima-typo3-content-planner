@@ -38,4 +38,12 @@ class UrlHelper
         ];
         return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
     }
+
+    public static function getRecordLink(string $table, int $uid): string
+    {
+        return match ($table) {
+            'pages' => (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $uid]),
+            default => (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']]]),
+        };
+    }
 }
