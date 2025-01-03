@@ -61,4 +61,17 @@ class CommentRepository
             )
             ->executeQuery()->fetchAssociative();
     }
+
+    public function deleteAllCommentsByRecord(int $id, string $table): void
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder
+            ->update(self::TABLE)
+            ->set('deleted', 1)
+            ->where(
+                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, \TYPO3\CMS\Core\Database\Connection::PARAM_STR))
+            )
+            ->executeStatement();
+    }
 }

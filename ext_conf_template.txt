@@ -4,3 +4,5 @@ autoAssignment = 1
 extendedContextMenu = 1
 # cat=basic/enable; type=boolean; label=Enable the current assignee hint to highlight records assigned to the current user
 currentAssigneeHighlight = 1
+# cat=basic/enable; type=boolean; label=Delete corresponding comments when status is reset
+clearCommentsOnStatusReset = 1

@@ -8,6 +8,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
@@ -15,7 +16,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 class StatusChangeManager
 {
-    public function __construct(private readonly EventDispatcher $eventDispatcher, private readonly RecordRepository $recordRepository)
+    public function __construct(private readonly EventDispatcher $eventDispatcher, private readonly RecordRepository $recordRepository, private readonly CommentRepository $commentRepository)
     {
     }
 
@@ -31,6 +32,10 @@ class StatusChangeManager
         // auto reset assignee if status is set to null
         if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] === null) {
             $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
+
+            if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
+                $this->commentRepository->deleteAllCommentsByRecord($id, $table);
+            }
         }
 
         $preRecord = $this->recordRepository->findByUid($table, $id);

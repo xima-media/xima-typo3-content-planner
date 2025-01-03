@@ -120,6 +120,22 @@ class RecordRepository
             ->fetchAssociative();
     }
 
+    public function updateStatusByUid(string $table, int $uid, int $status, int|bool|null $assignee = false): void
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder
+            ->update($table)
+            ->set('tx_ximatypo3contentplanner_status', $status)
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
+            );
+
+        if ($assignee !== false) {
+            $queryBuilder->set('tx_ximatypo3contentplanner_assignee', $assignee);
+        }
+        $queryBuilder->executeQuery();
+    }
+
     private function getSqlByTable(string $table, array &$sql, string $additionalWhere): void
     {
         $titleField = $this->getTitleField($table);
