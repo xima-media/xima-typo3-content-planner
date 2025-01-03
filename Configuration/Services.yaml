@@ -102,8 +102,8 @@ services:
               title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.title'
               description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.description'
               iconIdentifier: 'content-message'
-              height: 'large'
-              width: 'medium'
+              height: 'medium'
+              width: 'small'
 
   dashboard.widget.ContentStatus-overview:
       class: 'TYPO3\CMS\Dashboard\Widgets\DoughnutChartWidget'
