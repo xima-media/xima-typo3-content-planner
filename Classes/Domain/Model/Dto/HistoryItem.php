@@ -36,6 +36,14 @@ final class HistoryItem
 
         $record = ContentUtility::getExtensionRecord($this->data['tablename'], (int)$this->data['recuid']);
 
+        if ($record === null) {
+            return false;
+        }
+
+        if ($this->data['tablename'] === 'tx_ximatypo3contentplanner_comment') {
+            $record = ContentUtility::getExtensionRecord($this->data['raw_history']['foreign_table'], (int)$this->data['raw_history']['foreign_uid']);
+        }
+
         if ($record === null || !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
             return false;
         }
