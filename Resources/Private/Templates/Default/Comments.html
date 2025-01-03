@@ -2,27 +2,46 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<f:if condition="{comments}">
+<f:comment><!-- ToDo: use css file --></f:comment>
+<style>
+    .widget-no-items-found {
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        top: 0;
+    }
+    .widget-no-items-found .xima-typo3-content-planner__empty {
+        background-repeat: no-repeat;
+        display: block;
+        position: relative;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.125;
+        background-position: 50% 55%;
+        background-size: 25%;
+    }
+    .widget-contentPlanner--comment {
+        border-bottom: 1px solid #f9f9f9;
+        padding-bottom: 1rem;
+        gap:1rem;
+        margin-bottom:2rem;
+    }
+    .text {
+        position: relative;
+        display: inline-block;
+        padding: 1rem;
+        background-color: #f9f9f9;
+        margin: 1rem 0;
+    }
+    .text p {
+        margin-bottom: 0;
+    }
+</style>
+
+<f:if condition="{comments -> f:count()}">
     <f:then>
-        <f:comment><!-- ToDo: use css file --></f:comment>
-        <style>
-            .widget-contentPlanner--comment {
-                border-bottom: 1px solid #f9f9f9;
-                padding-bottom: 1rem;
-                gap:1rem;
-                margin-bottom:2rem;
-            }
-            .text {
-                position: relative;
-                display: inline-block;
-                padding: 1rem;
-                background-color: #f9f9f9;
-                margin: 1rem 0;
-            }
-            .text p {
-                margin-bottom: 0;
-            }
-        </style>
         <f:for each="{comments}" as="record">
             <div class="d-flex widget-contentPlanner--comment">
                 <be:avatar backendUser="{record.data.author}" size="40"

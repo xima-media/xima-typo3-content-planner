@@ -76,8 +76,14 @@
 				<source>Change note</source>
 			</trans-unit>
 
+			<trans-unit id="button.modal.header.comments">
+				<source>Comments</source>
+			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
 				<source>Cancel</source>
+			</trans-unit>
+			<trans-unit id="button.modal.footer.new">
+				<source>New</source>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.save">
 				<source>Save</source>

@@ -3,6 +3,7 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 import Viewport from "@typo3/backend/viewport.js";
+import CommentsModal from "@xima/ximatypo3contentplanner/comments-modal.js";
 
 class ContextMenuActions {
 
@@ -15,8 +16,11 @@ class ContextMenuActions {
   }
 
   load(table, uid, n) {
-    // @ToDo: how to navigate here correctly?
     Viewport.ContentContainer.setUrl(n.uri);
+  }
+
+  comments(table, uid, n) {
+    CommentsModal.fetchComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, table, uid, n.newCommentUri);
   }
 
   static changeStatus(table, uid, status) {

@@ -29,8 +29,10 @@
                         </f:if>
                         <f:if condition="{comments}">
                             <button class="btn btn-default btn-sm contentPlanner--comments" type="button"
+                                    data-content-planner-comments
                                     data-table="pages"
                                     data-id="{data.uid}"
+                                    data-new-comment-url="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
                                     style="background-color: transparent">
                                 <core:icon identifier="content-message" size="small"/>
                                 {comments -> f:count()}

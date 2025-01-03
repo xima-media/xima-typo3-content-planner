@@ -3,23 +3,49 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 import Modal from "@typo3/backend/modal.js";
+import NewCommentModal from "@xima/ximatypo3contentplanner/new-comment-modal.js";
 
 class CommentsModal {
 
   constructor() {
-    document.querySelectorAll('.contentPlanner--comments').forEach(item => {
+    document.querySelectorAll('[data-content-planner-comments]').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault();
-        const url = item.hasAttribute('href') ? item.getAttribute('href') : TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments;
+        const url = item.hasAttribute('href') && !item.hasAttribute('data-force-ajax-url') ? item.getAttribute('href') : TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments;
         const table = item.getAttribute('data-table');
         const id = item.getAttribute('data-id');
-        this.fetchComments(url, table, id);
+        const newCommentsUrl = item.getAttribute('data-new-comment-uri');
+        this.fetchComments(url, table, id, newCommentsUrl);
       });
     });
   }
 
-  fetchComments(href, table, uid) {
-    new AjaxRequest(href)
+  fetchComments(url, table, uid, newCommentUrl = false) {
+    let buttons = [{
+      text: TYPO3.lang !== undefined && TYPO3.lang['button.modal.footer.close'] ? TYPO3.lang['button.modal.footer.close'] : 'Close',
+      name: 'close',
+      icon: 'actions-close',
+      active: true,
+      btnClass: 'btn-secondary',
+      trigger: function (event, modal) {
+        modal.hideModal();
+      }
+    }];
+    if (newCommentUrl) {
+      buttons.unshift({
+        text: TYPO3.lang !== undefined && TYPO3.lang['button.modal.footer.new'] ? TYPO3.lang['button.modal.footer.new'] : 'New',
+        name: 'new',
+        icon: 'actions-message-dots',
+        active: true,
+        btnClass: 'btn-primary',
+        trigger: function (event, modal) {
+          modal.hideModal();
+          NewCommentModal.openNewCommentModal(newCommentUrl);
+        }
+      });
+    }
+
+    new AjaxRequest(url)
       .withQueryArguments(
         {
           table: table,
@@ -30,27 +56,15 @@ class CommentsModal {
       .then(async (response) => {
         const resolved = await response.resolve();
         Modal.advanced({
-          title: 'Comments',
+          title: TYPO3.lang !== undefined && TYPO3.lang['button.modal.header.comments'] ? TYPO3.lang['button.modal.header.comments'] : 'Comments',
           content: document.createRange()
             .createContextualFragment(resolved.result),
           size: Modal.sizes.large,
           staticBackdrop: true,
-          buttons: [
-            {
-              text: TYPO3.lang !== undefined ? TYPO3.lang['button.modal.footer.close'] : 'Close',
-              name: 'close',
-              icon: 'actions-close',
-              active: true,
-              btnClass: 'btn-secondary',
-              trigger: function (event, modal) {
-                modal.hideModal();
-              }
-            }
-          ]
+          buttons: buttons
         });
-
       });
+    }
   }
-}
 
-export default new CommentsModal();
+  export default new CommentsModal();

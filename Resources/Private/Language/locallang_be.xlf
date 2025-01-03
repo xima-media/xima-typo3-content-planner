@@ -27,6 +27,9 @@
 			<trans-unit id="comments">
 				<source>Comments</source>
 			</trans-unit>
+			<trans-unit id="save_and_close">
+				<source>Save and Close</source>
+			</trans-unit>
 			<!-- history -->
 			<trans-unit id="history.record.2.set.tx_ximatypo3contentplanner_status">
 				<source><![CDATA[The <em>status</em> was set to <strong>%s</strong>]]></source>

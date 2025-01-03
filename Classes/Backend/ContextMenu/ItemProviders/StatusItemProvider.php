@@ -6,6 +6,8 @@ namespace Xima\XimaTypo3ContentPlanner\Backend\ContextMenu\ItemProviders;
 
 use TYPO3\CMS\Backend\ContextMenu\ItemProviders\AbstractProvider;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
@@ -46,6 +48,7 @@ class StatusItemProvider extends AbstractProvider
             'data-callback-module' => '@xima/ximatypo3contentplanner/context-menu-actions',
             'data-status' => $itemName,
             'data-uri' => UrlHelper::getContentStatusPropertiesEditUrl($this->table, (int)$this->identifier, false),
+            'data-new-comment-uri' => UrlHelper::getNewCommentUrl($this->table, (int)$this->identifier),
         ];
     }
 
@@ -54,6 +57,11 @@ class StatusItemProvider extends AbstractProvider
         if (!VisibilityUtility::checkContentStatusVisibility()) {
             return $items;
         }
+        /** @var PageRenderer $pageRenderer */
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/new-comment-modal.js');
+        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/comments-modal.js');
+        $pageRenderer->addInlineLanguageLabelFile('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf');
 
         $this->initDisabledItems();
         foreach ($this->statusRepository->findAll() as $statusItem) {
@@ -97,11 +105,11 @@ class StatusItemProvider extends AbstractProvider
                 }
 
                 // comments
-                if ($record['tx_ximatypo3contentplanner_comments']) {
+                if ($record['tx_ximatypo3contentplanner_status'] !== null) {
                     $this->itemsConfiguration['wrap']['childItems']['comments'] = [
-                        'label' => $record['tx_ximatypo3contentplanner_comments'] . ' ' . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
+                        'label' => $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : ''),
                         'iconIdentifier' => 'actions-message',
-                        'callbackAction' => 'load',
+                        'callbackAction' => 'comments',
                     ];
                 }
             }

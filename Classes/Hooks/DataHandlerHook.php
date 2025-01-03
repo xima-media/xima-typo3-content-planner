@@ -55,10 +55,21 @@ final class DataHandlerHook
         // Workaround to solve relation of comments created within the modal
         if (array_key_first($datamap) === 'tx_ximatypo3contentplanner_comment') {
             $id = array_key_first($datamap['tx_ximatypo3contentplanner_comment']);
-            if (!MathUtility::canBeInterpretedAsInteger($id) && !array_key_exists('pages', $dataHandler->datamap) && $datamap['tx_ximatypo3contentplanner_comment'][$id]['foreign_table'] === 'pages') {
-                $dataHandler->datamap['pages'][$datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
-                // Set author to current user
+            if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->defaultValues) && !MathUtility::canBeInterpretedAsInteger($id)) {
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
+                $table = null;
+                // @ToDo: Why are default values doesn't seem to be set as expected?
+                foreach ($dataHandler->defaultValues['tx_ximatypo3contentplanner_comment'] as $key => $value) {
+                    if ($key === 'foreign_table') {
+                        $table = $value;
+                    }
+                    $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id][$key] = $value;
+                }
+
+                // @ToDo: how to fix this for other tables?
+                if ($table === 'pages') {
+                    $dataHandler->datamap[$table][$datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
+                }
             }
         }
     }

@@ -20,4 +20,22 @@ class UrlHelper
         ];
         return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
     }
+
+    public static function getNewCommentUrl(string $table, int $uid): string
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $pid = $uid;
+        if ($table !== 'pages') {
+            $record = ContentUtility::getExtensionRecord($table, $uid);
+            $pid = (int)$record['pid'];
+        }
+
+        $params = [
+            'edit' => ['tx_ximatypo3contentplanner_comment' => [$pid => 'new']],
+            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+            'defVals' => ['tx_ximatypo3contentplanner_comment' => ['foreign_table' => $table, 'foreign_uid' => $pid]],
+        ];
+        return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
+    }
 }
