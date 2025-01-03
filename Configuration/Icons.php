@@ -29,7 +29,6 @@ return [
     ],
     'flag-gray' => [
         'provider' => SvgSpriteIconProvider::class,
-        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/flags.svg#flag-ed',
         'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/flags.svg#flag-gray',
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/flags/flag-gray.svg',
     ],
