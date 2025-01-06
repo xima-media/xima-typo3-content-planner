@@ -45,7 +45,7 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
         foreach ($this->statusRepository->findAll() as $status) {
             $this->labels[] = $status->getTitle();
             $this->data[] = $this->countPageStatus($status->getUid());
-            $this->colors[] = Configuration::STATUS_COLOR_CODES[$status->getColor()];
+            $this->colors[] = Configuration::STATUS_COLOR_CODES_HIGH_CONTRAST[$status->getColor()];
         }
     }
 

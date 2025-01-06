@@ -5,7 +5,6 @@
 .widget-content-main .widget-loading {
     width: 100%;
     height: 100%;
-    background-color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -32,10 +31,6 @@
     background-size: 25%;
 }
 
-.widget-content-main table tr.current {
-    background-color: #FFF3E0;
-}
-
 .widget-content-main .avatar {
     display: inline-block;
     margin-right: .25rem;
@@ -58,7 +53,6 @@
     margin-left: -20px;
     padding-left: 20px;
     padding-top: 5px;
-    background: #fff;
 }
 
 .widget-content-main .widget-filter .form-check input[type="radio"] {
@@ -87,7 +81,7 @@
 }
 
 .widget-contentPlanner--comment {
-    border-bottom: 1px solid #f9f9f9;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     padding-bottom: 1rem;
     gap: 1rem;
     margin-bottom: 2rem;
@@ -97,7 +91,7 @@
     position: relative;
     display: inline-block;
     padding: 1rem;
-    background-color: #f9f9f9;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     margin: 1rem 0;
 }
 
@@ -116,15 +110,11 @@
 }
 
 .update-list li {
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.update-list li.current {
-    background-color: #FFF3E0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .update-list li .change-type-icon {
-    background-color: #eee;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
     padding: 20px;
     margin: 0 10px;
     z-index: 2;
@@ -136,5 +126,9 @@
     padding-left: 40px;
     height: 100%;
     display: block;
-    border-left: 1px solid #ddd;
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.widget-content-main table tr.current, .update-list li.current {
+    background-color: rgba(253, 212, 150, 0.2);
 }

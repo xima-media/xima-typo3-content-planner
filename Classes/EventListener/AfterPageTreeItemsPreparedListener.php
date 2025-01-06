@@ -29,16 +29,15 @@ final class AfterPageTreeItemsPreparedListener
         $items = $event->getItems();
         foreach ($items as &$item) {
             $status = null;
+            $version = VersionNumberUtility::getCurrentTypo3Version();
             if (isset($item['_page']['tx_ximatypo3contentplanner_status'])) {
                 $status = $this->statusRepository->findByUid($item['_page']['tx_ximatypo3contentplanner_status']);
                 if ($status) {
-                    $version = VersionNumberUtility::getCurrentTypo3Version();
                     if (version_compare($version, '13.0.0', '>=')) {
                         // @phpstan-ignore-next-line
                         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
                             label: $status->getTitle(),
-                            color: Configuration::STATUS_COLOR_CODES[$status->getColor()],
-                            priority: 1,
+                            color: Configuration::STATUS_COLOR_CODES_HIGH_CONTRAST[$status->getColor()],
                         );
                         if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
                             // @phpstan-ignore-next-line
@@ -49,8 +48,20 @@ final class AfterPageTreeItemsPreparedListener
                             );
                         }
                     } else {
-                        $item['backgroundColor'] = Configuration::STATUS_COLOR_CODES[$status->getColor()];
+                        $item['backgroundColor'] = Configuration::STATUS_COLOR_CODES_LOW_CONTRAST[$status->getColor()];
                     }
+                }
+            } else {
+                if (version_compare($version, '13.0.0', '>=')) {
+                    // Workaround for label behavior in TYPO3 13
+                    // Labels will be inherited from parent pages, if not set explicitly
+                    // Currently there is no way to suppress this behavior
+                    // @see https://github.com/TYPO3/typo3/blob/5619d59f00808f7bec7a311106fda6a52854c0bd/Build/Sources/TypeScript/backend/tree/tree.ts#L1224
+                    // @phpstan-ignore-next-line
+                    $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
+                        label: '',
+                        color: 'inherit',
+                    );
                 }
             }
         }

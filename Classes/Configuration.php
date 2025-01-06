@@ -40,11 +40,20 @@ class Configuration
         self::STATUS_COLOR_GRAY,
     ];
 
-    final public const STATUS_COLOR_CODES = [
+    final public const STATUS_COLOR_CODES = self::STATUS_COLOR_CODES_LOW_CONTRAST;
+
+    final public const STATUS_COLOR_CODES_LOW_CONTRAST = [
         self::STATUS_COLOR_RED => '#f8d7da',
         self::STATUS_COLOR_BLUE => '#cce5ff',
         self::STATUS_COLOR_YELLOW => '#fff3cd',
         self::STATUS_COLOR_GREEN => '#d4edda',
+    ];
+
+    final public const STATUS_COLOR_CODES_HIGH_CONTRAST = [
+        self::STATUS_COLOR_RED => 'rgb(250,136,147)',
+        self::STATUS_COLOR_BLUE => 'rgb(100,187,200)',
+        self::STATUS_COLOR_YELLOW => 'rgb(255,205,117)',
+        self::STATUS_COLOR_GREEN => 'rgb(106,158,113)',
     ];
 
     final public const STATUS_COLOR_ALERTS = [
