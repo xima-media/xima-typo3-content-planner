@@ -132,11 +132,10 @@ This extension provides an event to adjust the status change behavior, see 'Clas
 
 ## Development
 
-Use the following ddev commands to easily switch the local TYPO3 versions.
+Use the following ddev command to easily install all support TYPO3 versions.
 
 ```bash
-ddev install 12
-ddev install 13
+ddev install all
 ```
 
 The setup command adds the status functionality for testing purposes to `sys_category` and `tt_content`.

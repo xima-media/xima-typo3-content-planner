@@ -9,8 +9,6 @@ set -e
 
 . .ddev/commands/web/.utils.sh
 
-# check if argument is "reset"
-# check if argument is "reset"
 if [ "$1" == "reset" ]; then
     message blue "reset setup"
     message yellow "remove Configuration/TCA/Overrides/sys_category.php"
