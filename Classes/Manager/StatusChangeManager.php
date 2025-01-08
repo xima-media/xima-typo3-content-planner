@@ -78,8 +78,11 @@ class StatusChangeManager
         }
     }
 
-    private function isStatusFieldChanged(array $incomingFieldArray, array $preRecord): bool
+    private function isStatusFieldChanged(array $incomingFieldArray, array|bool $preRecord): bool
     {
+        if (!is_array($preRecord)) {
+            return false;
+        }
         return $preRecord['tx_ximatypo3contentplanner_status'] !== $incomingFieldArray['tx_ximatypo3contentplanner_status'];
     }
 }

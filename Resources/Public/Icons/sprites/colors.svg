@@ -1,1 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><symbol viewBox="0 0 448 512" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" id="color-black" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h447.824v511.262H0z"/></symbol><symbol viewBox="0 0 448 512" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" id="color-blue" xmlns="http://www.w3.org/2000/svg"><path style="fill:#64bbc8" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol><symbol viewBox="0 0 448 512" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" id="color-gray" xmlns="http://www.w3.org/2000/svg"><path style="fill:#bbb" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol><symbol viewBox="0 0 448 512" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" id="color-green" xmlns="http://www.w3.org/2000/svg"><path style="fill:#6a9e71" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol><symbol viewBox="0 0 448 512" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" id="color-red" xmlns="http://www.w3.org/2000/svg"><path style="fill:#fa8893" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol><symbol viewBox="0 0 448 512" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" id="color-yellow" xmlns="http://www.w3.org/2000/svg"><path style="fill:#ffcd75" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <symbol viewBox="0 0 448 512" xml:space="preserve"
+        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"
+        id="color-black" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h447.824v511.262H0z"/></symbol>
+    <symbol viewBox="0 0 448 512" xml:space="preserve"
+        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"
+        id="color-blue" xmlns="http://www.w3.org/2000/svg"><path style="fill:#64bbc8" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol>
+    <symbol viewBox="0 0 448 512" xml:space="preserve"
+        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"
+        id="color-gray" xmlns="http://www.w3.org/2000/svg"><path style="fill:#bbb" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol>
+    <symbol viewBox="0 0 448 512" xml:space="preserve"
+        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"
+        id="color-green" xmlns="http://www.w3.org/2000/svg"><path style="fill:#6a9e71" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol>
+    <symbol viewBox="0 0 448 512" xml:space="preserve"
+        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"
+        id="color-red" xmlns="http://www.w3.org/2000/svg"><path style="fill:#fa8893" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol>
+    <symbol viewBox="0 0 448 512" xml:space="preserve"
+        style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2"
+        id="color-yellow" xmlns="http://www.w3.org/2000/svg"><path style="fill:#ffcd75" d="M-18.424-12.348h497.721v562.549H-18.424z" transform="matrix(.89975 0 0 .90883 16.577 11.222)"/></symbol>
+</svg>

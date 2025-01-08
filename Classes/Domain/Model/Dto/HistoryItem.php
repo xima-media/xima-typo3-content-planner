@@ -69,7 +69,12 @@ final class HistoryItem
                     $this->relatedRecord = ContentUtility::getPage((int)$this->data['recuid']);
                     break;
                 case 'tx_ximatypo3contentplanner_comment':
-                    if ($this->data['raw_history']['foreign_table'] && $this->data['raw_history']['foreign_uid']) {
+                    if (
+                        array_key_exists('foreign_table', $this->data['raw_history'])
+                        && array_key_exists('foreign_uid', $this->data['raw_history'])
+                        && $this->data['raw_history']['foreign_table']
+                        && $this->data['raw_history']['foreign_uid']
+                    ) {
                         $table = $this->data['raw_history']['foreign_table'];
                         $uid = (int)$this->data['raw_history']['foreign_uid'];
                     } else {
