@@ -68,6 +68,7 @@ function install_start() {
     rm -rf /var/www/html/.test/$version/*
     setup_environment $version
     create_symlinks_main_extension
+    create_symlinks_additional_extensions
     setup_composer
 }
 
@@ -97,6 +98,12 @@ function create_symlinks_main_extension() {
     done
 }
 
+function create_symlinks_additional_extensions() {
+    for dir in .ddev/test/packages/*/; do
+        ln -sr "$dir" "$BASE_PATH/packages/$(basename "$dir")"
+    done
+}
+
 function setup_composer() {
     composer init --name="xima/typo3-$VERSION" --description="TYPO3 $VERSION" --no-interaction --working-dir "$BASE_PATH"
     composer config extra.typo3/cms.web-dir public --working-dir "$BASE_PATH"
@@ -122,6 +129,10 @@ function setup_typo3() {
 function update_typo3() {
     $TYPO3_BIN database:updateschema
     $TYPO3_BIN cache:flush
+}
+
+function import_data() {
+    $TYPO3_BIN database:import < /var/www/html/.ddev/test/data/dump.sql
 }
 
 message() {
