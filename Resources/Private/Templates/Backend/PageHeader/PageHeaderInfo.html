@@ -59,14 +59,10 @@
                 type="button"
                 data-table="pages"
                 data-id="{data.uid}"
-                data-new-comment-url="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}
-                        >
-                            <core:icon
-                                identifier=" content-message
-            "
-            size="small"
-            />
-            <span class="badge badge-secondary">{comments -> f:count()}</span>
+                data-new-comment-url="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
+            >
+                <core:icon identifier="actions-message" size="small"/>
+                <span class="badge badge-secondary">{comments -> f:count()}</span>
             </button>
         </f:if>
         <a
@@ -78,7 +74,7 @@
             title="New comment"
         >
             <core:icon
-                identifier="content-message-dots"
+                identifier="actions-message-add"
                 size="small"
             />
         </a>

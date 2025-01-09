@@ -1,6 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
-    data-namespace-typo3-fluid="true">
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      data-namespace-typo3-fluid="true">
 
 <div class="widget-content-title d-flex align-items-center">
     <core:icon identifier="{icon}" size="small"/>
@@ -11,26 +11,29 @@
 <div class="widget-content-main">
     <f:if condition="{records}">
         <f:then>
-                    <f:for each="{records}" as="record">
-                        <f:if condition="{record.relatedRecord}">
-                            <div class="d-flex align-items-center widget-contentPlanner--comment">
-                                <be:avatar backendUser="{record.data.author}" size="40"
-                                        showIcon="true"/>
-                                <div class="d-flex flex-column flex-grow-1">
-                                    <div><strong>{record.authorName}</strong> <small>{record.data.tstamp -> f:format.date(format:'d.m.Y
-                                        H:i')}</small></div>
-                                    <div class="text">{record.data.content -> f:sanitize.html()}</div>
-                                    <a href="{record.recordLink}">
-                                        <small>
-                                            <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
-                                            <core:icon identifier="{record.recordIcon}" size="small"/>
-                                            {record.title}
-                                        </small>
-                                    </a>
+            <f:for each="{records}" as="record">
+                <f:if condition="{record.relatedRecord}">
+                    <div class="d-flex align-items-center widget-contentPlanner--comment">
+                        <be:avatar backendUser="{record.data.author}" size="40"
+                                   showIcon="true"/>
+                        <div class="d-flex flex-column flex-grow-1">
+                            <div class="d-flex flex-row justify-content-between">
+                                <div>
+                                    <strong>{record.authorName}</strong>
+                                    <small>{record.data.tstamp -> f:format.date(format:'d.m.Y  H:i')}</small>
                                 </div>
+                                <small>
+                                    <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
+                                    <a href="{record.recordLink}">
+                                        {record.title}
+                                    </a>
+                                </small>
                             </div>
-                        </f:if>
-                    </f:for>
+                            <div class="text">{record.data.content -> f:sanitize.html()}</div>
+                        </div>
+                    </div>
+                </f:if>
+            </f:for>
         </f:then>
         <f:else>
             <div class="row widget-no-items-found">

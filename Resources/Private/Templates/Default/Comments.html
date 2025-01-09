@@ -23,7 +23,7 @@
         background-size: 25%;
     }
     .widget-contentPlanner--comment {
-        border-bottom: 1px solid #f9f9f9;
+        border-bottom: 1px solid rgba(125, 125, 125, 0.1);
         padding-bottom: 1rem;
         gap:1rem;
         margin-bottom:2rem;
@@ -32,7 +32,7 @@
         position: relative;
         display: inline-block;
         padding: 1rem;
-        background-color: #f9f9f9;
+        background-color: rgba(125, 125, 125, 0.1);
         margin: 1rem 0;
     }
     .text p {
@@ -43,20 +43,23 @@
 <f:if condition="{comments -> f:count()}">
     <f:then>
         <f:for each="{comments}" as="record">
-            <div class="d-flex widget-contentPlanner--comment">
+            <div class="d-flex align-items-center widget-contentPlanner--comment">
                 <be:avatar backendUser="{record.data.author}" size="40"
                         showIcon="true"/>
                 <div class="d-flex flex-column flex-grow-1">
-                    <div><strong>{record.authorName}</strong> <small>{record.data.tstamp -> f:format.date(format:'d.m.Y
-                        H:i')}</small></div>
-                    <div class="text">{record.data.content -> f:sanitize.html()}</div>
-                    <a href="{record.recordLink}">
+                    <div class="d-flex flex-row justify-content-between">
+                        <div>
+                            <strong>{record.authorName}</strong>
+                            <small>{record.data.tstamp -> f:format.date(format:'d.m.Y  H:i')}</small>
+                        </div>
                         <small>
                             <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
-                            <core:icon identifier="{record.recordIcon}" size="small"/>
-                            {record.title}
+                            <a href="{record.recordLink}">
+                                {record.title}
+                            </a>
                         </small>
-                    </a>
+                    </div>
+                    <div class="text">{record.data.content -> f:sanitize.html()}</div>
                 </div>
             </div>
         </f:for>

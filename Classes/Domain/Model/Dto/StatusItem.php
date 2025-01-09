@@ -76,7 +76,7 @@ final class StatusItem
 
     public function getComments(): ?string
     {
-        return $this->data['tx_ximatypo3contentplanner_comments'] . ' ' . IconHelper::getIconByIdentifier('content-message');
+        return $this->data['tx_ximatypo3contentplanner_comments'] . ' ' . IconHelper::getIconByIdentifier('actions-message');
     }
 
     public function getSite(): ?string

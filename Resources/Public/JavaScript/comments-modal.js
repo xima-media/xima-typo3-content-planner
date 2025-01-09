@@ -35,7 +35,7 @@ class CommentsModal {
       buttons.unshift({
         text: TYPO3.lang !== undefined && TYPO3.lang['button.modal.footer.new'] ? TYPO3.lang['button.modal.footer.new'] : 'New',
         name: 'new',
-        icon: 'actions-message-dots',
+        icon: 'actions-message-add',
         active: true,
         btnClass: 'btn-primary',
         trigger: function (event, modal) {
