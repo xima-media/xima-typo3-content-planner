@@ -50,7 +50,7 @@ final class RenderAdditionalContentToRecordListListener
             foreach ($tableRecords as $tableRecord) {
                 $status = $this->statusRepository->findByUid($tableRecord['tx_ximatypo3contentplanner_status']);
                 if ($status) {
-                    $additionalCss .= 'tr[data-table="' . $table . '"][data-uid="' . $tableRecord['uid'] . '"] > td { background-color: ' . Configuration::STATUS_COLOR_CODES[$status->getColor()] . '; } ';
+                    $additionalCss .= 'tr[data-table="' . $table . '"][data-uid="' . $tableRecord['uid'] . '"] > td { background-color: ' . Configuration\Colors::get($status->getColor(), true) . '; } ';
                 }
             }
         }

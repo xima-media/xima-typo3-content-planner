@@ -52,13 +52,13 @@ final class DrawBackendHeaderListener
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/new-comment-modal.js');
         $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/comments-modal.js');
+        $pageRenderer->addCssFile('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/PageHeader.css');
         $pageRenderer->addInlineLanguageLabelFile('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf');
 
         $view->assignMultiple([
             'data' => $pageInfo,
             'assignee' => $this->backendUserRepository->getUsernameByUid((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
             'icon' => $status->getColoredIcon(),
-            'type' => Configuration::STATUS_COLOR_ALERTS[$status->getColor()],
             'status' => $status,
             'comments' => $pageInfo['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($id, 'pages') : [],
             'pid' => $id,

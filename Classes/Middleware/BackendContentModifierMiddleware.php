@@ -42,7 +42,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
                 if (!$status) {
                     continue;
                 }
-                $statusColor = Configuration::STATUS_COLOR_CODES[$status->getColor()];
+                $statusColor = Configuration\Colors::get($status->getColor());
                 $styling[] = '.t3-page-ce[data-uid="' . $record['uid'] . '"]:before { content: "";display:block;box-shadow:var(--pagemodule-element-box-shadow);padding:.5em;border-left: 5px solid ' . $statusColor . ';border-radius: 5px 5px 0 0;background-color:' . $statusColor . '; }';
             }
 

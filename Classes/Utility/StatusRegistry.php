@@ -36,7 +36,7 @@ class StatusRegistry
 
     public function getStatusColors(array &$config): void
     {
-        foreach (Configuration::STATUS_COLORS as $color) {
+        foreach (Configuration\Colors::STATUS_COLORS as $color) {
             $config['items'][] = [
                 $color,
                 $color,

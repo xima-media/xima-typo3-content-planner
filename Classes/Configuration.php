@@ -24,45 +24,6 @@ class Configuration
 
     ];
 
-    final public const STATUS_COLOR_BLACK = 'black';
-    final public const STATUS_COLOR_BLUE = 'blue';
-    final public const STATUS_COLOR_GREEN = 'green';
-    final public const STATUS_COLOR_YELLOW = 'yellow';
-    final public const STATUS_COLOR_RED = 'red';
-    final public const STATUS_COLOR_GRAY = 'gray';
-
-    final public const STATUS_COLORS = [
-        self::STATUS_COLOR_BLACK,
-        self::STATUS_COLOR_BLUE,
-        self::STATUS_COLOR_GREEN,
-        self::STATUS_COLOR_YELLOW,
-        self::STATUS_COLOR_RED,
-        self::STATUS_COLOR_GRAY,
-    ];
-
-    final public const STATUS_COLOR_CODES = self::STATUS_COLOR_CODES_LOW_CONTRAST;
-
-    final public const STATUS_COLOR_CODES_LOW_CONTRAST = [
-        self::STATUS_COLOR_RED => '#f8d7da',
-        self::STATUS_COLOR_BLUE => '#cce5ff',
-        self::STATUS_COLOR_YELLOW => '#fff3cd',
-        self::STATUS_COLOR_GREEN => '#d4edda',
-    ];
-
-    final public const STATUS_COLOR_CODES_HIGH_CONTRAST = [
-        self::STATUS_COLOR_RED => 'rgb(250,136,147)',
-        self::STATUS_COLOR_BLUE => 'rgb(100,187,200)',
-        self::STATUS_COLOR_YELLOW => 'rgb(255,205,117)',
-        self::STATUS_COLOR_GREEN => 'rgb(106,158,113)',
-    ];
-
-    final public const STATUS_COLOR_ALERTS = [
-        self::STATUS_COLOR_RED => 'danger',
-        self::STATUS_COLOR_BLUE => 'info',
-        self::STATUS_COLOR_YELLOW => 'warning',
-        self::STATUS_COLOR_GREEN => 'success',
-    ];
-
     final public const FEATURE_AUTO_ASSIGN = 'autoAssignment';
     final public const FEATURE_EXTEND_CONTEXT_MENU = 'extendedContextMenu';
     final public const FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT = 'currentAssigneeHighlight';

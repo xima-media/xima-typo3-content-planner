@@ -37,7 +37,7 @@ final class AfterPageTreeItemsPreparedListener
                         // @phpstan-ignore-next-line
                         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
                             label: $status->getTitle(),
-                            color: Configuration::STATUS_COLOR_CODES_HIGH_CONTRAST[$status->getColor()],
+                            color: Configuration\Colors::get($status->getColor()),
                         );
                         if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
                             // @phpstan-ignore-next-line
@@ -48,7 +48,7 @@ final class AfterPageTreeItemsPreparedListener
                             );
                         }
                     } else {
-                        $item['backgroundColor'] = Configuration::STATUS_COLOR_CODES_LOW_CONTRAST[$status->getColor()];
+                        $item['backgroundColor'] = Configuration\Colors::get($status->getColor(), true);
                     }
                 }
             } else {

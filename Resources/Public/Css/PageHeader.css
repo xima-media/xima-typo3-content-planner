@@ -1,0 +1,67 @@
+:root {
+    --content-planner--color-red: rgb(250,136,147);
+    --content-planner--color-yellow: rgb(255,205,117);
+    --content-planner--color-green: rgb(106,158,113);
+    --content-planner--color-blue: rgb(100,187,200);
+
+    --content-planner--color-red-light: rgb(250,136,147, 0.2);
+    --content-planner--color-yellow-light: rgb(255,205,117, 0.2);
+    --content-planner--color-green-light: rgb(106,158,113, 0.2);
+    --content-planner--color-blue-light: rgb(100,187,200, 0.2);
+}
+
+.xima-typo3-content-planner--header-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    margin-bottom: 1em;
+    padding: 1em;
+    border-radius: 5px;
+    border-top: 12px solid;
+}
+
+.xima-typo3-content-planner--header-info .left {
+    margin: 0 12px;
+}
+
+.xima-typo3-content-planner--header-info .body {
+    flex-grow: 1;
+}
+
+.xima-typo3-content-planner--header-info[data-color="red"] {
+    background-color: var(--content-planner--color-red-light);
+    border-color: var(--content-planner--color-red);
+}
+
+.xima-typo3-content-planner--header-info[data-color="yellow"] {
+    background-color: var(--content-planner--color-yellow-light);
+    border-color: var(--content-planner--color-yellow);
+}
+
+.xima-typo3-content-planner--header-info[data-color="green"] {
+    background-color: var(--content-planner--color-green-light);
+    border-color: var(--content-planner--color-green);
+}
+
+.xima-typo3-content-planner--header-info[data-color="blue"] {
+    background-color: var(--content-planner--color-blue-light);
+    border-color: var(--content-planner--color-blue);
+}
+
+html[data-color-scheme="dark"] .xima-typo3-content-planner--header-info[data-color="red"] {
+    background-color: var(--content-planner--color-red-light);
+}
+
+html[data-color-scheme="dark"] .xima-typo3-content-planner--header-info[data-color="yellow"] {
+    background-color: var(--content-planner--color-yellow-light);
+}
+
+html[data-color-scheme="dark"] .xima-typo3-content-planner--header-info[data-color="green"] {
+    background-color: var(--content-planner--color-green-light);
+}
+
+html[data-color-scheme="dark"] .xima-typo3-content-planner--header-info[data-color="blue"] {
+    background-color: var(--content-planner--color-blue-light);
+}
