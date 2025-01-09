@@ -28,8 +28,7 @@ final class DrawBackendHeaderListener
         private readonly CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
         private readonly RecordRepository $recordRepository
-    )
-    {
+    ) {
     }
 
     public function __invoke(ModifyPageLayoutContentEvent $event): void

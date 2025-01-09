@@ -73,8 +73,8 @@ class RecordRepository
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
-     */
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
@@ -102,8 +102,8 @@ class RecordRepository
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
-     */
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function findByUid(?string $table, ?int $uid): array|bool|null
     {
         if (!$table && !$uid) {

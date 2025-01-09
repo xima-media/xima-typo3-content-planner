@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\ViewHelpers;
 
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
 class StatusColorViewHelper extends AbstractViewHelper
 {
-
     public function __construct(private readonly StatusRepository $statusRepository)
     {
     }
