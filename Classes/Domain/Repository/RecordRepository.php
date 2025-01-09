@@ -84,6 +84,7 @@ class RecordRepository
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status'),
+                $queryBuilder->expr()->neq('tx_ximatypo3contentplanner_status', 0),
                 $queryBuilder->expr()->eq('deleted', 0)
             );
 
