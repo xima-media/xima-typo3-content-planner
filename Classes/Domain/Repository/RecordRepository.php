@@ -62,7 +62,7 @@ class RecordRepository
         $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
 
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
-        $results =  $statement->fetchAllAssociative();
+        $results = $statement->fetchAllAssociative();
 
         foreach ($results as $key => $record) {
             if (!PermissionUtility::checkAccessForRecord($record['tablename'], $record)) {
@@ -73,20 +73,23 @@ class RecordRepository
     }
 
     /**
-    * @throws \Doctrine\DBAL\Exception
-    */
-    public function findByPid(string $table, ?int $pid = null): array
+     * @throws \Doctrine\DBAL\Exception
+     */
+    public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
 
         $query = $queryBuilder
-            ->select('uid', $this->getTitleField($table) . ' as "title"', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
+            ->select('uid', $this->getTitleField($table) . ' as title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status'),
                 $queryBuilder->expr()->eq('deleted', 0)
-            )
-            ->orderBy('tstamp', 'DESC');
+            );
+
+        if ($orderByTstamp) {
+            $query->addOrderBy('tstamp', 'DESC');
+        }
 
         if ($pid) {
             $query->andWhere(
@@ -99,8 +102,8 @@ class RecordRepository
     }
 
     /**
-    * @throws \Doctrine\DBAL\Exception
-    */
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function findByUid(?string $table, ?int $uid): array|bool|null
     {
         if (!$table && !$uid) {

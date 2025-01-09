@@ -1,7 +1,9 @@
 <html
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    xmlns:xcp="Xima\XimaTypo3ContentPlanner\ViewHelpers"
     data-namespace-typo3-fluid="true"
 >
+
 <div class="xima-typo3-content-planner--header-info" data-color="{status.color}">
     <div class="left d-flex align-items-center justify-content-center">
         <core:icon
@@ -11,20 +13,31 @@
         />
     </div>
     <div class="body">
-        <div class="callout-body d-flex align-items-center justify-content-between">
-            <be:link.editRecord
-                uid="{data.uid}"
-                table="pages"
-                fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-                returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-                title="Edit page properties"
-                class="d-flex align-items-center flex-grow-1"
-            >
-                Status:&nbsp;<strong> {status.title} </strong>
-            </be:link.editRecord>
-        </div>
+        <be:link.editRecord
+            uid="{data.uid}"
+            table="pages"
+            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+            title="Edit page properties"
+            class="d-flex align-items-center flex-grow-1"
+        >
+            Status:&nbsp;<strong> {status.title} </strong>
+        </be:link.editRecord>
     </div>
     <div class="btn-group">
+        <div class="xima-typo3-content-planner--header--ce-hint">
+            <f:for each="{contentElements}" as="contentElement">
+                <be:link.editRecord
+                    uid="{contentElement.uid}"
+                    table="tt_content"
+                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                    title="Edit content element ”{contentElement.title}”"
+                    additionalAttributes="{data-color: '{xcp:statusColor(statusId: contentElement.tx_ximatypo3contentplanner_status)}'}"
+                >
+                    &#9679;
+                </be:link.editRecord>
+            </f:for>
+        </div>
         <f:if
             condition="{data.tx_ximatypo3contentplanner_assignee}"
         >

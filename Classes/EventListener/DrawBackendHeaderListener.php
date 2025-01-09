@@ -12,6 +12,7 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
@@ -21,7 +22,13 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class DrawBackendHeaderListener
 {
-    public function __construct(private readonly PageRepository $pageRepository, private readonly StatusRepository $statusRepository, private readonly CommentRepository $commentRepository, private readonly BackendUserRepository $backendUserRepository)
+    public function __construct(
+        private readonly PageRepository $pageRepository,
+        private readonly StatusRepository $statusRepository,
+        private readonly CommentRepository $commentRepository,
+        private readonly BackendUserRepository $backendUserRepository,
+        private readonly RecordRepository $recordRepository
+    )
     {
     }
 
@@ -63,6 +70,7 @@ final class DrawBackendHeaderListener
             'comments' => $pageInfo['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($id, 'pages') : [],
             'pid' => $id,
             'userid' => $GLOBALS['BE_USER']->user['uid'],
+            'contentElements' => $this->recordRepository->findByPid('tt_content', $id, false),
         ]);
         $event->addHeaderContent($view->render());
     }
