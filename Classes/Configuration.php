@@ -14,6 +14,7 @@ class Configuration
     final public const FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT = 'currentAssigneeHighlight';
     final public const FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET = 'clearCommentsOnStatusReset';
     final public const FEATURE_RECORD_EDIT_HEADER_INFO = 'recordEditHeaderInfo';
+    final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 }
