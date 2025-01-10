@@ -72,7 +72,7 @@ final class DrawBackendHeaderListener
             'comments' => $pageInfo['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($id, 'pages') : [],
             'pid' => $id,
             'userid' => $GLOBALS['BE_USER']->user['uid'],
-            'contentElements' => $this->recordRepository->findByPid('tt_content', $id, false),
+            'contentElements' => ExtensionUtility::isRegisteredRecordTable('tt_content') ? $this->recordRepository->findByPid('tt_content', $id, false) : null,
         ]);
         $event->addHeaderContent($view->render());
     }
