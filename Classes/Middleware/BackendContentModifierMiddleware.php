@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
@@ -25,7 +26,8 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         private readonly StatusRepository $statusRepository,
         private readonly RecordRepository $recordRepository,
         private readonly BackendUserRepository $backendUserRepository,
-        private readonly CommentRepository $commentRepository
+        private readonly CommentRepository $commentRepository,
+        private readonly RequestId $requestId
     ) {
     }
 
@@ -49,6 +51,8 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
                 $newResponse->getBody()->write($newContent);
 
                 return $newResponse;
+            } else {
+                return $response;
             }
         }
 
@@ -96,7 +100,11 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             ]);
 
             $additionalContent = $view->render();
-            $additionalContent .= ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css', []);
+            $additionalContent .= ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css', ['nonce' => $this->requestId->nonce]);
+
+            /*
+             * This is a workaround to add the header content to the top of the record edit form.
+             */
             return preg_replace('/(<div\s+class="typo3-TCEforms")/', $additionalContent . '$1', $content);
         }
         return false;
