@@ -50,7 +50,7 @@
             condition="{data.tx_ximatypo3contentplanner_assignee}"
         >
             <div
-                class="ml-auto d-flex align-items-center btn btn-default btn-sm {f:if(condition: assignedToCurrentUser, then: 'current', else: '')}"
+                class="ml-auto d-flex align-items-center btn btn-default  {f:if(condition: assignedToCurrentUser, then: 'current', else: '')}"
                 title="{assignee}"
             >
                 <be:avatar
@@ -62,7 +62,7 @@
         </f:if>
         <f:if condition="{comments}">
             <button
-                class="btn btn-default btn-sm contentPlanner--comments"
+                class="btn btn-default  contentPlanner--comments"
                 data-content-planner-comments
                 type="button"
                 data-table="pages"
@@ -77,7 +77,7 @@
             <a
                 href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
                 id="new-comment-modal"
-                class="btn btn-default btn-sm"
+                class="btn btn-default "
                 data-pid="{pid}"
                 data-userid="{userid}"
                 title="New comment"
@@ -93,7 +93,7 @@
                 fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
                 returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
                 title="Edit page properties"
-                class="btn btn-default btn-sm"
+                class="btn btn-default "
             >
                 <core:icon
                     identifier="actions-document-edit"
