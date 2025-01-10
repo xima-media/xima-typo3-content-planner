@@ -13,7 +13,6 @@ $GLOBALS['TYPO3_USER_SETTINGS']['columns']['tx_ximatypo3contentplanner_hide'] = 
     'table' => 'be_users',
 ];
 
-
 $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] .= ',
 --div--;LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:content_planner,
     tx_ximatypo3contentplanner_hide,
