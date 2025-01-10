@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
+use Doctrine\DBAL\DBALException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
@@ -13,8 +14,8 @@ class CommentRepository
     private const TABLE = 'tx_ximatypo3contentplanner_comment';
 
     /**
-    * @throws \Doctrine\DBAL\Exception
-    */
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function findAllByRecord(int $id, string $table): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
@@ -42,8 +43,8 @@ class CommentRepository
     }
 
     /**
-    * @throws \Doctrine\DBAL\Exception
-    */
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function findByUid(int $uid): array|bool
     {
         if (!$uid) {
@@ -71,6 +72,15 @@ class CommentRepository
             ->where(
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
                 $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, \TYPO3\CMS\Core\Database\Connection::PARAM_STR))
+            )
+            ->executeStatement();
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder
+            ->update($table)
+            ->set('tx_ximatypo3contentplanner_comments', 0)
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
             )
             ->executeStatement();
     }
