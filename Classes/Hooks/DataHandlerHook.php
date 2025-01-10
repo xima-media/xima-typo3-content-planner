@@ -67,7 +67,8 @@ final class DataHandlerHook
         $this->cache->flushByTags(array_keys($params['tags']));
     }
 
-    private function fixNewCommentEntry(&$dataHandler) {
+    private function fixNewCommentEntry(&$dataHandler): void
+    {
         $id = null;
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $key) {
             if (!MathUtility::canBeInterpretedAsInteger($key)) {

@@ -51,9 +51,8 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
                 $newResponse->getBody()->write($newContent);
 
                 return $newResponse;
-            } else {
-                return $response;
             }
+            return $response;
         }
 
         if (UrlHelper::isRelevantWebLayoutRequest($request)) {
@@ -103,8 +102,8 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             $additionalContent .= ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css', ['nonce' => $this->requestId->nonce]);
 
             /*
-             * This is a workaround to add the header content to the top of the record edit form.
-             */
+            * This is a workaround to add the header content to the top of the record edit form.
+            */
             return preg_replace('/(<div\s+class="typo3-TCEforms")/', $additionalContent . '$1', $content);
         }
         return false;
