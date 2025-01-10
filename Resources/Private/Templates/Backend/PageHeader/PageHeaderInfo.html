@@ -42,7 +42,7 @@
             condition="{data.tx_ximatypo3contentplanner_assignee}"
         >
             <div
-                class="ml-auto d-flex align-items-center btn btn-default btn-sm"
+                class="ml-auto d-flex align-items-center btn btn-default btn-sm {f:if(condition: assignedToCurrentUser, then: 'current', else: '')}"
                 title="{assignee}"
             >
                 <be:avatar

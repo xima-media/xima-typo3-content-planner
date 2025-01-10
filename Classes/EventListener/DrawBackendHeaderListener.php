@@ -14,6 +14,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 /*
@@ -64,6 +65,7 @@ final class DrawBackendHeaderListener
         $view->assignMultiple([
             'data' => $pageInfo,
             'assignee' => $this->backendUserRepository->getUsernameByUid((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
+            'assignedToCurrentUser' => $this->getAssignedToCurrentUser((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
             'icon' => $status->getColoredIcon(),
             'status' => $status,
             'comments' => $pageInfo['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($id, 'pages') : [],
@@ -72,5 +74,13 @@ final class DrawBackendHeaderListener
             'contentElements' => $this->recordRepository->findByPid('tt_content', $id, false),
         ]);
         $event->addHeaderContent($view->render());
+    }
+
+    private function getAssignedToCurrentUser(int $assignee): bool
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
+            return false;
+        }
+        return ($assignee) === $GLOBALS['BE_USER']->user['uid'];
     }
 }
