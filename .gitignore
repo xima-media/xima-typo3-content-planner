@@ -1,4 +1,6 @@
 .idea
+.env
+.test/
 config
 composer.lock
 public
@@ -11,3 +13,6 @@ node_modules
 .php-cs-fixer.cache
 php-cs-fixer.xml
 phpstan.xml
+Configuration/TCA/Overrides/sys_category.php
+Configuration/TCA/Overrides/tt_content.php
+xima_typo3_content_planner/

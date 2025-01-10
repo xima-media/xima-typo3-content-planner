@@ -10,7 +10,7 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 class PermissionUtility
 {
-    public static function checkAccessForRecord(string $tablename, $record): bool
+    public static function checkAccessForRecord(string $table, $record): bool
     {
         $backendUser = $GLOBALS['BE_USER'];
         if ($backendUser->user === null) {
@@ -24,14 +24,14 @@ class PermissionUtility
         }
 
         /* @var $backendUser \TYPO3\CMS\Core\Authentication\BackendUserAuthentication */
-        if ($tablename === 'pages' && !BackendUtility::readPageAccess(
+        if ($table === 'pages' && !BackendUtility::readPageAccess(
             $record['uid'],
             $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
         )) {
             return false;
         }
 
-        if (!$backendUser->check('tables_select', $tablename) || !BackendUtility::readPageAccess(
+        if (!$backendUser->check('tables_select', $table) || !BackendUtility::readPageAccess(
             $record['pid'],
             $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
         )) {

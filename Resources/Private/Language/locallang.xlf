@@ -13,43 +13,31 @@
 				<source>Content Planner</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.title">
-				<source>Content Planner Status</source>
+				<source>Status</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.description">
-				<source>Display all pages with content status</source>
+				<source>Display all records with content status</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.current.title">
-				<source>Content Planner Current Assignee</source>
+				<source>Current Assignee</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.current.description">
-				<source>Display all pages with your assignment</source>
+				<source>Display all records with your assignment</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.title">
-				<source>Content Planner Overview</source>
+				<source>Overview</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.description">
 				<source>Display a donut chart with the distribution of content status</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.comment.title">
-				<source>Content Planner Recent Comments</source>
+				<source>Recent Comments</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.comment.description">
 				<source>Display the recent content comments</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.notes.title">
-				<source>Content Planner Notes</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.notes.description">
-				<source>Display the content status notes</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.notes.button.create">
-				<source>New</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.notes.button.list">
-				<source>List</source>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.update.title">
-				<source>Content Planner Recent Updates</source>
+				<source>Recent Updates</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.update.description">
 				<source>Display the recent updates according to content status changes</source>
@@ -88,8 +76,14 @@
 				<source>Change note</source>
 			</trans-unit>
 
+			<trans-unit id="button.modal.header.comments">
+				<source>Comments</source>
+			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
 				<source>Cancel</source>
+			</trans-unit>
+			<trans-unit id="button.modal.footer.new">
+				<source>New</source>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.save">
 				<source>Save</source>

@@ -5,7 +5,6 @@
 .widget-content-main .widget-loading {
     width: 100%;
     height: 100%;
-    background-color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,11 +29,6 @@
     opacity: 0.125;
     background-position: 50% 55%;
     background-size: 25%;
-"
-}
-
-.widget-content-main table tr.current {
-    background-color: #FFF3E0;
 }
 
 .widget-content-main .avatar {
@@ -43,7 +37,7 @@
 }
 
 .widget-content-main .widget-filter + .widget-table-wrapper {
-    padding-top: 4rem;
+    padding-top: 4.5rem;
     height: 100%;
 }
 
@@ -59,7 +53,7 @@
     margin-left: -20px;
     padding-left: 20px;
     padding-top: 5px;
-    background: #fff;
+    background-color: var(--typo3-component-bg);
 }
 
 .widget-content-main .widget-filter .form-check input[type="radio"] {
@@ -88,17 +82,15 @@
 }
 
 .widget-contentPlanner--comment {
-    border-bottom: 1px solid #f9f9f9;
     padding-bottom: 1rem;
     gap: 1rem;
-    margin-bottom: 2rem;
 }
 
 .widget-contentPlanner--comment .text {
     position: relative;
     display: inline-block;
     padding: 1rem;
-    background-color: #f9f9f9;
+    background-color: rgba(125, 125, 125, 0.1);
     margin: 1rem 0;
 }
 
@@ -117,15 +109,11 @@
 }
 
 .update-list li {
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.update-list li.current {
-    background-color: #FFF3E0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .update-list li .change-type-icon {
-    background-color: #eee;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
     padding: 20px;
     margin: 0 10px;
     z-index: 2;
@@ -137,5 +125,9 @@
     padding-left: 40px;
     height: 100%;
     display: block;
-    border-left: 1px solid #ddd;
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.widget-content-main table tr.current, .update-list li.current {
+    background-color: rgba(253, 212, 150, 0.2);
 }

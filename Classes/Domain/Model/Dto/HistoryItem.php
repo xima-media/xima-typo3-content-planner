@@ -2,36 +2,47 @@
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 final class HistoryItem
 {
     public array $data = [];
-    public array|bool $relatedRecord = [];
-    public bool $cliContext = false;
+    public array|bool|null $relatedRecord = [];
 
-    public static function create(array $sysHistoryRow, bool $cliContext = false): static
+    public static function create(array $sysHistoryRow): static
     {
         $item = new HistoryItem();
         $item->data = $sysHistoryRow;
         $item->data['raw_history'] = json_decode($sysHistoryRow['history_data'], true);
-        $item->cliContext = $cliContext;
 
         return $item;
     }
 
     public function getAssignedToCurrentUser(): bool
     {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
+            return false;
+        }
+
         $record = ContentUtility::getExtensionRecord($this->data['tablename'], (int)$this->data['recuid']);
+
+        if ($record === null) {
+            return false;
+        }
+
+        if ($this->data['tablename'] === 'tx_ximatypo3contentplanner_comment') {
+            $record = ContentUtility::getExtensionRecord($this->data['raw_history']['foreign_table'], (int)$this->data['raw_history']['foreign_uid']);
+        }
 
         if ($record === null || !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
             return false;
@@ -46,8 +57,7 @@ final class HistoryItem
 
     public function getTitle(): ?string
     {
-        $titleField = $GLOBALS['TCA'][$this->data['relatedRecordTablename']]['ctrl']['label'];
-        return array_key_exists($titleField, $this->getRelatedRecord()) ? $this->getRelatedRecord()[$titleField] : $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title');
+        return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['relatedRecordTablename']), $this->getRelatedRecord());
     }
 
     public function getRelatedRecord(): array|bool
@@ -59,7 +69,12 @@ final class HistoryItem
                     $this->relatedRecord = ContentUtility::getPage((int)$this->data['recuid']);
                     break;
                 case 'tx_ximatypo3contentplanner_comment':
-                    if ($this->data['raw_history']['foreign_table'] && $this->data['raw_history']['foreign_uid']) {
+                    if (
+                        array_key_exists('foreign_table', $this->data['raw_history'])
+                        && array_key_exists('foreign_uid', $this->data['raw_history'])
+                        && $this->data['raw_history']['foreign_table']
+                        && $this->data['raw_history']['foreign_uid']
+                    ) {
                         $table = $this->data['raw_history']['foreign_table'];
                         $uid = (int)$this->data['raw_history']['foreign_uid'];
                     } else {
@@ -85,13 +100,7 @@ final class HistoryItem
 
     public function getRecordLink(): string
     {
-        $record = $this->getRelatedRecord();
-        switch ($this->data['relatedRecordTablename']) {
-            case 'pages':
-                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $record['uid']]);
-            default:
-                return (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$this->data['relatedRecordTablename'] => [$record['uid'] => 'edit']]]);
-        }
+        return UrlHelper::getRecordLink($this->data['relatedRecordTablename'], (int)$this->getRelatedRecord()['uid']);
     }
 
     public function getStatus(): ?string
@@ -102,16 +111,12 @@ final class HistoryItem
 
     public function getStatusIcon(): ?string
     {
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $status = ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
-        return $this->renderIcon($iconFactory->getIcon($status ? $status->getColoredIcon() : 'flag-gray', Icon::SIZE_SMALL));
+        return IconHelper::getIconByStatusUid((int)$this->getRelatedRecord()['tx_ximatypo3contentplanner_status'], true);
     }
 
     public function getRecordIcon(): string
     {
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $record = $this->getRelatedRecord();
-        return $record ? $this->renderIcon($iconFactory->getIconForRecord($this->data['relatedRecordTablename'], $record, Icon::SIZE_SMALL)) : '';
+        return IconHelper::getIconByRecord($this->data['relatedRecordTablename'], $this->getRelatedRecord(), true);
     }
 
     public function getTimeAgo(): string
@@ -129,24 +134,20 @@ final class HistoryItem
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         switch ($this->data['tablename']) {
             case 'tx_ximatypo3contentplanner_comment':
-                return $this->renderIcon($iconFactory->getIcon('actions-comment', Icon::SIZE_SMALL));
+                return IconHelper::getIconByIdentifier('actions-comment');
             default:
                 if (!ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
                     break;
                 }
                 switch (array_key_first($this->data['raw_history']['newRecord'])) {
                     case 'tx_ximatypo3contentplanner_status':
-                        $status = ContentUtility::getStatus((int)$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status']);
-                        if (!$status) {
-                            return $this->renderIcon($iconFactory->getIcon('flag-gray', Icon::SIZE_SMALL));
-                        }
-                        return $this->renderIcon($iconFactory->getIcon($status->getColoredIcon(), Icon::SIZE_SMALL));
+                        return IconHelper::getIconByStatusUid((int)$this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status'], true);
                     case 'tx_ximatypo3contentplanner_assignee':
-                        return $this->renderIcon($iconFactory->getIcon('actions-user', Icon::SIZE_SMALL));
+                        return IconHelper::getIconByIdentifier('actions-user');
                 }
                 break;
         }
-        return $this->renderIcon($iconFactory->getIcon('actions-open', Icon::SIZE_SMALL));
+        return IconHelper::getIconByIdentifier('actions-open');
     }
 
     public function getRawHistoryData(): array
@@ -177,10 +178,5 @@ final class HistoryItem
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
-    }
-
-    protected function renderIcon(Icon $icon): string
-    {
-        return $this->cliContext ? $icon->getAlternativeMarkup('inline') : $icon->render();
     }
 }

@@ -1,0 +1,107 @@
+<html
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    xmlns:xcp="Xima\XimaTypo3ContentPlanner\ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<div class="xima-typo3-content-planner--header-info" data-color="{status.color}">
+    <div class="left d-flex align-items-center justify-content-center">
+        <core:icon
+            identifier="{icon}"
+            size="medium"
+            alternativeMarkupIdentifier="inline"
+        />
+    </div>
+    <div class="body">
+        <f:if condition="{mode} == 'pageHeader'">
+            <f:then>
+                <be:link.editRecord
+                    uid="{data.uid}"
+                    table="pages"
+                    fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                    title="Edit page properties"
+                    class="d-flex align-items-center flex-grow-1"
+                >
+                    Status:&nbsp;<strong> {status.title} </strong>
+                </be:link.editRecord>
+            </f:then>
+            <f:else>
+                Status:&nbsp;<strong> {status.title} </strong>
+            </f:else>
+        </f:if>
+
+    </div>
+    <div class="btn-group">
+        <div class="xima-typo3-content-planner--header--ce-hint">
+            <f:for each="{contentElements}" as="contentElement">
+                <be:link.editRecord
+                    uid="{contentElement.uid}"
+                    table="tt_content"
+                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                    title="Edit content element ”{contentElement.title}”"
+                    additionalAttributes="{data-color: '{xcp:statusColor(statusId: contentElement.tx_ximatypo3contentplanner_status)}'}"
+                >
+                    &#9679;
+                </be:link.editRecord>
+            </f:for>
+        </div>
+        <f:if
+            condition="{data.tx_ximatypo3contentplanner_assignee}"
+        >
+            <div
+                class="ml-auto d-flex align-items-center btn btn-default  {f:if(condition: assignedToCurrentUser, then: 'current', else: '')}"
+                title="{assignee}"
+            >
+                <be:avatar
+                    backendUser="{data.tx_ximatypo3contentplanner_assignee}"
+                    size="16"
+                    showIcon="true"
+                />
+            </div>
+        </f:if>
+        <f:if condition="{comments}">
+            <button
+                class="btn btn-default  contentPlanner--comments"
+                data-content-planner-comments
+                type="button"
+                data-table="pages"
+                data-id="{data.uid}"
+                data-new-comment-url="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
+            >
+                <core:icon identifier="actions-message" size="small"/>
+                <span class="badge badge-secondary">{comments -> f:count()}</span>
+            </button>
+        </f:if>
+        <f:if condition="{mode} == 'pageHeader'">
+            <a
+                href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
+                id="new-comment-modal"
+                class="btn btn-default "
+                data-pid="{pid}"
+                data-userid="{userid}"
+                title="New comment"
+            >
+                <core:icon
+                    identifier="actions-message-add"
+                    size="small"
+                />
+            </a>
+            <be:link.editRecord
+                uid="{data.uid}"
+                table="pages"
+                fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                title="Edit page properties"
+                class="btn btn-default "
+            >
+                <core:icon
+                    identifier="actions-flag-edit"
+                    alternativeMarkupIdentifier="inline"
+                    size="small"
+                />
+            </be:link.editRecord>
+        </f:if>
+    </div>
+</div>
+</html>

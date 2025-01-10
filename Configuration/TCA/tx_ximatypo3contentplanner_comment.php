@@ -16,6 +16,7 @@ return [
         'typeicon_classes' => [
             'default' => 'content-message',
         ],
+        'default_sortby' => 'crdate',
         'searchFields' => 'title,text',
         'hideTable' => true,
         'security' => [
@@ -33,11 +34,6 @@ return [
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hidden',
             'config' => [
                 'type' => 'check',
-            ],
-        ],
-        'sorting' => [
-            'config' => [
-                'type' => 'passthrough',
             ],
         ],
         'content' => [

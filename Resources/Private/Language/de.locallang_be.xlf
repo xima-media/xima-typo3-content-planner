@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="messages">
+		<header/>
+		<body>
+			<trans-unit id="status">
+				<source/>
+				<target>Inhaltsstatus</target>
+			</trans-unit>
+			<trans-unit id="status.danger">
+				<source/>
+				<target>Ausstehend</target>
+			</trans-unit>
+			<trans-unit id="status.info">
+				<source/>
+				<target>In Bearbeitung</target>
+			</trans-unit>
+			<trans-unit id="status.warning">
+				<source/>
+				<target>Benötigt Überprüfung</target>
+			</trans-unit>
+			<trans-unit id="status.success">
+				<source/>
+				<target>Abgeschlossen</target>
+			</trans-unit>
+			<trans-unit id="reset">
+				<source/>
+				<target>Status zurücksetzen</target>
+			</trans-unit>
+			<trans-unit id="comment">
+				<source/>
+				<target>Content Planner Kommentar</target>
+			</trans-unit>
+			<trans-unit id="comments">
+				<source/>
+				<target>Kommentare</target>
+			</trans-unit>
+			<trans-unit id="currentAssignee">
+				<source/>
+				<target>Aktueller Zuständiger</target>
+			</trans-unit>
+			<trans-unit id="save_and_close">
+				<source/>
+				<target>Speichern und Schließen</target>
+			</trans-unit>
+			<!-- history -->
+			<trans-unit id="history.record.2.set.tx_ximatypo3contentplanner_status">
+				<source/>
+				<target><![CDATA[Der <em>Status</em> wurde auf <strong>%s</strong> gesetzt]]></target>
+			</trans-unit>
+			<trans-unit id="history.record.2.unset.tx_ximatypo3contentplanner_status">
+				<source/>
+				<target><![CDATA[Der <em>Status</em> wurde von <strong>%s</strong> entfernt]]></target>
+			</trans-unit>
+			<trans-unit id="history.record.2.change.tx_ximatypo3contentplanner_status">
+				<source/>
+				<target><![CDATA[Der <em>Status</em> wurde von <strong>%s</strong> zu <strong>%s</strong> geändert]]></target>
+			</trans-unit>
+			<trans-unit id="history.record.2.set.tx_ximatypo3contentplanner_assignee">
+				<source/>
+				<target><![CDATA[Die <em>Zuständigkeit</em> wurde auf <strong>%s</strong> gesetzt]]></target>
+			</trans-unit>
+			<trans-unit id="history.record.2.unset.tx_ximatypo3contentplanner_assignee">
+				<source/>
+				<target><![CDATA[Die <em>Zuständigkeit</em> wurde von <strong>%s</strong> entfernt]]></target>
+			</trans-unit>
+			<trans-unit id="history.record.2.change.tx_ximatypo3contentplanner_assignee">
+				<source/>
+				<target><![CDATA[Die <em>Zuständigkeit</em> wurde von <strong>%s</strong> zu <strong>%s</strong> geändert]]></target>
+			</trans-unit>
+			<trans-unit id="history.comment.1">
+				<source/>
+				<target><![CDATA[Ein neuer <em>Kommentar</em> wurde hinzugefügt]]></target>
+			</trans-unit>
+			<trans-unit id="history.comment.2">
+				<source/>
+				<target><![CDATA[Ein <em>Kommentar</em> wurde aktualisiert]]></target>
+			</trans-unit>
+			<trans-unit id="history.comment.4">
+				<source/>
+				<target><![CDATA[Ein <em>Kommentar</em> wurde entfernt]]></target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
