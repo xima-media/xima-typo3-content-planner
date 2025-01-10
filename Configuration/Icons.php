@@ -2,10 +2,15 @@
 
 declare(strict_types=1);
 
+use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgSpriteIconProvider;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 return [
+    'actions-flag-edit' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/actions-flag-edit.svg',
+    ],
     // flag
     'flag-black' => [
         'provider' => SvgSpriteIconProvider::class,
