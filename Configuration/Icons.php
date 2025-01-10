@@ -221,6 +221,170 @@ return [
         'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/hearts.svg#heart-orange',
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/hearts/heart-orange.svg',
     ],
+    // certificates
+    'certificate-black' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/certificates.svg#certificate-black',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/certificates/certificate-black.svg',
+    ],
+    'certificate-blue' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/certificates.svg#certificate-blue',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/certificates/certificate-blue.svg',
+    ],
+    'certificate-gray' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/certificates.svg#certificate-gray',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/certificates/certificate-gray.svg',
+    ],
+    'certificate-green' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/certificates.svg#certificate-green',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/certificates/certificate-green.svg',
+    ],
+    'certificate-red' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/certificates.svg#certificate-red',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/certificates/certificate-red.svg',
+    ],
+    'certificate-yellow' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/certificates.svg#certificate-yellow',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/certificates/certificate-yellow.svg',
+    ],
+    'certificate-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/certificates.svg#certificate-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/certificates/certificate-purple.svg',
+    ],
+    'certificate-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/certificates.svg#certificate-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/certificates/certificate-orange.svg',
+    ],
+    // exclamation
+    'exclamation-black' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/exclamations.svg#exclamation-black',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/exclamations/exclamation-black.svg',
+    ],
+    'exclamation-blue' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/exclamations.svg#exclamation-blue',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/exclamations/exclamation-blue.svg',
+    ],
+    'exclamation-gray' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/exclamations.svg#exclamation-gray',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/exclamations/exclamation-gray.svg',
+    ],
+    'exclamation-green' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/exclamations.svg#exclamation-green',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/exclamations/exclamation-green.svg',
+    ],
+    'exclamation-red' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/exclamations.svg#exclamation-red',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/exclamations/exclamation-red.svg',
+    ],
+    'exclamation-yellow' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/exclamations.svg#exclamation-yellow',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/exclamations/exclamation-yellow.svg',
+    ],
+    'exclamation-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/exclamations.svg#exclamation-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/exclamations/exclamation-purple.svg',
+    ],
+    'exclamation-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/exclamations.svg#exclamation-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/exclamations/exclamation-orange.svg',
+    ],
+    // rocket
+    'rocket-black' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/rockets.svg#rocket-black',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/rockets/rocket-black.svg',
+    ],
+    'rocket-blue' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/rockets.svg#rocket-blue',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/rockets/rocket-blue.svg',
+    ],
+    'rocket-gray' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/rockets.svg#rocket-gray',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/rockets/rocket-gray.svg',
+    ],
+    'rocket-green' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/rockets.svg#rocket-green',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/rockets/rocket-green.svg',
+    ],
+    'rocket-red' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/rockets.svg#rocket-red',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/rockets/rocket-red.svg',
+    ],
+    'rocket-yellow' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/rockets.svg#rocket-yellow',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/rockets/rocket-yellow.svg',
+    ],
+    'rocket-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/rockets.svg#rocket-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/rockets/rocket-purple.svg',
+    ],
+    'rocket-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/rockets.svg#rocket-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/rockets/rocket-orange.svg',
+    ],
+    // thumbtack
+    'thumbtack-black' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-black',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/thumbtacks/thumbtack-black.svg',
+    ],
+    'thumbtack-blue' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-blue',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/thumbtacks/thumbtack-blue.svg',
+    ],
+    'thumbtack-gray' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-gray',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/thumbtacks/thumbtack-gray.svg',
+    ],
+    'thumbtack-green' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-green',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/thumbtacks/thumbtack-green.svg',
+    ],
+    'thumbtack-red' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-red',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/thumbtacks/thumbtack-red.svg',
+    ],
+    'thumbtack-yellow' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-yellow',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/thumbtacks/thumbtack-yellow.svg',
+    ],
+    'thumbtack-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/thumbtacks/thumbtack-purple.svg',
+    ],
+    'thumbtack-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/thumbtacks/thumbtack-orange.svg',
+    ],
     // color
     'color-black' => [
         'provider' => SvgSpriteIconProvider::class,

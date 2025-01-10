@@ -11,6 +11,10 @@ class Icons
     final public const STATUS_ICON_TAG = 'tag';
     final public const STATUS_ICON_STAR = 'star';
     final public const STATUS_ICON_INFO = 'info';
+    final public const STATUS_ICON_CERTIFICATE = 'certificate';
+    final public const STATUS_ICON_EXCLAMATION = 'exclamation';
+    final public const STATUS_ICON_ROCKET = 'rocket';
+    final public const STATUS_ICON_THUMBTACK = 'thumbtack';
 
     final public const STATUS_ICONS = [
         self::STATUS_ICON_FLAG,
@@ -18,6 +22,9 @@ class Icons
         self::STATUS_ICON_TAG,
         self::STATUS_ICON_STAR,
         self::STATUS_ICON_INFO,
-
+        self::STATUS_ICON_CERTIFICATE,
+        self::STATUS_ICON_EXCLAMATION,
+        self::STATUS_ICON_ROCKET,
+        self::STATUS_ICON_THUMBTACK,
     ];
 }

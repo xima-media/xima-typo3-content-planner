@@ -11,7 +11,6 @@ class Colors
     final public const STATUS_COLOR_GREEN = 'green';
     final public const STATUS_COLOR_YELLOW = 'yellow';
     final public const STATUS_COLOR_RED = 'red';
-    final public const STATUS_COLOR_GRAY = 'gray';
     final public const STATUS_COLOR_PURPLE = 'purple';
     final public const STATUS_COLOR_ORANGE = 'orange';
 
@@ -21,12 +20,12 @@ class Colors
         self::STATUS_COLOR_GREEN,
         self::STATUS_COLOR_YELLOW,
         self::STATUS_COLOR_RED,
-        self::STATUS_COLOR_GRAY,
         self::STATUS_COLOR_PURPLE,
         self::STATUS_COLOR_ORANGE,
     ];
 
     private const COLOR_CODES = [
+        self::STATUS_COLOR_BLACK => '144,164,174',
         self::STATUS_COLOR_RED => '250,136,147',
         self::STATUS_COLOR_BLUE => '100,187,200',
         self::STATUS_COLOR_YELLOW => '255,205,117',
