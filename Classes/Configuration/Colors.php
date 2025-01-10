@@ -12,6 +12,8 @@ class Colors
     final public const STATUS_COLOR_YELLOW = 'yellow';
     final public const STATUS_COLOR_RED = 'red';
     final public const STATUS_COLOR_GRAY = 'gray';
+    final public const STATUS_COLOR_PURPLE = 'purple';
+    final public const STATUS_COLOR_ORANGE = 'orange';
 
     final public const STATUS_COLORS = [
         self::STATUS_COLOR_BLACK,
@@ -20,6 +22,8 @@ class Colors
         self::STATUS_COLOR_YELLOW,
         self::STATUS_COLOR_RED,
         self::STATUS_COLOR_GRAY,
+        self::STATUS_COLOR_PURPLE,
+        self::STATUS_COLOR_ORANGE,
     ];
 
     private const COLOR_CODES = [
@@ -27,6 +31,8 @@ class Colors
         self::STATUS_COLOR_BLUE => '100,187,200',
         self::STATUS_COLOR_YELLOW => '255,205,117',
         self::STATUS_COLOR_GREEN => '106,158,113',
+        self::STATUS_COLOR_PURPLE => '94,53,177',
+        self::STATUS_COLOR_ORANGE => '245,124,0',
     ];
 
     public static function get(string $colorCode, bool $transparency = false): string

@@ -3,11 +3,15 @@
     --content-planner--color-yellow: rgb(255,205,117);
     --content-planner--color-green: rgb(106,158,113);
     --content-planner--color-blue: rgb(100,187,200);
+    --content-planner--color-purple: rgb(103,58,183);
+    --content-planner--color-orange: rgb(245,124,0);
 
     --content-planner--color-red-light: rgb(250,136,147, 0.2);
     --content-planner--color-yellow-light: rgb(255,205,117, 0.2);
     --content-planner--color-green-light: rgb(106,158,113, 0.2);
     --content-planner--color-blue-light: rgb(100,187,200, 0.2);
+    --content-planner--color-purple-light: rgb(103,58,183, 0.2);
+    --content-planner--color-orange-light: rgb(245,124,0, 0.2);
 }
 
 .xima-typo3-content-planner--header-info {
@@ -49,6 +53,17 @@
     background-color: var(--content-planner--color-blue-light);
     border-color: var(--content-planner--color-blue);
 }
+
+.xima-typo3-content-planner--header-info[data-color="purple"] {
+    background-color: var(--content-planner--color-purple-light);
+    border-color: var(--content-planner--color-purple);
+}
+
+.xima-typo3-content-planner--header-info[data-color="orange"] {
+    background-color: var(--content-planner--color-orange-light);
+    border-color: var(--content-planner--color-orange);
+}
+
 .xima-typo3-content-planner--header--ce-hint {
     display: flex;
     align-items: center;

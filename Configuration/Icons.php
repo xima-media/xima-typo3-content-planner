@@ -47,6 +47,16 @@ return [
         'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/flags.svg#flag-yellow',
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/flags/flag-yellow.svg',
     ],
+    'flag-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/flags.svg#flag-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/flags/flag-purple.svg',
+    ],
+    'flag-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/flags.svg#flag-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/flags/flag-orange.svg',
+    ],
     // star
     'star-black' => [
         'provider' => SvgSpriteIconProvider::class,
@@ -77,6 +87,16 @@ return [
         'provider' => SvgSpriteIconProvider::class,
         'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/stars.svg#star-yellow',
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/stars/star-yellow.svg',
+    ],
+    'star-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/stars.svg#star-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/stars/star-purple.svg',
+    ],
+    'star-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/stars.svg#star-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/stars/star-orange.svg',
     ],
     // tag
     'tag-black' => [
@@ -109,6 +129,16 @@ return [
         'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/tags.svg#tag-yellow',
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/tags/tag-yellow.svg',
     ],
+    'tag-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/tags.svg#tag-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/tags/tag-purple.svg',
+    ],
+    'tag-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/tags.svg#tag-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/tags/tag-orange.svg',
+    ],
     // info
     'info-black' => [
         'provider' => SvgSpriteIconProvider::class,
@@ -139,6 +169,16 @@ return [
         'provider' => SvgSpriteIconProvider::class,
         'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/infos.svg#info-yellow',
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/infos/info-yellow.svg',
+    ],
+    'info-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/infos.svg#info-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/infos/info-purple.svg',
+    ],
+    'info-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/infos.svg#info-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/infos/info-orange.svg',
     ],
     // heart
     'heart-black' => [
@@ -171,6 +211,16 @@ return [
         'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/hearts.svg#heart-yellow',
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/hearts/heart-yellow.svg',
     ],
+    'heart-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/hearts.svg#heart-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/hearts/heart-purple.svg',
+    ],
+    'heart-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/hearts.svg#heart-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/hearts/heart-orange.svg',
+    ],
     // color
     'color-black' => [
         'provider' => SvgSpriteIconProvider::class,
@@ -201,5 +251,15 @@ return [
         'provider' => SvgSpriteIconProvider::class,
         'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/colors.svg#color-yellow',
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/colors/color-yellow.svg',
+    ],
+    'color-purple' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/colors.svg#color-purple',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/colors/color-purple.svg',
+    ],
+    'color-orange' => [
+        'provider' => SvgSpriteIconProvider::class,
+        'sprite' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/sprites/colors.svg#color-orange',
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/svgs/colors/color-orange.svg',
     ],
 ];
