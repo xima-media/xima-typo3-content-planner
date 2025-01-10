@@ -81,6 +81,6 @@ final class DrawBackendHeaderListener
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
             return false;
         }
-        return ($assignee) === $GLOBALS['BE_USER']->user['uid'];
+        return $assignee === $GLOBALS['BE_USER']->user['uid'];
     }
 }

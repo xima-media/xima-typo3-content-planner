@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
-use Doctrine\DBAL\DBALException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
@@ -14,8 +13,8 @@ class CommentRepository
     private const TABLE = 'tx_ximatypo3contentplanner_comment';
 
     /**
-     * @throws \Doctrine\DBAL\Exception
-     */
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function findAllByRecord(int $id, string $table): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
@@ -43,8 +42,8 @@ class CommentRepository
     }
 
     /**
-     * @throws \Doctrine\DBAL\Exception
-     */
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function findByUid(int $uid): array|bool
     {
         if (!$uid) {

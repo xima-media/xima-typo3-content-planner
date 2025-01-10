@@ -12,14 +12,19 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 class StatusItemProvider extends AbstractProvider
 {
-    public function __construct(private readonly  StatusRepository $statusRepository, private readonly RecordRepository $recordRepository, private readonly BackendUserRepository $backendUserRepository)
-    {
+    public function __construct(
+        private readonly  StatusRepository $statusRepository,
+        private readonly RecordRepository $recordRepository,
+        private readonly BackendUserRepository $backendUserRepository,
+        private readonly StatusSelectionManager $statusSelectionManager
+    ) {
         parent::__construct();
     }
 
@@ -64,40 +69,42 @@ class StatusItemProvider extends AbstractProvider
         $pageRenderer->addInlineLanguageLabelFile('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf');
 
         $this->initDisabledItems();
+        $itemsToAdd = [];
         foreach ($this->statusRepository->findAll() as $statusItem) {
-            $this->itemsConfiguration['wrap']['childItems'][$statusItem->getUid()] = [
+            $itemsToAdd[$statusItem->getUid()] = [
                 'label' => $statusItem->getTitle(),
                 'iconIdentifier' => $statusItem->getColoredIcon(),
                 'callbackAction' => 'change',
             ];
         }
-        $this->itemsConfiguration['wrap']['childItems']['divider'] = ['type' => 'divider'];
+        $itemsToAdd['divider'] = ['type' => 'divider'];
 
-        $this->itemsConfiguration['wrap']['childItems']['reset'] = [
+        $itemsToAdd['reset'] = [
             'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset',
             'iconIdentifier' => 'actions-close',
             'callbackAction' => 'reset',
         ];
 
+        $record = null;
         if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_EXTEND_CONTEXT_MENU)) {
             $record = $this->recordRepository->findByUid($this->table, (int)$this->identifier);
             if ($record) {
-                $this->itemsConfiguration['wrap']['childItems']['divider2'] = ['type' => 'divider'];
+                $itemsToAdd['divider2'] = ['type' => 'divider'];
 
                 // remove current status from list
-                if (in_array($record['tx_ximatypo3contentplanner_status'], array_keys($this->itemsConfiguration['wrap']['childItems']), true)) {
-                    unset($this->itemsConfiguration['wrap']['childItems'][$record['tx_ximatypo3contentplanner_status']]);
+                if (in_array($record['tx_ximatypo3contentplanner_status'], array_keys($itemsToAdd), true)) {
+                    unset($itemsToAdd[$record['tx_ximatypo3contentplanner_status']]);
                 }
 
                 // remove reset if status is already null
                 if ($record['tx_ximatypo3contentplanner_status'] === null) {
-                    unset($this->itemsConfiguration['wrap']['childItems']['reset']);
+                    unset($itemsToAdd['reset']);
                 }
 
                 // assignee
                 if ($record['tx_ximatypo3contentplanner_assignee']) {
                     $username = $this->backendUserRepository->getUsernameByUid($record['tx_ximatypo3contentplanner_assignee']);
-                    $this->itemsConfiguration['wrap']['childItems']['assignee'] = [
+                    $itemsToAdd['assignee'] = [
                         'label' => $username,
                         'iconIdentifier' => 'actions-user',
                         'callbackAction' => 'load',
@@ -106,13 +113,18 @@ class StatusItemProvider extends AbstractProvider
 
                 // comments
                 if ($record['tx_ximatypo3contentplanner_status'] !== null) {
-                    $this->itemsConfiguration['wrap']['childItems']['comments'] = [
+                    $itemsToAdd['comments'] = [
                         'label' => $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : ''),
                         'iconIdentifier' => 'actions-message',
                         'callbackAction' => 'comments',
                     ];
                 }
             }
+        }
+
+        $this->statusSelectionManager->prepareStatusSelection($this, $this->table, (int)$this->identifier, $itemsToAdd, $record ? $record['tx_ximatypo3contentplanner_status'] : null);
+        foreach ($itemsToAdd as $itemKey => $itemToAdd) {
+            $this->itemsConfiguration['wrap']['childItems'][$itemKey] = $itemToAdd;
         }
 
         $localItems = $this->prepareItems($this->itemsConfiguration);

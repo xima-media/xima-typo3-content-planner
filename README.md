@@ -128,7 +128,10 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['xima_typo3_content_planner']['registe
 
 ## Events
 
-This extension provides an event to adjust the status change behavior, see 'Classes/Event/StatusChangeEvent.php'.
+This extension provides several events to hook into the content planner functionality.
+
+- [StatusChangeEvent](Classes/Event/StatusChangeEvent.php)
+- [PrepareStatusSelectionEvent.php](Classes/Event/PrepareStatusSelectionEvent.php)
 
 ## Development
 

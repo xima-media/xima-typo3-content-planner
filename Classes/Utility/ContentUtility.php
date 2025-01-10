@@ -23,6 +23,15 @@ class ContentUtility
         return $statusRepository->findByUid($statusId);
     }
 
+    public static function getStatusByTitle(?string $title): ?Status
+    {
+        if (!$title) {
+            return null;
+        }
+        $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
+        return $statusRepository->findByTitle($title);
+    }
+
     public static function getPage(int $pageId): array|bool
     {
         $pageRepository = GeneralUtility::makeInstance(PageRepository::class);

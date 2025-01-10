@@ -16,6 +16,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
@@ -23,8 +24,14 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyButtonBarEventListener
 {
-    public function __construct(private readonly IconFactory $iconFactory, private readonly UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository, private readonly BackendUserRepository $backendUserRepository)
-    {
+    public function __construct(
+        private readonly IconFactory $iconFactory,
+        private readonly UriBuilder $uriBuilder,
+        private readonly StatusRepository $statusRepository,
+        private readonly RecordRepository $recordRepository,
+        private readonly BackendUserRepository $backendUserRepository,
+        private readonly StatusSelectionManager $statusSelectionManager
+    ) {
     }
 
     public function __invoke(ModifyButtonBarEvent $event): void
@@ -194,6 +201,7 @@ final class ModifyButtonBarEventListener
             }
         }
 
+        $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $buttonsToAdd, $record['tx_ximatypo3contentplanner_status']);
         foreach ($buttonsToAdd as $buttonToAdd) {
             $dropDownButton->addItem($buttonToAdd);
         }

@@ -1,5 +1,5 @@
 {
-    "name": "xima/sitepackage",
+    "name": "test/sitepackage",
     "description": "xima-typo3-content-planner testing",
     "license": "GPL-2.0-or-later",
     "type": "typo3-cms-extension",
@@ -22,7 +22,7 @@
     "version": "1.0.0",
     "autoload": {
       "psr-4": {
-        "Xima\\Sitepackage\\": "Classes/"
+        "Test\\Sitepackage\\": "Classes/"
       }
     }
   }

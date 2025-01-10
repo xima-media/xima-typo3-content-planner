@@ -13,6 +13,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
@@ -20,8 +21,14 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 final class ModifyRecordListRecordActionsListener
 {
     protected ServerRequest $request;
-    public function __construct(private IconFactory $iconFactory, private UriBuilder $uriBuilder, private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository, private readonly BackendUserRepository $backendUserRepository)
-    {
+    public function __construct(
+        private readonly IconFactory $iconFactory,
+        private readonly UriBuilder $uriBuilder,
+        private readonly StatusRepository $statusRepository,
+        private readonly RecordRepository $recordRepository,
+        private readonly BackendUserRepository $backendUserRepository,
+        private readonly StatusSelectionManager $statusSelectionManager
+    ) {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
 
@@ -127,6 +134,7 @@ final class ModifyRecordListRecordActionsListener
                 }
             }
 
+            $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $actionsToAdd, $record['tx_ximatypo3contentplanner_status']);
             foreach ($actionsToAdd as $actionToAdd) {
                 $action .= $actionToAdd;
             }

@@ -61,6 +61,13 @@ class StatusRepository extends Repository
         return $result;
     }
 
+    public function findByTitle(string $title): ?Status
+    {
+        $query = $this->createQuery();
+        $query->matching($query->equals('title', $title));
+        return $query->execute()->getFirst();
+    }
+
     private function collectCacheTags(array $data): array
     {
         $tags = [];
