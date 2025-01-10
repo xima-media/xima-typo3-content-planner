@@ -21,7 +21,6 @@ CREATE TABLE tx_ximatypo3contentplanner_comment
 
 	foreign_uid   int(11) default '0' not null,
 	foreign_table varchar(255) default '' not null,
-	sorting       int(11) unsigned default '0' not null,
 
 	content       text,
 	author        int(11) DEFAULT NULL,

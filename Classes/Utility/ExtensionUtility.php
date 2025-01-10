@@ -40,7 +40,7 @@ class ExtensionUtility
                     'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_comments',
                     'config' => [
                         'foreign_field' => 'foreign_uid',
-                        'foreign_sortby' => 'sorting',
+                        'foreign_sortby' => 'crdate',
                         'foreign_table' => 'tx_ximatypo3contentplanner_comment',
                         'foreign_table_field' => 'foreign_table',
                         'type' => 'inline',

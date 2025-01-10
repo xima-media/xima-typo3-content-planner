@@ -6,11 +6,16 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
 class CommentRepository
 {
     private const TABLE = 'tx_ximatypo3contentplanner_comment';
+
+    protected $defaultOrderings = [
+        'crdate' => QueryInterface::ORDER_DESCENDING,
+    ];
 
     /**
     * @throws \Doctrine\DBAL\Exception
