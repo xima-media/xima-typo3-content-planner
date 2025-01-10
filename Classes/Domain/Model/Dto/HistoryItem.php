@@ -17,7 +17,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 final class HistoryItem
 {
     public array $data = [];
-    public array|bool $relatedRecord = [];
+    public array|bool|null $relatedRecord = [];
 
     public static function create(array $sysHistoryRow): static
     {
