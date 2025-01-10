@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+	<file source-language="en" datatype="plaintext" original="messages">
+		<header/>
+		<body>
+			<trans-unit id="dashboard.contentPlanner">
+				<source/>
+				<target>Content Planner</target>
+			</trans-unit>
+			<trans-unit id="dashboard.contentPlanner.description">
+				<source/>
+				<target>Übersichtsdashboard für Inhaltsstatusinformationen</target>
+			</trans-unit>
+			<trans-unit id="widget_group.contentPlanner">
+				<source/>
+				<target>Content Planner</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.title">
+				<source/>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.description">
+				<source/>
+				<target>Alle Datensätze mit Inhaltsstatus anzeigen</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.current.title">
+				<source/>
+				<target>Aktueller Zuständigkeit</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.current.description">
+				<source/>
+				<target>Alle Datensätze mit Ihrer Zuweisung anzeigen</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.overview.title">
+				<source/>
+				<target>Übersicht</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.overview.description">
+				<source/>
+				<target>Ein Diagramm mit der Verteilung des Inhaltsstatus anzeigen</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.comment.title">
+				<source/>
+				<target>Neueste Kommentare</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.comment.description">
+				<source/>
+				<target>Die neuesten Inhaltskommentare anzeigen</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.update.title">
+				<source/>
+				<target>Neueste Updates</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.update.description">
+				<source/>
+				<target>Die neuesten Updates hinsichtlich Inhaltsstatusänderungen anzeigen</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.flag">
+				<source/>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.title">
+				<source/>
+				<target>Datensatz</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.site">
+				<source/>
+				<target>Seite</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.tstamp">
+				<source/>
+				<target>Geändert</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.assignee">
+				<source/>
+				<target>Zuständigkeit</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.author">
+				<source/>
+				<target>Autor</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.comment">
+				<source/>
+				<target>Kommentar</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.comments">
+				<source/>
+				<target>Kommentare</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.page">
+				<source/>
+				<target>Seite</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.user">
+				<source/>
+				<target>Benutzer</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.header.change">
+				<source/>
+				<target>Änderungshinweis</target>
+			</trans-unit>
+
+			<trans-unit id="button.modal.header.comments">
+				<source/>
+				<target>Kommentare</target>
+			</trans-unit>
+			<trans-unit id="button.modal.footer.close">
+				<source/>
+				<target>Abbrechen</target>
+			</trans-unit>
+			<trans-unit id="button.modal.footer.new">
+				<source/>
+				<target>Neu</target>
+			</trans-unit>
+			<trans-unit id="button.modal.footer.save">
+				<source/>
+				<target>Speichern</target>
+			</trans-unit>
+
+			<!-- time ago -->
+			<trans-unit id="timeAgo.years">
+				<source/>
+				<target>vor %s Jahren</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.year">
+				<source/>
+				<target>vor %s Jahr</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.months">
+				<source/>
+				<target>vor %s Monaten</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.month">
+				<source/>
+				<target>vor %s Monat</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.days">
+				<source/>
+				<target>vor %s Tagen</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.day">
+				<source/>
+				<target>vor %s Tag</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.hours">
+				<source/>
+				<target>vor %s Stunden</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.hour">
+				<source/>
+				<target>vor %s Stunde</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.minutes">
+				<source/>
+				<target>vor %s Minuten</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.minute">
+				<source/>
+				<target>vor %s Minute</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.seconds">
+				<source/>
+				<target>vor %s Sekunden</target>
+			</trans-unit>
+			<trans-unit id="timeAgo.second">
+				<source/>
+				<target>vor %s Sekunde</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

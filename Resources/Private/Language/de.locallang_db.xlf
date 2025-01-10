@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+	<file source-language="en" datatype="plaintext" original="messages">
+		<header/>
+		<body>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_status">
+				<source/>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_comments">
+				<source/>
+				<target>Kommentare</target>
+			</trans-unit>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_assignee">
+				<source/>
+				<target>Zuständigkeit</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_comment.content">
+				<source/>
+				<target>Inhalt</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_comment.author">
+				<source/>
+				<target>Autor</target>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide">
+				<source/>
+				<target>Content Planner ausblenden</target>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide.description">
+				<source/>
+				<target>Deaktivieren Sie die Anzeige von Content Planner Statusinformationen und Farben im TYPO3-Backend</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.title">
+				<source/>
+				<target>Titel</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.icon">
+				<source/>
+				<target>Symbol</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.color">
+				<source/>
+				<target>Farbe</target>
+			</trans-unit>
+			<trans-unit id="permission.group">
+				<source/>
+				<target>Content Planner</target>
+			</trans-unit>
+			<trans-unit id="permission.content_status">
+				<source/>
+				<target>Inhaltsstatus</target>
+			</trans-unit>
+			<trans-unit id="permission.content_status.description">
+				<source/>
+				<target>Erlauben Sie die Verwendung des Inhaltsstatus innerhalb von Datensätzen</target>
+			</trans-unit>
+			<trans-unit id="content_planner">
+				<source/>
+				<target>Content Planner</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
