@@ -28,6 +28,10 @@ final class DataHandlerHook
         if (ExtensionUtility::isRegisteredRecordTable($table)) {
             $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, $id);
         }
+
+        if (in_array('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
+            $this->fixNewCommentEntry($dataHandler);
+        }
     }
 
     /**
@@ -54,28 +58,38 @@ final class DataHandlerHook
         $datamap = $dataHandler->datamap;
         // Workaround to solve relation of comments created within the modal
         if (array_key_first($datamap) === 'tx_ximatypo3contentplanner_comment') {
-            $id = array_key_first($datamap['tx_ximatypo3contentplanner_comment']);
-            if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->defaultValues) && !MathUtility::canBeInterpretedAsInteger($id)) {
-                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
-                $table = null;
-                // @ToDo: Why are default values doesn't seem to be set as expected?
-                foreach ($dataHandler->defaultValues['tx_ximatypo3contentplanner_comment'] as $key => $value) {
-                    if ($key === 'foreign_table') {
-                        $table = $value;
-                    }
-                    $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id][$key] = $value;
-                }
-
-                // @ToDo: how to fix this for other tables?
-                if ($table === 'pages') {
-                    $dataHandler->datamap[$table][$datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
-                }
-            }
+            $this->fixNewCommentEntry($dataHandler);
         }
     }
 
     public function clearCachePostProc(array $params): void
     {
         $this->cache->flushByTags(array_keys($params['tags']));
+    }
+
+    private function fixNewCommentEntry(&$dataHandler) {
+        $id = null;
+        foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $key) {
+            if (!MathUtility::canBeInterpretedAsInteger($key)) {
+                $id = $key;
+            }
+        }
+
+        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->defaultValues) && $id !== null) {
+            $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
+            $table = null;
+            // @ToDo: Why are default values doesn't seem to be set as expected?
+            foreach ($dataHandler->defaultValues['tx_ximatypo3contentplanner_comment'] as $key => $value) {
+                if ($key === 'foreign_table') {
+                    $table = $value;
+                }
+                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id][$key] = $value;
+            }
+
+            // @ToDo: how to fix this for other tables?
+            if ($table === 'pages') {
+                $dataHandler->datamap[$table][$dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
+            }
+        }
     }
 }
