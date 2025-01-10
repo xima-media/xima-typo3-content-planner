@@ -31,8 +31,8 @@ class Colors
         self::STATUS_COLOR_BLUE => '100,187,200',
         self::STATUS_COLOR_YELLOW => '255,205,117',
         self::STATUS_COLOR_GREEN => '106,158,113',
-        self::STATUS_COLOR_PURPLE => '94,53,177',
-        self::STATUS_COLOR_ORANGE => '245,124,0',
+        self::STATUS_COLOR_PURPLE => '92,107,192',
+        self::STATUS_COLOR_ORANGE => '255,112,67',
     ];
 
     public static function get(string $colorCode, bool $transparency = false): string

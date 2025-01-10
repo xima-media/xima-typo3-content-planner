@@ -3,15 +3,15 @@
     --content-planner--color-yellow: rgb(255,205,117);
     --content-planner--color-green: rgb(106,158,113);
     --content-planner--color-blue: rgb(100,187,200);
-    --content-planner--color-purple: rgb(103,58,183);
-    --content-planner--color-orange: rgb(245,124,0);
+    --content-planner--color-purple: rgb(92,107,192);
+    --content-planner--color-orange: rgb(255,112,67);
 
     --content-planner--color-red-light: rgb(250,136,147, 0.2);
     --content-planner--color-yellow-light: rgb(255,205,117, 0.2);
     --content-planner--color-green-light: rgb(106,158,113, 0.2);
     --content-planner--color-blue-light: rgb(100,187,200, 0.2);
-    --content-planner--color-purple-light: rgb(103,58,183, 0.2);
-    --content-planner--color-orange-light: rgb(245,124,0, 0.2);
+    --content-planner--color-purple-light: rgb(92,107,192, 0.2);
+    --content-planner--color-orange-light: rgb(255,112,67, 0.2);
 }
 
 .xima-typo3-content-planner--header-info {
