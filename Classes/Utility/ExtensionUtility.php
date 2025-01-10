@@ -8,6 +8,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\PathUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 class ExtensionUtility
@@ -110,5 +111,18 @@ class ExtensionUtility
     public static function getTitle(string $key, array|bool|null $record): string
     {
         return $record ? (array_key_exists($key, $record) ? $record[$key] : BackendUtility::getNoRecordTitle()) : BackendUtility::getNoRecordTitle();
+    }
+
+    public static function getCssTag(string $cssFileLocation, array $attributes): string
+    {
+        return sprintf(
+            '<link %s />',
+            GeneralUtility::implodeAttributes([
+                ...$attributes,
+                'rel' => 'stylesheet',
+                'media' => 'all',
+                'href' => PathUtility::getPublicResourceWebPath($cssFileLocation),
+            ], true)
+        );
     }
 }

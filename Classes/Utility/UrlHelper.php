@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 class UrlHelper
 {
@@ -45,5 +48,21 @@ class UrlHelper
             'pages' => (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $uid]),
             default => (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']]]),
         };
+    }
+
+    public static function isRelevantWebLayoutRequest(ServerRequestInterface $request): bool
+    {
+        return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
+            && $request->getAttribute('module') !== null
+            && $request->getAttribute('module')->getIdentifier() === 'web_layout'
+            && in_array('tt_content', $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
+    }
+
+    public static function isRelevantRecordEditRequest(ServerRequestInterface $request): bool
+    {
+        return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
+            && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
+            && array_key_exists('edit', $request->getQueryParams())
+            && (array_key_first($request->getQueryParams()['edit']) === 'pages' || in_array(array_key_first($request->getQueryParams()['edit']), $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']));
     }
 }

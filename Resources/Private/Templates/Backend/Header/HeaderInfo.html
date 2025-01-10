@@ -13,16 +13,24 @@
         />
     </div>
     <div class="body">
-        <be:link.editRecord
-            uid="{data.uid}"
-            table="pages"
-            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-            title="Edit page properties"
-            class="d-flex align-items-center flex-grow-1"
-        >
-            Status:&nbsp;<strong> {status.title} </strong>
-        </be:link.editRecord>
+        <f:if condition="{mode} == 'pageHeader'">
+            <f:then>
+                <be:link.editRecord
+                    uid="{data.uid}"
+                    table="pages"
+                    fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                    title="Edit page properties"
+                    class="d-flex align-items-center flex-grow-1"
+                >
+                    Status:&nbsp;<strong> {status.title} </strong>
+                </be:link.editRecord>
+            </f:then>
+            <f:else>
+                Status:&nbsp;<strong> {status.title} </strong>
+            </f:else>
+        </f:if>
+
     </div>
     <div class="btn-group">
         <div class="xima-typo3-content-planner--header--ce-hint">
@@ -65,32 +73,34 @@
                 <span class="badge badge-secondary">{comments -> f:count()}</span>
             </button>
         </f:if>
-        <a
-            href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
-            id="new-comment-modal"
-            class="btn btn-default btn-sm"
-            data-pid="{pid}"
-            data-userid="{userid}"
-            title="New comment"
-        >
-            <core:icon
-                identifier="actions-message-add"
-                size="small"
-            />
-        </a>
-        <be:link.editRecord
-            uid="{data.uid}"
-            table="pages"
-            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-            title="Edit page properties"
-            class="btn btn-default btn-sm"
-        >
-            <core:icon
-                identifier="actions-document-edit"
-                size="small"
-            />
-        </be:link.editRecord>
+        <f:if condition="{mode} == 'pageHeader'">
+            <a
+                href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
+                id="new-comment-modal"
+                class="btn btn-default btn-sm"
+                data-pid="{pid}"
+                data-userid="{userid}"
+                title="New comment"
+            >
+                <core:icon
+                    identifier="actions-message-add"
+                    size="small"
+                />
+            </a>
+            <be:link.editRecord
+                uid="{data.uid}"
+                table="pages"
+                fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                title="Edit page properties"
+                class="btn btn-default btn-sm"
+            >
+                <core:icon
+                    identifier="actions-document-edit"
+                    size="small"
+                />
+            </be:link.editRecord>
+        </f:if>
     </div>
 </div>
 </html>

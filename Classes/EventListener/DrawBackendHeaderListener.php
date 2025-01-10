@@ -53,16 +53,17 @@ final class DrawBackendHeaderListener
         }
 
         $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Backend/PageHeader/PageHeaderInfo.html');
+        $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Backend/Header/HeaderInfo.html');
 
         /** @var PageRenderer $pageRenderer */
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/new-comment-modal.js');
         $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/comments-modal.js');
-        $pageRenderer->addCssFile('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/PageHeader.css');
+        $pageRenderer->addCssFile('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css');
         $pageRenderer->addInlineLanguageLabelFile('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf');
 
         $view->assignMultiple([
+            'mode' => 'pageHeader',
             'data' => $pageInfo,
             'assignee' => $this->backendUserRepository->getUsernameByUid((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
             'assignedToCurrentUser' => $this->getAssignedToCurrentUser((int)$pageInfo['tx_ximatypo3contentplanner_assignee']),
