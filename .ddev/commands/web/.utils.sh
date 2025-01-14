@@ -132,7 +132,11 @@ function update_typo3() {
 }
 
 function import_data() {
-    $TYPO3_BIN database:import < /var/www/html/.ddev/test/data/dump.sql
+    PUBLIC_DIR="/var/www/html/.test/${VERSION}/public"
+    EXPORT_DIR="${PUBLIC_DIR}/fileadmin/user_upload/_temp_/importexport"
+    mkdir -p $EXPORT_DIR
+    cp /var/www/html/.ddev/test/data/data.xml $EXPORT_DIR
+    $TYPO3_BIN impexp:import -vvv --force-uid "$EXPORT_DIR/data.xml"
 }
 
 message() {
