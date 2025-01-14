@@ -175,7 +175,7 @@ final class ModifyButtonBarEventListener
             }
 
             // remove reset if status is already null
-            if ($record['tx_ximatypo3contentplanner_status'] === null) {
+            if ($record['tx_ximatypo3contentplanner_status'] === null || $record['tx_ximatypo3contentplanner_status'] === 0) {
                 unset($buttonsToAdd['divider']);
                 unset($buttonsToAdd['reset']);
             }
@@ -191,7 +191,7 @@ final class ModifyButtonBarEventListener
             }
 
             // comments
-            if ($record['tx_ximatypo3contentplanner_status'] !== null) {
+            if ($record['tx_ximatypo3contentplanner_status'] !== null && $record['tx_ximatypo3contentplanner_status'] !== 0) {
                 $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
                     ->setLabel($this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : ''))
                     ->setIcon($this->iconFactory->getIcon('actions-message'))

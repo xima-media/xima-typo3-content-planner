@@ -97,7 +97,7 @@ class StatusItemProvider extends AbstractProvider
                 }
 
                 // remove reset if status is already null
-                if ($record['tx_ximatypo3contentplanner_status'] === null) {
+                if ($record['tx_ximatypo3contentplanner_status'] === null || $record['tx_ximatypo3contentplanner_status'] === 0) {
                     unset($itemsToAdd['reset']);
                 }
 
@@ -112,7 +112,7 @@ class StatusItemProvider extends AbstractProvider
                 }
 
                 // comments
-                if ($record['tx_ximatypo3contentplanner_status'] !== null) {
+                if ($record['tx_ximatypo3contentplanner_status'] !== null && $record['tx_ximatypo3contentplanner_status'] !== 0) {
                     $itemsToAdd['comments'] = [
                         'label' => $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : ''),
                         'iconIdentifier' => 'actions-message',
