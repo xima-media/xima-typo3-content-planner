@@ -8,5 +8,7 @@ currentAssigneeHighlight = 1
 clearCommentsOnStatusReset = 1
 # cat=basic/enable; type=boolean; label=Enable record edit header info
 recordEditHeaderInfo = 1
+# cat=basic/enable; type=boolean; label=Enable web list header info
+webListHeaderInfo = 1
 # cat=basic/enable; type=boolean; label=Reset status of content element if status on corresponding page is reset
 resetContentElementStatusOnPageReset = 0
