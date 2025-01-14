@@ -83,13 +83,16 @@ class ExtensionUtility
 
         ExtensionManagementUtility::addToAllTCAtypes(
             $table,
-            '--div--;Content  Planner,--palette--;;tx_ximatypo3contentplanner'
+            '--div--;Content Planner,--palette--;;tx_ximatypo3contentplanner'
         );
     }
 
     public static function getRecordTables(): array
     {
-        return array_merge(['pages'], $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
+        return array_merge(
+            ['pages'],
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']
+        );
     }
 
     public static function isRegisteredRecordTable(string $table): bool
