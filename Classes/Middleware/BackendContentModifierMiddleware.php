@@ -9,10 +9,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\RequestId;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
@@ -78,7 +78,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         $uid = $request->getQueryParams()['edit'][$table] ?? 0;
         $uid = is_array($uid) ? (int)array_key_first($uid) : (int)$uid;
 
-        $additionalContent = $this->generateStatusHeader($table, $uid, $content);
+        $additionalContent = $this->generateStatusHeader($table, $uid);
         if (!$additionalContent) {
             return $response;
         }
@@ -107,9 +107,9 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        $uid = (int)$request->getQueryParams()['id'] ?? 0;
+        $uid = (int)$request->getQueryParams()['id'];
 
-        $additionalContent = $this->generateStatusHeader('pages', $uid, $content);
+        $additionalContent = $this->generateStatusHeader('pages', $uid);
 
         if (!$additionalContent) {
             return $response;
@@ -147,7 +147,6 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         return '<style>' . implode(' ', $styling) . '</style>';
     }
 
-
     private function generateStatusHeader(string $table, int $uid): string|bool
     {
         $record = $this->recordRepository->findByUid($table, $uid);
@@ -171,7 +170,8 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         return $additionalContent;
     }
 
-    private function renderStatusHeaderContentView(array $record, Status $status, array $comments): string{
+    private function renderStatusHeaderContentView(array $record, Status $status, array $comments): string
+    {
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Backend/Header/HeaderInfo.html');
 
