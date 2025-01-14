@@ -39,14 +39,6 @@ final class AfterPageTreeItemsPreparedListener
                             label: $status->getTitle(),
                             color: Configuration\Colors::get($status->getColor()),
                         );
-                        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
-                            // @phpstan-ignore-next-line
-                            $item['statusInformation'][] = new \TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation(
-                                label: $GLOBALS['LANG']->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:currentAssignee'),
-                                severity: \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING,
-                                icon: 'actions-dot',
-                            );
-                        }
                     } else {
                         $item['backgroundColor'] = Configuration\Colors::get($status->getColor(), true);
                     }
