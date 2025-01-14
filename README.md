@@ -4,9 +4,10 @@
 
 # TYPO3 extension `xima_typo3_content_planner`
 
-[![Latest Stable Version](https://typo3-badges.dev/badge/xima_typo3_content_planner/version/shields.svg)](https://packagist.org/packages/xima/xima-typo3-content-planner)
+[![Latest Stable Version](https://typo3-badges.dev/badge/xima_typo3_content_planner/version/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
 [![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/12%20&%2013/orange)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
-[![Total Downloads](https://typo3-badges.dev/badge/xima_typo3_content_planner/downloads/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
+[![Total Downloads](https://poser.pugx.org/xima/xima-typo3-content-planner/d/total)](https://packagist.org/packages/xima/xima-typo3-content-planner)
+
 
 </div>
 
