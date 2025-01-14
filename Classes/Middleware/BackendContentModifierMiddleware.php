@@ -52,48 +52,50 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
     private function handleWebLayoutRequest(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
-            $content = $response->getBody()->__toString();
+        $content = $response->getBody()->__toString();
 
-            $pid = $request->getQueryParams()['id'] ?? 0;
-            if (!$pid) {
-                return $response;
-            }
+        $pid = $request->getQueryParams()['id'] ?? 0;
+        if (!$pid) {
+            return $response;
+        }
 
-            $newResponse = new Response();
-            $newResponse->getBody()->write($content . $this->addStatusHintToContentElement((int)$pid));
+        $newResponse = new Response();
+        $newResponse->getBody()->write($content . $this->addStatusHintToContentElement((int)$pid));
 
-            return $newResponse;
+        return $newResponse;
     }
 
-    private function handleRecordEditRequest(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+    private function handleRecordEditRequest(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
         $response = $handler->handle($request);
         $content = $response->getBody()->__toString();
 
-        if ($content !== '') {
-            $table = array_key_first($request->getQueryParams()['edit']);
-            $uid = $request->getQueryParams()['edit'][$table] ?? 0;
-            $uid = is_array($uid) ? (int)array_key_first($uid) : (int)$uid;
-
-            $additionalContent = $this->generateStatusHeader($table, $uid, $content);
-            if (!$additionalContent) {
-                return $response;
-            }
-
-            /*
-            * This is a workaround to add the header content to the top of the record edit form.
-            */
-            $newContent = preg_replace(
-                '/(<div\s+class="typo3-TCEforms")/',
-                $additionalContent . '$1',
-                $content
-            );
-
-            $newResponse = new Response();
-            $newResponse->getBody()->write($newContent);
-
-            return $newResponse;
+        if ($content === '') {
+            return $response;
         }
-        return $response;
+
+        $table = array_key_first($request->getQueryParams()['edit']);
+        $uid = $request->getQueryParams()['edit'][$table] ?? 0;
+        $uid = is_array($uid) ? (int)array_key_first($uid) : (int)$uid;
+
+        $additionalContent = $this->generateStatusHeader($table, $uid, $content);
+        if (!$additionalContent) {
+            return $response;
+        }
+
+        /*
+        * This is a workaround to add the header content to the top of the record edit form.
+        */
+        $newContent = preg_replace(
+            '/(<div\s+class="typo3-TCEforms")/',
+            $additionalContent . '$1',
+            $content
+        );
+
+        $newResponse = new Response();
+        $newResponse->getBody()->write($newContent);
+
+        return $newResponse;
     }
 
     private function handleListLayoutRequest(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -101,31 +103,31 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
         $content = $response->getBody()->__toString();
 
-        if ($content !== '') {
-
-            $uid = (int)$request->getQueryParams()['id'] ?? 0;
-
-            $additionalContent = $this->generateStatusHeader('pages', $uid, $content);
-
-            if (!$additionalContent) {
-                return $response;
-            }
-
-            /*
-            * This is a workaround to add the header content to the top of the list module.
-            */
-            $newContent = preg_replace(
-                '/(<typo3-backend-editable-page-title\b[^>]*>.*?<\/typo3-backend-editable-page-title>)/is',
-                '$1' . $additionalContent,
-                $content
-            );
-
-            $newResponse = new Response();
-            $newResponse->getBody()->write($newContent);
-
-            return $newResponse;
+        if ($content === '') {
+            return $response;
         }
-        return $response;
+
+        $uid = (int)$request->getQueryParams()['id'] ?? 0;
+
+        $additionalContent = $this->generateStatusHeader('pages', $uid, $content);
+
+        if (!$additionalContent) {
+            return $response;
+        }
+
+        /*
+        * This is a workaround to add the header content to the top of the list module.
+        */
+        $newContent = preg_replace(
+            '/(<typo3-backend-editable-page-title\b[^>]*>.*?<\/typo3-backend-editable-page-title>)/is',
+            '$1' . $additionalContent,
+            $content
+        );
+
+        $newResponse = new Response();
+        $newResponse->getBody()->write($newContent);
+
+        return $newResponse;
     }
 
     private function addStatusHintToContentElement(int $pid): string
@@ -150,22 +152,23 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
     {
         $record = $this->recordRepository->findByUid($table, $uid);
 
-        if ($record) {
-            $status = $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
-
-            if (!$status) {
-                return false;
-            }
-
-            $additionalContent = $this->renderStatusHeaderContentView(
-                $record,
-                $status,
-                $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($uid, $table) : []
-            );
-
-            return $additionalContent;
+        if (!$record) {
+            return false;
         }
-        return false;
+
+        $status = $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
+
+        if (!$status) {
+            return false;
+        }
+
+        $additionalContent = $this->renderStatusHeaderContentView(
+            $record,
+            $status,
+            $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($uid, $table) : []
+        );
+
+        return $additionalContent;
     }
 
     private function renderStatusHeaderContentView(array $record, Status $status, array $comments): string{
