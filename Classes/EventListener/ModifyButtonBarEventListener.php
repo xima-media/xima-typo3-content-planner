@@ -105,7 +105,7 @@ final class ModifyButtonBarEventListener
                             ],
                             'redirect' => $table === 'pages' ?
                                 (string)$this->uriBuilder->buildUriFromRoute(
-                                    $request->getAttribute('module')->getIdentifier(),
+                                    $request->getAttribute('module') ? $request->getAttribute('module')->getIdentifier() : 'web_layout',
                                     [
                                         'id' => $uid,
                                     ]
@@ -144,7 +144,7 @@ final class ModifyButtonBarEventListener
                         ],
                         'redirect' => $table === 'pages' ?
                             (string)$this->uriBuilder->buildUriFromRoute(
-                                $request->getAttribute('module')->getIdentifier(),
+                                $request->getAttribute('module') ? $request->getAttribute('module')->getIdentifier() : 'web_layout',
                                 [
                                     'id' => $uid,
                                 ]
