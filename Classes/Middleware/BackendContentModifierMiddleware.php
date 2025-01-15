@@ -182,7 +182,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             'icon' => $status->getColoredIcon(),
             'status' => $status,
             'comments' => $comments,
-            'pid' => $record['pid'],
+            'pid' => array_key_exists('pid', $record) ? $record['pid'] : null,
             'userid' => $GLOBALS['BE_USER']->user['uid'],
         ]);
 
