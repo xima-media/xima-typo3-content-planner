@@ -124,7 +124,7 @@ class RecordRepository
             ->fetchAssociative();
     }
 
-    public function updateStatusByUid(string $table, int $uid, int $status, int|bool|null $assignee = false): void
+    public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder
@@ -137,7 +137,7 @@ class RecordRepository
         if ($assignee !== false) {
             $queryBuilder->set('tx_ximatypo3contentplanner_assignee', $assignee);
         }
-        $queryBuilder->executeQuery();
+        $queryBuilder->executeStatement();
     }
 
     private function getSqlByTable(string $table, array &$sql, string $additionalWhere): void
