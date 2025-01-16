@@ -8,6 +8,7 @@ use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 /*
@@ -38,6 +39,18 @@ final class AfterPageTreeItemsPreparedListener
                             label: $status->getTitle(),
                             color: Configuration\Colors::get($status->getColor()),
                         );
+
+                        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_TREE_STATUS_INFORMATION)
+                            && isset($item['_page']['tx_ximatypo3contentplanner_comments'])
+                            && $item['_page']['tx_ximatypo3contentplanner_comments'] > 0
+                        ) {
+                            // @phpstan-ignore-next-line
+                            $item['statusInformation'][] = new \TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation(
+                                label: $item['_page']['tx_ximatypo3contentplanner_comments'] . ' ' . $GLOBALS['LANG']->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
+                                severity: \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::NOTICE,
+                                icon: 'actions-message',
+                            );
+                        }
                     } else {
                         $item['backgroundColor'] = Configuration\Colors::get($status->getColor(), true);
                     }
