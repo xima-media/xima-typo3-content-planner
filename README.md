@@ -5,8 +5,9 @@
 # TYPO3 extension `xima_typo3_content_planner`
 
 [![Latest Stable Version](https://typo3-badges.dev/badge/xima_typo3_content_planner/version/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
-[![Supported TYPO3 versions](https://badgen.net/badge/TYPO3/12%20&%2013/orange)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
-[![Total Downloads](https://poser.pugx.org/xima/xima-typo3-content-planner/d/total)](https://packagist.org/packages/xima/xima-typo3-content-planner)
+[![Supported TYPO3 versions](https://typo3-badges.dev/badge/xima_typo3_content_planner/typo3/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
+[![Maintainability](https://img.shields.io/codeclimate/maintainability/xima-media/xima-typo3-content-planner?logo=codeclimate)](https://codeclimate.com/github/xima-media/xima-typo3-content-planner/maintainability)
+[![License](https://poser.pugx.org/xima/xima-typo3-content-planner/license)](LICENSE.md)
 
 
 </div>
@@ -39,6 +40,9 @@ content work, e.g. a migration process.
 
 ### Composer
 
+[![Packagist](https://img.shields.io/packagist/v/xima/xima-typo3-content-planner?label=version&logo=packagist)](https://packagist.org/packages/xima/xima-typo3-content-planner)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/xima/xima-typo3-content-planner?color=brightgreen)](https://packagist.org/packages/xima/xima-typo3-content-planner)
+
 ``` bash
 composer require xima/xima-typo3-content-planner
 ```
@@ -46,6 +50,7 @@ composer require xima/xima-typo3-content-planner
 ### TER
 
 [![TER version](https://typo3-badges.dev/badge/xima_typo3_content_planner/version/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
+[![TER downloads](https://typo3-badges.dev/badge/xima_typo3_content_planner/downloads/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
 
 Download the zip file from [TYPO3 extension repository (TER)](https://extensions.typo3.org/extension/xima_typo3_content_planner).
 
