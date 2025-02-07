@@ -35,7 +35,7 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
         ];
     }
 
-    public function countPageStatus(int $status = null): int
+    public function countPageStatus(?int $status = null): int
     {
         return count($this->recordRepository->findAllByFilter(status: $status));
     }
