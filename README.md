@@ -151,7 +151,11 @@ $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['xima_typo3_content_planner']['registe
 This extension provides several events to hook into the content planner functionality.
 
 - [StatusChangeEvent](Classes/Event/StatusChangeEvent.php)
-- [PrepareStatusSelectionEvent.php](Classes/Event/PrepareStatusSelectionEvent.php)
+- [PrepareStatusSelectionEvent](Classes/Event/PrepareStatusSelectionEvent.php)
+
+### Utility
+
+Use the [PlannerUtility](Classes/Utility/PlannerUtility.php) to programmatically interact with the content planner.
 
 ## Development
 

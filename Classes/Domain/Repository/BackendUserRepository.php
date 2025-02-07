@@ -39,6 +39,22 @@ class BackendUserRepository
     }
 
     /**
+    * @throws \Doctrine\DBAL\Exception
+    */
+    public function findByUsername(string $username): array|bool
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+
+        return $queryBuilder
+            ->select('*')
+            ->from('be_users')
+            ->where(
+                $queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username, \TYPO3\CMS\Core\Database\Connection::PARAM_STR))
+            )
+            ->executeQuery()->fetchAssociative();
+    }
+
+    /**
     * @ToDo: Check if there is a core function to get the username by uid
     * @throws \Doctrine\DBAL\Exception
     */
