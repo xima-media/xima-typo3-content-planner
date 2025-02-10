@@ -107,10 +107,6 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        if (!array_key_exists('id', $request->getQueryParams())) {
-            return $response;
-        }
-
         $uid = (int)$request->getQueryParams()['id'];
 
         $additionalContent = $this->generateStatusHeader('pages', $uid);
@@ -168,13 +164,14 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         $additionalContent = $this->renderStatusHeaderContentView(
             $record,
             $status,
+            $table,
             $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($uid, $table) : []
         );
 
         return $additionalContent;
     }
 
-    private function renderStatusHeaderContentView(array $record, Status $status, array $comments): string
+    private function renderStatusHeaderContentView(array $record, Status $status, string $table, array $comments): string
     {
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Backend/Header/HeaderInfo.html');
@@ -188,10 +185,12 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             'comments' => $comments,
             'pid' => array_key_exists('pid', $record) ? $record['pid'] : null,
             'userid' => $GLOBALS['BE_USER']->user['uid'],
+            'table' => $table,
         ]);
 
         $content = $view->render();
         $content .= ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css', ['nonce' => $this->requestId->nonce]);
+        $content .= ExtensionUtility::getJsTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/JavaScript/comments-modal.js', ['nonce' => $this->requestId->nonce]);
 
         return $content;
     }

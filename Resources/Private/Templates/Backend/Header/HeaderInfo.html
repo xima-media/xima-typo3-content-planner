@@ -65,9 +65,9 @@
                 class="btn btn-default  contentPlanner--comments"
                 data-content-planner-comments
                 type="button"
-                data-table="pages"
+                data-table="{table}"
                 data-id="{data.uid}"
-                data-new-comment-url="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
+                data-new-comment-url="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: table, foreign_uid: data.uid}}')}"
             >
                 <core:icon identifier="actions-message" size="small"/>
                 <span class="badge badge-secondary">{comments -> f:count()}</span>
@@ -75,7 +75,7 @@
         </f:if>
         <f:if condition="{mode} == 'pageHeader'">
             <a
-                href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: \'pages\', foreign_uid: data.uid}}')}"
+                href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: data.uid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: table, foreign_uid: data.uid}}')}"
                 id="new-comment-modal"
                 class="btn btn-default "
                 data-pid="{pid}"
@@ -89,7 +89,7 @@
             </a>
             <be:link.editRecord
                 uid="{data.uid}"
-                table="pages"
+                table="{table}"
                 fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
                 returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
                 title="Edit page properties"

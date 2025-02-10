@@ -73,6 +73,7 @@ final class DrawBackendHeaderListener
             'pid' => $id,
             'userid' => $GLOBALS['BE_USER']->user['uid'],
             'contentElements' => ExtensionUtility::isRegisteredRecordTable('tt_content') ? $this->recordRepository->findByPid('tt_content', $id, false) : null,
+            'table' => 'pages',
         ]);
         $event->addHeaderContent($view->render());
     }

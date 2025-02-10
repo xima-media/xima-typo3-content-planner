@@ -128,4 +128,15 @@ class ExtensionUtility
             ], true)
         );
     }
+
+    public static function getJsTag(string $jsFileLocation, array $attributes): string
+    {
+        return sprintf(
+            '<script type="module" %s></script>',
+            GeneralUtility::implodeAttributes([
+                ...$attributes,
+                'src' => PathUtility::getPublicResourceWebPath($jsFileLocation),
+            ], true)
+        );
+    }
 }
