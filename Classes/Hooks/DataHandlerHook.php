@@ -7,6 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
@@ -82,12 +83,12 @@ final class DataHandlerHook
         $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
 
         if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->defaultValues)) {
-            $table = null;
+            $foreign_table = null;
             $foreign_uid = null;
             // @ToDo: Why are default values doesn't seem to be set as expected?
             foreach ($dataHandler->defaultValues['tx_ximatypo3contentplanner_comment'] as $key => $value) {
                 if ($key === 'foreign_table') {
-                    $table = $value;
+                    $foreign_table = $value;
                 }
                 if ($key === 'foreign_uid') {
                     $foreign_uid = $value;
@@ -95,10 +96,17 @@ final class DataHandlerHook
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id][$key] = $value;
             }
 
-            if ($table === null || $foreign_uid === null) {
+            if ($foreign_table === null || $foreign_uid === null) {
                 return;
             }
-            $dataHandler->datamap[$table][$foreign_uid]['tx_ximatypo3contentplanner_comments'] = $id;
+
+            /*
+            * Workaround to solve relation of comments created within the modal
+            * This doesn't seem to be necessary in TYPO3 >= 13.0.0 (causes a strange bug with resetting the crdate)
+            */
+            if (version_compare(VersionNumberUtility::getCurrentTypo3Version(), '13.0.0', '<')) {
+                $dataHandler->datamap[$foreign_table][$foreign_uid]['tx_ximatypo3contentplanner_comments'] = $id;
+            }
         }
     }
 }
