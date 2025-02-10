@@ -130,7 +130,7 @@ final class ModifyRecordListRecordActionsListener
                     $username = $this->backendUserRepository->getUsernameByUid($record['tx_ximatypo3contentplanner_assignee']);
                     $actionsToAdd['assignee'] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid)) . '" title="' . $username . '">' . $statusItem->getAssigneeAvatar() . ' ' . $statusItem->getAssigneeName() . '</a></li>';
                 }
-                
+
                 // comments
                 if ($record['tx_ximatypo3contentplanner_status'] !== null) {
                     $actionsToAdd['comments'] = '<li><a class="dropdown-item dropdown-item-spaced contentPlanner--comments" title="' . $title . '" href="#" data-force-ajax-url data-content-planner-comments data-table="' . $table . '" data-id="' . $uid . '" data-new-comment-uri="' . UrlHelper::getNewCommentUrl($table, $uid) . '">' . $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render() . ' ' . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : '') . '</a></li>';
