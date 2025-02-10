@@ -100,7 +100,7 @@ class CommentRepository
 
         if ($like) {
             $queryBuilder->andWhere(
-                $queryBuilder->expr()->like('comment', $queryBuilder->createNamedParameter($like, Connection::PARAM_STR))
+                $queryBuilder->expr()->like('content', $queryBuilder->createNamedParameter($like, Connection::PARAM_STR))
             );
         }
 
