@@ -29,7 +29,7 @@ final class DataHandlerHook
             $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, $id);
         }
 
-        if (in_array('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
+        if (in_array('tx_ximatypo3contentplanner_comment', array_keys($dataHandler->datamap))) {
             $this->fixNewCommentEntry($dataHandler);
         }
     }
@@ -76,21 +76,29 @@ final class DataHandlerHook
             }
         }
 
-        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->defaultValues) && $id !== null) {
-            $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
+        if ($id === null) {
+            return;
+        }
+        $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
+
+        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->defaultValues)) {
             $table = null;
+            $foreign_uid = null;
             // @ToDo: Why are default values doesn't seem to be set as expected?
             foreach ($dataHandler->defaultValues['tx_ximatypo3contentplanner_comment'] as $key => $value) {
                 if ($key === 'foreign_table') {
                     $table = $value;
                 }
+                if ($key === 'foreign_uid') {
+                    $foreign_uid = $value;
+                }
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id][$key] = $value;
             }
 
-            // @ToDo: how to fix this for other tables?
-            if ($table === 'pages') {
-                $dataHandler->datamap[$table][$dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['pid']]['tx_ximatypo3contentplanner_comments'] = $id;
+            if ($table === null || $foreign_uid === null) {
+                return;
             }
+            $dataHandler->datamap[$table][$foreign_uid]['tx_ximatypo3contentplanner_comments'] = $id;
         }
     }
 }

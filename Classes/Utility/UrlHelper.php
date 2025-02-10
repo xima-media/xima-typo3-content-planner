@@ -34,7 +34,7 @@ class UrlHelper
         $params = [
             'edit' => ['tx_ximatypo3contentplanner_comment' => [$pid => 'new']],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
-            'defVals' => ['tx_ximatypo3contentplanner_comment' => ['foreign_table' => $table, 'foreign_uid' => $pid]],
+            'defVals' => ['tx_ximatypo3contentplanner_comment' => ['foreign_table' => $table, 'foreign_uid' => $uid]],
         ];
         return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
     }

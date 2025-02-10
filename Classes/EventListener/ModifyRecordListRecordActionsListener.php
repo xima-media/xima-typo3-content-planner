@@ -21,6 +21,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 final class ModifyRecordListRecordActionsListener
 {
     protected ServerRequest $request;
+
     public function __construct(
         private readonly IconFactory $iconFactory,
         private readonly UriBuilder $uriBuilder,
@@ -74,7 +75,7 @@ final class ModifyRecordListRecordActionsListener
                         'redirect' => (string)$this->uriBuilder->buildUriFromRoute(
                             'web_list',
                             [
-                                'id' =>  $event->getRecord()['pid'],
+                                'id' => $event->getRecord()['pid'],
                             ]
                         ),
                     ]
@@ -98,7 +99,7 @@ final class ModifyRecordListRecordActionsListener
                     'redirect' => (string)$this->uriBuilder->buildUriFromRoute(
                         'web_list',
                         [
-                            'id' =>  $event->getRecord()['pid'],
+                            'id' => $event->getRecord()['pid'],
                         ]
                     ),
                 ]
@@ -130,7 +131,7 @@ final class ModifyRecordListRecordActionsListener
 
                 // comments
                 if ($record['tx_ximatypo3contentplanner_comments']) {
-                    $actionsToAdd['comments'] = '<li><a class="btn btn-default" title="' . $title . '" href="' . UrlHelper::getContentStatusPropertiesEditUrl($table, $uid) . '">' . $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render() . ' ' . $record['tx_ximatypo3contentplanner_comments'] . '</a></li>';
+                    $actionsToAdd['comments'] = '<li><a class="dropdown-item dropdown-item-spaced" title="' . $title . '" href="' . UrlHelper::getContentStatusPropertiesEditUrl($table, $uid) . '">' . $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render() . ' ' . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' . '</a></li>';
                 }
             }
 
