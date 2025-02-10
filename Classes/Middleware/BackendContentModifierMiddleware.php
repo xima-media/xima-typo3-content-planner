@@ -107,6 +107,10 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             return $response;
         }
 
+        if (!array_key_exists('id', $request->getQueryParams())) {
+            return $response;
+        }
+
         $uid = (int)$request->getQueryParams()['id'];
 
         $additionalContent = $this->generateStatusHeader('pages', $uid);
