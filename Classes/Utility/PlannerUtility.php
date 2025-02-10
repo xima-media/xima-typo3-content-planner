@@ -40,9 +40,7 @@ class PlannerUtility
     */
     public static function updateStatusForRecord(string $table, int $uid, Status|int|string $status, BackendUser|int|string|null $assignee = null): void
     {
-        if (!ExtensionUtility::isRegisteredRecordTable($table)) {
-            throw new \InvalidArgumentException('Table "' . $table . '" is not a valid content planner record table.', 9518991865);
-        }
+        self::preCheckRecordTable($table, $uid);
 
         $statusId = $status;
         if ($status instanceof Status) {
@@ -81,16 +79,25 @@ class PlannerUtility
     */
     public static function getStatusOfRecord(string $table, int $uid): ?Status
     {
-        if (!ExtensionUtility::isRegisteredRecordTable($table)) {
-            throw new \InvalidArgumentException('Table "' . $table . '" is not a valid content planner record table.', 9518991865);
-        }
-
-        $record = GeneralUtility::makeInstance(RecordRepository::class)->findByUid($table, $uid);
-        if (!$record) {
-            throw new \InvalidArgumentException('Record "' . $uid . '" in table "' . $table . '" not found.', 4064696674);
-        }
+        $record = self::preCheckRecordTable($table, $uid);
 
         return GeneralUtility::makeInstance(StatusRepository::class)->findByUid($record['tx_ximatypo3contentplanner_status']);
+    }
+
+    /**
+    * Simple function to fetch all comments of a record.
+    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getCommentsOfRecord('pages', 1);
+    *
+    * @param string $table
+    * @param int $uid
+    * @param bool $raw
+    * @return array
+    * @throws \Doctrine\DBAL\Exception
+    */
+    public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false): array
+    {
+        self::preCheckRecordTable($table, $uid);
+        return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw);
     }
 
     /**
@@ -100,14 +107,12 @@ class PlannerUtility
     * @param string $table
     * @param int $uid
     * @param array<int,string>|string $comments
-    * @param \Xima\XimaTypo3ContentPlanner\Domain\Model\BackendUser|int|string $author
+    * @param BackendUser|int|string $author
     * @throws \Doctrine\DBAL\Exception
     */
     public static function addCommentsToRecord(string $table, int $uid, array|string $comments, BackendUser|int|string|null $author = null): void
     {
-        if (!ExtensionUtility::isRegisteredRecordTable($table)) {
-            throw new \InvalidArgumentException('Table "' . $table . '" is not a valid content planner record table.', 8389497938);
-        }
+        $record = self::preCheckRecordTable($table, $uid);
 
         $authorId = $author;
         if ($author instanceof BackendUser) {
@@ -123,11 +128,6 @@ class PlannerUtility
 
         if (!is_array($comments)) {
             $comments = [$comments];
-        }
-
-        $record = GeneralUtility::makeInstance(RecordRepository::class)->findByUid($table, $uid);
-        if (!$record) {
-            throw new \InvalidArgumentException('Record "' . $uid . '" in table "' . $table . '" not found.', 7502907693);
         }
 
         $pid = $table === 'pages' ? $record['uid'] : $record['pid'];
@@ -153,14 +153,29 @@ class PlannerUtility
     }
 
     /**
-    * Simple function to add comment(s) to a content planner record.
+    * Simple function to clear all comment(s) of a content planner record.
     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::clearCommentsOfRecord('pages', 1);
     *
     * @param string $table
     * @param int $uid
+    * @param string|null $like
     * @throws \Doctrine\DBAL\Exception
     */
-    public static function clearCommentsOfRecord(string $table, int $uid): void
+    public static function clearCommentsOfRecord(string $table, int $uid, ?string $like = null): void
+    {
+        self::preCheckRecordTable($table, $uid);
+
+        $commentsRepository = GeneralUtility::makeInstance(CommentRepository::class);
+        $commentsRepository->deleteAllCommentsByRecord($uid, $table, $like);
+    }
+
+    /**
+    * @param string $table
+    * @param int $uid
+    * @return array|bool
+    * @throws \Doctrine\DBAL\Exception
+    */
+    private static function preCheckRecordTable(string $table, int $uid): array|bool
     {
         if (!ExtensionUtility::isRegisteredRecordTable($table)) {
             throw new \InvalidArgumentException('Table "' . $table . '" is not a valid content planner record table.', 9518991865);
@@ -171,7 +186,6 @@ class PlannerUtility
             throw new \InvalidArgumentException('Record "' . $uid . '" in table "' . $table . '" not found.', 4064696674);
         }
 
-        $commentsRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        $commentsRepository->deleteAllCommentsByRecord($uid, $table);
+        return $record;
     }
 }

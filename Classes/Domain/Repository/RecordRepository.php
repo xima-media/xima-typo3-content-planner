@@ -140,6 +140,24 @@ class RecordRepository
         $queryBuilder->executeStatement();
     }
 
+    public function updateCommentsRelationByRecord(string $table, int $uid): void
+    {
+        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+        $commentCount = $commentRepository->countAllByRecord($uid, $table);
+
+        $record = $this->findByUid($table, $uid);
+        if ($record) {
+            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+            $queryBuilder
+                ->update($table)
+                ->set('tx_ximatypo3contentplanner_comments', $commentCount)
+                ->where(
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
+                )
+                ->executeStatement();
+        }
+    }
+
     private function getSqlByTable(string $table, array &$sql, string $additionalWhere): void
     {
         $titleField = $this->getTitleField($table);
