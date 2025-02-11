@@ -77,7 +77,9 @@ final class DataHandlerHook
             * (also the crdate will be overwritten)
             * Therefore we have to update the relation manually.
             */
-            $this->recordRepository->updateCommentsRelationByRecord($fieldArray['foreign_table'], (int)$fieldArray['foreign_uid']);
+            if (array_key_exists('foreign_table', $fieldArray) && array_key_exists('foreign_uid', $fieldArray)) {
+                $this->recordRepository->updateCommentsRelationByRecord($fieldArray['foreign_table'], (int)$fieldArray['foreign_uid']);
+            }
         }
     }
 
