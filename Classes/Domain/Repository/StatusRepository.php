@@ -14,7 +14,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
 class StatusRepository extends Repository
 {
-    public function __construct(private FrontendInterface $cache)
+    public function __construct(private readonly FrontendInterface $cache)
     {
         parent::__construct();
     }
@@ -32,7 +32,7 @@ class StatusRepository extends Repository
 
     public function findAll(): array  // @phpstan-ignore-line
     {
-        $cacheIdentifier = Configuration::CACHE_IDENTIFIER . '--all';
+        $cacheIdentifier = sprintf('%s--status--all', Configuration::CACHE_IDENTIFIER);
         if ($this->cache->has($cacheIdentifier)) {
             return $this->cache->get($cacheIdentifier);
         }
@@ -45,7 +45,7 @@ class StatusRepository extends Repository
 
     public function findByUid($uid): ?Status
     {
-        $cacheIdentifier = Configuration::CACHE_IDENTIFIER . '--' . $uid;
+        $cacheIdentifier = sprintf('%s--status--%s', Configuration::CACHE_IDENTIFIER, $uid);
         if ($this->cache->has($cacheIdentifier)) {
             return $this->cache->get($cacheIdentifier);
         }

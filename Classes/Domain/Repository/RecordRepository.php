@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 
@@ -20,7 +22,7 @@ class RecordRepository
         'tx_ximatypo3contentplanner_comments',
     ];
 
-    public function __construct()
+    public function __construct(private readonly FrontendInterface $cache)
     {
     }
 
@@ -77,8 +79,12 @@ class RecordRepository
     */
     public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $cacheIdentifier = sprintf('%s--%s--p%s', Configuration::CACHE_IDENTIFIER, $table, $pid);
+        if ($this->cache->has($cacheIdentifier)) {
+            return $this->cache->get($cacheIdentifier);
+        }
 
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $query = $queryBuilder
             ->select('uid', $this->getTitleField($table) . ' as title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
             ->from($table)
@@ -98,8 +104,11 @@ class RecordRepository
             );
         }
 
-        return $query->executeQuery()
+        $result = $query->executeQuery()
             ->fetchAllAssociative();
+
+        $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($table, $result));
+        return $result;
     }
 
     /**
@@ -174,5 +183,17 @@ class RecordRepository
     private function getTitleField(string $table): string
     {
         return $GLOBALS['TCA'][$table]['ctrl']['label'];
+    }
+
+    private function collectCacheTags(string $table, array $data): array
+    {
+        $tags = [];
+        /* @var $item \TYPO3\CMS\Extbase\DomainObject\AbstractEntity */
+        foreach ($data as $item) {
+            if ($item->getUid() !== null) {
+                $tags[] = $table . '_' . $item->getUid();
+            }
+        }
+        return $tags;
     }
 }
