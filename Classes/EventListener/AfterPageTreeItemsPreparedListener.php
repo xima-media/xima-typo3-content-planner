@@ -34,7 +34,6 @@ final class AfterPageTreeItemsPreparedListener
                 $status = $this->statusRepository->findByUid($item['_page']['tx_ximatypo3contentplanner_status']);
                 if ($status) {
                     if (version_compare($version, '13.0.0', '>=')) {
-                        // @phpstan-ignore-next-line
                         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
                             label: $status->getTitle(),
                             color: Configuration\Colors::get($status->getColor()),
@@ -44,7 +43,6 @@ final class AfterPageTreeItemsPreparedListener
                             && isset($item['_page']['tx_ximatypo3contentplanner_comments'])
                             && $item['_page']['tx_ximatypo3contentplanner_comments'] > 0
                         ) {
-                            // @phpstan-ignore-next-line
                             $item['statusInformation'][] = new \TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation(
                                 label: $item['_page']['tx_ximatypo3contentplanner_comments'] . ' ' . $GLOBALS['LANG']->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
                                 severity: \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::NOTICE,
@@ -61,7 +59,6 @@ final class AfterPageTreeItemsPreparedListener
                     // Labels will be inherited from parent pages, if not set explicitly
                     // Currently there is no way to suppress this behavior
                     // @see https://github.com/TYPO3/typo3/blob/5619d59f00808f7bec7a311106fda6a52854c0bd/Build/Sources/TypeScript/backend/tree/tree.ts#L1224
-                    // @phpstan-ignore-next-line
                     $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
                         label: '',
                         color: 'inherit',
