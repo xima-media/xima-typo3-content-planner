@@ -20,6 +20,11 @@ final class RenderAdditionalContentToRecordListListener
         if (!VisibilityUtility::checkContentStatusVisibility()) {
             return;
         }
+
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_LIST_STATUS_INFO)) {
+            return;
+        }
+
         $request = $event->getRequest();
 
         if (!array_key_exists('id', $request->getQueryParams())) {

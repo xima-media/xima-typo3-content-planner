@@ -6,6 +6,8 @@ extendedContextMenu = 1
 currentAssigneeHighlight = 1
 # cat=basic/enable; type=boolean; label=Delete corresponding comments when status is reset
 clearCommentsOnStatusReset = 1
+# cat=basic/enable; type=boolean; label=Enable record list status info
+recordListStatusInfo = 1
 # cat=basic/enable; type=boolean; label=Enable record edit header info
 recordEditHeaderInfo = 1
 # cat=basic/enable; type=boolean; label=Enable web list header info
