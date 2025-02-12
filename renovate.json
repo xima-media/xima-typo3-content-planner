@@ -3,5 +3,8 @@
 	"extends": [
 		"github>jackd248/renovate-config",
 		"github>jackd248/renovate-config:typo3-extension"
+	],
+	"ignorePaths": [
+		"package-lock.json"
 	]
 }
