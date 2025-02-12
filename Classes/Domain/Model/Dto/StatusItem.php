@@ -34,7 +34,7 @@ final class StatusItem
         return ((int)$this->data['tx_ximatypo3contentplanner_assignee']) === $GLOBALS['BE_USER']->user['uid'];
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return ExtensionUtility::getTitle('title', $this->data);
     }
@@ -64,17 +64,17 @@ final class StatusItem
         return $this->data['tx_ximatypo3contentplanner_assignee'];
     }
 
-    public function getAssigneeName(): ?string
+    public function getAssigneeName(): string
     {
         return ContentUtility::getBackendUsernameById((int)$this->data['tx_ximatypo3contentplanner_assignee']);
     }
 
-    public function getAssigneeAvatar(): ?string
+    public function getAssigneeAvatar(): string
     {
         return IconHelper::getAvatarByUserId((int)$this->data['tx_ximatypo3contentplanner_assignee']);
     }
 
-    public function getComments(): ?string
+    public function getComments(): string
     {
         return $this->data['tx_ximatypo3contentplanner_comments'] . ' ' . IconHelper::getIconByIdentifier('actions-message');
     }

@@ -30,7 +30,7 @@ class StatusRepository extends Repository
         $this->setDefaultQuerySettings($querySettings);
     }
 
-    public function findAll(): array
+    public function findAll(): array  // @phpstan-ignore-line
     {
         $cacheIdentifier = Configuration::CACHE_IDENTIFIER . '--all';
         if ($this->cache->has($cacheIdentifier)) {
@@ -58,14 +58,14 @@ class StatusRepository extends Repository
             return null;
         }
         $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags([$result]));
-        return $result;
+        return $result; // @phpstan-ignore return.type
     }
 
     public function findByTitle(string $title): ?Status
     {
         $query = $this->createQuery();
         $query->matching($query->equals('title', $title));
-        return $query->execute()->getFirst();
+        return $query->execute()->getFirst(); // @phpstan-ignore return.type
     }
 
     private function collectCacheTags(array $data): array

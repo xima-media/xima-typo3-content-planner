@@ -55,7 +55,7 @@ final class HistoryItem
         return (int)$this->data['recuid'];
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['relatedRecordTablename']), $this->getRelatedRecord());
     }
@@ -109,7 +109,7 @@ final class HistoryItem
         return $status?->getTitle();
     }
 
-    public function getStatusIcon(): ?string
+    public function getStatusIcon(): string
     {
         return IconHelper::getIconByStatusUid((int)$this->getRelatedRecord()['tx_ximatypo3contentplanner_status'], true);
     }

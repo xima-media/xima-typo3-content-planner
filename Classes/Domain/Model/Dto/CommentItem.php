@@ -56,7 +56,7 @@ final class CommentItem
         return UrlHelper::getRecordLink($this->data['foreign_table'], (int)$this->data['foreign_uid']);
     }
 
-    public function getAuthorName(): ?string
+    public function getAuthorName(): string
     {
         return ContentUtility::getBackendUsernameById((int)$this->data['author']);
     }

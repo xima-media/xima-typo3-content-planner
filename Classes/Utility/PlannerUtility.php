@@ -25,7 +25,7 @@ class PlannerUtility
     */
     public static function getListOfStatus(): array
     {
-        return GeneralUtility::makeInstance(StatusRepository::class)->findAll()->toArray();
+        return GeneralUtility::makeInstance(StatusRepository::class)->findAll();
     }
 
     /**
