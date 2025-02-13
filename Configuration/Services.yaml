@@ -13,6 +13,15 @@ services:
     factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
     arguments: [ 'ximatypo3contentplanner_statuscache' ]
 
+  cache.ximatypo3contentplanner_recordcache:
+    class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
+    factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
+    arguments: [ 'ximatypo3contentplanner_recordcache' ]
+
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository:
+    arguments:
+      $cache: '@cache.ximatypo3contentplanner_recordcache'
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
       $cache: '@cache.ximatypo3contentplanner_statuscache'
