@@ -14,6 +14,7 @@ services:
     arguments: [ 'ximatypo3contentplanner_cache' ]
 
   Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository:
+    public: true
     arguments:
       $cache: '@cache.ximatypo3contentplanner_cache'
 
