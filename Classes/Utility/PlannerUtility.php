@@ -85,6 +85,22 @@ class PlannerUtility
     }
 
     /**
+    * Simple function to get a status.
+    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getStatus('Needs review');
+    *
+    * @param int|string $identifier
+    * @return \Xima\XimaTypo3ContentPlanner\Domain\Model\Status|null
+    */
+    public static function getStatus(int|string $identifier): ?Status
+    {
+        $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
+        if (is_string($identifier)) {
+            return $statusRepository->findByTitle($identifier);
+        }
+        return $statusRepository->findByUid($identifier);
+    }
+
+    /**
     * Simple function to fetch all comments of a record.
     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getCommentsOfRecord('pages', 1);
     *
