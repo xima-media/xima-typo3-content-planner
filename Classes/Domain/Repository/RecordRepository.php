@@ -190,8 +190,8 @@ class RecordRepository
         $tags = [];
         /* @var $item \TYPO3\CMS\Extbase\DomainObject\AbstractEntity */
         foreach ($data as $item) {
-            if ($item->getUid() !== null) {
-                $tags[] = $table . '_' . $item->getUid();
+            if ($item['uid'] !== null) {
+                $tags[] = $table . '_' . $item['uid'];
             }
         }
         return $tags;

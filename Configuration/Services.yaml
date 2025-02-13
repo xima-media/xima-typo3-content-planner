@@ -8,28 +8,23 @@ services:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
 
-  cache.ximatypo3contentplanner_statuscache:
+  cache.ximatypo3contentplanner_cache:
     class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
     factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
-    arguments: [ 'ximatypo3contentplanner_statuscache' ]
-
-  cache.ximatypo3contentplanner_recordcache:
-    class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
-    factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
-    arguments: [ 'ximatypo3contentplanner_recordcache' ]
+    arguments: [ 'ximatypo3contentplanner_cache' ]
 
   Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository:
     arguments:
-      $cache: '@cache.ximatypo3contentplanner_recordcache'
+      $cache: '@cache.ximatypo3contentplanner_cache'
 
   Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
-      $cache: '@cache.ximatypo3contentplanner_statuscache'
+      $cache: '@cache.ximatypo3contentplanner_cache'
 
   Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook:
     public: true
     arguments:
-      $cache: '@cache.ximatypo3contentplanner_statuscache'
+      $cache: '@cache.ximatypo3contentplanner_cache'
       $statusChangeManager: '@Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager'
 
   Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener:
