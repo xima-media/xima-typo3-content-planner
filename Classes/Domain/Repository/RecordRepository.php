@@ -107,7 +107,10 @@ class RecordRepository
         $result = $query->executeQuery()
             ->fetchAllAssociative();
 
-        $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($table, $result));
+        if (!empty($result)) {
+            $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($table, $result));
+        }
+
         return $result;
     }
 
