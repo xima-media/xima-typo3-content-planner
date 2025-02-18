@@ -23,11 +23,12 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 class BackendContentModifierMiddleware implements MiddlewareInterface
 {
+    private ?StatusRepository $statusRepository = null;
+    private ?RecordRepository $recordRepository = null;
+    private ?BackendUserRepository $backendUserRepository = null;
+    private ?CommentRepository $commentRepository = null;
+
     public function __construct(
-        private readonly StatusRepository $statusRepository,
-        private readonly RecordRepository $recordRepository,
-        private readonly BackendUserRepository $backendUserRepository,
-        private readonly CommentRepository $commentRepository,
         private readonly RequestId $requestId
     ) {
     }
@@ -137,10 +138,10 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
     private function addStatusHintToContentElement(int $pid): string
     {
         $styling = [];
-        $records = $this->recordRepository->findByPid('tt_content', (int)$pid);
+        $records = $this->getRecordRepository()->findByPid('tt_content', (int)$pid);
 
         foreach ($records as $record) {
-            $status = $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
+            $status = $this->getStatusRepository()->findByUid($record['tx_ximatypo3contentplanner_status']);
             if (!$status) {
                 continue;
             }
@@ -153,13 +154,13 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
 
     private function generateStatusHeader(string $table, int $uid): string|bool
     {
-        $record = $this->recordRepository->findByUid($table, $uid);
+        $record = $this->getRecordRepository()->findByUid($table, $uid);
 
         if (!$record) {
             return false;
         }
 
-        $status = $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
+        $status = $this->getStatusRepository()->findByUid($record['tx_ximatypo3contentplanner_status']);
 
         if (!$status) {
             return false;
@@ -169,7 +170,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             $record,
             $status,
             $table,
-            $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->findAllByRecord($uid, $table) : []
+            $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->findAllByRecord($uid, $table) : []
         );
 
         return $additionalContent;
@@ -183,7 +184,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         $view->assignMultiple([
             'mode' => 'edit',
             'data' => $record,
-            'assignee' => $this->backendUserRepository->getUsernameByUid((int)$record['tx_ximatypo3contentplanner_assignee']),
+            'assignee' => $this->getBackendUserRepository()->getUsernameByUid((int)$record['tx_ximatypo3contentplanner_assignee']),
             'icon' => $status->getColoredIcon(),
             'status' => $status,
             'comments' => $comments,
@@ -221,5 +222,33 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
             && $request->getAttribute('module') !== null
             && $request->getAttribute('module')->getIdentifier() === 'web_list';
+    }
+
+    private function getStatusRepository(): StatusRepository {
+        if ($this->statusRepository === null) {
+            $this->statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
+        }
+        return $this->statusRepository;
+    }
+
+    private function getRecordRepository(): RecordRepository {
+        if ($this->recordRepository === null) {
+            $this->recordRepository = GeneralUtility::makeInstance(RecordRepository::class);
+        }
+        return $this->recordRepository;
+    }
+
+    private function getBackendUserRepository(): BackendUserRepository {
+        if ($this->backendUserRepository === null) {
+            $this->backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
+        }
+        return $this->backendUserRepository;
+    }
+
+    private function getCommentRepository(): CommentRepository {
+        if ($this->commentRepository === null) {
+            $this->commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+        }
+        return $this->commentRepository;
     }
 }
