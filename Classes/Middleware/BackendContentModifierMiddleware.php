@@ -224,28 +224,32 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             && $request->getAttribute('module')->getIdentifier() === 'web_list';
     }
 
-    private function getStatusRepository(): StatusRepository {
+    private function getStatusRepository(): StatusRepository
+    {
         if ($this->statusRepository === null) {
             $this->statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
         }
         return $this->statusRepository;
     }
 
-    private function getRecordRepository(): RecordRepository {
+    private function getRecordRepository(): RecordRepository
+    {
         if ($this->recordRepository === null) {
             $this->recordRepository = GeneralUtility::makeInstance(RecordRepository::class);
         }
         return $this->recordRepository;
     }
 
-    private function getBackendUserRepository(): BackendUserRepository {
+    private function getBackendUserRepository(): BackendUserRepository
+    {
         if ($this->backendUserRepository === null) {
             $this->backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
         }
         return $this->backendUserRepository;
     }
 
-    private function getCommentRepository(): CommentRepository {
+    private function getCommentRepository(): CommentRepository
+    {
         if ($this->commentRepository === null) {
             $this->commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
         }
