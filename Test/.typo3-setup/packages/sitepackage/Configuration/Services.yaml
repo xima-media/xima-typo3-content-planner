@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Test\Sitepackage\:
+    resource: '../Classes/*'
+    exclude: '../Classes/Domain/Model/*'
+
+  Test\Sitepackage\EventListener\PrepareStatusSelectionListener:
+    tags:
+      -   name: event.listener
+          identifier: 'xima-typo3-content-planner/prepare-status-selection'
