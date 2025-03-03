@@ -1,0 +1,28 @@
+{
+	"name": "test/sitepackage",
+	"description": "xima-typo3-content-planner testing",
+	"license": "GPL-2.0-or-later",
+	"type": "typo3-cms-extension",
+	"authors": [
+	  {
+		"name": "",
+		"email": "x@y.com"
+	  }
+	],
+	"require": {
+	  "xima/xima-typo3-content-planner": "*"
+	},
+	"suggest": {},
+	"conflict": {},
+	"extra": {
+	  "typo3/cms": {
+		"extension-key": "sitepackage"
+	  }
+	},
+	"version": "1.0.0",
+	"autoload": {
+	  "psr-4": {
+		"Test\\Sitepackage\\": "Classes/"
+	  }
+	}
+  }

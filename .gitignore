@@ -1,6 +1,7 @@
 .idea
 .env
 .test/
+.Build/
 config
 composer.lock
 public
