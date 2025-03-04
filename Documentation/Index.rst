@@ -6,13 +6,6 @@
 Content Planner for TYPO3 - Documentation
 =============================================
 
-..  rst-class:: horizbuttons-tip-m
-
--   :ref:`console-commands`
--   :ref:`backend-toolbar`
--   :ref:`using-the-api`
--   :ref:`Custom crawlers <implement-a-custom-crawler>`
-
 :Extension key:
     `xima_typo3_content_planner <https://extensions.typo3.org/extension/xima_typo3_content_planner>`__
 
@@ -35,8 +28,10 @@ Content Planner for TYPO3 - Documentation
 
 ----
 
-This extension provides a page status functionality to support the planning of
+This extension provides a colorful page* status functionality to support the planning of
 content work, e.g. a migration process.
+
+_(* also supports other records as well)_
 
 ----
 

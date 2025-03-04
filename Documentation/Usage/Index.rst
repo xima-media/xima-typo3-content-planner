@@ -11,7 +11,7 @@ This section describes how to properly use the extension in various ways.
 ..  toctree::
     :maxdepth: 3
 
-    PageStatus
+    StatusChange
     Assignee
     Comments
     Dashboard
