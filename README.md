@@ -27,7 +27,6 @@ content work, e.g. a migration process.
 * User assignment for distribution of content work
 * Comments for additional information
 * Extensive dashboard for detailed content planning
-* Custom notes for individual content planning
 * Recent updates widget for quick access to the latest changes
 * Filterable content planner record overview
 * Extend additional database records with status behavior
