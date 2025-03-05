@@ -8,7 +8,7 @@
         <f:translate key="{configuration.title}" extensionName="XimaTypo3ContentPlanner"/>
     </span>
 </div>
-<div class="widget-content-main widget-contentPlanner-status">
+<div class="widget-content-main widget-contentPlanner-status {f:if(condition: filter, then: 'widget-contentPlanner-status--filter')}">
     <input type="hidden" name="currentBackendUser" value="{currentBackendUser}"/>
     <f:if condition="{filter}">
         <div class="widget-filter">

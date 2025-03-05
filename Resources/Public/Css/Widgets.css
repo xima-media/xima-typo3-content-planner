@@ -55,7 +55,7 @@
     background-color: var(--typo3-component-bg);
 }
 
-.widget-contentPlanner-status {
+.widget-contentPlanner-status--filter {
     padding-top: 0;
 }
 
