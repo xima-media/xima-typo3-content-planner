@@ -6,7 +6,7 @@
 Developer corner
 ================
 
-Many of the cache warmup processes are configurable or can be extended
+Many of the content planner processes are configurable or can be extended
 with custom implementations. This section provides an insight into
 which development options are available and how these can be integrated
 into the status process.

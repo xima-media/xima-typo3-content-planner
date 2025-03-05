@@ -8,7 +8,7 @@ Planner Utility
 
 The :php:`PlannerUtility` can be used to easily interact programmatically with the content planner.
 
-..  php:namespace:: Xima\XimaTypo3ContentPlanner\\Utility
+..  php:namespace:: Xima\XimaTypo3ContentPlanner\Utility
 
 ..  php:class:: PlannerUtility
 

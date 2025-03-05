@@ -3,7 +3,7 @@
 ..  _start:
 
 =============================================
-Content Planner for TYPO3 - Documentation
+Content Planner
 =============================================
 
 :Extension key:
@@ -31,7 +31,7 @@ Content Planner for TYPO3 - Documentation
 This extension provides a colorful page* status functionality to support the planning of
 content work, e.g. a migration process.
 
-_(* also supports other records as well)_
+(* also supports other records as well)
 
 ----
 
@@ -58,15 +58,15 @@ _(* also supports other records as well)_
     ..  card::  Configuration
 
         Learn how to configure the extension in various ways. This includes extension configuration,
-        site configuration and TypoScript configuration.
+        user settings, permission handling and status configuration.
 
         ..  card-footer::   :ref:`View configuration options <configuration>`
             :button-style: btn btn-secondary stretched-link
 
     ..  card::  Usage
 
-        This section describes all possible usages of this extension. Learn how to use it in the Backend,
-        as console command or using the PHP API.
+        This section describes the usages of this extension. Learn how to use it the status change,
+        the interaction possibilities, the console command or using the dashboard.
 
         ..  card-footer::   :ref:`Learn how to use this extension <usage>`
             :button-style: btn btn-secondary stretched-link
