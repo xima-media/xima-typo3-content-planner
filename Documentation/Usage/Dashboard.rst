@@ -42,40 +42,46 @@ The dashboard provides a set of helpful widgets to get an overview of the curren
 
 
 .. t3-field-list-table::
-:header-rows: 1
+    :header-rows: 1
 
-    - :Field:
+    -
+        :Field:
             Widget:
 
-    :Description:
+        :Description:
             Description:
 
-    - :Field:
+    -
+        :Field:
             Overview
 
-    :Description:
+        :Description:
             Bar chart showing the distribution of records by status.
 
-    - :Field:
+    -
+        :Field:
             Recent Updates
 
-    :Description:
+        :Description:
             Update stream showing the latest changes to the content planner records.
 
-    - :Field:
+    -
+        :Field:
             Current Assignee
 
-    :Description:
+        :Description:
             Short list with all records assigned to the current user.
 
-    - :Field:
+    -
+        :Field:
             Recent Comments
 
-    :Description:
+        :Description:
             Showings the latest comments on the content planner records.
 
-    - :Field:
+    -
+        :Field:
             Status
 
-    :Description:
+        :Description:
             Filterable list of all records with the current status.

@@ -46,26 +46,30 @@ You can add a new status, edit an existing status, change the status order or de
 .. t3-field-list-table::
     :header-rows: 1
 
-    - :Field:
+    -
+        :Field:
             Field:
 
-      :Description:
-                Description:
+        :Description:
+            Description:
 
-    - :Field:
+    -
+        :Field:
             Title
 
-      :Description:
+        :Description:
             Title of the status.
 
-    - :Field:
+    -
+        :Field:
             Icon
 
-      :Description:
+        :Description:
             Select one of the existing icons as representative picture of the status.
 
-    - :Field:
+    -
+        :Field:
             Color
 
-      :Description:
+        :Description:
             Select one of the existing colors for this status.
