@@ -18,11 +18,10 @@ final class ModifyRecordListTableActionsListener
     protected ServerRequest $request;
 
     public function __construct(
-        private readonly IconFactory      $iconFactory,
-        private readonly UriBuilder       $uriBuilder,
+        private readonly IconFactory $iconFactory,
+        private readonly UriBuilder $uriBuilder,
         private readonly StatusRepository $statusRepository,
-    )
-    {
+    ) {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
 

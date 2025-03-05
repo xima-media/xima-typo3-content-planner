@@ -24,15 +24,14 @@ final class ModifyRecordListRecordActionsListener
     protected ServerRequest $request;
 
     public function __construct(
-        private readonly IconFactory            $iconFactory,
-        private readonly UriBuilder             $uriBuilder,
-        private readonly StatusRepository       $statusRepository,
-        private readonly RecordRepository       $recordRepository,
-        private readonly BackendUserRepository  $backendUserRepository,
+        private readonly IconFactory $iconFactory,
+        private readonly UriBuilder $uriBuilder,
+        private readonly StatusRepository $statusRepository,
+        private readonly RecordRepository $recordRepository,
+        private readonly BackendUserRepository $backendUserRepository,
         private readonly StatusSelectionManager $statusSelectionManager,
-        private readonly RequestId              $requestId
-    )
-    {
+        private readonly RequestId $requestId
+    ) {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
 
@@ -155,7 +154,6 @@ final class ModifyRecordListRecordActionsListener
             '',
             'delete',
         );
-
     }
 
     protected function getLanguageService(): LanguageService
