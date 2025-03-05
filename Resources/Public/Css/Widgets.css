@@ -37,7 +37,7 @@
 }
 
 .widget-content-main .widget-filter + .widget-table-wrapper {
-    padding-top: 4.5rem;
+    padding-top: 1.5rem;
     height: 100%;
 }
 
@@ -46,14 +46,17 @@
 }
 
 .widget-content-main .widget-filter {
-    position: fixed;
+    position: sticky;
     z-index: 1000;
-    width: 100%;
-    margin-top: -20px;
-    margin-left: -20px;
-    padding-left: 20px;
-    padding-top: 5px;
+    top: 0;
+    margin-right: calc(-1* var(--widget-padding, 1.25rem));
+    margin-left: calc(-1* var(--widget-padding, 1.25rem));
+    padding-left: var(--widget-padding, 1.25rem);
     background-color: var(--typo3-component-bg);
+}
+
+.widget-contentPlanner-status--filter {
+    padding-top: 0;
 }
 
 .widget-content-main .widget-filter .form-check input[type="radio"] {
