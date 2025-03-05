@@ -33,7 +33,7 @@ class PrepareStatusSelectionEvent
 
     public function __construct(
         protected string $table,
-        protected int $uid,
+        protected ?int $uid,
         protected object $context,
         protected array $selection,
         protected ?Status $currentStatus,
@@ -45,7 +45,7 @@ class PrepareStatusSelectionEvent
         return $this->table;
     }
 
-    public function getUid(): int
+    public function getUid(): ?int
     {
         return $this->uid;
     }

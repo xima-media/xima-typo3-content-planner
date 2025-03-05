@@ -53,6 +53,11 @@ services:
       - name: event.listener
         identifier: 'xima-typo3-content-planner/backend/modify-record-list-record-actions'
 
+  Xima\XimaTypo3ContentPlanner\EventListener\ModifyRecordListTableActionsListener:
+    tags:
+      - name: event.listener
+        identifier: 'xima-typo3-content-planner/backend/modify-record-list-table-actions'
+
   Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
     tags:
       - name: console.command

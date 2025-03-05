@@ -15,7 +15,7 @@ class StatusSelectionManager
     {
     }
 
-    public function prepareStatusSelection(object $context, string $table, int $uid, array &$selection, ?int $statusUid = null, ?Status $status = null): void
+    public function prepareStatusSelection(object $context, string $table, ?int $uid, array &$selection, ?int $statusUid = null, ?Status $status = null): void
     {
         if ($statusUid !== null && $status === null) {
             $status = ContentUtility::getStatus($statusUid);
