@@ -89,6 +89,10 @@
     gap: 1rem;
 }
 
+.widget-contentPlanner--comment > .avatar {
+    flex: 0 0 40px;
+}
+
 .widget-contentPlanner--comment .text {
     position: relative;
     display: inline-block;
