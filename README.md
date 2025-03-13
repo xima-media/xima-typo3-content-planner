@@ -53,6 +53,15 @@ composer require xima/xima-typo3-content-planner
 
 Download the zip file from [TYPO3 extension repository (TER)](https://extensions.typo3.org/extension/xima_typo3_content_planner).
 
+## Setup
+
+After the installation, update the database schema and setup the extension:
+
+``` bash
+vendor/bin/typo3 database:updateschema
+vendor/bin/typo3 extension:setup --extension=xima_typo3_content_planner
+```
+
 ## Usage
 
 ### Status

@@ -74,6 +74,11 @@ final class ModifyButtonBarEventListener
         if (!$record) {
             return;
         }
+        $allStatus = $this->statusRepository->findAll();
+        if (empty($allStatus)) {
+            return;
+        }
+
         $status = $record['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']) : null;
 
         $buttonBar = $event->getButtonBar();
@@ -87,7 +92,7 @@ final class ModifyButtonBarEventListener
             ));
 
         $buttonsToAdd = [];
-        foreach ($this->statusRepository->findAll() as $statusItem) {
+        foreach ($allStatus as $statusItem) {
             /** @var DropDownItemInterface $statusDropDownItem */
             $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
                 ->setLabel($statusItem->getTitle())
