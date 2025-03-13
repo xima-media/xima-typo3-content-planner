@@ -45,6 +45,12 @@ final class ModifyRecordListRecordActionsListener
         if (!ExtensionUtility::isRegisteredRecordTable($table) || $event->hasAction('Status')) {
             return;
         }
+
+        $allStatus = $this->statusRepository->findAll();
+        if (empty($allStatus)) {
+            return;
+        }
+
         $uid = $event->getRecord()['uid'];
 
         // ToDo: this is necessary cause the status is not in the record, pls check tca for this
@@ -65,7 +71,7 @@ final class ModifyRecordListRecordActionsListener
 
         $actionsToAdd = [];
 
-        foreach ($this->statusRepository->findAll() as $statusEntry) {
+        foreach ($allStatus as $statusEntry) {
             $url = $this->uriBuilder->buildUriFromRoute(
                 'tce_db',
                 [

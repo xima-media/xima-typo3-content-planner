@@ -37,13 +37,18 @@ final class ModifyRecordListTableActionsListener
             return;
         }
 
+        $allStatus = $this->statusRepository->findAll();
+        if (empty($allStatus)) {
+            return;
+        }
+
         $action = '<div class="btn-group" style="margin-left:10px;">
                 <a href="#" class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="test">' .
             $this->iconFactory->getIcon('flag-gray', Icon::SIZE_SMALL)->render() . '</a><ul class="dropdown-menu">';
 
         $actionsToAdd = [];
 
-        foreach ($this->statusRepository->findAll() as $statusEntry) {
+        foreach ($allStatus as $statusEntry) {
             $url = $this->buildUri($event, $statusEntry);
             $actionsToAdd[$statusEntry->getUid()] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $statusEntry->getTitle() . '">'
                 . $this->iconFactory->getIcon($statusEntry->getColoredIcon(), Icon::SIZE_SMALL)->render() . $statusEntry->getTitle() . '</a></li>';
