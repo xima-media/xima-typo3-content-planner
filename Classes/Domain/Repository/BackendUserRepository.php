@@ -58,8 +58,11 @@ class BackendUserRepository
     * @ToDo: Check if there is a core function to get the username by uid
     * @throws \Doctrine\DBAL\Exception
     */
-    public function getUsernameByUid(int $uid): string
+    public function getUsernameByUid(?int $uid): string
     {
+        if (!$uid) {
+            return '';
+        }
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
 
         $userRecord = $queryBuilder

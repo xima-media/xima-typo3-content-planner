@@ -3,34 +3,25 @@
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownDivider;
-use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItem;
-use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItemInterface;
 use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
+use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\HeaderSelectionService;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyButtonBarEventListener
 {
     public function __construct(
         private readonly IconFactory $iconFactory,
-        private readonly UriBuilder $uriBuilder,
         private readonly StatusRepository $statusRepository,
         private readonly RecordRepository $recordRepository,
-        private readonly BackendUserRepository $backendUserRepository,
-        private readonly StatusSelectionManager $statusSelectionManager
+        private readonly HeaderSelectionService $buttonSelectionService,
     ) {
     }
 
@@ -74,11 +65,6 @@ final class ModifyButtonBarEventListener
         if (!$record) {
             return;
         }
-        $allStatus = $this->statusRepository->findAll();
-        if (empty($allStatus)) {
-            return;
-        }
-
         $status = $record['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']) : null;
 
         $buttonBar = $event->getButtonBar();
@@ -91,122 +77,11 @@ final class ModifyButtonBarEventListener
                 $status ? $status->getColoredIcon() : 'flag-gray'
             ));
 
-        $buttonsToAdd = [];
-        foreach ($allStatus as $statusItem) {
-            /** @var DropDownItemInterface $statusDropDownItem */
-            $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
-                ->setLabel($statusItem->getTitle())
-                ->setIcon($this->iconFactory->getIcon($statusItem->getColoredIcon()))
-                ->setHref(
-                    $this->uriBuilder->buildUriFromRoute(
-                        'tce_db',
-                        [
-                            'data' => [
-                                $table => [
-                                    $uid => [
-                                        'tx_ximatypo3contentplanner_status' => $statusItem->getUid(),
-                                    ],
-                                ],
-                            ],
-                            'redirect' => $table === 'pages' ?
-                                (string)$this->uriBuilder->buildUriFromRoute(
-                                    $request->getAttribute('module') ? $request->getAttribute('module')->getIdentifier() : 'web_layout',
-                                    [
-                                        'id' => $uid,
-                                    ]
-                                ) :
-                                (string)$this->uriBuilder->buildUriFromRoute(
-                                    'record_edit',
-                                    [
-                                        'edit' => [
-                                            $table => [
-                                                $uid => 'edit',
-                                            ],
-                                        ],
-                                    ]
-                                ),
-                        ]
-                    )
-                );
-            $buttonsToAdd[$statusItem->getUid()] = $statusDropDownItem;
-        }
-        $buttonsToAdd['divider'] = GeneralUtility::makeInstance(DropDownDivider::class);
-
-        /** @var DropDownItemInterface $statusDropDownItem */
-        $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
-            ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
-            ->setIcon($this->iconFactory->getIcon('actions-close'))
-            ->setHref(
-                $this->uriBuilder->buildUriFromRoute(
-                    'tce_db',
-                    [
-                        'data' => [
-                            $table => [
-                                $uid => [
-                                    'tx_ximatypo3contentplanner_status' => '',
-                                ],
-                            ],
-                        ],
-                        'redirect' => $table === 'pages' ?
-                            (string)$this->uriBuilder->buildUriFromRoute(
-                                $request->getAttribute('module') ? $request->getAttribute('module')->getIdentifier() : 'web_layout',
-                                [
-                                    'id' => $uid,
-                                ]
-                            ) :
-                            (string)$this->uriBuilder->buildUriFromRoute(
-                                'record_edit',
-                                [
-                                    'edit' => [
-                                        $table => [
-                                            $uid => 'edit',
-                                        ],
-                                    ],
-                                ]
-                            ),
-                    ]
-                )
-            );
-        $buttonsToAdd['reset'] = $statusDropDownItem;
-
-        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_EXTEND_CONTEXT_MENU)) {
-            if ($record['tx_ximatypo3contentplanner_assignee'] || $record['tx_ximatypo3contentplanner_comments']) {
-                $buttonsToAdd['divider2'] = GeneralUtility::makeInstance(DropDownDivider::class);
-            }
-
-            // remove current status from list
-            if (in_array($record['tx_ximatypo3contentplanner_status'], array_keys($buttonsToAdd), true)) {
-                unset($buttonsToAdd[$record['tx_ximatypo3contentplanner_status']]);
-            }
-
-            // remove reset if status is already null
-            if ($record['tx_ximatypo3contentplanner_status'] === null || $record['tx_ximatypo3contentplanner_status'] === 0) {
-                unset($buttonsToAdd['divider']);
-                unset($buttonsToAdd['reset']);
-            }
-
-            // assignee
-            if ($record['tx_ximatypo3contentplanner_assignee']) {
-                $username = $this->backendUserRepository->getUsernameByUid($record['tx_ximatypo3contentplanner_assignee']);
-                $assigneeDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
-                    ->setLabel($username)
-                    ->setIcon($this->iconFactory->getIcon('actions-user'))
-                    ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
-                $buttonsToAdd['assignee'] = $assigneeDropDownItem;
-            }
-
-            // comments
-            if ($record['tx_ximatypo3contentplanner_status'] !== null && $record['tx_ximatypo3contentplanner_status'] !== 0) {
-                $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
-                    ->setLabel($this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : ''))
-                    ->setIcon($this->iconFactory->getIcon('actions-message'))
-                    ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
-                    ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
-                $buttonsToAdd['comments'] = $commentsDropDownItem;
-            }
+        $buttonsToAdd = $this->buttonSelectionService->generateSelection($table, $uid);
+        if ($buttonsToAdd === false) {
+            return;
         }
 
-        $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $buttonsToAdd, $record['tx_ximatypo3contentplanner_status']);
         foreach ($buttonsToAdd as $buttonToAdd) {
             $dropDownButton->addItem($buttonToAdd);
         }
