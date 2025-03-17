@@ -12,6 +12,9 @@
 			<trans-unit id="pages.tx_ximatypo3contentplanner_assignee">
 				<source>Assignee</source>
 			</trans-unit>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_assignee.empty">
+				<source>-- Not assigned --</source>
+			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_comment.content">
 				<source>Content</source>
 			</trans-unit>

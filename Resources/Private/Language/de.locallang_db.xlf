@@ -15,6 +15,10 @@
 				<source/>
 				<target>Zuständigkeit</target>
 			</trans-unit>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_assignee.empty">
+				<source/>
+				<target>-- Nicht zugewiesen --</target>
+			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_comment.content">
 				<source/>
 				<target>Inhalt</target>
