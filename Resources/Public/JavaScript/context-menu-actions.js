@@ -20,7 +20,7 @@ class ContextMenuActions {
   }
 
   comments(table, uid, n) {
-    CommentsModal.fetchComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, table, uid, n.newCommentUri);
+    CommentsModal.fetchComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, table, uid, n.newCommentUri, n.editUri);
   }
 
   static changeStatus(table, uid, status) {

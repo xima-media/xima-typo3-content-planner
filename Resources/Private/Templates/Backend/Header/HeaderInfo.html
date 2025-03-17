@@ -81,7 +81,7 @@
 
         <div class="btn-group" role="group" aria-label="Comments">
             <a
-                href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: pid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: table, foreign_uid: data.uid}}')}"
+                href="{comments.newCommentUri}"
                 id="new-comment-modal"
                 class="btn btn-default"
                 data-pid="{pid}"
@@ -93,7 +93,7 @@
                     size="small"
                 />
             </a>
-            <f:if condition="{comments}">
+            <f:if condition="{comments.items}">
                 <button
                     class="btn btn-default contentPlanner--comments"
                     data-content-planner-comments
@@ -101,10 +101,11 @@
                     title="{f:translate(key: 'header.comments', extensionName: 'xima_typo3_content_planner')}"
                     data-table="{table}"
                     data-id="{data.uid}"
-                    data-new-comment-uri="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: pid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: table, foreign_uid: data.uid}}')}"
+                    data-new-comment-uri="{comments.newCommentUri}"
+                    data-edit-uri="{comments.editUri}"
                 >
                     <core:icon identifier="actions-message" size="small"/>
-                    <span class="badge badge-secondary">{comments -> f:count()}</span>
+                    <span class="badge badge-secondary">{comments.items -> f:count()}</span>
                 </button>
             </f:if>
         </div>

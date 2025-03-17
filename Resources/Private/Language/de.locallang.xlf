@@ -112,6 +112,10 @@
 				<source/>
 				<target>Neu</target>
 			</trans-unit>
+			<trans-unit id="button.modal.footer.edit">
+				<source/>
+				<target>Edit</target>
+			</trans-unit>
 			<trans-unit id="button.modal.footer.save">
 				<source/>
 				<target>Speichern</target>

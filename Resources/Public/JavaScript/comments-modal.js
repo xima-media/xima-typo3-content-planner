@@ -15,12 +15,13 @@ class CommentsModal {
         const table = item.getAttribute('data-table');
         const id = item.getAttribute('data-id');
         const newCommentsUrl = item.getAttribute('data-new-comment-uri');
-        this.fetchComments(url, table, id, newCommentsUrl);
+        const editUrl = item.getAttribute('data-edit-uri');
+        this.fetchComments(url, table, id, newCommentsUrl, editUrl);
       });
     });
   }
 
-  fetchComments(url, table, uid, newCommentUrl = false) {
+  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false) {
     let buttons = [{
       text: TYPO3.lang !== undefined && TYPO3.lang['button.modal.footer.close'] ? TYPO3.lang['button.modal.footer.close'] : 'Close',
       name: 'close',
@@ -31,6 +32,21 @@ class CommentsModal {
         modal.hideModal();
       }
     }];
+    if (editUrl) {
+      buttons.unshift({
+        text: TYPO3.lang !== undefined && TYPO3.lang['button.modal.footer.edit'] ? TYPO3.lang['button.modal.footer.edit'] : 'Edit',
+        name: 'edit',
+        icon: 'actions-flag-edit',
+        active: true,
+        btnClass: 'btn-secondary',
+        trigger: function(event, modal) {
+          modal.hideModal();
+          setTimeout(() => {
+            window.location.href = editUrl;
+          }, 100);
+        }
+      });
+    }
     if (newCommentUrl) {
       buttons.unshift({
         text: TYPO3.lang !== undefined && TYPO3.lang['button.modal.footer.new'] ? TYPO3.lang['button.modal.footer.new'] : 'New',
@@ -39,7 +55,6 @@ class CommentsModal {
         active: true,
         btnClass: 'btn-primary',
         trigger: function (event, modal) {
-          modal.hideModal();
           NewCommentModal.openNewCommentModal(newCommentUrl);
         }
       });

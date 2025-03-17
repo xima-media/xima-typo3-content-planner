@@ -48,6 +48,7 @@ class StatusItemProvider extends AbstractProvider
             'data-status' => $itemName,
             'data-uri' => UrlHelper::getContentStatusPropertiesEditUrl($this->table, (int)$this->identifier, false),
             'data-new-comment-uri' => UrlHelper::getNewCommentUrl($this->table, (int)$this->identifier),
+            'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($this->table, (int)$this->identifier),
         ];
     }
 

@@ -78,7 +78,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : ''))
             ->setIcon($this->iconFactory->getIcon('actions-message'))
-            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
+            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['comments'] = $commentsDropDownItem;
     }
