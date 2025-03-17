@@ -79,7 +79,7 @@ Change the page status easily:
 
 - In the "Content Planner" tab within the page properties
 - In the page tree context menu
-- In the page backend header
+- In the backend header
 
 ### Assignee and comments
 
