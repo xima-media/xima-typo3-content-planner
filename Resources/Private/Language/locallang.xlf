@@ -104,6 +104,9 @@
 			<trans-unit id="header.assignToMe">
 				<source>Assign to me</source>
 			</trans-unit>
+			<trans-unit id="header.unassign">
+				<source>Unassign</source>
+			</trans-unit>
 			<trans-unit id="header.newComment">
 				<source>Add a new comment</source>
 			</trans-unit>

@@ -138,6 +138,10 @@
 				<source/>
 				<target>Mir zuweisen</target>
 			</trans-unit>
+			<trans-unit id="header.unassign">
+				<source/>
+				<target>Zuweisung aufheben</target>
+			</trans-unit>
 			<trans-unit id="header.newComment">
 				<source/>
 				<target>Neuen Kommentar hinzufügen</target>

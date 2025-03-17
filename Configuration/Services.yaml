@@ -58,7 +58,7 @@ services:
       - name: event.listener
         identifier: 'xima-typo3-content-planner/backend/modify-record-list-table-actions'
 
-  Xima\XimaTypo3ContentPlanner\Service\HeaderInfoGenerator:
+  Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator:
     public: true
 
   Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
