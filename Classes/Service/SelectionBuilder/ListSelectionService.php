@@ -35,7 +35,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $selectionEntriesToAdd[$status->getUid()] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars($this->buildUri($table, $uid, $status, $record['pid'])->__toString()),
+                htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'])->__toString()),
                 $status->getTitle(),
                 $this->iconFactory->getIcon($status->getColoredIcon(), Icon::SIZE_SMALL)->render(),
                 $status->getTitle()
@@ -53,7 +53,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $selectionEntriesToAdd['reset'] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars($this->buildUri($table, $uid, null, $record['pid'])->__toString()),
+                htmlspecialchars($this->buildUriForStatusChange($table, $uid, null, $record['pid'])->__toString()),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset'),
                 $this->iconFactory->getIcon('actions-close', Icon::SIZE_SMALL)->render(),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset')

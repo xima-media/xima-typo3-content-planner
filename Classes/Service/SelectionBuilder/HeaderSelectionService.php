@@ -40,7 +40,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
             ->setLabel($status->getTitle())
             ->setIcon($this->iconFactory->getIcon($status->getColoredIcon()))
-            ->setHref($this->buildUri($table, $uid, $status)->__toString());
+            ->setHref($this->buildUriForStatusChange($table, $uid, $status)->__toString());
         $selectionEntriesToAdd[$status->getUid()] = $statusDropDownItem;
     }
 
@@ -55,7 +55,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
             ->setIcon($this->iconFactory->getIcon('actions-close'))
-            ->setHref($this->buildUri($table, $uid, null)->__toString());
+            ->setHref($this->buildUriForStatusChange($table, $uid, null)->__toString());
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
     }
 

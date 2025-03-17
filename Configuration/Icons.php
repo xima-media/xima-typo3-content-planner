@@ -15,6 +15,10 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/actions-assign-to-me.svg',
     ],
+    'actions-unassign' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/actions-unassign.svg',
+    ],
     // flag
     'flag-black' => [
         'provider' => SvgSpriteIconProvider::class,

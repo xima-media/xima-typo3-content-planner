@@ -77,7 +77,8 @@ class InfoGenerator
             'assignee' => [
                 'username' => $this->getAssigneeUsername($record),
                 'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
-                'assignToCurrentUser' => $this->checkAssignToCurrentUser($record, $table) ? UrlHelper::assignToCurrentUser($table, $record['uid']) : false,
+                'assignToCurrentUser' => $this->checkAssignToCurrentUser($record, $table) ? UrlHelper::assignToUser($table, $record['uid']) : false,
+                'unassign' => $this->checkUnassign($record) ? UrlHelper::assignToUser($table, $record['uid'], unassign: true) : null,
             ],
             'comments' => $this->getComments($record, $table),
             'contentElements' => $this->getContentElements($record, $table),
@@ -112,6 +113,18 @@ class InfoGenerator
             return false;
         }
         return $record['tx_ximatypo3contentplanner_assignee'] === null || $record['tx_ximatypo3contentplanner_assignee'] !== $GLOBALS['BE_USER']->user['uid'];
+    }
+
+    private function checkUnassign(array $record): bool
+    {
+        if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
+            return false;
+        }
+
+        if ($record['tx_ximatypo3contentplanner_assignee'] !== null && $record['tx_ximatypo3contentplanner_assignee'] !== 0) {
+            return true;
+        }
+        return false;
     }
 
     private function getComments(array $record, string $table): array

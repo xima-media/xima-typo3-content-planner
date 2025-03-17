@@ -96,7 +96,7 @@ class AbstractSelectionService
         return $status->getUid() === $currentStatus;
     }
 
-    protected function buildUri(string $table, array|int $uid, ?Status $status, ?int $pid = null): UriInterface
+    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status, ?int $pid = null): UriInterface
     {
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
