@@ -82,10 +82,11 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     {
         $selectionEntriesToAdd['comments'] =
             sprintf(
-                '<li><a class="dropdown-item dropdown-item-spaced contentPlanner--comments" href="#" data-force-ajax-url data-content-planner-comments data-table="%s" data-id="%s" data-new-comment-uri="%s">%s%s</a></li>',
+                '<li><a class="dropdown-item dropdown-item-spaced contentPlanner--comments" href="#" data-force-ajax-url data-content-planner-comments data-table="%s" data-id="%s" data-new-comment-uri="%s" data-edit-uri="%s">%s%s</a></li>',
                 $table,
                 $uid,
                 UrlHelper::getNewCommentUrl($table, $uid),
+                UrlHelper::getContentStatusPropertiesEditUrl($table, $uid),
                 $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render(),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : '')
             )

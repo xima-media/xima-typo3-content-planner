@@ -80,7 +80,11 @@ class InfoGenerator
                 'assignToCurrentUser' => $this->checkAssignToCurrentUser($record, $table) ? UrlHelper::assignToUser($table, $record['uid']) : false,
                 'unassign' => $this->checkUnassign($record) ? UrlHelper::assignToUser($table, $record['uid'], unassign: true) : null,
             ],
-            'comments' => $this->getComments($record, $table),
+            'comments' => [
+                'items' => $this->getComments($record, $table),
+                'newCommentUri' => UrlHelper::getNewCommentUrl($table, $record['uid']),
+                'editUri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $record['uid']),
+            ],
             'contentElements' => $this->getContentElements($record, $table),
             'userid' => $GLOBALS['BE_USER']->user['uid'],
         ]);
@@ -129,7 +133,7 @@ class InfoGenerator
 
     private function getComments(array $record, string $table): array
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table) : [];
+        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
     }
 
     private function getPid(array $record, string $table): ?int
