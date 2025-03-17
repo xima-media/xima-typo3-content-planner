@@ -117,6 +117,36 @@
 				<target>Speichern</target>
 			</trans-unit>
 
+			<!-- header info -->
+			<trans-unit id="header.status">
+				<source/>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="header.editStatus">
+				<source/>
+				<target>Status Eigenschaften bearbeiten</target>
+			</trans-unit>
+			<trans-unit id="header.editContentElement">
+				<source/>
+				<target>Inhaltselement ”%s” bearbeiten</target>
+			</trans-unit>
+			<trans-unit id="header.assignee">
+				<source/>
+				<target>Zuständiger Nutzer</target>
+			</trans-unit>
+			<trans-unit id="header.assignToMe">
+				<source/>
+				<target>Mir zuweisen</target>
+			</trans-unit>
+			<trans-unit id="header.newComment">
+				<source/>
+				<target>Neuen Kommentar hinzufügen</target>
+			</trans-unit>
+			<trans-unit id="header.comments">
+				<source/>
+				<target>Kommentare</target>
+			</trans-unit>
+
 			<!-- time ago -->
 			<trans-unit id="timeAgo.years">
 				<source/>

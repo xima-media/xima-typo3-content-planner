@@ -46,4 +46,19 @@ class UrlHelper
             default => (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']]]),
         };
     }
+
+    public static function assignToCurrentUser(string $table, int $uid): string
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+        $userId = $GLOBALS['BE_USER']->user['uid'];
+        if ($userId === 0) {
+            return '';
+        }
+        $params = [
+            'data' => [$table => [$uid => ['tx_ximatypo3contentplanner_assignee' => $userId]]],
+            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+        ];
+        return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
+    }
 }

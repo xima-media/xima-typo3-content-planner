@@ -11,6 +11,10 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/actions-flag-edit.svg',
     ],
+    'actions-assign-to-me' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Icons/actions-assign-to-me.svg',
+    ],
     // flag
     'flag-black' => [
         'provider' => SvgSpriteIconProvider::class,

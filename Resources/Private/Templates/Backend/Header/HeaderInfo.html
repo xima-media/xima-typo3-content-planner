@@ -7,31 +7,32 @@
 <div class="xima-typo3-content-planner--header-info" data-color="{status.color}">
     <div class="left d-flex align-items-center justify-content-center">
         <core:icon
-            identifier="{icon}"
+            identifier="{status.icon}"
             size="medium"
             alternativeMarkupIdentifier="inline"
         />
     </div>
     <div class="body">
-        <f:if condition="{mode} == 'pageHeader'">
+        <f:if condition="{mode} != 'edit'">
             <f:then>
                 <be:link.editRecord
                     uid="{data.uid}"
                     table="pages"
                     fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-                    title="Edit page properties"
+                    returnUrl="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"
+                    title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
                     class="d-flex align-items-center flex-grow-1"
                 >
-                    Status:&nbsp;<strong>{status.title}</strong>
+                    {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
                 </be:link.editRecord>
             </f:then>
             <f:else>
-                Status:&nbsp;<strong>{status.title}</strong>
+                {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
             </f:else>
         </f:if>
-
     </div>
+
+    <!-- Action buttons -->
     <div class="btn-group">
         <div class="xima-typo3-content-planner--header--ce-hint">
             <f:for each="{contentElements}" as="contentElement">
@@ -39,61 +40,75 @@
                     uid="{contentElement.uid}"
                     table="tt_content"
                     returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-                    title="Edit content element ”{contentElement.title}”"
+                    title="{f:translate(key: 'header.editContentElement', extensionName: 'xima_typo3_content_planner', arguments: {0: contentElement.title})}"
                     additionalAttributes="{data-color: '{xcp:statusColor(statusId: contentElement.tx_ximatypo3contentplanner_status)}'}"
                 >
                     &#9679;
                 </be:link.editRecord>
             </f:for>
         </div>
-        <f:if
-            condition="{data.tx_ximatypo3contentplanner_assignee}"
-        >
-            <div
-                class="ml-auto d-flex align-items-center btn btn-default  {f:if(condition: assignedToCurrentUser, then: 'current', else: '')}"
-                title="{assignee}"
+        <div class="btn-group" role="group" aria-label="Assignee">
+            <f:if
+                condition="{data.tx_ximatypo3contentplanner_assignee}"
             >
-                <be:avatar
-                    backendUser="{data.tx_ximatypo3contentplanner_assignee}"
-                    size="16"
-                    showIcon="true"
-                />
-            </div>
-        </f:if>
-        <f:if condition="{comments}">
-            <button
-                class="btn btn-default contentPlanner--comments"
-                data-content-planner-comments
-                type="button"
-                data-table="{table}"
-                data-id="{data.uid}"
-                data-new-comment-uri="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: pid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: table, foreign_uid: data.uid}}')}"
-            >
-                <core:icon identifier="actions-message" size="small"/>
-                <span class="badge badge-secondary">{comments -> f:count()}</span>
-            </button>
-        </f:if>
-        <f:if condition="{mode} == 'pageHeader'">
+                <div
+                    class="ml-auto d-flex align-items-center btn btn-default  {f:if(condition: assignee.assignedToCurrentUser, then: 'current', else: '')}"
+                    title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"
+                >
+                    <be:avatar
+                        backendUser="{data.tx_ximatypo3contentplanner_assignee}"
+                        size="16"
+                        showIcon="true"
+                    />
+                    {assignee.username}
+                </div>
+            </f:if>
+            <f:if condition="{assignee.assignToCurrentUser}">
+                <a
+                    href="{assignee.assignToCurrentUser}"
+                    class="btn btn-default"
+                    title="{f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}"
+                ><core:icon identifier="actions-assign-to-me" size="small"/></a>
+            </f:if>
+        </div>
+
+        <div class="btn-group" role="group" aria-label="Comments">
             <a
                 href="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: pid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: table, foreign_uid: data.uid}}')}"
                 id="new-comment-modal"
-                class="btn btn-default "
+                class="btn btn-default"
                 data-pid="{pid}"
                 data-userid="{userid}"
-                title="New comment"
+                title="{f:translate(key: 'header.newComment', extensionName: 'xima_typo3_content_planner')}"
             >
                 <core:icon
                     identifier="actions-message-add"
                     size="small"
                 />
             </a>
+            <f:if condition="{comments}">
+                <button
+                    class="btn btn-default contentPlanner--comments"
+                    data-content-planner-comments
+                    type="button"
+                    title="{f:translate(key: 'header.comments', extensionName: 'xima_typo3_content_planner')}"
+                    data-table="{table}"
+                    data-id="{data.uid}"
+                    data-new-comment-uri="{be:uri.newRecord(table:'tx_ximatypo3contentplanner_comment', pid: pid, returnUrl: 'foo/bar', defaultValues: '{tx_ximatypo3contentplanner_comment: {foreign_table: table, foreign_uid: data.uid}}')}"
+                >
+                    <core:icon identifier="actions-message" size="small"/>
+                    <span class="badge badge-secondary">{comments -> f:count()}</span>
+                </button>
+            </f:if>
+        </div>
+        <f:if condition="{mode} == 'web_layout' || {mode} == 'web_list'">
             <be:link.editRecord
                 uid="{data.uid}"
                 table="{table}"
                 fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
                 returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-                title="Edit page properties"
-                class="btn btn-default "
+                title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
+                class="btn btn-default"
             >
                 <core:icon
                     identifier="actions-flag-edit"
