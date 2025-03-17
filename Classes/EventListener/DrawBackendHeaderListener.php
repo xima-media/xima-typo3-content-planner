@@ -6,8 +6,8 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\ModifyPageLayoutContentEvent;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Service\Header\HeaderMode;
+use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 /*

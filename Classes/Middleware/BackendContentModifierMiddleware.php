@@ -14,8 +14,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Service\Header\HeaderMode;
+use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 class BackendContentModifierMiddleware implements MiddlewareInterface
