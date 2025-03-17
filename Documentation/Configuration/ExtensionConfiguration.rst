@@ -14,14 +14,6 @@ The extension currently provides the following configuration options:
 Features
 =======
 
-..  _extconf-autoAssignment:
-
-..  confval:: autoAssignment
-    :type: boolean
-    :Default: 1
-
-    Enable the auto assignment of the current user when a new status is set to the record.
-
 ..  _extconf-extendedContextMenu:
 
 ..  confval:: extendedContextMenu
@@ -29,16 +21,6 @@ Features
     :Default: 1
 
     Enable the extended menu to show information about assignment and comments
-
-..  _extconf-currentAssigneeHighlight:
-
-..  confval:: currentAssigneeHighlight
-    :type: boolean
-    :Default: 1
-
-    Enable the current assignee hint to highlight records assigned to the current user.
-
-    Records with your user assigned will be highlighted for you in a light yellow color.
 
 ..  _extconf-clearCommentsOnStatusReset:
 
@@ -87,3 +69,24 @@ Features
     :Default: 0
 
     Reset status of content element if status on corresponding page is reset
+
+Assignee
+=======
+
+..  _extconf-autoAssignment:
+
+..  confval:: autoAssignment
+    :type: boolean
+    :Default: 1
+
+    Enable the auto assignment of the current user when a new status is set to the record.
+
+..  _extconf-currentAssigneeHighlight:
+
+..  confval:: currentAssigneeHighlight
+    :type: boolean
+    :Default: 1
+
+    Enable the current assignee hint to highlight records assigned to the current user.
+
+    Records with your user assigned will be highlighted for you in a light yellow color.
