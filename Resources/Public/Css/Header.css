@@ -117,3 +117,8 @@
 .current {
     background-color: rgba(253, 212, 150, 0.2);
 }
+
+.xima-typo3-content-planner--header-info > .btn-group {
+    display: flex;
+    gap: 1em;
+}

@@ -29,14 +29,14 @@ services:
       $statusChangeManager: '@Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager'
 
   Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener:
-      tags:
-          -   name: event.listener
-              identifier: 'xima-typo3-content-planner/backend/modify-page-module-content'
+    tags:
+      - name: event.listener
+        identifier: 'xima-typo3-content-planner/backend/modify-page-module-content'
 
   Xima\XimaTypo3ContentPlanner\EventListener\AfterPageTreeItemsPreparedListener:
-      tags:
-          -   name: event.listener
-              identifier: 'xima-typo3-content-planner/backend/modify-page-tree-items'
+    tags:
+      - name: event.listener
+        identifier: 'xima-typo3-content-planner/backend/modify-page-tree-items'
 
   Xima\XimaTypo3ContentPlanner\EventListener\ModifyButtonBarEventListener:
     tags:
@@ -58,6 +58,9 @@ services:
       - name: event.listener
         identifier: 'xima-typo3-content-planner/backend/modify-record-list-table-actions'
 
+  Xima\XimaTypo3ContentPlanner\Service\HeaderInfoGenerator:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
     tags:
       - name: console.command
@@ -65,80 +68,80 @@ services:
         description: 'A command to perform a bulk operation to content planner entities.'
 
   dashboard.widget.ContentStatus-status:
-      class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
-      arguments:
-          $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
-          $options:
-              refreshAvailable: true
-              useFilter: true
-      tags:
-          -   name: dashboard.widget
-              identifier: 'contentPlanner-status'
-              groupNames: 'contentPlanner'
-              title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.status.title'
-              description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.status.description'
-              iconIdentifier: 'flag-gray'
-              height: 'large'
-              width: 'medium'
+    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
+    arguments:
+      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+      $options:
+        refreshAvailable: true
+        useFilter: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'contentPlanner-status'
+        groupNames: 'contentPlanner'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.status.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.status.description'
+        iconIdentifier: 'flag-gray'
+        height: 'large'
+        width: 'medium'
 
   dashboard.widget.ContentStatus-current:
-      class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
-      arguments:
-          $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
-          $options:
-              refreshAvailable: true
-              currentUserAssignee: true
-      tags:
-          -   name: dashboard.widget
-              identifier: 'contentPlanner-current'
-              groupNames: 'contentPlanner'
-              title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.title'
-              description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.description'
-              iconIdentifier: 'flag-gray'
-              height: 'medium'
-              width: 'small'
+    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
+    arguments:
+      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+      $options:
+        refreshAvailable: true
+        currentUserAssignee: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'contentPlanner-current'
+        groupNames: 'contentPlanner'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.description'
+        iconIdentifier: 'flag-gray'
+        height: 'medium'
+        width: 'small'
 
   dashboard.widget.ContentStatus-comments:
-      class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentCommentWidget'
-      arguments:
-          $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentCommentDataProvider'
-          $options:
-              refreshAvailable: true
-              currentUserAssignee: true
-      tags:
-          -   name: dashboard.widget
-              identifier: 'contentPlanner-comment'
-              groupNames: 'contentPlanner'
-              title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.title'
-              description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.description'
-              iconIdentifier: 'content-message'
-              height: 'medium'
-              width: 'small'
+    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentCommentWidget'
+    arguments:
+      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentCommentDataProvider'
+      $options:
+        refreshAvailable: true
+        currentUserAssignee: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'contentPlanner-comment'
+        groupNames: 'contentPlanner'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.description'
+        iconIdentifier: 'content-message'
+        height: 'medium'
+        width: 'small'
 
   dashboard.widget.ContentStatus-overview:
-      class: 'TYPO3\CMS\Dashboard\Widgets\DoughnutChartWidget'
-      arguments:
-          $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\StatusOverviewDataProvider'
-          $options:
-              icon: 'content-widget-chart-pie'
-      tags:
-          -   name: dashboard.widget
-              identifier: 'contentPlanner-overview'
-              groupNames: 'contentPlanner'
-              title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.title'
-              description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.description'
-              iconIdentifier: 'content-widget-chart-pie'
-              height: 'medium'
+    class: 'TYPO3\CMS\Dashboard\Widgets\DoughnutChartWidget'
+    arguments:
+      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\StatusOverviewDataProvider'
+      $options:
+        icon: 'content-widget-chart-pie'
+    tags:
+      - name: dashboard.widget
+        identifier: 'contentPlanner-overview'
+        groupNames: 'contentPlanner'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.description'
+        iconIdentifier: 'content-widget-chart-pie'
+        height: 'medium'
 
   dashboard.widget.ContentStatus-update:
     class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentUpdateWidget'
     arguments:
       $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentUpdateDataProvider'
     tags:
-      -   name: dashboard.widget
-          identifier: 'contentPlanner-update'
-          groupNames: 'contentPlanner'
-          title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.update.title'
-          description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.update.description'
-          iconIdentifier: 'content-thumbtack'
-          height: 'medium'
+      - name: dashboard.widget
+        identifier: 'contentPlanner-update'
+        groupNames: 'contentPlanner'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.update.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.update.description'
+        iconIdentifier: 'content-thumbtack'
+        height: 'medium'
