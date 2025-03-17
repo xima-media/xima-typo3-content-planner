@@ -41,6 +41,7 @@ return [
             'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:tx_ximatypo3contentplanner_comment.content',
             'config' => [
                 'enableRichtext' => true,
+                'richtextConfiguration' => 'comments',
                 'type' => 'text',
                 'eval' => 'trim',
                 'cols' => 40,

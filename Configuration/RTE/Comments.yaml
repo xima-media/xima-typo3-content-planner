@@ -1,0 +1,33 @@
+imports:
+    - { resource: 'EXT:rte_ckeditor/Configuration/RTE/Processing.yaml' }
+    - { resource: 'EXT:rte_ckeditor/Configuration/RTE/Editor/Base.yaml' }
+    - { resource: 'EXT:rte_ckeditor/Configuration/RTE/Editor/Plugins.yaml' }
+
+editor:
+  config:
+    toolbar:
+      items:
+        - heading
+        - '|'
+        - bold
+        - italic
+        - subscript
+        - superscript
+        - '|'
+        - bulletedList
+        - numberedList
+        - todoList
+        - alignment
+        - '|'
+        - link
+        - '|'
+        - removeFormat
+        - undo
+        - redo
+        - '|'
+        - specialCharacters
+        - horizontalLine
+        - sourceEditing
+
+    importModules:
+      - { module: '@ckeditor/ckeditor5-list', exports: [ 'TodoList' ] }
