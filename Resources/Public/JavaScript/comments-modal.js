@@ -55,6 +55,7 @@ class CommentsModal {
         active: true,
         btnClass: 'btn-primary',
         trigger: function (event, modal) {
+          modal.hideModal();
           NewCommentModal.openNewCommentModal(newCommentUrl);
         }
       });
