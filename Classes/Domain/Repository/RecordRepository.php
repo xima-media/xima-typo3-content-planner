@@ -108,7 +108,7 @@ class RecordRepository
             ->fetchAllAssociative();
 
         if (!empty($result)) {
-            $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($table, $result));
+            $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($table, $result, $pid));
         }
 
         return $result;
@@ -188,7 +188,7 @@ class RecordRepository
         return $GLOBALS['TCA'][$table]['ctrl']['label'];
     }
 
-    private function collectCacheTags(string $table, array $data): array
+    private function collectCacheTags(string $table, array $data, ?int $pid): array
     {
         $tags = [];
         /* @var $item \TYPO3\CMS\Extbase\DomainObject\AbstractEntity */
@@ -196,6 +196,10 @@ class RecordRepository
             if ($item['uid'] !== null) {
                 $tags[] = $table . '_' . $item['uid'];
             }
+        }
+
+        if ($pid) {
+            $tags[] = $table . '__pageId__' . $pid;
         }
         return $tags;
     }
