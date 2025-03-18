@@ -46,7 +46,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
 
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
-        $selectionEntriesToAdd['divider' . $additionalPostIdentifier ?? ''] = GeneralUtility::makeInstance(DropDownDivider::class);
+        $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = GeneralUtility::makeInstance(DropDownDivider::class);
     }
 
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void

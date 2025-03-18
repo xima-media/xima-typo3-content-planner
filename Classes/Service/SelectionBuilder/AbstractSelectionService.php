@@ -73,7 +73,7 @@ class AbstractSelectionService
         return true;
     }
 
-    protected function getCurrentRecord(string $table, int $uid): array
+    protected function getCurrentRecord(string $table, int $uid): array|bool|null
     {
         return $this->recordRepository->findByUid($table, $uid);
     }
@@ -100,7 +100,7 @@ class AbstractSelectionService
     {
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
-        $route = $request->getAttribute('routing')->getRoute()->getOption('_identifier');
+        $route = $request->getAttribute('routing')->getRoute()->getOption('_identifier'); // @phpstan-ignore-line
 
         if ($route === 'record_edit') {
             $routeArray = [

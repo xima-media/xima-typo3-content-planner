@@ -38,7 +38,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
 
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
-        $selectionEntriesToAdd['divider' . $additionalPostIdentifier ?? ''] = ['type' => 'divider'];
+        $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = ['type' => 'divider'];
     }
 
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void

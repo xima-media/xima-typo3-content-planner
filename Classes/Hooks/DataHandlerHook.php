@@ -74,7 +74,6 @@ final class DataHandlerHook
             * The relation is not updated correctly by the DataHandler.
             * The following code example from the official documentation does not work as expected:
             * dataHandler->datamap[$foreign_table][$foreign_uid]['tx_ximatypo3contentplanner_comments'] = $newCommentUid;
-            * (also the crdate will be overwritten)
             * Therefore we have to update the relation manually.
             */
             if (array_key_exists('foreign_table', $fieldArray) && array_key_exists('foreign_uid', $fieldArray)) {

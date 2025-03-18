@@ -45,7 +45,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
 
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
-        $selectionEntriesToAdd['divider' . $additionalPostIdentifier ?? ''] = '<li><hr class="dropdown-divider"></li>';
+        $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = '<li><hr class="dropdown-divider"></li>';
     }
 
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void

@@ -3,7 +3,6 @@
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
-use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -22,7 +21,6 @@ final class ModifyRecordListRecordActionsListener
         private readonly IconFactory $iconFactory,
         private readonly StatusRepository $statusRepository,
         private readonly RecordRepository $recordRepository,
-        private readonly RequestId $requestId,
         private readonly ListSelectionService $htmlSelectionService,
     ) {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
