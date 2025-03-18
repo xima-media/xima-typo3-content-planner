@@ -6,6 +6,7 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -14,11 +15,15 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 class RecordController extends ActionController
 {
-    public function __construct(private readonly RecordRepository $recordRepository, private readonly CommentRepository $commentRepository)
-    {
+    public function __construct(
+        private readonly RecordRepository $recordRepository,
+        private readonly CommentRepository $commentRepository,
+        private readonly RequestId $requestId
+    ) {
     }
 
     public function filterAction(ServerRequestInterface $request): ResponseInterface
@@ -51,6 +56,9 @@ class RecordController extends ActionController
 
         $view->setTemplate('Comments');
         $view->assign('comments', $comments);
-        return new JsonResponse(['result' => $view->render()]);
+
+        $result = $view->render();
+        $result .= ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Comments.css', ['nonce' => $this->requestId->nonce]);
+        return new JsonResponse(['result' => $result]);
     }
 }
