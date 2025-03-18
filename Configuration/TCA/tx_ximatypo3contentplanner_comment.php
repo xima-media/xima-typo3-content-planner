@@ -16,8 +16,8 @@ return [
         'typeicon_classes' => [
             'default' => 'content-message',
         ],
-        'default_sortby' => 'crdate',
         'searchFields' => 'title,text',
+        'default_sortby' => 'crdate DESC',
         'hideTable' => true,
         'security' => [
             'ignorePageTypeRestriction' => true,
@@ -25,7 +25,7 @@ return [
     ],
     'types' => [
         '0' => [
-            'showitem' => 'content,author',
+            'showitem' => 'content',
         ],
     ],
     'columns' => [
@@ -51,6 +51,11 @@ return [
             ],
         ],
         'author' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
+        'crdate' => [
             'config' => [
                 'type' => 'passthrough',
             ],
