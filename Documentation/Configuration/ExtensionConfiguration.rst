@@ -14,22 +14,6 @@ The extension currently provides the following configuration options:
 Features
 =======
 
-..  _extconf-extendedContextMenu:
-
-..  confval:: extendedContextMenu
-    :type: boolean
-    :Default: 1
-
-    Enable the extended menu to show information about assignment and comments
-
-..  _extconf-clearCommentsOnStatusReset:
-
-..  confval:: clearCommentsOnStatusReset
-    :type: boolean
-    :Default: 1
-
-    Delete corresponding comments when status is reset
-
 ..  _extconf-recordListStatusInfo:
 
 ..  confval:: recordListStatusInfo
@@ -68,7 +52,10 @@ Features
     :type: boolean
     :Default: 0
 
-    Reset status of content element if status on corresponding page is reset
+    Reset status of content element, if status on corresponding page is reset
+
+    ..  note::
+        Therefor, the :ref:`additional record <additional-records>` needs to be set up for "tt_content".
 
 Assignee
 =======
@@ -90,3 +77,14 @@ Assignee
     Enable the current assignee hint to highlight records assigned to the current user.
 
     Records with your user assigned will be highlighted for you in a light yellow color.
+
+Comments
+=======
+
+..  _extconf-clearCommentsOnStatusReset:
+
+..  confval:: clearCommentsOnStatusReset
+    :type: boolean
+    :Default: 1
+
+    Delete corresponding comments when status is reset

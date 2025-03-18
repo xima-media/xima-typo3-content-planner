@@ -1,7 +1,3 @@
-# cat=basic/enable; type=boolean; label=Enable the extended menu to show information about assignment and comments
-extendedContextMenu = 1
-# cat=basic/enable; type=boolean; label=Delete corresponding comments when status is reset
-clearCommentsOnStatusReset = 1
 # cat=basic/enable; type=boolean; label=Enable record list status info
 recordListStatusInfo = 1
 # cat=basic/enable; type=boolean; label=Enable record edit header info
@@ -16,3 +12,5 @@ resetContentElementStatusOnPageReset = 0
 autoAssignment = 1
 # cat=assignee/enable; type=boolean; label=Enable the current assignee hint to highlight records assigned to the current user
 currentAssigneeHighlight = 1
+# cat=comments/enable; type=boolean; label=Delete corresponding comments when status is reset
+clearCommentsOnStatusReset = 1

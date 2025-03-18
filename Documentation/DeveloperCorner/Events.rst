@@ -21,3 +21,10 @@ The following PSR-14 events are available:
 
 * :php:`PrepareStatusSelectionEvent`
 * :php:`StatusChangeEvent`
+
+
+..  seealso::
+
+    View the sources on GitHub:
+
+    -   https://github.com/xima-media/xima-typo3-content-planner/tree/main/Classes/Event
