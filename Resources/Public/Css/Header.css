@@ -36,6 +36,7 @@
     flex-grow: 1;
 }
 
+/* Header Colors */
 .xima-typo3-content-planner--header-info[data-color="black"] {
     background-color: var(--content-planner--color-black-light);
     border-color: var(--content-planner--color-black);
@@ -86,6 +87,7 @@
     transform: scale(1.4);
 }
 
+/* CE Hint Colors */
 .xima-typo3-content-planner--header--ce-hint a[data-color="black"] {
     color: var(--content-planner--color-black);
 }
