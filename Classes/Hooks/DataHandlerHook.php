@@ -7,6 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -87,7 +88,7 @@ final class DataHandlerHook
     {
         $tags = array_keys($params['tags']);
         if (in_array('uid_page', $params) && in_array('table', $params)) {
-            $tags[] = $params['table'] . '__pages__' . $params['uid_page'];
+            $tags[] = $params['table'] . '__pageId__' . $params['uid_page'];
         }
         $this->cache->flushByTags($tags);
     }
