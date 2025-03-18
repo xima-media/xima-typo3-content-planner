@@ -116,39 +116,6 @@
     color: var(--content-planner--color-orange);
 }
 
-/* Badge */
-.xima-typo3-content-planner--header-info[data-color="black"] .badge.badge-secondary {
-    color: black;
-    background-color: var(--content-planner--color-black);
-}
-
-.xima-typo3-content-planner--header-info[data-color="red"] .badge.badge-secondary {
-    color: black;
-    background-color: var(--content-planner--color-red);
-}
-
-.xima-typo3-content-planner--header-info[data-color="yellow"] .badge.badge-secondary {
-    color: black;
-    background-color: var(--content-planner--color-yellow);
-}
-
-.xima-typo3-content-planner--header-info[data-color="green"] .badge.badge-secondary {
-    background-color: var(--content-planner--color-green);
-}
-
-.xima-typo3-content-planner--header-info[data-color="blue"] .badge.badge-secondary {
-    color: black;
-    background-color: var(--content-planner--color-blue);
-}
-
-.xima-typo3-content-planner--header-info[data-color="purple"] .badge.badge-secondary {
-    background-color: var(--content-planner--color-purple);
-}
-
-.xima-typo3-content-planner--header-info[data-color="orange"] .badge.badge-secondary {
-    background-color: var(--content-planner--color-orange);
-}
-
 .current {
     background-color: rgba(253, 212, 150, 0.2);
 }
