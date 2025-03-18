@@ -32,6 +32,9 @@ Features
 - Filterable content planner record overview
 - Extend :ref:`additional database records <additional-records>` with status behavior
 
+Screencast
+========
+
 ..  figure:: /Images/screencast.gif
     :alt: Screencast Content Planner
 

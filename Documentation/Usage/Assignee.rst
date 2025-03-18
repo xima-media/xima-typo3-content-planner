@@ -19,13 +19,22 @@ The assignee can be select in the edit form of the record in the "Content Planne
 
     Change the assignee of a record
 
-Only users with admin rights and the necessary :ref:`permission <permission>` can be selected.
+Only users with admin rights and the necessary :ref:`permission <permissions>` can be selected.
 
 ..  note::
     If the :ref:`current assignee highlight <extconf-currentAssigneeHighlight>` feature is enabled, records assigned to the current user will be highlighted in a light yellow color.
 
 ..  figure:: /Images/assignee-current.png
     :alt: Current assignment highlight
-    :class: with-shadow
 
     Current assignment highlight
+
+Shortcuts
+========
+
+Use the shortcuts in the header bar for "Assign to me" and "Unassign" to quickly change the assignee.
+
+..  figure:: /Images/assignment-shortcuts.png
+    :alt: Assignment shortcuts
+
+    Assignment shortcuts
