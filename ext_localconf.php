@@ -10,7 +10,6 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Backend\Controller\Page
     'className' => \Xima\XimaTypo3ContentPlanner\Controller\TreeController::class,
 ];
 
-
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['ximatypo3contentplanner_cache'] ??= [];
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc']['ximatypo3contentplanner_cache'] = \Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook::class . '->clearCachePostProc';
 
