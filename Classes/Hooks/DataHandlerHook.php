@@ -85,7 +85,11 @@ final class DataHandlerHook
 
     public function clearCachePostProc(array $params): void
     {
-        $this->cache->flushByTags(array_keys($params['tags']));
+        $tags = array_keys($params['tags']);
+        if (in_array('uid_page', $params) && in_array('table', $params)) {
+            $tags[] = $params['table'] . '__pages__' . $params['uid_page'];
+        }
+        $this->cache->flushByTags($tags);
     }
 
     private function fixNewCommentEntry(&$dataHandler): void
