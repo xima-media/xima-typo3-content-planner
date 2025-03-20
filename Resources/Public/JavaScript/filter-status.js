@@ -42,7 +42,10 @@ class FilterStatus {
   static search(widget, queryArguments = {}) {
     widget.querySelector('thead').classList.remove('hide');
     widget.querySelector('.widget-no-items-found').classList.add('hide');
-    widget.parentElement.parentElement.querySelector('.widget-waiting').classList.remove('hide');
+    const waitingElement = widget.parentElement.parentElement.querySelector('.widget-waiting');
+    if (waitingElement) {
+      waitingElement.classList.remove('hide');
+    }
     widget.querySelector('.widget-table-wrapper').classList.add('hide');
     new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterrecords)
       .withQueryArguments(queryArguments)
@@ -67,7 +70,9 @@ class FilterStatus {
         });
         let table = widget.querySelector('table tbody');
         table.innerHTML = html;
-        widget.parentElement.parentElement.querySelector('.widget-waiting').classList.add('hide');
+        if (waitingElement) {
+          waitingElement.classList.add('hide');
+        }
         widget.querySelector('.widget-table-wrapper').classList.remove('hide');
 
         widget.querySelectorAll('.contentPlanner--comments').forEach(item => {

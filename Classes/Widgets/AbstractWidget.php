@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -45,6 +46,10 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
         $pageRenderer->addInlineLanguageLabelFile('EXT:ximatypo3contentplanner/Resources/Private/Language/locallang.xlf');
 
         $view->assignMultiple($templateArguments);
+
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
+        $view->assign('showTitle', ($typo3Version <= 12));
+        $view->assign('filterBgFix', ($typo3Version <= 12));
         return $view->render();
     }
 
@@ -57,7 +62,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
 
     public function getCssFiles(): array
     {
-        return ['EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Widgets.css'];
+        return ['EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Widgets.css', 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Comments.css'];
     }
 
     public function getJavaScriptModuleInstructions(): array

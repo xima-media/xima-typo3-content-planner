@@ -132,6 +132,7 @@ services:
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.description'
         iconIdentifier: 'content-widget-chart-pie'
         height: 'medium'
+        width: 'small'
 
   dashboard.widget.ContentStatus-update:
     class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentUpdateWidget'
@@ -145,3 +146,4 @@ services:
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.update.description'
         iconIdentifier: 'content-thumbtack'
         height: 'medium'
+        width: 'small'
