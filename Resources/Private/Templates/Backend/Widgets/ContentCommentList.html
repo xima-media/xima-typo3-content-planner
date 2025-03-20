@@ -29,7 +29,7 @@
                                     </a>
                                 </small>
                             </div>
-                            <div class="text">{record.data.content -> f:sanitize.html()}</div>
+                            <div class="text">{record.data.content -> f:format.raw()}</div>
                         </div>
                     </div>
                 </f:if>
