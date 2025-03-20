@@ -21,12 +21,19 @@
 .widget-contentPlanner--comment {
     padding-bottom: 1rem;
     gap: 1rem;
+    container-name: comment;
+    container-type: inline-size;
 }
 
 .widget-contentPlanner--comment > .avatar {
     flex: 0 0 40px;
 }
 
+@container comment (width < 300px) {
+    .widget-contentPlanner--comment > .avatar {
+        display: none;
+    }
+}
 .widget-contentPlanner--comment .text {
     position: relative;
     display: inline-block;
