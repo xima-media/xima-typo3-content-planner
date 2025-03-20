@@ -27,7 +27,7 @@
     flex: 0 0 40px;
 }
 
-.text {
+.widget-contentPlanner--comment .text {
     position: relative;
     display: inline-block;
     padding: 1rem;
@@ -35,7 +35,7 @@
     margin: 1rem 0;
 }
 
-.text p {
+.widget-contentPlanner--comment .text p {
     margin-bottom: 0;
 }
 
