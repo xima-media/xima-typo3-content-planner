@@ -77,7 +77,7 @@ class RecordRepository
     /**
     * @throws \Doctrine\DBAL\Exception
     */
-    public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true): array
+    public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreHiddenRestriction = false): array
     {
         $cacheIdentifier = sprintf('%s--%s--p%s', Configuration::CACHE_IDENTIFIER, $table, $pid);
         if ($this->cache->has($cacheIdentifier)) {
@@ -85,6 +85,11 @@ class RecordRepository
         }
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+
+        if ($ignoreHiddenRestriction) {
+            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction::class);
+        }
+
         $query = $queryBuilder
             ->select('uid', $this->getTitleField($table) . ' as title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
             ->from($table)
@@ -117,12 +122,16 @@ class RecordRepository
     /**
     * @throws \Doctrine\DBAL\Exception
     */
-    public function findByUid(?string $table, ?int $uid): array|bool|null
+    public function findByUid(?string $table, ?int $uid, bool $ignoreHiddenRestriction = false): array|bool|null
     {
         if (!$table && !$uid) {
             return null;
         }
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+
+        if ($ignoreHiddenRestriction) {
+            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction::class);
+        }
 
         $query = $queryBuilder
             ->select('uid', 'pid', $this->getTitleField($table) . ' as "title"', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')

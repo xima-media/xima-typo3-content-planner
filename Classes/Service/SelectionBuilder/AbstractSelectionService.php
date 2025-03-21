@@ -75,10 +75,10 @@ class AbstractSelectionService
 
     protected function getCurrentRecord(string $table, int $uid): array|bool|null
     {
-        return $this->recordRepository->findByUid($table, $uid);
+        return $this->recordRepository->findByUid($table, $uid, true);
     }
 
-    protected function getCurrentStatus(array|null $record = null): int|null
+    protected function getCurrentStatus(array|bool|null $record = null): int|null
     {
         return $record ? $record['tx_ximatypo3contentplanner_status'] : null;
     }
