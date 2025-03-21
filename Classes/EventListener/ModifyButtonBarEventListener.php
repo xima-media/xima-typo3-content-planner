@@ -11,7 +11,6 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\HeaderSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
@@ -57,11 +56,11 @@ final class ModifyButtonBarEventListener
 
         if ($table === 'pages') {
             $uid = (int)($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] : 0));
-            $record = ContentUtility::getPage($uid);
         } else {
             $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
-            $record = $this->recordRepository->findByUid($table, $uid);
         }
+        $record = $this->recordRepository->findByUid($table, $uid, ignoreHiddenRestriction: true);
+
         if (!$record) {
             return;
         }

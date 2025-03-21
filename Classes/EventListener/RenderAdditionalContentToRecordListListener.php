@@ -39,10 +39,10 @@ final class RenderAdditionalContentToRecordListListener
                 return;
             }
 
-            $records[$table] = $this->recordRepository->findByPid($table, $pid);
+            $records[$table] = $this->recordRepository->findByPid($table, $pid, ignoreHiddenRestriction: true);
         } else {
             foreach (ExtensionUtility::getRecordTables() as $table) {
-                $records[$table] = $this->recordRepository->findByPid($table, $pid);
+                $records[$table] = $this->recordRepository->findByPid($table, $pid, ignoreHiddenRestriction: true);
             }
         }
 
