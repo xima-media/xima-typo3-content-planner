@@ -134,9 +134,15 @@ final class DataHandlerHook
     private function parseTodos(string $htmlContent): array
     {
         $dom = new \DOMDocument();
-        @$dom->loadHTML($htmlContent);
+        // Use libxml error handling instead of @ suppression
+        $previousLibXmlUseErrors = \libxml_use_internal_errors(true);
+        $success = $dom->loadHTML($htmlContent);
+        \libxml_use_internal_errors($previousLibXmlUseErrors);
 
         $todos = ['total' => 0, 'resolved' => 0, 'pending' => 0];
+        if (!$success) {
+            return $todos;
+        }
 
         foreach ($dom->getElementsByTagName('input') as $checkbox) {
             if ($checkbox->getAttribute('type') === 'checkbox') {

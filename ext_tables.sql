@@ -20,8 +20,8 @@ CREATE TABLE tx_ximatypo3contentplanner_comment
 
 	content        text,
 	author         int(11) DEFAULT NULL,
-	todo_resolved int(11) DEFAULT 0,
-	todo_total    int(11) DEFAULT 0,
+	todo_resolved  int(11) unsigned NOT NULL DEFAULT 0,
+	todo_total     int(11) unsigned NOT NULL DEFAULT 0,
 	PRIMARY KEY (uid)
 );
 

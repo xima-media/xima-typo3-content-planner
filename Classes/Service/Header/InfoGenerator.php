@@ -84,7 +84,7 @@ class InfoGenerator
                 'items' => $this->getComments($record, $table),
                 'newCommentUri' => UrlHelper::getNewCommentUrl($table, $record['uid']),
                 'editUri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $record['uid']),
-                'todoResolved' => $this->getCommentsTodoResolved($record,$table),
+                'todoResolved' => $this->getCommentsTodoResolved($record, $table),
                 'todoTotal' => $this->getCommentsTodoTotal($record, $table),
             ],
             'contentElements' => $this->getContentElements($record, $table),
