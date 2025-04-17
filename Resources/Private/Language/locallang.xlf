@@ -116,6 +116,9 @@
 			<trans-unit id="header.comments">
 				<source>Comments</source>
 			</trans-unit>
+			<trans-unit id="header.comments.todo">
+				<source>Shows the count of the pending todos within the comments</source>
+			</trans-unit>
 
 			<!-- time ago -->
 			<trans-unit id="timeAgo.years">

@@ -154,6 +154,10 @@
 				<source/>
 				<target>Kommentare</target>
 			</trans-unit>
+			<trans-unit id="header.comments.todo">
+				<source/>
+				<target>Zeigt die Anzahl der offenen ToDos aus den Kommentaren</target>
+			</trans-unit>
 
 			<!-- time ago -->
 			<trans-unit id="timeAgo.years">

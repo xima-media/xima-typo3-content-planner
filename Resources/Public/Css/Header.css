@@ -124,3 +124,12 @@
     display: flex;
     gap: 1em;
 }
+
+.xima-typo3-content-planner--header--comment-todo .badge[data-status="resolved"] {
+    color: white;
+    background-color: var(--content-planner--color-green);
+}
+
+.xima-typo3-content-planner--header--comment-todo .badge[data-status="pending"] {
+    background-color: var(--content-planner--color-yellow);
+}

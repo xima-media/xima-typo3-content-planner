@@ -65,6 +65,20 @@ class CommentRepository
             ->executeQuery()->fetchOne();
     }
 
+    public function countTodoAllByRecord(int $id, string $table, string $todoField = 'todo_resolved'): int
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
+        return (int)$queryBuilder
+            ->selectLiteral("SUM(`$todoField`) AS `check`")
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq('deleted', 0)
+            )
+            ->executeQuery()->fetchOne();
+    }
+
     /**
     * @throws \Doctrine\DBAL\Exception
     */

@@ -84,6 +84,8 @@ class InfoGenerator
                 'items' => $this->getComments($record, $table),
                 'newCommentUri' => UrlHelper::getNewCommentUrl($table, $record['uid']),
                 'editUri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $record['uid']),
+                'todoResolved' => $this->getCommentsTodoResolved($record,$table),
+                'todoTotal' => $this->getCommentsTodoTotal($record, $table),
             ],
             'contentElements' => $this->getContentElements($record, $table),
             'userid' => $GLOBALS['BE_USER']->user['uid'],
@@ -134,6 +136,16 @@ class InfoGenerator
     private function getComments(array $record, string $table): array
     {
         return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
+    }
+
+    private function getCommentsTodoResolved(array $record, string $table): int
+    {
+        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table) : 0;
+    }
+
+    private function getCommentsTodoTotal(array $record, string $table): int
+    {
+        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
     }
 
     private function getPid(array $record, string $table): ?int
