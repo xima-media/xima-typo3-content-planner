@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
@@ -43,10 +45,25 @@ final class AfterPageTreeItemsPreparedListener
                             && isset($item['_page']['tx_ximatypo3contentplanner_comments'])
                             && $item['_page']['tx_ximatypo3contentplanner_comments'] > 0
                         ) {
+                            $label = $item['_page']['tx_ximatypo3contentplanner_comments'] . ' ' . $GLOBALS['LANG']->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments');
+                            $icon = 'actions-message';
+
+                            if (ExtensionUtility::getExtensionSetting(Configuration::FEATURE_TREE_STATUS_INFORMATION) === 'todos') {
+                                $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+                                $todoResolved = $item['_page']['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($item['_page']['uid'], 'pages') : 0;
+                                $todoTotal = $item['_page']['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($item['_page']['uid'], 'pages', 'todo_total') : 0;
+
+                                if ($todoTotal === 0 || ($todoResolved === $todoTotal)) {
+                                    continue;
+                                }
+
+                                $label = "$todoResolved/$todoTotal " . $GLOBALS['LANG']->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments.todo');
+                                $icon = 'actions-check-square';
+                            }
                             $item['statusInformation'][] = new \TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation(
-                                label: $item['_page']['tx_ximatypo3contentplanner_comments'] . ' ' . $GLOBALS['LANG']->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
+                                label: $label,
                                 severity: \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::NOTICE,
-                                icon: 'actions-message',
+                                icon: $icon,
                             );
                         }
                     } else {

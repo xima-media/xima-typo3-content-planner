@@ -105,6 +105,12 @@ class ExtensionUtility
         return array_key_exists($feature, $configuration) && $configuration[$feature];
     }
 
+    public static function getExtensionSetting(string $feature): string
+    {
+        $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get(Configuration::EXT_KEY);
+        return $configuration[$feature];
+    }
+
     public static function getTitleField(string $table): string
     {
         return $GLOBALS['TCA'][$table]['ctrl']['label'];
