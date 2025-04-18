@@ -59,6 +59,8 @@ class RecordController extends ActionController
 
         $result = $view->render();
         $result .= ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Comments.css', ['nonce' => $this->requestId->nonce]);
+        $result .= ExtensionUtility::getJsTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/JavaScript/comments-edit.js', ['nonce' => $this->requestId->nonce]);
+
         return new JsonResponse(['result' => $result]);
     }
 }

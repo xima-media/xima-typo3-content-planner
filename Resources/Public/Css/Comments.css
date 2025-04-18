@@ -46,6 +46,13 @@
     margin-bottom: 0;
 }
 
+.widget-contentPlanner--comment-actions > a {
+    font-size: smaller;
+    min-height: 22px;
+    padding: 0 6px;
+    margin-top: -2px;
+}
+
 /*
 * Copyright (c) 2003-2025, CKSource Holding sp. z o.o. All rights reserved.
 * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options

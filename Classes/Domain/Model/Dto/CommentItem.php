@@ -13,11 +13,13 @@ final class CommentItem
 {
     public array $data = [];
     public array|bool $relatedRecord = [];
+    public ?string $editCommentUri = null;
     public ?Status $status = null;
 
     public static function create(array $row): static
     {
         $item = new CommentItem();
+        $item->editCommentUri = UrlHelper::getEditCommentUrl($row['uid']);
         $item->data = $row;
 
         return $item;

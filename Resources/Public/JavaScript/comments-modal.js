@@ -79,6 +79,13 @@ class CommentsModal {
           staticBackdrop: true,
           buttons: buttons
         });
+
+        console.log('lets add event listeners');
+        document.querySelectorAll('.widget-contentPlanner--comment').forEach(item => {
+          item.addEventListener('click', e => {
+            console.log(e.currentTarget);
+          });
+        });
       });
     }
   }
