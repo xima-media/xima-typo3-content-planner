@@ -33,7 +33,10 @@
 			</trans-unit>
 			<trans-unit id="comments">
 				<source/>
-				<target>Kommentare</target>
+				<target>Kommentar(e)</target>
+			</trans-unit>
+			<trans-unit id="comments.todo">
+				<source>ToDo(s)</source>
 			</trans-unit>
 			<trans-unit id="currentAssignee">
 				<source/>
