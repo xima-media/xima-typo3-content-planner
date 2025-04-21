@@ -68,7 +68,13 @@ class CommentsListModal {
           content: document.createRange().createContextualFragment(resolved.result),
           size: Modal.sizes.large,
           staticBackdrop: true,
-          buttons
+          buttons,
+          callback: (modal) => {
+            modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
+              bubbles: true,
+              composed: true
+            }))
+          }
         })
       })
   }

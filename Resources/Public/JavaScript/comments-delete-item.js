@@ -1,10 +1,16 @@
 /**
-* Module: @xima/ximatypo3contentplanner/comments-delete-item
-*/
+ * Module: @xima/ximatypo3contentplanner/comments-delete-item
+ */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
 
 class CommentsDeleteItem {
+
+  constructor() {
+    window.addEventListener('typo3:contentplanner:reinitializelistener', () => {
+      this.initEventListeners()
+    })
+  }
 
   initEventListeners() {
     document.querySelectorAll('[data-delete-comment-uri]').forEach(item => {
@@ -16,16 +22,24 @@ class CommentsDeleteItem {
             text: TYPO3.lang?.['delete.confirm'] || 'Delete',
             active: true,
             trigger: () => {
-              new AjaxRequest(deleteCommentUrl).get().then(() => {
-                top.TYPO3.Notification.warning('Delete', 'Comment entry successfully deleted.')
-                this.reloadComments(currentTarget)
-                Modal.dismiss()
-              })
+              new AjaxRequest(deleteCommentUrl).get()
+                .then(() => {
+                  top.TYPO3.Notification.warning('Delete', 'Comment entry successfully deleted.')
+                  this.reloadComments(currentTarget)
+                  Modal.dismiss()
+                })
+                .catch((error) => {
+                  console.error('Comment deletion failed:', error)
+                  top.TYPO3.Notification.error('Error', 'Failed to delete comment.')
+                  Modal.dismiss()
+                })
             }
           },
           {
             text: 'Cancel',
-            trigger: () => { Modal.dismiss() }
+            trigger: () => {
+              Modal.dismiss()
+            }
           }
         ])
       })

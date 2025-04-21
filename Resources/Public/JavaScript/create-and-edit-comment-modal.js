@@ -38,10 +38,10 @@ class CreateAndEditCommentModal {
       ],
       callback: (modal) => {
         const iframe = modal.querySelector('.modal-body iframe')
-        let loadCount = 0
 
-        const onIframeLoad = () => {
-          if (loadCount > 0) {
+        iframe.addEventListener('load', function initialLoad() {
+          iframe.removeEventListener('load', initialLoad)
+          iframe.addEventListener('load', function afterSubmit() {
             Viewport.ContentContainer.refresh()
             modal.hideModal()
             if (element) {
@@ -55,12 +55,8 @@ class CreateAndEditCommentModal {
                 composed: true
               }))
             }
-          }
-          loadCount++
-          iframe.removeEventListener('load', onIframeLoad)
-          setTimeout(() => iframe.addEventListener('load', onIframeLoad), 0)
-        }
-        iframe.addEventListener('load', onIframeLoad)
+          })
+        })
       },
     })
   }

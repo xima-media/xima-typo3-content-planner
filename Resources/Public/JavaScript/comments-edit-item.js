@@ -5,6 +5,12 @@ import CreateAndEditCommentModal from "@xima/ximatypo3contentplanner/create-and-
 
 class CommentsEditItem {
 
+  constructor() {
+    window.addEventListener('typo3:contentplanner:reinitializelistener', () => {
+      this.initEventListeners()
+    })
+  }
+
   initEventListeners() {
     document.querySelectorAll('[data-edit-comment-uri]').forEach(item => {
       item.addEventListener('click', ({currentTarget}) => {
