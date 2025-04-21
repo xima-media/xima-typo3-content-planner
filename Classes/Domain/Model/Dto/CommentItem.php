@@ -13,13 +13,11 @@ final class CommentItem
 {
     public array $data = [];
     public array|bool $relatedRecord = [];
-    public ?string $editCommentUri = null;
     public ?Status $status = null;
 
     public static function create(array $row): static
     {
         $item = new CommentItem();
-        $item->editCommentUri = UrlHelper::getEditCommentUrl($row['uid']);
         $item->data = $row;
 
         return $item;
@@ -61,5 +59,15 @@ final class CommentItem
     public function getAuthorName(): string
     {
         return ContentUtility::getBackendUsernameById((int)$this->data['author']);
+    }
+
+    public function getEditUri(): string
+    {
+        return UrlHelper::getEditCommentUrl((int)$this->data['uid']);
+    }
+
+    public function getDeleteUri(): string
+    {
+        return UrlHelper::getDeleteCommentUrl((int)$this->data['uid']);
     }
 }
