@@ -216,6 +216,11 @@
 				<source/>
 				<target>vor %s Sekunde</target>
 			</trans-unit>
+
+			<trans-unit id="filter.reset">
+				<source/>
+				<target>Zurücksetzen</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

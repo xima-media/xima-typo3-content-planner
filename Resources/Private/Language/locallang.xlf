@@ -169,6 +169,10 @@
 			<trans-unit id="timeAgo.second">
 				<source>%s second ago</source>
 			</trans-unit>
+
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
