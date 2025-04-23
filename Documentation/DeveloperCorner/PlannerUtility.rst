@@ -64,6 +64,13 @@ The :php:`PlannerUtility` can be used to easily interact programmatically with t
         :param \Xima\XimaTypo3ContentPlanner\Domain\Model\BackendUser|int|string|null $author: Optional user object, UID or username of the author.
         :returntype: :php:`void`
 
+    ..  php:method:: generateTodoForComment($todos)
+
+        Simple function to generate the html todo markup for a comment to easily insert them into the comment content.
+
+        :param array $todos: Array of todo strings.
+        :returntype: :php:`string`
+
     ..  php:method:: clearCommentsOfRecord($table, $uid, $like = null)
 
         Simple function to clear all comment(s) of a content planner record.
