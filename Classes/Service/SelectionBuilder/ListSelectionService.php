@@ -10,6 +10,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
@@ -21,10 +22,11 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         StatusRepository $statusRepository,
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
+        CommentRepository $commentRepository,
         UriBuilder $uriBuilder,
         private readonly IconFactory $iconFactory,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $uriBuilder);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
@@ -88,7 +90,29 @@ class ListSelectionService extends AbstractSelectionService implements Selection
                 UrlHelper::getNewCommentUrl($table, $uid),
                 UrlHelper::getContentStatusPropertiesEditUrl($table, $uid),
                 $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render(),
-                $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : '')
+                ($record['tx_ximatypo3contentplanner_comments'] ?  $record['tx_ximatypo3contentplanner_comments'] . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments')
+            )
+        ;
+    }
+
+    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    {
+        $todoTotal = $this->getCommentsTodoTotal($record, $table);
+        if ($todoTotal === 0) {
+            return;
+        }
+
+        $todoResolved = $this->getCommentsTodoResolved($record, $table);
+
+        $selectionEntriesToAdd['commentsTodo'] =
+            sprintf(
+                '<li><a class="dropdown-item dropdown-item-spaced contentPlanner--comments" href="#" data-force-ajax-url data-content-planner-comments data-table="%s" data-id="%s" data-new-comment-uri="%s" data-edit-uri="%s">%s%s</a></li>',
+                $table,
+                $uid,
+                UrlHelper::getNewCommentUrl($table, $uid),
+                UrlHelper::getContentStatusPropertiesEditUrl($table, $uid),
+                $this->iconFactory->getIcon('actions-check-square', Icon::SIZE_SMALL)->render(),
+                "$todoResolved/$todoTotal " . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments.todo')
             )
         ;
     }

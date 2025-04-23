@@ -169,6 +169,27 @@ class PlannerUtility
     }
 
     /**
+    * Simple function to generate the html todo markup for a comment to easily insert them into the comment content.
+    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::generateTodoForComment(['First todo', 'Second todo']);
+    *
+    * @param array $todos
+    * @return string
+    */
+    public static function generateTodoForComment(array $todos): string
+    {
+        $html = '<ul class="todo-list">';
+        foreach ($todos as $todo) {
+            $html .= '<li><label class="todo-list__label">'
+                . '<input type="checkbox" disabled="disabled">'
+                . '<span class="todo-list__label__description">' . htmlspecialchars($todo, ENT_QUOTES | ENT_HTML5) . '</span>'
+                . '</label></li>';
+        }
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    /**
     * Simple function to clear all comment(s) of a content planner record.
     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::clearCommentsOfRecord('pages', 1);
     *

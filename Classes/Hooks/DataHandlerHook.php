@@ -13,15 +13,22 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 final class DataHandlerHook
 {
-    public function __construct(private FrontendInterface $cache, private readonly StatusChangeManager $statusChangeManager, private readonly RecordRepository $recordRepository)
-    {
+    public function __construct(
+        private FrontendInterface $cache,
+        private readonly StatusChangeManager $statusChangeManager,
+        private readonly RecordRepository $recordRepository
+    ) {
     }
 
     /**
     * Hook: processDatamap_preProcessFieldArray
     */
-    public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler &$dataHandler): void
+    public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler $dataHandler): void
     {
+        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
+            $this->updateCommentTodo($dataHandler);
+        }
+
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
             return;
         }
@@ -30,7 +37,7 @@ final class DataHandlerHook
             $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, $id);
         }
 
-        if (in_array('tx_ximatypo3contentplanner_comment', array_keys($dataHandler->datamap))) {
+        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
             $this->fixNewCommentEntry($dataHandler);
         }
     }
@@ -45,8 +52,8 @@ final class DataHandlerHook
         }
         if ($command === 'delete' && $table === 'tx_ximatypo3contentplanner_status') {
             // Clear all status of records that are assigned to the deleted status
-            foreach (ExtensionUtility::getRecordTables() as $table) {
-                $this->statusChangeManager->clearStatusOfExtensionRecords($table, $id);
+            foreach (ExtensionUtility::getRecordTables() as $recordTable) {
+                $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, $id);
             }
         }
     }
@@ -58,7 +65,8 @@ final class DataHandlerHook
     {
         $datamap = $dataHandler->datamap;
         // Workaround to solve relation of comments created within the modal
-        if (array_key_first($datamap) === 'tx_ximatypo3contentplanner_comment') {
+        if (array_key_first($dataHandler->datamap) === 'tx_ximatypo3contentplanner_comment') {
+            $this->updateCommentTodo($dataHandler);
             $this->fixNewCommentEntry($dataHandler);
         }
     }
@@ -66,7 +74,7 @@ final class DataHandlerHook
     /**
     * Hook: processDatamap_afterDatabaseOperations
     */
-    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler &$dataHandler): void
+    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
     {
         if ($table === 'tx_ximatypo3contentplanner_comment') {
             /*
@@ -111,5 +119,42 @@ final class DataHandlerHook
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id][$key] = $value;
             }
         }
+    }
+
+    private function updateCommentTodo($dataHandler): void
+    {
+        foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
+            $content = $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['content'];
+            if (empty($content)) {
+                continue;
+            }
+
+            $todos = $this->parseTodos($content);
+            $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['todo_total'] = $todos['total'];
+            $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['todo_resolved'] = $todos['resolved'];
+        }
+    }
+
+    private function parseTodos(string $htmlContent): array
+    {
+        $dom = new \DOMDocument();
+        // Use libxml error handling instead of @ suppression
+        $previousLibXmlUseErrors = \libxml_use_internal_errors(true);
+        $success = $dom->loadHTML($htmlContent);
+        \libxml_use_internal_errors($previousLibXmlUseErrors);
+
+        $todos = ['total' => 0, 'resolved' => 0, 'pending' => 0];
+        if (!$success) {
+            return $todos;
+        }
+
+        foreach ($dom->getElementsByTagName('input') as $checkbox) {
+            if ($checkbox->getAttribute('type') === 'checkbox') {
+                $todos['total']++;
+                $checkbox->hasAttribute('checked') ? $todos['resolved']++ : $todos['pending']++;
+            }
+        }
+
+        return $todos;
     }
 }

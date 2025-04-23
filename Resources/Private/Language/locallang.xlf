@@ -24,6 +24,12 @@
 			<trans-unit id="widgets.contentPlanner.current.description">
 				<source>Display all records with your assignment</source>
 			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.todo.title">
+				<source>ToDo</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.todo.description">
+				<source>Display all records with open todos in the comments</source>
+			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.title">
 				<source>Overview</source>
 			</trans-unit>
@@ -75,6 +81,12 @@
 			<trans-unit id="widgets.contentPlanner.header.change">
 				<source>Change note</source>
 			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.assignee">
+				<source><![CDATA[There are currently <span class="badge">0</span> content planner records assigned to you.]]></source>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.todo">
+				<source>There are currently %s open tasks in the comments of all content planner records.</source>
+			</trans-unit>
 
 			<trans-unit id="button.modal.header.comments">
 				<source>Comments</source>
@@ -116,6 +128,9 @@
 			<trans-unit id="header.comments">
 				<source>Comments</source>
 			</trans-unit>
+			<trans-unit id="header.comments.todo">
+				<source>Shows the count of the pending todos within the comments</source>
+			</trans-unit>
 
 			<!-- time ago -->
 			<trans-unit id="timeAgo.years">
@@ -153,6 +168,10 @@
 			</trans-unit>
 			<trans-unit id="timeAgo.second">
 				<source>%s second ago</source>
+			</trans-unit>
+
+			<trans-unit id="filter.reset">
+				<source>Reset</source>
 			</trans-unit>
 		</body>
 	</file>

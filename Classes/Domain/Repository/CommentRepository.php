@@ -65,6 +65,30 @@ class CommentRepository
             ->executeQuery()->fetchOne();
     }
 
+    public function countTodoAllByRecord(?int $id = null, ?string $table = null, string $todoField = 'todo_resolved', bool $allRecords = false): int
+    {
+        $allowedFields = ['todo_resolved', 'todo_total'];
+        if (!in_array($todoField, $allowedFields, true)) {
+            throw new \InvalidArgumentException('Invalid todo field: ' . $todoField, 1745394753);
+        }
+
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
+        $query = $queryBuilder
+            ->selectLiteral("SUM(`$todoField`) AS `check`")
+            ->from(self::TABLE)
+            ->where($queryBuilder->expr()->eq('deleted', 0))
+        ;
+
+        if (!$allRecords) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR))
+            );
+        }
+
+        return (int)$query->executeQuery()->fetchOne();
+    }
+
     /**
     * @throws \Doctrine\DBAL\Exception
     */

@@ -25,7 +25,10 @@
 				<source>Content Planner Comment</source>
 			</trans-unit>
 			<trans-unit id="comments">
-				<source>Comments</source>
+				<source>Comment(s)</source>
+			</trans-unit>
+			<trans-unit id="comments.todo">
+				<source>ToDo(s)</source>
 			</trans-unit>
 			<trans-unit id="currentAssignee">
 				<source>Current Assignee</source>

@@ -99,6 +99,14 @@
 				<source/>
 				<target>Änderungshinweis</target>
 			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.assignee">
+				<source/>
+				<target>Aktuell sind dir %s Content Planner Datensätze zugewiesen.</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.todo">
+				<source/>
+				<target>Aktuell sind %s offene Aufgaben in den Kommentaren aller Content Planner Datensätze vorhanden.</target>
+			</trans-unit>
 
 			<trans-unit id="button.modal.header.comments">
 				<source/>
@@ -154,6 +162,10 @@
 				<source/>
 				<target>Kommentare</target>
 			</trans-unit>
+			<trans-unit id="header.comments.todo">
+				<source/>
+				<target>Zeigt die Anzahl der offenen ToDos aus den Kommentaren</target>
+			</trans-unit>
 
 			<!-- time ago -->
 			<trans-unit id="timeAgo.years">
@@ -203,6 +215,11 @@
 			<trans-unit id="timeAgo.second">
 				<source/>
 				<target>vor %s Sekunde</target>
+			</trans-unit>
+
+			<trans-unit id="filter.reset">
+				<source/>
+				<target>Zurücksetzen</target>
 			</trans-unit>
 		</body>
 	</file>

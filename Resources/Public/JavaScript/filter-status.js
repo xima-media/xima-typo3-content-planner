@@ -11,9 +11,15 @@ class FilterStatus {
       if (event.target.querySelector('.widget-contentPlanner-status')) {
         const widget = event.target.querySelector('.widget-contentPlanner-status');
         let currentBackendUser = event.target.querySelector('input[name="currentBackendUser"]').value ? event.target.querySelector('input[name="currentBackendUser"]').value : false;
+        let todo = event.target.querySelector('input[name="todo"]').value ? event.target.querySelector('input[name="todo"]').value : false;
 
         if (currentBackendUser) {
-          FilterStatus.search(widget, {assignee: currentBackendUser});
+          FilterStatus.search(widget, {assignee: currentBackendUser}, () => {
+            widget.querySelector('.widget-contentPlanner-status--description .badge').innerHTML = widget.querySelectorAll('.widget-table tbody tr').length;
+          });
+          widget.classList.add('widget-contentPlanner-status--assigned');
+        } else if (todo) {
+          FilterStatus.search(widget, {todo: true});
           widget.classList.add('widget-contentPlanner-status--assigned');
         } else {
           FilterStatus.search(widget);
@@ -39,7 +45,7 @@ class FilterStatus {
     });
   }
 
-  static search(widget, queryArguments = {}) {
+  static search(widget, queryArguments = {}, callback) {
     widget.querySelector('thead').classList.remove('hide');
     widget.querySelector('.widget-no-items-found').classList.add('hide');
     const waitingElement = widget.parentElement.parentElement.querySelector('.widget-waiting');
@@ -59,13 +65,21 @@ class FilterStatus {
           widget.querySelector('thead').classList.add('hide');
         }
         resolved.forEach(function (item) {
+          let comments = '';
+          if (item.data.tx_ximatypo3contentplanner_comments > 0) {
+            comments = '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>';
+            if (item.todo !== '') {
+              comments += ' <a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.todo + '</a>';
+            }
+          }
+
           // ToDo: refactor this
           html += '<tr ' + (item.assignedToCurrentUser ? 'class="current"' : '') + '>' +
             '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>' +
             '<td>' + (item.site ?? '') + '</td>' +
             '<td><small>' + item.updated + '</small></td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
-            '<td>' + (item.data.tx_ximatypo3contentplanner_comments > 0 ? '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>' : '') + '</td>' +
+            '<td>' + comments + '</td>' +
             '</tr>';
         });
         let table = widget.querySelector('table tbody');
@@ -84,6 +98,10 @@ class FilterStatus {
             CommentsModal.fetchComments(url, table, id);
           });
         });
+
+        if (callback) {
+          callback();
+        }
       });
   }
 }

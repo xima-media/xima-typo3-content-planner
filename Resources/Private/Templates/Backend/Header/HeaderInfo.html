@@ -68,14 +68,18 @@
                     href="{assignee.assignToCurrentUser}"
                     class="btn btn-default"
                     title="{f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}"
-                ><core:icon identifier="actions-assign-to-me" size="small"/></a>
+                >
+                    <core:icon identifier="actions-assign-to-me" size="small"/>
+                </a>
             </f:if>
             <f:if condition="{assignee.unassign}">
                 <a
                     href="{assignee.unassign}"
                     class="btn btn-default"
                     title="{f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}"
-                ><core:icon identifier="actions-unassign" size="small"/></a>
+                >
+                    <core:icon identifier="actions-unassign" size="small"/>
+                </a>
             </f:if>
         </div>
 
@@ -107,6 +111,23 @@
                     <core:icon identifier="actions-message" size="small"/>
                     <span class="badge badge-secondary">{comments.items -> f:count()}</span>
                 </button>
+                <f:if condition="{comments.todoTotal}">
+                    <button
+                        class="btn btn-default xima-typo3-content-planner--header--comment-todo"
+                        data-content-planner-comments
+                        type="button"
+                        title="{f:translate(key: 'header.comments.todo', extensionName: 'xima_typo3_content_planner')}"
+                        data-table="{table}"
+                        data-id="{data.uid}"
+                        data-new-comment-uri="{comments.newCommentUri}"
+                        data-edit-uri="{comments.editUri}"
+                    >
+                        <core:icon identifier="actions-check-square" size="small"/>
+                        <span class="badge"
+                            data-status="{f:if(condition: '{comments.todoResolved} == {comments.todoTotal}', then: 'resolved', else: 'pending')}">
+                            {comments.todoResolved}/{comments.todoTotal}
+                        </span></button>
+                </f:if>
             </f:if>
         </div>
         <f:if condition="{mode} == 'web_layout' || {mode} == 'web_list'">

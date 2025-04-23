@@ -75,5 +75,15 @@ return [
                 'type' => 'passthrough',
             ],
         ],
+        'todo_resolved' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
+        'todo_total' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
     ],
 ];

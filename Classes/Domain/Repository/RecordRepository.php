@@ -26,7 +26,7 @@ class RecordRepository
     {
     }
 
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, int $maxResults = 20): array|bool
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20): array|bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
@@ -58,7 +58,17 @@ class RecordRepository
                 continue;
             }
 
-            $this->getSqlByTable($table, $sqlArray, $additionalWhere);
+            $additionalWhereByTable = $additionalWhere;
+
+            if ($todo) {
+                // ToDo: Check for performance
+                $subQueryTotal = "(SELECT SUM(todo_total) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
+                $subQueryResolved = "(SELECT SUM(todo_resolved) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
+
+                $additionalWhereByTable .= " AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
+            }
+
+            $this->getSqlByTable($table, $sqlArray, $additionalWhereByTable);
         }
 
         $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
@@ -189,7 +199,7 @@ class RecordRepository
             $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
         }
 
-        $sql[] = '(SELECT ' . implode(',', $selects) . ' FROM ' . $table . ' WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0' . $additionalWhere . ')';
+        $sql[] = '(SELECT ' . implode(',', $selects) . ' FROM ' . $table . ' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0' . $additionalWhere . ')';
     }
 
     private function getTitleField(string $table): string

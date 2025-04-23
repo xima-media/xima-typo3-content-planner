@@ -26,7 +26,7 @@ Features
 - Colorful representation of the status within the backend
 - Easy :ref:`change of status <status-change>`
 - User :ref:`assignment <assignee>` for distribution of content work
-- :ref:`Comments <comments>` for additional information
+- :ref:`Comments <comments>` with todo feature for additional information
 - Extensive :ref:`dashboard <dashboard>` for detailed content planning
 - Recent updates :ref:`widget <dashboard-widgets>` for quick access to the latest changes
 - Filterable content planner record overview

@@ -8,6 +8,7 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
@@ -18,10 +19,11 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         StatusRepository $statusRepository,
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
+        CommentRepository $commentRepository,
         UriBuilder $uriBuilder,
         private readonly BackendUserRepository $backendUserRepository,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $uriBuilder);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
@@ -67,8 +69,24 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $selectionEntriesToAdd['comments'] = [
-            'label' => $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments') . ($record['tx_ximatypo3contentplanner_comments'] ? ' (' . $record['tx_ximatypo3contentplanner_comments'] . ')' : ''),
+            'label' => ($record['tx_ximatypo3contentplanner_comments'] ?  $record['tx_ximatypo3contentplanner_comments'] . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
             'iconIdentifier' => 'actions-message',
+            'callbackAction' => 'comments',
+        ];
+    }
+
+    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    {
+        $todoTotal = $this->getCommentsTodoTotal($record, $table);
+        if ($todoTotal === 0) {
+            return;
+        }
+
+        $todoResolved = $this->getCommentsTodoResolved($record, $table);
+
+        $selectionEntriesToAdd['commentsTodo'] = [
+            'label' => "$todoResolved/$todoTotal " . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments.todo'),
+            'iconIdentifier' => 'actions-check-square',
             'callbackAction' => 'comments',
         ];
     }

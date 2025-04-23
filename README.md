@@ -25,7 +25,7 @@ content work, e.g. a migration process.
 * Colorful representation of the status within the backend
 * Easy change of status
 * User assignment for distribution of content work
-* Comments for additional information
+* Comments with todo feature for additional information
 * Extensive dashboard for detailed content planning
 * Recent updates widget for quick access to the latest changes
 * Filterable content planner record overview

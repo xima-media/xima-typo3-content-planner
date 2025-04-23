@@ -12,14 +12,16 @@ CREATE TABLE be_users
 
 CREATE TABLE tx_ximatypo3contentplanner_comment
 (
-	uid           int(11) NOT NULL auto_increment,
-	pid           int(11) DEFAULT '0' NOT NULL,
+	uid            int(11) NOT NULL auto_increment,
+	pid            int(11) DEFAULT '0' NOT NULL,
 
-	foreign_uid   int(11) default '0' not null,
-	foreign_table varchar(255) default '' not null,
+	foreign_uid    int(11) default '0' not null,
+	foreign_table  varchar(255) default '' not null,
 
-	content       text,
-	author        int(11) DEFAULT NULL,
+	content        text,
+	author         int(11) DEFAULT NULL,
+	todo_resolved  int(11) unsigned NOT NULL DEFAULT 0,
+	todo_total     int(11) unsigned NOT NULL DEFAULT 0,
 	PRIMARY KEY (uid)
 );
 

@@ -9,7 +9,9 @@ use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
@@ -22,6 +24,7 @@ class AbstractSelectionService
         private readonly StatusRepository $statusRepository,
         private readonly RecordRepository $recordRepository,
         private readonly StatusSelectionManager $statusSelectionManager,
+        private readonly CommentRepository $commentRepository,
         private readonly UriBuilder $uriBuilder
     ) {
     }
@@ -55,6 +58,8 @@ class AbstractSelectionService
             $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
             $this->addAssigneeItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
             $this->addCommentsItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+
+            ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS) ? $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid) : null;
         }
 
         $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $selectionEntriesToAdd, $this->getCurrentStatus($record));
@@ -137,6 +142,16 @@ class AbstractSelectionService
         );
     }
 
+    protected function getCommentsTodoResolved(array $record, string $table): int
+    {
+        return $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
+    }
+
+    protected function getCommentsTodoTotal(array $record, string $table): int
+    {
+        return $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+    }
+
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
@@ -158,6 +173,11 @@ class AbstractSelectionService
     }
 
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960488);
+    }
+
+    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960488);
     }

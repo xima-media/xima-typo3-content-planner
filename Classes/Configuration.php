@@ -17,6 +17,7 @@ class Configuration
     final public const FEATURE_WEB_LIST_HEADER_INFO = 'webListHeaderInfo';
     final public const FEATURE_TREE_STATUS_INFORMATION = 'treeStatusInformation';
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
+    final public const FEATURE_COMMENT_TODOS = 'commentTodos';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 }

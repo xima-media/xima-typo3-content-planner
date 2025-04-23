@@ -88,3 +88,16 @@ Comments
     :Default: 1
 
     Delete corresponding comments when status is reset
+
+..  _extconf-commentTodos:
+
+..  confval:: commentTodos
+    :type: boolean
+    :Default: 1
+
+    Parse the :ref:`todos <comments-todo>` from comments and show them as separate hint
+
+    ..  figure:: /Images/todo.jpg
+        :alt: Todos from comments
+
+        Todos from comments
