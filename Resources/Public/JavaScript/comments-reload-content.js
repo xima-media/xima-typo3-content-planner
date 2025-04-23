@@ -1,6 +1,6 @@
 /**
- * Module: @xima/ximatypo3contentplanner/comments-reload-content
- */
+* Module: @xima/ximatypo3contentplanner/comments-reload-content
+*/
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import CommentsEditItem from "@xima/ximatypo3contentplanner/comments-edit-item.js"
 import CommentsDeleteItem from "@xima/ximatypo3contentplanner/comments-delete-item.js"
