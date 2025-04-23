@@ -7,6 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
@@ -58,14 +59,17 @@ class RecordRepository
                 continue;
             }
 
+            $additionalWhereByTable = $additionalWhere;
+
             if ($todo) {
+                // ToDo: Check for performance
                 $subQueryTotal = "(SELECT SUM(todo_total) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
                 $subQueryResolved = "(SELECT SUM(todo_resolved) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
 
-                $additionalWhere .= " AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
+                $additionalWhereByTable .= " AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
             }
 
-            $this->getSqlByTable($table, $sqlArray, $additionalWhere);
+            $this->getSqlByTable($table, $sqlArray, $additionalWhereByTable);
         }
 
         $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
