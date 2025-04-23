@@ -60,4 +60,14 @@ final class CommentItem
     {
         return ContentUtility::getBackendUsernameById((int)$this->data['author']);
     }
+
+    public function getEditUri(): string
+    {
+        return UrlHelper::getEditCommentUrl((int)$this->data['uid']);
+    }
+
+    public function getDeleteUri(): string
+    {
+        return UrlHelper::getDeleteCommentUrl((int)$this->data['uid']);
+    }
 }
