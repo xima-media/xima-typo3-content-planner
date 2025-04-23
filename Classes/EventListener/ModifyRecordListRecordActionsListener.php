@@ -7,6 +7,7 @@ use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService;
@@ -55,7 +56,7 @@ final class ModifyRecordListRecordActionsListener
 
         $title = $status ? $status->getTitle() : 'Status';
         $icon = $status ? $status->getColoredIcon() : 'flag-gray';
-        $action = '<div class="btn-group" style="margin-left:10px;">
+        $action = '
                 <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="' . $title . '">'
             . $this->iconFactory->getIcon($icon, Icon::SIZE_SMALL)->render() . '</a><ul class="dropdown-menu">';
 
@@ -65,13 +66,14 @@ final class ModifyRecordListRecordActionsListener
         }
 
         $action .= '</ul>';
-        $action .= '</div>';
+        $action .= '';
+
         $event->setAction(
             $action,
             'Status',
             'primary',
-            '',
             'delete',
+            '',
         );
     }
 
