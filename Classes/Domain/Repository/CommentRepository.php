@@ -33,7 +33,7 @@ class CommentRepository
                 $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
                 $queryBuilder->expr()->eq('deleted', 0)
             )
-            ->orderBy('tstamp', 'DESC')
+            ->orderBy('crdate', 'DESC')
             ->executeQuery()->fetchAllAssociative();
 
         if ($raw) {

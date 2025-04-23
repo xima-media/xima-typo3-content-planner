@@ -3,7 +3,7 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 import Viewport from "@typo3/backend/viewport.js";
-import CommentsModal from "@xima/ximatypo3contentplanner/comments-modal.js";
+import CommentsModal from "@xima/ximatypo3contentplanner/comments-list-modal.js";
 
 class ContextMenuActions {
 

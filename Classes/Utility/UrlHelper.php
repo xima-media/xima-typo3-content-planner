@@ -40,6 +40,30 @@ class UrlHelper
         return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
+    public static function getEditCommentUrl(int $uid): string
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
+        $params = [
+            'edit' => ['tx_ximatypo3contentplanner_comment' => [$uid => 'edit']],
+            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+        ];
+        return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
+    }
+
+    public static function getDeleteCommentUrl(int $uid): string
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
+        $params = [
+            'cmd' => ['tx_ximatypo3contentplanner_comment' => [$uid => ['delete' => 1]]],
+            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+        ];
+        return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
+    }
+
     public static function getRecordLink(string $table, int $uid): string
     {
         return match ($table) {

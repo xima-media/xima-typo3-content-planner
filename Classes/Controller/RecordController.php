@@ -55,10 +55,16 @@ class RecordController extends ActionController
         $view->setLayoutRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Layouts']);
 
         $view->setTemplate('Comments');
-        $view->assign('comments', $comments);
+        $view->assignMultiple([
+            'comments' => $comments,
+            'id' => $recordId,
+            'table' => $recordTable,
+        ]);
 
         $result = $view->render();
         $result .= ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Comments.css', ['nonce' => $this->requestId->nonce]);
+        $result .= ExtensionUtility::getJsTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/JavaScript/comments-reload-content.js', ['nonce' => $this->requestId->nonce]);
+
         return new JsonResponse(['result' => $result]);
     }
 }
