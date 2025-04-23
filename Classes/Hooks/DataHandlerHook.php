@@ -7,7 +7,6 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
-use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -18,8 +17,7 @@ final class DataHandlerHook
         private FrontendInterface $cache,
         private readonly StatusChangeManager $statusChangeManager,
         private readonly RecordRepository $recordRepository
-    )
-    {
+    ) {
     }
 
     /**
