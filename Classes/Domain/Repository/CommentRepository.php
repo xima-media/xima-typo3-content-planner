@@ -67,6 +67,11 @@ class CommentRepository
 
     public function countTodoAllByRecord(int $id, string $table, string $todoField = 'todo_resolved'): int
     {
+        $allowedFields = ['todo_resolved', 'todo_total'];
+        if (!in_array($todoField, $allowedFields, true)) {
+            throw new \InvalidArgumentException('Invalid todo field: ' . $todoField, 1745394753);
+        }
+
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
         return (int)$queryBuilder
             ->selectLiteral("SUM(`$todoField`) AS `check`")
