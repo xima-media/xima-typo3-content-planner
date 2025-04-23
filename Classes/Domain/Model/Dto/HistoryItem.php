@@ -70,7 +70,8 @@ final class HistoryItem
                     break;
                 case 'tx_ximatypo3contentplanner_comment':
                     if (
-                        array_key_exists('foreign_table', $this->data['raw_history'])
+                        !is_null($this->data['raw_history'])
+                        && array_key_exists('foreign_table', $this->data['raw_history'])
                         && array_key_exists('foreign_uid', $this->data['raw_history'])
                         && $this->data['raw_history']['foreign_table']
                         && $this->data['raw_history']['foreign_uid']
@@ -150,7 +151,7 @@ final class HistoryItem
         return IconHelper::getIconByIdentifier('actions-open');
     }
 
-    public function getRawHistoryData(): array
+    public function getRawHistoryData(): ?array
     {
         return json_decode($this->data['history_data'], true);
     }
