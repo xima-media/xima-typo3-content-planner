@@ -14,3 +14,8 @@ Via the "Access Rights" tab add the **Content Status** (`tx_ximatypo3contentplan
 
 ..  note::
     Only users with admin rights and the necessary permissions can access the Content Planner functionalities and can be selected as assignees.
+
+Don't forget to also add the following permissions as well:
+
+- "Tables (listing)" (tables_select) and "Tables (modify)" (tables_modify) permissions for the `Content Planner Comment [tx_ximatypo3contentplanner_comment]` table
+- All wanted :ref:`dashboard widget <dashboard-widgets>` in the "Dashboard widgets" (availableWidgets) permission
