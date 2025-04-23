@@ -21,7 +21,7 @@ To create a new dashboard, click on the "Add dashboard" (+) button near the dash
 
 Otherwise you can add the widgets manually to an existing dashboard.
 
-..  figure:: /Images/widget-select.png
+..  figure:: /Images/widget-select.jpg
     :alt: Select the content planner widgets
     :class: with-shadow
 
@@ -71,6 +71,13 @@ The dashboard provides a set of helpful widgets to get an overview of the curren
 
         :Description:
             Short list with all records assigned to the current user.
+
+    -
+        :Field:
+            ToDo
+
+        :Description:
+            Display all records with open todos in the comments.
 
     -
         :Field:
