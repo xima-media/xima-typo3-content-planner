@@ -7,22 +7,27 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 final class DataHandlerHook
 {
-    public function __construct(private FrontendInterface $cache, private readonly StatusChangeManager $statusChangeManager, private readonly RecordRepository $recordRepository)
+    public function __construct(
+        private FrontendInterface $cache,
+        private readonly StatusChangeManager $statusChangeManager,
+        private readonly RecordRepository $recordRepository
+    )
     {
     }
 
     /**
     * Hook: processDatamap_preProcessFieldArray
     */
-    public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler &$dataHandler): void
+    public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler $dataHandler): void
     {
-        if (in_array('tx_ximatypo3contentplanner_comment', array_keys($dataHandler->datamap))) {
+        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
             $this->updateCommentTodo($dataHandler);
         }
 
@@ -34,7 +39,7 @@ final class DataHandlerHook
             $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, $id);
         }
 
-        if (in_array('tx_ximatypo3contentplanner_comment', array_keys($dataHandler->datamap))) {
+        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
             $this->fixNewCommentEntry($dataHandler);
         }
     }
@@ -49,8 +54,8 @@ final class DataHandlerHook
         }
         if ($command === 'delete' && $table === 'tx_ximatypo3contentplanner_status') {
             // Clear all status of records that are assigned to the deleted status
-            foreach (ExtensionUtility::getRecordTables() as $table) {
-                $this->statusChangeManager->clearStatusOfExtensionRecords($table, $id);
+            foreach (ExtensionUtility::getRecordTables() as $recordTable) {
+                $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, $id);
             }
         }
     }
@@ -62,7 +67,8 @@ final class DataHandlerHook
     {
         $datamap = $dataHandler->datamap;
         // Workaround to solve relation of comments created within the modal
-        if (array_key_first($datamap) === 'tx_ximatypo3contentplanner_comment') {
+        if (array_key_first($dataHandler->datamap) === 'tx_ximatypo3contentplanner_comment') {
+            $this->updateCommentTodo($dataHandler);
             $this->fixNewCommentEntry($dataHandler);
         }
     }
@@ -70,7 +76,7 @@ final class DataHandlerHook
     /**
     * Hook: processDatamap_afterDatabaseOperations
     */
-    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler &$dataHandler): void
+    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
     {
         if ($table === 'tx_ximatypo3contentplanner_comment') {
             /*
