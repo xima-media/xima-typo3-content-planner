@@ -17,6 +17,7 @@ final class StatusItem
 {
     public array $data = [];
     public ?Status $status = null;
+    private ?CommentRepository $commentRepository = null;
 
     public static function create(array $row): static
     {
@@ -115,8 +116,7 @@ final class StatusItem
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
             return 0;
         }
-        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        return $this->data['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
+        return $this->data['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
     }
 
     public function getToDoTotal(): int
@@ -124,8 +124,7 @@ final class StatusItem
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
             return 0;
         }
-        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        return $this->data['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        return $this->data['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
     }
 
     public function toArray(): array
@@ -146,5 +145,13 @@ final class StatusItem
             'todo' => $this->getToDoHtml(),
             'site' => $this->getSite(),
         ];
+    }
+
+    private function getCommentRepository(): CommentRepository
+    {
+        if ($this->commentRepository === null) {
+            $this->commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+        }
+        return $this->commentRepository;
     }
 }
