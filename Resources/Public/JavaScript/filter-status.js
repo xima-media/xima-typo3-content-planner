@@ -59,13 +59,21 @@ class FilterStatus {
           widget.querySelector('thead').classList.add('hide');
         }
         resolved.forEach(function (item) {
+          let comments = '';
+          if (item.data.tx_ximatypo3contentplanner_comments > 0) {
+            comments = '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>';
+            if (item.todo !== '') {
+              comments += ' <a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.todo + '</a>';
+            }
+          }
+
           // ToDo: refactor this
           html += '<tr ' + (item.assignedToCurrentUser ? 'class="current"' : '') + '>' +
             '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>' +
             '<td>' + (item.site ?? '') + '</td>' +
             '<td><small>' + item.updated + '</small></td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
-            '<td>' + (item.data.tx_ximatypo3contentplanner_comments > 0 ? '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>' : '') + '</td>' +
+            '<td>' + comments + '</td>' +
             '</tr>';
         });
         let table = widget.querySelector('table tbody');

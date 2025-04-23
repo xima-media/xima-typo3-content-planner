@@ -1,3 +1,8 @@
+:root {
+    --content-planner--color-yellow: rgb(255,205,117);
+    --content-planner--color-green: rgb(106,158,113);
+}
+
 .widget-content-main .hide {
     display: none;
 }
@@ -80,13 +85,19 @@
     background-color: #f5f5f5;
 }
 
+.widget-contentPlanner-status--assigned table .widget-table tr > td, .widget-contentPlanner-status  .widget-table tr > td {
+    background: transparent;
+}
+
 .widget-contentPlanner-status--assigned table tr > th:nth-child(2), .widget-contentPlanner-status--assigned table tr > td:nth-child(2),
 .widget-contentPlanner-status--assigned table tr > th:nth-child(4), .widget-contentPlanner-status--assigned table tr > td:nth-child(4) {
     display: none;
 }
 
-.widget-contentPlanner-status--assigned table tr > td:nth-child(5) {
+.widget-contentPlanner-status--assigned table .widget-table tr > td:nth-child(5), .widget-contentPlanner-status  .widget-table tr > td:nth-child(5) {
+    max-width: 90px;
     text-align: right;
+    padding-left: 0;
 }
 
 .widget-contentPlanner-status--assigned {
@@ -102,6 +113,15 @@
 
 .widget-identifier-contentPlanner-notes .widget-content-footer {
     gap: 1rem;
+}
+
+.xima-typo3-content-planner--comment-todo[data-status="resolved"] {
+    color: white;
+    background-color: var(--content-planner--color-green);
+}
+
+.xima-typo3-content-planner--comment-todo[data-status="pending"] {
+    background-color: var(--content-planner--color-yellow);
 }
 
 .update-list {

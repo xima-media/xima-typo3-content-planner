@@ -7,6 +7,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
@@ -74,9 +75,13 @@ final class StatusItem
         return IconHelper::getAvatarByUserId((int)$this->data['tx_ximatypo3contentplanner_assignee']);
     }
 
-    public function getComments(): string
+    public function getCommentsHtml(): string
     {
-        return $this->data['tx_ximatypo3contentplanner_comments'] . ' ' . IconHelper::getIconByIdentifier('actions-message');
+        return $this->data['tx_ximatypo3contentplanner_comments'] ? sprintf(
+            '%s <span class="badge">%d</span>',
+            IconHelper::getIconByIdentifier('actions-message'),
+            $this->data['tx_ximatypo3contentplanner_comments']
+        ) : '';
     }
 
     public function getSite(): ?string
@@ -89,6 +94,38 @@ final class StatusItem
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $icon = $iconFactory->getIcon('apps-pagetree-folder-root', 'small');
         return $icon->render() . ' ' . ($site->getAttribute('websiteTitle') ?: $site->getIdentifier());
+    }
+
+    public function getToDoHtml(): string
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            return '';
+        }
+        return $this->getToDoTotal() ? sprintf(
+            '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
+            IconHelper::getIconByIdentifier('actions-check-square'),
+            $this->getToDoResolved() === $this->getToDoTotal() ? 'resolved' : 'pending',
+            $this->getToDoResolved(),
+            $this->getToDoTotal()
+        ) : '';
+    }
+
+    public function getToDoResolved(): int
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            return 0;
+        }
+        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+        return $this->data['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
+    }
+
+    public function getToDoTotal(): int
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            return 0;
+        }
+        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+        return $this->data['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
     }
 
     public function toArray(): array
@@ -105,7 +142,8 @@ final class StatusItem
             'assigneeName' => $this->getAssigneeName(),
             'assigneeAvatar' => $this->getAssigneeAvatar(),
             'assignedToCurrentUser' => $this->getAssignedToCurrentUser(),
-            'comments' => $this->getComments(),
+            'comments' => $this->getCommentsHtml(),
+            'todo' => $this->getToDoHtml(),
             'site' => $this->getSite(),
         ];
     }
