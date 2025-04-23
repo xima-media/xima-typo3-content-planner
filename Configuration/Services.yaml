@@ -101,6 +101,23 @@ services:
         height: 'medium'
         width: 'small'
 
+  dashboard.widget.ContentStatus-todo:
+    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
+    arguments:
+      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+      $options:
+        refreshAvailable: true
+        todo: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'contentPlanner-todo'
+        groupNames: 'contentPlanner'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.description'
+        iconIdentifier: 'flag-gray'
+        height: 'medium'
+        width: 'small'
+
   dashboard.widget.ContentStatus-comments:
     class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentCommentWidget'
     arguments:

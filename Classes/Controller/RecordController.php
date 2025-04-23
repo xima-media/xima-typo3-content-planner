@@ -31,9 +31,10 @@ class RecordController extends ActionController
         $search = array_key_exists('search', $request->getQueryParams()) ? $request->getQueryParams()['search'] : null;
         $status = array_key_exists('status', $request->getQueryParams()) ? (int)$request->getQueryParams()['status'] : null;
         $assignee = array_key_exists('assignee', $request->getQueryParams()) ? (int)$request->getQueryParams()['assignee'] : null;
+        $todo = array_key_exists('todo', $request->getQueryParams()) ? (bool)$request->getQueryParams()['todo'] : false;
         $type = array_key_exists('type', $request->getQueryParams()) ? $request->getQueryParams()['type'] : null;
 
-        $records = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type);
+        $records = $this->recordRepository->findAllByFilter($search, $status, assignee: $assignee, type: $type, todo: $todo);
         $result = [];
         foreach ($records as $record) {
             $result[] = StatusItem::create($record)->toArray();

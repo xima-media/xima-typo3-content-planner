@@ -65,6 +65,10 @@
     padding-top: 0;
 }
 
+.widget-contentPlanner-status--description {
+    padding-bottom: 20px;
+}
+
 .widget-content-main .widget-filter .form-check input[type="radio"] {
     display: none;
 }
@@ -85,16 +89,20 @@
     background-color: #f5f5f5;
 }
 
-.widget-contentPlanner-status--assigned table .widget-table tr > td, .widget-contentPlanner-status  .widget-table tr > td {
+.widget-contentPlanner-status--assigned table .widget-table tr > td, .widget-contentPlanner-status--todo table .widget-table tr > td, .widget-contentPlanner-status  .widget-table tr > td {
     background: transparent;
 }
 
 .widget-contentPlanner-status--assigned table tr > th:nth-child(2), .widget-contentPlanner-status--assigned table tr > td:nth-child(2),
-.widget-contentPlanner-status--assigned table tr > th:nth-child(4), .widget-contentPlanner-status--assigned table tr > td:nth-child(4) {
+.widget-contentPlanner-status--assigned table tr > th:nth-child(4), .widget-contentPlanner-status--assigned table tr > td:nth-child(4),
+.widget-contentPlanner-status--todo table tr > th:nth-child(2), .widget-contentPlanner-status--todo table tr > td:nth-child(2),
+.widget-contentPlanner-status--todo table tr > th:nth-child(4), .widget-contentPlanner-status--todo table tr > td:nth-child(4) {
     display: none;
 }
 
-.widget-contentPlanner-status--assigned table .widget-table tr > td:nth-child(5), .widget-contentPlanner-status  .widget-table tr > td:nth-child(5) {
+.widget-contentPlanner-status--assigned table .widget-table tr > td:nth-child(5),
+.widget-contentPlanner-status--todo table .widget-table tr > td:nth-child(5),
+.widget-contentPlanner-status  .widget-table tr > td:nth-child(5) {
     max-width: 90px;
     text-align: right;
     padding-left: 0;
@@ -107,6 +115,17 @@
 
 @container assigned (width < 340px) {
     .widget-contentPlanner-status--assigned table tr > th:nth-child(3), .widget-contentPlanner-status--assigned table tr > td:nth-child(3) {
+        display: none;
+    }
+}
+
+.widget-contentPlanner-status--todo {
+    container-name: todo;
+    container-type: inline-size;
+}
+
+@container todo (width < 340px) {
+    .widget-contentPlanner-status--todo table tr > th:nth-child(3), .widget-contentPlanner-status--todo table tr > td:nth-child(3) {
         display: none;
     }
 }
