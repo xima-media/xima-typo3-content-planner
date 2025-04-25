@@ -1,6 +1,6 @@
 /**
-* Module: @xima/ximatypo3contentplanner/comments-resolved-item
-*/
+ * Module: @xima/ximatypo3contentplanner/comments-resolved-item
+ */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
 
@@ -56,7 +56,12 @@ class CommentsResolvedItem {
       id: target.getAttribute('data-id')
     }
 
-    document.querySelector('#widget-contentPlanner--comment-list')
+    const commentList = document.querySelector('#widget-contentPlanner--comment-list')
+    if (!commentList) {
+      console.warn('Comment list container not found')
+      return
+    }
+    commentList
       .dispatchEvent(new CustomEvent('typo3:contentplanner:reloadcomments', {
         detail: eventDetail,
         bubbles: true,

@@ -38,13 +38,13 @@ class CommentsReloadContent {
   }
 
   getFilterValues() {
-    const filterForm = document.querySelector('form#widget-contentPlanner--comment-filter');
+    const filterForm = document.querySelector('form#widget-contentPlanner--comment-filter')
     if (!filterForm) {
-      console.warn('Filter form not found');
-      return null;
+      console.warn('Filter form not found')
+      return null
     }
-    const formData = new FormData(filterForm);
-    return Object.fromEntries(formData.entries());
+    const formData = new FormData(filterForm)
+    return Object.fromEntries(formData.entries())
   }
 
   loadComments(url, table, uid) {
@@ -53,7 +53,8 @@ class CommentsReloadContent {
       return
     }
 
-    let queryArguments = {table, uid, ...this.getFilterValues()}
+    const filterValues = this.getFilterValues()
+    let queryArguments = {table, uid, ...(filterValues || {})}
     new AjaxRequest(url)
       .withQueryArguments(queryArguments)
       .get()
