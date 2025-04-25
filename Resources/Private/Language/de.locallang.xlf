@@ -221,6 +221,63 @@
 				<source/>
 				<target>Zurücksetzen</target>
 			</trans-unit>
+
+			<trans-unit id="comment.actions.edit">
+				<source/>
+				<target>Bearbeiten</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.resolve">
+				<source/>
+				<target>Als Erledigt markieren</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.resolve.title">
+				<source/>
+				<target>Erledigen</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.resolve.description">
+				<source/>
+				<target>Sind sie sicher, dass sie den Kommentar als erledigt markieren möchten?</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.resolve.button">
+				<source/>
+				<target>Erledigen</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.unresolve">
+				<source/>
+				<target>Erneut öffnen</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.unresolve.title">
+				<source/>
+				<target>Erneut öffnen</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.unresolve.description">
+				<source/>
+				<target>Sind sie sicher, dass sie den Kommentar erneut öffnen möchten?</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.unresolve.button">
+				<source/>
+				<target>Öffnen</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.delete">
+				<source/>
+				<target>Löschen</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.delete.title">
+				<source/>
+				<target>Löschen</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.delete.description">
+				<source/>
+				<target>Sind sie sicher, dass sie den Kommentar löschen möchten?</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.delete.button">
+				<source/>
+				<target>Löschen</target>
+			</trans-unit>
+			<trans-unit id="comment.resolved">
+				<source/>
+				<target>Erledigt von %s am %s</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

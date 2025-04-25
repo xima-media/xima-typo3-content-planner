@@ -46,7 +46,10 @@ class RecordController extends ActionController
     {
         $recordId = (int)$request->getQueryParams()['uid'];
         $recordTable = $request->getQueryParams()['table'];
-        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable);
+        $sortComments = $request->getQueryParams()['sortComments'] ?? 'DESC';
+        $showResolvedComments = (bool)($request->getQueryParams()['showResolvedComments'] ?? false);
+
+        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, sortDirection: $sortComments, showResolved: $showResolvedComments);
 
         /** @var StandaloneView $view */
         $view = GeneralUtility::makeInstance(StandaloneView::class);
@@ -60,6 +63,11 @@ class RecordController extends ActionController
             'comments' => $comments,
             'id' => $recordId,
             'table' => $recordTable,
+            'filter' => [
+                'sortComments' => $sortComments,
+                'showResolvedComments' => $showResolvedComments,
+                'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, onlyResolved: true),
+            ],
         ]);
 
         $result = $view->render();

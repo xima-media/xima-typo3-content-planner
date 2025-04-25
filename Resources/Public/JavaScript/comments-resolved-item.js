@@ -1,10 +1,10 @@
 /**
-* Module: @xima/ximatypo3contentplanner/comments-delete-item
+* Module: @xima/ximatypo3contentplanner/comments-resolved-item
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
 
-class CommentsDeleteItem {
+class CommentsResolvedItem {
 
   constructor() {
     window.addEventListener('typo3:contentplanner:reinitializelistener', () => {
@@ -13,27 +13,27 @@ class CommentsDeleteItem {
   }
 
   initEventListeners() {
-    document.querySelectorAll('[data-delete-comment-uri]').forEach(item => {
+    document.querySelectorAll('[data-resolved-comment-uri]').forEach(item => {
       item.addEventListener('click', ({currentTarget}) => {
-        const deleteCommentUrl = currentTarget.getAttribute('data-delete-comment-uri')
-        const deleteCommentTitle = currentTarget.getAttribute('data-delete-comment-title')
-        const deleteCommentDescription = currentTarget.getAttribute('data-delete-comment-description')
-        const deleteCommentButton = currentTarget.getAttribute('data-delete-comment-button')
+        const resolvedCommentUrl = currentTarget.getAttribute('data-resolved-comment-uri')
+        const resolvedCommentTitle = currentTarget.getAttribute('data-resolved-comment-title')
+        const resolvedCommentDescription = currentTarget.getAttribute('data-resolved-comment-description')
+        const resolvedCommentButton = currentTarget.getAttribute('data-resolved-comment-button')
 
-        Modal.confirm(deleteCommentTitle, deleteCommentDescription, TYPO3.Severity.error, [
+        Modal.confirm(resolvedCommentTitle, resolvedCommentDescription, TYPO3.Severity.warning, [
           {
-            text: deleteCommentButton,
+            text: resolvedCommentButton,
             active: true,
             trigger: () => {
-              new AjaxRequest(deleteCommentUrl).get()
+              new AjaxRequest(resolvedCommentUrl).get()
                 .then(() => {
-                  top.TYPO3.Notification.warning('Delete', 'Comment entry successfully deleted.')
+                  //top.TYPO3.Notification.success('Resolved', 'Comment entry successfully resolved.')
                   this.reloadComments(currentTarget)
                   Modal.dismiss()
                 })
                 .catch((error) => {
-                  console.error('Comment deletion failed:', error)
-                  top.TYPO3.Notification.error('Error', 'Failed to delete comment.')
+                  console.error('Comment resolve failed:', error)
+                  top.TYPO3.Notification.error('Error', 'Failed to resolve comment.')
                   Modal.dismiss()
                 })
             }
@@ -65,4 +65,4 @@ class CommentsDeleteItem {
   }
 }
 
-export default new CommentsDeleteItem()
+export default new CommentsResolvedItem()

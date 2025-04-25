@@ -52,6 +52,24 @@ class UrlHelper
         return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
+    public static function getResolvedCommentUrl(int $uid, bool $isResolved): string
+    {
+        $request = $GLOBALS['TYPO3_REQUEST'];
+        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
+        if ($isResolved) {
+            $isResolvedValue = '';
+        } else {
+            $isResolvedValue = 1;
+        }
+
+        $params = [
+            'data' => ['tx_ximatypo3contentplanner_comment' => [$uid => ['resolved' => $isResolvedValue]]],
+            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+        ];
+        return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
+    }
+
     public static function getDeleteCommentUrl(int $uid): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];

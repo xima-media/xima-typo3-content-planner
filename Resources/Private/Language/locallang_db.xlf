@@ -18,6 +18,9 @@
 			<trans-unit id="tx_ximatypo3contentplanner_comment.content">
 				<source>Content</source>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_comment.resolved">
+				<source>Resolved</source>
+			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_comment.author">
 				<source>Author</source>
 			</trans-unit>

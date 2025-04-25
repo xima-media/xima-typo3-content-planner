@@ -21,19 +21,27 @@ class CommentRepository
     /**
     * @throws \Doctrine\DBAL\Exception
     */
-    public function findAllByRecord(int $id, string $table, bool $raw = false): array
+    public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false): array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
 
-        $comments = $queryBuilder
+        $query = $queryBuilder
             ->select('*')
             ->from(self::TABLE)
             ->where(
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
                 $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
-                $queryBuilder->expr()->eq('deleted', 0)
+                $queryBuilder->expr()->eq('deleted', 0),
             )
-            ->orderBy('crdate', 'DESC')
+            ->orderBy('crdate', $sortDirection);
+
+        if (!$showResolved) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq('resolved', $queryBuilder->createNamedParameter('', Connection::PARAM_STR))
+            );
+        }
+
+        $comments = $query
             ->executeQuery()->fetchAllAssociative();
 
         if ($raw) {
@@ -51,18 +59,31 @@ class CommentRepository
         return $items;
     }
 
-    public function countAllByRecord(int $id, string $table): int
+    public function countAllByRecord(int $id, string $table, bool $countAll = false, bool $onlyResolved = false): int
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
-        return $queryBuilder
+        $query = $queryBuilder
             ->count('uid')
             ->from(self::TABLE)
             ->where(
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
                 $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
-                $queryBuilder->expr()->eq('deleted', 0)
-            )
-            ->executeQuery()->fetchOne();
+                $queryBuilder->expr()->eq('deleted', 0),
+            );
+
+        if (!$countAll && !$onlyResolved) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq('resolved', $queryBuilder->createNamedParameter('', Connection::PARAM_STR))
+            );
+        }
+
+        if ($onlyResolved) {
+            $query->andWhere(
+                $queryBuilder->expr()->neq('resolved', $queryBuilder->createNamedParameter('', Connection::PARAM_STR))
+            );
+        }
+
+        return $query->executeQuery()->fetchOne();
     }
 
     public function countTodoAllByRecord(?int $id = null, ?string $table = null, string $todoField = 'todo_resolved', bool $allRecords = false): int
@@ -76,7 +97,10 @@ class CommentRepository
         $query = $queryBuilder
             ->selectLiteral("SUM(`$todoField`) AS `check`")
             ->from(self::TABLE)
-            ->where($queryBuilder->expr()->eq('deleted', 0))
+            ->where(
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('resolved', $queryBuilder->createNamedParameter('', Connection::PARAM_STR))
+            )
         ;
 
         if (!$allRecords) {

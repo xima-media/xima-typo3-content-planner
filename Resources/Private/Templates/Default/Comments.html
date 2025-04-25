@@ -2,11 +2,36 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
+<form id="widget-contentPlanner--comment-filter" data-table="{table}" data-id="{id}">
+    <div class="form-sort">
+        <label for="widget-contentPlanner--comment-filter-sort">Sort</label>
+        <select id="widget-contentPlanner--comment-filter-sort" name="sortComments"
+                class="form-select form-select-sm">
+            <f:for each="{0: {value: 'DESC', label: 'Newest'}, 1: {value: 'ASC', label: 'Oldest'}}" as="option">
+                <option value="{option.value}" {f:if(condition:
+                '{option.value} == {filter.sortComments}', then: 'selected', else: '')}>
+                    {option.label}
+                </option>
+            </f:for>
+        </select>
+    </div>
+    <f:if condition="{filter.resolvedCount}">
+        <div class="form-check form-switch">
+            <input type="checkbox" class="form-check-input" value="1"
+                id="widget-contentPlanner--comment-filter-resolved"
+                name="showResolvedComments"
+                {f:if(condition: '{filter.showResolvedComments}', then: 'checked', else: '')}
+            />
+            <label for="widget-contentPlanner--comment-filter-resolved">Show resolved comments <span class="badge badge-secondary">{filter.resolvedCount}</span></label>
+        </div>
+    </f:if>
+</form>
+
 <div id="widget-contentPlanner--comment-list">
     <f:if condition="{comments -> f:count()}">
         <f:then>
             <f:for each="{comments}" as="record">
-                <div class="d-flex widget-contentPlanner--comment">
+                <div class="d-flex widget-contentPlanner--comment {f:if(condition: '{record.resolved}', then: 'resolved', else: '')}">
                     <be:avatar backendUser="{record.data.author}" size="40"
                             showIcon="true"/>
                     <div class="d-flex flex-column flex-grow-1">
@@ -28,21 +53,54 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a class="dropdown-item" data-id="{id}" data-table="{table}" data-edit-comment-uri="{record.editUri}">
+                                        <a class="dropdown-item" data-id="{id}" data-table="{table}"
+                                        data-edit-comment-uri="{record.editUri}">
                                             <core:icon identifier="actions-open" size="small" title="Edit"/>
-                                            Edit
+                                            <f:translate key="comment.actions.edit"
+                                                        extensionName="XimaTypo3ContentPlanner"/>
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" data-id="{id}" data-table="{table}" data-delete-comment-uri="{record.deleteUri}">
+                                        <f:variable name="status"
+                                                    value="{f:if(condition: '{record.resolved}', then: 'unresolve', else: 'resolve')}"/>
+                                        <a class="dropdown-item" data-id="{id}" data-table="{table}"
+                                        data-resolved-comment-uri="{record.resolvedUri}"
+                                        data-resolved-comment-title="{f:translate(key: 'comment.actions.{status}.title', extensionName: 'XimaTypo3ContentPlanner')}"
+                                        data-resolved-comment-description="{f:translate(key: 'comment.actions.{status}.description', extensionName: 'XimaTypo3ContentPlanner')}"
+                                        data-resolved-comment-button="{f:translate(key: 'comment.actions.{status}.button', extensionName: 'XimaTypo3ContentPlanner')}"
+                                        >
+                                            <core:icon identifier="actions-check-circle" size="small" title="Resolved"/>
+                                            <f:translate key="comment.actions.{status}"
+                                                        extensionName="XimaTypo3ContentPlanner"/>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" data-id="{id}" data-table="{table}"
+                                        data-delete-comment-uri="{record.deleteUri}"
+                                        data-delete-comment-title="{f:translate(key: 'comment.actions.delete.title', extensionName: 'XimaTypo3ContentPlanner')}"
+                                        data-delete-comment-description="{f:translate(key: 'comment.actions.delete.description', extensionName: 'XimaTypo3ContentPlanner')}"
+                                        data-delete-comment-button="{f:translate(key: 'comment.actions.delete.button', extensionName: 'XimaTypo3ContentPlanner')}"
+                                        >
                                             <core:icon identifier="actions-delete" size="small" title="Delete"/>
-                                            Delete
+                                            <f:translate key="comment.actions.delete"
+                                                        extensionName="XimaTypo3ContentPlanner"/>
                                         </a>
                                     </li>
                                 </ul>
                             </div>
                         </div>
                         <div class="text">{record.data.content -> f:format.raw()}</div>
+                        <f:if condition="{record.resolved}">
+                            <div>
+                                <small class="text-success">
+                                    <core:icon identifier="actions-check-circle" size="small" title="Resolved"/>
+                                </small>
+                                <small>
+                                    <f:translate key="comment.resolved" extensionName="XimaTypo3ContentPlanner"
+                                                arguments="{0: '{record.resolvedUser}', 1: '{record.resolvedDate -> f:format.date(format:\'d.m.Y H:i\')}'}"/>
+                                </small>
+                            </div>
+                        </f:if>
                     </div>
                 </div>
             </f:for>
