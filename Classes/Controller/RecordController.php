@@ -16,6 +16,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 class RecordController extends ActionController
 {
@@ -63,6 +64,7 @@ class RecordController extends ActionController
             'comments' => $comments,
             'id' => $recordId,
             'table' => $recordTable,
+            'newCommentUri' => UrlHelper::getNewCommentUrl($recordTable, $recordId),
             'filter' => [
                 'sortComments' => $sortComments,
                 'showResolvedComments' => $showResolvedComments,

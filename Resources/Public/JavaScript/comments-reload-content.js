@@ -5,6 +5,7 @@ import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import CommentsEditItem from "@xima/ximatypo3contentplanner/comments-edit-item.js"
 import CommentsResolvedItem from "@xima/ximatypo3contentplanner/comments-resolved-item.js";
 import CommentsDeleteItem from "@xima/ximatypo3contentplanner/comments-delete-item.js"
+import CreateAndEditCommentModal from "@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js"
 
 class CommentsReloadContent {
 
@@ -17,12 +18,22 @@ class CommentsReloadContent {
   }
 
   initEventListeners() {
-    document.querySelector('form#widget-contentPlanner--comment-filter').addEventListener('change', (event) => {
+    document.querySelector('form#widget-contentPlanner--comment-filter')?.addEventListener('change', (event) => {
       event.preventDefault()
       const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
       const table = event.target.closest('form').getAttribute('data-table')
       const uid = event.target.closest('form').getAttribute('data-id')
       this.loadComments(url, table, uid)
+    })
+
+    document.querySelectorAll('[data-new-comment-uri]').forEach(item => {
+      item.addEventListener('click', event => {
+        event.preventDefault()
+        const table = event.target.getAttribute('data-table')
+        const id = event.target.getAttribute('data-id')
+        const newCommentUrl = event.target.getAttribute('data-new-comment-uri')
+        CreateAndEditCommentModal.openModal(newCommentUrl, document.querySelector('#widget-contentPlanner--comment-list'), table, id)
+      })
     })
   }
 

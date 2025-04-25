@@ -2,36 +2,40 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<form id="widget-contentPlanner--comment-filter" data-table="{table}" data-id="{id}">
-    <div class="form-sort">
-        <label for="widget-contentPlanner--comment-filter-sort">Sort</label>
-        <select id="widget-contentPlanner--comment-filter-sort" name="sortComments"
-                class="form-select form-select-sm">
-            <f:for each="{0: {value: 'DESC', label: 'Newest'}, 1: {value: 'ASC', label: 'Oldest'}}" as="option">
-                <option value="{option.value}" {f:if(condition:
-                '{option.value} == {filter.sortComments}', then: 'selected', else: '')}>
+<f:if condition="{comments -> f:count()}">
+    <form id="widget-contentPlanner--comment-filter" data-table="{table}" data-id="{id}">
+        <div class="form-sort">
+            <label for="widget-contentPlanner--comment-filter-sort">Sort</label>
+            <select id="widget-contentPlanner--comment-filter-sort" name="sortComments"
+                    class="form-select form-select-sm">
+                <f:for each="{0: {value: 'DESC', label: 'Newest'}, 1: {value: 'ASC', label: 'Oldest'}}" as="option">
+                    <option value="{option.value}" {f:if(condition:
+                    '{option.value} == {filter.sortComments}', then: 'selected', else: '')}>
                     {option.label}
-                </option>
-            </f:for>
-        </select>
-    </div>
-    <f:if condition="{filter.resolvedCount}">
-        <div class="form-check form-switch">
-            <input type="checkbox" class="form-check-input" value="1"
-                id="widget-contentPlanner--comment-filter-resolved"
-                name="showResolvedComments"
-                {f:if(condition: '{filter.showResolvedComments}', then: 'checked', else: '')}
-            />
-            <label for="widget-contentPlanner--comment-filter-resolved">Show resolved comments <span class="badge badge-secondary">{filter.resolvedCount}</span></label>
+                    </option>
+                </f:for>
+            </select>
         </div>
-    </f:if>
-</form>
+        <f:if condition="{filter.resolvedCount}">
+            <div class="form-check form-switch">
+                <input type="checkbox" class="form-check-input" value="1"
+                    id="widget-contentPlanner--comment-filter-resolved"
+                    name="showResolvedComments"
+                    {f:if(condition: '{filter.showResolvedComments}', then: 'checked', else: '')}
+                />
+                <label for="widget-contentPlanner--comment-filter-resolved">Show resolved comments <span
+                    class="badge badge-secondary">{filter.resolvedCount}</span></label>
+            </div>
+        </f:if>
+    </form>
+</f:if>
 
 <div id="widget-contentPlanner--comment-list">
     <f:if condition="{comments -> f:count()}">
         <f:then>
             <f:for each="{comments}" as="record">
-                <div class="d-flex widget-contentPlanner--comment {f:if(condition: '{record.resolved}', then: 'resolved', else: '')}">
+                <div
+                    class="d-flex widget-contentPlanner--comment {f:if(condition: '{record.resolved}', then: 'resolved', else: '')}">
                     <be:avatar backendUser="{record.data.author}" size="40"
                             showIcon="true"/>
                     <div class="d-flex flex-column flex-grow-1">
@@ -108,6 +112,12 @@
         <f:else>
             <div class="row widget-no-items-found">
                 <f:render partial="Empty"/>
+                <div class="col-12 text-center comment-empty">
+                    <f:format.raw>
+                        <f:translate key="comment.empty" extensionName="XimaTypo3ContentPlanner"
+                                    arguments="{0: '{newCommentUri}', 1: '{table}', 2: '{id}'}"/>
+                    </f:format.raw>
+                </div>
             </div>
         </f:else>
     </f:if>
