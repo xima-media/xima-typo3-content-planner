@@ -2,7 +2,7 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<f:if condition="{comments -> f:count()}">
+<f:if condition="{comments -> f:count()} || {filter.resolvedCount}">
     <form id="widget-contentPlanner--comment-filter" data-table="{table}" data-id="{id}">
         <div class="form-sort">
             <label for="widget-contentPlanner--comment-filter-sort">Sort</label>

@@ -40,7 +40,7 @@ final class HistoryItem
             return false;
         }
 
-        if ($this->data['tablename'] === 'tx_ximatypo3contentplanner_comment') {
+        if ($this->data['tablename'] === 'tx_ximatypo3contentplanner_comment' && array_key_exists('foreign_table', $this->data['raw_history']) && array_key_exists('foreign_uid', $this->data['raw_history'])) {
             $record = ContentUtility::getExtensionRecord($this->data['raw_history']['foreign_table'], (int)$this->data['raw_history']['foreign_uid']);
         }
 
@@ -170,7 +170,7 @@ final class HistoryItem
         }
 
         if ($tablename === 'tx_ximatypo3contentplanner_comment') {
-            return $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype);
+            return DiffUtility::checkCommendDiff($data, $actiontype);
         }
 
         return false;
