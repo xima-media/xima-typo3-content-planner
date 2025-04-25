@@ -1,6 +1,6 @@
 /**
- * Module: @xima/ximatypo3contentplanner/comments-resolved-item
- */
+* Module: @xima/ximatypo3contentplanner/comments-resolved-item
+*/
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
 
