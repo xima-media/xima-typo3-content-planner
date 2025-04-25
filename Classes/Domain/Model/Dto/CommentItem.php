@@ -95,18 +95,17 @@ final class CommentItem
         return ContentUtility::getBackendUsernameById((int)$resolvedData['user']);
     }
 
-    public function getResolvedDate(): string
+    public function getResolvedDate(): int
     {
         if (!$this->isResolved()) {
-            return '';
+            return 0;
         }
 
         $resolvedData = json_decode($this->data['resolved'], true);
         if (!is_array($resolvedData) || !isset($resolvedData['date'])) {
-            return '';
+            return 0;
         }
 
-        $timestamp = (int)$resolvedData['date'];
-        return $timestamp;
+        return (int)$resolvedData['date'];
     }
 }

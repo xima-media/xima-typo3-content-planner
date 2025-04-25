@@ -35,8 +35,8 @@ class DiffUtility
         return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf:timeAgo.seconds'), $interval->s);
     }
 
-    public static function checkCommendDiff(?array $data, int $actiontype): string|bool {
-
+    public static function checkCommendDiff(?array $data, int $actiontype): string|bool
+    {
         if ($data && array_key_exists('newRecord', $data) && array_key_exists('resolved', $data['newRecord'])) {
             if ($data['newRecord']['resolved'] === '') {
                 return self::getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype . '.unresolved');
