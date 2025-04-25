@@ -90,7 +90,7 @@
 .widget-no-items-found .comment-empty {
     position: absolute;
     bottom: 1rem;
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(125, 125, 125, 0.5);
 }
 
 .widget-no-items-found .comment-empty a {
