@@ -83,11 +83,30 @@ final class CommentItem
 
     public function getResolvedUser(): string
     {
-        return $this->isResolved() ? ContentUtility::getBackendUsernameById((int)(json_decode($this->data['resolved'], true)['user'])) : '';
+        if (!$this->isResolved()) {
+            return '';
+        }
+
+        $resolvedData = json_decode($this->data['resolved'], true);
+        if (!is_array($resolvedData) || !isset($resolvedData['user'])) {
+            return '';
+        }
+
+        return ContentUtility::getBackendUsernameById((int)$resolvedData['user']);
     }
 
     public function getResolvedDate(): string
     {
-        return $this->isResolved() ? (int)(json_decode($this->data['resolved'], true)['date']) : '';
+        if (!$this->isResolved()) {
+            return '';
+        }
+
+        $resolvedData = json_decode($this->data['resolved'], true);
+        if (!is_array($resolvedData) || !isset($resolvedData['date'])) {
+            return '';
+        }
+
+        $timestamp = (int)$resolvedData['date'];
+        return $timestamp;
     }
 }
