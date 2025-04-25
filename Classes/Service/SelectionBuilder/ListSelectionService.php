@@ -22,8 +22,8 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         StatusRepository $statusRepository,
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
-        CommentRepository $commentRepository,
         UriBuilder $uriBuilder,
+        private readonly CommentRepository $commentRepository,
         private readonly IconFactory $iconFactory,
     ) {
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
@@ -90,7 +90,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
                 UrlHelper::getNewCommentUrl($table, $uid),
                 UrlHelper::getContentStatusPropertiesEditUrl($table, $uid),
                 $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render(),
-                ($record['tx_ximatypo3contentplanner_comments'] ?  $record['tx_ximatypo3contentplanner_comments'] . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments')
+                ($record['tx_ximatypo3contentplanner_comments'] ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments')
             )
         ;
     }

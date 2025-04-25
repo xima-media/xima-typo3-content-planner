@@ -19,8 +19,8 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         StatusRepository $statusRepository,
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
-        CommentRepository $commentRepository,
         UriBuilder $uriBuilder,
+        private readonly CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
     ) {
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
@@ -69,7 +69,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $selectionEntriesToAdd['comments'] = [
-            'label' => ($record['tx_ximatypo3contentplanner_comments'] ?  $record['tx_ximatypo3contentplanner_comments'] . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
+            'label' => ($record['tx_ximatypo3contentplanner_comments'] ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
             'iconIdentifier' => 'actions-message',
             'callbackAction' => 'comments',
         ];
