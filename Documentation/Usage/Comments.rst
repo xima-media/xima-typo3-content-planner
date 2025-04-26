@@ -58,6 +58,13 @@ Use the context menu to edit, :ref:`resolve <comments-resolve>` or delete a comm
 
     Edit, resolved or delete comments of a record
 
+An edited comment is marked with a label.
+
+..  figure:: /Images/comment-edited.jpg
+    :alt: Edited comment
+
+    Subsequently edited comment
+
 ..  _comments-todo:
 
 ToDos
