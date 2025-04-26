@@ -37,8 +37,8 @@ class DiffUtility
 
     public static function checkCommendDiff(?array $data, int $actiontype): string|bool
     {
-        if ($data && array_key_exists('newRecord', $data) && array_key_exists('resolved', $data['newRecord'])) {
-            if ($data['newRecord']['resolved'] === '') {
+        if ($data && array_key_exists('newRecord', $data) && array_key_exists('resolved_date', $data['newRecord'])) {
+            if ((int)$data['newRecord']['resolved_date'] === 0) {
                 return self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype . '.unresolved');
             }
             return self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype . '.resolved');

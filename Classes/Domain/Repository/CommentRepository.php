@@ -37,7 +37,7 @@ class CommentRepository
 
         if (!$showResolved) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('resolved', $queryBuilder->createNamedParameter('', Connection::PARAM_STR))
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
             );
         }
 
@@ -73,13 +73,13 @@ class CommentRepository
 
         if (!$countAll && !$onlyResolved) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('resolved', $queryBuilder->createNamedParameter('', Connection::PARAM_STR))
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
             );
         }
 
         if ($onlyResolved) {
             $query->andWhere(
-                $queryBuilder->expr()->neq('resolved', $queryBuilder->createNamedParameter('', Connection::PARAM_STR))
+                $queryBuilder->expr()->neq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
             );
         }
 
@@ -99,7 +99,7 @@ class CommentRepository
             ->from(self::TABLE)
             ->where(
                 $queryBuilder->expr()->eq('deleted', 0),
-                $queryBuilder->expr()->eq('resolved', $queryBuilder->createNamedParameter('', Connection::PARAM_STR))
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
             )
         ;
 

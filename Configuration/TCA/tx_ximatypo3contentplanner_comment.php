@@ -75,7 +75,12 @@ return [
                 'type' => 'passthrough',
             ],
         ],
-        'resolved' => [
+        'resolved_date' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
+        'resolved_user' => [
             'config' => [
                 'type' => 'passthrough',
             ],

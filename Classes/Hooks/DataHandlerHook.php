@@ -7,6 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -144,11 +145,11 @@ final class DataHandlerHook
     private function checkCommentResolved($dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
-            if (array_key_exists('resolved', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]) && $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved'] !== '') {
-                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved'] = json_encode([
-                    'user' => $GLOBALS['BE_USER']->user['uid'],
-                    'date' => time(),
-                ]);
+            if (array_key_exists('resolved_date', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]) &&
+                (int)$dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_date'] !== 0
+            ) {
+                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_user'] = $GLOBALS['BE_USER']->user['uid'];
+                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_date'] = time();
             }
         }
     }

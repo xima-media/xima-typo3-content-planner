@@ -78,7 +78,7 @@ final class CommentItem
 
     public function isResolved(): bool
     {
-        return $this->data['resolved'] !== '';
+        return $this->data['resolved_date'] > 0;
     }
 
     public function getResolvedUser(): string
@@ -87,25 +87,11 @@ final class CommentItem
             return '';
         }
 
-        $resolvedData = json_decode($this->data['resolved'], true);
-        if (!is_array($resolvedData) || !isset($resolvedData['user'])) {
-            return '';
-        }
-
-        return ContentUtility::getBackendUsernameById((int)$resolvedData['user']);
+        return ContentUtility::getBackendUsernameById((int)$this->data['resolved_user']);
     }
 
     public function getResolvedDate(): int
     {
-        if (!$this->isResolved()) {
-            return 0;
-        }
-
-        $resolvedData = json_decode($this->data['resolved'], true);
-        if (!is_array($resolvedData) || !isset($resolvedData['date'])) {
-            return 0;
-        }
-
-        return (int)$resolvedData['date'];
+        return (int)$this->data['resolved_date'];
     }
 }

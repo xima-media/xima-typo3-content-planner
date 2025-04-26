@@ -58,13 +58,13 @@ class UrlHelper
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
         if ($isResolved) {
-            $isResolvedValue = '';
+            $isResolvedValue = 0;
         } else {
-            $isResolvedValue = 1;
+            $isResolvedValue = time();
         }
 
         $params = [
-            'data' => ['tx_ximatypo3contentplanner_comment' => [$uid => ['resolved' => $isResolvedValue]]],
+            'data' => ['tx_ximatypo3contentplanner_comment' => [$uid => ['resolved_date' => $isResolvedValue]]],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
         return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
