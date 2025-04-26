@@ -80,6 +80,9 @@ final class HistoryItem
                         $uid = (int)$this->data['raw_history']['foreign_uid'];
                     } else {
                         $comment = ContentUtility::getComment((int)$this->data['recuid']);
+                        if (!$comment) {
+                            return [];
+                        }
                         $table = $comment['foreign_table'];
                         $uid = (int)$comment['foreign_uid'];
                     }
