@@ -7,6 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -16,7 +17,8 @@ final class DataHandlerHook
     public function __construct(
         private FrontendInterface $cache,
         private readonly StatusChangeManager $statusChangeManager,
-        private readonly RecordRepository $recordRepository
+        private readonly RecordRepository $recordRepository,
+        private readonly CommentRepository $commentRepository,
     ) {
     }
 
@@ -159,7 +161,10 @@ final class DataHandlerHook
     {
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
             if (MathUtility::canBeInterpretedAsInteger($id) && array_key_exists('content', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])) {
-                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['edited'] = 1;
+                $originalRecord = $this->commentRepository->findByUid((int)$id);
+                if ($originalRecord && $originalRecord['content'] !== $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['content']) {
+                    $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['edited'] = 1;
+                }
             }
         }
     }
