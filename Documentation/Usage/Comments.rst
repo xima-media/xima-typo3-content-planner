@@ -51,11 +51,12 @@ Edit comments
 
         `Feature: #70 - Add edit comment functionality and associated UI updates <https://github.com/xima-media/xima-typo3-content-planner/pull/70>`__
 
+Use the context menu to edit, :ref:`resolve <comments-resolve>` or delete a comment.
+
 ..  figure:: /Images/comment-edit.jpg
     :alt: Edit or delete comments of a record
 
-    Edit or delete comments of a record
-
+    Edit, resolved or delete comments of a record
 
 ..  _comments-todo:
 
@@ -86,3 +87,21 @@ Use the :ref:`ToDo widget <dashboard-widgets>` to keep track of your ToDo tasks.
     :alt: ToDo widget
 
     ToDo widget
+
+..  _comments-resolve:
+
+Resolution
+=================
+
+..  versionadded:: 1.4.0
+
+        `Feature: #72 - Add comment resolution functionality with sorting and filtering options <https://github.com/xima-media/xima-typo3-content-planner/pull/72>`__
+
+In addition to the ToDos in the comments, there is also the option of marking entire comments as completed, in order to keep the comment list clear and organized.
+
+A comment can be marked as completed via the context menu.
+
+..  figure:: /Images/comment-resolve.jpg
+    :alt: Resolved comments
+
+    Resolved comments can can be displayed again using the filter
