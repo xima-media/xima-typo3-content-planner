@@ -12,6 +12,10 @@ class PermissionUtility
 {
     public static function checkAccessForRecord(string $table, $record): bool
     {
+        if (!is_array($record)) {
+            return false;
+        }
+
         $backendUser = $GLOBALS['BE_USER'];
         if ($backendUser->user === null) {
             Bootstrap::initializeBackendAuthentication();
