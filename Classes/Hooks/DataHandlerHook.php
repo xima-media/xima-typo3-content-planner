@@ -14,15 +14,16 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 final class DataHandlerHook
 {
     public function __construct(
-        private FrontendInterface $cache,
+        private FrontendInterface            $cache,
         private readonly StatusChangeManager $statusChangeManager,
-        private readonly RecordRepository $recordRepository
-    ) {
+        private readonly RecordRepository    $recordRepository
+    )
+    {
     }
 
     /**
-    * Hook: processDatamap_preProcessFieldArray
-    */
+     * Hook: processDatamap_preProcessFieldArray
+     */
     public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler $dataHandler): void
     {
         if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
@@ -44,8 +45,8 @@ final class DataHandlerHook
     }
 
     /**
-    * Hook: processCmdmap_preProcess
-    */
+     * Hook: processCmdmap_preProcess
+     */
     public function processCmdmap_preProcess($command, $table, $id, $value, DataHandler $parentObject, $pasteUpdate): void
     {
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
@@ -60,8 +61,8 @@ final class DataHandlerHook
     }
 
     /**
-    * Hook: processDatamap_beforeStart
-    */
+     * Hook: processDatamap_beforeStart
+     */
     public function processDatamap_beforeStart(DataHandler $dataHandler): void
     {
         if (array_key_first($dataHandler->datamap) === 'tx_ximatypo3contentplanner_comment') {
@@ -74,8 +75,8 @@ final class DataHandlerHook
     }
 
     /**
-    * Hook: processDatamap_afterDatabaseOperations
-    */
+     * Hook: processDatamap_afterDatabaseOperations
+     */
     public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
     {
         if ($table === 'tx_ximatypo3contentplanner_comment') {
@@ -126,6 +127,10 @@ final class DataHandlerHook
     private function updateCommentTodo($dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
+            if (!array_key_exists('content', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])) {
+                continue;
+            }
+
             $content = $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['content'];
             if (empty($content)) {
                 continue;
