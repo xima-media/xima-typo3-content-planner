@@ -42,7 +42,14 @@
                         <div class="d-flex flex-row justify-content-between gap-2">
                             <div class="flex-grow-1">
                                 <strong>{record.authorName}</strong>
-                                <small>{record.data.crdate -> f:format.date(format:'d.m.Y H:i')}</small>
+                                <small title="{record.data.crdate -> f:format.date(format:'d.m.Y H:i')}">{record.timeAgo}</small>
+                                <f:if condition="{record.edited}">
+                                    <small class="px-2">
+                                        <code>
+                                            <f:translate key="comment.edited" extensionName="XimaTypo3ContentPlanner"/>
+                                        </code>
+                                    </small>
+                                </f:if>
                             </div>
                             <small>
                                 <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>

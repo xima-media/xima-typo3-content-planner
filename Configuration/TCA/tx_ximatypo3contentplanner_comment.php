@@ -71,6 +71,11 @@ return [
                 'type' => 'passthrough',
             ],
         ],
+        'edited' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
         'resolved_date' => [
             'config' => [
                 'type' => 'passthrough',

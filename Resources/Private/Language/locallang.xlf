@@ -169,11 +169,17 @@
 			<trans-unit id="timeAgo.second">
 				<source>%s second ago</source>
 			</trans-unit>
+			<trans-unit id="timeAgo.now">
+				<source>now</source>
+			</trans-unit>
 
 			<trans-unit id="filter.reset">
 				<source>Reset</source>
 			</trans-unit>
 
+			<trans-unit id="comment.edited">
+				<source>edited</source>
+			</trans-unit>
 			<trans-unit id="comment.actions.edit">
 				<source>Edit</source>
 			</trans-unit>
