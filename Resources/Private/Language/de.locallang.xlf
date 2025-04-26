@@ -216,12 +216,20 @@
 				<source/>
 				<target>vor %s Sekunde</target>
 			</trans-unit>
+			<trans-unit id="timeAgo.now">
+				<source/>
+				<target>jetzt</target>
+			</trans-unit>
 
 			<trans-unit id="filter.reset">
 				<source/>
 				<target>Zurücksetzen</target>
 			</trans-unit>
 
+			<trans-unit id="comment.edited">
+				<source/>
+				<target>bearbeitet</target>
+			</trans-unit>
 			<trans-unit id="comment.actions.edit">
 				<source/>
 				<target>Bearbeiten</target>

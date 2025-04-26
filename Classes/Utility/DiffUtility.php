@@ -16,6 +16,10 @@ class DiffUtility
         $storedTime = (new DateTime())->setTimestamp($timestamp);
         $interval = $now->diff($storedTime);
 
+        if ($interval->s === 0 && $interval->i === 0 && $interval->h === 0 && $interval->d === 0 && $interval->m === 0 && $interval->y === 0) {
+            return self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf:timeAgo.now');
+        }
+
         $timeUnits = [
             'y' => 'year',
             'm' => 'month',

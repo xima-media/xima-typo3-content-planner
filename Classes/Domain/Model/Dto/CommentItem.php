@@ -4,6 +4,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
@@ -61,6 +62,11 @@ final class CommentItem
         return ContentUtility::getBackendUsernameById((int)$this->data['author']);
     }
 
+    public function getTimeAgo(): string
+    {
+        return DiffUtility::timeAgo($this->data['crdate']);
+    }
+
     public function getEditUri(): string
     {
         return UrlHelper::getEditCommentUrl((int)$this->data['uid']);
@@ -74,6 +80,11 @@ final class CommentItem
     public function getDeleteUri(): string
     {
         return UrlHelper::getDeleteCommentUrl((int)$this->data['uid']);
+    }
+
+    public function isEdited(): bool
+    {
+        return (bool)$this->data['edited'];
     }
 
     public function isResolved(): bool

@@ -7,6 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -16,7 +17,8 @@ final class DataHandlerHook
     public function __construct(
         private FrontendInterface $cache,
         private readonly StatusChangeManager $statusChangeManager,
-        private readonly RecordRepository $recordRepository
+        private readonly RecordRepository $recordRepository,
+        private readonly CommentRepository $commentRepository,
     ) {
     }
 
@@ -28,6 +30,7 @@ final class DataHandlerHook
         if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
             $this->updateCommentTodo($dataHandler);
             $this->checkCommentResolved($dataHandler);
+            $this->checkCommentEdited($dataHandler);
         }
 
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
@@ -67,6 +70,7 @@ final class DataHandlerHook
         if (array_key_first($dataHandler->datamap) === 'tx_ximatypo3contentplanner_comment') {
             $this->updateCommentTodo($dataHandler);
             $this->checkCommentResolved($dataHandler);
+            $this->checkCommentEdited($dataHandler);
 
             // Workaround to solve relation of comments created within the modal
             $this->fixNewCommentEntry($dataHandler);
@@ -149,6 +153,18 @@ final class DataHandlerHook
             ) {
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_user'] = $GLOBALS['BE_USER']->user['uid'];
                 $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_date'] = time();
+            }
+        }
+    }
+
+    private function checkCommentEdited($dataHandler): void
+    {
+        foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
+            if (MathUtility::canBeInterpretedAsInteger($id) && array_key_exists('content', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])) {
+                $originalRecord = $this->commentRepository->findByUid((int)$id);
+                if ($originalRecord && $originalRecord['content'] !== $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['content']) {
+                    $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['edited'] = 1;
+                }
             }
         }
     }
