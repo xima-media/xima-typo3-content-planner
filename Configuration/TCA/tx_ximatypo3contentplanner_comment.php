@@ -10,15 +10,11 @@ return [
         'delete' => 'deleted',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'enablecolumns' => [
-            'disabled' => 'hidden',
-        ],
         'typeicon_classes' => [
             'default' => 'content-message',
         ],
         'searchFields' => 'title,text',
         'default_sortby' => 'crdate DESC',
-        'hideTable' => true,
         'security' => [
             'ignorePageTypeRestriction' => true,
         ],
