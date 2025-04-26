@@ -66,8 +66,32 @@ final class CommentItem
         return UrlHelper::getEditCommentUrl((int)$this->data['uid']);
     }
 
+    public function getResolvedUri(): string
+    {
+        return UrlHelper::getResolvedCommentUrl((int)$this->data['uid'], $this->isResolved());
+    }
+
     public function getDeleteUri(): string
     {
         return UrlHelper::getDeleteCommentUrl((int)$this->data['uid']);
+    }
+
+    public function isResolved(): bool
+    {
+        return $this->data['resolved_date'] > 0;
+    }
+
+    public function getResolvedUser(): string
+    {
+        if (!$this->isResolved()) {
+            return '';
+        }
+
+        return ContentUtility::getBackendUsernameById((int)$this->data['resolved_user']);
+    }
+
+    public function getResolvedDate(): int
+    {
+        return (int)$this->data['resolved_date'];
     }
 }

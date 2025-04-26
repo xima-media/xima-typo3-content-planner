@@ -69,7 +69,9 @@
                     class="btn btn-default"
                     title="{f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}"
                 >
-                    <core:icon identifier="actions-assign-to-me" size="small"/>
+                    <core:icon identifier="actions-assign-to-me"
+                            alternativeMarkupIdentifier="inline"
+                            size="small"/>
                 </a>
             </f:if>
             <f:if condition="{assignee.unassign}">
@@ -78,7 +80,9 @@
                     class="btn btn-default"
                     title="{f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}"
                 >
-                    <core:icon identifier="actions-unassign" size="small"/>
+                    <core:icon identifier="actions-unassign"
+                            alternativeMarkupIdentifier="inline"
+                            size="small"/>
                 </a>
             </f:if>
         </div>
@@ -97,7 +101,7 @@
                     size="small"
                 />
             </a>
-            <f:if condition="{comments.items}">
+            <f:if condition="{comments}">
                 <button
                     class="btn btn-default contentPlanner--comments"
                     data-content-planner-comments
@@ -109,7 +113,9 @@
                     data-edit-uri="{comments.editUri}"
                 >
                     <core:icon identifier="actions-message" size="small"/>
-                    <span class="badge badge-secondary">{comments.items -> f:count()}</span>
+                    <f:if condition="{comments.items -> f:count()}">
+                        <span class="badge badge-secondary">{comments.items -> f:count()}</span>
+                    </f:if>
                 </button>
                 <f:if condition="{comments.todoTotal}">
                     <button

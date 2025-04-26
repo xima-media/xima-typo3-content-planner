@@ -61,6 +61,12 @@
 			<trans-unit id="history.comment.2">
 				<source><![CDATA[A <em>comment</em> was updated]]></source>
 			</trans-unit>
+			<trans-unit id="history.comment.2.resolved">
+				<source><![CDATA[A <em>comment</em> was marked as resolved]]></source>
+			</trans-unit>
+			<trans-unit id="history.comment.2.unresolved">
+				<source><![CDATA[A <em>comment</em> was reopened]]></source>
+			</trans-unit>
 			<trans-unit id="history.comment.4">
 				<source><![CDATA[A <em>comment</em> was been removed]]></source>
 			</trans-unit>

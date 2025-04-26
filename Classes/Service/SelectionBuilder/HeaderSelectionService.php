@@ -25,8 +25,8 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         StatusRepository $statusRepository,
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
-        CommentRepository $commentRepository,
         UriBuilder $uriBuilder,
+        private readonly CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
         private readonly IconFactory $iconFactory,
     ) {
@@ -78,7 +78,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
-            ->setLabel(($record['tx_ximatypo3contentplanner_comments'] ?  $record['tx_ximatypo3contentplanner_comments'] . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'))
+            ->setLabel(($record['tx_ximatypo3contentplanner_comments'] ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'))
             ->setIcon($this->iconFactory->getIcon('actions-message'))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));

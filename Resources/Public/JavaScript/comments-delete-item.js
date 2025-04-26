@@ -16,10 +16,13 @@ class CommentsDeleteItem {
     document.querySelectorAll('[data-delete-comment-uri]').forEach(item => {
       item.addEventListener('click', ({currentTarget}) => {
         const deleteCommentUrl = currentTarget.getAttribute('data-delete-comment-uri')
+        const deleteCommentTitle = currentTarget.getAttribute('data-delete-comment-title')
+        const deleteCommentDescription = currentTarget.getAttribute('data-delete-comment-description')
+        const deleteCommentButton = currentTarget.getAttribute('data-delete-comment-button')
 
-        Modal.confirm('Delete comment', 'Are you sure you want to delete this comment?', TYPO3.Severity.error, [
+        Modal.confirm(deleteCommentTitle, deleteCommentDescription, TYPO3.Severity.error, [
           {
-            text: TYPO3.lang?.['delete.confirm'] || 'Delete',
+            text: deleteCommentButton,
             active: true,
             trigger: () => {
               new AjaxRequest(deleteCommentUrl).get()

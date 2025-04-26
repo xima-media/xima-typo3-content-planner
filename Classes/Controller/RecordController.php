@@ -16,6 +16,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 class RecordController extends ActionController
 {
@@ -46,7 +47,10 @@ class RecordController extends ActionController
     {
         $recordId = (int)$request->getQueryParams()['uid'];
         $recordTable = $request->getQueryParams()['table'];
-        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable);
+        $sortComments = $request->getQueryParams()['sortComments'] ?? 'DESC';
+        $showResolvedComments = (bool)($request->getQueryParams()['showResolvedComments'] ?? false);
+
+        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, sortDirection: $sortComments, showResolved: $showResolvedComments);
 
         /** @var StandaloneView $view */
         $view = GeneralUtility::makeInstance(StandaloneView::class);
@@ -60,6 +64,12 @@ class RecordController extends ActionController
             'comments' => $comments,
             'id' => $recordId,
             'table' => $recordTable,
+            'newCommentUri' => UrlHelper::getNewCommentUrl($recordTable, $recordId),
+            'filter' => [
+                'sortComments' => $sortComments,
+                'showResolvedComments' => $showResolvedComments,
+                'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, onlyResolved: true),
+            ],
         ]);
 
         $result = $view->render();

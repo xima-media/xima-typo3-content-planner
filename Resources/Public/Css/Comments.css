@@ -19,10 +19,14 @@
 }
 
 .widget-contentPlanner--comment {
-    padding-bottom: 1rem;
+    padding-bottom: 2rem;
     gap: 1rem;
     container-name: comment;
     container-type: inline-size;
+}
+
+.widget-contentPlanner--comment.resolved {
+    opacity: 0.6;
 }
 
 .widget-contentPlanner--comment > .avatar {
@@ -52,6 +56,49 @@
     padding: 0 6px;
     margin-top: -2px;
     border-radius: 0;
+}
+
+.widget-contentPlanner--comment-actions a:hover {
+    cursor: pointer;
+}
+
+#widget-contentPlanner--comment-list {
+    margin-top: 3rem;
+}
+
+#widget-contentPlanner--comment-filter {
+    width: 100%;
+    background: rgba(125, 125, 125, 0.1);
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    padding: 0.5rem 1rem;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+#widget-contentPlanner--comment-filter .form-sort, #widget-contentPlanner--comment-filter .form-check {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.widget-no-items-found .comment-empty {
+    position: absolute;
+    bottom: 1rem;
+    color: rgba(125, 125, 125, 0.5);
+}
+
+.widget-no-items-found .comment-empty a {
+    text-decoration: underline;
+}
+
+.widget-no-items-found .comment-empty a:hover {
+    cursor: pointer;
 }
 
 /*

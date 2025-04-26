@@ -173,6 +173,52 @@
 			<trans-unit id="filter.reset">
 				<source>Reset</source>
 			</trans-unit>
+
+			<trans-unit id="comment.actions.edit">
+				<source>Edit</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.resolve">
+				<source>Mark as resolved</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.resolve.title">
+				<source>Resolve comment</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.resolve.description">
+				<source>Are you sure you want to mark this comment as resolved?</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.resolve.button">
+				<source>Resolve</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.unresolve">
+				<source>Reopen</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.unresolve.title">
+				<source>Unresolve comment</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.unresolve.description">
+				<source>Are you sure you want to mark this comment as unresolved?</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.unresolve.button">
+				<source>Unresolve</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.delete">
+				<source>Delete</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.delete.title">
+				<source>Delete comment</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.delete.description">
+				<source>Are you sure you want to delete this comment?</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.delete.button">
+				<source>Delete</source>
+			</trans-unit>
+			<trans-unit id="comment.resolved">
+				<source>Resolved by %s on %s</source>
+			</trans-unit>
+			<trans-unit id="comment.empty">
+				<source><![CDATA[Currently there are no comments available yet. You may want to create a <a data-new-comment-uri="%s" data-table="%s" data-id="%s">new comment</a>?]]></source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -27,6 +27,7 @@ final class DataHandlerHook
     {
         if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
             $this->updateCommentTodo($dataHandler);
+            $this->checkCommentResolved($dataHandler);
         }
 
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
@@ -63,10 +64,11 @@ final class DataHandlerHook
     */
     public function processDatamap_beforeStart(DataHandler $dataHandler): void
     {
-        $datamap = $dataHandler->datamap;
-        // Workaround to solve relation of comments created within the modal
         if (array_key_first($dataHandler->datamap) === 'tx_ximatypo3contentplanner_comment') {
             $this->updateCommentTodo($dataHandler);
+            $this->checkCommentResolved($dataHandler);
+
+            // Workaround to solve relation of comments created within the modal
             $this->fixNewCommentEntry($dataHandler);
         }
     }
@@ -124,6 +126,10 @@ final class DataHandlerHook
     private function updateCommentTodo($dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
+            if (!array_key_exists('content', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])) {
+                continue;
+            }
+
             $content = $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['content'];
             if (empty($content)) {
                 continue;
@@ -132,6 +138,18 @@ final class DataHandlerHook
             $todos = $this->parseTodos($content);
             $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['todo_total'] = $todos['total'];
             $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['todo_resolved'] = $todos['resolved'];
+        }
+    }
+
+    private function checkCommentResolved($dataHandler): void
+    {
+        foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
+            if (array_key_exists('resolved_date', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]) &&
+                (int)$dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_date'] !== 0
+            ) {
+                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_user'] = $GLOBALS['BE_USER']->user['uid'];
+                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_date'] = time();
+            }
         }
     }
 

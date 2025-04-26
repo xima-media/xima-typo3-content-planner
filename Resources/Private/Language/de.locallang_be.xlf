@@ -79,6 +79,14 @@
 				<source/>
 				<target><![CDATA[Ein <em>Kommentar</em> wurde aktualisiert]]></target>
 			</trans-unit>
+			<trans-unit id="history.comment.2.resolved">
+				<source/>
+				<target><![CDATA[Ein <em>Kommentar</em> wurde als erledigt markiert]]></target>
+			</trans-unit>
+			<trans-unit id="history.comment.2.unresolved">
+				<source/>
+				<target><![CDATA[Ein <em>Kommentar</em> wurde wieder geöffnet]]></target>
+			</trans-unit>
 			<trans-unit id="history.comment.4">
 				<source/>
 				<target><![CDATA[Ein <em>Kommentar</em> wurde entfernt]]></target>

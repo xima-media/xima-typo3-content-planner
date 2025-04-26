@@ -23,6 +23,10 @@
 				<source/>
 				<target>Inhalt</target>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_comment.resolved">
+				<source/>
+				<target>Erledigt</target>
+			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_comment.author">
 				<source/>
 				<target>Autor</target>
