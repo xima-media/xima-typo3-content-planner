@@ -39,12 +39,12 @@ class DiffUtility
     {
         if ($data && array_key_exists('newRecord', $data) && array_key_exists('resolved', $data['newRecord'])) {
             if ($data['newRecord']['resolved'] === '') {
-                return self::getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype . '.unresolved');
+                return self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype . '.unresolved');
             }
-            return self::getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype . '.resolved');
+            return self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype . '.resolved');
         }
 
-        return self::getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype);
+        return self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype);
     }
 
     public static function checkRecordDiff(array $data, int $actiontype): string|bool
@@ -74,13 +74,13 @@ class DiffUtility
             return false;
         }
         if (empty($old)) {
-            return sprintf(self::getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.record.' . $actiontype . '.set.' . $field), self::preparePageAttributeValue($field, $new));
+            return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.record.' . $actiontype . '.set.' . $field), self::preparePageAttributeValue($field, $new));
         }
         if (empty($new)) {
-            return sprintf(self::getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.record.' . $actiontype . '.unset.' . $field), self::preparePageAttributeValue($field, $old));
+            return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.record.' . $actiontype . '.unset.' . $field), self::preparePageAttributeValue($field, $old));
         }
         if ($old !== $new) {
-            return sprintf(self::getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:history.record.' . $actiontype . '.change.' . $field), self::preparePageAttributeValue($field, $old), self::preparePageAttributeValue($field, $new));
+            return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.record.' . $actiontype . '.change.' . $field), self::preparePageAttributeValue($field, $old), self::preparePageAttributeValue($field, $new));
         }
         return false;
     }
