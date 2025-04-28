@@ -13,6 +13,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
@@ -23,21 +24,28 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
         UriBuilder $uriBuilder,
+        SysFileMetadataRepository $sysFileMetadataRepository,
         private readonly CommentRepository $commentRepository,
         private readonly IconFactory $iconFactory,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $sysFileMetadataRepository, $uriBuilder);
     }
 
-    public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
-    {
+    public function addStatusItemToSelection(
+        array &$selectionEntriesToAdd,
+        Status $status,
+        Status|int|null $currentStatus = null,
+        ?string $table = null,
+        array|int|null $uid = null,
+        ?array $record = null
+    ): void {
         if ($this->compareStatus($status, $currentStatus)) {
             return;
         }
         $selectionEntriesToAdd[$status->getUid()] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'])->__toString()),
+                htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'], $record)->__toString()),
                 $status->getTitle(),
                 $this->iconFactory->getIcon($status->getColoredIcon(), Icon::SIZE_SMALL)->render(),
                 $status->getTitle()
@@ -55,7 +63,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $selectionEntriesToAdd['reset'] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars($this->buildUriForStatusChange($table, $uid, null, $record['pid'])->__toString()),
+                htmlspecialchars($this->buildUriForStatusChange($table, $uid, null, $record['pid'], $record)->__toString()),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset'),
                 $this->iconFactory->getIcon('actions-close', Icon::SIZE_SMALL)->render(),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset')

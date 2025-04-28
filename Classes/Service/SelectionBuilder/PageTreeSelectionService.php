@@ -11,6 +11,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 
 class PageTreeSelectionService extends AbstractSelectionService implements SelectionInterface
@@ -20,10 +21,11 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
         UriBuilder $uriBuilder,
+        SysFileMetadataRepository $sysFileMetadataRepository,
         private readonly CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $sysFileMetadataRepository, $uriBuilder);
     }
 
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
