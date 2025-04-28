@@ -148,8 +148,11 @@ class RecordRepository
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('deleted', 0)
             );
+
+        if ($this->hasDeletedRestriction($table)) {
+            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
+        }
 
         return $query->executeQuery()
             ->fetchAssociative();
@@ -205,6 +208,11 @@ class RecordRepository
     private function getTitleField(string $table): string
     {
         return $GLOBALS['TCA'][$table]['ctrl']['label'];
+    }
+
+    private function hasDeletedRestriction(string $table): bool
+    {
+        return isset($GLOBALS['TCA'][$table]['ctrl']['delete']);
     }
 
     private function collectCacheTags(string $table, array $data, ?int $pid): array

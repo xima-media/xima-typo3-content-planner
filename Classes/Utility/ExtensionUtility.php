@@ -89,7 +89,7 @@ class ExtensionUtility
     public static function getRecordTables(): array
     {
         return array_merge(
-            ['pages'],
+            ['pages', 'sys_file_metadata'],
             $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']
         );
     }

@@ -14,12 +14,17 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\FileList;
 use Xima\XimaTypo3ContentPlanner\Service\Header\HeaderMode;
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 class BackendContentModifierMiddleware implements MiddlewareInterface
 {
+    private const MODIFIER = [
+        FileList::class,
+    ];
+
     private ?StatusRepository $statusRepository = null;
     private ?RecordRepository $recordRepository = null;
 
@@ -35,6 +40,13 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
 
         if ($this->isRelevantWebLayoutRequest($request)) {
             return $this->handleWebLayoutRequest($request, $handler);
+        }
+
+        foreach (self::MODIFIER as $modifier) {
+            $modifierInstance = GeneralUtility::makeInstance($modifier);
+            if ($modifierInstance->isRelevant($request)) {
+                return $modifierInstance->modify($request, $handler);
+            }
         }
 
         return $handler->handle($request);
@@ -155,7 +167,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
             && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
             && array_key_exists('edit', $request->getQueryParams())
-            && (array_key_first($request->getQueryParams()['edit']) === 'pages' || in_array(array_key_first($request->getQueryParams()['edit']), $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']));
+            && in_array(array_key_first($request->getQueryParams()['edit']), ExtensionUtility::getRecordTables());
     }
 
     private function isRelevantWebListRequest(ServerRequestInterface $request): bool
