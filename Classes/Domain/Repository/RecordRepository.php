@@ -105,8 +105,7 @@ class RecordRepository
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status'),
-                $queryBuilder->expr()->neq('tx_ximatypo3contentplanner_status', 0),
-                $queryBuilder->expr()->eq('deleted', 0)
+                $queryBuilder->expr()->neq('tx_ximatypo3contentplanner_status', 0)
             );
 
         if ($orderByTstamp) {
@@ -117,6 +116,10 @@ class RecordRepository
             $query->andWhere(
                 $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
             );
+        }
+
+        if ($this->hasDeletedRestriction($table)) {
+            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
         }
 
         $result = $query->executeQuery()
