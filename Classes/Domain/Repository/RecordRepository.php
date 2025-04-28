@@ -30,7 +30,7 @@ class RecordRepository
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
 
-        $additionalWhere = ' AND deleted = 0';
+        $additionalWhere = '';
         $additionalParams = [
             'limit' => $maxResults,
         ];
@@ -59,6 +59,9 @@ class RecordRepository
             }
 
             $additionalWhereByTable = $additionalWhere;
+            if ($this->hasDeletedRestriction($table)) {
+                $additionalWhereByTable .= ' AND deleted = 0';
+            }
 
             if ($todo) {
                 // ToDo: Check for performance
