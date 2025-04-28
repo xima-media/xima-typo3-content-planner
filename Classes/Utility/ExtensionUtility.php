@@ -116,7 +116,7 @@ class ExtensionUtility
         return $GLOBALS['TCA'][$table]['ctrl']['label'];
     }
 
-    public static function getTitle(string $key, array|bool|null $record): string
+    public static function getTitle(string $key, array|bool|null $record): string|int
     {
         return $record ? (array_key_exists($key, $record) ? $record[$key] : BackendUtility::getNoRecordTitle()) : BackendUtility::getNoRecordTitle();
     }
