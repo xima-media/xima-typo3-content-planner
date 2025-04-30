@@ -23,8 +23,13 @@ class WebLayout extends AbstractModifier implements ModifierInterface
             return $response;
         }
 
+        $statusHints = $this->addStatusHintToContentElement((int)$pid);
+        if (empty($statusHints)) {
+            return $response;
+        }
+
         $newResponse = new Response();
-        $newResponse->getBody()->write($content . $this->addStatusHintToContentElement((int)$pid));
+        $newResponse->getBody()->write($content . $statusHints);
 
         return $newResponse;
     }
