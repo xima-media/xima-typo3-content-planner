@@ -26,7 +26,15 @@ class RecordEdit extends AbstractModifier implements ModifierInterface
             return $response;
         }
 
+        if (!isset($request->getQueryParams()['edit']) || !is_array($request->getQueryParams()['edit'])) {
+            return $response;
+        }
+
         $table = array_key_first($request->getQueryParams()['edit']);
+        if ($table === null) {
+            return $response;
+        }
+
         $uid = $request->getQueryParams()['edit'][$table] ?? 0;
         $uid = is_array($uid) ? (int)array_key_first($uid) : (int)$uid;
 
@@ -55,6 +63,8 @@ class RecordEdit extends AbstractModifier implements ModifierInterface
         return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
             && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
             && array_key_exists('edit', $request->getQueryParams())
-            && in_array(array_key_first($request->getQueryParams()['edit']), ExtensionUtility::getRecordTables());
+            && is_array($request->getQueryParams()['edit'])
+            && ($table = array_key_first($request->getQueryParams()['edit'])) !== null
+            && in_array($table, ExtensionUtility::getRecordTables());
     }
 }
