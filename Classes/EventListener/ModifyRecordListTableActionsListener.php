@@ -7,11 +7,11 @@ use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListTableActionsEvent;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyRecordListTableActionsListener
@@ -45,21 +45,21 @@ final class ModifyRecordListTableActionsListener
 
         $action = '<div class="btn-group" style="margin-left:10px;">
                 <a href="#" class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="test">' .
-            $this->iconFactory->getIcon('flag-gray', IconSize::SMALL)->render() . '</a><ul class="dropdown-menu">';
+            $this->iconFactory->getIcon('flag-gray', IconHelper::getDefaultIconSize())->render() . '</a><ul class="dropdown-menu">';
 
         $actionsToAdd = [];
 
         foreach ($allStatus as $statusEntry) {
             $url = $this->buildUri($event, $statusEntry);
             $actionsToAdd[$statusEntry->getUid()] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $statusEntry->getTitle() . '">'
-                . $this->iconFactory->getIcon($statusEntry->getColoredIcon(), IconSize::SMALL)->render() . $statusEntry->getTitle() . '</a></li>';
+                . $this->iconFactory->getIcon($statusEntry->getColoredIcon(), IconHelper::getDefaultIconSize())->render() . $statusEntry->getTitle() . '</a></li>';
         }
         $actionsToAdd['divider'] = '<li><hr class="dropdown-divider"></li>';
 
         // reset
         $url = $this->buildUri($event, null);
         $actionsToAdd['reset'] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '">'
-            . $this->iconFactory->getIcon('actions-close', IconSize::SMALL)->render() . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '</a></li>';
+            . $this->iconFactory->getIcon('actions-close', IconHelper::getDefaultIconSize())->render() . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '</a></li>';
 
         foreach ($actionsToAdd as $actionToAdd) {
             $action .= $actionToAdd;
