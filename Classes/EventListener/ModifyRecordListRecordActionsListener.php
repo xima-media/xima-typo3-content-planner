@@ -4,13 +4,13 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
 final class ModifyRecordListRecordActionsListener
@@ -57,7 +57,7 @@ final class ModifyRecordListRecordActionsListener
         $icon = $status ? $status->getColoredIcon() : 'flag-gray';
         $action = '
                 <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="' . $title . '">'
-            . $this->iconFactory->getIcon($icon, Icon::SIZE_SMALL)->render() . '</a><ul class="dropdown-menu">';
+            . $this->iconFactory->getIcon($icon, IconHelper::getDefaultIconSize())->render() . '</a><ul class="dropdown-menu">';
 
         $actionsToAdd = $this->htmlSelectionService->generateSelection($table, $uid);
         foreach ($actionsToAdd as $actionToAdd) {

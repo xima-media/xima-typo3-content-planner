@@ -15,8 +15,8 @@ use TYPO3\CMS\Dashboard\Widgets\JavaScriptInterface;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use TYPO3\CMS\Dashboard\Widgets\WidgetInterface;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\ViewFactoryHelper;
 
 abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface, JavaScriptInterface
 {
@@ -33,24 +33,14 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
 
     public function render(string $templateFile, array $templateArguments): string
     {
-        $template = GeneralUtility::getFileAbsFileName($templateFile);
-
-        // preparing view
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setFormat('html');
-        $view->setTemplateRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/']);
-        $view->setPartialRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Partials/']);
-        $view->setTemplatePathAndFilename($template);
-
+        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addInlineLanguageLabelFile('EXT:ximatypo3contentplanner/Resources/Private/Language/locallang.xlf');
 
-        $view->assignMultiple($templateArguments);
-
-        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
-        $view->assign('showTitle', ($typo3Version <= 12));
-        $view->assign('filterBgFix', ($typo3Version <= 12));
-        return $view->render();
+        return ViewFactoryHelper::renderView($templateFile, array_merge($templateArguments, [
+            'showTitle' => ($typo3Version <= 12),
+            'filterBgFix' => ($typo3Version <= 12),
+        ]));
     }
 
     abstract public function renderWidgetContent(): string;

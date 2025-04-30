@@ -23,7 +23,7 @@ final class HistoryItem
     {
         $item = new HistoryItem();
         $item->data = $sysHistoryRow;
-        $item->data['raw_history'] = json_decode($sysHistoryRow['history_data'], true);
+        $item->data['raw_history'] = $sysHistoryRow['history_data'] ? json_decode($sysHistoryRow['history_data'], true) : null;
 
         return $item;
     }
@@ -156,7 +156,7 @@ final class HistoryItem
 
     public function getRawHistoryData(): ?array
     {
-        return json_decode($this->data['history_data'], true);
+        return $this->data['history_data'] ? json_decode($this->data['history_data'], true) : null;
     }
 
     public function getHistoryData(): string|bool
