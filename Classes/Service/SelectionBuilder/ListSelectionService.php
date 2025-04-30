@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -39,7 +39,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
                 htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'])->__toString()),
                 $status->getTitle(),
-                $this->iconFactory->getIcon($status->getColoredIcon(), Icon::SIZE_SMALL)->render(),
+                $this->iconFactory->getIcon($status->getColoredIcon(), IconSize::SMALL)->render(),
                 $status->getTitle()
             )
         ;
@@ -57,7 +57,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
                 htmlspecialchars($this->buildUriForStatusChange($table, $uid, null, $record['pid'])->__toString()),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset'),
-                $this->iconFactory->getIcon('actions-close', Icon::SIZE_SMALL)->render(),
+                $this->iconFactory->getIcon('actions-close', IconSize::SMALL)->render(),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset')
             )
         ;
@@ -89,7 +89,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
                 $uid,
                 UrlHelper::getNewCommentUrl($table, $uid),
                 UrlHelper::getContentStatusPropertiesEditUrl($table, $uid),
-                $this->iconFactory->getIcon('content-message', Icon::SIZE_SMALL)->render(),
+                $this->iconFactory->getIcon('content-message', IconSize::SMALL)->render(),
                 ($record['tx_ximatypo3contentplanner_comments'] ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments')
             )
         ;
@@ -111,7 +111,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
                 $uid,
                 UrlHelper::getNewCommentUrl($table, $uid),
                 UrlHelper::getContentStatusPropertiesEditUrl($table, $uid),
-                $this->iconFactory->getIcon('actions-check-square', Icon::SIZE_SMALL)->render(),
+                $this->iconFactory->getIcon('actions-check-square', IconSize::SMALL)->render(),
                 "$todoResolved/$todoTotal " . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments.todo')
             )
         ;
