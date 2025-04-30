@@ -8,15 +8,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\JsonResponse;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
+use Xima\XimaTypo3ContentPlanner\Utility\ViewFactoryHelper;
 
 class RecordController extends ActionController
 {
@@ -52,27 +51,21 @@ class RecordController extends ActionController
 
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, sortDirection: $sortComments, showResolved: $showResolvedComments);
 
-        /** @var StandaloneView $view */
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
+        $result = ViewFactoryHelper::renderView(
+            'Default/Comments.html',
+            [
+                'comments' => $comments,
+                'id' => $recordId,
+                'table' => $recordTable,
+                'newCommentUri' => UrlHelper::getNewCommentUrl($recordTable, $recordId),
+                'filter' => [
+                    'sortComments' => $sortComments,
+                    'showResolvedComments' => $showResolvedComments,
+                    'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, onlyResolved: true),
+                ],
+            ]
+        );
 
-        $view->setTemplateRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates']);
-        $view->setPartialRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Partials']);
-        $view->setLayoutRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Layouts']);
-
-        $view->setTemplate('Comments');
-        $view->assignMultiple([
-            'comments' => $comments,
-            'id' => $recordId,
-            'table' => $recordTable,
-            'newCommentUri' => UrlHelper::getNewCommentUrl($recordTable, $recordId),
-            'filter' => [
-                'sortComments' => $sortComments,
-                'showResolvedComments' => $showResolvedComments,
-                'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, onlyResolved: true),
-            ],
-        ]);
-
-        $result = $view->render();
         $result .= ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Comments.css', ['nonce' => $this->requestId->nonce]);
         $result .= ExtensionUtility::getJsTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/JavaScript/comments-reload-content.js', ['nonce' => $this->requestId->nonce]);
 

@@ -75,7 +75,7 @@ class ContentStatusWidget extends AbstractWidget
         }
 
         return $this->render(
-            'EXT:xima_typo3_content_planner/Resources/Private/Templates/Backend/Widgets/ContentStatusList.html',
+            'Backend/Widgets/ContentStatusList.html',
             [
                 'configuration' => $this->configuration,
                 'options' => $this->options,
