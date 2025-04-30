@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\ContentModifier;
 
+use Doctrine\DBAL\Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -25,6 +26,9 @@ class FileList extends AbstractModifier implements ModifierInterface
 {
     private ?ListSelectionService $selectionBuilder = null;
 
+    /**
+    * @throws Exception
+    */
     public function modify(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);
@@ -115,7 +119,7 @@ class FileList extends AbstractModifier implements ModifierInterface
             '/(<tr\b[^>]*data-filelist-meta-uid="' . $uid . '"[^>]*>.*?<div class="btn-group">)(.*?)(<a[^>]*class="btn btn-sm btn-default dropdown-toggle[^>]*>.*?<\/a>)/is',
             '$1$2' . $selection . '$3',
             $content
-        );
+        ) ?? $content;
     }
 
     private function getSelectionBuilder(): ListSelectionService

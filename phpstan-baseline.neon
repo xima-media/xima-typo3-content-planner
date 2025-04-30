@@ -1,13 +1,2 @@
 parameters:
-	ignoreErrors:
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: Classes/Service/ContentModifier/FileList.php
-
-		-
-			message: '#^Parameter &\$content by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\ContentModifier\\FileList\:\:generateSelection\(\) expects string, string\|null given\.$#'
-			identifier: parameterByRef.type
-			count: 1
-			path: Classes/Service/ContentModifier/FileList.php
+	ignoreErrors: []
