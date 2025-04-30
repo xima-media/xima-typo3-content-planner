@@ -40,7 +40,7 @@ class SysFileMetadataRepository
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
         return $queryBuilder
-            ->select('sys_file_metadata.uid', 'sys_file.name as title', 'sys_file.identifier', 'sys_file.uid as fileUid', 'sys_file_metadata.tx_ximatypo3contentplanner_status', 'sys_file_metadata.tx_ximatypo3contentplanner_assignee', 'sys_file_metadata.tx_ximatypo3contentplanner_comments')
+            ->select('sys_file_metadata.uid', 'sys_file.name as title', 'sys_file.name as file', 'sys_file.identifier', 'sys_file.uid as fileUid', 'sys_file_metadata.tx_ximatypo3contentplanner_status', 'sys_file_metadata.tx_ximatypo3contentplanner_assignee', 'sys_file_metadata.tx_ximatypo3contentplanner_comments')
             ->from('sys_file_metadata')
             ->innerJoin('sys_file_metadata', 'sys_file', 'sys_file', 'sys_file_metadata.file = sys_file.uid')
             ->andWhere(

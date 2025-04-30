@@ -134,7 +134,6 @@ class FileList extends AbstractModifier implements ModifierInterface
                     GeneralUtility::makeInstance(EventDispatcher::class)
                 ),
                 GeneralUtility::makeInstance(UriBuilder::class),
-                GeneralUtility::makeInstance(SysFileMetadataRepository::class),
                 GeneralUtility::makeInstance(CommentRepository::class),
                 GeneralUtility::makeInstance(IconFactory::class)
             );

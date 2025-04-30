@@ -11,6 +11,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository;
 
 class ContentUtility
 {
@@ -84,6 +85,10 @@ class ContentUtility
     {
         if (!$table && !$uid) {
             return null;
+        }
+        if ($table === 'sys_file_metadata') {
+            $sysFileMetadataRepository = GeneralUtility::makeInstance(SysFileMetadataRepository::class);
+            return $sysFileMetadataRepository->findByUid($uid);
         }
         return BackendUtility::getRecord($table, $uid);
     }

@@ -12,7 +12,6 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
@@ -24,11 +23,10 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
         UriBuilder $uriBuilder,
-        SysFileMetadataRepository $sysFileMetadataRepository,
         private readonly CommentRepository $commentRepository,
         private readonly IconFactory $iconFactory,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $sysFileMetadataRepository, $uriBuilder);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
     public function addStatusItemToSelection(

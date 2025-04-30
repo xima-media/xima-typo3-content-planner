@@ -14,18 +14,23 @@ use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 class RecordRepository
 {
     private array $defaultSelects = [
-        'uid',
-        'pid',
-        'tstamp',
-        'tx_ximatypo3contentplanner_status',
-        'tx_ximatypo3contentplanner_assignee',
-        'tx_ximatypo3contentplanner_comments',
+        'x.uid',
+        'x.pid',
+        'x.tstamp',
+        'x.tx_ximatypo3contentplanner_status',
+        'x.tx_ximatypo3contentplanner_assignee',
+        'x.tx_ximatypo3contentplanner_comments',
     ];
 
-    public function __construct(private readonly FrontendInterface $cache)
-    {
+    public function __construct(
+        private readonly FrontendInterface $cache,
+        private readonly SysFileMetadataRepository $sysFileMetadataRepository,
+    ) {
     }
 
+    /*
+    * @ToDo: This needs to be improved. The SQL is not very readable and the performance is not optimal.
+    */
     public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20): array|bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
@@ -63,6 +68,11 @@ class RecordRepository
                 $additionalWhereByTable .= ' AND deleted = 0';
             }
 
+            $additionalJoin = '';
+            if ($table === 'sys_file_metadata') {
+                $additionalJoin = ' LEFT JOIN sys_file f ON f.uid = x.file';
+            }
+
             if ($todo) {
                 // ToDo: Check for performance
                 $subQueryTotal = "(SELECT SUM(todo_total) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
@@ -71,7 +81,7 @@ class RecordRepository
                 $additionalWhereByTable .= " AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
             }
 
-            $this->getSqlByTable($table, $sqlArray, $additionalWhereByTable);
+            $this->getSqlByTable($table, $sqlArray, $additionalWhereByTable, $additionalJoin);
         }
 
         $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
@@ -143,6 +153,10 @@ class RecordRepository
         if (!$table && !$uid) {
             return null;
         }
+        if ($table === 'sys_file_metadata') {
+            return $this->sysFileMetadataRepository->findByUid($uid);
+        }
+
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
 
         if ($ignoreHiddenRestriction) {
@@ -198,17 +212,24 @@ class RecordRepository
         }
     }
 
-    private function getSqlByTable(string $table, array &$sql, string $additionalWhere): void
+    private function getSqlByTable(string $table, array &$sql, string $additionalWhere, string $additionalJoin): void
     {
         $titleField = $this->getTitleField($table);
 
-        if ($table === 'pages') {
-            $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
-        } else {
-            $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
+        switch ($table) {
+            case 'pages':
+                $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
+                break;
+            case 'sys_file_metadata':
+                $selects = array_merge($this->defaultSelects, ['f.name as title, "' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
+                break;
+            default:
+                $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
+
+                break;
         }
 
-        $sql[] = '(SELECT ' . implode(',', $selects) . ' FROM ' . $table . ' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0' . $additionalWhere . ')';
+        $sql[] = '(SELECT ' . implode(',', $selects) . ' FROM ' . $table . ' x ' . $additionalJoin . ' WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0' . $additionalWhere . ')';
     }
 
     private function getTitleField(string $table): string

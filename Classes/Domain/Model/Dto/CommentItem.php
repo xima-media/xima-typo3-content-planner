@@ -44,7 +44,7 @@ final class CommentItem
 
     public function getStatusIcon(): string
     {
-        return IconHelper::getIconByStatusUid((int)$this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        return $this->getRelatedRecord() ? IconHelper::getIconByStatusUid((int)$this->getRelatedRecord()['tx_ximatypo3contentplanner_status']) : '';
     }
 
     public function getRecordIcon(): string

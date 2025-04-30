@@ -16,7 +16,6 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
@@ -28,7 +27,6 @@ class AbstractSelectionService
         private readonly RecordRepository $recordRepository,
         private readonly StatusSelectionManager $statusSelectionManager,
         private readonly CommentRepository $commentRepository,
-        private readonly SysFileMetadataRepository $sysFileMetadataRepository,
         private readonly UriBuilder $uriBuilder
     ) {
     }
@@ -91,9 +89,6 @@ class AbstractSelectionService
 
     protected function getCurrentRecord(string $table, int $uid): array|bool|null
     {
-        if ($table === 'sys_file_metadata') {
-            return $this->sysFileMetadataRepository->findByUid($uid);
-        }
         return $this->recordRepository->findByUid($table, $uid, true);
     }
 
