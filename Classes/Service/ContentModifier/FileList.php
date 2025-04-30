@@ -34,7 +34,7 @@ class FileList extends AbstractModifier implements ModifierInterface
             return $response;
         }
 
-        $isTilesViewMode = (isset($request->getQueryParams()['viewMode']) && $request->getQueryParams()['viewMode'] === 'tiles') ?? false;
+        $isTilesViewMode = (isset($request->getQueryParams()['viewMode']) && $request->getQueryParams()['viewMode'] === 'tiles');
 
         if (!array_key_exists('id', $request->getQueryParams())) {
             return $response;
@@ -97,7 +97,7 @@ class FileList extends AbstractModifier implements ModifierInterface
 
     private function generateSelection(?Status $status, int $uid, string &$content): void
     {
-        $title = $status ? $status->getTitle() : 'Status';
+        $title = htmlspecialchars($status ? $status->getTitle() : 'Status', ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $icon = $status ? $status->getColoredIcon() : 'flag-gray';
         $selection = '
                 <a href="#" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="' . $title . '">'
