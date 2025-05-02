@@ -8,20 +8,12 @@ use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\Query\QueryUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 
 class RecordRepository
 {
-    private array $defaultSelects = [
-        'x.uid',
-        'x.pid',
-        'x.tstamp',
-        'x.tx_ximatypo3contentplanner_status',
-        'x.tx_ximatypo3contentplanner_assignee',
-        'x.tx_ximatypo3contentplanner_comments',
-    ];
-
     public function __construct(
         private readonly FrontendInterface $cache,
         private readonly SysFileMetadataRepository $sysFileMetadataRepository,
@@ -68,11 +60,6 @@ class RecordRepository
                 $additionalWhereByTable .= ' AND deleted = 0';
             }
 
-            $additionalJoin = '';
-            if ($table === 'sys_file_metadata') {
-                $additionalJoin = ' LEFT JOIN sys_file f ON f.uid = x.file';
-            }
-
             if ($todo) {
                 // ToDo: Check for performance
                 $subQueryTotal = "(SELECT SUM(todo_total) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
@@ -81,9 +68,10 @@ class RecordRepository
                 $additionalWhereByTable .= " AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
             }
 
-            $this->getSqlByTable($table, $sqlArray, $additionalWhereByTable, $additionalJoin);
-        }
+            $queryObject = QueryUtility::getQueryObjectByTable($table);
 
+            $sqlArray[] = sprintf('(%s)', $queryObject->buildSql($additionalWhereByTable));
+        }
         $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
 
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
@@ -210,26 +198,6 @@ class RecordRepository
                 )
                 ->executeStatement();
         }
-    }
-
-    private function getSqlByTable(string $table, array &$sql, string $additionalWhere, string $additionalJoin): void
-    {
-        $titleField = $this->getTitleField($table);
-
-        switch ($table) {
-            case 'pages':
-                $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
-                break;
-            case 'sys_file_metadata':
-                $selects = array_merge($this->defaultSelects, ['f.name as title, "' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
-                break;
-            default:
-                $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
-
-                break;
-        }
-
-        $sql[] = '(SELECT ' . implode(',', $selects) . ' FROM ' . $table . ' x ' . $additionalJoin . ' WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0' . $additionalWhere . ')';
     }
 
     private function getTitleField(string $table): string
