@@ -10,7 +10,7 @@ class QueryUtility
     {
         $className = __NAMESPACE__ . '\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', $table)));
 
-        if (class_exists($className)) {
+        if (class_exists($className) && is_subclass_of($className, QueryInterface::class)) {
             return new $className($table);
         }
 
