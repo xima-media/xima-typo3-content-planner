@@ -35,10 +35,10 @@ class PermissionUtility
             return false;
         }
 
-        if (!$backendUser->check('tables_select', $table) || !BackendUtility::readPageAccess(
+        if (!$backendUser->check('tables_select', $table) || (array_key_exists('pid', $record) && !BackendUtility::readPageAccess(
             $record['pid'],
             $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
-        )) {
+        ))) {
             return false;
         }
         return true;

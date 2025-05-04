@@ -29,15 +29,21 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
-    public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
-    {
+    public function addStatusItemToSelection(
+        array &$selectionEntriesToAdd,
+        Status $status,
+        Status|int|null $currentStatus = null,
+        ?string $table = null,
+        array|int|null $uid = null,
+        ?array $record = null
+    ): void {
         if ($this->compareStatus($status, $currentStatus)) {
             return;
         }
         $selectionEntriesToAdd[$status->getUid()] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'])->__toString()),
+                htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'], $record)->__toString()),
                 $status->getTitle(),
                 $this->iconFactory->getIcon($status->getColoredIcon(), IconHelper::getDefaultIconSize())->render(),
                 $status->getTitle()
@@ -54,7 +60,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $selectionEntriesToAdd['reset'] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars($this->buildUriForStatusChange($table, $uid, null, $record['pid'])->__toString()),
+                htmlspecialchars($this->buildUriForStatusChange($table, $uid, null, $record['pid'], $record)->__toString()),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset'),
                 $this->iconFactory->getIcon('actions-close', IconHelper::getDefaultIconSize())->render(),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset')

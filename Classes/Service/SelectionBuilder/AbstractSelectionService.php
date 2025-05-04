@@ -8,6 +8,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -44,7 +46,14 @@ class AbstractSelectionService
 
         $selectionEntriesToAdd = [];
         foreach ($allStatus as $statusItem) {
-            $this->addStatusItemToSelection($selectionEntriesToAdd, $statusItem, $this->getCurrentStatus($record), $table, $uid, $record);
+            $this->addStatusItemToSelection(
+                $selectionEntriesToAdd,
+                $statusItem,
+                $this->getCurrentStatus($record),
+                $table,
+                $uid,
+                $record
+            );
         }
 
         if ($record === null || ($record['tx_ximatypo3contentplanner_status'] !== null && $record['tx_ximatypo3contentplanner_status'] !== 0)) {
@@ -101,7 +110,7 @@ class AbstractSelectionService
         return $status->getUid() === $currentStatus;
     }
 
-    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status, ?int $pid = null): UriInterface
+    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status, ?int $pid = null, ?array $record = null): UriInterface
     {
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -114,6 +123,13 @@ class AbstractSelectionService
                         $uid => 'edit',
                     ],
                 ],
+            ];
+        } elseif ($route === 'media_management') {
+            $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+            $file = $resourceFactory->getFileObject($record['fileUid']);
+            $folderPath =  dirname($file->getCombinedIdentifier()) . '/';
+            $routeArray = [
+                'id' => $folderPath,
             ];
         } else {
             $routeArray = [

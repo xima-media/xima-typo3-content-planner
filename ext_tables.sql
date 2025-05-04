@@ -5,6 +5,13 @@ CREATE TABLE pages
 	tx_ximatypo3contentplanner_comments int(11) unsigned default '0' not null,
 );
 
+CREATE TABLE sys_file_metadata
+(
+	tx_ximatypo3contentplanner_status   int(11) DEFAULT NULL,
+	tx_ximatypo3contentplanner_assignee int(11) DEFAULT NULL,
+	tx_ximatypo3contentplanner_comments int(11) unsigned default '0' not null,
+);
+
 CREATE TABLE be_users
 (
 	tx_ximatypo3contentplanner_hide tinyint(4) unsigned DEFAULT 0 NOT NULL,
