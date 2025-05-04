@@ -93,6 +93,6 @@ abstract class AbstractQuery
 
     protected function getTitleField(): string
     {
-        return $GLOBALS['TCA'][$this->getTable()]['ctrl']['label'];
+        return $GLOBALS['TCA'][$this->getTable()]['ctrl']['label'] ?? 'uid';
     }
 }
