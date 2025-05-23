@@ -10,6 +10,7 @@ return [
         'delete' => 'deleted',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
+        'rootLevel' => -1,
         'typeicon_classes' => [
             'default' => 'content-message',
         ],

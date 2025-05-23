@@ -29,7 +29,7 @@ class UrlHelper
         $pid = $uid;
         if ($table !== 'pages') {
             $record = ContentUtility::getExtensionRecord($table, $uid);
-            $pid = (int)$record['pid'];
+            $pid = array_key_exists('pid', $record)? (int)$record['pid'] : 0;
         }
 
         $params = [
