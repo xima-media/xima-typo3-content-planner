@@ -31,6 +31,14 @@
 				<source/>
 				<target>Alle Datensätze mit Ihrer Zuweisung anzeigen</target>
 			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.todo.title">
+				<source/>
+				<target>Offene Aufgaben</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.todo.description">
+				<source/>
+				<target>Zeigt alle Datensätze mit offenen Aufgaben in den zugehörigen Kommentaren</target>
+			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.title">
 				<source/>
 				<target>Übersicht</target>
