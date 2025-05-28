@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
@@ -21,7 +23,7 @@ final class HistoryItem
 
     public static function create(array $sysHistoryRow): static
     {
-        $item = new HistoryItem();
+        $item = new self();
         $item->data = $sysHistoryRow;
         $item->data['raw_history'] = $sysHistoryRow['history_data'] ? json_decode($sysHistoryRow['history_data'], true) : null;
 
@@ -62,7 +64,7 @@ final class HistoryItem
 
     public function getRelatedRecord(): array|bool
     {
-        if (empty($this->relatedRecord)) {
+        if ($this->relatedRecord === [] || $this->relatedRecord === false) {
             switch ($this->data['tablename']) {
                 case 'pages':
                     $this->data['relatedRecordTablename'] = 'pages';

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -21,7 +23,7 @@ final class StatusItem
 
     public static function create(array $row): static
     {
-        $item = new StatusItem();
+        $item = new self();
         $item->data = $row;
         $item->status = ContentUtility::getStatus($row['tx_ximatypo3contentplanner_status']);
 
@@ -33,7 +35,7 @@ final class StatusItem
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
             return false;
         }
-        return ((int)$this->data['tx_ximatypo3contentplanner_assignee']) === $GLOBALS['BE_USER']->user['uid'];
+        return ((int)$this->data['tx_ximatypo3contentplanner_assignee']) === (int)$GLOBALS['BE_USER']->user['uid'];
     }
 
     public function getTitle(): string
@@ -91,10 +93,11 @@ final class StatusItem
         if (count($siteFinder->getAllSites()) <= 1) {
             return null;
         }
-        $site = $siteFinder->getSiteByPageId($this->data['tablename'] === 'pages' ? $this->data['uid'] : $this->data['pid']);
+        $site = $siteFinder->getSiteByPageId((int)(($this->data['tablename'] === 'pages') ? $this->data['uid'] : $this->data['pid']));
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $icon = $iconFactory->getIcon('apps-pagetree-folder-root', IconHelper::getDefaultIconSize());
-        return $icon->render() . ' ' . ($site->getAttribute('websiteTitle') ?: $site->getIdentifier());
+        /* @phpstan-ignore-next-line */
+        return $icon->render() . ' ' . ($site->getAttribute('websiteTitle') ?? $site->getIdentifier());
     }
 
     public function getToDoHtml(): string
@@ -102,7 +105,7 @@ final class StatusItem
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
             return '';
         }
-        return $this->getToDoTotal() ? sprintf(
+        return $this->getToDoTotal() > 0 ? sprintf(
             '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
             IconHelper::getIconByIdentifier('actions-check-square'),
             $this->getToDoResolved() === $this->getToDoTotal() ? 'resolved' : 'pending',

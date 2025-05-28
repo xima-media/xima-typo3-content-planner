@@ -12,6 +12,7 @@ use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Header\HeaderMode;
@@ -46,7 +47,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         $content = $response->getBody()->__toString();
 
         $pid = $request->getQueryParams()['id'] ?? 0;
-        if (!$pid) {
+        if ($pid === 0) {
             return $response;
         }
 
@@ -128,11 +129,11 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
     private function addStatusHintToContentElement(int $pid): string
     {
         $styling = [];
-        $records = $this->getRecordRepository()->findByPid('tt_content', (int)$pid);
+        $records = $this->getRecordRepository()->findByPid('tt_content', $pid);
 
         foreach ($records as $record) {
             $status = $this->getStatusRepository()->findByUid($record['tx_ximatypo3contentplanner_status']);
-            if (!$status) {
+            if (!$status instanceof Status) {
                 continue;
             }
             $statusColor = Configuration\Colors::get($status->getColor());
@@ -147,7 +148,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
             && $request->getAttribute('module') !== null
             && $request->getAttribute('module')->getIdentifier() === 'web_layout'
-            && in_array('tt_content', $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
+            && in_array('tt_content', $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'], true);
     }
 
     private function isRelevantRecordEditRequest(ServerRequestInterface $request): bool
@@ -155,7 +156,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
             && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
             && array_key_exists('edit', $request->getQueryParams())
-            && (array_key_first($request->getQueryParams()['edit']) === 'pages' || in_array(array_key_first($request->getQueryParams()['edit']), $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']));
+            && (array_key_first($request->getQueryParams()['edit']) === 'pages' || in_array(array_key_first($request->getQueryParams()['edit']), $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'], true));
     }
 
     private function isRelevantWebListRequest(ServerRequestInterface $request): bool

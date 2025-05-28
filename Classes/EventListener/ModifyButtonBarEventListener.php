@@ -3,11 +3,13 @@
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Module\ModuleInterface;
 use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\HeaderSelectionService;
@@ -33,8 +35,8 @@ final class ModifyButtonBarEventListener
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
 
-        if ($request->getAttribute('module') &&
-            !in_array($request->getAttribute('module')->getIdentifier(), ['web_layout', 'record_edit', 'web_list'])) {
+        if ($request->getAttribute('module') instanceof ModuleInterface &&
+            !in_array($request->getAttribute('module')->getIdentifier(), ['web_layout', 'record_edit', 'web_list'], true)) {
             return;
         }
 
@@ -73,7 +75,7 @@ final class ModifyButtonBarEventListener
             ->setLabel('Dropdown')
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
             ->setIcon($this->iconFactory->getIcon(
-                $status ? $status->getColoredIcon() : 'flag-gray'
+                $status instanceof Status ? $status->getColoredIcon() : 'flag-gray'
             ));
 
         $buttonsToAdd = $this->buttonSelectionService->generateSelection($table, $uid);

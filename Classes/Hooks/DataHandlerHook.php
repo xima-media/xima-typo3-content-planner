@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Hooks;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -79,6 +80,7 @@ final class DataHandlerHook
 
     /**
     * Hook: processDatamap_afterDatabaseOperations
+    * @throws Exception
     */
     public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
     {
@@ -88,7 +90,7 @@ final class DataHandlerHook
             * The relation is not updated correctly by the DataHandler.
             * The following code example from the official documentation does not work as expected:
             * dataHandler->datamap[$foreign_table][$foreign_uid]['tx_ximatypo3contentplanner_comments'] = $newCommentUid;
-            * Therefore we have to update the relation manually.
+            * Therefore, we have to update the relation manually.
             */
             if (array_key_exists('foreign_table', $fieldArray) && array_key_exists('foreign_uid', $fieldArray)) {
                 $this->recordRepository->updateCommentsRelationByRecord($fieldArray['foreign_table'], (int)$fieldArray['foreign_uid']);
@@ -99,13 +101,13 @@ final class DataHandlerHook
     public function clearCachePostProc(array $params): void
     {
         $tags = array_keys($params['tags']);
-        if (in_array('uid_page', $params) && in_array('table', $params)) {
+        if (in_array('uid_page', $params, true) && in_array('table', $params, true)) {
             $tags[] = $params['table'] . '__pageId__' . $params['uid_page'];
         }
         $this->cache->flushByTags($tags);
     }
 
-    private function fixNewCommentEntry(&$dataHandler): void
+    private function fixNewCommentEntry(DataHandler &$dataHandler): void
     {
         $id = null;
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $key) {
@@ -127,7 +129,7 @@ final class DataHandlerHook
         }
     }
 
-    private function updateCommentTodo($dataHandler): void
+    private function updateCommentTodo(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
             if (!array_key_exists('content', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])) {
@@ -135,7 +137,7 @@ final class DataHandlerHook
             }
 
             $content = $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['content'];
-            if (empty($content)) {
+            if ($content === '') {
                 continue;
             }
 
@@ -145,7 +147,7 @@ final class DataHandlerHook
         }
     }
 
-    private function checkCommentResolved($dataHandler): void
+    private function checkCommentResolved(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
             if (array_key_exists('resolved_date', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]) &&
@@ -157,7 +159,10 @@ final class DataHandlerHook
         }
     }
 
-    private function checkCommentEdited($dataHandler): void
+    /**
+    * @throws Exception
+    */
+    private function checkCommentEdited(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
             if (MathUtility::canBeInterpretedAsInteger($id) && array_key_exists('content', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])) {

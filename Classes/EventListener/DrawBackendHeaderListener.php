@@ -31,7 +31,7 @@ final class DrawBackendHeaderListener
         $id = (int)($event->getRequest()->getQueryParams()['id'] ?? 0);
         $pageInfo = $this->pageRepository->getPage($id);
 
-        if (empty($pageInfo)) {
+        if ($pageInfo === []) {
             return;
         }
 

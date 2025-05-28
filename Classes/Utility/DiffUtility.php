@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use DateTime;
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
@@ -30,9 +31,9 @@ class DiffUtility
         ];
 
         foreach ($timeUnits as $unit => $label) {
-            if ($interval->$unit > 0) {
-                $key = $interval->$unit == 1 ? $label : $label . 's';
-                return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf:timeAgo.' . $key), $interval->$unit);
+            if ($interval->$unit > 0) { // @phpstan-ignore property.dynamicName
+                $key = $interval->$unit === 1 ? $label : $label . 's'; // @phpstan-ignore property.dynamicName
+                return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf:timeAgo.' . $key), $interval->$unit); // @phpstan-ignore property.dynamicName
             }
         }
 
@@ -41,7 +42,7 @@ class DiffUtility
 
     public static function checkCommendDiff(?array $data, int $actiontype): string|bool
     {
-        if ($data && array_key_exists('newRecord', $data) && array_key_exists('resolved_date', $data['newRecord'])) {
+        if ($data !== null && $data !== [] && array_key_exists('newRecord', $data) && array_key_exists('resolved_date', $data['newRecord'])) {
             if ((int)$data['newRecord']['resolved_date'] === 0) {
                 return self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype . '.unresolved');
             }
@@ -69,18 +70,18 @@ class DiffUtility
             }
         }
 
-        return $diff ? implode('<br/>', $diff) : false;
+        return $diff !== [] ? implode('<br/>', $diff) : false;
     }
 
     private static function makeRecordDiffReadable(string $field, int $actiontype, string|int|null $old, string|int|null $new): string|bool
     {
-        if (empty($old) && empty($new)) {
+        if (!(bool)$old && !(bool)$new) {
             return false;
         }
-        if (empty($old)) {
+        if (!(bool)$old) {
             return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.record.' . $actiontype . '.set.' . $field), self::preparePageAttributeValue($field, $new));
         }
-        if (empty($new)) {
+        if (!(bool)$new) {
             return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.record.' . $actiontype . '.unset.' . $field), self::preparePageAttributeValue($field, $old));
         }
         if ($old !== $new) {
@@ -89,15 +90,16 @@ class DiffUtility
         return false;
     }
 
+    /**
+    * @throws Exception
+    */
     private static function preparePageAttributeValue(string $field, string|int $value): string|int|null
     {
-        switch ($field) {
-            case 'tx_ximatypo3contentplanner_status':
-                return ContentUtility::getStatus((int)$value)?->getTitle();
-            case 'tx_ximatypo3contentplanner_assignee':
-                return ContentUtility::getBackendUsernameById((int)$value);
-        }
-        return $value;
+        return match ($field) {
+            'tx_ximatypo3contentplanner_status' => ContentUtility::getStatus((int)$value)?->getTitle(),
+            'tx_ximatypo3contentplanner_assignee' => ContentUtility::getBackendUsernameById((int)$value),
+            default => $value,
+        };
     }
 
     protected static function getLanguageService(): LanguageService

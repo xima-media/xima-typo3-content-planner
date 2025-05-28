@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -18,7 +20,7 @@ final class CommentItem
 
     public static function create(array $row): static
     {
-        $item = new CommentItem();
+        $item = new self();
         $item->data = $row;
 
         return $item;
@@ -31,7 +33,7 @@ final class CommentItem
 
     public function getRelatedRecord(): array|bool
     {
-        if (empty($this->relatedRecord)) {
+        if ($this->relatedRecord === [] || $this->relatedRecord === false) {
             $this->relatedRecord = ContentUtility::getExtensionRecord($this->data['foreign_table'], (int)$this->data['foreign_uid']);
         }
 

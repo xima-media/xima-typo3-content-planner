@@ -16,7 +16,7 @@ class ContentStatusWidget extends AbstractWidget
 {
     public function renderWidgetContent(): string
     {
-        $filter = isset($this->options['useFilter']) ?: false;
+        $filter = isset($this->options['useFilter']);
         $mode = 'status';
         $assignee = null;
         $todo = false;
@@ -32,17 +32,11 @@ class ContentStatusWidget extends AbstractWidget
             $mode = 'todo';
         }
 
-        switch (true) {
-            case $assignee:
-                $icon = 'status-user-backend';
-                break;
-            case $todo:
-                $icon = 'form-multi-checkbox';
-                break;
-            default:
-                $icon = 'flag-gray';
-                break;
-        }
+        $icon = match (true) {
+            $assignee !== null && $assignee > 0 => 'status-user-backend',
+            $todo => 'form-multi-checkbox',
+            default => 'flag-gray',
+        };
 
         /** @var ContentStatusDataProvider $dataProvider */
         $dataProvider = $this->dataProvider;
@@ -65,7 +59,7 @@ class ContentStatusWidget extends AbstractWidget
             $todoResolved = $commentRepository->countTodoAllByRecord(allRecords: true);
             $todoTotal = $commentRepository->countTodoAllByRecord(todoField: 'todo_total', allRecords: true);
 
-            $todo = $todoTotal ? sprintf(
+            $todo = $todoTotal > 0 ? sprintf(
                 '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
                 IconHelper::getIconByIdentifier('actions-check-square'),
                 $todoResolved === $todoTotal ? 'resolved' : 'pending',
