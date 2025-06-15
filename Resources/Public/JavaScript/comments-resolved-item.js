@@ -27,7 +27,6 @@ class CommentsResolvedItem {
             trigger: () => {
               new AjaxRequest(resolvedCommentUrl).get()
                 .then(() => {
-                  //top.TYPO3.Notification.success('Resolved', 'Comment entry successfully resolved.')
                   this.reloadComments(currentTarget)
                   Modal.dismiss()
                 })

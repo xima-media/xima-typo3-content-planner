@@ -77,8 +77,8 @@ class InfoGenerator
             'assignee' => [
                 'username' => $this->getAssigneeUsername($record),
                 'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
-                'assignToCurrentUser' => $this->checkAssignToCurrentUser($record, $table) ? UrlHelper::assignToUser($table, $record['uid']) : false,
-                'unassign' => $this->checkUnassign($record) ? UrlHelper::assignToUser($table, $record['uid'], unassign: true) : null,
+                'assignToCurrentUser' => self::checkAssignToCurrentUser($record) ? UrlHelper::assignToUser($table, $record['uid']) : false,
+                'unassign' => self::checkUnassign($record) ? UrlHelper::assignToUser($table, $record['uid'], unassign: true) : null,
             ],
             'comments' => [
                 'items' => $this->getComments($record, $table),
@@ -113,7 +113,7 @@ class InfoGenerator
         return (int)$record['tx_ximatypo3contentplanner_assignee'] === $GLOBALS['BE_USER']->user['uid'];
     }
 
-    private function checkAssignToCurrentUser(array $record, string $table): bool
+    public static function checkAssignToCurrentUser(array $record): bool
     {
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record) || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
             return false;
@@ -121,7 +121,7 @@ class InfoGenerator
         return $record['tx_ximatypo3contentplanner_assignee'] === null || $record['tx_ximatypo3contentplanner_assignee'] !== $GLOBALS['BE_USER']->user['uid'];
     }
 
-    private function checkUnassign(array $record): bool
+    public static function checkUnassign(array $record): bool
     {
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
             return false;
@@ -171,12 +171,14 @@ class InfoGenerator
             $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
             $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js');
             $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/comments-list-modal.js');
+            $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/assignee-selection-modal.js');
             $pageRenderer->addCssFile('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css');
             $pageRenderer->addInlineLanguageLabelFile('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf');
             return '';
         }
         $content = ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css', ['nonce' => $this->requestId->nonce]);
         $content .= ExtensionUtility::getJsTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/JavaScript/comments-list-modal.js', ['nonce' => $this->requestId->nonce]);
+        $content .= ExtensionUtility::getJsTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/JavaScript/assignee-selection-modal.js', ['nonce' => $this->requestId->nonce]);
         return $content;
     }
 

@@ -24,6 +24,23 @@ class BackendUserRepository
             ->executeQuery()->fetchAllAssociative();
     }
 
+    public function findAllWithPermission(): array|bool
+    {
+        /** @var Connection $connection */
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable('be_users');
+
+        $sql = 'SELECT * FROM be_users
+            WHERE admin=1 OR FIND_IN_SET(uid, (
+                            SELECT GROUP_CONCAT(be_users.uid)
+                            FROM be_users
+                            JOIN be_groups ON FIND_IN_SET(be_groups.uid, be_users.usergroup)
+                            WHERE FIND_IN_SET(\'tx_ximatypo3contentplanner:content-status\', be_groups.custom_options)
+            )) ORDER BY username';
+
+        return $connection->executeQuery($sql)->fetchAllAssociative();
+    }
+
     /**
     * @throws Exception
     */
