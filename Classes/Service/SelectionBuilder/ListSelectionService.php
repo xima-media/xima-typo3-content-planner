@@ -64,7 +64,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
 
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        if (!$record['tx_ximatypo3contentplanner_assignee']) {
+        if (!(int)$record['tx_ximatypo3contentplanner_assignee']) {
             return;
         }
         $statusItem = StatusItem::create($record);

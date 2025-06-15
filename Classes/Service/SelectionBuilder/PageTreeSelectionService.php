@@ -58,7 +58,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        $username = $this->backendUserRepository->getUsernameByUid($record['tx_ximatypo3contentplanner_assignee']);
+        $username = $this->backendUserRepository->getUsernameByUid((int)$record['tx_ximatypo3contentplanner_assignee']);
         if ($username === '') {
             return;
         }
