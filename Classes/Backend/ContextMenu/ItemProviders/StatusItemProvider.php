@@ -33,7 +33,7 @@ class StatusItemProvider extends AbstractProvider
 
     public function canHandle(): bool
     {
-        return ExtensionUtility::isRegisteredRecordTable($this->table) && $this->identifier;
+        return ExtensionUtility::isRegisteredRecordTable($this->table) && $this->identifier !== '';
     }
 
     public function getPriority(): int

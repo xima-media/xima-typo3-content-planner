@@ -31,10 +31,7 @@ class RandomNumberViewHelper extends AbstractViewHelper
         );
     }
 
-    /**
-    * @throws \Random\RandomException
-    */
-    public function render()
+    public function render(): int
     {
         return random_int($this->arguments['min'], $this->arguments['max']);
     }

@@ -5,18 +5,22 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class UrlHelper
 {
+    /**
+    * @throws RouteNotFoundException
+    */
     public static function getContentStatusPropertiesEditUrl(string $table, int $uid, bool $generateReturnUrl = true): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $params = [
             'edit' => [$table => [$uid => 'edit']],
-            'returnUrl' => $generateReturnUrl && in_array($request->getAttribute('routing')->getRoute()->getOption('_identifier'), ['web_layout', 'web_list', 'record_edit']) ? $request->getAttribute('normalizedParams')->getRequestUri() : null,
+            'returnUrl' => $generateReturnUrl && in_array($request->getAttribute('routing')->getRoute()->getOption('_identifier'), ['web_layout', 'web_list', 'record_edit'], true) ? $request->getAttribute('normalizedParams')->getRequestUri() : null,
             'columnsOnly' => 'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments',
         ];
         return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
@@ -40,6 +44,9 @@ class UrlHelper
         return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
+    /**
+    * @throws RouteNotFoundException
+    */
     public static function getEditCommentUrl(int $uid): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -52,6 +59,9 @@ class UrlHelper
         return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
+    /**
+    * @throws RouteNotFoundException
+    */
     public static function getResolvedCommentUrl(int $uid, bool $isResolved): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -70,6 +80,9 @@ class UrlHelper
         return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
     }
 
+    /**
+    * @throws RouteNotFoundException
+    */
     public static function getDeleteCommentUrl(int $uid): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -82,6 +95,9 @@ class UrlHelper
         return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
     }
 
+    /**
+    * @throws RouteNotFoundException
+    */
     public static function getRecordLink(string $table, int $uid): string
     {
         return match ($table) {
@@ -90,7 +106,10 @@ class UrlHelper
         };
     }
 
-    public static function assignToUser(string $table, int $uid, ?int $userId = null, bool $unassign = false): string
+    /**
+    * @throws RouteNotFoundException
+    */
+    public static function assignToUser(string $table, int $uid, int|string|null $userId = null, bool $unassign = false): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
         /** @var ServerRequestInterface $request */

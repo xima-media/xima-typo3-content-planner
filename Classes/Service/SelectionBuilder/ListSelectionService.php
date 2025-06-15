@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -37,7 +38,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $selectionEntriesToAdd[$status->getUid()] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'])->__toString()),
+                htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'])->__toString(), ENT_QUOTES | ENT_HTML5),
                 $status->getTitle(),
                 $this->iconFactory->getIcon($status->getColoredIcon(), IconHelper::getDefaultIconSize())->render(),
                 $status->getTitle()
@@ -54,7 +55,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $selectionEntriesToAdd['reset'] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars($this->buildUriForStatusChange($table, $uid, null, $record['pid'])->__toString()),
+                htmlspecialchars($this->buildUriForStatusChange($table, $uid, null, $record['pid'])->__toString(), ENT_QUOTES | ENT_HTML5),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset'),
                 $this->iconFactory->getIcon('actions-close', IconHelper::getDefaultIconSize())->render(),
                 $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset')
@@ -70,13 +71,16 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $selectionEntriesToAdd['assignee'] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
-                htmlspecialchars(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid)),
+                htmlspecialchars(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid), ENT_QUOTES | ENT_HTML5),
                 $statusItem->getAssigneeName(),
                 $statusItem->getAssigneeAvatar(),
                 $statusItem->getAssigneeName()
             );
     }
 
+    /**
+    * @throws Exception
+    */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $selectionEntriesToAdd['comments'] =

@@ -39,30 +39,30 @@ class InfoGenerator
             $record = $this->getRecordRepository()->findByUid($table, $uid, ignoreHiddenRestriction: true);
         }
 
-        if (!$record) {
+        if (!(bool)$record) {
             return false;
         }
 
         $status = $this->getStatusRepository()->findByUid($record['tx_ximatypo3contentplanner_status']);
 
-        if (!$status) {
+        if (!$status instanceof Status) {
             return false;
         }
 
-        $additionalContent = $this->renderStatusHeaderContentView(
+        return $this->renderStatusHeaderContentView(
             $mode,
             $record,
             $table,
             $status
         );
-
-        return $additionalContent;
     }
 
     private function renderStatusHeaderContentView(HeaderMode $mode, array $record, string $table, Status $status): string
     {
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Backend/Header/HeaderInfo.html');
+        // @ToDo: StandaloneView is deprecated and should be replaced with FluidView in TYPO3 v13
+        $view = GeneralUtility::makeInstance(StandaloneView::class); // @phpstan-ignore-line classConstant.deprecatedClass
+        // @ToDo: setTemplatePathAndFilename is deprecated and should be replaced with ViewFactoryInterface
+        $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Backend/Header/HeaderInfo.html'); // @phpstan-ignore-line method.deprecatedClass
 
         $view->assignMultiple([
             'mode' => $mode->value,
