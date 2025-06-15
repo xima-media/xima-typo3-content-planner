@@ -26,8 +26,7 @@ class InfoGenerator
 
     public function __construct(
         private readonly RequestId $requestId
-    )
-    {
+    ) {
     }
 
     public function generateStatusHeader(HeaderMode $mode, mixed $record = null, ?string $table = null, ?int $uid = null): string|bool

@@ -84,10 +84,14 @@ class RecordController extends ActionController
         $record = $this->recordRepository->findByUid($recordTable, $recordId, ignoreHiddenRestriction: true);
         $assignees = $this->backendUserRepository->findAllWithPermission();
 
+        if (!$record) {
+            return new JsonResponse(['error' => 'Record not found'], 404);
+        }
+
         array_unshift($assignees, [
             'url' => UrlHelper::assignToUser($recordTable, $record['uid'], unassign: true),
             'username' => '-- Not assigned --',
-            'uid' => 0
+            'uid' => 0,
         ]);
 
         foreach ($assignees as &$assignee) {
