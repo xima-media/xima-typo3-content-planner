@@ -104,7 +104,7 @@
 		"php:rector": "rector",
 		"php:rector:check": "rector --dry-run",
 		"php:stan": "php vendor/bin/phpstan --generate-baseline=phpstan-baseline.neon --allow-empty-baseline --memory-limit=2G -vvv",
-		"php:stan:check": "php vendor/bin/phpstan --no-progress || true",
+		"php:stan:check": "php vendor/bin/phpstan --no-progress --error-format=checkstyle > phpstan.xml || true",
 		"ter:artefact": "php vendor/bin/tailor create-artefact",
 		"ter:version": "php vendor/bin/tailor set-version",
 		"typoscript:lint": "typoscript-lint",
