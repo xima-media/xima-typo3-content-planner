@@ -10,37 +10,33 @@ class AssigneeSelect {
       const modal = event.detail?.modal
       if (modal) {
         this.initEventListeners(modal)
+        return
       }
       this.initEventListeners()
     })
   }
 
   initEventListeners(modal = null) {
-    document.querySelector('[data-assignee-selection]').addEventListener('change', (event) => {
+    document.querySelector('[data-action-assignee-selection]').addEventListener('change', (event) => {
       event.preventDefault()
-      const selectElement = event.target
-
-      new AjaxRequest(selectElement.value).get()
-
-      if (modal) {
-        modal.hideModal()
-      }
-      Viewport.ContentContainer.refresh()
+      this.changeAssignee(event.target.value, modal)
     })
 
     document.querySelectorAll('[data-action-assignee]').forEach(item => {
-      item.addEventListener('click', (event) => {
+      item.addEventListener('click', event => {
         event.preventDefault()
-        const selectElement = event.target
-
-        new AjaxRequest(selectElement.getAttribute('href')).get()
-
-        if (modal) {
-          modal.hideModal()
-        }
-        Viewport.ContentContainer.refresh()
+        this.changeAssignee(event.currentTarget.getAttribute('href'), modal)
       })
     })
+  }
+
+  changeAssignee(url, modal = null) {
+    new AjaxRequest(url).get()
+
+    if (modal) {
+      modal.hideModal()
+    }
+    Viewport.ContentContainer.refresh()
   }
 }
 
