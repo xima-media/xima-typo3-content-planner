@@ -39,7 +39,7 @@ final class ModifyRecordListTableActionsListener
         }
 
         $allStatus = $this->statusRepository->findAll();
-        if (empty($allStatus)) {
+        if ($allStatus === []) {
             return;
         }
 
@@ -51,14 +51,14 @@ final class ModifyRecordListTableActionsListener
 
         foreach ($allStatus as $statusEntry) {
             $url = $this->buildUri($event, $statusEntry);
-            $actionsToAdd[$statusEntry->getUid()] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $statusEntry->getTitle() . '">'
+            $actionsToAdd[$statusEntry->getUid()] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url, ENT_QUOTES | ENT_HTML5) . '" title="' . $statusEntry->getTitle() . '">'
                 . $this->iconFactory->getIcon($statusEntry->getColoredIcon(), IconHelper::getDefaultIconSize())->render() . $statusEntry->getTitle() . '</a></li>';
         }
         $actionsToAdd['divider'] = '<li><hr class="dropdown-divider"></li>';
 
         // reset
         $url = $this->buildUri($event, null);
-        $actionsToAdd['reset'] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url) . '" title="' . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '">'
+        $actionsToAdd['reset'] = '<li><a class="dropdown-item dropdown-item-spaced" href="' . htmlspecialchars($url, ENT_QUOTES | ENT_HTML5) . '" title="' . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '">'
             . $this->iconFactory->getIcon('actions-close', IconHelper::getDefaultIconSize())->render() . $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset') . '</a></li>';
 
         foreach ($actionsToAdd as $actionToAdd) {
@@ -90,7 +90,7 @@ final class ModifyRecordListTableActionsListener
         }
         foreach ($event->getRecordIds() as $recordId) {
             $dataArray[$event->getTable()][$recordId] = [
-                'tx_ximatypo3contentplanner_status' => $statusEntry ? $statusEntry->getUid() : '',
+                'tx_ximatypo3contentplanner_status' => $statusEntry instanceof Status ? $statusEntry->getUid() : '',
             ];
         }
 

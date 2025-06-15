@@ -19,8 +19,11 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 final class BulkUpdateCommand extends Command
 {
-    public function __construct(private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository, private readonly CommentRepository $commentRepository)
-    {
+    public function __construct(
+        private readonly StatusRepository $statusRepository,
+        private readonly RecordRepository $recordRepository,
+        private readonly CommentRepository $commentRepository
+    ) {
         parent::__construct();
     }
 
@@ -65,20 +68,25 @@ final class BulkUpdateCommand extends Command
         $uids = [$uid];
 
         if ($recursive && $table === 'pages') {
-            $uids = array_merge($uids, $this->getSubpages($uid));
+            $uids = [...$uids, ...$this->getSubpages($uid)];
         }
 
-        foreach ($uids as $uid) {
-            $this->recordRepository->updateStatusByUid($table, $uid, $status, $assignee);
+        foreach ($uids as $tempUid) {
+            $this->recordRepository->updateStatusByUid($table, $tempUid, $status, $assignee);
 
             if ($status === null && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
-                $this->commentRepository->deleteAllCommentsByRecord($uid, $table);
+                $this->commentRepository->deleteAllCommentsByRecord($tempUid, $table);
             }
 
             $count++;
         }
 
-        $output->writeln(sprintf('Updated %d "%s" records to status "%s".', $count, $table, ($statusEntity ? $statusEntity->getTitle() : 'clear')));
+        $output->writeln(sprintf(
+            'Updated %d "%s" records to status "%s".',
+            $count,
+            $table,
+            $statusEntity !== null ? $statusEntity->getTitle() : 'clear'
+        ));
 
         return Command::SUCCESS;
     }
@@ -90,7 +98,7 @@ final class BulkUpdateCommand extends Command
         $subpageIds = $this->flattenArray($subpages);
 
         foreach ($subpageIds as $subpageId) {
-            $subpageIds = array_merge($subpageIds, $this->getSubpages($subpageId));
+            $subpageIds = [...$subpageIds, ...$this->getSubpages($subpageId)];
         }
 
         return $subpageIds;
@@ -99,7 +107,7 @@ final class BulkUpdateCommand extends Command
     private function flattenArray(array $array): array
     {
         $result = [];
-        array_walk_recursive($array, function ($value, $key) use (&$result) {
+        array_walk_recursive($array, function (mixed $value, string|int $key) use (&$result): void {
             if ($key === 'uid' || is_int($value)) {
                 $result[] = $value;
             }

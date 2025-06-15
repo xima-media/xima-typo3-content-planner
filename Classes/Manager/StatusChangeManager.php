@@ -16,8 +16,11 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 class StatusChangeManager
 {
-    public function __construct(private readonly EventDispatcher $eventDispatcher, private readonly RecordRepository $recordRepository, private readonly CommentRepository $commentRepository)
-    {
+    public function __construct(
+        private readonly EventDispatcher $eventDispatcher,
+        private readonly RecordRepository $recordRepository,
+        private readonly CommentRepository $commentRepository
+    ) {
     }
 
     public function processContentPlannerFields(array &$incomingFieldArray, $table, $id): void
@@ -71,13 +74,13 @@ class StatusChangeManager
             ->set('tx_ximatypo3contentplanner_status', null)
         ;
 
-        if ($status) {
+        if ((bool)$status) {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_status', $status)
             );
         }
 
-        if ($pid) {
+        if ((bool)$pid) {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->eq('pid', $pid)
             );

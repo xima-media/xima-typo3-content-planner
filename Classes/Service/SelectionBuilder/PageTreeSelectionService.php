@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -52,6 +53,9 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         ];
     }
 
+    /**
+    * @throws Exception
+    */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $username = $this->backendUserRepository->getUsernameByUid($record['tx_ximatypo3contentplanner_assignee']);
@@ -66,6 +70,9 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         ];
     }
 
+    /**
+    * @throws Exception
+    */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $selectionEntriesToAdd['comments'] = [

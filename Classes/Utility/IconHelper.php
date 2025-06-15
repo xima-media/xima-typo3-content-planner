@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Information\Typo3Version;
@@ -27,7 +28,7 @@ class IconHelper
     public static function getIconByStatus(?Status $status, bool $render = false): string
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $icon = $iconFactory->getIcon($status ? $status->getColoredIcon() : 'flag-gray', self::getDefaultIconSize());
+        $icon = $iconFactory->getIcon($status instanceof Status ? $status->getColoredIcon() : 'flag-gray', self::getDefaultIconSize());
         return $render ? $icon->render() : $icon->getIdentifier();
     }
 
@@ -41,6 +42,9 @@ class IconHelper
         return $render ? $icon->render() : $icon->getIdentifier();
     }
 
+    /**
+    * @throws Exception
+    */
     public static function getAvatarByUserId(int $userId, int $size = 15): string
     {
         $user = ContentUtility::getBackendUserById($userId);
@@ -62,6 +66,6 @@ class IconHelper
         if ($typo3Version >= 13) {
             return \TYPO3\CMS\Core\Imaging\IconSize::SMALL;
         }
-        return \TYPO3\CMS\Core\Imaging\Icon::SIZE_SMALL;
+        return \TYPO3\CMS\Core\Imaging\Icon::SIZE_SMALL; // @phpstan-ignore classConstant.deprecated
     }
 }

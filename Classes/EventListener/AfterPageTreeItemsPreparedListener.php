@@ -8,6 +8,7 @@ use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -34,7 +35,7 @@ final class AfterPageTreeItemsPreparedListener
             $version = VersionNumberUtility::getCurrentTypo3Version();
             if (isset($item['_page']['tx_ximatypo3contentplanner_status'])) {
                 $status = $this->statusRepository->findByUid($item['_page']['tx_ximatypo3contentplanner_status']);
-                if ($status) {
+                if ($status instanceof Status) {
                     if (version_compare($version, '13.0.0', '>=')) {
                         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
                             label: $status->getTitle(),

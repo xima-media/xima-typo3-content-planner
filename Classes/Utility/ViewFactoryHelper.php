@@ -26,15 +26,15 @@ class ViewFactoryHelper
     private static function renderView12(string $template, array $values): string
     {
         /** @var \TYPO3\CMS\Fluid\View\StandaloneView $view */
-        $view = GeneralUtility::makeInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class);
-        $view->setFormat('html');
-        $view->setTemplateRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/']);
-        $view->setPartialRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Partials/']);
+        $view = GeneralUtility::makeInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class); // @phpstan-ignore classConstant.deprecatedClass
+        $view->setFormat('html'); // @phpstan-ignore method.deprecatedClass
+        $view->setTemplateRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/']); // @phpstan-ignore method.deprecatedClass
+        $view->setPartialRootPaths(['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Partials/']); // @phpstan-ignore method.deprecatedClass
         if (PathUtility::isExtensionPath($template)) {
             $template = GeneralUtility::getFileAbsFileName($template);
-            $view->setTemplatePathAndFilename($template);
+            $view->setTemplatePathAndFilename($template); // @phpstan-ignore method.deprecatedClass
         } else {
-            $view->setTemplate($template);
+            $view->setTemplate($template); // @phpstan-ignore method.deprecatedClass
         }
         $view->assignMultiple($values);
         return $view->render();

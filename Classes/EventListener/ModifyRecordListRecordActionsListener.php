@@ -6,6 +6,7 @@ use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService;
@@ -38,7 +39,7 @@ final class ModifyRecordListRecordActionsListener
         }
 
         $allStatus = $this->statusRepository->findAll();
-        if (empty($allStatus)) {
+        if ($allStatus === []) {
             return;
         }
 
@@ -53,8 +54,8 @@ final class ModifyRecordListRecordActionsListener
         $statusId = $record['tx_ximatypo3contentplanner_status'];
         $status = $this->statusRepository->findByUid($statusId);
 
-        $title = $status ? $status->getTitle() : 'Status';
-        $icon = $status ? $status->getColoredIcon() : 'flag-gray';
+        $title = $status instanceof Status ? $status->getTitle() : 'Status';
+        $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
         $action = '
                 <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="' . $title . '">'
             . $this->iconFactory->getIcon($icon, IconHelper::getDefaultIconSize())->render() . '</a><ul class="dropdown-menu">';

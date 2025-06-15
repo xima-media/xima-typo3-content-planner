@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\StringUtility;
@@ -21,7 +22,6 @@ class PlannerUtility
     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getListOfStatus();
     *
     * @return array
-    * @throws \Doctrine\DBAL\Exception
     */
     public static function getListOfStatus(): array
     {
@@ -34,9 +34,9 @@ class PlannerUtility
     *
     * @param string $table
     * @param int $uid
-    * @param \Xima\XimaTypo3ContentPlanner\Domain\Model\Status|int|string $status
-    * @param \Xima\XimaTypo3ContentPlanner\Domain\Model\BackendUser|int|string|null $assignee
-    * @throws \Doctrine\DBAL\Exception
+    * @param Status|int|string $status
+    * @param BackendUser|int|string|null $assignee
+    * @throws Exception
     */
     public static function updateStatusForRecord(string $table, int $uid, Status|int|string $status, BackendUser|int|string|null $assignee = null): void
     {
@@ -50,7 +50,7 @@ class PlannerUtility
             $statusId = $statusRepository->findByTitle($status)->getUid();
         }
 
-        if (!$statusId) {
+        if (!is_int($statusId) || $statusId === 0) {
             throw new \InvalidArgumentException('Status "' . $statusId . '" is not a valid content planner status.', 9220772840);
         }
 
@@ -74,8 +74,8 @@ class PlannerUtility
     *
     * @param string $table
     * @param int $uid
-    * @return \Xima\XimaTypo3ContentPlanner\Domain\Model\Status|null
-    * @throws \Doctrine\DBAL\Exception
+    * @return Status|null
+    * @throws Exception
     */
     public static function getStatusOfRecord(string $table, int $uid): ?Status
     {
@@ -89,7 +89,7 @@ class PlannerUtility
     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getStatus('Needs review');
     *
     * @param int|string $identifier
-    * @return \Xima\XimaTypo3ContentPlanner\Domain\Model\Status|null
+    * @return Status|null
     */
     public static function getStatus(int|string $identifier): ?Status
     {
@@ -108,7 +108,7 @@ class PlannerUtility
     * @param int $uid
     * @param bool $raw
     * @return array
-    * @throws \Doctrine\DBAL\Exception
+    * @throws Exception
     */
     public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false): array
     {
@@ -124,7 +124,7 @@ class PlannerUtility
     * @param int $uid
     * @param array<int,string>|string $comments
     * @param BackendUser|int|string $author
-    * @throws \Doctrine\DBAL\Exception
+    * @throws Exception
     */
     public static function addCommentsToRecord(string $table, int $uid, array|string $comments, BackendUser|int|string|null $author = null): void
     {
@@ -148,6 +148,7 @@ class PlannerUtility
 
         $pid = $table === 'pages' ? $record['uid'] : $record['pid'];
         $newIds = [];
+        $data = [];
 
         foreach ($comments as $comment) {
             $newId = StringUtility::getUniqueId('NEW');
@@ -196,7 +197,7 @@ class PlannerUtility
     * @param string $table
     * @param int $uid
     * @param string|null $like
-    * @throws \Doctrine\DBAL\Exception
+    * @throws Exception
     */
     public static function clearCommentsOfRecord(string $table, int $uid, ?string $like = null): void
     {
@@ -210,7 +211,7 @@ class PlannerUtility
     * @param string $table
     * @param int $uid
     * @return array|bool
-    * @throws \Doctrine\DBAL\Exception
+    * @throws Exception
     */
     private static function preCheckRecordTable(string $table, int $uid): array|bool
     {
