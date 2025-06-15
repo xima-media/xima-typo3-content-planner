@@ -96,13 +96,13 @@ class ExtensionUtility
 
     public static function isRegisteredRecordTable(string $table): bool
     {
-        return in_array($table, self::getRecordTables());
+        return in_array($table, self::getRecordTables(), true);
     }
 
     public static function isFeatureEnabled(string $feature): bool
     {
         $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get(Configuration::EXT_KEY);
-        return array_key_exists($feature, $configuration) && $configuration[$feature];
+        return array_key_exists($feature, $configuration) && (bool)$configuration[$feature];
     }
 
     public static function getExtensionSetting(string $feature): string
@@ -118,7 +118,11 @@ class ExtensionUtility
 
     public static function getTitle(string $key, array|bool|null $record): string
     {
-        return $record ? (array_key_exists($key, $record) ? $record[$key] : BackendUtility::getNoRecordTitle()) : BackendUtility::getNoRecordTitle();
+        if ($record) {
+            return array_key_exists($key, $record) ? $record[$key] : BackendUtility::getNoRecordTitle();
+        }
+
+        return BackendUtility::getNoRecordTitle();
     }
 
     public static function getCssTag(string $cssFileLocation, array $attributes): string

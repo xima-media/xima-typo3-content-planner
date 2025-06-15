@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -16,26 +17,23 @@ class ContentUtility
 {
     public static function getStatus(?int $statusId): ?Status
     {
-        if (!$statusId) {
+        if (!(bool)$statusId) {
             return null;
         }
-        $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
-        return $statusRepository->findByUid($statusId);
+        return GeneralUtility::makeInstance(StatusRepository::class)->findByUid($statusId);
     }
 
     public static function getStatusByTitle(?string $title): ?Status
     {
-        if (!$title) {
+        if (!(bool)$title) {
             return null;
         }
-        $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
-        return $statusRepository->findByTitle($title);
+        return GeneralUtility::makeInstance(StatusRepository::class)->findByTitle($title);
     }
 
     public static function getPage(int $pageId): array|bool
     {
-        $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
-        return $pageRepository->getPage($pageId);
+        return GeneralUtility::makeInstance(PageRepository::class)->getPage($pageId);
     }
 
     /**
@@ -43,38 +41,37 @@ class ContentUtility
     */
     public static function getComment(int $id): array|bool
     {
-        if (!$id) {
+        if (!(bool)$id) {
             return false;
         }
 
-        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        return $commentRepository->findByUid($id);
+        return GeneralUtility::makeInstance(CommentRepository::class)->findByUid($id);
     }
 
     /**
     * @Deprecated
+    * @throws Exception
     */
     public static function getBackendUserById(?int $userId): array|bool
     {
-        if (!$userId) {
+        if (!(bool)$userId) {
             return false;
         }
 
-        $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
-        return $backendUserRepository->findByUid($userId);
+        return GeneralUtility::makeInstance(BackendUserRepository::class)->findByUid($userId);
     }
 
     /**
     * @Deprecated
+    * @throws Exception
     */
     public static function getBackendUsernameById(?int $userId): string
     {
-        if (!$userId) {
+        if (!(bool)$userId) {
             return '';
         }
 
-        $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
-        return $backendUserRepository->getUsernameByUid($userId);
+        return GeneralUtility::makeInstance(BackendUserRepository::class)->getUsernameByUid($userId);
     }
 
     /**
@@ -82,7 +79,7 @@ class ContentUtility
     */
     public static function getExtensionRecord(?string $table, ?int $uid): array|null
     {
-        if (!$table && !$uid) {
+        if (!(bool)$table && !(bool)$uid) {
             return null;
         }
         return BackendUtility::getRecord($table, $uid);

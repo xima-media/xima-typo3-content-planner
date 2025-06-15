@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
@@ -35,18 +37,18 @@ class RecordRepository
             'limit' => $maxResults,
         ];
 
-        if ($search) {
+        if ((bool)$search) {
             $additionalWhere .= ' AND (title LIKE :search OR uid = :uid)';
             $additionalParams['search'] = '%' . $search . '%';
             $additionalParams['uid'] = $search;
         }
 
-        if ($status) {
+        if ((bool)$status) {
             $additionalWhere .= ' AND tx_ximatypo3contentplanner_status = :status';
             $additionalParams['status'] = $status;
         }
 
-        if ($assignee) {
+        if ((bool)$assignee) {
             $additionalWhere .= ' AND tx_ximatypo3contentplanner_assignee = :assignee';
             $additionalParams['assignee'] = $assignee;
         }
@@ -54,7 +56,7 @@ class RecordRepository
         $sqlArray = [];
 
         foreach (ExtensionUtility::getRecordTables() as $table) {
-            if ($type && $type !== $table) {
+            if ((bool)$type && $type !== $table) {
                 continue;
             }
 
@@ -85,7 +87,7 @@ class RecordRepository
     }
 
     /**
-    * @throws \Doctrine\DBAL\Exception
+    * @throws Exception
     */
     public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreHiddenRestriction = false): array
     {
@@ -113,7 +115,7 @@ class RecordRepository
             $query->addOrderBy('tstamp', 'DESC');
         }
 
-        if ($pid) {
+        if ((bool)$pid) {
             $query->andWhere(
                 $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
             );
@@ -122,7 +124,7 @@ class RecordRepository
         $result = $query->executeQuery()
             ->fetchAllAssociative();
 
-        if (!empty($result)) {
+        if (count($result) > 0) {
             $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($table, $result, $pid));
         }
 
@@ -130,11 +132,11 @@ class RecordRepository
     }
 
     /**
-    * @throws \Doctrine\DBAL\Exception
+    * @throws Exception
     */
     public function findByUid(?string $table, ?int $uid, bool $ignoreHiddenRestriction = false): array|bool|null
     {
-        if (!$table && !$uid) {
+        if (!(bool)$table && !(bool)$uid) {
             return null;
         }
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
@@ -171,6 +173,9 @@ class RecordRepository
         $queryBuilder->executeStatement();
     }
 
+    /**
+    * @throws Exception
+    */
     public function updateCommentsRelationByRecord(string $table, int $uid): void
     {
         $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
@@ -210,14 +215,14 @@ class RecordRepository
     private function collectCacheTags(string $table, array $data, ?int $pid): array
     {
         $tags = [];
-        /* @var $item \TYPO3\CMS\Extbase\DomainObject\AbstractEntity */
+        /* @var $item AbstractEntity */
         foreach ($data as $item) {
             if ($item['uid'] !== null) {
                 $tags[] = $table . '_' . $item['uid'];
             }
         }
 
-        if ($pid) {
+        if ((bool)$pid) {
             $tags[] = $table . '__pageId__' . $pid;
         }
         return $tags;

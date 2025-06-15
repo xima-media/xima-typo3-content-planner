@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
+use Doctrine\DBAL\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -29,6 +30,9 @@ class AbstractSelectionService
     ) {
     }
 
+    /**
+    * @throws NotImplementedException
+    */
     public function generateSelection(string $table, int $uid): array|bool
     {
         if (!$this->shouldGenerateSelection($table)) {
@@ -36,7 +40,7 @@ class AbstractSelectionService
         }
 
         $allStatus = $this->statusRepository->findAll();
-        if (empty($allStatus)) {
+        if ($allStatus === []) {
             return false;
         }
 
@@ -48,7 +52,7 @@ class AbstractSelectionService
         }
 
         if ($record === null || ($record['tx_ximatypo3contentplanner_status'] !== null && $record['tx_ximatypo3contentplanner_status'] !== 0)) {
-            if (!empty($selectionEntriesToAdd)) {
+            if ($selectionEntriesToAdd !== []) {
                 $this->addDividerItemToSelection($selectionEntriesToAdd);
             }
             $this->addStatusResetItemToSelection($selectionEntriesToAdd, $table, $uid, $record);
@@ -78,6 +82,9 @@ class AbstractSelectionService
         return true;
     }
 
+    /**
+    * @throws Exception
+    */
     protected function getCurrentRecord(string $table, int $uid): array|bool|null
     {
         return $this->recordRepository->findByUid($table, $uid, true);
@@ -117,7 +124,7 @@ class AbstractSelectionService
             ];
         } else {
             $routeArray = [
-                'id' => $route === 'web_list' && $pid ? $pid : $uid,
+                'id' => $route === 'web_list' && (bool)$pid ? $pid : $uid,
             ];
         }
 
@@ -129,7 +136,7 @@ class AbstractSelectionService
         }
         foreach ($uid as $singleId) {
             $dataArray[$table][$singleId] = [
-                'tx_ximatypo3contentplanner_status' => $status ? $status->getUid() : '',
+                'tx_ximatypo3contentplanner_status' => $status instanceof Status ? $status->getUid() : '',
             ];
         }
 
@@ -179,11 +186,11 @@ class AbstractSelectionService
 
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        throw new NotImplementedException('Method not implemented', 1741960488);
+        throw new NotImplementedException('Method not implemented', 1741960489);
     }
 
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
-        throw new NotImplementedException('Method not implemented', 1741960489);
+        throw new NotImplementedException('Method not implemented', 1741960490);
     }
 }

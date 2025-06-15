@@ -36,7 +36,7 @@ class Colors
 
     public static function get(string $colorCode, bool $transparency = false): string
     {
-        if (!in_array($colorCode, self::STATUS_COLORS)) {
+        if (!in_array($colorCode, self::STATUS_COLORS, true)) {
             throw new \InvalidArgumentException('Invalid color code', 2653877737);
         }
 

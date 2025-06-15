@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -19,7 +20,7 @@ class CommentRepository
     ];
 
     /**
-    * @throws \Doctrine\DBAL\Exception
+    * @throws Exception
     */
     public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false): array
     {
@@ -59,6 +60,9 @@ class CommentRepository
         return $items;
     }
 
+    /**
+    * @throws Exception
+    */
     public function countAllByRecord(int $id, string $table, bool $countAll = false, bool $onlyResolved = false): int
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
@@ -114,11 +118,11 @@ class CommentRepository
     }
 
     /**
-    * @throws \Doctrine\DBAL\Exception
+    * @throws Exception
     */
     public function findByUid(int $uid): array|bool
     {
-        if (!$uid) {
+        if (!(bool)$uid) {
             return false;
         }
 
@@ -146,7 +150,7 @@ class CommentRepository
             )
         ;
 
-        if ($like) {
+        if ((bool)$like) {
             $queryBuilder->andWhere(
                 $queryBuilder->expr()->like('content', $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($like) . '%', Connection::PARAM_STR))
             );

@@ -7,7 +7,6 @@ namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownDivider;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItem;
-use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItemInterface;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -38,7 +37,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         if ($this->compareStatus($status, $currentStatus)) {
             return;
         }
-        /** @var DropDownItemInterface $statusDropDownItem */
+        /** @var DropDownItem $statusDropDownItem */
         $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
             ->setLabel($status->getTitle())
             ->setIcon($this->iconFactory->getIcon($status->getColoredIcon()))
@@ -53,7 +52,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
 
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
-        /** @var DropDownItemInterface $statusDropDownItem */
+        /** @var DropDownItem $statusDropDownItem */
         $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
             ->setIcon($this->iconFactory->getIcon('actions-close'))
@@ -68,6 +67,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
             return;
         }
 
+        /** @var DropDownItem $assigneeDropDownItem */
         $assigneeDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
             ->setLabel($username)
             ->setIcon($this->iconFactory->getIcon('actions-user'))
