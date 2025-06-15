@@ -1,12 +1,12 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
-      data-namespace-typo3-fluid="true">
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true">
 
 <f:if condition="{assignees -> f:count()}">
     <form>
         <div class="form-assignee">
             <div class="input-group">
-                <span class="input-group-addon input-group-icon">
+                <span class="input-group-addon input-group-icon input-group-text">
                     <f:if condition="{assignee.current}">
                         <f:then>
                             <be:avatar backendUser="{assignee.current}" size="16" showIcon="true"/>
@@ -17,13 +17,16 @@
                     </f:if>
                 </span>
 
-                <select data-assignee-selection name="assignee"
+                <select data-action-assignee-selection name="assignee"
                         class="form-select form-select-sm">
-                    <f:for each="{assignees}" as="assigneeEntry">
+                    <f:for each="{assignees}" as="assigneeEntry" iteration="iterator">
                         <option value="{assigneeEntry.url}" {f:if(condition: assigneeEntry.isCurrent, then:
                         'selected')}>
-                        {assigneeEntry.username}
+                            {assigneeEntry.username}
                         </option>
+
+                        <f:if condition="{assignee.current} !== 0 && {iterator.index} == 0"><hr/></f:if>
+                        <f:if condition="{assigneeEntry.uid} == 0"><hr/></f:if>
                     </f:for>
                 </select>
 
@@ -35,8 +38,8 @@
                         title="{f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}"
                     >
                         <core:icon identifier="actions-assign-to-me"
-                                   alternativeMarkupIdentifier="inline"
-                                   size="small"/>
+                                alternativeMarkupIdentifier="inline"
+                                size="small"/>
                     </a>
                 </f:if>
                 <f:if condition="{assignee.unassign}">
@@ -47,8 +50,8 @@
                         title="{f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}"
                     >
                         <core:icon identifier="actions-unassign"
-                                   alternativeMarkupIdentifier="inline"
-                                   size="small"/>
+                                alternativeMarkupIdentifier="inline"
+                                size="small"/>
                     </a>
                 </f:if>
             </div>

@@ -162,6 +162,10 @@
 				<source/>
 				<target>Zuweisung aufheben</target>
 			</trans-unit>
+			<trans-unit id="header.unassigned">
+				<source/>
+				<target>-- Nicht zugewiesen --</target>
+			</trans-unit>
 			<trans-unit id="header.newComment">
 				<source/>
 				<target>Neuen Kommentar hinzufügen</target>

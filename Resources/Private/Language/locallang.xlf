@@ -122,6 +122,9 @@
 			<trans-unit id="header.unassign">
 				<source>Unassign</source>
 			</trans-unit>
+			<trans-unit id="header.unassigned">
+				<source>-- Not assigned --</source>
+			</trans-unit>
 			<trans-unit id="header.newComment">
 				<source>Add a new comment</source>
 			</trans-unit>

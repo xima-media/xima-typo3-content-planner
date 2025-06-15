@@ -84,7 +84,13 @@ class RecordController extends ActionController
         $record = $this->recordRepository->findByUid($recordTable, $recordId, ignoreHiddenRestriction: true);
         $assignees = $this->backendUserRepository->findAllWithPermission();
 
-        foreach ($assignees as $assignee) {
+        array_unshift($assignees, [
+            'url' => UrlHelper::assignToUser($recordTable, $record['uid'], unassign: true),
+            'username' => '-- Not assigned --',
+            'uid' => 0
+        ]);
+
+        foreach ($assignees as &$assignee) {
             $assignee['isCurrent'] = ((int)$assignee['uid'] === $currentAssignee);
             $assignee['url'] = UrlHelper::assignToUser($recordTable, $recordId, $assignee['uid']);
         }

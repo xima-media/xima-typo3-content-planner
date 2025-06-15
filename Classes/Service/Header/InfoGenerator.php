@@ -26,7 +26,8 @@ class InfoGenerator
 
     public function __construct(
         private readonly RequestId $requestId
-    ) {
+    )
+    {
     }
 
     public function generateStatusHeader(HeaderMode $mode, mixed $record = null, ?string $table = null, ?int $uid = null): string|bool
@@ -118,7 +119,9 @@ class InfoGenerator
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record) || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
             return false;
         }
-        return $record['tx_ximatypo3contentplanner_assignee'] === null || $record['tx_ximatypo3contentplanner_assignee'] !== $GLOBALS['BE_USER']->user['uid'];
+        return $record['tx_ximatypo3contentplanner_assignee'] === null
+            || (int)$record['tx_ximatypo3contentplanner_assignee'] === 0
+            || (int)$record['tx_ximatypo3contentplanner_assignee'] !== (int)$GLOBALS['BE_USER']->user['uid'];
     }
 
     public static function checkUnassign(array $record): bool

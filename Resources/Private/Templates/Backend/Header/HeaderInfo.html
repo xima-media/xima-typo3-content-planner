@@ -48,63 +48,30 @@
             </f:for>
         </div>
         <div class="btn-group" role="group" aria-label="Assignee">
-            <f:if
-                condition="{data.tx_ximatypo3contentplanner_assignee}"
+            <button
+                class="btn btn-default contentPlanner--assignee"
+                data-content-planner-assignees
+                type="button"
+                title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"
+                data-id="{data.uid}"
+                data-table="{table}"
+                data-current-assignee="{data.tx_ximatypo3contentplanner_assignee}"
             >
-
-                <button
-                    class="btn btn-default contentPlanner--assignee"
-                    data-content-planner-assignees
-                    type="button"
-                    title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"
-                    data-id="{data.uid}"
-                    data-table="{table}"
-                    data-current-assignee="{data.tx_ximatypo3contentplanner_assignee}"
-                >
-                    <be:avatar
-                        backendUser="{data.tx_ximatypo3contentplanner_assignee}"
-                        size="16"
-                        showIcon="true"
-                    />
-                    {assignee.username}
-                </button>
-
-                <f:comment>
-                <div
-                    class="ml-auto d-flex align-items-center btn btn-default  {f:if(condition: assignee.assignedToCurrentUser, then: 'current', else: '')}"
-                    title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"
-                >
-                    <be:avatar
-                        backendUser="{data.tx_ximatypo3contentplanner_assignee}"
-                        size="16"
-                        showIcon="true"
-                    />
-                    {assignee.username}
-                </div>
-                </f:comment>
-            </f:if>
-            <f:if condition="{assignee.assignToCurrentUser}">
-                <a
-                    href="{assignee.assignToCurrentUser}"
-                    class="btn btn-default"
-                    title="{f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}"
-                >
-                    <core:icon identifier="actions-assign-to-me"
-                            alternativeMarkupIdentifier="inline"
-                            size="small"/>
-                </a>
-            </f:if>
-            <f:if condition="{assignee.unassign}">
-                <a
-                    href="{assignee.unassign}"
-                    class="btn btn-default"
-                    title="{f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}"
-                >
-                    <core:icon identifier="actions-unassign"
-                            alternativeMarkupIdentifier="inline"
-                            size="small"/>
-                </a>
-            </f:if>
+                <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
+                    <f:then>
+                        <be:avatar
+                            backendUser="{data.tx_ximatypo3contentplanner_assignee}"
+                            size="16"
+                            showIcon="true"
+                        />
+                        {assignee.username}
+                    </f:then>
+                    <f:else>
+                        <core:icon identifier="actions-user" size="small"/>
+                        {f:translate(key: 'header.unassigned', extensionName: 'xima_typo3_content_planner')}
+                    </f:else>
+                </f:if>
+            </button>
         </div>
 
         <div class="btn-group" role="group" aria-label="Comments">
