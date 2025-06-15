@@ -46,8 +46,7 @@
 		"symfony/translation": "^6.3 || ^7.0",
 		"tomasvotruba/type-coverage": "^2.0",
 		"typo3/cms-base-distribution": "^12.0 || ^13.4",
-		"typo3/cms-lowlevel": "^12.0 || ^13.4",
-		"typo3/tailor": "^1.6"
+		"typo3/cms-lowlevel": "^12.0 || ^13.4"
 	},
 	"autoload": {
 		"psr-4": {
@@ -121,8 +120,6 @@
 		"php:rector:check": "rector --dry-run",
 		"php:stan": "php vendor/bin/phpstan --generate-baseline=phpstan-baseline.neon --allow-empty-baseline --memory-limit=2G -vvv",
 		"php:stan:check": "php vendor/bin/phpstan --no-progress --error-format=checkstyle > phpstan.xml || true",
-		"ter:artefact": "php vendor/bin/tailor create-artefact",
-		"ter:version": "php vendor/bin/tailor set-version",
 		"typoscript:lint": "typoscript-lint",
 		"typoscript:lint:check": "typoscript-lint --fail-on-warnings",
 		"xml:lint": "find . -name '*.xlf' ! -path './vendor/*' ! -path './var/*' ! -path './.Build/*' ! -path './xima_typo3_content_planner/*' | xargs -r xmllint --schema vendor/symfony/translation/Resources/schemas/xliff-core-1.2-transitional.xsd --noout",

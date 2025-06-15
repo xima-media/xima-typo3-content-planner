@@ -127,7 +127,7 @@ class InfoGenerator
             return false;
         }
 
-        if ($record['tx_ximatypo3contentplanner_assignee'] !== null && $record['tx_ximatypo3contentplanner_assignee'] !== 0) {
+        if ($record['tx_ximatypo3contentplanner_assignee'] !== null && (int)$record['tx_ximatypo3contentplanner_assignee'] !== 0) {
             return true;
         }
         return false;
