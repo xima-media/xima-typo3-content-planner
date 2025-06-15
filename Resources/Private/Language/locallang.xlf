@@ -228,6 +228,25 @@
 			<trans-unit id="comment.empty">
 				<source><![CDATA[Currently there are no comments available yet. You may want to create a <a data-new-comment-uri="%s" data-table="%s" data-id="%s">new comment</a>?]]></source>
 			</trans-unit>
+
+			<trans-unit id="assignee.selection.label">
+				<source>Select an assignee</source>
+			</trans-unit>
+			<trans-unit id="assignee.info">
+				<source>For every content planner record, a dedicated assignee can be set. The assignee is the backend user responsible for the current record.</source>
+			</trans-unit>
+			<trans-unit id="assignee.further">
+				<source>Further information</source>
+			</trans-unit>
+			<trans-unit id="assignee.shortcut">
+				<source>Use the shortcut buttons to easily assign the record to yourself (%s) or unassign it (%s).</source>
+			</trans-unit>
+			<trans-unit id="assignee.permission">
+				<source>Only admins and backend users with the necessary permission are shown in the assignee selection.</source>
+			</trans-unit>
+			<trans-unit id="assignee.documentation">
+				<source><![CDATA[You can find more information about the assignee feature in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

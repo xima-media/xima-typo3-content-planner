@@ -1,7 +1,2 @@
 parameters:
-	ignoreErrors:
-		-
-			message: '#^Offset ''uid'' does not exist on array\{isCurrent\: bool\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: Classes/Controller/RecordController.php
+	ignoreErrors: []

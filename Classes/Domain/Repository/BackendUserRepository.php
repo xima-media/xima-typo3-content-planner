@@ -24,6 +24,9 @@ class BackendUserRepository
             ->executeQuery()->fetchAllAssociative();
     }
 
+    /**
+    * @throws Exception
+    */
     public function findAllWithPermission(): array|bool
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Controller;
 
+use Doctrine\DBAL\Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -15,6 +17,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
+use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\ViewFactoryHelper;
@@ -75,6 +78,10 @@ class RecordController extends ActionController
         return new JsonResponse(['result' => $result]);
     }
 
+    /**
+    * @throws Exception
+    * @throws RouteNotFoundException
+    */
     public function assigneeSelectionAction(ServerRequestInterface $request): ResponseInterface
     {
         $recordId = (int)$request->getQueryParams()['uid'];
@@ -93,10 +100,13 @@ class RecordController extends ActionController
         array_unshift($assignees, [
             'url' => UrlHelper::assignToUser($recordTable, $record['uid'], unassign: true),
             'username' => '-- Not assigned --',
+            'realName' => '',
             'uid' => 0,
         ]);
 
         foreach ($assignees as &$assignee) {
+            $assignee['uid'] = $assignee['uid'] ?? 0;
+            $assignee['name'] = ContentUtility::generateDisplayName($assignee);
             $assignee['isCurrent'] = ((int)$assignee['uid'] === $currentAssignee);
             $assignee['url'] = UrlHelper::assignToUser($recordTable, $recordId, $assignee['uid']);
         }
