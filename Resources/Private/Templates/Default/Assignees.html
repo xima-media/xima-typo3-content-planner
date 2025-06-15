@@ -1,6 +1,6 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
-    data-namespace-typo3-fluid="true">
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      data-namespace-typo3-fluid="true">
 
 <f:if condition="{assignees -> f:count()}">
     <form>
@@ -20,9 +20,9 @@
                 <select data-assignee-selection name="assignee"
                         class="form-select form-select-sm">
                     <f:for each="{assignees}" as="assigneeEntry">
-                        <option value="{assigneeEntry.url}" {f:if(condition:
-                        '{assigneeEntry.isCurrent}', then: 'selected', else: '')}>
-                            {assigneeEntry.username}
+                        <option value="{assigneeEntry.url}" {f:if(condition: assigneeEntry.isCurrent, then:
+                        'selected')}>
+                        {assigneeEntry.username}
                         </option>
                     </f:for>
                 </select>
@@ -35,8 +35,8 @@
                         title="{f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}"
                     >
                         <core:icon identifier="actions-assign-to-me"
-                                alternativeMarkupIdentifier="inline"
-                                size="small"/>
+                                   alternativeMarkupIdentifier="inline"
+                                   size="small"/>
                     </a>
                 </f:if>
                 <f:if condition="{assignee.unassign}">
@@ -47,8 +47,8 @@
                         title="{f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}"
                     >
                         <core:icon identifier="actions-unassign"
-                                alternativeMarkupIdentifier="inline"
-                                size="small"/>
+                                   alternativeMarkupIdentifier="inline"
+                                   size="small"/>
                     </a>
                 </f:if>
             </div>
