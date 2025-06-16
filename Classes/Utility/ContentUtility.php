@@ -38,11 +38,11 @@ class ContentUtility
 
     public static function generateDisplayName(array $user): string
     {
-        if (!isset($user['username']) || !isset($user['realname'])) {
+        if (!isset($user['username'])) {
             return '';
         }
 
-        if ($user['realname'] !== '') {
+        if (isset($user['realname']) && $user['realname'] !== '') {
             return $user['realname'] . ' (' . $user['username'] . ')';
         }
 
