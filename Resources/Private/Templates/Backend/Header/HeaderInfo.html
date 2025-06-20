@@ -59,16 +59,22 @@
             >
                 <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
                     <f:then>
-                        <be:avatar
-                            backendUser="{data.tx_ximatypo3contentplanner_assignee}"
-                            size="16"
-                            showIcon="true"
-                        />
+                        <div class="btn-group-prepend">
+                            <be:avatar
+                                backendUser="{data.tx_ximatypo3contentplanner_assignee}"
+                                size="16"
+                                showIcon="true"
+                            />
+                        </div>
                         {assignee.username}
                     </f:then>
                     <f:else>
-                        <core:icon identifier="actions-user" size="small"/>
-                        {f:translate(key: 'header.unassigned', extensionName: 'xima_typo3_content_planner')}
+                        <div class="btn-group-prepend">
+                            <core:icon identifier="actions-user" size="small"/>
+                        </div>
+                        <div class="text-muted">
+                            {f:translate(key: 'header.unassigned', extensionName: 'xima_typo3_content_planner')}
+                        </div>
                     </f:else>
                 </f:if>
             </button>
