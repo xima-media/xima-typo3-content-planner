@@ -162,6 +162,10 @@
 				<source/>
 				<target>Zuweisung aufheben</target>
 			</trans-unit>
+			<trans-unit id="header.unassigned">
+				<source/>
+				<target>-- Nicht zugewiesen --</target>
+			</trans-unit>
 			<trans-unit id="header.newComment">
 				<source/>
 				<target>Neuen Kommentar hinzufügen</target>
@@ -297,6 +301,31 @@
 			<trans-unit id="comment.empty">
 				<source/>
 				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s>neuen Kommentar</a> erstellen?]]></target>
+			</trans-unit>
+
+			<trans-unit id="assignee.selection.label">
+				<source/>
+				<target>Zuständigen auswählen</target>
+			</trans-unit>
+			<trans-unit id="assignee.info">
+				<source/>
+				<target>Für jeden Content Planner-Datensatz kann ein eigener zuständige Nutzer festgelegt werden. Der Zuständige ist der Backend-Benutzer, der für den aktuellen Datensatz verantwortlich ist.</target>
+			</trans-unit>
+			<trans-unit id="assignee.further">
+				<source/>
+				<target>Weitere Informationen</target>
+			</trans-unit>
+			<trans-unit id="assignee.shortcut">
+				<source/>
+				<target>Nutze die Shortcut Buttons, um den Datensatz einfach dir selbst (%s) zuzuweisen oder die Zuweisung aufzuheben (%s).</target>
+			</trans-unit>
+			<trans-unit id="assignee.permission">
+				<source/>
+				<target>Nur Admins und Backend-Benutzer mit entsprechender Berechtigung werden in der Zuständigen-Auswahl angezeigt.</target>
+			</trans-unit>
+			<trans-unit id="assignee.documentation">
+				<source/>
+				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
 			</trans-unit>
 		</body>
 	</file>
