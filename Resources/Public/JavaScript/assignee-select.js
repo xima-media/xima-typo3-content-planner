@@ -41,7 +41,7 @@ class AssigneeSelect {
 
           Viewport.ContentContainer.refresh()
         } else {
-          console.error('Failed to change assignee:', response)
+          console.error('Failed to change assignee:', result)
         }
       })
   }
