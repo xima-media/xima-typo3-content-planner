@@ -1,6 +1,6 @@
 /**
- * Module: @xima/ximatypo3contentplanner/message
- */
+* Module: @xima/ximatypo3contentplanner/message
+*/
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 
 class Notification {
