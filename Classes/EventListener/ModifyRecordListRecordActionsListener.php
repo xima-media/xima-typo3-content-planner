@@ -46,7 +46,7 @@ final class ModifyRecordListRecordActionsListener
         $uid = $event->getRecord()['uid'];
 
         // ToDo: this is necessary cause the status is not in the record, pls check tca for this
-        $record = $this->recordRepository->findByUid($table, $uid, ignoreHiddenRestriction: true);
+        $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
         if (!is_array($record)) {
             return;
         }

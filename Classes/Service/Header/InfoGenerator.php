@@ -36,7 +36,7 @@ class InfoGenerator
         }
 
         if ($record === null) {
-            $record = $this->getRecordRepository()->findByUid($table, $uid, ignoreHiddenRestriction: true);
+            $record = $this->getRecordRepository()->findByUid($table, $uid, ignoreVisibilityRestriction: true);
         }
 
         if (!(bool)$record) {
