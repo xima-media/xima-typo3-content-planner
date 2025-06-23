@@ -72,6 +72,56 @@ class ProxyController extends ActionController
                 ],
             ],
         ],
+        'comment' => [
+            'create' => [
+                'success' => [
+                    'title' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.create.success.title',
+                    'message' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.create.success.message',
+                    'severity' => ContextualFeedbackSeverity::OK,
+                ],
+                'failure' => [
+                    'title' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.create.failure.title',
+                    'message' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.create.failure.message',
+                    'severity' => ContextualFeedbackSeverity::ERROR,
+                ],
+            ],
+            'edit' => [
+                'success' => [
+                    'title' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.edit.success.title',
+                    'message' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.edit.success.message',
+                    'severity' => ContextualFeedbackSeverity::OK,
+                ],
+                'failure' => [
+                    'title' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.edit.failure.title',
+                    'message' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.edit.failure.message',
+                    'severity' => ContextualFeedbackSeverity::ERROR,
+                ],
+            ],
+            'resolve' => [
+                'success' => [
+                    'title' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.resolve.success.title',
+                    'message' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.resolve.success.message',
+                    'severity' => ContextualFeedbackSeverity::OK,
+                ],
+                'failure' => [
+                    'title' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.resolve.failure.title',
+                    'message' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.resolve.failure.message',
+                    'severity' => ContextualFeedbackSeverity::ERROR,
+                ],
+            ],
+            'delete' => [
+                'success' => [
+                    'title' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.delete.success.title',
+                    'message' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.delete.success.message',
+                    'severity' => ContextualFeedbackSeverity::WARNING,
+                ],
+                'failure' => [
+                    'title' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.delete.failure.title',
+                    'message' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:message.comment.delete.failure.message',
+                    'severity' => ContextualFeedbackSeverity::ERROR,
+                ],
+            ],
+        ],
     ];
 
     public function messageAction(ServerRequestInterface $request): ResponseInterface

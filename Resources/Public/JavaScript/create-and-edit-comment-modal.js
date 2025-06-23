@@ -1,5 +1,9 @@
+/**
+* Module: @xima/ximatypo3contentplanner/create-and-edit-comment-modal
+*/
 import Modal from "@typo3/backend/modal.js"
 import Viewport from "@typo3/backend/viewport.js"
+import Notification from "@xima/ximatypo3contentplanner/notification.js";
 
 class CreateAndEditCommentModal {
 
@@ -40,10 +44,13 @@ class CreateAndEditCommentModal {
         const iframe = modal.querySelector('.modal-body iframe')
 
         iframe.addEventListener('load', function initialLoad() {
+          const isNew = iframe.contentWindow.document.querySelector('.is-new') !== null
           iframe.removeEventListener('load', initialLoad)
           iframe.addEventListener('load', function afterSubmit() {
             Viewport.ContentContainer.refresh()
             modal.hideModal()
+
+            Notification.message(isNew ? 'comment.create' : 'comment.edit', 'success')
             if (element) {
               element.dispatchEvent(new CustomEvent('typo3:contentplanner:reloadcomments', {
                 detail: {

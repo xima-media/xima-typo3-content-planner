@@ -17,14 +17,17 @@ class Notification {
         if (result.response.ok) {
           const data = await result.response.json();
           switch (data.severity) {
-            case 0:
-              top.TYPO3.Notification.success(data.title, data.message);
-              break;
             case 2:
               top.TYPO3.Notification.error(data.title, data.message);
               break;
             case 1:
               top.TYPO3.Notification.warning(data.title, data.message);
+              break;
+            case 0:
+              top.TYPO3.Notification.success(data.title, data.message);
+              break;
+            case -1:
+              top.TYPO3.Notification.info(data.title, data.message);
               break;
             case -2:
               top.TYPO3.Notification.notice(data.title, data.message);

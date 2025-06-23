@@ -3,6 +3,7 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
+import Notification from "@xima/ximatypo3contentplanner/notification.js";
 
 class CommentsResolvedItem {
 
@@ -25,14 +26,18 @@ class CommentsResolvedItem {
             text: resolvedCommentButton,
             active: true,
             trigger: () => {
-              new AjaxRequest(resolvedCommentUrl).get()
-                .then(() => {
+              new AjaxRequest(resolvedCommentUrl)
+                .get()
+                .then(async result => {
                   this.reloadComments(currentTarget)
                   Modal.dismiss()
+                  Notification.message(
+                    'comment.resolve',
+                    result.response.ok ? 'success' : 'failure'
+                  )
                 })
                 .catch((error) => {
                   console.error('Comment resolve failed:', error)
-                  top.TYPO3.Notification.error('Error', 'Failed to resolve comment.')
                   Modal.dismiss()
                 })
             }

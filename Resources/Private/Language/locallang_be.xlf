@@ -119,6 +119,54 @@
 			<trans-unit id="message.assignee.reset.failure.message">
 				<source>The assignee of the record could not be unset.</source>
 			</trans-unit>
+			<trans-unit id="message.comment.create.success.title">
+			  	<source>Comment created</source>
+			</trans-unit>
+			<trans-unit id="message.comment.create.success.message">
+			  	<source>The comment has been created successfully.</source>
+			</trans-unit>
+			<trans-unit id="message.comment.create.failure.title">
+			  	<source>Comment create failed</source>
+			</trans-unit>
+			<trans-unit id="message.comment.create.failure.message">
+			  	<source>The comment could not be created.</source>
+			</trans-unit>
+			<trans-unit id="message.comment.edit.success.title">
+			 	<source>Comment edited</source>
+			</trans-unit>
+			<trans-unit id="message.comment.edit.success.message">
+			 	<source>The comment has been edited successfully.</source>
+			</trans-unit>
+			<trans-unit id="message.comment.edit.failure.title">
+			 	<source>Comment edit failed</source>
+			</trans-unit>
+			<trans-unit id="message.comment.edit.failure.message">
+			 	<source>The comment could not be edited.</source>
+			</trans-unit>
+			<trans-unit id="message.comment.resolve.success.title">
+			 	<source>Comment resolved</source>
+			</trans-unit>
+			<trans-unit id="message.comment.resolve.success.message">
+			 	<source>The comment has been marked as resolved.</source>
+			</trans-unit>
+			<trans-unit id="message.comment.resolve.failure.title">
+			 	<source>Comment resolve failed</source>
+			</trans-unit>
+			<trans-unit id="message.comment.resolve.failure.message">
+			 	<source>The comment could not be marked as resolved.</source>
+			</trans-unit>
+			<trans-unit id="message.comment.delete.success.title">
+			 	<source>Comment deleted</source>
+			</trans-unit>
+			<trans-unit id="message.comment.delete.success.message">
+			 	<source>The comment has been deleted successfully.</source>
+			</trans-unit>
+			<trans-unit id="message.comment.delete.failure.title">
+			 	<source>Comment delete failed</source>
+			</trans-unit>
+			<trans-unit id="message.comment.delete.failure.message">
+			 	<source>The comment could not be deleted.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
