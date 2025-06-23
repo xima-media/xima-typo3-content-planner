@@ -31,12 +31,15 @@ class AssigneeSelect {
   }
 
   changeAssignee(url, modal = null) {
-    new AjaxRequest(url).get()
+    new AjaxRequest(url)
+      .get()
+      .then(async response => {
+        if (modal) {
+          modal.hideModal()
+        }
 
-    if (modal) {
-      modal.hideModal()
-    }
-    Viewport.ContentContainer.refresh()
+        Viewport.ContentContainer.refresh()
+      })
   }
 }
 

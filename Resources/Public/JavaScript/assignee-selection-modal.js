@@ -47,13 +47,14 @@ class AssigneeSelectionModal {
           staticBackdrop: true,
           buttons,
           callback: (modal) => {
+            // Reinitialize the modal after a short delay to ensure all elements are loaded
             setTimeout(() => {
               modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
                 bubbles: true,
                 composed: true,
                 detail: { modal }
               }))
-            }, 500)
+            }, 700)
           }
         })
       })
