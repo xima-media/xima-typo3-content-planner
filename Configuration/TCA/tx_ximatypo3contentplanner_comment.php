@@ -10,6 +10,7 @@ return [
         'delete' => 'deleted',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
+        'hideTable' => true,
         'typeicon_classes' => [
             'default' => 'content-message',
         ],
