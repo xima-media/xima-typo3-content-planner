@@ -88,7 +88,7 @@ class RecordController extends ActionController
         $recordTable = $request->getQueryParams()['table'];
         $currentAssignee = (int)($request->getQueryParams()['currentAssignee'] ?? 0);
 
-        $record = $this->recordRepository->findByUid($recordTable, $recordId, ignoreHiddenRestriction: true);
+        $record = $this->recordRepository->findByUid($recordTable, $recordId, ignoreVisibilityRestriction: true);
 
         if (!$record) {
             return new JsonResponse(['error' => 'Record not found'], 404);

@@ -6,7 +6,11 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\EndTimeRestriction;
+use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
+use TYPO3\CMS\Core\Database\Query\Restriction\StartTimeRestriction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -89,7 +93,7 @@ class RecordRepository
     /**
     * @throws Exception
     */
-    public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreHiddenRestriction = false): array
+    public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreVisibilityRestriction = false): array
     {
         $cacheIdentifier = sprintf('%s--%s--p%s', Configuration::CACHE_IDENTIFIER, $table, $pid);
         if ($this->cache->has($cacheIdentifier)) {
@@ -98,10 +102,10 @@ class RecordRepository
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
 
-        if ($ignoreHiddenRestriction) {
-            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction::class);
-            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\StartTimeRestriction::class);
-            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\EndTimeRestriction::class);
+        if ($ignoreVisibilityRestriction) {
+            $queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(StartTimeRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(EndTimeRestriction::class);
         }
 
         $query = $queryBuilder
@@ -119,7 +123,7 @@ class RecordRepository
 
         if ((bool)$pid) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT))
             );
         }
 
@@ -136,24 +140,24 @@ class RecordRepository
     /**
     * @throws Exception
     */
-    public function findByUid(?string $table, ?int $uid, bool $ignoreHiddenRestriction = false): array|bool|null
+    public function findByUid(?string $table, ?int $uid, bool $ignoreVisibilityRestriction = false): array|bool|null
     {
         if (!(bool)$table && !(bool)$uid) {
             return null;
         }
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
 
-        if ($ignoreHiddenRestriction) {
-            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction::class);
-            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\StartTimeRestriction::class);
-            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\EndTimeRestriction::class);
+        if ($ignoreVisibilityRestriction) {
+            $queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(StartTimeRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(EndTimeRestriction::class);
         }
 
         $query = $queryBuilder
             ->select('uid', 'pid', $this->getTitleField($table) . ' as "title"', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
             ->from($table)
             ->andWhere(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
                 $queryBuilder->expr()->eq('deleted', 0)
             );
 
@@ -168,7 +172,7 @@ class RecordRepository
             ->update($table)
             ->set('tx_ximatypo3contentplanner_status', $status)
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT))
             );
 
         if ($assignee !== false) {
@@ -192,7 +196,7 @@ class RecordRepository
                 ->update($table)
                 ->set('tx_ximatypo3contentplanner_comments', $commentCount)
                 ->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT))
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT))
                 )
                 ->executeStatement();
         }

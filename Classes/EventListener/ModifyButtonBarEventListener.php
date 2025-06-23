@@ -61,7 +61,7 @@ final class ModifyButtonBarEventListener
         } else {
             $uid = (int)array_key_first($request->getQueryParams()['edit'][$table]);
         }
-        $record = $this->recordRepository->findByUid($table, $uid, ignoreHiddenRestriction: true);
+        $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
 
         if (!$record) {
             return;
