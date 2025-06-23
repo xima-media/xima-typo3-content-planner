@@ -70,6 +70,55 @@
 			<trans-unit id="history.comment.4">
 				<source><![CDATA[A <em>comment</em> was been removed]]></source>
 			</trans-unit>
+
+			<trans-unit id="message.status.changed.success.title">
+				<source>Status changed</source>
+			</trans-unit>
+			<trans-unit id="message.status.changed.success.message">
+				<source>The status of the record has been changed successfully.</source>
+			</trans-unit>
+			<trans-unit id="message.status.changed.failure.title">
+				<source>Status change failed</source>
+			</trans-unit>
+			<trans-unit id="message.status.changed.failure.message">
+				<source>The status of the record could not be changed.</source>
+			</trans-unit>
+			<trans-unit id="message.status.reset.success.title">
+				<source>Status reset</source>
+			</trans-unit>
+			<trans-unit id="message.status.reset.success.message">
+				<source>The status of the record has been unset successfully.</source>
+			</trans-unit>
+			<trans-unit id="message.status.reset.failure.title">
+				<source>Status reset failed</source>
+			</trans-unit>
+			<trans-unit id="message.status.reset.failure.message">
+				<source>The status of the record could not be unset.</source>
+			</trans-unit>
+			<trans-unit id="message.assignee.changed.success.title">
+				<source>Assignee changed</source>
+			</trans-unit>
+			<trans-unit id="message.assignee.changed.success.message">
+				<source>The assignee of the record has been changed successfully.</source>
+			</trans-unit>
+			<trans-unit id="message.assignee.changed.failure.title">
+				<source>Assignee change failed</source>
+			</trans-unit>
+			<trans-unit id="message.assignee.changed.failure.message">
+				<source>The assignee of the record could not be changed.</source>
+			</trans-unit>
+			<trans-unit id="message.assignee.reset.success.title">
+				<source>Assignee reset</source>
+			</trans-unit>
+			<trans-unit id="message.assignee.reset.success.message">
+				<source>The assignee of the record has been unset successfully.</source>
+			</trans-unit>
+			<trans-unit id="message.assignee.reset.failure.title">
+				<source>Assignee reset failed</source>
+			</trans-unit>
+			<trans-unit id="message.assignee.reset.failure.message">
+				<source>The assignee of the record could not be unset.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

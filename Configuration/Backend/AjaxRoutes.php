@@ -13,4 +13,8 @@ return [
         'path' => '/content-planner/assignees',
         'target' => \Xima\XimaTypo3ContentPlanner\Controller\RecordController::class . '::assigneeSelectionAction',
     ],
+    'ximatypo3contentplanner_message' => [
+        'path' => '/content-planner/message',
+        'target' => \Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class . '::messageAction',
+    ],
 ];
