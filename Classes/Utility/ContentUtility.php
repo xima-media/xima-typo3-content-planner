@@ -36,6 +36,19 @@ class ContentUtility
         return GeneralUtility::makeInstance(PageRepository::class)->getPage($pageId);
     }
 
+    public static function generateDisplayName(array $user): string
+    {
+        if (!isset($user['username'])) {
+            return '';
+        }
+
+        if (isset($user['realname']) && $user['realname'] !== '') {
+            return $user['realname'] . ' (' . $user['username'] . ')';
+        }
+
+        return $user['username'];
+    }
+
     /**
     * @Deprecated
     */

@@ -63,9 +63,9 @@ final class StatusItem
         return UrlHelper::getRecordLink($this->data['tablename'], $this->data['uid']);
     }
 
-    public function getAssignee(): ?string
+    public function getAssignee(): int
     {
-        return $this->data['tx_ximatypo3contentplanner_assignee'];
+        return (int)$this->data['tx_ximatypo3contentplanner_assignee'];
     }
 
     public function getAssigneeName(): string

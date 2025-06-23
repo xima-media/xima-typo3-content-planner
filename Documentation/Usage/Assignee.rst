@@ -24,17 +24,31 @@ Only users with admin rights and the necessary :ref:`permission <permissions>` c
 ..  note::
     If the :ref:`current assignee highlight <extconf-currentAssigneeHighlight>` feature is enabled, records assigned to the current user will be highlighted in a light yellow color.
 
-..  figure:: /Images/assignee-current.png
+..  figure:: /Images/assignee-current.jpg
     :alt: Current assignment highlight
 
     Current assignment highlight
 
+Selection
+========
+
+..  versionadded:: 1.5.0
+
+        `Feature: #88 - Introduce user selection modal <https://github.com/xima-media/xima-typo3-content-planner/pull/88>`__
+
+By clicking the assignee field in the header bar, a selection dialog will open. This dialog allows you to select a user as assignee for the record. The dialog will show all users with admin rights and the necessary :ref:`permission <permissions>`.
+
+..  figure:: /Images/assignee-selection.jpg
+    :alt: Select an assignee
+
+    Select an assignee
+
 Shortcuts
 ========
 
-Use the shortcuts in the header bar for "Assign to me" and "Unassign" to quickly change the assignee.
+Use the shortcuts beneath the select field for "Assign to me" and "Unassign" to quickly change the assignee.
 
-..  figure:: /Images/assignment-shortcuts.png
+..  figure:: /Images/assignee-shortcuts.jpg
     :alt: Assignment shortcuts
 
     Assignment shortcuts

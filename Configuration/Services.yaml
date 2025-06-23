@@ -18,6 +18,12 @@ services:
     arguments:
       $cache: '@cache.ximatypo3contentplanner_cache'
 
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
       $cache: '@cache.ximatypo3contentplanner_cache'

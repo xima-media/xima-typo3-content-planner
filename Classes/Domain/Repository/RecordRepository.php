@@ -24,13 +24,13 @@ class RecordRepository
         'tx_ximatypo3contentplanner_comments',
     ];
 
-    public function __construct(private readonly FrontendInterface $cache)
+    public function __construct(private readonly FrontendInterface $cache, private readonly ConnectionPool $connectionPool)
     {
     }
 
     public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
         $additionalWhere = ' AND deleted = 0';
         $additionalParams = [
@@ -96,7 +96,7 @@ class RecordRepository
             return $this->cache->get($cacheIdentifier);
         }
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
 
         if ($ignoreHiddenRestriction) {
             $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction::class);
@@ -139,7 +139,7 @@ class RecordRepository
         if (!(bool)$table && !(bool)$uid) {
             return null;
         }
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
 
         if ($ignoreHiddenRestriction) {
             $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction::class);
@@ -159,7 +159,7 @@ class RecordRepository
 
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $queryBuilder
             ->update($table)
             ->set('tx_ximatypo3contentplanner_status', $status)
@@ -183,7 +183,7 @@ class RecordRepository
 
         $record = $this->findByUid($table, $uid);
         if ($record) {
-            $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+            $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
             $queryBuilder
                 ->update($table)
                 ->set('tx_ximatypo3contentplanner_comments', $commentCount)

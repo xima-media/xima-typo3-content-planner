@@ -1,0 +1,95 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<f:if condition="{assignees -> f:count()}">
+    <form>
+        <label for="assignee-selection" class="form-label">
+            {f:translate(key: 'assignee.selection.label', extensionName: 'xima_typo3_content_planner')}
+        </label>
+        <div class="input-group mb-3">
+            <span class="input-group-addon input-group-icon input-group-text">
+                <f:if condition="{assignee.current}">
+                    <f:then>
+                        <be:avatar backendUser="{assignee.current}" size="16" showIcon="true"/>
+                    </f:then>
+                    <f:else>
+                        <core:icon identifier="actions-user" size="small"/>
+                    </f:else>
+                </f:if>
+            </span>
+
+            <select id="assignee-selection" data-action-assignee-selection name="assignee"
+                    class="form-select form-select-sm">
+                <f:for each="{assignees}" as="assigneeEntry" iteration="iterator">
+                    <option value="{assigneeEntry.url}" {f:if(condition: assigneeEntry.isCurrent, then:'selected')}>
+                        {assigneeEntry.name}
+                    </option>
+
+                    <f:if condition="{assignee.current} !== 0 && {iterator.index} == 0">
+                        <hr/>
+                    </f:if>
+                    <f:if condition="{assigneeEntry.uid} == 0">
+                        <hr/>
+                    </f:if>
+                </f:for>
+            </select>
+
+            <f:if condition="{assignee.assignToCurrentUser}">
+                <a
+                    href="{assignee.assignToCurrentUser}"
+                    class="btn btn-default"
+                    data-action-assignee
+                    title="{f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}"
+                >
+                    <core:icon identifier="actions-assign-to-me"
+                            alternativeMarkupIdentifier="inline"
+                            size="small"/>
+                </a>
+            </f:if>
+            <f:if condition="{assignee.unassign}">
+                <a
+                    href="{assignee.unassign}"
+                    class="btn btn-default"
+                    data-action-assignee
+                    title="{f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}"
+                >
+                    <core:icon identifier="actions-unassign"
+                            alternativeMarkupIdentifier="inline"
+                            size="small"/>
+                </a>
+            </f:if>
+        </div>
+    </form>
+    <p>{f:translate(key: 'assignee.info', extensionName: 'xima_typo3_content_planner')}</p>
+    <div class="panel-group" id="assigneeFurtherInformation">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title" id="assigneeFurtherInformation-heading-panel">
+                    <a href="#" class="collapsed" data-bs-toggle="collapse"
+                    data-bs-target="#assigneeFurtherInformation-panel" aria-expanded="false"
+                    aria-controls="simple-panel1">
+                        <span class="caret"></span>
+                        <strong>
+                            {f:translate(key: 'assignee.further', extensionName: 'xima_typo3_content_planner')}</strong>
+                    </a>
+                </h3>
+            </div>
+            <div id="assigneeFurtherInformation-panel" class="collapse"
+                aria-labelledby="assigneeFurtherInformation-heading-panel">
+                <div class="panel-body">
+                    <f:be.infobox state="-2">
+                        {f:translate(key: 'assignee.shortcut', extensionName: 'xima_typo3_content_planner', arguments: {0:
+                        '{core:icon(identifier: \'actions-assign-to-me\', alternativeMarkupIdentifier: \'true\', size:
+                        \'small\')}', 1: '{core:icon(identifier: \'actions-unassign\', alternativeMarkupIdentifier:
+                        \'true\', size: \'small\')}'}) -> f:format.raw()}
+                    </f:be.infobox>
+                    <f:be.infobox state="1">
+                        {f:translate(key: 'assignee.permission', extensionName: 'xima_typo3_content_planner')}
+                    </f:be.infobox>
+                    {f:translate(key: 'assignee.documentation', extensionName: 'xima_typo3_content_planner') -> f:format.raw()}
+                </div>
+            </div>
+        </div>
+    </div>
+</f:if>

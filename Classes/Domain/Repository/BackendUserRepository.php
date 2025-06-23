@@ -7,16 +7,18 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class BackendUserRepository
 {
+    public function __construct(private readonly ConnectionPool $connectionPool)
+    {
+    }
     /**
     * @throws Exception
     */
     public function findAll(): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         return $queryBuilder
             ->select('*')
@@ -27,9 +29,42 @@ class BackendUserRepository
     /**
     * @throws Exception
     */
+    public function findAllWithPermission(): array|bool
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
+        return $queryBuilder->select('be_users.*')
+            ->from('be_users')
+            ->leftJoin(
+                'be_users',
+                'be_groups',
+                'bg',
+                $queryBuilder->expr()->and(
+                    $queryBuilder->expr()->neq('be_users.usergroup', $queryBuilder->createNamedParameter('')),
+                    $queryBuilder->expr()->like(
+                        'bg.custom_options',
+                        $queryBuilder->createNamedParameter('%,tx_ximatypo3contentplanner:content-status,%')
+                    )
+                )->__toString()
+            )
+            ->where(
+                $queryBuilder->expr()->or(
+                    $queryBuilder->expr()->eq('be_users.admin', 1),
+                    $queryBuilder->expr()->neq('be_users.deleted', 0),
+                    $queryBuilder->expr()->neq('be_users.disable', 0),
+                    $queryBuilder->expr()->isNotNull('bg.uid')
+                )
+            )
+            ->orderBy('be_users.username')
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    /**
+    * @throws Exception
+    */
     public function findByUid(int $uid): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         return $queryBuilder
             ->select('*')
@@ -45,7 +80,7 @@ class BackendUserRepository
     */
     public function findByUsername(string $username): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         return $queryBuilder
             ->select('*')
@@ -65,7 +100,7 @@ class BackendUserRepository
         if (!(bool)$uid) {
             return '';
         }
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         $userRecord = $queryBuilder
             ->select('username', 'realName')
