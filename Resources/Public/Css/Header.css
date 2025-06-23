@@ -135,7 +135,7 @@
 }
 
 .btn-group-prepend {
-    border-right: 1px solid var(--bs-btn-border-color);
-    margin: calc(var(--bs-btn-padding-y) * -1) var(--bs-btn-padding-y) calc(var(--bs-btn-padding-y) * -1) calc(var(--bs-btn-padding-x) * -1);
-    padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
+    border-right: 1px solid var(--bs-btn-border-color, var(--typo3-btn-hover-border-color));
+    margin: calc(var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) * -1) var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) calc(var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) * -1) calc(var(--bs-btn-padding-x, var(--typo3-btn-padding-x)) * -1);
+    padding: var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) var(--bs-btn-padding-x, var(--typo3-btn-padding-x));
 }
