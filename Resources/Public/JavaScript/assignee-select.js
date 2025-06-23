@@ -3,6 +3,7 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Viewport from "@typo3/backend/viewport.js"
+import Notification from "@xima/ximatypo3contentplanner/notification.js";
 
 class AssigneeSelect {
   constructor() {
@@ -19,18 +20,21 @@ class AssigneeSelect {
   initEventListeners(modal = null) {
     document.querySelector('[data-action-assignee-selection]').addEventListener('change', (event) => {
       event.preventDefault()
-      this.changeAssignee(event.target.value, modal)
+      const selectedOption = event.target.selectedOptions[0]
+      // Workaround to check for unset assignee
+      const hasDoubleDash = selectedOption && typeof selectedOption.label === 'string' && selectedOption.label.includes('--')
+      this.changeAssignee(event.target.value, hasDoubleDash, modal)
     })
 
     document.querySelectorAll('[data-action-assignee]').forEach(item => {
       item.addEventListener('click', event => {
         event.preventDefault()
-        this.changeAssignee(event.currentTarget.getAttribute('href'), modal)
+        this.changeAssignee(event.currentTarget.getAttribute('href'), event.currentTarget.hasAttribute('data-action-assignee-unset'), modal)
       })
     })
   }
 
-  changeAssignee(url, modal = null) {
+  changeAssignee(url, unset = false, modal = null) {
     new AjaxRequest(url)
       .get()
       .then(async result => {
@@ -43,6 +47,10 @@ class AssigneeSelect {
         } else {
           console.error('Failed to change assignee:', result)
         }
+        Notification.message(
+          unset ? 'assignee.reset' : 'assignee.changed',
+          result.response.ok ? "success" : "failure"
+        )
       })
   }
 }

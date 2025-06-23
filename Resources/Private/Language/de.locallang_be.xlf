@@ -91,6 +91,135 @@
 				<source/>
 				<target><![CDATA[Ein <em>Kommentar</em> wurde entfernt]]></target>
 			</trans-unit>
+
+			<trans-unit id="message.status.changed.success.title">
+				<source/>
+				<target>Status geändert</target>
+			</trans-unit>
+			<trans-unit id="message.status.changed.success.message">
+				<source/>
+				<target>Der Status des Eintrags wurde erfolgreich geändert.</target>
+			</trans-unit>
+			<trans-unit id="message.status.changed.failure.title">
+				<source/>
+				<target>Status konnte nicht geändert werden</target>
+			</trans-unit>
+			<trans-unit id="message.status.changed.failure.message">
+				<source/>
+				<target>Der Status des Eintrags konnte nicht geändert werden.</target>
+			</trans-unit>
+			<trans-unit id="message.status.reset.success.title">
+				<source/>
+				<target>Status entfernt</target>
+			</trans-unit>
+			<trans-unit id="message.status.reset.success.message">
+				<source/>
+				<target>Der Status des Eintrags wurde erfolgreich entfernt.</target>
+			</trans-unit>
+			<trans-unit id="message.status.reset.failure.title">
+				<source/>
+				<target>Status konnte nicht entfernt werden</target>
+			</trans-unit>
+			<trans-unit id="message.status.reset.failure.message">
+				<source/>
+				<target>Der Status des Eintrags konnte nicht entfernt werden.</target>
+			</trans-unit>
+			<trans-unit id="message.assignee.changed.success.title">
+				<source/>
+				<target>Zuständigkeit geändert</target>
+			</trans-unit>
+			<trans-unit id="message.assignee.changed.success.message">
+				<source/>
+				<target>Die Zuständigkeit des Eintrags wurde erfolgreich geändert.</target>
+			</trans-unit>
+			<trans-unit id="message.assignee.changed.failure.title">
+				<source/>
+				<target>Zuständigkeit konnte nicht geändert werden</target>
+			</trans-unit>
+			<trans-unit id="message.assignee.changed.failure.message">
+				<source/>
+				<target>Die Zuständigkeit des Eintrags konnte nicht geändert werden.</target>
+			</trans-unit>
+			<trans-unit id="message.assignee.reset.success.title">
+				<source/>
+				<target>Zuständigkeit entfernt</target>
+			</trans-unit>
+			<trans-unit id="message.assignee.reset.success.message">
+				<source/>
+				<target>Die Zuständigkeit des Eintrags wurde erfolgreich entfernt.</target>
+			</trans-unit>
+			<trans-unit id="message.assignee.reset.failure.title">
+				<source/>
+				<target>Zuständigkeit konnte nicht entfernt werden</target>
+			</trans-unit>
+			<trans-unit id="message.assignee.reset.failure.message">
+				<source/>
+				<target>Die Zuständigkeit des Eintrags konnte nicht entfernt werden.</target>
+			</trans-unit>
+			<trans-unit id="message.comment.create.success.title">
+				  <source/>
+				  <target>Kommentar erstellt</target>
+			</trans-unit>
+			<trans-unit id="message.comment.create.success.message">
+				  <source/>
+				  <target>Der Kommentar wurde erfolgreich erstellt.</target>
+			</trans-unit>
+			<trans-unit id="message.comment.create.failure.title">
+				  <source/>
+				  <target>Kommentar konnte nicht erstellt werden</target>
+			</trans-unit>
+			<trans-unit id="message.comment.create.failure.message">
+				  <source/>
+				  <target>Der Kommentar konnte nicht erstellt werden.</target>
+			</trans-unit>
+			<trans-unit id="message.comment.edit.success.title">
+				 <source/>
+				 <target>Kommentar bearbeitet</target>
+			</trans-unit>
+			<trans-unit id="message.comment.edit.success.message">
+				 <source/>
+				 <target>Der Kommentar wurde erfolgreich bearbeitet.</target>
+			</trans-unit>
+			<trans-unit id="message.comment.edit.failure.title">
+				 <source/>
+				 <target>Kommentar konnte nicht bearbeitet werden</target>
+			</trans-unit>
+			<trans-unit id="message.comment.edit.failure.message">
+				 <source/>
+				 <target>Der Kommentar konnte nicht bearbeitet werden.</target>
+			</trans-unit>
+			<trans-unit id="message.comment.resolve.success.title">
+				 <source/>
+				 <target>Kommentar erledigt</target>
+			</trans-unit>
+			<trans-unit id="message.comment.resolve.success.message">
+				 <source/>
+				 <target>Der Kommentar wurde als erledigt markiert.</target>
+			</trans-unit>
+			<trans-unit id="message.comment.resolve.failure.title">
+				 <source/>
+				 <target>Kommentar konnte nicht erledigt werden</target>
+			</trans-unit>
+			<trans-unit id="message.comment.resolve.failure.message">
+				 <source/>
+				 <target>Der Kommentar konnte nicht als erledigt markiert werden.</target>
+			</trans-unit>
+			<trans-unit id="message.comment.delete.success.title">
+				 <source/>
+				 <target>Kommentar gelöscht</target>
+			</trans-unit>
+			<trans-unit id="message.comment.delete.success.message">
+				 <source/>
+				 <target>Der Kommentar wurde erfolgreich gelöscht.</target>
+			</trans-unit>
+			<trans-unit id="message.comment.delete.failure.title">
+				 <source/>
+				 <target>Kommentar konnte nicht gelöscht werden</target>
+			</trans-unit>
+			<trans-unit id="message.comment.delete.failure.message">
+				 <source/>
+				 <target>Der Kommentar konnte nicht gelöscht werden.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -3,6 +3,7 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
+import Notification from "@xima/ximatypo3contentplanner/notification.js";
 
 class CommentsDeleteItem {
 
@@ -25,15 +26,18 @@ class CommentsDeleteItem {
             text: deleteCommentButton,
             active: true,
             trigger: () => {
-              new AjaxRequest(deleteCommentUrl).get()
-                .then(() => {
-                  top.TYPO3.Notification.warning('Delete', 'Comment entry successfully deleted.')
+              new AjaxRequest(deleteCommentUrl)
+                .get()
+                .then(async result => {
                   this.reloadComments(currentTarget)
                   Modal.dismiss()
+                  Notification.message(
+                    'comment.delete',
+                    result.response.ok ? 'success' : 'failure'
+                  )
                 })
                 .catch((error) => {
                   console.error('Comment deletion failed:', error)
-                  top.TYPO3.Notification.error('Error', 'Failed to delete comment.')
                   Modal.dismiss()
                 })
             }

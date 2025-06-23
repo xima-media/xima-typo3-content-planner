@@ -144,7 +144,13 @@ class AbstractSelectionService
             'tce_db',
             [
                 'data' => $dataArray,
-                'redirect' => (string)$this->uriBuilder->buildUriFromRoute($route, $routeArray),
+                'redirect' => $this->uriBuilder->buildUriFromRoute(
+                    'ximatypo3contentplanner_message',
+                    [
+                        'redirect' => (string)$this->uriBuilder->buildUriFromRoute($route, $routeArray),
+                        'message' => $status instanceof Status ? 'status.changed' : 'status.reset',
+                    ]
+                ),
             ],
         );
     }
