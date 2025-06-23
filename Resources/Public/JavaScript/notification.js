@@ -6,7 +6,7 @@ import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 class Notification {
   constructor() {}
 
-  getMessage(message, resultStatus) {
+  message(message, resultStatus) {
     new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_message)
       .withQueryArguments({
         message: message,
@@ -27,7 +27,7 @@ class Notification {
               top.TYPO3.Notification.warning(data.title, data.message);
               break;
             case -2:
-              top.TYPO3.Notification.info(data.title, data.message);
+              top.TYPO3.Notification.notice(data.title, data.message);
               break;
             default:
               console.warn('Unknown notification severity:', data.severity);

@@ -28,10 +28,10 @@ class ContextMenuActions {
     new AjaxRequest(top.TYPO3.settings.RecordCommit.moduleUrl + "&data[" + table + "][" + uid + "][tx_ximatypo3contentplanner_status]=" + status)
       .get()
       .then(function (result) {
-          Notification.getMessage(
-            status === "" ? "status.reset" : "status.changed",
-            result.response.ok ? "success" : "failure"
-          )
+        Notification.message(
+          status === "" ? "status.reset" : "status.changed",
+          result.response.ok ? "success" : "failure"
+        )
 
         if (table === 'pages') {
           top.document.dispatchEvent(new CustomEvent("typo3:pagetree:refresh"));
