@@ -33,12 +33,16 @@ class AssigneeSelect {
   changeAssignee(url, modal = null) {
     new AjaxRequest(url)
       .get()
-      .then(async response => {
-        if (modal) {
-          modal.hideModal()
-        }
+      .then(async result => {
+        if (result.response.ok === true) {
+          if (modal) {
+            modal.hideModal()
+          }
 
-        Viewport.ContentContainer.refresh()
+          Viewport.ContentContainer.refresh()
+        } else {
+          console.error('Failed to change assignee:', result)
+        }
       })
   }
 }
