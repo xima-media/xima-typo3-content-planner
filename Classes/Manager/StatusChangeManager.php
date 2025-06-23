@@ -6,7 +6,6 @@ namespace Xima\XimaTypo3ContentPlanner\Manager;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
@@ -19,7 +18,8 @@ class StatusChangeManager
     public function __construct(
         private readonly EventDispatcher $eventDispatcher,
         private readonly RecordRepository $recordRepository,
-        private readonly CommentRepository $commentRepository
+        private readonly CommentRepository $commentRepository,
+        private readonly ConnectionPool $connectionPool
     ) {
     }
 
@@ -68,7 +68,7 @@ class StatusChangeManager
 
     public function clearStatusOfExtensionRecords(string $table, ?int $status = null, ?int $pid = null): void
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $queryBuilder
             ->update($table)
             ->set('tx_ximatypo3contentplanner_status', null)

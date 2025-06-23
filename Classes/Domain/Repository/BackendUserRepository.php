@@ -7,16 +7,18 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class BackendUserRepository
 {
+    public function __construct(private readonly ConnectionPool $connectionPool)
+    {
+    }
     /**
     * @throws Exception
     */
     public function findAll(): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         return $queryBuilder
             ->select('*')
@@ -29,7 +31,7 @@ class BackendUserRepository
     */
     public function findAllWithPermission(): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
         return $queryBuilder->select('be_users.*')
             ->from('be_users')
             ->leftJoin(
@@ -62,7 +64,7 @@ class BackendUserRepository
     */
     public function findByUid(int $uid): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         return $queryBuilder
             ->select('*')
@@ -78,7 +80,7 @@ class BackendUserRepository
     */
     public function findByUsername(string $username): array|bool
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         return $queryBuilder
             ->select('*')
@@ -98,7 +100,7 @@ class BackendUserRepository
         if (!(bool)$uid) {
             return '';
         }
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('be_users');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         $userRecord = $queryBuilder
             ->select('username', 'realName')

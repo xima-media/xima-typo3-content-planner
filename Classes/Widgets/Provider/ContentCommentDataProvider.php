@@ -5,18 +5,20 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
 class ContentCommentDataProvider implements ListDataProviderInterface
 {
+    public function __construct(private readonly ConnectionPool $connectionPool)
+    {
+    }
     /**
     * @throws \Doctrine\DBAL\Exception
     */
     public function getItems(): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');
 
         $query = $queryBuilder
             ->select(

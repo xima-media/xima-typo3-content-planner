@@ -7,7 +7,6 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
@@ -18,13 +17,16 @@ class CommentRepository
     protected array $defaultOrderings = [
         'crdate' => QueryInterface::ORDER_DESCENDING,
     ];
+    public function __construct(private readonly ConnectionPool $connectionPool)
+    {
+    }
 
     /**
     * @throws Exception
     */
     public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false): array
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
         $query = $queryBuilder
             ->select('*')
@@ -65,7 +67,7 @@ class CommentRepository
     */
     public function countAllByRecord(int $id, string $table, bool $countAll = false, bool $onlyResolved = false): int
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $query = $queryBuilder
             ->count('uid')
             ->from(self::TABLE)
@@ -97,7 +99,7 @@ class CommentRepository
             throw new \InvalidArgumentException('Invalid todo field: ' . $todoField, 1745394753);
         }
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $query = $queryBuilder
             ->selectLiteral("SUM(`$todoField`) AS `check`")
             ->from(self::TABLE)
@@ -126,7 +128,7 @@ class CommentRepository
             return false;
         }
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
         return $queryBuilder
             ->select('*')
@@ -140,7 +142,7 @@ class CommentRepository
 
     public function deleteAllCommentsByRecord(int $id, string $table, ?string $like = null): void
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder
             ->update(self::TABLE)
             ->set('deleted', 1)
@@ -159,7 +161,7 @@ class CommentRepository
         $queryBuilder
             ->executeStatement();
 
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $queryBuilder
             ->update($table)
             ->set('tx_ximatypo3contentplanner_comments', 0)
