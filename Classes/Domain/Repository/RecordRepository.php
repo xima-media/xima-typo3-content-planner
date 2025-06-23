@@ -100,6 +100,8 @@ class RecordRepository
 
         if ($ignoreHiddenRestriction) {
             $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\StartTimeRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\EndTimeRestriction::class);
         }
 
         $query = $queryBuilder
@@ -143,6 +145,8 @@ class RecordRepository
 
         if ($ignoreHiddenRestriction) {
             $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\StartTimeRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(\TYPO3\CMS\Core\Database\Query\Restriction\EndTimeRestriction::class);
         }
 
         $query = $queryBuilder
