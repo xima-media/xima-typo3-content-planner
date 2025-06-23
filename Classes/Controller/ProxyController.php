@@ -126,10 +126,17 @@ class ProxyController extends ActionController
 
     public function messageAction(ServerRequestInterface $request): ResponseInterface
     {
+        $messagePath = $request->getQueryParams()['message'] ?? null;
+        if ($messagePath === null) {
+            return new JsonResponse(['error' => 'Missing message parameter'], 400);
+        }
+
         $redirect = $request->getQueryParams()['redirect'] ?? null;
         if ($redirect !== null) {
-            $messagePath = $request->getQueryParams()['message'];
             $message = $this->getMessageByDotNotation($messagePath);
+            if ($message === null) {
+                return new JsonResponse(['error' => 'Invalid message path'], 400);
+            }
 
             $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
             $notificationQueue = $flashMessageService->getMessageQueueByIdentifier(
@@ -147,9 +154,11 @@ class ProxyController extends ActionController
             return new RedirectResponse($redirect);
         }
 
-        $messagePath = $request->getQueryParams()['message'];
         $resultStatus = $request->getQueryParams()['resultStatus'] ?? 'success';
         $message = $this->getMessageByDotNotation($messagePath, $resultStatus);
+        if ($message === null) {
+            return new JsonResponse(['error' => 'Invalid message path or result status'], 400);
+        }
 
         return new JsonResponse([
             'title' => $this->getLanguageService()->sL($message['title']),

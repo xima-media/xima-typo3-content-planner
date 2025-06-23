@@ -1,10 +1,11 @@
 /**
-* Module: @xima/ximatypo3contentplanner/message
-*/
+ * Module: @xima/ximatypo3contentplanner/message
+ */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 
 class Notification {
-  constructor() {}
+  constructor() {
+  }
 
   message(message, resultStatus) {
     new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_message)
@@ -38,7 +39,10 @@ class Notification {
         } else {
           top.TYPO3.Notification.error('Error', 'Failed to fetch notification message.');
         }
-      })
+      }).catch(error => {
+          console.error('AJAX request failed:', error);
+          top.TYPO3.Notification.error('Error', 'Network error occurred while fetching notification message.');
+      });
   }
 }
 
