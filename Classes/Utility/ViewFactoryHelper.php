@@ -12,7 +12,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 
 class ViewFactoryHelper
 {
-    public static function renderView(string $template, array $values, ServerRequestInterface $request = null): string
+    public static function renderView(string $template, array $values, ?ServerRequestInterface $request = null): string
     {
         $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
 
@@ -40,7 +40,7 @@ class ViewFactoryHelper
         return $view->render();
     }
 
-    private static function renderView13(string $template, array $values, ServerRequestInterface $request = null): string
+    private static function renderView13(string $template, array $values, ?ServerRequestInterface $request = null): string
     {
         $viewFactoryData = new \TYPO3\CMS\Core\View\ViewFactoryData(
             templateRootPaths: ['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/'],
