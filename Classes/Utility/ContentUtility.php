@@ -31,11 +31,17 @@ class ContentUtility
         return GeneralUtility::makeInstance(StatusRepository::class)->findByTitle($title);
     }
 
+    /**
+    * @return array<string, mixed>|bool
+    */
     public static function getPage(int $pageId): array|bool
     {
         return GeneralUtility::makeInstance(PageRepository::class)->getPage($pageId);
     }
 
+    /**
+    * @param array<string, mixed> $user
+    */
     public static function generateDisplayName(array $user): string
     {
         if (!isset($user['username'])) {
@@ -50,6 +56,7 @@ class ContentUtility
     }
 
     /**
+    * @return array<string, mixed>|bool
     * @Deprecated
     */
     public static function getComment(int $id): array|bool
@@ -62,6 +69,7 @@ class ContentUtility
     }
 
     /**
+    * @return array<string, mixed>|bool
     * @Deprecated
     * @throws Exception
     */
@@ -88,6 +96,7 @@ class ContentUtility
     }
 
     /**
+    * @return array<string, mixed>|null
     * @Deprecated
     */
     public static function getExtensionRecord(?string $table, ?int $uid): array|null

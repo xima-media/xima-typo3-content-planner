@@ -18,9 +18,16 @@ use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 final class HistoryItem
 {
+    /** @var array<string, mixed> */
     public array $data = [];
+
+    /** @var array<string, mixed>|bool|null */
     public array|bool|null $relatedRecord = [];
 
+    /**
+    * @param array<string, mixed> $sysHistoryRow
+    * @return static
+    */
     public static function create(array $sysHistoryRow): static
     {
         $item = new self();
@@ -62,6 +69,9 @@ final class HistoryItem
         return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['relatedRecordTablename']), $this->getRelatedRecord());
     }
 
+    /**
+    * @return array<string, mixed>|bool
+    */
     public function getRelatedRecord(): array|bool
     {
         if ($this->relatedRecord === [] || $this->relatedRecord === false) {
@@ -156,6 +166,9 @@ final class HistoryItem
         return IconHelper::getIconByIdentifier('actions-open');
     }
 
+    /**
+    * @return array<string, mixed>|null
+    */
     public function getRawHistoryData(): ?array
     {
         return $this->data['history_data'] ? json_decode($this->data['history_data'], true) : null;

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Backend\ContextMenu\ItemProviders;
 
 use TYPO3\CMS\Backend\ContextMenu\ItemProviders\AbstractProvider;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\PageTreeSelectionService;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -22,6 +24,7 @@ class StatusItemProvider extends AbstractProvider
         parent::__construct();
     }
 
+    /** @var array<string, array<string, mixed>> */
     protected $itemsConfiguration = [
         'wrap' => [
             'type' => 'submenu',
@@ -41,6 +44,11 @@ class StatusItemProvider extends AbstractProvider
         return 55;
     }
 
+    /**
+    * @param string|int $itemName
+    * @return array<string, mixed>
+    * @throws RouteNotFoundException
+    */
     protected function getAdditionalAttributes(string|int $itemName): array
     {
         return [
@@ -52,6 +60,11 @@ class StatusItemProvider extends AbstractProvider
         ];
     }
 
+    /**
+    * @param array<string, mixed> $items
+    * @return array<string, mixed>
+    * @throws NotImplementedException
+    */
     public function addItems(array $items): array
     {
         if (!VisibilityUtility::checkContentStatusVisibility()) {

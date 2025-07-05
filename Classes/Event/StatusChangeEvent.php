@@ -28,6 +28,9 @@ class StatusChangeEvent
 {
     final public const NAME = 'xima_typo3_content_planner.status.change';
 
+    /**
+    * @param array<string, mixed> $fieldArray
+    */
     public function __construct(
         protected string $table,
         protected int $uid,
@@ -47,11 +50,17 @@ class StatusChangeEvent
         return $this->uid;
     }
 
+    /**
+    * @return array<string, mixed>
+    */
     public function getFieldArray(): array
     {
         return $this->fieldArray;
     }
 
+    /**
+    * @param array<string, mixed> $fieldArray
+    */
     public function setFieldArray(array $fieldArray): void
     {
         $this->fieldArray = $fieldArray;

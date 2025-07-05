@@ -32,6 +32,9 @@ class IconHelper
         return $render ? $icon->render() : $icon->getIdentifier();
     }
 
+    /**
+    * @param array<string, mixed>|bool $record
+    */
     public static function getIconByRecord(string $table, array|bool $record, bool $render = false): string
     {
         if (!$record) {
@@ -51,6 +54,9 @@ class IconHelper
         return self::getAvatarByUser($user, $size);
     }
 
+    /**
+    * @param array<string, mixed>|bool $user
+    */
     public static function getAvatarByUser(array|bool $user, int $size = 15): string
     {
         if (!$user) {

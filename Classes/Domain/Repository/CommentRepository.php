@@ -14,6 +14,7 @@ class CommentRepository
 {
     private const TABLE = 'tx_ximatypo3contentplanner_comment';
 
+    /** @var array<string, string> */
     protected array $defaultOrderings = [
         'crdate' => QueryInterface::ORDER_DESCENDING,
     ];
@@ -22,6 +23,7 @@ class CommentRepository
     }
 
     /**
+    * @return array<int, array<string, mixed>>|array<int, CommentItem>
     * @throws Exception
     */
     public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false): array
@@ -120,6 +122,7 @@ class CommentRepository
     }
 
     /**
+    * @return array<string, mixed>|bool
     * @throws Exception
     */
     public function findByUid(int $uid): array|bool

@@ -27,6 +27,11 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
+    /**
+    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         if ($this->compareStatus($status, $currentStatus)) {
@@ -39,11 +44,19 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         ];
     }
 
+    /**
+    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = ['type' => 'divider'];
     }
 
+    /**
+    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         $selectionEntriesToAdd['reset'] = [
@@ -54,6 +67,8 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
+    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
     * @throws Exception
     */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
@@ -71,6 +86,8 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
+    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
     * @throws Exception
     */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
@@ -82,6 +99,10 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         ];
     }
 
+    /**
+    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);

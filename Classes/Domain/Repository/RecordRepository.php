@@ -19,6 +19,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 
 class RecordRepository
 {
+    /** @var string[] */
     private array $defaultSelects = [
         'uid',
         'pid',
@@ -32,6 +33,9 @@ class RecordRepository
     {
     }
 
+    /**
+    * @return array<int, array<string, mixed>>|bool
+    */
     public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20): array|bool
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
@@ -91,6 +95,7 @@ class RecordRepository
     }
 
     /**
+    * @return array<int, array<string, mixed>>
     * @throws Exception
     */
     public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreVisibilityRestriction = false): array
@@ -138,6 +143,7 @@ class RecordRepository
     }
 
     /**
+    * @return array<string, mixed>|bool|null
     * @throws Exception
     */
     public function findByUid(?string $table, ?int $uid, bool $ignoreVisibilityRestriction = false): array|bool|null
@@ -202,6 +208,9 @@ class RecordRepository
         }
     }
 
+    /**
+    * @param string[] $sql
+    */
     private function getSqlByTable(string $table, array &$sql, string $additionalWhere): void
     {
         $titleField = $this->getTitleField($table);
@@ -220,6 +229,10 @@ class RecordRepository
         return $GLOBALS['TCA'][$table]['ctrl']['label'];
     }
 
+    /**
+    * @param array<int, array<string, mixed>> $data
+    * @return string[]
+    */
     private function collectCacheTags(string $table, array $data, ?int $pid): array
     {
         $tags = [];

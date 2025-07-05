@@ -6,6 +6,7 @@ namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -86,6 +87,9 @@ class ExtensionUtility
         );
     }
 
+    /**
+    * @return string[]
+    */
     public static function getRecordTables(): array
     {
         return array_merge(
@@ -116,6 +120,9 @@ class ExtensionUtility
         return $GLOBALS['TCA'][$table]['ctrl']['label'];
     }
 
+    /**
+    * @param array<string, mixed>|bool|null $record
+    */
     public static function getTitle(string $key, array|bool|null $record): string
     {
         if ($record) {
@@ -125,6 +132,10 @@ class ExtensionUtility
         return BackendUtility::getNoRecordTitle();
     }
 
+    /**
+     * @param array<string, mixed> $attributes
+     * @throws InvalidFileException
+     */
     public static function getCssTag(string $cssFileLocation, array $attributes): string
     {
         return sprintf(
@@ -138,6 +149,10 @@ class ExtensionUtility
         );
     }
 
+    /**
+    * @param array<string, mixed> $attributes
+     * @throws InvalidFileException
+     */
     public static function getJsTag(string $jsFileLocation, array $attributes): string
     {
         return sprintf(

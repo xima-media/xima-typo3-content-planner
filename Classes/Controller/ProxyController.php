@@ -167,6 +167,9 @@ class ProxyController extends ActionController
         ]);
     }
 
+    /**
+    * @return array<string, mixed>|null
+    */
     protected function getMessageByDotNotation(string $dotNotation, string $resultStatus = 'success'): ?array
     {
         $keys = explode('.', $dotNotation);
