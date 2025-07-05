@@ -22,6 +22,10 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
 {
     protected ServerRequestInterface $request;
 
+    /**
+    * @param array<string, mixed> $buttons
+    * @param array<string, mixed> $options
+    */
     public function __construct(
         protected readonly WidgetConfigurationInterface $configuration,
         protected readonly ListDataProviderInterface $dataProvider,
@@ -31,6 +35,9 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
     ) {
     }
 
+    /**
+    * @param array<string, mixed> $templateArguments
+    */
     public function render(string $templateFile, array $templateArguments): string
     {
         $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
@@ -45,16 +52,25 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
 
     abstract public function renderWidgetContent(): string;
 
+    /**
+    * @return array<string, mixed>
+    */
     public function getOptions(): array
     {
         return $this->options;
     }
 
+    /**
+    * @return string[]
+    */
     public function getCssFiles(): array
     {
         return ['EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Widgets.css', 'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Comments.css'];
     }
 
+    /**
+    * @return JavaScriptModuleInstruction[]
+    */
     public function getJavaScriptModuleInstructions(): array
     {
         return [

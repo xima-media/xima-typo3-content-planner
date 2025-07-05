@@ -14,6 +14,7 @@ class BackendUserRepository
     {
     }
     /**
+    * @return array<int, array<string, mixed>>|bool
     * @throws Exception
     */
     public function findAll(): array|bool
@@ -27,6 +28,7 @@ class BackendUserRepository
     }
 
     /**
+    * @return array<int, array<string, mixed>>|bool
     * @throws Exception
     */
     public function findAllWithPermission(): array|bool
@@ -60,6 +62,7 @@ class BackendUserRepository
     }
 
     /**
+    * @return array<string, mixed>|bool
     * @throws Exception
     */
     public function findByUid(int $uid): array|bool
@@ -76,6 +79,7 @@ class BackendUserRepository
     }
 
     /**
+    * @return array<string, mixed>|bool
     * @throws Exception
     */
     public function findByUsername(string $username): array|bool

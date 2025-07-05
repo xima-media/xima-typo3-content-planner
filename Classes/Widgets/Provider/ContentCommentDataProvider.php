@@ -14,6 +14,7 @@ class ContentCommentDataProvider implements ListDataProviderInterface
     {
     }
     /**
+    * @return CommentItem[]
     * @throws \Doctrine\DBAL\Exception
     */
     public function getItems(): array

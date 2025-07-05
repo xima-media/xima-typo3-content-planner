@@ -10,6 +10,9 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
 class PermissionUtility
 {
+    /**
+    * @param array<string, mixed>|bool $record
+    */
     public static function checkAccessForRecord(string $table, $record): bool
     {
         if (!is_array($record)) {

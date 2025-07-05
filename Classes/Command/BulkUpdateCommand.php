@@ -91,6 +91,9 @@ final class BulkUpdateCommand extends Command
         return Command::SUCCESS;
     }
 
+    /**
+    * @return int[]
+    */
     private function getSubpages(int $pageId): array
     {
         $pageRepository = GeneralUtility::makeInstance(PageRepository::class);
@@ -104,6 +107,10 @@ final class BulkUpdateCommand extends Command
         return $subpageIds;
     }
 
+    /**
+    * @param array<int|string, mixed> $array
+    * @return int[]
+    */
     private function flattenArray(array $array): array
     {
         $result = [];

@@ -25,6 +25,11 @@ final class DataHandlerHook
 
     /**
     * Hook: processDatamap_preProcessFieldArray
+    * @param array<string, mixed> $incomingFieldArray
+    * @param string $table
+    * @param string|int $id
+    * @param DataHandler $dataHandler
+    * @throws Exception
     */
     public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler $dataHandler): void
     {
@@ -39,7 +44,7 @@ final class DataHandlerHook
         }
 
         if (ExtensionUtility::isRegisteredRecordTable($table)) {
-            $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, $id);
+            $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, (int)$id);
         }
 
         if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
@@ -49,6 +54,12 @@ final class DataHandlerHook
 
     /**
     * Hook: processCmdmap_preProcess
+    * @param string $command
+    * @param string $table
+    * @param string|int $id
+    * @param mixed $value
+    * @param DataHandler $parentObject
+    * @param mixed $pasteUpdate
     */
     public function processCmdmap_preProcess($command, $table, $id, $value, DataHandler $parentObject, $pasteUpdate): void
     {
@@ -58,7 +69,7 @@ final class DataHandlerHook
         if ($command === 'delete' && $table === 'tx_ximatypo3contentplanner_status') {
             // Clear all status of records that are assigned to the deleted status
             foreach (ExtensionUtility::getRecordTables() as $recordTable) {
-                $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, $id);
+                $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, (int)$id);
             }
         }
     }
@@ -80,6 +91,11 @@ final class DataHandlerHook
 
     /**
     * Hook: processDatamap_afterDatabaseOperations
+    * @param string $status
+    * @param string $table
+    * @param string|int $id
+    * @param array<string, mixed> $fieldArray
+    * @param DataHandler $dataHandler
     * @throws Exception
     */
     public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
@@ -98,6 +114,9 @@ final class DataHandlerHook
         }
     }
 
+    /**
+    * @param array<string, mixed> $params
+    */
     public function clearCachePostProc(array $params): void
     {
         $tags = array_keys($params['tags']);
@@ -174,6 +193,9 @@ final class DataHandlerHook
         }
     }
 
+    /**
+    * @return array<string, int>
+    */
     private function parseTodos(string $htmlContent): array
     {
         $dom = new \DOMDocument();

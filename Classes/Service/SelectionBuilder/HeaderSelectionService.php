@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownDivider;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItem;
@@ -32,6 +33,11 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
+    /**
+    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         if ($this->compareStatus($status, $currentStatus)) {
@@ -45,11 +51,20 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $selectionEntriesToAdd[$status->getUid()] = $statusDropDownItem;
     }
 
+    /**
+    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = GeneralUtility::makeInstance(DropDownDivider::class);
     }
 
+    /**
+     * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+     * @param array<int, int>|int|null $uid
+     * @param array<string, mixed>|null $record
+     * @throws RouteNotFoundException
+     */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         /** @var DropDownItem $statusDropDownItem */
@@ -60,6 +75,10 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
     }
 
+    /**
+    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $username = $this->backendUserRepository->getUsernameByUid((int)$record['tx_ximatypo3contentplanner_assignee']);
@@ -75,6 +94,10 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
     }
 
+    /**
+    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
@@ -85,6 +108,10 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $selectionEntriesToAdd['comments'] = $commentsDropDownItem;
     }
 
+    /**
+    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);

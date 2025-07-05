@@ -12,6 +12,9 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 
 class ViewFactoryHelper
 {
+    /**
+    * @param array<string, mixed> $values
+    */
     public static function renderView(string $template, array $values, ?ServerRequestInterface $request = null): string
     {
         $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
@@ -23,6 +26,9 @@ class ViewFactoryHelper
         return self::renderView12($template, $values);
     }
 
+    /**
+    * @param array<string, mixed> $values
+    */
     private static function renderView12(string $template, array $values): string
     {
         /** @var \TYPO3\CMS\Fluid\View\StandaloneView $view */
@@ -40,6 +46,9 @@ class ViewFactoryHelper
         return $view->render();
     }
 
+    /**
+    * @param array<string, mixed> $values
+    */
     private static function renderView13(string $template, array $values, ?ServerRequestInterface $request = null): string
     {
         $viewFactoryData = new \TYPO3\CMS\Core\View\ViewFactoryData(

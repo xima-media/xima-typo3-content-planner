@@ -30,6 +30,11 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
+    /**
+    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         if ($this->compareStatus($status, $currentStatus)) {
@@ -45,11 +50,19 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             );
     }
 
+    /**
+    * @param array<string, string> $selectionEntriesToAdd
+    */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = '<li><hr class="dropdown-divider"></li>';
     }
 
+    /**
+    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         $selectionEntriesToAdd['reset'] =
@@ -62,6 +75,10 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             );
     }
 
+    /**
+    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         if (!$record['tx_ximatypo3contentplanner_assignee']) {
@@ -79,6 +96,8 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
+    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
     * @throws Exception
     */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
@@ -95,6 +114,10 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             );
     }
 
+    /**
+    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);

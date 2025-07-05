@@ -17,10 +17,17 @@ use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 final class StatusItem
 {
+    /** @var array<string, mixed> */
     public array $data = [];
+
     public ?Status $status = null;
+
     private ?CommentRepository $commentRepository = null;
 
+    /**
+    * @param array<string, mixed> $row
+    * @return static
+    */
     public static function create(array $row): static
     {
         $item = new self();
@@ -130,6 +137,9 @@ final class StatusItem
         return $this->data['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
     }
 
+    /**
+    * @return array<string, mixed>
+    */
     public function toArray(): array
     {
         return [

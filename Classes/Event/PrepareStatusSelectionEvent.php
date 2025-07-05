@@ -31,6 +31,13 @@ class PrepareStatusSelectionEvent
 {
     final public const NAME = 'xima_typo3_content_planner.status.prepare_selection';
 
+    /**
+    * @param string $table
+    * @param int|null $uid
+    * @param object $context
+    * @param array<string, mixed> $selection
+    * @param Status|null $currentStatus
+    */
     public function __construct(
         protected string $table,
         protected ?int $uid,
@@ -50,11 +57,17 @@ class PrepareStatusSelectionEvent
         return $this->uid;
     }
 
+    /**
+    * @return array<string, mixed>
+    */
     public function getSelection(): array
     {
         return $this->selection;
     }
 
+    /**
+    * @param array<string, mixed> $selection
+    */
     public function setSelection(array $selection): void
     {
         $this->selection = $selection;
