@@ -32,7 +32,7 @@ final class HistoryItem
     {
         $item = new self();
         $item->data = $sysHistoryRow;
-        $item->data['raw_history'] = $sysHistoryRow['history_data'] ? json_decode($sysHistoryRow['history_data'], true) : null;
+        $item->data['raw_history'] = isset($sysHistoryRow['history_data']) && $sysHistoryRow['history_data'] ? json_decode($sysHistoryRow['history_data'], true) : null;
 
         return $item;
     }
@@ -142,7 +142,7 @@ final class HistoryItem
 
     public function getUser(): string
     {
-        return $this->data['realName'] ? $this->data['realName'] . ' (' . $this->data['username'] . ')' : $this->data['username'];
+        return isset($this->data['realName']) && $this->data['realName'] ? $this->data['realName'] . ' (' . $this->data['username'] . ')' : $this->data['username'];
     }
 
     public function getChangeTypeIcon(): string
@@ -171,7 +171,7 @@ final class HistoryItem
     */
     public function getRawHistoryData(): ?array
     {
-        return $this->data['history_data'] ? json_decode($this->data['history_data'], true) : null;
+        return isset($this->data['history_data']) && $this->data['history_data'] ? json_decode($this->data['history_data'], true) : null;
     }
 
     public function getHistoryData(): string|bool

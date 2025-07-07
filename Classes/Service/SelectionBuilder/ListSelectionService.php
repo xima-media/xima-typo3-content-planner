@@ -31,7 +31,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
-    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
     * @param array<string, mixed>|null $record
     */
@@ -51,7 +51,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
-    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
@@ -59,7 +59,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
-    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
     * @param array<string, mixed>|null $record
     */
@@ -76,12 +76,12 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
-    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        if (!$record['tx_ximatypo3contentplanner_assignee']) {
+        if (!isset($record['tx_ximatypo3contentplanner_assignee']) || !$record['tx_ximatypo3contentplanner_assignee']) {
             return;
         }
         $statusItem = StatusItem::create($record);
@@ -96,7 +96,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
-    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     * @throws Exception
     */
@@ -115,7 +115,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
-    * @param array<string, string> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void

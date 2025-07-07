@@ -34,7 +34,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     }
 
     /**
-    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
     * @param array<string, mixed>|null $record
     */
@@ -52,7 +52,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     }
 
     /**
-    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
@@ -60,7 +60,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     }
 
     /**
-     * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+     * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<int, int>|int|null $uid
      * @param array<string, mixed>|null $record
      * @throws RouteNotFoundException
@@ -76,7 +76,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     }
 
     /**
-    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
@@ -95,7 +95,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     }
 
     /**
-    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
@@ -109,7 +109,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     }
 
     /**
-    * @param array<string, DropDownItem|DropDownDivider> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void

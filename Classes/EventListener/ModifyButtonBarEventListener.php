@@ -66,7 +66,7 @@ final class ModifyButtonBarEventListener
         if (!$record) {
             return;
         }
-        $status = $record['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']) : null;
+        $status = isset($record['tx_ximatypo3contentplanner_status']) && $record['tx_ximatypo3contentplanner_status'] ? $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']) : null;
 
         $buttonBar = $event->getButtonBar();
         $buttons = $event->getButtons();

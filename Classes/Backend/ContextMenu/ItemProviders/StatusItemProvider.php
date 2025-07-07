@@ -24,7 +24,6 @@ class StatusItemProvider extends AbstractProvider
         parent::__construct();
     }
 
-    /** @var array<string, array<string, mixed>> */
     protected $itemsConfiguration = [
         'wrap' => [
             'type' => 'submenu',
@@ -61,7 +60,6 @@ class StatusItemProvider extends AbstractProvider
     }
 
     /**
-    * @param array<string, mixed> $items
     * @return array<string, mixed>
     * @throws NotImplementedException
     */

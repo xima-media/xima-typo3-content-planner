@@ -22,7 +22,6 @@ class StatusRepository extends Repository
         parent::__construct();
     }
 
-    /** @var array<string, string> */
     protected $defaultOrderings = [
         'sorting' => QueryInterface::ORDER_ASCENDING,
     ];
@@ -34,10 +33,7 @@ class StatusRepository extends Repository
         $this->setDefaultQuerySettings($querySettings);
     }
 
-    /**
-    * @return array<int, Status>
-    */
-    public function findAll(): array
+    public function findAll()
     {
         $cacheIdentifier = sprintf('%s--status--all', Configuration::CACHE_IDENTIFIER);
         if ($this->cache->has($cacheIdentifier)) {

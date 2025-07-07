@@ -24,7 +24,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
 
     /**
     * @return HistoryItem[]
-    * @throws \Doctrine\DBAL\Exception\n
+    * @throws \Doctrine\DBAL\Exception
     */
     public function fetchUpdateData(?int $beUser = null, ?int $tstamp = null, ?int $maxItems = null): array
     {

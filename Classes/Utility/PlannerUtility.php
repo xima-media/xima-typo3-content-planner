@@ -138,7 +138,7 @@ class PlannerUtility
             $authorId = $backendUserRepository->findByUsername($author)['uid'];
         }
 
-        if (!$authorId) {
+        if (!$authorId || $authorId === 0) {
             throw new \InvalidArgumentException('Author "' . $authorId . '" is not a valid backend user.', 4723563571);
         }
 

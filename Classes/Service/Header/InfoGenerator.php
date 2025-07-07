@@ -154,12 +154,13 @@ class InfoGenerator
     }
 
     /**
-    * @param array<string, mixed> $record
-    * @return array<string, mixed>
-    */
+     * @param array<string, mixed> $record
+     * @return array<int, array<string, mixed>>
+     * @throws Exception
+     */
     private function getComments(array $record, string $table): array
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
+        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
     }
 
     /**
@@ -167,7 +168,7 @@ class InfoGenerator
     */
     private function getCommentsTodoResolved(array $record, string $table): int
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table) : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table) : 0;
     }
 
     /**
@@ -175,7 +176,7 @@ class InfoGenerator
     */
     private function getCommentsTodoTotal(array $record, string $table): int
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
     }
 
     /**
@@ -194,7 +195,7 @@ class InfoGenerator
 
     /**
      * @param array<string, mixed> $record
-     * @return array<string, mixed>|null
+     * @return array<int, array<string, mixed>>|null
      * @throws Exception
      */
     private function getContentElements(array $record, string $table): ?array

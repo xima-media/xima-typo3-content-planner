@@ -98,7 +98,7 @@ class AbstractSelectionService
     */
     protected function getCurrentStatus(array|bool|null $record = null): int|null
     {
-        return $record ? $record['tx_ximatypo3contentplanner_status'] : null;
+        return is_array($record) ? $record['tx_ximatypo3contentplanner_status'] : null;
     }
 
     protected function compareStatus(Status $status, Status|int|null $currentStatus): bool
@@ -170,7 +170,7 @@ class AbstractSelectionService
     */
     protected function getCommentsTodoResolved(array $record, string $table): int
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
     }
 
     /**
@@ -178,7 +178,7 @@ class AbstractSelectionService
     */
     protected function getCommentsTodoTotal(array $record, string $table): int
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
     }
 
     protected function getLanguageService(): LanguageService

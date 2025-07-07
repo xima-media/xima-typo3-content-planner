@@ -69,7 +69,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
     }
 
     /**
-    * @return JavaScriptModuleInstruction[]
+    * @return list<JavaScriptModuleInstruction>
     */
     public function getJavaScriptModuleInstructions(): array
     {

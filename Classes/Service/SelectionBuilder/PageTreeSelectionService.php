@@ -28,7 +28,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
     * @param array<string, mixed>|null $record
     */
@@ -45,7 +45,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
@@ -53,7 +53,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
     * @param array<string, mixed>|null $record
     */
@@ -67,7 +67,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     * @throws Exception
     */
@@ -86,21 +86,21 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     * @throws Exception
     */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $selectionEntriesToAdd['comments'] = [
-            'label' => ($record['tx_ximatypo3contentplanner_comments'] ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
+            'label' => (isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
             'iconIdentifier' => 'actions-message',
             'callbackAction' => 'comments',
         ];
     }
 
     /**
-    * @param array<string, array<string, mixed>> $selectionEntriesToAdd
+    * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
     */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void

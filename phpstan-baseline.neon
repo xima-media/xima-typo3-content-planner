@@ -1,87 +1,81 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^PHPDoc type array\<string, array\<string, mixed\>\> of property Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:\$itemsConfiguration is not the same as PHPDoc type array of overridden property TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\AbstractProvider\:\:\$itemsConfiguration\.$#'
-			identifier: property.phpDocType
+			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\) has parameter \$items with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
 
 		-
-			message: '#^Parameter \#1 \$items \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\) should be contravariant with parameter \$items \(array\) of method TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\AbstractProvider\:\:addItems\(\)$#'
-			identifier: method.childParameterType
+			message: '#^Property Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:\$itemsConfiguration type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
 
 		-
-			message: '#^Parameter \#1 \$items \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\) should be contravariant with parameter \$items \(array\) of method TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\ProviderInterface\:\:addItems\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
-
-		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
+			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
+			identifier: booleanAnd.rightNotBoolean
 			count: 3
 			path: Classes/Domain/Model/Dto/HistoryItem.php
 
 		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
+			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
+			identifier: booleanAnd.rightNotBoolean
 			count: 3
 			path: Classes/Domain/Model/Dto/StatusItem.php
 
 		-
-			message: '#^PHPDoc type array\<string, string\> of property Xima\\XimaTypo3ContentPlanner\\Domain\\Repository\\StatusRepository\:\:\$defaultOrderings is not the same as PHPDoc type array\<non\-empty\-string, ''ASC''\|''DESC''\> of overridden property TYPO3\\CMS\\Extbase\\Persistence\\Repository\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\:\:\$defaultOrderings\.$#'
-			identifier: property.phpDocType
+			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Domain\\Repository\\StatusRepository\:\:findAll\(\) should return TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> but returns list\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\.$#'
+			identifier: return.type
 			count: 1
 			path: Classes/Domain/Repository/StatusRepository.php
 
 		-
-			message: '#^Return type \(array\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\) of method Xima\\XimaTypo3ContentPlanner\\Domain\\Repository\\StatusRepository\:\:findAll\(\) should be compatible with return type \(TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\) of method TYPO3\\CMS\\Extbase\\Persistence\\Repository\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\:\:findAll\(\)$#'
-			identifier: method.childReturnType
+			message: '#^Out of 275 possible return types, only 274 \- 99\.6 %% actually have it\. Add more return types to get over 100 %%$#'
+			identifier: typeCoverage.returnTypeCoverage
 			count: 1
 			path: Classes/Domain/Repository/StatusRepository.php
 
 		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
+			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
+			identifier: booleanAnd.rightNotBoolean
 			count: 1
 			path: Classes/EventListener/ModifyButtonBarEventListener.php
 
 		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
-			count: 2
+			message: '#^Strict comparison using \=\=\= between TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> and array\{\} will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> and array\{\} will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: Classes/EventListener/ModifyRecordListTableActionsListener.php
+
+		-
+			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
+			identifier: booleanAnd.rightNotBoolean
+			count: 1
 			path: Classes/Manager/StatusChangeManager.php
 
 		-
-			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Service\\Header\\InfoGenerator\:\:getComments\(\) should return array\<string, mixed\> but returns array\<int, array\<string, mixed\>\|Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Dto\\CommentItem\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Classes/Service/Header/InfoGenerator.php
-
-		-
-			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Service\\Header\\InfoGenerator\:\:getContentElements\(\) never returns array\<string, mixed\> so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: Classes/Service/Header/InfoGenerator.php
-
-		-
-			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Service\\Header\\InfoGenerator\:\:getContentElements\(\) should return array\<string, mixed\>\|null but returns array\<int, array\<string, mixed\>\>\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Classes/Service/Header/InfoGenerator.php
-
-		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
+			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
+			identifier: booleanAnd.rightNotBoolean
 			count: 3
 			path: Classes/Service/Header/InfoGenerator.php
 
 		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
+			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
+			identifier: booleanAnd.rightNotBoolean
 			count: 2
+			path: Classes/Service/SelectionBuilder/AbstractSelectionService.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> and array\{\} will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
 			path: Classes/Service/SelectionBuilder/AbstractSelectionService.php
 
 		-
@@ -91,85 +85,7 @@ parameters:
 			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
 
 		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addAssigneeItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addAssigneeItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addAssigneeItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addAssigneeItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addCommentsItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addCommentsItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addCommentsItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addCommentsItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addCommentsTodoItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addCommentsTodoItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addDividerItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addDividerItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addDividerItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addDividerItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addStatusItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addStatusItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addStatusItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addStatusItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addStatusResetItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addStatusResetItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addStatusResetItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addStatusResetItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addCommentsItemToSelection\(\) expects array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>, array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\AbstractDropDownItem\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\> given\.$#'
-			identifier: parameterByRef.type
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addCommentsTodoItemToSelection\(\) expects array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>, array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\AbstractDropDownItem\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\> given\.$#'
-			identifier: parameterByRef.type
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
-
-		-
-			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\>, array\<int\|string, TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider\|TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem\> given\.$#'
+			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, mixed\>, array\<int\|string, mixed\> given\.$#'
 			identifier: parameterByRef.type
 			count: 1
 			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
@@ -187,154 +103,28 @@ parameters:
 			path: Classes/Service/SelectionBuilder/ListSelectionService.php
 
 		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addAssigneeItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addAssigneeItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addAssigneeItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addAssigneeItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addCommentsItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addCommentsItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addCommentsItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addCommentsItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addCommentsTodoItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addCommentsTodoItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addDividerItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addDividerItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addDividerItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addDividerItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addStatusItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addStatusItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addStatusItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addStatusItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addStatusResetItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addStatusResetItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, string\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addStatusResetItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addStatusResetItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, string\>, array\<int\|string, string\> given\.$#'
+			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, mixed\>, array\<int\|string, mixed\> given\.$#'
 			identifier: parameterByRef.type
 			count: 1
 			path: Classes/Service/SelectionBuilder/ListSelectionService.php
 
 		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
+			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
+			identifier: booleanAnd.rightNotBoolean
 			count: 1
 			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
 
 		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addAssigneeItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addAssigneeItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addAssigneeItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addAssigneeItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addCommentsItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addCommentsItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addCommentsItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addCommentsItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addCommentsTodoItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addCommentsTodoItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addDividerItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addDividerItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addDividerItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addDividerItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addStatusItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addStatusItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addStatusItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addStatusItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addStatusResetItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\AbstractSelectionService\:\:addStatusResetItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter \#1 \$selectionEntriesToAdd \(array\<string, array\<string, mixed\>\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addStatusResetItemToSelection\(\) should be contravariant with parameter \$selectionEntriesToAdd \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\SelectionInterface\:\:addStatusResetItemToSelection\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, array\<string, mixed\>\>, array\<int\|string, array\<string, mixed\>\> given\.$#'
+			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, mixed\>, array\<int\|string, mixed\> given\.$#'
 			identifier: parameterByRef.type
 			count: 1
 			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
+
+		-
+			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Utility\\PlannerUtility\:\:getListOfStatus\(\) should return array\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> but returns TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\.$#'
+			identifier: return.type
+			count: 1
+			path: Classes/Utility/PlannerUtility.php
 
 		-
 			message: '#^Only booleans are allowed in a negated boolean, mixed given\.$#'
@@ -343,25 +133,7 @@ parameters:
 			path: Classes/Utility/PlannerUtility.php
 
 		-
-			message: '#^Return type \(array\<TYPO3\\CMS\\Core\\Page\\JavaScriptModuleInstruction\>\) of method Xima\\XimaTypo3ContentPlanner\\Widgets\\AbstractWidget\:\:getJavaScriptModuleInstructions\(\) should be covariant with return type \(list\<TYPO3\\CMS\\Core\\Page\\JavaScriptModuleInstruction\>\) of method TYPO3\\CMS\\Dashboard\\Widgets\\JavaScriptInterface\:\:getJavaScriptModuleInstructions\(\)$#'
-			identifier: method.childReturnType
+			message: '#^Strict comparison using \=\=\= between mixed and 0 will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
 			count: 1
-			path: Classes/Widgets/AbstractWidget.php
-
-		-
-			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Widgets\\Provider\\ContentStatusDataProvider\:\:getUsers\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: Classes/Widgets/Provider/ContentStatusDataProvider.php
-
-		-
-			message: '#^PHPDoc tag @return with type array\<int, array\<string, mixed\>\>\|bool is not subtype of native type array\.$#'
-			identifier: return.phpDocType
-			count: 1
-			path: Classes/Widgets/Provider/ContentStatusDataProvider.php
-
-		-
-			message: '#^PHPDoc tag @throws with type Doctrine\\DBAL\\Exception\\n is not subtype of Throwable$#'
-			identifier: throws.notThrowable
-			count: 1
-			path: Classes/Widgets/Provider/ContentUpdateDataProvider.php
+			path: Classes/Utility/PlannerUtility.php
