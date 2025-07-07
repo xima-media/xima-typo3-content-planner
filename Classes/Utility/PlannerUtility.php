@@ -135,10 +135,11 @@ class PlannerUtility
             $authorId = $author->getUid();
         } elseif (is_string($author)) {
             $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
-            $authorId = $backendUserRepository->findByUsername($author)['uid'];
+            $user = $backendUserRepository->findByUsername($author);
+            $authorId = is_array($user) && isset($user['uid']) ? (int)$user['uid'] : null;
         }
 
-        if (!$authorId || $authorId === 0) {
+        if (!is_int($authorId) || $authorId === 0) {
             throw new \InvalidArgumentException('Author "' . $authorId . '" is not a valid backend user.', 4723563571);
         }
 

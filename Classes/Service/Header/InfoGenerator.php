@@ -160,7 +160,7 @@ class InfoGenerator
      */
     private function getComments(array $record, string $table): array
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
     }
 
     /**
@@ -168,7 +168,7 @@ class InfoGenerator
     */
     private function getCommentsTodoResolved(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table) : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table) : 0;
     }
 
     /**
@@ -176,7 +176,7 @@ class InfoGenerator
     */
     private function getCommentsTodoTotal(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
     }
 
     /**

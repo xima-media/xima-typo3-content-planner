@@ -42,7 +42,7 @@ class AbstractSelectionService
         }
 
         $allStatus = $this->statusRepository->findAll();
-        if ($allStatus === []) {
+        if (count($allStatus) === 0) {
             return false;
         }
 
@@ -65,7 +65,9 @@ class AbstractSelectionService
             $this->addAssigneeItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
             $this->addCommentsItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
 
-            ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS) ? $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid) : null;
+            if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+                $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+            }
         }
 
         $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $selectionEntriesToAdd, $this->getCurrentStatus($record));
@@ -170,7 +172,7 @@ class AbstractSelectionService
     */
     protected function getCommentsTodoResolved(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
     }
 
     /**
@@ -178,7 +180,7 @@ class AbstractSelectionService
     */
     protected function getCommentsTodoTotal(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
     }
 
     protected function getLanguageService(): LanguageService

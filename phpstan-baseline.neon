@@ -13,76 +13,10 @@ parameters:
 			path: Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
 
 		-
-			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
-			identifier: booleanAnd.rightNotBoolean
-			count: 3
-			path: Classes/Domain/Model/Dto/HistoryItem.php
-
-		-
-			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
-			identifier: booleanAnd.rightNotBoolean
-			count: 3
-			path: Classes/Domain/Model/Dto/StatusItem.php
-
-		-
-			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Domain\\Repository\\StatusRepository\:\:findAll\(\) should return TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> but returns list\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\.$#'
-			identifier: return.type
+			message: '#^Return type \(array\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\) of method Xima\\XimaTypo3ContentPlanner\\Domain\\Repository\\StatusRepository\:\:findAll\(\) should be compatible with return type \(TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\) of method TYPO3\\CMS\\Extbase\\Persistence\\Repository\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\:\:findAll\(\)$#'
+			identifier: method.childReturnType
 			count: 1
 			path: Classes/Domain/Repository/StatusRepository.php
-
-		-
-			message: '#^Out of 275 possible return types, only 274 \- 99\.6 %% actually have it\. Add more return types to get over 100 %%$#'
-			identifier: typeCoverage.returnTypeCoverage
-			count: 1
-			path: Classes/Domain/Repository/StatusRepository.php
-
-		-
-			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
-			identifier: booleanAnd.rightNotBoolean
-			count: 1
-			path: Classes/EventListener/ModifyButtonBarEventListener.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> and array\{\} will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: Classes/EventListener/ModifyRecordListRecordActionsListener.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> and array\{\} will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: Classes/EventListener/ModifyRecordListTableActionsListener.php
-
-		-
-			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
-			identifier: booleanAnd.rightNotBoolean
-			count: 1
-			path: Classes/Manager/StatusChangeManager.php
-
-		-
-			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
-			identifier: booleanAnd.rightNotBoolean
-			count: 3
-			path: Classes/Service/Header/InfoGenerator.php
-
-		-
-			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
-			identifier: booleanAnd.rightNotBoolean
-			count: 2
-			path: Classes/Service/SelectionBuilder/AbstractSelectionService.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> and array\{\} will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: Classes/Service/SelectionBuilder/AbstractSelectionService.php
-
-		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
-			count: 1
-			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
 
 		-
 			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\HeaderSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, mixed\>, array\<int\|string, mixed\> given\.$#'
@@ -91,49 +25,13 @@ parameters:
 			path: Classes/Service/SelectionBuilder/HeaderSelectionService.php
 
 		-
-			message: '#^Only booleans are allowed in a negated boolean, mixed given\.$#'
-			identifier: booleanNot.exprNotBoolean
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
-			message: '#^Only booleans are allowed in a ternary operator condition, mixed given\.$#'
-			identifier: ternary.condNotBoolean
-			count: 1
-			path: Classes/Service/SelectionBuilder/ListSelectionService.php
-
-		-
 			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\ListSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, mixed\>, array\<int\|string, mixed\> given\.$#'
 			identifier: parameterByRef.type
 			count: 1
 			path: Classes/Service/SelectionBuilder/ListSelectionService.php
 
 		-
-			message: '#^Only booleans are allowed in &&, mixed given on the right side\.$#'
-			identifier: booleanAnd.rightNotBoolean
-			count: 1
-			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
 			message: '#^Parameter &\$selectionEntriesToAdd by\-ref type of method Xima\\XimaTypo3ContentPlanner\\Service\\SelectionBuilder\\PageTreeSelectionService\:\:addStatusItemToSelection\(\) expects array\<string, mixed\>, array\<int\|string, mixed\> given\.$#'
 			identifier: parameterByRef.type
 			count: 1
 			path: Classes/Service/SelectionBuilder/PageTreeSelectionService.php
-
-		-
-			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Utility\\PlannerUtility\:\:getListOfStatus\(\) should return array\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\> but returns TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\.$#'
-			identifier: return.type
-			count: 1
-			path: Classes/Utility/PlannerUtility.php
-
-		-
-			message: '#^Only booleans are allowed in a negated boolean, mixed given\.$#'
-			identifier: booleanNot.exprNotBoolean
-			count: 1
-			path: Classes/Utility/PlannerUtility.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and 0 will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: Classes/Utility/PlannerUtility.php

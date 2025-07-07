@@ -40,7 +40,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         if ($this->compareStatus($status, $currentStatus)) {
             return;
         }
-        $selectionEntriesToAdd[$status->getUid()] =
+        $selectionEntriesToAdd[(string)$status->getUid()] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
                 htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'])->__toString(), ENT_QUOTES | ENT_HTML5),
@@ -81,7 +81,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        if (!isset($record['tx_ximatypo3contentplanner_assignee']) || !$record['tx_ximatypo3contentplanner_assignee']) {
+        if (!isset($record['tx_ximatypo3contentplanner_assignee']) || !is_numeric($record['tx_ximatypo3contentplanner_assignee']) || $record['tx_ximatypo3contentplanner_assignee'] === 0) {
             return;
         }
         $statusItem = StatusItem::create($record);
@@ -110,7 +110,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
                 UrlHelper::getNewCommentUrl($table, $uid),
                 UrlHelper::getContentStatusPropertiesEditUrl($table, $uid),
                 $this->iconFactory->getIcon('content-message', IconHelper::getDefaultIconSize())->render(),
-                ($record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments')
+                (isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments')
             );
     }
 

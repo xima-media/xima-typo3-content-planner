@@ -33,7 +33,10 @@ class StatusRepository extends Repository
         $this->setDefaultQuerySettings($querySettings);
     }
 
-    public function findAll()
+    /**
+     * @return array<int, Status>
+     */
+    public function findAll(): array
     {
         $cacheIdentifier = sprintf('%s--status--all', Configuration::CACHE_IDENTIFIER);
         if ($this->cache->has($cacheIdentifier)) {
