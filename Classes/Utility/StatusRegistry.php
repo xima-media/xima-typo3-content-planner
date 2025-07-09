@@ -10,6 +10,9 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
 class StatusRegistry
 {
+    /**
+    * @param array<string, mixed> $config
+    */
     public function getStatus(array &$config): void
     {
         $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
@@ -23,6 +26,9 @@ class StatusRegistry
         }
     }
 
+    /**
+    * @param array<string, mixed> $config
+    */
     public function getStatusIcons(array &$config): void
     {
         foreach (Configuration\Icons::STATUS_ICONS as $icon) {
@@ -34,6 +40,9 @@ class StatusRegistry
         }
     }
 
+    /**
+    * @param array<string, mixed> $config
+    */
     public function getStatusColors(array &$config): void
     {
         foreach (Configuration\Colors::STATUS_COLORS as $color) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -30,12 +31,18 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
+    /**
+    * @param array<string|int, mixed> $selectionEntriesToAdd
+    * @param array<int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    * @throws RouteNotFoundException
+    */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         if ($this->compareStatus($status, $currentStatus)) {
             return;
         }
-        $selectionEntriesToAdd[$status->getUid()] =
+        $selectionEntriesToAdd[(string)$status->getUid()] =
             sprintf(
                 '<li><a class="dropdown-item dropdown-item-spaced" href="%s" title="%s">%s%s</a></li>',
                 htmlspecialchars($this->buildUriForStatusChange($table, $uid, $status, $record['pid'])->__toString(), ENT_QUOTES | ENT_HTML5),
@@ -45,11 +52,19 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             );
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = '<li><hr class="dropdown-divider"></li>';
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         $selectionEntriesToAdd['reset'] =
@@ -62,9 +77,13 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             );
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        if (!$record['tx_ximatypo3contentplanner_assignee']) {
+        if (!isset($record['tx_ximatypo3contentplanner_assignee']) || !is_numeric($record['tx_ximatypo3contentplanner_assignee']) || $record['tx_ximatypo3contentplanner_assignee'] === 0) {
             return;
         }
         $statusItem = StatusItem::create($record);
@@ -79,6 +98,8 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
     * @throws Exception
     */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
@@ -91,10 +112,14 @@ class ListSelectionService extends AbstractSelectionService implements Selection
                 UrlHelper::getNewCommentUrl($table, $uid),
                 UrlHelper::getContentStatusPropertiesEditUrl($table, $uid),
                 $this->iconFactory->getIcon('content-message', IconHelper::getDefaultIconSize())->render(),
-                ($record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments')
+                (isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments')
             );
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);

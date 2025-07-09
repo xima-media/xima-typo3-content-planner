@@ -18,14 +18,21 @@ use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 final class HistoryItem
 {
+    /** @var array<string, mixed> */
     public array $data = [];
+
+    /** @var array<string, mixed>|bool|null */
     public array|bool|null $relatedRecord = [];
 
+    /**
+    * @param array<string, mixed> $sysHistoryRow
+    * @return static
+    */
     public static function create(array $sysHistoryRow): static
     {
         $item = new self();
         $item->data = $sysHistoryRow;
-        $item->data['raw_history'] = $sysHistoryRow['history_data'] ? json_decode($sysHistoryRow['history_data'], true) : null;
+        $item->data['raw_history'] = isset($sysHistoryRow['history_data']) && is_string($sysHistoryRow['history_data']) && $sysHistoryRow['history_data'] !== '' ? json_decode($sysHistoryRow['history_data'], true) : null;
 
         return $item;
     }
@@ -62,6 +69,9 @@ final class HistoryItem
         return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['relatedRecordTablename']), $this->getRelatedRecord());
     }
 
+    /**
+    * @return array<string, mixed>|bool
+    */
     public function getRelatedRecord(): array|bool
     {
         if ($this->relatedRecord === [] || $this->relatedRecord === false) {
@@ -132,7 +142,7 @@ final class HistoryItem
 
     public function getUser(): string
     {
-        return $this->data['realName'] ? $this->data['realName'] . ' (' . $this->data['username'] . ')' : $this->data['username'];
+        return isset($this->data['realName']) && is_string($this->data['realName']) && $this->data['realName'] !== '' ? $this->data['realName'] . ' (' . $this->data['username'] . ')' : $this->data['username'];
     }
 
     public function getChangeTypeIcon(): string
@@ -156,9 +166,12 @@ final class HistoryItem
         return IconHelper::getIconByIdentifier('actions-open');
     }
 
+    /**
+    * @return array<string, mixed>|null
+    */
     public function getRawHistoryData(): ?array
     {
-        return $this->data['history_data'] ? json_decode($this->data['history_data'], true) : null;
+        return isset($this->data['history_data']) && is_string($this->data['history_data']) && $this->data['history_data'] !== '' ? json_decode($this->data['history_data'], true) : null;
     }
 
     public function getHistoryData(): string|bool

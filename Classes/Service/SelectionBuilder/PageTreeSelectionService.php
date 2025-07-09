@@ -27,23 +27,37 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
+    /**
+    * @param array<string|int, mixed> $selectionEntriesToAdd
+    * @param array<int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         if ($this->compareStatus($status, $currentStatus)) {
             return;
         }
-        $selectionEntriesToAdd[$status->getUid()] = [
+        $selectionEntriesToAdd[(string)$status->getUid()] = [
             'label' => $status->getTitle(),
             'iconIdentifier' => $status->getColoredIcon(),
             'callbackAction' => 'change',
         ];
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param string|null             $additionalPostIdentifier
+    */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = ['type' => 'divider'];
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         $selectionEntriesToAdd['reset'] = [
@@ -54,6 +68,8 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
     * @throws Exception
     */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
@@ -71,17 +87,23 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
     * @throws Exception
     */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $selectionEntriesToAdd['comments'] = [
-            'label' => ($record['tx_ximatypo3contentplanner_comments'] ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
+            'label' => (isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
             'iconIdentifier' => 'actions-message',
             'callbackAction' => 'comments',
         ];
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);

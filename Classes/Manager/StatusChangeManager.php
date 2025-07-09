@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Manager;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -23,6 +24,12 @@ class StatusChangeManager
     ) {
     }
 
+    /**
+    * @param array<string, mixed> $incomingFieldArray
+    * @param string $table
+    * @param int $id
+    * @throws Exception
+    */
     public function processContentPlannerFields(array &$incomingFieldArray, $table, $id): void
     {
         if (!isset($incomingFieldArray['tx_ximatypo3contentplanner_status'])) {
@@ -56,8 +63,8 @@ class StatusChangeManager
         }
 
         if ($this->isStatusFieldChanged($incomingFieldArray, $preRecord)) {
-            $previousStatus = $preRecord['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus($preRecord['tx_ximatypo3contentplanner_status']) : null;
-            $newStatus = $incomingFieldArray['tx_ximatypo3contentplanner_status'] ? ContentUtility::getStatus((int)$incomingFieldArray['tx_ximatypo3contentplanner_status']) : null;
+            $previousStatus = isset($preRecord['tx_ximatypo3contentplanner_status']) && is_numeric($preRecord['tx_ximatypo3contentplanner_status']) && $preRecord['tx_ximatypo3contentplanner_status'] > 0 ? ContentUtility::getStatus($preRecord['tx_ximatypo3contentplanner_status']) : null;
+            $newStatus = isset($incomingFieldArray['tx_ximatypo3contentplanner_status']) && is_numeric($incomingFieldArray['tx_ximatypo3contentplanner_status']) && $incomingFieldArray['tx_ximatypo3contentplanner_status'] > 0 ? ContentUtility::getStatus((int)$incomingFieldArray['tx_ximatypo3contentplanner_status']) : null;
             $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus));
 
             if ($incomingFieldArray['tx_ximatypo3contentplanner_status'] === null && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET)) {
@@ -89,6 +96,9 @@ class StatusChangeManager
         $queryBuilder->executeQuery();
     }
 
+    /**
+    * @param array<string, mixed> $incomingFieldArray
+    */
     private function nullableField(array &$incomingFieldArray, string $field): void
     {
         if (array_key_exists($field, $incomingFieldArray) && ($incomingFieldArray[$field] === '' || $incomingFieldArray[$field] === 0)) {
@@ -96,6 +106,10 @@ class StatusChangeManager
         }
     }
 
+    /**
+    * @param array<string, mixed> $incomingFieldArray
+    * @param array<string, mixed>|bool $preRecord
+    */
     private function isStatusFieldChanged(array $incomingFieldArray, array|bool $preRecord): bool
     {
         if (!is_array($preRecord)) {

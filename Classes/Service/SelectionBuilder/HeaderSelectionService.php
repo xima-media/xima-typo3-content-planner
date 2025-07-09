@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownDivider;
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItem;
@@ -32,6 +33,12 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
     }
 
+    /**
+    * @param array<string|int, mixed> $selectionEntriesToAdd
+    * @param array<int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    * @throws RouteNotFoundException
+    */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         if ($this->compareStatus($status, $currentStatus)) {
@@ -42,14 +49,23 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
             ->setLabel($status->getTitle())
             ->setIcon($this->iconFactory->getIcon($status->getColoredIcon()))
             ->setHref($this->buildUriForStatusChange($table, $uid, $status)->__toString());
-        $selectionEntriesToAdd[$status->getUid()] = $statusDropDownItem;
+        $selectionEntriesToAdd[(string)$status->getUid()] = $statusDropDownItem;
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = GeneralUtility::makeInstance(DropDownDivider::class);
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    * @throws RouteNotFoundException
+    */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         /** @var DropDownItem $statusDropDownItem */
@@ -60,6 +76,10 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $username = $this->backendUserRepository->getUsernameByUid((int)$record['tx_ximatypo3contentplanner_assignee']);
@@ -75,16 +95,24 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
-            ->setLabel(($record['tx_ximatypo3contentplanner_comments'] ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'))
+            ->setLabel((isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ?  $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'))
             ->setIcon($this->iconFactory->getIcon('actions-message'))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['comments'] = $commentsDropDownItem;
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);

@@ -16,10 +16,18 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
     {
     }
 
+    /** @var string[] */
     protected array $labels = [];
+
+    /** @var int[] */
     protected array $data = [];
+
+    /** @var string[] */
     protected array $colors = [];
 
+    /**
+    * @return array<string, mixed>
+    */
     public function getChartData(): array
     {
         $this->calculateStatusCounts();

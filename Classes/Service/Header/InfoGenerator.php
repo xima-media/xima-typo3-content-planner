@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\Header;
 
+use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -57,6 +59,10 @@ class InfoGenerator
         );
     }
 
+    /**
+    * @param array<string, mixed> $record
+    * @throws RouteNotFoundException
+    */
     private function renderStatusHeaderContentView(HeaderMode $mode, array $record, string $table, Status $status): string
     {
         // @ToDo: StandaloneView is deprecated and should be replaced with FluidView in TYPO3 v13
@@ -97,6 +103,9 @@ class InfoGenerator
         return $content;
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     private function getAssigneeUsername(array $record): string
     {
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
@@ -105,6 +114,9 @@ class InfoGenerator
         return $this->getBackendUserRepository()->getUsernameByUid((int)$record['tx_ximatypo3contentplanner_assignee']);
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     private function getAssignedToCurrentUser(array $record): bool
     {
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record) || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
@@ -113,6 +125,9 @@ class InfoGenerator
         return (int)$record['tx_ximatypo3contentplanner_assignee'] === $GLOBALS['BE_USER']->user['uid'];
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     public static function checkAssignToCurrentUser(array $record): bool
     {
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record) || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
@@ -123,6 +138,9 @@ class InfoGenerator
             || (int)$record['tx_ximatypo3contentplanner_assignee'] !== (int)$GLOBALS['BE_USER']->user['uid'];
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     public static function checkUnassign(array $record): bool
     {
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
@@ -135,21 +153,35 @@ class InfoGenerator
         return false;
     }
 
+    /**
+    * @param array<string, mixed> $record
+    * @return array<int, array<string, mixed>>
+    * @throws Exception
+    */
     private function getComments(array $record, string $table): array
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     private function getCommentsTodoResolved(array $record, string $table): int
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table) : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table) : 0;
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     private function getCommentsTodoTotal(array $record, string $table): int
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     private function getPid(array $record, string $table): ?int
     {
         if ($table === 'pages') {
@@ -161,6 +193,11 @@ class InfoGenerator
         return null;
     }
 
+    /**
+    * @param array<string, mixed> $record
+    * @return array<int, array<string, mixed>>|null
+    * @throws Exception
+    */
     private function getContentElements(array $record, string $table): ?array
     {
         return ExtensionUtility::isRegisteredRecordTable('tt_content') && $table === 'pages' ? $this->getRecordRepository()->findByPid('tt_content', $record['uid'], false) : null;

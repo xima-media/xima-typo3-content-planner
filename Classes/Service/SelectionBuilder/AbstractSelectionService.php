@@ -7,6 +7,7 @@ namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
@@ -31,7 +32,8 @@ class AbstractSelectionService
     }
 
     /**
-    * @throws NotImplementedException
+    * @return array<string, mixed>|bool
+    * @throws NotImplementedException|Exception
     */
     public function generateSelection(string $table, int $uid): array|bool
     {
@@ -40,7 +42,7 @@ class AbstractSelectionService
         }
 
         $allStatus = $this->statusRepository->findAll();
-        if ($allStatus === []) {
+        if (count($allStatus) === 0) {
             return false;
         }
 
@@ -63,7 +65,9 @@ class AbstractSelectionService
             $this->addAssigneeItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
             $this->addCommentsItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
 
-            ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS) ? $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid) : null;
+            if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+                $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+            }
         }
 
         $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $selectionEntriesToAdd, $this->getCurrentStatus($record));
@@ -83,6 +87,7 @@ class AbstractSelectionService
     }
 
     /**
+    * @return array<string, mixed>|bool|null
     * @throws Exception
     */
     protected function getCurrentRecord(string $table, int $uid): array|bool|null
@@ -90,9 +95,12 @@ class AbstractSelectionService
         return $this->recordRepository->findByUid($table, $uid, true);
     }
 
+    /**
+    * @param array<string, mixed>|bool|null $record
+    */
     protected function getCurrentStatus(array|bool|null $record = null): int|null
     {
-        return $record ? $record['tx_ximatypo3contentplanner_status'] : null;
+        return is_array($record) ? $record['tx_ximatypo3contentplanner_status'] : null;
     }
 
     protected function compareStatus(Status $status, Status|int|null $currentStatus): bool
@@ -108,6 +116,10 @@ class AbstractSelectionService
         return $status->getUid() === $currentStatus;
     }
 
+    /**
+    * @param array<int, int>|int $uid
+    * @throws RouteNotFoundException
+    */
     protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status, ?int $pid = null): UriInterface
     {
         /** @var ServerRequestInterface $request */
@@ -155,14 +167,20 @@ class AbstractSelectionService
         );
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     protected function getCommentsTodoResolved(array $record, string $table): int
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
     }
 
+    /**
+    * @param array<string, mixed> $record
+    */
     protected function getCommentsTodoTotal(array $record, string $table): int
     {
-        return $record['tx_ximatypo3contentplanner_comments'] ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
     }
 
     protected function getLanguageService(): LanguageService
@@ -170,31 +188,62 @@ class AbstractSelectionService
         return $GLOBALS['LANG'];
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    * @throws NotImplementedException
+    */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960485);
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    * @throws NotImplementedException
+    */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960486);
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    * @throws NotImplementedException
+    */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960487);
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    * @throws NotImplementedException
+    */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960488);
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    * @throws NotImplementedException
+    */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960489);
     }
 
+    /**
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @throws NotImplementedException
+    */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960490);

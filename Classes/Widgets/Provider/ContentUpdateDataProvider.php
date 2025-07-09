@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -14,11 +15,20 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
     public function __construct(private readonly ConnectionPool $connectionPool)
     {
     }
+
+    /**
+    * @return HistoryItem[]
+    * @throws Exception
+    */
     public function getItems(): array
     {
         return $this->fetchUpdateData(maxItems: 15);
     }
 
+    /**
+    * @return HistoryItem[]
+    * @throws \Doctrine\DBAL\Exception
+    */
     public function fetchUpdateData(?int $beUser = null, ?int $tstamp = null, ?int $maxItems = null): array
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('sys_history');

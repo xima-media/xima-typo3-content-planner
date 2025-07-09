@@ -17,10 +17,17 @@ use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 final class StatusItem
 {
+    /** @var array<string, mixed> */
     public array $data = [];
+
     public ?Status $status = null;
+
     private ?CommentRepository $commentRepository = null;
 
+    /**
+    * @param array<string, mixed> $row
+    * @return static
+    */
     public static function create(array $row): static
     {
         $item = new self();
@@ -80,7 +87,7 @@ final class StatusItem
 
     public function getCommentsHtml(): string
     {
-        return $this->data['tx_ximatypo3contentplanner_comments'] ? sprintf(
+        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? sprintf(
             '%s <span class="badge">%d</span>',
             IconHelper::getIconByIdentifier('actions-message'),
             $this->data['tx_ximatypo3contentplanner_comments']
@@ -119,7 +126,7 @@ final class StatusItem
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
             return 0;
         }
-        return $this->data['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
+        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
     }
 
     public function getToDoTotal(): int
@@ -127,9 +134,12 @@ final class StatusItem
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
             return 0;
         }
-        return $this->data['tx_ximatypo3contentplanner_comments'] ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
     }
 
+    /**
+    * @return array<string, mixed>
+    */
     public function toArray(): array
     {
         return [

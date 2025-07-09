@@ -21,7 +21,7 @@ class PlannerUtility
     * Simple function to get a list of all available status.
     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getListOfStatus();
     *
-    * @return array
+    * @return Status[]
     */
     public static function getListOfStatus(): array
     {
@@ -107,7 +107,7 @@ class PlannerUtility
     * @param string $table
     * @param int $uid
     * @param bool $raw
-    * @return array
+    * @return array<int, array<string, mixed>>|array<int, \Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem>
     * @throws Exception
     */
     public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false): array
@@ -135,10 +135,11 @@ class PlannerUtility
             $authorId = $author->getUid();
         } elseif (is_string($author)) {
             $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
-            $authorId = $backendUserRepository->findByUsername($author)['uid'];
+            $user = $backendUserRepository->findByUsername($author);
+            $authorId = is_array($user) && isset($user['uid']) ? (int)$user['uid'] : null;
         }
 
-        if (!$authorId) {
+        if (!is_int($authorId) || $authorId === 0) {
             throw new \InvalidArgumentException('Author "' . $authorId . '" is not a valid backend user.', 4723563571);
         }
 
@@ -173,7 +174,7 @@ class PlannerUtility
     * Simple function to generate the html todo markup for a comment to easily insert them into the comment content.
     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::generateTodoForComment(['First todo', 'Second todo']);
     *
-    * @param array $todos
+    * @param string[] $todos
     * @return string
     */
     public static function generateTodoForComment(array $todos): string
@@ -208,12 +209,10 @@ class PlannerUtility
     }
 
     /**
-    * @param string $table
-    * @param int $uid
-    * @return array|bool
+    * @return array<string, mixed>
     * @throws Exception
     */
-    private static function preCheckRecordTable(string $table, int $uid): array|bool
+    private static function preCheckRecordTable(string $table, int $uid): array
     {
         if (!ExtensionUtility::isRegisteredRecordTable($table)) {
             throw new \InvalidArgumentException('Table "' . $table . '" is not a valid content planner record table.', 9518991865);

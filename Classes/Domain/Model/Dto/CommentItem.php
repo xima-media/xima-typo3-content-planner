@@ -14,10 +14,18 @@ use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 final class CommentItem
 {
+    /** @var array<string, mixed> */
     public array $data = [];
+
+    /** @var array<string, mixed>|bool */
     public array|bool $relatedRecord = [];
+
     public ?Status $status = null;
 
+    /**
+    * @param array<string, mixed> $row
+    * @return static
+    */
     public static function create(array $row): static
     {
         $item = new self();
@@ -31,6 +39,9 @@ final class CommentItem
         return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['foreign_table']), $this->getRelatedRecord());
     }
 
+    /**
+    * @return array<string, mixed>|bool
+    */
     public function getRelatedRecord(): array|bool
     {
         if ($this->relatedRecord === [] || $this->relatedRecord === false) {

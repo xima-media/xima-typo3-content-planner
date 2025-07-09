@@ -40,6 +40,9 @@ class DiffUtility
         return sprintf(self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf:timeAgo.seconds'), $interval->s);
     }
 
+    /**
+    * @param array<string, mixed>|null $data
+    */
     public static function checkCommendDiff(?array $data, int $actiontype): string|bool
     {
         if ($data !== null && $data !== [] && array_key_exists('newRecord', $data) && array_key_exists('resolved_date', $data['newRecord'])) {
@@ -52,6 +55,9 @@ class DiffUtility
         return self::getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:history.comment.' . $actiontype);
     }
 
+    /**
+    * @param array<string, mixed> $data
+    */
     public static function checkRecordDiff(array $data, int $actiontype): string|bool
     {
         $diff = [];

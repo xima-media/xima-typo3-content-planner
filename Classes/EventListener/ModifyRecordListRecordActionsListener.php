@@ -39,7 +39,7 @@ final class ModifyRecordListRecordActionsListener
         }
 
         $allStatus = $this->statusRepository->findAll();
-        if ($allStatus === []) {
+        if (count($allStatus) === 0) {
             return;
         }
 

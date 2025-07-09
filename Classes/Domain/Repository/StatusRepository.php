@@ -12,6 +12,9 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
+/**
+* @extends Repository<Status>
+*/
 class StatusRepository extends Repository
 {
     public function __construct(private readonly FrontendInterface $cache)
@@ -30,7 +33,11 @@ class StatusRepository extends Repository
         $this->setDefaultQuerySettings($querySettings);
     }
 
-    public function findAll(): array  // @phpstan-ignore-line
+    /**
+    * @return array<int, Status>
+    * @phpstan-ignore-next-line property.phpDocType
+    */
+    public function findAll(): array
     {
         $cacheIdentifier = sprintf('%s--status--all', Configuration::CACHE_IDENTIFIER);
         if ($this->cache->has($cacheIdentifier)) {
@@ -52,22 +59,29 @@ class StatusRepository extends Repository
 
         $query = $this->createQuery();
         $query->matching($query->equals('uid', $uid));
+        /** @var Status|null $result */
         $result = $query->execute()->getFirst();
 
         if ($result === null) {
             return null;
         }
         $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags([$result]));
-        return $result; // @phpstan-ignore return.type
+        return $result;
     }
 
     public function findByTitle(string $title): ?Status
     {
         $query = $this->createQuery();
         $query->matching($query->equals('title', $title));
-        return $query->execute()->getFirst(); // @phpstan-ignore return.type
+        /** @var Status|null $result */
+        $result = $query->execute()->getFirst();
+        return $result;
     }
 
+    /**
+    * @param Status[] $data
+    * @return string[]
+    */
     private function collectCacheTags(array $data): array
     {
         $tags = [];
