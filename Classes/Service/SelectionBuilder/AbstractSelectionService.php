@@ -34,7 +34,7 @@ class AbstractSelectionService
     /**
     * @return array<string, mixed>|bool
     * @throws NotImplementedException|Exception
-     */
+    */
     public function generateSelection(string $table, int $uid): array|bool
     {
         if (!$this->shouldGenerateSelection($table)) {
@@ -118,8 +118,8 @@ class AbstractSelectionService
 
     /**
     * @param array<int, int>|int $uid
-     * @throws RouteNotFoundException
-     */
+    * @throws RouteNotFoundException
+    */
     protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status, ?int $pid = null): UriInterface
     {
         /** @var ServerRequestInterface $request */
@@ -189,61 +189,61 @@ class AbstractSelectionService
     }
 
     /**
-     * @param array<string, mixed> $selectionEntriesToAdd
-     * @param array<int, int>|int|null $uid
-     * @param array<string, mixed>|null $record
-     * @throws NotImplementedException
-     */
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    * @throws NotImplementedException
+    */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960485);
     }
 
     /**
-     * @param array<string, mixed> $selectionEntriesToAdd
-     * @param array<int, int>|int|null $uid
-     * @param array<string, mixed>|null $record
-     * @throws NotImplementedException
-     */
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    * @throws NotImplementedException
+    */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960486);
     }
 
     /**
-     * @param array<string, mixed> $selectionEntriesToAdd
-     * @param array<string, mixed> $record
-     * @throws NotImplementedException
-     */
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    * @throws NotImplementedException
+    */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960487);
     }
 
     /**
-     * @param array<string, mixed> $selectionEntriesToAdd
-     * @param array<string, mixed> $record
-     * @throws NotImplementedException
-     */
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    * @throws NotImplementedException
+    */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960488);
     }
 
     /**
-     * @param array<string, mixed> $selectionEntriesToAdd
-     * @param array<string, mixed> $record
-     * @throws NotImplementedException
-     */
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string, mixed> $record
+    * @throws NotImplementedException
+    */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960489);
     }
 
     /**
-     * @param array<string, mixed> $selectionEntriesToAdd
-     * @throws NotImplementedException
-     */
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @throws NotImplementedException
+    */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960490);

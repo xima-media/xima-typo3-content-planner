@@ -28,7 +28,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string|int, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
     * @param array<string, mixed>|null $record
     */

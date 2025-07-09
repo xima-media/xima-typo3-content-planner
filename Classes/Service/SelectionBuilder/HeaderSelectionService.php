@@ -34,9 +34,10 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     }
 
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string|int, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
     * @param array<string, mixed>|null $record
+    * @throws RouteNotFoundException
     */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
@@ -60,11 +61,11 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
     }
 
     /**
-     * @param array<string, mixed> $selectionEntriesToAdd
-     * @param array<int, int>|int|null $uid
-     * @param array<string, mixed>|null $record
-     * @throws RouteNotFoundException
-     */
+    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<int, int>|int|null $uid
+    * @param array<string, mixed>|null $record
+    * @throws RouteNotFoundException
+    */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
         /** @var DropDownItem $statusDropDownItem */

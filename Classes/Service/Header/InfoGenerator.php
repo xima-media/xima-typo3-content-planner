@@ -61,8 +61,8 @@ class InfoGenerator
 
     /**
     * @param array<string, mixed> $record
-     * @throws RouteNotFoundException
-     */
+    * @throws RouteNotFoundException
+    */
     private function renderStatusHeaderContentView(HeaderMode $mode, array $record, string $table, Status $status): string
     {
         // @ToDo: StandaloneView is deprecated and should be replaced with FluidView in TYPO3 v13
@@ -154,10 +154,10 @@ class InfoGenerator
     }
 
     /**
-     * @param array<string, mixed> $record
-     * @return array<int, array<string, mixed>>
-     * @throws Exception
-     */
+    * @param array<string, mixed> $record
+    * @return array<int, array<string, mixed>>
+    * @throws Exception
+    */
     private function getComments(array $record, string $table): array
     {
         return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
@@ -194,10 +194,10 @@ class InfoGenerator
     }
 
     /**
-     * @param array<string, mixed> $record
-     * @return array<int, array<string, mixed>>|null
-     * @throws Exception
-     */
+    * @param array<string, mixed> $record
+    * @return array<int, array<string, mixed>>|null
+    * @throws Exception
+    */
     private function getContentElements(array $record, string $table): ?array
     {
         return ExtensionUtility::isRegisteredRecordTable('tt_content') && $table === 'pages' ? $this->getRecordRepository()->findByPid('tt_content', $record['uid'], false) : null;

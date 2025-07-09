@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Backend\ContextMenu\ItemProviders;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\ContextMenu\ItemProviders\AbstractProvider;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -24,6 +25,10 @@ class StatusItemProvider extends AbstractProvider
         parent::__construct();
     }
 
+    /**
+    * @var array<string, mixed>
+    * @phpstan-ignore-next-line property.phpDocType
+    */
     protected $itemsConfiguration = [
         'wrap' => [
             'type' => 'submenu',
@@ -60,8 +65,10 @@ class StatusItemProvider extends AbstractProvider
     }
 
     /**
+    * @param array<string, mixed> $items
     * @return array<string, mixed>
-    * @throws NotImplementedException
+    * @throws NotImplementedException|Exception
+    * @phpstan-ignore-next-line property.phpDocType
     */
     public function addItems(array $items): array
     {

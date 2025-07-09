@@ -33,9 +33,9 @@ class ContentStatusDataProvider implements ListDataProviderInterface
     }
 
     /**
-     * @return array<int, array<string, mixed>>
-     * @throws Exception
-     */
+    * @return array<int, array<string, mixed>>
+    * @throws Exception
+    */
     public function getUsers(): array
     {
         return $this->backendUserRepository->findAll();

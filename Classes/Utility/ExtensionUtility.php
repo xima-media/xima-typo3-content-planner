@@ -133,9 +133,9 @@ class ExtensionUtility
     }
 
     /**
-     * @param array<string, mixed> $attributes
-     * @throws InvalidFileException
-     */
+    * @param array<string, mixed> $attributes
+    * @throws InvalidFileException
+    */
     public static function getCssTag(string $cssFileLocation, array $attributes): string
     {
         return sprintf(
@@ -151,8 +151,8 @@ class ExtensionUtility
 
     /**
     * @param array<string, mixed> $attributes
-     * @throws InvalidFileException
-     */
+    * @throws InvalidFileException
+    */
     public static function getJsTag(string $jsFileLocation, array $attributes): string
     {
         return sprintf(

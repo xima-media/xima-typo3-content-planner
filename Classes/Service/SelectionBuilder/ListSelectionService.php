@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -31,9 +32,10 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     }
 
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
+    * @param array<string|int, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
     * @param array<string, mixed>|null $record
+    * @throws RouteNotFoundException
     */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
     {
