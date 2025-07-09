@@ -9,8 +9,8 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 interface SelectionInterface
 {
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
-    * @param array<int,int>|int|null $uid
+    * @param array<string|int, mixed> $selectionEntriesToAdd
+    * @param array<int>|int|null $uid
     * @param array<string, mixed>|null $record
     */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void;

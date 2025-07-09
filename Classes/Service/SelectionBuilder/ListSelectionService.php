@@ -33,7 +33,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
 
     /**
     * @param array<string|int, mixed> $selectionEntriesToAdd
-    * @param array<int, int>|int|null $uid
+    * @param array<int>|int|null $uid
     * @param array<string, mixed>|null $record
     * @throws RouteNotFoundException
     */

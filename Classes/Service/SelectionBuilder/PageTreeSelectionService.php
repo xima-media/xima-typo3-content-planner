@@ -29,7 +29,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
 
     /**
     * @param array<string|int, mixed> $selectionEntriesToAdd
-    * @param array<int, int>|int|null $uid
+    * @param array<int>|int|null $uid
     * @param array<string, mixed>|null $record
     */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
@@ -46,6 +46,7 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
 
     /**
     * @param array<string, mixed> $selectionEntriesToAdd
+    * @param string|null             $additionalPostIdentifier
     */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
