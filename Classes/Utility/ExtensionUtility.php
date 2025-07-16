@@ -102,11 +102,12 @@ class ExtensionUtility
     */
     public static function getRecordTables(): array
     {
-        return array_merge(
-            ['pages'],
-            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]
-                ['registerAdditionalRecordTables']
+        $additionalTables = (array)(
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']
+                ?? []
         );
+
+        return array_merge(['pages'], $additionalTables);
     }
 
     public static function isRegisteredRecordTable(string $table): bool
