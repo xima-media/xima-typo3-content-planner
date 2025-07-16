@@ -57,7 +57,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
             ->orderBy('h.tstamp', 'DESC');
 
         if ((bool)$maxItems) {
-            $query->setMaxResults($maxItems*2);
+            $query->setMaxResults($maxItems * 2);
         }
 
         if ((bool)$tstamp) {
