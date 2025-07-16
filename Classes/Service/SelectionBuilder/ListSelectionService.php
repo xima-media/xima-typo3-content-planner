@@ -34,12 +34,12 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     /**
     * @param array<string|int, mixed> $selectionEntriesToAdd
     * @param array<int>|int|null $uid
-    * @param array<string, mixed>|null $record
+    * @param array<string, mixed>|bool|null $record
     * @throws RouteNotFoundException
     */
-    public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
+    public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
     {
-        if ($this->compareStatus($status, $currentStatus)) {
+        if ($this->compareStatus($status, $currentStatus) || !is_array($record)) {
             return;
         }
         $selectionEntriesToAdd[(string)$status->getUid()] =
@@ -63,9 +63,10 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     /**
     * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<int, int>|int|null $uid
-    * @param array<string, mixed>|null $record
+    * @param array<string, mixed>|bool|null $record
+    * @throws RouteNotFoundException
     */
-    public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, ?array $record = null): void
+    public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
     {
         $selectionEntriesToAdd['reset'] =
             sprintf(
@@ -80,6 +81,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     /**
     * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
+    * @throws RouteNotFoundException
     */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
@@ -100,7 +102,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     /**
     * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
-    * @throws Exception
+    * @throws Exception|RouteNotFoundException
     */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
@@ -119,6 +121,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     /**
     * @param array<string, mixed> $selectionEntriesToAdd
     * @param array<string, mixed> $record
+    * @throws RouteNotFoundException
     */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
