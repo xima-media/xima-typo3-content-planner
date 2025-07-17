@@ -109,7 +109,7 @@
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.assignee">
 				<source/>
-				<target>Aktuell sind dir %s Content Planner Datensätze zugewiesen.</target>
+				<target><![CDATA[Aktuell sind dir <span class="badge">0</span> Content Planner Datensätze zugewiesen.]]></target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.todo">
 				<source/>

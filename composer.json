@@ -36,12 +36,11 @@
 		"friendsofphp/php-cs-fixer": "^3.52",
 		"helhum/typo3-console": "^8.1",
 		"helmich/typo3-typoscript-lint": "^3.2",
-		"move-elevator/composer-translation-validator": "^0.5.0",
+		"move-elevator/composer-translation-validator": "^1.0.0",
 		"phpstan/phpstan-deprecation-rules": "^2.0",
 		"phpstan/phpstan-strict-rules": "^2.0",
 		"roave/security-advisories": "dev-latest",
 		"saschaegerer/phpstan-typo3": "^1.10 || ^2.0",
-		"shipmonk/composer-dependency-analyser": "^1.8",
 		"spaze/phpstan-disallowed-calls": "^4.0",
 		"ssch/typo3-rector": "^2.10 || ^3.0",
 		"symfony/translation": "^6.3 || ^7.0",
@@ -75,22 +74,6 @@
 		}
 	},
 	"scripts": {
-		"check": [
-			"@composer:normalize:check",
-			"@composer:dependencies:check",
-			"@editorconfig:lint:check",
-			"@language:lint:check",
-			"@php:lint:check",
-			"@yaml:lint:check",
-			"@xml:lint:check",
-			"@typoscript:lint:check",
-			"@php:stan:check",
-			"@php:rector:check",
-			"@php:fixer:check"
-		],
-		"composer:dependencies:check": "composer-dependency-analyser",
-		"composer:normalize": "@composer normalize --no-check-lock",
-		"composer:normalize:check": "@composer normalize --no-check-lock --dry-run",
 		"docs": [
 			"@docs:cleanup",
 			"@docs:build",
@@ -99,34 +82,35 @@
 		"docs:build": "docker compose run --rm docs",
 		"docs:cleanup": "rm -rf .Build/docs",
 		"docs:open": "open .Build/docs/Index.html",
-		"editorconfig:lint": "ec --strict --fix --git-only -n",
-		"editorconfig:lint:check": "ec --strict --git-only -n",
 		"fix": [
-			"@composer:normalize",
-			"@editorconfig:lint",
-			"@language:lint",
-			"@php:fixer",
-			"@yaml:lint",
-			"@xml:lint",
-			"@typoscript:lint",
-			"@php:stan",
-			"@php:rector"
+			"@fix:composer",
+			"@fix:editorconfig",
+			"@fix:php"
 		],
-		"language:lint": "@composer validate-translations ./Resources/Private/Language -v",
-		"language:lint:check": "@composer validate-translations ./Resources/Private/Language",
-		"php:fixer": "php vendor/bin/php-cs-fixer --config=php-cs-fixer.php fix",
-		"php:fixer:check": "php vendor/bin/php-cs-fixer --config=php-cs-fixer.php fix --dry-run --format=checkstyle > php-cs-fixer.xml || true",
-		"php:lint": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path './.Build/*' ! -path './xima_typo3_content_planner/*' ! -path '*node_modules/*' -print0 | xargs -0 -n 1 -P 4 php -l",
-		"php:lint:check": "find *.php . -name '*.php' ! -path './vendor/*'  ! -path './var/*' ! -path './.Build/*' ! -path './xima_typo3_content_planner/*' ! -path '*node_modules/*' -print0 | xargs -0 -n 1 -P 4 php -l",
-		"php:rector": "rector",
-		"php:rector:check": "rector --dry-run",
-		"php:stan": "php vendor/bin/phpstan --generate-baseline=phpstan-baseline.neon --allow-empty-baseline --memory-limit=2G -vvv",
-		"php:stan:check": "php vendor/bin/phpstan --no-progress --error-format=checkstyle > phpstan.xml || true",
-		"typoscript:lint": "typoscript-lint",
-		"typoscript:lint:check": "typoscript-lint --fail-on-warnings",
-		"xml:lint": "find . -name '*.xlf' ! -path './vendor/*' ! -path './var/*' ! -path './.Build/*' ! -path './xima_typo3_content_planner/*' | xargs -r xmllint --schema vendor/symfony/translation/Resources/schemas/xliff-core-1.2-transitional.xsd --noout",
-		"xml:lint:check": "find ./ -name '*.xlf' ! -path './vendor/*' ! -path './var/*' ! -path './.Build/*' ! -path './xima_typo3_content_planner/*' | xargs -r xmllint --schema vendor/symfony/translation/Resources/schemas/xliff-core-1.2-transitional.xsd --noout",
-		"yaml:lint": "find ./ ! -path './vendor/*' ! -path '*/node_modules/*' ! -path './.Build/*' ! -path './xima_typo3_content_planner/*' \\( -name '*.yaml' -o -name '*.yml' \\) | xargs -r yaml-lint",
-		"yaml:lint:check": "find ./ ! -path './vendor/*' ! -path '*/node_modules/*' ! -path './.Build/*' ! -path './xima_typo3_content_planner/*' \\( -name '*.yaml' -o -name '*.yml' \\) | xargs -r yaml-lint"
+		"fix:composer": "@composer normalize",
+		"fix:editorconfig": "@lint:editorconfig --fix",
+		"fix:php": "php vendor/bin/php-cs-fixer --config=php-cs-fixer.php fix",
+		"lint": [
+			"@lint:composer",
+			"@lint:editorconfig",
+			"@lint:language",
+			"@lint:php",
+			"@lint:typoscript",
+			"@lint:yaml"
+		],
+		"lint:composer": "@fix:composer --dry-run",
+		"lint:editorconfig": "ec --git-only",
+		"lint:language": "@composer validate-translations ./Resources/Private/Language",
+		"lint:php": "@fix:php --dry-run",
+		"lint:typoscript": "typoscript-lint --fail-on-warnings",
+		"lint:yaml": "find ./ ! -path './vendor/*' ! -path '*/node_modules/*' ! -path './.Build/*' ! -path './xima_typo3_content_planner/*' \\( -name '*.yaml' -o -name '*.yml' \\) | xargs -r yaml-lint",
+		"migration": [
+			"@migration:rector"
+		],
+		"migration:rector": "rector process -c rector.php",
+		"sca": [
+			"@sca:php"
+		],
+		"sca:php": "phpstan analyse --memory-limit=2G"
 	}
 }
