@@ -6,8 +6,9 @@
 
 [![Latest Stable Version](https://typo3-badges.dev/badge/xima_typo3_content_planner/version/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
 [![Supported TYPO3 versions](https://typo3-badges.dev/badge/xima_typo3_content_planner/typo3/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
-[![CGL](https://img.shields.io/github/actions/workflow/status/xima/xima-typo3-content-planner/cgl.yml?label=cgl&logo=github)](https://github.com/xima/xima-typo3-content-planner/actions/workflows/cgl.yml)
-[![Tests](https://img.shields.io/github/actions/workflow/status/xima/xima-typo3-content-planner/tests.yml?label=tests&logo=github)](https://github.com/xima/xima-typo3-content-planner/actions/workflows/tests.yml)
+[![Supported PHP Versions](https://img.shields.io/packagist/dependency-v/xima/xima-typo3-content-planner/php?logo=php)](https://packagist.org/packages/xima/xima-typo3-content-planner)
+[![CGL](https://img.shields.io/github/actions/workflow/status/xima-media/xima-typo3-content-planner/cgl.yml?label=cgl&logo=github)](https://github.com/xima-media/xima-typo3-content-planner/actions/workflows/cgl.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/xima-media/xima-typo3-content-planner/tests.yml?label=tests&logo=github)](https://github.com/xima-media/xima-typo3-content-planner/actions/workflows/tests.yml)
 [![License](https://poser.pugx.org/xima/xima-typo3-content-planner/license)](LICENSE.md)
 
 
