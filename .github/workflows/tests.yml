@@ -47,7 +47,7 @@ jobs:
         uses: ramsey/composer-install@v3
         with:
           dependency-versions: ${{ matrix.dependencies }}
-          composer-options: --with=typo3/cms-core:"^${{ matrix.typo3-version }}"
+          composer-options: --with=typo3/cms-core:"^${{ matrix.typo3-version }}" --ignore-platform-reqs # Ignore platform requirements to allow testing with different PHP versions
 
       # Run tests
       - name: Run tests
