@@ -18,3 +18,4 @@ Configuration/TCA/Overrides/sys_category.php
 Configuration/TCA/Overrides/tt_content.php
 xima_typo3_content_planner/
 tailor-version-artefact/
+/.phpunit.result.cache

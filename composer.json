@@ -37,20 +37,27 @@
 		"helhum/typo3-console": "^8.1",
 		"helmich/typo3-typoscript-lint": "^3.2",
 		"move-elevator/composer-translation-validator": "^1.0.0",
-		"phpstan/phpstan-deprecation-rules": "^2.0",
-		"phpstan/phpstan-strict-rules": "^2.0",
+		"phpstan/phpstan-deprecation-rules": "^1.0 || ^2.0",
+		"phpstan/phpstan-phpunit": "^1.0 || ^2.0",
+		"phpstan/phpstan-strict-rules": "^1.0 || ^2.0",
+		"phpunit/phpunit": "^10.2 || ^11.0 || ^12.0",
 		"roave/security-advisories": "dev-latest",
 		"saschaegerer/phpstan-typo3": "^1.10 || ^2.0",
 		"spaze/phpstan-disallowed-calls": "^4.0",
 		"ssch/typo3-rector": "^2.10 || ^3.0",
 		"symfony/translation": "^6.3 || ^7.0",
-		"tomasvotruba/type-coverage": "^2.0",
+		"tomasvotruba/type-coverage": "^1.0 || ^2.0",
 		"typo3/cms-base-distribution": "^12.0 || ^13.4",
 		"typo3/cms-lowlevel": "^12.0 || ^13.4"
 	},
 	"autoload": {
 		"psr-4": {
 			"Xima\\XimaTypo3ContentPlanner\\": "Classes/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Xima\\XimaTypo3ContentPlanner\\Tests\\": "Tests/"
 		}
 	},
 	"config": {
@@ -111,6 +118,8 @@
 		"sca": [
 			"@sca:php"
 		],
-		"sca:php": "phpstan analyse --memory-limit=2G"
+		"sca:php": "phpstan analyse --memory-limit=2G",
+		"test": "@test:coverage --no-coverage",
+		"test:coverage": "XDEBUG_MODE=coverage phpunit -c phpunit.xml"
 	}
 }
