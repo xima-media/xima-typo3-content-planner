@@ -31,6 +31,7 @@
 	},
 	"require-dev": {
 		"armin/editorconfig-cli": "^2.0",
+		"eliashaeussler/php-cs-fixer-config": "2.3.0",
 		"eliashaeussler/version-bumper": "^2.4 || ^3.0",
 		"ergebnis/composer-normalize": "^2.44",
 		"friendsofphp/php-cs-fixer": "^3.52",
@@ -48,7 +49,8 @@
 		"symfony/translation": "^6.3 || ^7.0",
 		"tomasvotruba/type-coverage": "^1.0 || ^2.0",
 		"typo3/cms-base-distribution": "^12.0 || ^13.4",
-		"typo3/cms-lowlevel": "^12.0 || ^13.4"
+		"typo3/cms-lowlevel": "^12.0 || ^13.4",
+		"typo3/coding-standards": "0.8.0"
 	},
 	"autoload": {
 		"psr-4": {
