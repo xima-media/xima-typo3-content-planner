@@ -10,7 +10,6 @@ on:
 jobs:
   tests:
     name: Tests (PHP ${{ matrix.php-version }}, TYPO3 ${{ matrix.typo3-version }} & ${{ matrix.dependencies }} dependencies)
-    if: ${{ needs.assets.outputs.modified == 'false' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -56,7 +55,6 @@ jobs:
 
   test-coverage:
     name: Test coverage
-    if: ${{ needs.assets.outputs.modified == 'false' }}
     runs-on: ubuntu-latest
     env:
       typo3DatabaseName: typo3
