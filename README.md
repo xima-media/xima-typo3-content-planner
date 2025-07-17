@@ -11,7 +11,6 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/xima-media/xima-typo3-content-planner/tests.yml?label=tests&logo=github)](https://github.com/xima-media/xima-typo3-content-planner/actions/workflows/tests.yml)
 [![License](https://poser.pugx.org/xima/xima-typo3-content-planner/license)](LICENSE.md)
 
-
 </div>
 
 This extension provides a page* status functionality to support the planning of
@@ -21,7 +20,7 @@ content work, e.g. a migration process.
 
 ![Page](./Documentation/Images/page.png)
 
-## Features
+## ✨ Features
 
 * Extended page properties for content status, assignee and additional comments
 * Colorful representation of the status within the backend
@@ -33,11 +32,12 @@ content work, e.g. a migration process.
 * Filterable content planner record overview
 * Extend additional database records with status behavior
 
-## Requirements
+## 🔥 Installation
 
-* TYPO3 >= 12.4 & PHP 8.1+
+### Requirements
 
-## Installation
+* TYPO3 >= 12.4
+* PHP 8.1+
 
 ### Composer
 
@@ -55,7 +55,7 @@ composer require xima/xima-typo3-content-planner
 
 Download the zip file from [TYPO3 extension repository (TER)](https://extensions.typo3.org/extension/xima_typo3_content_planner).
 
-## Setup
+## 📂 Setup
 
 After the installation, update the database schema and setup the extension:
 
@@ -64,22 +64,22 @@ vendor/bin/typo3 database:updateschema
 vendor/bin/typo3 extension:setup --extension=xima_typo3_content_planner
 ```
 
-## Documentation
+## 📙 Documentation
 
 Please have a look at the
 [official extension documentation](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Index.html).
 
-## Contributing
+## 🧑‍💻 Contributing
 
 Please have a look at [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## License
-
-This project is licensed
-under [GNU General Public License 2.0 (or later)](LICENSE.md).
-
-## Credits
+## 💎 Credits
 
 Relax icons by Chattapat
 from <a href="https://thenounproject.com/browse/icons/term/relax/" target="_blank" title="relax Icons">
 Noun Project</a> (CC BY 3.0)
+
+## ⭐ License
+
+This project is licensed
+under [GNU General Public License 2.0 (or later)](LICENSE.md).
