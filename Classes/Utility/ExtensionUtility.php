@@ -20,12 +20,14 @@ class ExtensionUtility
             $table,
             [
                 'tx_ximatypo3contentplanner_status' => [
-                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
+                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY .
+                        '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
                     'config' => [
                         'items' => [
                             ['label' => '-- stateless --', 'value' => null],
                         ],
-                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
+                        'itemsProcFunc' =>
+                            'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
                         'type' => 'select',
                         'renderType' => 'selectSingle',
                         'resetSelection' => true,
@@ -39,20 +41,26 @@ class ExtensionUtility
                 ],
                 'tx_ximatypo3contentplanner_assignee' => [
                     'exclude' => 1,
-                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee',
+                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY .
+                        '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee',
                     'config' => [
                         'type' => 'select',
                         'renderType' => 'selectSingle',
                         'items' => [
-                            ['label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee.empty', 'value' => null],
+                            [
+                                'label' => 'LLL:EXT:' . Configuration::EXT_KEY .
+                                    '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee.empty',
+                                'value' => null,
+                            ],
                         ],
                         'foreign_table' => 'be_users',
-                        'foreign_table_where' => 'admin=1 OR FIND_IN_SET(uid, (
-                            SELECT GROUP_CONCAT(be_users.uid)
-                            FROM be_users
-                            JOIN be_groups ON FIND_IN_SET(be_groups.uid, be_users.usergroup)
-                            WHERE FIND_IN_SET(\'tx_ximatypo3contentplanner:content-status\', be_groups.custom_options)
-                        )) ORDER BY username',
+                        'foreign_table_where' =>
+                            'admin=1 OR FIND_IN_SET(uid, (
+                                SELECT GROUP_CONCAT(be_users.uid)
+                                FROM be_users
+                                JOIN be_groups ON FIND_IN_SET(be_groups.uid, be_users.usergroup)
+                                WHERE FIND_IN_SET(\'tx_ximatypo3contentplanner:content-status\', be_groups.custom_options)
+                            )) ORDER BY username',
                         'resetSelection' => true,
                         'minitems' => 0,
                         'maxitems' => 1,
@@ -60,7 +68,8 @@ class ExtensionUtility
                     ],
                 ],
                 'tx_ximatypo3contentplanner_comments' => [
-                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_comments',
+                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY .
+                        '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_comments',
                     'config' => [
                         'foreign_field' => 'foreign_uid',
                         'foreign_default_sortby' => 'crdate',
@@ -78,7 +87,8 @@ class ExtensionUtility
         );
 
         $GLOBALS['TCA'][$table]['palettes']['tx_ximatypo3contentplanner'] = [
-            'showitem' => 'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,--linebreak--,tx_ximatypo3contentplanner_comments',
+            'showitem' =>
+                'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,--linebreak--,tx_ximatypo3contentplanner_comments',
         ];
 
         ExtensionManagementUtility::addToAllTCAtypes(
@@ -92,10 +102,12 @@ class ExtensionUtility
     */
     public static function getRecordTables(): array
     {
-        return array_merge(
-            ['pages'],
+        $additionalTables = (array)(
             $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']
+                ?? []
         );
+
+        return array_merge(['pages'], $additionalTables);
     }
 
     public static function isRegisteredRecordTable(string $table): bool
@@ -105,13 +117,16 @@ class ExtensionUtility
 
     public static function isFeatureEnabled(string $feature): bool
     {
-        $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get(Configuration::EXT_KEY);
-        return array_key_exists($feature, $configuration) && (bool)$configuration[$feature];
+        $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)
+            ->get(Configuration::EXT_KEY);
+        return array_key_exists($feature, $configuration) &&
+            (bool)$configuration[$feature];
     }
 
     public static function getExtensionSetting(string $feature): string
     {
-        $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get(Configuration::EXT_KEY);
+        $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)
+            ->get(Configuration::EXT_KEY);
         return $configuration[$feature] ?? '';
     }
 
@@ -126,7 +141,9 @@ class ExtensionUtility
     public static function getTitle(string $key, array|bool|null $record): string
     {
         if ($record) {
-            return array_key_exists($key, $record) ? $record[$key] : BackendUtility::getNoRecordTitle();
+            return array_key_exists($key, $record)
+                ? $record[$key]
+                : BackendUtility::getNoRecordTitle();
         }
 
         return BackendUtility::getNoRecordTitle();
@@ -136,8 +153,10 @@ class ExtensionUtility
     * @param array<string, mixed> $attributes
     * @throws InvalidFileException
     */
-    public static function getCssTag(string $cssFileLocation, array $attributes): string
-    {
+    public static function getCssTag(
+        string $cssFileLocation,
+        array $attributes
+    ): string {
         return sprintf(
             '<link %s />',
             GeneralUtility::implodeAttributes([
@@ -153,8 +172,10 @@ class ExtensionUtility
     * @param array<string, mixed> $attributes
     * @throws InvalidFileException
     */
-    public static function getJsTag(string $jsFileLocation, array $attributes): string
-    {
+    public static function getJsTag(
+        string $jsFileLocation,
+        array $attributes
+    ): string {
         return sprintf(
             '<script type="module" %s></script>',
             GeneralUtility::implodeAttributes([

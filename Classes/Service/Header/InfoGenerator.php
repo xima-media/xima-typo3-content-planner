@@ -31,21 +31,31 @@ class InfoGenerator
     ) {
     }
 
-    public function generateStatusHeader(HeaderMode $mode, mixed $record = null, ?string $table = null, ?int $uid = null): string|bool
-    {
+    public function generateStatusHeader(
+        HeaderMode $mode,
+        mixed $record = null,
+        ?string $table = null,
+        ?int $uid = null
+    ): string|bool {
         if ($record === null && ($table === null || $uid === null)) {
             return false;
         }
 
         if ($record === null) {
-            $record = $this->getRecordRepository()->findByUid($table, $uid, ignoreVisibilityRestriction: true);
+            $record = $this->getRecordRepository()->findByUid(
+                $table,
+                $uid,
+                ignoreVisibilityRestriction: true
+            );
         }
 
         if (!(bool)$record) {
             return false;
         }
 
-        $status = $this->getStatusRepository()->findByUid($record['tx_ximatypo3contentplanner_status']);
+        $status = $this->getStatusRepository()->findByUid(
+            $record['tx_ximatypo3contentplanner_status']
+        );
 
         if (!$status instanceof Status) {
             return false;
@@ -63,12 +73,24 @@ class InfoGenerator
     * @param array<string, mixed> $record
     * @throws RouteNotFoundException
     */
-    private function renderStatusHeaderContentView(HeaderMode $mode, array $record, string $table, Status $status): string
-    {
-        // @ToDo: StandaloneView is deprecated and should be replaced with FluidView in TYPO3 v13
-        $view = GeneralUtility::makeInstance(StandaloneView::class); // @phpstan-ignore-line classConstant.deprecatedClass
-        // @ToDo: setTemplatePathAndFilename is deprecated and should be replaced with ViewFactoryInterface
-        $view->setTemplatePathAndFilename('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/Backend/Header/HeaderInfo.html'); // @phpstan-ignore-line method.deprecatedClass
+    private function renderStatusHeaderContentView(
+        HeaderMode $mode,
+        array $record,
+        string $table,
+        Status $status
+    ): string {
+        // @ToDo: StandaloneView is deprecated and should be replaced
+        //        with FluidView in TYPO3 v13
+        // @phpstan-ignore-next-line classConstant.deprecatedClass
+        $view = GeneralUtility::makeInstance(StandaloneView::class);
+
+        // @ToDo: setTemplatePathAndFilename is deprecated and should be
+        //        replaced with ViewFactoryInterface
+        // @phpstan-ignore-next-line method.deprecatedClass
+        $view->setTemplatePathAndFilename(
+            'EXT:' . Configuration::EXT_KEY .
+            '/Resources/Private/Templates/Backend/Header/HeaderInfo.html'
+        );
 
         $view->assignMultiple([
             'mode' => $mode->value,
@@ -83,15 +105,29 @@ class InfoGenerator
             'assignee' => [
                 'username' => $this->getAssigneeUsername($record),
                 'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
-                'assignToCurrentUser' => self::checkAssignToCurrentUser($record) ? UrlHelper::assignToUser($table, $record['uid']) : false,
-                'unassign' => self::checkUnassign($record) ? UrlHelper::assignToUser($table, $record['uid'], unassign: true) : null,
+                'assignToCurrentUser' => self::checkAssignToCurrentUser($record)
+                    ? UrlHelper::assignToUser($table, $record['uid'])
+                    : false,
+                'unassign' => self::checkUnassign($record)
+                    ? UrlHelper::assignToUser($table, $record['uid'], unassign: true)
+                    : null,
             ],
             'comments' => [
                 'items' => $this->getComments($record, $table),
-                'newCommentUri' => UrlHelper::getNewCommentUrl($table, $record['uid']),
-                'editUri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $record['uid']),
-                'todoResolved' => ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS) ? $this->getCommentsTodoResolved($record, $table) : 0,
-                'todoTotal' => ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS) ? $this->getCommentsTodoTotal($record, $table) : 0,
+                'newCommentUri' => UrlHelper::getNewCommentUrl(
+                    $table,
+                    $record['uid']
+                ),
+                'editUri' => UrlHelper::getContentStatusPropertiesEditUrl(
+                    $table,
+                    $record['uid']
+                ),
+                'todoResolved' => ExtensionUtility::isFeatureEnabled(
+                    Configuration::FEATURE_COMMENT_TODOS
+                ) ? $this->getCommentsTodoResolved($record, $table) : 0,
+                'todoTotal' => ExtensionUtility::isFeatureEnabled(
+                    Configuration::FEATURE_COMMENT_TODOS
+                ) ? $this->getCommentsTodoTotal($record, $table) : 0,
             ],
             'contentElements' => $this->getContentElements($record, $table),
             'userid' => $GLOBALS['BE_USER']->user['uid'],
@@ -111,7 +147,9 @@ class InfoGenerator
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
             return '';
         }
-        return $this->getBackendUserRepository()->getUsernameByUid((int)$record['tx_ximatypo3contentplanner_assignee']);
+        return $this->getBackendUserRepository()->getUsernameByUid(
+            (int)$record['tx_ximatypo3contentplanner_assignee']
+        );
     }
 
     /**
@@ -119,10 +157,17 @@ class InfoGenerator
     */
     private function getAssignedToCurrentUser(array $record): bool
     {
-        if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record) || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
+        if (
+            !array_key_exists('tx_ximatypo3contentplanner_assignee', $record) ||
+            !ExtensionUtility::isFeatureEnabled(
+                Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT
+            )
+        ) {
             return false;
         }
-        return (int)$record['tx_ximatypo3contentplanner_assignee'] === $GLOBALS['BE_USER']->user['uid'];
+
+        return (int)$record['tx_ximatypo3contentplanner_assignee'] ===
+            $GLOBALS['BE_USER']->user['uid'];
     }
 
     /**
@@ -130,12 +175,19 @@ class InfoGenerator
     */
     public static function checkAssignToCurrentUser(array $record): bool
     {
-        if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record) || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT)) {
+        if (
+            !array_key_exists('tx_ximatypo3contentplanner_assignee', $record) ||
+            !ExtensionUtility::isFeatureEnabled(
+                Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT
+            )
+        ) {
             return false;
         }
-        return $record['tx_ximatypo3contentplanner_assignee'] === null
-            || (int)$record['tx_ximatypo3contentplanner_assignee'] === 0
-            || (int)$record['tx_ximatypo3contentplanner_assignee'] !== (int)$GLOBALS['BE_USER']->user['uid'];
+
+        return $record['tx_ximatypo3contentplanner_assignee'] === null ||
+            (int)$record['tx_ximatypo3contentplanner_assignee'] === 0 ||
+            (int)$record['tx_ximatypo3contentplanner_assignee'] !==
+                (int)$GLOBALS['BE_USER']->user['uid'];
     }
 
     /**
@@ -147,7 +199,10 @@ class InfoGenerator
             return false;
         }
 
-        if ($record['tx_ximatypo3contentplanner_assignee'] !== null && (int)$record['tx_ximatypo3contentplanner_assignee'] !== 0) {
+        if (
+            $record['tx_ximatypo3contentplanner_assignee'] !== null &&
+            (int)$record['tx_ximatypo3contentplanner_assignee'] !== 0
+        ) {
             return true;
         }
         return false;
@@ -160,7 +215,19 @@ class InfoGenerator
     */
     private function getComments(array $record, string $table): array
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->findAllByRecord($record['uid'], $table, true) : [];
+        if (
+            isset($record['tx_ximatypo3contentplanner_comments']) &&
+            is_numeric($record['tx_ximatypo3contentplanner_comments']) &&
+            $record['tx_ximatypo3contentplanner_comments'] > 0
+        ) {
+            return $this->getCommentRepository()->findAllByRecord(
+                $record['uid'],
+                $table,
+                true
+            );
+        }
+
+        return [];
     }
 
     /**
@@ -168,7 +235,18 @@ class InfoGenerator
     */
     private function getCommentsTodoResolved(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table) : 0;
+        if (
+            isset($record['tx_ximatypo3contentplanner_comments']) &&
+            is_numeric($record['tx_ximatypo3contentplanner_comments']) &&
+            $record['tx_ximatypo3contentplanner_comments'] > 0
+        ) {
+            return $this->getCommentRepository()->countTodoAllByRecord(
+                $record['uid'],
+                $table
+            );
+        }
+
+        return 0;
     }
 
     /**
@@ -176,7 +254,19 @@ class InfoGenerator
     */
     private function getCommentsTodoTotal(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        if (
+            isset($record['tx_ximatypo3contentplanner_comments']) &&
+            is_numeric($record['tx_ximatypo3contentplanner_comments']) &&
+            $record['tx_ximatypo3contentplanner_comments'] > 0
+        ) {
+            return $this->getCommentRepository()->countTodoAllByRecord(
+                $record['uid'],
+                $table,
+                'todo_total'
+            );
+        }
+
+        return 0;
     }
 
     /**
@@ -200,7 +290,18 @@ class InfoGenerator
     */
     private function getContentElements(array $record, string $table): ?array
     {
-        return ExtensionUtility::isRegisteredRecordTable('tt_content') && $table === 'pages' ? $this->getRecordRepository()->findByPid('tt_content', $record['uid'], false) : null;
+        if (
+            ExtensionUtility::isRegisteredRecordTable('tt_content') &&
+            $table === 'pages'
+        ) {
+            return $this->getRecordRepository()->findByPid(
+                'tt_content',
+                $record['uid'],
+                false
+            );
+        }
+
+        return null;
     }
 
     private function addFrontendAssets(bool $usePageRenderer = true): string
@@ -208,16 +309,38 @@ class InfoGenerator
         if ($usePageRenderer) {
             /** @var PageRenderer $pageRenderer */
             $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-            $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js');
-            $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/comments-list-modal.js');
-            $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/assignee-selection-modal.js');
-            $pageRenderer->addCssFile('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css');
-            $pageRenderer->addInlineLanguageLabelFile('EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang.xlf');
+            $pageRenderer->loadJavaScriptModule(
+                '@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js'
+            );
+            $pageRenderer->loadJavaScriptModule(
+                '@xima/ximatypo3contentplanner/comments-list-modal.js'
+            );
+            $pageRenderer->loadJavaScriptModule(
+                '@xima/ximatypo3contentplanner/assignee-selection-modal.js'
+            );
+            $pageRenderer->addCssFile(
+                'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css'
+            );
+            $pageRenderer->addInlineLanguageLabelFile(
+                'EXT:' . Configuration::EXT_KEY .
+                '/Resources/Private/Language/locallang.xlf'
+            );
             return '';
         }
-        $content = ExtensionUtility::getCssTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css', ['nonce' => $this->requestId->nonce]);
-        $content .= ExtensionUtility::getJsTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/JavaScript/comments-list-modal.js', ['nonce' => $this->requestId->nonce]);
-        $content .= ExtensionUtility::getJsTag('EXT:' . Configuration::EXT_KEY . '/Resources/Public/JavaScript/assignee-selection-modal.js', ['nonce' => $this->requestId->nonce]);
+        $content = ExtensionUtility::getCssTag(
+            'EXT:' . Configuration::EXT_KEY . '/Resources/Public/Css/Header.css',
+            ['nonce' => $this->requestId->nonce]
+        );
+        $content .= ExtensionUtility::getJsTag(
+            'EXT:' . Configuration::EXT_KEY .
+            '/Resources/Public/JavaScript/comments-list-modal.js',
+            ['nonce' => $this->requestId->nonce]
+        );
+        $content .= ExtensionUtility::getJsTag(
+            'EXT:' . Configuration::EXT_KEY .
+            '/Resources/Public/JavaScript/assignee-selection-modal.js',
+            ['nonce' => $this->requestId->nonce]
+        );
         return $content;
     }
 

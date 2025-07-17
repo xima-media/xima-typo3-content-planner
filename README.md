@@ -6,7 +6,7 @@
 
 [![Latest Stable Version](https://typo3-badges.dev/badge/xima_typo3_content_planner/version/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
 [![Supported TYPO3 versions](https://typo3-badges.dev/badge/xima_typo3_content_planner/typo3/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
-[![Maintainability](https://img.shields.io/codeclimate/maintainability/xima-media/xima-typo3-content-planner?logo=codeclimate)](https://codeclimate.com/github/xima-media/xima-typo3-content-planner/maintainability)
+[![CGL](https://img.shields.io/github/actions/workflow/status/xima/xima-typo3-content-planner/cgl.yml?label=cgl&logo=github)](https://github.com/xima/xima-typo3-content-planner/actions/workflows/cgl.yml)
 [![License](https://poser.pugx.org/xima/xima-typo3-content-planner/license)](LICENSE.md)
 
 
@@ -67,13 +67,9 @@ vendor/bin/typo3 extension:setup --extension=xima_typo3_content_planner
 Please have a look at the
 [official extension documentation](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Index.html).
 
-## Development
+## Contributing
 
-Use the following ddev command to easily install all support TYPO3 versions.
-
-```bash
-ddev install all
-```
+Please have a look at [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## License
 
