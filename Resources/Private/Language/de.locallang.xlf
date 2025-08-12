@@ -300,7 +300,7 @@
 			</trans-unit>
 			<trans-unit id="comment.empty">
 				<source/>
-				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s>neuen Kommentar</a> erstellen?]]></target>
+				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s">neuen Kommentar</a> erstellen?]]></target>
 			</trans-unit>
 
 			<trans-unit id="assignee.selection.label">
