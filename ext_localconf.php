@@ -21,13 +21,14 @@ declare(strict_types=1);
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
 
 defined('TYPO3') or die();
 
-$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][TreeController::class] = [
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = [
     'className' => TreeController::class,
 ];
 
