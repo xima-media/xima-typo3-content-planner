@@ -27,7 +27,7 @@ use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
 
 defined('TYPO3') or die();
 
-$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][TreeController::class] = [
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Backend\Controller\Page\TreeController::class] = [
     'className' => TreeController::class,
 ];
 
