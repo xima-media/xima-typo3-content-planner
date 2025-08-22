@@ -41,6 +41,7 @@
 		"phpstan/phpstan-deprecation-rules": "^1.0 || ^2.0",
 		"phpstan/phpstan-phpunit": "^1.0 || ^2.0",
 		"phpstan/phpstan-strict-rules": "^1.0 || ^2.0",
+		"phpunit/phpcov": "^9.0 || ^10.0 || ^11.0",
 		"phpunit/phpunit": "^10.2 || ^11.0 || ^12.0",
 		"saschaegerer/phpstan-typo3": "^1.10 || ^2.0",
 		"spaze/phpstan-disallowed-calls": "^4.0",
@@ -120,7 +121,19 @@
 			"@sca:php"
 		],
 		"sca:php": "phpstan analyse --memory-limit=2G",
-		"test": "@test:coverage --no-coverage",
-		"test:coverage": "XDEBUG_MODE=coverage phpunit -c phpunit.xml"
+		"test": [
+			"@test:functional",
+			"@test:unit"
+		],
+		"test:coverage": [
+			"@test:coverage:functional",
+			"@test:coverage:unit",
+			"@test:coverage:merge"
+		],
+		"test:coverage:functional": "XDEBUG_MODE=coverage phpunit -c phpunit.functional.xml",
+		"test:coverage:merge": "phpcov merge --html .Build/coverage/html/_merged --clover .Build/coverage/clover.xml --text php://stdout .Build/coverage/php",
+		"test:coverage:unit": "XDEBUG_MODE=coverage phpunit -c phpunit.unit.xml",
+		"test:functional": "@test:coverage:functional --no-coverage",
+		"test:unit": "@test:coverage:unit --no-coverage"
 	}
 }
