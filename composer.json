@@ -49,7 +49,8 @@
 		"tomasvotruba/type-coverage": "^1.0 || ^2.0",
 		"typo3/cms-base-distribution": "^12.0 || ^13.4",
 		"typo3/cms-lowlevel": "^12.0 || ^13.4",
-		"typo3/coding-standards": "0.8.0"
+		"typo3/coding-standards": "0.8.0",
+		"typo3/testing-framework": "^7.0.2 || ^8.2.3 || ^9.0.1"
 	},
 	"autoload": {
 		"psr-4": {
