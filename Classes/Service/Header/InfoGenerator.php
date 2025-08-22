@@ -37,6 +37,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
+use Xima\XimaTypo3ContentPlanner\Utility\ViewFactoryHelper;
 
 class InfoGenerator
 {
@@ -97,20 +98,9 @@ class InfoGenerator
         string $table,
         Status $status
     ): string {
-        // @ToDo: StandaloneView is deprecated and should be replaced
-        //        with FluidView in TYPO3 v13
-        // @phpstan-ignore-next-line classConstant.deprecatedClass
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-
-        // @ToDo: setTemplatePathAndFilename is deprecated and should be
-        //        replaced with ViewFactoryInterface
-        // @phpstan-ignore-next-line method.deprecatedClass
-        $view->setTemplatePathAndFilename(
-            'EXT:' . Configuration::EXT_KEY .
-            '/Resources/Private/Templates/Backend/Header/HeaderInfo.html'
-        );
-
-        $view->assignMultiple([
+        $content = ViewFactoryHelper::renderView(
+            'Backend/Header/HeaderInfo.html',
+            [
             'mode' => $mode->value,
             'data' => $record,
             'table' => $table,
@@ -151,15 +141,15 @@ class InfoGenerator
             'userid' => $GLOBALS['BE_USER']->user['uid'],
         ]);
 
-        $content = $view->render();
         $content .= $this->addFrontendAssets($mode === HeaderMode::WEB_LAYOUT);
 
         return $content;
     }
 
     /**
-    * @param array<string, mixed> $record
-    */
+     * @param array<string, mixed> $record
+     * @throws Exception
+     */
     private function getAssigneeUsername(array $record): string
     {
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
