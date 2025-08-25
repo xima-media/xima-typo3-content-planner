@@ -54,5 +54,5 @@ jobs:
           max_attempts: 3
           retry_on: error
           timeout_minutes: 10
-          command: ddev composer test:acceptance:v${{ matrix.typo3-version }}:only
-          new_command_on_retry: ddev composer test:acceptance:v${{ matrix.typo3-version }}:only
+          command: ddev composer test:acceptance:${{ matrix.typo3-version }}
+          new_command_on_retry: ddev composer test:acceptance:${{ matrix.typo3-version }}

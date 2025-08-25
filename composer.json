@@ -132,22 +132,16 @@
 			"@test:unit"
 		],
 		"test:acceptance": [
-			"@test:acceptance:v12",
-			"@test:acceptance:v13"
+			"@test:acceptance:12",
+			"@test:acceptance:13"
 		],
-		"test:acceptance:v12": [
-			".ddev/commands/web/.install-12",
-			"@test:acceptance:v12:only"
-		],
-		"test:acceptance:v12:only": [
+		"test:acceptance:12": [
 			"cd .Build/12 && TESTING_DOMAIN=12.xima-typo3-content-planner.ddev.site vendor/bin/codecept run --steps -c codeception.yml"
 		],
-		"test:acceptance:v13": [
-			".ddev/commands/web/.install-13",
-			"@test:acceptance:v13:only"
+		"test:acceptance:13": [
+			"cd .Build/13 && TESTING_DOMAIN=13.xima-typo3-content-planner.ddev.site vendor/bin/codecept run --steps -c codeception.yml"
 		],
 		"test:acceptance:v13:only": [
-			"cd .Build/13 && TESTING_DOMAIN=13.xima-typo3-content-planner.ddev.site vendor/bin/codecept run --steps -c codeception.yml"
 		],
 		"test:coverage": [
 			"@test:coverage:functional",
