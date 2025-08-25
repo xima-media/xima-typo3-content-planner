@@ -141,8 +141,6 @@
 		"test:acceptance:13": [
 			"cd .Build/13 && TESTING_DOMAIN=13.xima-typo3-content-planner.ddev.site vendor/bin/codecept run --steps -c codeception.yml"
 		],
-		"test:acceptance:v13:only": [
-		],
 		"test:coverage": [
 			"@test:coverage:functional",
 			"@test:coverage:unit",
