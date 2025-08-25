@@ -41,10 +41,10 @@ jobs:
       - name: Configure and start DDEV
         run: |
           ddev config --project-type=typo3
-          ddev start
+          ddev start --skip-hooks
 
       # Init TYPO3
-      - name: Init TYPO3 ${{ matrix.typo3-version }}
+      - name: Install TYPO3 ${{ matrix.typo3-version }}
         run: ddev install ${{ matrix.typo3-version }}
 
       # Run tests
