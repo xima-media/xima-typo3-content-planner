@@ -11,3 +11,48 @@ jobs:
       php-versions: '["8.2", "8.3", "8.4"]'
       typo3-versions: '["12.4", "13.4"]'
       dependencies: '["highest", "lowest"]'
+
+  tests-acceptance:
+    name: Acceptance testing TYPO3 ${{ matrix.typo3-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        typo3-versions: '["12", "13"]'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # Prepare environment
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          tools: composer:v2
+          coverage: none
+
+      # Setup DDEV
+      - name: Setup DDEV
+        uses: ddev/github-action-setup-ddev@v1
+        with:
+          version: '1.24.7'
+          autostart: false
+      - name: Configure and start DDEV
+        run: |
+          ddev config --project-type=typo3
+          ddev start
+
+      # Init TYPO3
+      - name: Init TYPO3 ${{ matrix.typo3-version }}
+        run: ddev install ${{ matrix.typo3-version }}
+
+      # Run tests
+      - name: Run acceptance tests
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          retry_on: error
+          timeout_minutes: 10
+          command: ddev composer test:acceptance:v${{ matrix.typo3-version }}:only
+          new_command_on_retry: ddev composer test:acceptance:v${{ matrix.typo3-version }}:only
