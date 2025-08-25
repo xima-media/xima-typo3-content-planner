@@ -28,7 +28,6 @@ use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
@@ -101,45 +100,46 @@ class InfoGenerator
         $content = ViewFactoryHelper::renderView(
             'Backend/Header/HeaderInfo.html',
             [
-            'mode' => $mode->value,
-            'data' => $record,
-            'table' => $table,
-            'pid' => $this->getPid($record, $table),
-            'status' => [
-                'title' => $status->getTitle(),
-                'color' => $status->getColor(),
-                'icon' => $status->getColoredIcon(),
-            ],
-            'assignee' => [
-                'username' => $this->getAssigneeUsername($record),
-                'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
-                'assignToCurrentUser' => self::checkAssignToCurrentUser($record)
-                    ? UrlHelper::assignToUser($table, $record['uid'])
-                    : false,
-                'unassign' => self::checkUnassign($record)
-                    ? UrlHelper::assignToUser($table, $record['uid'], unassign: true)
-                    : null,
-            ],
-            'comments' => [
-                'items' => $this->getComments($record, $table),
-                'newCommentUri' => UrlHelper::getNewCommentUrl(
-                    $table,
-                    $record['uid']
-                ),
-                'editUri' => UrlHelper::getContentStatusPropertiesEditUrl(
-                    $table,
-                    $record['uid']
-                ),
-                'todoResolved' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS
-                ) ? $this->getCommentsTodoResolved($record, $table) : 0,
-                'todoTotal' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS
-                ) ? $this->getCommentsTodoTotal($record, $table) : 0,
-            ],
-            'contentElements' => $this->getContentElements($record, $table),
-            'userid' => $GLOBALS['BE_USER']->user['uid'],
-        ]);
+                'mode' => $mode->value,
+                'data' => $record,
+                'table' => $table,
+                'pid' => $this->getPid($record, $table),
+                'status' => [
+                    'title' => $status->getTitle(),
+                    'color' => $status->getColor(),
+                    'icon' => $status->getColoredIcon(),
+                ],
+                'assignee' => [
+                    'username' => $this->getAssigneeUsername($record),
+                    'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
+                    'assignToCurrentUser' => self::checkAssignToCurrentUser($record)
+                        ? UrlHelper::assignToUser($table, $record['uid'])
+                        : false,
+                    'unassign' => self::checkUnassign($record)
+                        ? UrlHelper::assignToUser($table, $record['uid'], unassign: true)
+                        : null,
+                ],
+                'comments' => [
+                    'items' => $this->getComments($record, $table),
+                    'newCommentUri' => UrlHelper::getNewCommentUrl(
+                        $table,
+                        $record['uid']
+                    ),
+                    'editUri' => UrlHelper::getContentStatusPropertiesEditUrl(
+                        $table,
+                        $record['uid']
+                    ),
+                    'todoResolved' => ExtensionUtility::isFeatureEnabled(
+                        Configuration::FEATURE_COMMENT_TODOS
+                    ) ? $this->getCommentsTodoResolved($record, $table) : 0,
+                    'todoTotal' => ExtensionUtility::isFeatureEnabled(
+                        Configuration::FEATURE_COMMENT_TODOS
+                    ) ? $this->getCommentsTodoTotal($record, $table) : 0,
+                ],
+                'contentElements' => $this->getContentElements($record, $table),
+                'userid' => $GLOBALS['BE_USER']->user['uid'],
+            ]
+        );
 
         $content .= $this->addFrontendAssets($mode === HeaderMode::WEB_LAYOUT);
 

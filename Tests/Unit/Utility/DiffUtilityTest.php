@@ -37,14 +37,14 @@ final class DiffUtilityTest extends UnitTestCase
     public static function timeAgo(): array
     {
         return [
-//            'currentTime' => [
-//                'input' => time(),
-//                'expected' => 'now',
-//            ],
-//            'oneSecondAgo' => [
-//                'input' => time() - 1,
-//                'expected' => '1 seconds ago',
-//            ],
+            //            'currentTime' => [
+            //                'input' => time(),
+            //                'expected' => 'now',
+            //            ],
+            //            'oneSecondAgo' => [
+            //                'input' => time() - 1,
+            //                'expected' => '1 seconds ago',
+            //            ],
             'oneMinuteAgo' => [
                 'input' => time() - 60,
                 'expected' => '1 minute ago',
