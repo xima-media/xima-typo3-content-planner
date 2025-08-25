@@ -36,8 +36,7 @@ class ElementCest
         PageTree $pageTree,
     ): void {
         $I->click('Page');
-        $I->waitForElementVisible(PageTree::$treeSelector);
-        $I->wait(2);
+        $I->waitForElementVisible(PageTree::$treeSelector, 10);
         $pageTree->openPath(['Home', 'Projects']);
     }
 }
