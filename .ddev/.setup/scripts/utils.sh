@@ -357,7 +357,7 @@ function import_sql_data() {
 
     for DATA_FILE in "$FIXTURE_DIR"/*.sql; do
         if [ -f "$DATA_FILE" ]; then
-            message yellow "Importiere $DATA_FILE..."
+            message yellow "Importing $DATA_FILE..."
             mysql -h db -u root -p"root" $DATABASE < "$DATA_FILE"
         else
           message yellow "No SQL files found in $FIXTURE_DIR. Import will be skipped."
