@@ -21,7 +21,8 @@ function _spinner() {
 
 function _progress() {
     printf "%s... " "$1"
-    if [[ "$VERBOSE" -eq 0 ]]; then
+    # Check if we're in CI environment or non-interactive terminal
+    if [[ "$VERBOSE" -eq 0 ]] && [[ -z "$CI" ]] && [[ -z "$GITHUB_ACTIONS" ]] && [[ -z "$GITLAB_CI" ]] && [[ -z "$JENKINS_URL" ]] && [[ -t 1 ]]; then
       # Print initial space for spinner
       printf " "
       # Start spinner in background at current position
@@ -36,17 +37,18 @@ function _progress() {
 }
 
 function _done() {
-    if [[ "$VERBOSE" -eq 0 ]]; then
-      # Stop spinner
-      if [ $SPINNER_PID -ne 0 ]; then
-        kill $SPINNER_PID 2>/dev/null
-        wait $SPINNER_PID 2>/dev/null
-        SPINNER_PID=0
-      fi
+    # Stop spinner if it was started
+    if [ $SPINNER_PID -ne 0 ]; then
+      kill $SPINNER_PID 2>/dev/null
+      wait $SPINNER_PID 2>/dev/null
+      SPINNER_PID=0
       # Restore stdout/stderr
       exec 1>&3 2>&4
       # Clear any remaining color codes and replace with checkmark
       printf "\b\e[0m\e[32m✔\e[39m\n"
+    else
+      # No spinner was running, just print checkmark
+      printf "\e[32m✔\e[39m\n"
     fi
 }
 
