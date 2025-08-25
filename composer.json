@@ -31,7 +31,12 @@
 	},
 	"require-dev": {
 		"armin/editorconfig-cli": "^2.0",
+		"codeception/codeception": "^5.2",
+		"codeception/module-asserts": "^3.0",
+		"codeception/module-phpbrowser": "^3.0",
+		"codeception/module-webdriver": "^4.0",
 		"eliashaeussler/php-cs-fixer-config": "2.3.0",
+		"eliashaeussler/typo3-codeception-helper": "^1.1.2",
 		"eliashaeussler/version-bumper": "^2.4 || ^3.0",
 		"ergebnis/composer-normalize": "^2.44",
 		"friendsofphp/php-cs-fixer": "^3.52",
@@ -65,6 +70,7 @@
 	},
 	"config": {
 		"allow-plugins": {
+			"codeception/c3": true,
 			"eliashaeussler/version-bumper": true,
 			"ergebnis/composer-normalize": true,
 			"helhum/dotenv-connector": true,
@@ -124,6 +130,24 @@
 		"test": [
 			"@test:functional",
 			"@test:unit"
+		],
+		"test:acceptance": [
+			"@test:acceptance:v12",
+			"@test:acceptance:v13"
+		],
+		"test:acceptance:v12:only": [
+			"cd .Build/12 && TESTING_DOMAIN=12.xima-typo3-content-planner.ddev.site vendor/bin/codecept run --steps -c codeception.yml"
+		],
+		"test:acceptance:v12": [
+			".ddev/commands/web/.install-12",
+			"@test:acceptance:v12:only"
+		],
+		"test:acceptance:v13:only": [
+			"cd .Build/13 && TESTING_DOMAIN=13.xima-typo3-content-planner.ddev.site vendor/bin/codecept run --steps -c codeception.yml"
+		],
+		"test:acceptance:v13": [
+			".ddev/commands/web/.install-13",
+			"@test:acceptance:v13:only"
 		],
 		"test:coverage": [
 			"@test:coverage:functional",
