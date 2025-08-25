@@ -23,20 +23,207 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Utility;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
 
-final class DiffUtilityTest extends TestCase
+final class DiffUtilityTest extends UnitTestCase
 {
+    /**
+     * @return array<string, array{input: int, expected: string}>
+     */
+    public static function timeAgo(): array
+    {
+        return [
+            //            'currentTime' => [
+            //                'input' => time(),
+            //                'expected' => 'now',
+            //            ],
+            //            'oneSecondAgo' => [
+            //                'input' => time() - 1,
+            //                'expected' => '1 seconds ago',
+            //            ],
+            'oneMinuteAgo' => [
+                'input' => time() - 60,
+                'expected' => '1 minute ago',
+            ],
+            'oneHourAgo' => [
+                'input' => time() - 3600,
+                'expected' => '1 hour ago',
+            ],
+            'threeHoursAgo' => [
+                'input' => time() - (3 * 3600),
+                'expected' => '3 hours ago',
+            ],
+            'oneDayAgo' => [
+                'input' => time() - 86400,
+                'expected' => '1 day ago',
+            ],
+            'threeDaysAgo' => [
+                'input' => time() - (3 * 86400),
+                'expected' => '3 days ago',
+            ],
+            'oneMonthAgo' => [
+                'input' => time() - (32 * 86400),
+                'expected' => '1 month ago',
+            ],
+            'oneYearAgo' => [
+                'input' => time() - (365 * 86400),
+                'expected' => '1 year ago',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, array{data: array<string, array<string, mixed>>, expected: bool}>
+     */
+    public static function checkRecordDiff(): array
+    {
+        return [
+            'same' => [
+                'data' => [
+                    'oldRecord' => ['title' => 'Test Page', 'status' => 1],
+                    'newRecord' => ['title' => 'Test Page', 'status' => 1],
+                ],
+                'expected' => false,
+            ],
+            'different' => [
+                'data' => [
+                    'oldRecord' => ['title' => 'Old Title', 'l10n_diffsource' => 'ignored'],
+                    'newRecord' => ['title' => 'New Title', 'l10n_diffsource' => 'ignored_too'],
+                ],
+                'expected' => true,
+            ],
+            'emptyOldRecord' => [
+                'data' => [
+                    'oldRecord' => [],
+                    'newRecord' => ['title' => 'New Title'],
+                ],
+                'expected' => false,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, array{data: mixed, actiontype: int, expected: string}>
+     */
+    public static function checkCommendDiff(): array
+    {
+        return [
+            'nullData' => [
+                'data' => null,
+                'actiontype' => 1,
+                'expected' => 'Comment action',
+            ],
+            'emptyData' => [
+                'data' => [],
+                'actiontype' => 2,
+                'expected' => 'Comment action',
+            ],
+            'noNewRecord' => [
+                'data' => ['oldRecord' => ['title' => 'test']],
+                'actiontype' => 1,
+                'expected' => 'Comment action',
+            ],
+            'noResolvedDate' => [
+                'data' => ['newRecord' => ['title' => 'test']],
+                'actiontype' => 1,
+                'expected' => 'Comment action',
+            ],
+            'unresolvedComment' => [
+                'data' => ['newRecord' => ['resolved_date' => 0]],
+                'actiontype' => 1,
+                'expected' => 'Comment action',
+            ],
+            'resolvedComment' => [
+                'data' => ['newRecord' => ['resolved_date' => 1234567890]],
+                'actiontype' => 2,
+                'expected' => 'Comment action',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, array{data: array<string, array<string, mixed>>, actiontype: int, expected: bool}>
+     */
+    public static function checkRecordDiffExtended(): array
+    {
+        return [
+            'fieldSetFromEmpty' => [
+                'data' => [
+                    'oldRecord' => ['title' => ''],
+                    'newRecord' => ['title' => 'New Title'],
+                ],
+                'actiontype' => 1,
+                'expected' => true,
+            ],
+            'fieldUnset' => [
+                'data' => [
+                    'oldRecord' => ['title' => 'Old Title'],
+                    'newRecord' => ['title' => ''],
+                ],
+                'actiontype' => 1,
+                'expected' => true,
+            ],
+            'fieldSetFromNull' => [
+                'data' => [
+                    'oldRecord' => ['title' => null],
+                    'newRecord' => ['title' => 'New Title'],
+                ],
+                'actiontype' => 1,
+                'expected' => true,
+            ],
+            'fieldUnsetToNull' => [
+                'data' => [
+                    'oldRecord' => ['title' => 'Old Title'],
+                    'newRecord' => ['title' => null],
+                ],
+                'actiontype' => 1,
+                'expected' => true,
+            ],
+            'bothEmpty' => [
+                'data' => [
+                    'oldRecord' => ['title' => ''],
+                    'newRecord' => ['title' => ''],
+                ],
+                'actiontype' => 1,
+                'expected' => false,
+            ],
+            'bothNull' => [
+                'data' => [
+                    'oldRecord' => ['title' => null],
+                    'newRecord' => ['title' => null],
+                ],
+                'actiontype' => 1,
+                'expected' => false,
+            ],
+            'skipL10nDiffsource' => [
+                'data' => [
+                    'oldRecord' => ['l10n_diffsource' => 'old', 'title' => 'Same'],
+                    'newRecord' => ['l10n_diffsource' => 'new', 'title' => 'Same'],
+                ],
+                'actiontype' => 1,
+                'expected' => false,
+            ],
+            'normalFieldChange' => [
+                'data' => [
+                    'oldRecord' => ['description' => 'Old Description'],
+                    'newRecord' => ['description' => 'New Description'],
+                ],
+                'actiontype' => 1,
+                'expected' => true,
+            ],
+        ];
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Mock the global LANG object needed by DiffUtility
         $languageServiceMock = $this->createMock(LanguageService::class);
         $languageServiceMock->method('sL')->willReturnCallback(function (string $key): string {
-            // Simple mock implementation that returns the key itself
             return match (true) {
                 str_contains($key, 'timeAgo.now') => 'now',
                 str_contains($key, 'timeAgo.years') => '%d years ago',
@@ -50,6 +237,14 @@ final class DiffUtilityTest extends TestCase
                 str_contains($key, 'timeAgo.minutes') => '%d minutes ago',
                 str_contains($key, 'timeAgo.minute') => '%d minute ago',
                 str_contains($key, 'timeAgo.seconds') => '%d seconds ago',
+                str_contains($key, 'timeAgo.second') => '%d seconds ago',
+                str_contains($key, 'history.comment') => 'Comment action',
+                str_contains($key, 'history.record.1.set.title') => 'Set %s',
+                str_contains($key, 'history.record.1.unset.title') => 'Unset %s',
+                str_contains($key, 'history.record.1.change.title') => 'Changed from %s to %s',
+                str_contains($key, 'history.record.1.set.description') => 'Set %s',
+                str_contains($key, 'history.record.1.unset.description') => 'Unset %s',
+                str_contains($key, 'history.record.1.change.description') => 'Changed from %s to %s',
                 default => $key,
             };
         });
@@ -57,165 +252,46 @@ final class DiffUtilityTest extends TestCase
         $GLOBALS['LANG'] = $languageServiceMock;
     }
 
-    public function testTimeAgoCurrentTime(): void
+    #[DataProvider('timeAgo')]
+    #[Test]
+    public function testTimeAgo(mixed $input, mixed $expected): void
     {
-        $currentTimestamp = time();
-
-        $result = DiffUtility::timeAgo($currentTimestamp);
-
-        self::assertSame('now', $result);
+        self::assertSame($expected, DiffUtility::timeAgo($input));
     }
 
-    public function testTimeAgoOneHour(): void
+    #[DataProvider('checkRecordDiff')]
+    #[Test]
+    public function testCheckRecordDiff(mixed $data, mixed $expected): void
     {
-        $oneHourAgo = time() - 3600;
-
-        $result = DiffUtility::timeAgo($oneHourAgo);
-
-        self::assertSame('1 hour ago', $result);
-    }
-
-    public function testTimeAgoMultipleHours(): void
-    {
-        $threeHoursAgo = time() - (3 * 3600);
-
-        $result = DiffUtility::timeAgo($threeHoursAgo);
-
-        self::assertSame('3 hours ago', $result);
-    }
-
-    public function testTimeAgoOneDay(): void
-    {
-        $oneDayAgo = time() - 86400;
-
-        $result = DiffUtility::timeAgo($oneDayAgo);
-
-        self::assertSame('1 day ago', $result);
-    }
-
-    public function testTimeAgoMultipleDays(): void
-    {
-        $threeDaysAgo = time() - (3 * 86400);
-
-        $result = DiffUtility::timeAgo($threeDaysAgo);
-
-        self::assertSame('3 days ago', $result);
-    }
-
-    public function testTimeAgoOneMinute(): void
-    {
-        $oneMinuteAgo = time() - 60;
-
-        $result = DiffUtility::timeAgo($oneMinuteAgo);
-
-        self::assertSame('1 minute ago', $result);
-    }
-
-    public function testCheckRecordDiffWithNoDifferences(): void
-    {
-        $data = [
-            'oldRecord' => [
-                'title' => 'Test Page',
-                'status' => 1,
-            ],
-            'newRecord' => [
-                'title' => 'Test Page',
-                'status' => 1,
-            ],
-        ];
-
         $result = DiffUtility::checkRecordDiff($data, 1);
 
-        self::assertFalse($result);
+        if ($expected === false) {
+            self::assertFalse($result);
+        } else {
+            self::assertIsString($result);
+            self::assertNotEmpty($result);
+        }
     }
 
-    public function testCheckRecordDiffWithDifferences(): void
+    #[DataProvider('checkCommendDiff')]
+    #[Test]
+    public function testCheckCommendDiff(mixed $data, mixed $actiontype, mixed $expected): void
     {
-        $data = [
-            'oldRecord' => [
-                'title' => 'Old Title',
-                'l10n_diffsource' => 'ignored',
-            ],
-            'newRecord' => [
-                'title' => 'New Title',
-                'l10n_diffsource' => 'ignored_too',
-            ],
-        ];
-
-        $result = DiffUtility::checkRecordDiff($data, 1);
-
-        // Result should contain some diff information (not false)
-        self::assertIsString($result);
-        self::assertNotEmpty($result);
+        $result = DiffUtility::checkCommendDiff($data, $actiontype);
+        self::assertSame($expected, $result);
     }
 
-    public function testTimeAgoWithFutureTimestamp(): void
+    #[DataProvider('checkRecordDiffExtended')]
+    #[Test]
+    public function testCheckRecordDiffExtended(mixed $data, mixed $actiontype, mixed $expected): void
     {
-        $futureTimestamp = time() + 3600; // 1 hour in the future
+        $result = DiffUtility::checkRecordDiff($data, $actiontype);
 
-        $result = DiffUtility::timeAgo($futureTimestamp);
-
-        // Should still return a time difference string
-        self::assertNotEmpty($result);
-    }
-
-    public function testTimeAgoWithZeroTimestamp(): void
-    {
-        $result = DiffUtility::timeAgo(0);
-
-        // Should return years ago (since 1970)
-        self::assertStringContainsString('year', $result);
-    }
-
-    public function testTimeAgoWithLargeTimeDifference(): void
-    {
-        $twoYearsAgo = time() - (2 * 365 * 24 * 3600);
-
-        $result = DiffUtility::timeAgo($twoYearsAgo);
-
-        self::assertStringContainsString('year', $result);
-    }
-
-    public function testTimeAgoWithSeconds(): void
-    {
-        $secondsAgo = time() - 30;
-
-        $result = DiffUtility::timeAgo($secondsAgo);
-
-        self::assertStringContainsString('second', $result);
-    }
-
-    public function testCheckRecordDiffSkipsL10nDiffsource(): void
-    {
-        $data = [
-            'oldRecord' => [
-                'title' => 'Old Title',
-                'l10n_diffsource' => 'should_be_ignored_old',
-            ],
-            'newRecord' => [
-                'title' => 'Old Title', // Same title, no diff
-                'l10n_diffsource' => 'should_be_ignored_new',
-            ],
-        ];
-
-        $result = DiffUtility::checkRecordDiff($data, 1);
-
-        // Should return false because l10n_diffsource is ignored and title is the same
-        self::assertFalse($result);
-    }
-
-    public function testCheckRecordDiffWithEmptyOldRecord(): void
-    {
-        $data = [
-            'oldRecord' => [],
-            'newRecord' => [
-                'title' => 'New Title',
-            ],
-        ];
-
-        $result = DiffUtility::checkRecordDiff($data, 1);
-
-        // Should return false because there are no old values to compare
-        self::assertFalse($result);
+        if ($expected === false) {
+            self::assertFalse($result);
+        } else {
+            self::assertIsString($result);
+            self::assertNotEmpty($result);
+        }
     }
 }

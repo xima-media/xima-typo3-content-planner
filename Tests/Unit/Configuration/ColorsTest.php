@@ -144,4 +144,52 @@ final class ColorsTest extends TestCase
             self::assertMatchesRegularExpression('/^[a-z]+$/', $color, "Color '{$color}' should follow naming convention");
         }
     }
+
+    public function testGetColorWithCaseSensitiveInvalidColorThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(2653877737);
+
+        Colors::get('Red'); // Capital R should throw exception
+    }
+
+    public function testGetColorWithNullStringThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(2653877737);
+
+        Colors::get('null');
+    }
+
+    public function testGetColorWithNumericStringThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionCode(2653877737);
+
+        Colors::get('123');
+    }
+
+    public function testGetColorDefaultTransparencyParameterIsFalse(): void
+    {
+        $result = Colors::get(Colors::STATUS_COLOR_RED);
+
+        self::assertSame('rgb(250,136,147)', $result);
+        self::assertStringStartsWith('rgb(', $result);
+        self::assertStringContainsString('rgb(', $result);
+        self::assertStringEndsNotWith(', 0.5)', $result);
+    }
+
+    public function testAllColorCodesHaveCorrectFormat(): void
+    {
+        foreach (Colors::STATUS_COLORS as $color) {
+            $rgbResult = Colors::get($color, false);
+            $rgbaResult = Colors::get($color, true);
+
+            // RGB format validation
+            self::assertMatchesRegularExpression('/^rgb\(\d+,\d+,\d+\)$/', $rgbResult);
+
+            // RGBA format validation
+            self::assertMatchesRegularExpression('/^rgba\(\d+,\d+,\d+, 0\.5\)$/', $rgbaResult);
+        }
+    }
 }
