@@ -28,7 +28,6 @@ use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
@@ -37,6 +36,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
+use Xima\XimaTypo3ContentPlanner\Utility\ViewFactoryHelper;
 
 class InfoGenerator
 {
@@ -97,69 +97,59 @@ class InfoGenerator
         string $table,
         Status $status
     ): string {
-        // @ToDo: StandaloneView is deprecated and should be replaced
-        //        with FluidView in TYPO3 v13
-        // @phpstan-ignore-next-line classConstant.deprecatedClass
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-
-        // @ToDo: setTemplatePathAndFilename is deprecated and should be
-        //        replaced with ViewFactoryInterface
-        // @phpstan-ignore-next-line method.deprecatedClass
-        $view->setTemplatePathAndFilename(
-            'EXT:' . Configuration::EXT_KEY .
-            '/Resources/Private/Templates/Backend/Header/HeaderInfo.html'
+        $content = ViewFactoryHelper::renderView(
+            'Backend/Header/HeaderInfo.html',
+            [
+                'mode' => $mode->value,
+                'data' => $record,
+                'table' => $table,
+                'pid' => $this->getPid($record, $table),
+                'status' => [
+                    'title' => $status->getTitle(),
+                    'color' => $status->getColor(),
+                    'icon' => $status->getColoredIcon(),
+                ],
+                'assignee' => [
+                    'username' => $this->getAssigneeUsername($record),
+                    'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
+                    'assignToCurrentUser' => self::checkAssignToCurrentUser($record)
+                        ? UrlHelper::assignToUser($table, $record['uid'])
+                        : false,
+                    'unassign' => self::checkUnassign($record)
+                        ? UrlHelper::assignToUser($table, $record['uid'], unassign: true)
+                        : null,
+                ],
+                'comments' => [
+                    'items' => $this->getComments($record, $table),
+                    'newCommentUri' => UrlHelper::getNewCommentUrl(
+                        $table,
+                        $record['uid']
+                    ),
+                    'editUri' => UrlHelper::getContentStatusPropertiesEditUrl(
+                        $table,
+                        $record['uid']
+                    ),
+                    'todoResolved' => ExtensionUtility::isFeatureEnabled(
+                        Configuration::FEATURE_COMMENT_TODOS
+                    ) ? $this->getCommentsTodoResolved($record, $table) : 0,
+                    'todoTotal' => ExtensionUtility::isFeatureEnabled(
+                        Configuration::FEATURE_COMMENT_TODOS
+                    ) ? $this->getCommentsTodoTotal($record, $table) : 0,
+                ],
+                'contentElements' => $this->getContentElements($record, $table),
+                'userid' => $GLOBALS['BE_USER']->user['uid'],
+            ]
         );
 
-        $view->assignMultiple([
-            'mode' => $mode->value,
-            'data' => $record,
-            'table' => $table,
-            'pid' => $this->getPid($record, $table),
-            'status' => [
-                'title' => $status->getTitle(),
-                'color' => $status->getColor(),
-                'icon' => $status->getColoredIcon(),
-            ],
-            'assignee' => [
-                'username' => $this->getAssigneeUsername($record),
-                'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
-                'assignToCurrentUser' => self::checkAssignToCurrentUser($record)
-                    ? UrlHelper::assignToUser($table, $record['uid'])
-                    : false,
-                'unassign' => self::checkUnassign($record)
-                    ? UrlHelper::assignToUser($table, $record['uid'], unassign: true)
-                    : null,
-            ],
-            'comments' => [
-                'items' => $this->getComments($record, $table),
-                'newCommentUri' => UrlHelper::getNewCommentUrl(
-                    $table,
-                    $record['uid']
-                ),
-                'editUri' => UrlHelper::getContentStatusPropertiesEditUrl(
-                    $table,
-                    $record['uid']
-                ),
-                'todoResolved' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS
-                ) ? $this->getCommentsTodoResolved($record, $table) : 0,
-                'todoTotal' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS
-                ) ? $this->getCommentsTodoTotal($record, $table) : 0,
-            ],
-            'contentElements' => $this->getContentElements($record, $table),
-            'userid' => $GLOBALS['BE_USER']->user['uid'],
-        ]);
-
-        $content = $view->render();
         $content .= $this->addFrontendAssets($mode === HeaderMode::WEB_LAYOUT);
 
         return $content;
     }
 
     /**
-    * @param array<string, mixed> $record
-    */
+     * @param array<string, mixed> $record
+     * @throws Exception
+     */
     private function getAssigneeUsername(array $record): string
     {
         if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {

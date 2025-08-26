@@ -1,0 +1,54 @@
+namespace: Xima\XimaTypo3ContentPlanner\Tests\Acceptance
+support_namespace: Support
+paths:
+  tests: Tests/Acceptance
+  output: Tests/Acceptance/_output
+  data: Tests/Acceptance/Support/Data
+  support: Tests/Acceptance/Support
+actor_suffix: Tester
+
+extensions:
+  enabled:
+    - Codeception\Extension\RunFailed
+    - Codeception\Extension\Recorder:
+        delete_successful: true
+    - EliasHaeussler\Typo3CodeceptionHelper\Codeception\Extension\ApplicationEntrypointModifier:
+        entrypoints:
+          - web-dir: public
+          - web-dir: public/typo3
+
+params:
+  - env
+
+coverage:
+  enabled: true
+  remote: true
+  include:
+    - Classes/*
+
+suites:
+  Acceptance:
+    actor: AcceptanceTester
+    path: .
+    modules:
+      enabled:
+        - WebDriver:
+            url: https://%TESTING_DOMAIN%/
+            browser: chrome
+            wait: 5
+            host: selenium-chrome
+            port: 4444
+            window_size: 1920x1280
+            capabilities:
+              acceptInsecureCerts: true
+              chromeOptions:
+                args: [ '--disable-dev-shm-usage' ]
+                prefs:
+                  profile.content_settings.exceptions.clipboard:
+                    '[*.],*':
+                      last_modified: 1688930908
+                      setting: 1
+        - Asserts
+        - EliasHaeussler\Typo3CodeceptionHelper\Codeception\Module\Backend:
+            userCredentials:
+              admin: Password1!

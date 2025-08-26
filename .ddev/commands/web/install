@@ -6,14 +6,25 @@
 
 TYPO3=${1}
 
-. .ddev/.typo3-setup/scripts/.utils.sh
+. .ddev/.setup/scripts/utils.sh
 
+# Check for verbose flag and set VERBOSE environment variable
+for arg in "$@"; do
+    if [ "$arg" = "-v" ] || [ "$arg" = "--verbose" ]; then
+        export VERBOSE=1
+        set -- "${@/-v/}"
+        set -- "${@/--verbose/}"
+    fi
+done
+
+# If TYPO3 is "all", install all supported TYPO3 versions
 if [ "$TYPO3" == "all" ]; then
     mapfile -t versions < <(get_supported_typo3_versions)
     for version in "${versions[@]}"; do
         .ddev/commands/web/.install-$version
     done
 else
+    # If no version is specified, install the lowest supported TYPO3 version
     if [ -z "$TYPO3" ]; then
         TYPO3=$(get_lowest_supported_typo3_versions)
     else
@@ -21,5 +32,6 @@ else
             exit 1
         fi
     fi
+    # Install the specified TYPO3 version
     ".ddev/commands/web/.install-$TYPO3"
 fi
