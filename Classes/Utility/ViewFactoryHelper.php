@@ -70,6 +70,7 @@ class ViewFactoryHelper
     */
     private static function renderView13(string $template, array $values, ?ServerRequestInterface $request = null): string
     {
+        // @phpstan-ignore-next-line
         $viewFactoryData = new \TYPO3\CMS\Core\View\ViewFactoryData(
             templateRootPaths: ['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Templates/'],
             partialRootPaths: ['EXT:' . Configuration::EXT_KEY . '/Resources/Private/Partials/'],
@@ -77,7 +78,9 @@ class ViewFactoryHelper
             request: $request,
         );
 
+        // @phpstan-ignore-next-line
         $viewFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\View\ViewFactoryInterface::class);
+        // @phpstan-ignore-next-line
         $view = $viewFactory->create($viewFactoryData);
         $view->assignMultiple($values);
 

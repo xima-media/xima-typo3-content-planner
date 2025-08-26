@@ -62,6 +62,11 @@ class IconHelperTest extends UnitTestCase
 
     public function testGetDefaultIconSizeForTypo3Version13(): void
     {
+        // Skip test if IconSize enum is not available (TYPO3 v12)
+        if (!class_exists(\TYPO3\CMS\Core\Imaging\IconSize::class)) {
+            self::markTestSkipped('IconSize enum not available in TYPO3 v12');
+        }
+
         // Mock Typo3Version for v13
         $typo3VersionMock = $this->createMock(Typo3Version::class);
         $typo3VersionMock
@@ -80,6 +85,11 @@ class IconHelperTest extends UnitTestCase
 
     public function testGetDefaultIconSizeForFutureVersion(): void
     {
+        // Skip test if IconSize enum is not available (TYPO3 v12)
+        if (!class_exists(\TYPO3\CMS\Core\Imaging\IconSize::class)) {
+            self::markTestSkipped('IconSize enum not available in TYPO3 v12');
+        }
+
         // Mock Typo3Version for future version
         $typo3VersionMock = $this->createMock(Typo3Version::class);
         $typo3VersionMock

@@ -84,12 +84,15 @@ class IconHelper
         return GeneralUtility::makeInstance(Avatar::class)->render($user, $size, true);
     }
 
-    public static function getDefaultIconSize(): string|\TYPO3\CMS\Core\Imaging\IconSize
+    /**
+     * @return string|object
+     */
+    public static function getDefaultIconSize() // @phpstan-ignore-line
     {
         $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
 
         if ($typo3Version >= 13) {
-            return \TYPO3\CMS\Core\Imaging\IconSize::SMALL;
+            return \TYPO3\CMS\Core\Imaging\IconSize::SMALL; // @phpstan-ignore-line
         }
         return \TYPO3\CMS\Core\Imaging\Icon::SIZE_SMALL; // @phpstan-ignore classConstant.deprecated
     }

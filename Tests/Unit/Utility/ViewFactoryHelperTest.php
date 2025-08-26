@@ -52,7 +52,7 @@ class ViewFactoryHelperTest extends UnitTestCase
 
         GeneralUtility::addInstance(Typo3Version::class, $typo3VersionMock);
 
-        $standaloneViewMock = $this->createMock(\TYPO3\CMS\Fluid\View\StandaloneView::class); // @phpstan-ignore classConstant.deprecatedClass
+        $standaloneViewMock = $this->createMock(\TYPO3\CMS\Fluid\View\StandaloneView::class);
         $standaloneViewMock->expects(self::once())->method('setFormat')->with('html');
         $standaloneViewMock->expects(self::once())->method('setTemplateRootPaths');
         $standaloneViewMock->expects(self::once())->method('setPartialRootPaths');
@@ -60,7 +60,7 @@ class ViewFactoryHelperTest extends UnitTestCase
         $standaloneViewMock->expects(self::once())->method('assignMultiple')->with(['key' => 'value']);
         $standaloneViewMock->expects(self::once())->method('render')->willReturn('<html>rendered content</html>');
 
-        GeneralUtility::addInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class, $standaloneViewMock); // @phpstan-ignore classConstant.deprecatedClass
+        GeneralUtility::addInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class, $standaloneViewMock);
 
         $result = ViewFactoryHelper::renderView('TestTemplate', ['key' => 'value']);
 
@@ -69,6 +69,11 @@ class ViewFactoryHelperTest extends UnitTestCase
 
     public function testRenderViewCallsRenderView13ForVersion13(): void
     {
+        // Skip test if ViewFactory is not available (TYPO3 v12)
+        if (!interface_exists(\TYPO3\CMS\Core\View\ViewFactoryInterface::class)) {
+            self::markTestSkipped('ViewFactory not available in TYPO3 v12');
+        }
+
         $typo3VersionMock = $this->createMock(Typo3Version::class);
         $typo3VersionMock
             ->expects(self::once())
@@ -93,6 +98,11 @@ class ViewFactoryHelperTest extends UnitTestCase
 
     public function testRenderViewCallsRenderView13ForFutureVersion(): void
     {
+        // Skip test if ViewFactory is not available (TYPO3 v12)
+        if (!interface_exists(\TYPO3\CMS\Core\View\ViewFactoryInterface::class)) {
+            self::markTestSkipped('ViewFactory not available in TYPO3 v12');
+        }
+
         $typo3VersionMock = $this->createMock(Typo3Version::class);
         $typo3VersionMock
             ->expects(self::once())
@@ -121,7 +131,7 @@ class ViewFactoryHelperTest extends UnitTestCase
         $typo3VersionMock->method('getMajorVersion')->willReturn(12);
         GeneralUtility::addInstance(Typo3Version::class, $typo3VersionMock);
 
-        $standaloneViewMock = $this->createMock(\TYPO3\CMS\Fluid\View\StandaloneView::class); // @phpstan-ignore classConstant.deprecatedClass
+        $standaloneViewMock = $this->createMock(\TYPO3\CMS\Fluid\View\StandaloneView::class);
         $standaloneViewMock->method('setFormat');
         $standaloneViewMock->method('setTemplateRootPaths');
         $standaloneViewMock->method('setPartialRootPaths');
@@ -130,7 +140,7 @@ class ViewFactoryHelperTest extends UnitTestCase
         $standaloneViewMock->method('assignMultiple');
         $standaloneViewMock->method('render')->willReturn('<html>simple template</html>');
 
-        GeneralUtility::addInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class, $standaloneViewMock); // @phpstan-ignore classConstant.deprecatedClass
+        GeneralUtility::addInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class, $standaloneViewMock);
 
         $result = ViewFactoryHelper::renderView('SimpleTemplate', ['test' => 'data']);
 
@@ -139,6 +149,11 @@ class ViewFactoryHelperTest extends UnitTestCase
 
     public function testRenderView13WithRequest(): void
     {
+        // Skip test if ViewFactory is not available (TYPO3 v12)
+        if (!interface_exists(\TYPO3\CMS\Core\View\ViewFactoryInterface::class)) {
+            self::markTestSkipped('ViewFactory not available in TYPO3 v12');
+        }
+
         $typo3VersionMock = $this->createMock(Typo3Version::class);
         $typo3VersionMock->method('getMajorVersion')->willReturn(13);
         GeneralUtility::addInstance(Typo3Version::class, $typo3VersionMock);
@@ -167,6 +182,11 @@ class ViewFactoryHelperTest extends UnitTestCase
 
     public function testRenderView13WithoutRequest(): void
     {
+        // Skip test if ViewFactory is not available (TYPO3 v12)
+        if (!interface_exists(\TYPO3\CMS\Core\View\ViewFactoryInterface::class)) {
+            self::markTestSkipped('ViewFactory not available in TYPO3 v12');
+        }
+
         $typo3VersionMock = $this->createMock(Typo3Version::class);
         $typo3VersionMock->method('getMajorVersion')->willReturn(13);
         GeneralUtility::addInstance(Typo3Version::class, $typo3VersionMock);
@@ -197,7 +217,7 @@ class ViewFactoryHelperTest extends UnitTestCase
         $typo3VersionMock->method('getMajorVersion')->willReturn(12);
         GeneralUtility::addInstance(Typo3Version::class, $typo3VersionMock);
 
-        $standaloneViewMock = $this->createMock(\TYPO3\CMS\Fluid\View\StandaloneView::class); // @phpstan-ignore classConstant.deprecatedClass
+        $standaloneViewMock = $this->createMock(\TYPO3\CMS\Fluid\View\StandaloneView::class);
         $standaloneViewMock->method('setFormat');
         $standaloneViewMock->method('setTemplateRootPaths');
         $standaloneViewMock->method('setPartialRootPaths');
@@ -205,7 +225,7 @@ class ViewFactoryHelperTest extends UnitTestCase
         $standaloneViewMock->expects(self::once())->method('assignMultiple')->with([]);
         $standaloneViewMock->method('render')->willReturn('<html>empty values</html>');
 
-        GeneralUtility::addInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class, $standaloneViewMock); // @phpstan-ignore classConstant.deprecatedClass
+        GeneralUtility::addInstance(\TYPO3\CMS\Fluid\View\StandaloneView::class, $standaloneViewMock);
 
         $result = ViewFactoryHelper::renderView('TestTemplate', []);
 
@@ -214,6 +234,11 @@ class ViewFactoryHelperTest extends UnitTestCase
 
     public function testRenderViewWithComplexValues(): void
     {
+        // Skip test if ViewFactory is not available (TYPO3 v12)
+        if (!interface_exists(\TYPO3\CMS\Core\View\ViewFactoryInterface::class)) {
+            self::markTestSkipped('ViewFactory not available in TYPO3 v12');
+        }
+
         $typo3VersionMock = $this->createMock(Typo3Version::class);
         $typo3VersionMock->method('getMajorVersion')->willReturn(13);
         GeneralUtility::addInstance(Typo3Version::class, $typo3VersionMock);
