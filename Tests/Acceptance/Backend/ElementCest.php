@@ -22,6 +22,7 @@
 namespace Xima\XimaTypo3ContentPlanner\Tests\Acceptance\Backend;
 
 use Xima\XimaTypo3ContentPlanner\Tests\Acceptance\Support\AcceptanceTester;
+use Xima\XimaTypo3ContentPlanner\Tests\Acceptance\Support\Enums\Selectors;
 use Xima\XimaTypo3ContentPlanner\Tests\Acceptance\Support\Helper\PageTree;
 
 class ElementCest
@@ -31,12 +32,25 @@ class ElementCest
         $I->loginAs('admin');
     }
 
-    public function createElementAndSave(
+    public function initialTest(
         AcceptanceTester $I,
         PageTree $pageTree,
     ): void {
-        $I->click('Page');
-        $I->waitForElementVisible(PageTree::$treeSelector, 10);
+
+        $I->openModule(Selectors::BackendPageModule->value);
+        $I->switchToIFrame();
+
+        $I->waitForElementVisible(Selectors::Tree->value, 10);
         $pageTree->openPath(['Home', 'Projects']);
+
+        $pageTree->openContextMenu(['Projects']);
+
+        $I->see('Content Status', Selectors::ContextMenu->value);
+        $pageTree->selectInContextMenu(['Content Status']);
+        $I->see('Reset Status', Selectors::ContextMenu->value);
+        $pageTree->selectInContextMenu(['Content Status', 'Reset Status']);
+
+        $I->switchToIFrame();
+        $I->see('The status of the record has been unset successfully.', Selectors::Alert->value);
     }
 }

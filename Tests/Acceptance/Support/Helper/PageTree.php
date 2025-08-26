@@ -27,6 +27,7 @@ use Facebook\WebDriver;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\TestingFramework;
 use Xima\XimaTypo3ContentPlanner\Tests\Acceptance\Support\AcceptanceTester;
+use Xima\XimaTypo3ContentPlanner\Tests\Acceptance\Support\Enums\Selectors;
 
 final class PageTree extends TestingFramework\Core\Acceptance\Helper\AbstractPageTree
 {
@@ -34,11 +35,6 @@ final class PageTree extends TestingFramework\Core\Acceptance\Helper\AbstractPag
      * @var AcceptanceTester
      */
     protected $tester;
-
-    // Selectors
-    public static $treeSelector = '#typo3-pagetree-treeContainer';
-    public static $treeItemSelector = '.nodes-list > [role="treeitem"]';
-    public static $treeItemAnchorSelector = '.node-contentlabel';
 
     private readonly Typo3Version $typo3Version;
 
@@ -73,7 +69,7 @@ final class PageTree extends TestingFramework\Core\Acceptance\Helper\AbstractPag
         $I->executeInSelenium(function (WebDriver\Remote\RemoteWebDriver $webDriver) use ($contextMenu): void {
             $webDriver->getMouse()->contextClick($contextMenu->getCoordinates());
         });
-        $I->waitForElementVisible(Tests\Acceptance\Support\Enums\Selectors::ContextMenuGroup->value);
+        $I->waitForElementVisible(Selectors::ContextMenuGroup->value);
     }
 
     /**
