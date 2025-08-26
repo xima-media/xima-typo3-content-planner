@@ -12,6 +12,10 @@ extensions:
     - Codeception\Extension\RunFailed
     - Codeception\Extension\Recorder:
         delete_successful: true
+    - EliasHaeussler\Typo3CodeceptionHelper\Codeception\Extension\ApplicationEntrypointModifier:
+        entrypoints:
+          - web-dir: public
+          - web-dir: public/typo3
 
 params:
   - env
@@ -37,8 +41,13 @@ suites:
             window_size: 1920x1280
             capabilities:
               acceptInsecureCerts: true
-              goog:chromeOptions:
-                args: ['--no-sandbox', '--disable-dev-shm-usage']
+              chromeOptions:
+                args: [ '--disable-dev-shm-usage' ]
+                prefs:
+                  profile.content_settings.exceptions.clipboard:
+                    '[*.],*':
+                      last_modified: 1688930908
+                      setting: 1
         - Asserts
         - EliasHaeussler\Typo3CodeceptionHelper\Codeception\Module\Backend:
             userCredentials:

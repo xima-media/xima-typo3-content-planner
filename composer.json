@@ -146,6 +146,11 @@
 			"@test:coverage:unit",
 			"@test:coverage:merge"
 		],
+		"test:coverage:acceptance": [
+			"cd .Build/12 && TESTING_DOMAIN=12.xima-typo3-content-planner.ddev.site vendor/bin/codecept run --steps -c codeception.yml --coverage --coverage-html",
+			"mkdir -p .Build/coverage/php",
+			"cp .Build/12/Tests/Acceptance/_output/coverage.serialized .Build/coverage/php/acceptance.cov"
+		],
 		"test:coverage:functional": "XDEBUG_MODE=coverage phpunit -c phpunit.functional.xml",
 		"test:coverage:merge": "phpcov merge --html .Build/coverage/html/_merged --clover .Build/coverage/clover.xml --text php://stdout .Build/coverage/php",
 		"test:coverage:unit": "XDEBUG_MODE=coverage phpunit -c phpunit.unit.xml",

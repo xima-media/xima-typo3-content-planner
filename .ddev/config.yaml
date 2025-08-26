@@ -15,11 +15,10 @@ hooks:
     post-start:
         - exec: composer install --ignore-platform-reqs --no-scripts
         - exec: mkdir -p /var/www/html/.Build/ && cp /var/www/html/.ddev/.setup/templates/* /var/www/html/.Build/
-webimage_extra_packages: [libxml2-utils]
+webimage_extra_packages: [libxml2-utils, php8.2-pcov]
 use_dns_when_possible: true
 composer_version: "2"
 web_environment:
-  - XDEBUG_MODE=debug,coverage
   - TYPO3_CONTEXT=Development/DDEV
   - typo3DatabaseHost=db
   - typo3DatabaseUsername=root
