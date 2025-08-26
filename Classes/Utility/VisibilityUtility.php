@@ -33,7 +33,7 @@ class VisibilityUtility
         }
 
         // check user setting
-        if ($GLOBALS['BE_USER']->user['tx_ximatypo3contentplanner_hide'] === 1) {
+        if (($GLOBALS['BE_USER']->user['tx_ximatypo3contentplanner_hide'] ?? 0) === 1) {
             return false;
         }
 

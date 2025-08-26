@@ -116,12 +116,12 @@ final class CommentItem
 
     public function isEdited(): bool
     {
-        return (bool)$this->data['edited'];
+        return (bool)($this->data['edited'] ?? false);
     }
 
     public function isResolved(): bool
     {
-        return $this->data['resolved_date'] > 0;
+        return ($this->data['resolved_date'] ?? 0) > 0;
     }
 
     public function getResolvedUser(): string
