@@ -181,7 +181,6 @@ class PlannerUtility
             ];
             $newIds[] = $newId;
         }
-        $data[$table][$uid]['tx_ximatypo3contentplanner_comments'] = count($newIds);
 
         /** @var DataHandler $dataHandler */
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
