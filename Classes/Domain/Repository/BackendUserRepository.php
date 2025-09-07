@@ -27,6 +27,12 @@ use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
+/**
+ * BackendUserRepository.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class BackendUserRepository
 {
     public function __construct(private readonly ConnectionPool $connectionPool) {}

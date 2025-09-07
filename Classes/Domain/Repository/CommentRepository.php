@@ -29,6 +29,12 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
+/**
+ * CommentRepository.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class CommentRepository
 {
     private const TABLE = 'tx_ximatypo3contentplanner_comment';

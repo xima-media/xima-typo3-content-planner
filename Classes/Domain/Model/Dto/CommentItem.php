@@ -31,6 +31,12 @@ use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
+/**
+ * CommentItem.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class CommentItem
 {
     /** @var array<string, mixed> */

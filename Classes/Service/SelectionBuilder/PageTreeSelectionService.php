@@ -33,6 +33,12 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 
+/**
+ * PageTreeSelectionService.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class PageTreeSelectionService extends AbstractSelectionService implements SelectionInterface
 {
     public function __construct(

@@ -33,6 +33,12 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
+/**
+ * ModifyRecordListTableActionsListener.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class ModifyRecordListTableActionsListener
 {
     protected ServerRequest $request;

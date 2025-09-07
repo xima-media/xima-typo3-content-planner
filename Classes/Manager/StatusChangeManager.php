@@ -33,6 +33,12 @@ use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
+/**
+ * StatusChangeManager.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class StatusChangeManager
 {
     public function __construct(

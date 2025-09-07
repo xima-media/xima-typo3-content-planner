@@ -23,6 +23,12 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\Header;
 
+/**
+ * HeaderMode.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 enum HeaderMode: string
 {
     case EDIT = 'edit';

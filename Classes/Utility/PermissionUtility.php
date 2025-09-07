@@ -27,6 +27,12 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 
+/**
+ * PermissionUtility.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class PermissionUtility
 {
     /**

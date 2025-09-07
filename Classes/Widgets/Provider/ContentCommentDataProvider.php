@@ -27,6 +27,12 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
+/**
+ * ContentCommentDataProvider.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class ContentCommentDataProvider implements ListDataProviderInterface
 {
     public function __construct(private readonly ConnectionPool $connectionPool) {}

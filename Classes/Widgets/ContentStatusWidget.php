@@ -31,6 +31,12 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
 
+/**
+ * ContentStatusWidget.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class ContentStatusWidget extends AbstractWidget
 {
     public function renderWidgetContent(): string

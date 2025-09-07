@@ -22,6 +22,7 @@ declare(strict_types=1);
  */
 
 use EliasHaeussler\PhpCsFixerConfig;
+use EliasHaeussler\PhpCsFixerConfig\Rules\RuleSet;
 use TYPO3\CodingStandards;
 
 $header = PhpCsFixerConfig\Rules\Header::create(
@@ -41,5 +42,17 @@ $finder = $config->getFinder()
 
 return PhpCsFixerConfig\Config::create()
     ->withConfig($config)
+    ->withRule(
+        RuleSet::fromArray(
+            KonradMichalik\PhpDocBlockHeaderFixer\Generators\DocBlockHeader::create(
+                [
+                    'author' => 'Konrad Michalik <hej@konradmichalik.dev>',
+                    'license' => 'GPL-2.0',
+                ],
+                addStructureName: true,
+            )->__toArray(),
+        ),
+    )
+    ->registerCustomFixers([new KonradMichalik\PhpDocBlockHeaderFixer\Rules\DocBlockHeaderFixer()])
     ->withRule($header)
 ;

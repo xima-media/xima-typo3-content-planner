@@ -26,6 +26,12 @@ namespace Test\Sitepackage\EventListener;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Event\PrepareStatusSelectionEvent;
 
+/**
+ * PrepareStatusSelectionListener.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class PrepareStatusSelectionListener
 {
     public function __construct(private readonly StatusRepository $statusRepository) {}

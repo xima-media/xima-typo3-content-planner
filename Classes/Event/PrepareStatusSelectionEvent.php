@@ -26,26 +26,11 @@ namespace Xima\XimaTypo3ContentPlanner\Event;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
 /**
-* PrepareStatusSelectionEvent
-*
-* Use this event to influence the status selection in the backend regarding multiple factors (e.g. current state, current record or context class).
-* Therefore, it is possible to implement some kind of simple workflow for status changes.
-*
-* Example usage:
-*```php
-* $selection = $event->getSelection();
-*
-* if ($event->getCurrentStatus() && $event->getCurrentStatus()->getTitle() === 'Needs review') {
-*  $targetStatus = $this->statusRepository->findOneByTitle('Pending');
-*
-*  if ($targetStatus) {
-*      unset($selection[$targetStatus->getUid()]);
-*  }
-* }
-*
-* $event->setSelection($selection);
-* ```
-*/
+ * PrepareStatusSelectionEvent.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class PrepareStatusSelectionEvent
 {
     final public const NAME = 'xima_typo3_content_planner.status.prepare_selection';

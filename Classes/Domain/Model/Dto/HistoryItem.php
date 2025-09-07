@@ -35,6 +35,12 @@ use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
+/**
+ * HistoryItem.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class HistoryItem
 {
     /** @var array<string, mixed> */

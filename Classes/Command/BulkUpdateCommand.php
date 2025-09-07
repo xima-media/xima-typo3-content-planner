@@ -36,6 +36,12 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
+/**
+ * BulkUpdateCommand.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class BulkUpdateCommand extends Command
 {
     public function __construct(

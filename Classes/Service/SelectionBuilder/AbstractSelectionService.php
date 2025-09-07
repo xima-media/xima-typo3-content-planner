@@ -39,6 +39,12 @@ use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 
+/**
+ * AbstractSelectionService.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class AbstractSelectionService
 {
     public function __construct(

@@ -33,6 +33,12 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
 * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Events/Events/Backend/ModifyPageLayoutContentEvent.html#modifypagelayoutcontentevent
 */
 
+/**
+ * DrawBackendHeaderListener.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class DrawBackendHeaderListener
 {
     public function __construct(

@@ -29,6 +29,12 @@ use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\HistoryItem;
 
+/**
+ * ContentUpdateDataProvider.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class ContentUpdateDataProvider implements ListDataProviderInterface
 {
     public function __construct(private readonly ConnectionPool $connectionPool) {}
