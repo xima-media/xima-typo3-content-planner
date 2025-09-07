@@ -29,6 +29,12 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
+/**
+ * StatusOverviewDataProvider.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class StatusOverviewDataProvider implements ChartDataProviderInterface
 {
     public function __construct(private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository) {}

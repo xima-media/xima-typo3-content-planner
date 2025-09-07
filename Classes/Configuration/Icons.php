@@ -23,6 +23,12 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Configuration;
 
+/**
+ * Icons.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class Icons
 {
     final public const STATUS_ICON_FLAG = 'flag';

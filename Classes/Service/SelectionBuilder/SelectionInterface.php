@@ -25,6 +25,12 @@ namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
+/**
+ * SelectionInterface.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 interface SelectionInterface
 {
     /**

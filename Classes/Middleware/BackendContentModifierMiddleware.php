@@ -38,6 +38,12 @@ use Xima\XimaTypo3ContentPlanner\Service\Header\HeaderMode;
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
+/**
+ * BackendContentModifierMiddleware.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class BackendContentModifierMiddleware implements MiddlewareInterface
 {
     private ?StatusRepository $statusRepository = null;

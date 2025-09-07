@@ -29,9 +29,11 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
-* XClass the original \TYPO3\CMS\Backend\Controller\Page\TreeController to add the tx_ximatypo3contentplanner_status field to additionalFieldsToQuery of the PageTreeRepository
-* Will be used within the AfterPageTreeItemsPreparedListener to display the tx_ximatypo3contentplanner_status in the page tree
-*/
+ * TreeController.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class TreeController extends \TYPO3\CMS\Backend\Controller\Page\TreeController
 {
     protected function initializePageTreeRepository(): PageTreeRepository

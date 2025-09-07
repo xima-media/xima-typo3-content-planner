@@ -28,6 +28,12 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
+/**
+ * StatusColorViewHelper.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class StatusColorViewHelper extends AbstractViewHelper
 {
     public function __construct(private readonly StatusRepository $statusRepository) {}

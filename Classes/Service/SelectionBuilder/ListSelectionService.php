@@ -37,6 +37,12 @@ use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
+/**
+ * ListSelectionService.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class ListSelectionService extends AbstractSelectionService implements SelectionInterface
 {
     public function __construct(

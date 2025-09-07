@@ -32,8 +32,12 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
 /**
-* @extends Repository<Status>
-*/
+ * StatusRepository.
+ *
+ * @extends Repository<Status>
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class StatusRepository extends Repository
 {
     public function __construct(private readonly FrontendInterface $cache)

@@ -37,6 +37,12 @@ use TYPO3\CMS\Dashboard\Widgets\WidgetInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ViewFactoryHelper;
 
+/**
+ * AbstractWidget.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface, JavaScriptInterface
 {
     protected ServerRequestInterface $request;

@@ -28,6 +28,12 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Event\PrepareStatusSelectionEvent;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
+/**
+ * StatusSelectionManager.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class StatusSelectionManager
 {
     public function __construct(private readonly EventDispatcher $eventDispatcher) {}

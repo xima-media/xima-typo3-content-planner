@@ -26,23 +26,11 @@ namespace Xima\XimaTypo3ContentPlanner\Event;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
 /**
-* StatusChangeEvent
-*
-* Use this event to influence into the status change.
-* Therefore, it is possible to change fhe fieldArray of the corresponding record.
-*
-* Example usage:
-*```php
-* $fieldArray = $event->getFieldArray();
-*
-* if ($event->getNewStatus() && $event->getNewStatus()->getTitle() === 'Final review') {
-*   // Assign the record to a specific user, e.g. the chief editor
-*   $fieldArray['tx_ximatypo3contentplanner_assignee'] = 42;
-* }
-*
-* $event->setFieldArray($fieldArray);
-* ```
-*/
+ * StatusChangeEvent.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class StatusChangeEvent
 {
     final public const NAME = 'xima_typo3_content_planner.status.change';

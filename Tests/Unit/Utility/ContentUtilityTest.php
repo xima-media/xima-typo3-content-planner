@@ -26,6 +26,12 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Utility;
 use PHPUnit\Framework\TestCase;
 use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
 
+/**
+ * ContentUtilityTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class ContentUtilityTest extends TestCase
 {
     public function testGenerateDisplayNameWithRealnameAndUsername(): void

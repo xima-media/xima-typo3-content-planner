@@ -23,6 +23,12 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Configuration;
 
+/**
+ * Colors.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class Colors
 {
     final public const STATUS_COLOR_BLACK = 'black';

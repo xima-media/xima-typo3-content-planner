@@ -27,6 +27,12 @@ use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
+/**
+ * DiffUtility.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class DiffUtility
 {
     public static function timeAgo(int $timestamp): string

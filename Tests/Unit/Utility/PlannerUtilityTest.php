@@ -26,6 +26,12 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Utility;
 use PHPUnit\Framework\TestCase;
 use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
 
+/**
+ * PlannerUtilityTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class PlannerUtilityTest extends TestCase
 {
     public function testGenerateTodoForCommentWithSingleTodo(): void

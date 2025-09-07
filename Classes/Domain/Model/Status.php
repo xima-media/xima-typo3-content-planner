@@ -25,6 +25,12 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model;
 
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
+/**
+ * Status.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class Status extends AbstractEntity
 {
     protected string $title = '';

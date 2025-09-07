@@ -25,6 +25,12 @@ namespace Xima\XimaTypo3ContentPlanner\ViewHelpers;
 
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
+/**
+ * RandomNumberViewHelper.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class RandomNumberViewHelper extends AbstractViewHelper
 {
     /**

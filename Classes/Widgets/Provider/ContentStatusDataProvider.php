@@ -29,6 +29,12 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
+/**
+ * ContentStatusDataProvider.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class ContentStatusDataProvider implements ListDataProviderInterface
 {
     public function __construct(private readonly StatusRepository $statusRepository, private readonly BackendUserRepository $backendUserRepository) {}

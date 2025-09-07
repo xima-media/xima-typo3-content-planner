@@ -23,6 +23,12 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
+/**
+ * ContentCommentWidget.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class ContentCommentWidget extends AbstractWidget
 {
     public function renderWidgetContent(): string

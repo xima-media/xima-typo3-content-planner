@@ -26,6 +26,12 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Configuration;
 use PHPUnit\Framework\TestCase;
 use Xima\XimaTypo3ContentPlanner\Configuration\Colors;
 
+/**
+ * ColorsTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class ColorsTest extends TestCase
 {
     public function testStatusColorConstants(): void

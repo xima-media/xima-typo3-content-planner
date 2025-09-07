@@ -27,6 +27,12 @@ use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
 
+/**
+ * DiffUtilityTest.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 final class DiffUtilityTest extends TestCase
 {
     protected function setUp(): void

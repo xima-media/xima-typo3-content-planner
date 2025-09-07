@@ -38,6 +38,12 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
+/**
+ * HeaderSelectionService.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0
+ */
 class HeaderSelectionService extends AbstractSelectionService implements SelectionInterface
 {
     public function __construct(
