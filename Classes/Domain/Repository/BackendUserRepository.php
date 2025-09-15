@@ -67,16 +67,18 @@ class BackendUserRepository
                     $queryBuilder->expr()->neq('be_users.usergroup', $queryBuilder->createNamedParameter('')),
                     $queryBuilder->expr()->like(
                         'bg.custom_options',
-                        $queryBuilder->createNamedParameter('%,tx_ximatypo3contentplanner:content-status,%')
+                        $queryBuilder->createNamedParameter('%tx_ximatypo3contentplanner:content-status%')
                     )
                 )->__toString()
             )
             ->where(
-                $queryBuilder->expr()->or(
-                    $queryBuilder->expr()->eq('be_users.admin', 1),
-                    $queryBuilder->expr()->neq('be_users.deleted', 0),
-                    $queryBuilder->expr()->neq('be_users.disable', 0),
-                    $queryBuilder->expr()->isNotNull('bg.uid')
+                $queryBuilder->expr()->and(
+                    $queryBuilder->expr()->eq('be_users.deleted', 0),
+                    $queryBuilder->expr()->eq('be_users.disable', 0),
+                    $queryBuilder->expr()->or(
+                        $queryBuilder->expr()->eq('be_users.admin', 1),
+                        $queryBuilder->expr()->isNotNull('bg.uid'),
+                    ),
                 )
             )
             ->orderBy('be_users.username')
