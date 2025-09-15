@@ -73,17 +73,18 @@ class ContentUtility
             return '';
         }
 
-        if (isset($user['realname']) && $user['realname'] !== '') {
-            return $user['realname'] . ' (' . $user['username'] . ')';
+        if (isset($user['realName']) && $user['realName'] !== '') {
+            return $user['realName'] . ' (' . $user['username'] . ')';
         }
 
         return $user['username'];
     }
 
     /**
-    * @return array<string, mixed>|bool
-    * @Deprecated
-    */
+     * @return array<string, mixed>|bool
+     * @Deprecated
+     * @throws Exception
+     */
     public static function getComment(int $id): array|bool
     {
         if (!(bool)$id) {
