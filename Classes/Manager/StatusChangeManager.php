@@ -74,6 +74,10 @@ class StatusChangeManager
 
         $preRecord = $this->recordRepository->findByUid($table, $id);
 
+        if ($preRecord === false) {
+            return;
+        }
+
         // auto assign user if status is initially set
         if ((!array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray) || $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] === null)
             && $incomingFieldArray['tx_ximatypo3contentplanner_status'] !== null
