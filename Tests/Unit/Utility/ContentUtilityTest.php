@@ -34,11 +34,11 @@ use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
  */
 final class ContentUtilityTest extends TestCase
 {
-    public function testGenerateDisplayNameWithRealnameAndUsername(): void
+    public function testGenerateDisplayNameWithrealNameAndUsername(): void
     {
         $user = [
             'username' => 'john.doe',
-            'realname' => 'John Doe',
+            'realName' => 'John Doe',
         ];
 
         $result = ContentUtility::generateDisplayName($user);
@@ -57,11 +57,11 @@ final class ContentUtilityTest extends TestCase
         self::assertSame('jane.smith', $result);
     }
 
-    public function testGenerateDisplayNameWithEmptyRealname(): void
+    public function testGenerateDisplayNameWithEmptyrealName(): void
     {
         $user = [
             'username' => 'test.user',
-            'realname' => '',
+            'realName' => '',
         ];
 
         $result = ContentUtility::generateDisplayName($user);
@@ -72,7 +72,7 @@ final class ContentUtilityTest extends TestCase
     public function testGenerateDisplayNameWithoutUsername(): void
     {
         $user = [
-            'realname' => 'Test User',
+            'realName' => 'Test User',
         ];
 
         $result = ContentUtility::generateDisplayName($user);
@@ -89,11 +89,11 @@ final class ContentUtilityTest extends TestCase
         self::assertSame('', $result);
     }
 
-    public function testGenerateDisplayNameWithNullRealname(): void
+    public function testGenerateDisplayNameWithNullrealName(): void
     {
         $user = [
             'username' => 'test.user',
-            'realname' => null,
+            'realName' => null,
         ];
 
         $result = ContentUtility::generateDisplayName($user);
@@ -105,7 +105,7 @@ final class ContentUtilityTest extends TestCase
     {
         $user = [
             'username' => 'user123',
-            'realname' => '123 Test User',
+            'realName' => '123 Test User',
         ];
 
         $result = ContentUtility::generateDisplayName($user);
@@ -117,7 +117,7 @@ final class ContentUtilityTest extends TestCase
     {
         $user = [
             'username' => 'test.user@example.com',
-            'realname' => 'Test User (Admin)',
+            'realName' => 'Test User (Admin)',
         ];
 
         $result = ContentUtility::generateDisplayName($user);
@@ -125,11 +125,11 @@ final class ContentUtilityTest extends TestCase
         self::assertSame('Test User (Admin) (test.user@example.com)', $result);
     }
 
-    public function testGenerateDisplayNameWithRealnameZeroString(): void
+    public function testGenerateDisplayNameWithrealNameZeroString(): void
     {
         $user = [
             'username' => 'test.user',
-            'realname' => '0',
+            'realName' => '0',
         ];
 
         $result = ContentUtility::generateDisplayName($user);
@@ -137,11 +137,11 @@ final class ContentUtilityTest extends TestCase
         self::assertSame('0 (test.user)', $result);
     }
 
-    public function testGenerateDisplayNameWithWhitespaceOnlyRealname(): void
+    public function testGenerateDisplayNameWithWhitespaceOnlyrealName(): void
     {
         $user = [
             'username' => 'test.user',
-            'realname' => '     ',
+            'realName' => '     ',
         ];
 
         $result = ContentUtility::generateDisplayName($user);
