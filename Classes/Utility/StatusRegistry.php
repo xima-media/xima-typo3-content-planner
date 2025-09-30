@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 
 /**
@@ -76,6 +78,37 @@ class StatusRegistry
                 $color,
                 "color-$color",
             ];
+        }
+    }
+
+    /**
+     * Get backend users with Content Planner permission.
+     *
+     * @param array<string, mixed> $config
+     * @throws Exception
+     */
+    public function getAssignableUsers(array &$config): void
+    {
+        $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
+
+        try {
+            $users = $backendUserRepository->findAllWithPermission();
+
+            if (is_array($users)) {
+                foreach ($users as $user) {
+                    $label = $user['username'];
+                    if (($user['realName'] ?? '') !== '') {
+                        $label = $user['realName'] . ' (' . $user['username'] . ')';
+                    }
+
+                    $config['items'][] = [
+                        'label' => $label,
+                        'value' => $user['uid'],
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            // In case of error, keep the default items
         }
     }
 }

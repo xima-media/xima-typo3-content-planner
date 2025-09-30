@@ -78,14 +78,8 @@ class ExtensionUtility
                                 'value' => null,
                             ],
                         ],
-                        'foreign_table' => 'be_users',
-                        'foreign_table_where' =>
-                            '(admin=1 AND disable=0 AND deleted=0) OR FIND_IN_SET(uid, (
-                                SELECT GROUP_CONCAT(be_users.uid)
-                                FROM be_users
-                                JOIN be_groups ON FIND_IN_SET(be_groups.uid, be_users.usergroup)
-                                WHERE FIND_IN_SET(\'tx_ximatypo3contentplanner:content-status\', be_groups.custom_options) AND be_users.disable=0 AND be_users.deleted=0 AND be_groups.deleted=0
-                            )) ORDER BY username',
+                        'itemsProcFunc' =>
+                            'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getAssignableUsers',
                         'resetSelection' => true,
                         'minitems' => 0,
                         'maxitems' => 1,
