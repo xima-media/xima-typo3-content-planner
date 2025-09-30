@@ -79,6 +79,8 @@ Relax icons by Chattapat
 from <a href="https://thenounproject.com/browse/icons/term/relax/" target="_blank" title="relax Icons">
 Noun Project</a> (CC BY 3.0)
 
+Thanks to [move:elevator](https://www.move-elevator.de/) and [XIMA](https://www.xima.de/) for supporting the development of this extension.
+
 ## ⭐ License
 
 This project is licensed
