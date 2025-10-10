@@ -97,7 +97,7 @@
 		],
 		"fix:composer": "@composer normalize",
 		"fix:editorconfig": "@lint:editorconfig --fix",
-		"fix:php": "php vendor/bin/php-cs-fixer --config=php-cs-fixer.php fix",
+		"fix:php": "php vendor/bin/php-cs-fixer --config=.php-cs-fixer.php fix",
 		"lint": [
 			"@lint:composer",
 			"@lint:editorconfig",
