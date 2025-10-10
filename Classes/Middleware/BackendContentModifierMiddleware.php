@@ -3,40 +3,30 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Middleware;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Service\Header\HeaderMode;
-use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\Header\{HeaderMode, InfoGenerator};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+
+use function array_key_exists;
+use function in_array;
+use function is_array;
 
 /**
  * BackendContentModifierMiddleware.
@@ -72,12 +62,12 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         $content = $response->getBody()->__toString();
 
         $pid = $request->getQueryParams()['id'] ?? 0;
-        if ($pid === 0) {
+        if (0 === $pid) {
             return $response;
         }
 
         $newResponse = new Response();
-        $newResponse->getBody()->write($content . $this->addStatusHintToContentElement((int)$pid));
+        $newResponse->getBody()->write($content.$this->addStatusHintToContentElement((int) $pid));
 
         return $newResponse;
     }
@@ -87,13 +77,13 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
         $content = $response->getBody()->__toString();
 
-        if ($content === '') {
+        if ('' === $content) {
             return $response;
         }
 
         $table = array_key_first($request->getQueryParams()['edit']);
         $uid = $request->getQueryParams()['edit'][$table] ?? 0;
-        $uid = is_array($uid) ? (int)array_key_first($uid) : (int)$uid;
+        $uid = is_array($uid) ? (int) array_key_first($uid) : (int) $uid;
 
         $additionalContent = GeneralUtility::makeInstance(InfoGenerator::class)->generateStatusHeader(HeaderMode::EDIT, table: $table, uid: $uid);
         if (!$additionalContent) {
@@ -105,8 +95,8 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         */
         $newContent = preg_replace(
             '/(<div\s+class="typo3-TCEforms")/',
-            $additionalContent . '$1',
-            $content
+            $additionalContent.'$1',
+            $content,
         );
 
         $newResponse = new Response();
@@ -120,7 +110,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
         $content = $response->getBody()->__toString();
 
-        if ($content === '') {
+        if ('' === $content) {
             return $response;
         }
 
@@ -128,7 +118,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        $uid = (int)$request->getQueryParams()['id'];
+        $uid = (int) $request->getQueryParams()['id'];
 
         $additionalContent = GeneralUtility::makeInstance(InfoGenerator::class)->generateStatusHeader(HeaderMode::WEB_LIST, table: 'pages', uid: $uid);
 
@@ -141,8 +131,8 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         */
         $newContent = preg_replace(
             '/(<typo3-backend-editable-page-title\b[^>]*>.*?<\/typo3-backend-editable-page-title>)/is',
-            '$1' . $additionalContent,
-            $content
+            '$1'.$additionalContent,
+            $content,
         );
 
         $newResponse = new Response();
@@ -162,49 +152,51 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
                 continue;
             }
             $statusColor = Configuration\Colors::get($status->getColor());
-            $styling[] = '.t3-page-ce[data-uid="' . $record['uid'] . '"]:before { content: "";display:block;box-shadow:var(--pagemodule-element-box-shadow);padding:.5em;border-left: 5px solid ' . $statusColor . ';border-radius: 5px 5px 0 0;background-color:' . $statusColor . '; }';
+            $styling[] = '.t3-page-ce[data-uid="'.$record['uid'].'"]:before { content: "";display:block;box-shadow:var(--pagemodule-element-box-shadow);padding:.5em;border-left: 5px solid '.$statusColor.';border-radius: 5px 5px 0 0;background-color:'.$statusColor.'; }';
         }
 
-        return '<style>' . implode(' ', $styling) . '</style>';
+        return '<style>'.implode(' ', $styling).'</style>';
     }
 
     private function isRelevantWebLayoutRequest(ServerRequestInterface $request): bool
     {
-        return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
-            && $request->getAttribute('module') !== null
-            && $request->getAttribute('module')->getIdentifier() === 'web_layout'
+        return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
+            && null !== $request->getAttribute('module')
+            && 'web_layout' === $request->getAttribute('module')->getIdentifier()
             && in_array('tt_content', $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'], true);
     }
 
     private function isRelevantRecordEditRequest(ServerRequestInterface $request): bool
     {
-        return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
+        return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
             && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
             && array_key_exists('edit', $request->getQueryParams())
-            && (array_key_first($request->getQueryParams()['edit']) === 'pages' || in_array(array_key_first($request->getQueryParams()['edit']), $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'], true));
+            && ('pages' === array_key_first($request->getQueryParams()['edit']) || in_array(array_key_first($request->getQueryParams()['edit']), $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'], true));
     }
 
     private function isRelevantWebListRequest(ServerRequestInterface $request): bool
     {
-        return $request->getAttribute('applicationType') === SystemEnvironmentBuilder::REQUESTTYPE_BE
+        return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
             && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
-            && $request->getAttribute('module') !== null
-            && $request->getAttribute('module')->getIdentifier() === 'web_list';
+            && null !== $request->getAttribute('module')
+            && 'web_list' === $request->getAttribute('module')->getIdentifier();
     }
 
     private function getStatusRepository(): StatusRepository
     {
-        if ($this->statusRepository === null) {
+        if (null === $this->statusRepository) {
             $this->statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
         }
+
         return $this->statusRepository;
     }
 
     private function getRecordRepository(): RecordRepository
     {
-        if ($this->recordRepository === null) {
+        if (null === $this->recordRepository) {
             $this->recordRepository = GeneralUtility::makeInstance(RecordRepository::class);
         }
+
         return $this->recordRepository;
     }
 }

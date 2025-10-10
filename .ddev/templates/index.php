@@ -5,7 +5,7 @@ $typo3AdminPassword = getenv('TYPO3_INSTALL_ADMIN_PASSWORD');
 $supportedVersions = explode(' ', getenv('TYPO3_VERSIONS'));
 
 // Check if composer.json exists
-$composerJsonPath = __DIR__ . '/../composer.json';
+$composerJsonPath = __DIR__.'/../composer.json';
 if (file_exists($composerJsonPath)) {
     $composerJsonContent = file_get_contents($composerJsonPath);
     $composerData = json_decode($composerJsonContent, true);
@@ -36,7 +36,7 @@ if (file_exists($composerJsonPath)) {
     <p>Run <code>ddev install all</code> to install all TYPO3 instances below:</p>
     <?php
     foreach ($supportedVersions as $version) {
-        $directoryPath = '/var/www/html/.test/' . $version;
+        $directoryPath = '/var/www/html/.test/'.$version;
         if (is_dir($directoryPath)) {
             echo "<article><kbd>{$version}</kbd> <a target='_blank' href='https://{$version}.{$extensionKey}.ddev.site/typo3/?u={$typo3AdminUser}&p={$typo3AdminPassword}'>https://{$version}.{$extensionKey}.ddev.site/typo3</a></article>";
         } else {
@@ -60,7 +60,7 @@ foreach (new DirectoryIterator($directory) as $fileInfo) {
     $filePath = $fileInfo->getPathname();
     $fileName = $fileInfo->getFilename();
 
-    if ($fileName[0] === '.' || $fileInfo->isDir()) {
+    if ('.' === $fileName[0] || $fileInfo->isDir()) {
         continue;
     }
 

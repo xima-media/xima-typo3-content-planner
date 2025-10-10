@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
@@ -26,6 +16,8 @@ namespace Xima\XimaTypo3ContentPlanner\Utility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
+
+use function is_array;
 
 /**
  * PermissionUtility.
@@ -36,8 +28,8 @@ use TYPO3\CMS\Core\Type\Bitmask\Permission;
 class PermissionUtility
 {
     /**
-    * @param array<string, mixed>|bool $record
-    */
+     * @param array<string, mixed>|bool $record
+     */
     public static function checkAccessForRecord(string $table, $record): bool
     {
         if (!is_array($record)) {
@@ -45,30 +37,31 @@ class PermissionUtility
         }
 
         $backendUser = $GLOBALS['BE_USER'];
-        if ($backendUser->user === null) {
+        if (null === $backendUser->user) {
             Bootstrap::initializeBackendAuthentication();
             $backendUser->initializeUserSessionManager();
             $backendUser = $GLOBALS['BE_USER'];
         }
 
-        if ($backendUser->user['username'] === '_cli_') {
+        if ('_cli_' === $backendUser->user['username']) {
             return true;
         }
 
         /* @var $backendUser \TYPO3\CMS\Core\Authentication\BackendUserAuthentication */
-        if ($table === 'pages' && !BackendUtility::readPageAccess(
+        if ('pages' === $table && !BackendUtility::readPageAccess(
             $record['uid'],
-            $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
+            $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW),
         )) {
             return false;
         }
 
         if (!$backendUser->check('tables_select', $table) || !BackendUtility::readPageAccess(
             $record['pid'],
-            $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW)
+            $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW),
         )) {
             return false;
         }
+
         return true;
     }
 }

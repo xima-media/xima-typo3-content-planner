@@ -3,29 +3,20 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+
+use function in_array;
 
 /**
  * BackendUserRepository.
@@ -36,10 +27,12 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 class BackendUserRepository
 {
     public function __construct(private readonly ConnectionPool $connectionPool) {}
+
     /**
-    * @return array<int, array<string, mixed>>|bool
-    * @throws Exception
-    */
+     * @return array<int, array<string, mixed>>|bool
+     *
+     * @throws Exception
+     */
     public function findAll(): array|bool
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
@@ -51,9 +44,10 @@ class BackendUserRepository
     }
 
     /**
-    * @return array<int, array<string, mixed>>|bool
-    * @throws Exception
-    */
+     * @return array<int, array<string, mixed>>|bool
+     *
+     * @throws Exception
+     */
     public function findAllWithPermission(): array|bool
     {
         // First, get all group UIDs that have the permission (including subgroups recursively)
@@ -66,19 +60,19 @@ class BackendUserRepository
             ->from('be_users')
             ->where(
                 $queryBuilder->expr()->eq('be_users.deleted', 0),
-                $queryBuilder->expr()->eq('be_users.disable', 0)
+                $queryBuilder->expr()->eq('be_users.disable', 0),
             )
             ->orderBy('be_users.username');
 
         // Add condition: admin users OR users that belong to authorized groups
-        if ($authorizedGroupUids !== []) {
+        if ([] !== $authorizedGroupUids) {
             $orConditions = [
                 $queryBuilder->expr()->eq('be_users.admin', 1),
             ];
 
             // Check if user's usergroup field contains any of the authorized group UIDs
             foreach ($authorizedGroupUids as $groupUid) {
-                $orConditions[] = $queryBuilder->expr()->inSet('be_users.usergroup', (string)$groupUid);
+                $orConditions[] = $queryBuilder->expr()->inSet('be_users.usergroup', (string) $groupUid);
             }
 
             $query->andWhere($queryBuilder->expr()->or(...$orConditions));
@@ -91,12 +85,82 @@ class BackendUserRepository
     }
 
     /**
-    * Get all group UIDs that have a specific permission (recursively including subgroups).
-    *
-    * @param string $permission The permission to check (e.g., 'tx_ximatypo3contentplanner:content-status')
-    * @return array<int> Array of group UIDs
-    * @throws Exception
-    */
+     * @return array<string, mixed>|bool
+     *
+     * @throws Exception
+     */
+    public function findByUid(int $uid): array|bool
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
+
+        return $queryBuilder
+            ->select('*')
+            ->from('be_users')
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+            )
+            ->executeQuery()->fetchAssociative();
+    }
+
+    /**
+     * @return array<string, mixed>|bool
+     *
+     * @throws Exception
+     */
+    public function findByUsername(string $username): array|bool
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
+
+        return $queryBuilder
+            ->select('*')
+            ->from('be_users')
+            ->where(
+                $queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username, Connection::PARAM_STR)),
+            )
+            ->executeQuery()->fetchAssociative();
+    }
+
+    /**
+     * @ToDo: Check if there is a core function to get the username by uid
+     *
+     * @throws Exception
+     */
+    public function getUsernameByUid(?int $uid): string
+    {
+        if (!(bool) $uid) {
+            return '';
+        }
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
+
+        $userRecord = $queryBuilder
+            ->select('username', 'realName')
+            ->from('be_users')
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+            )
+            ->executeQuery()->fetchAssociative();
+
+        if ($userRecord) {
+            $user = $userRecord['username'];
+            if ((bool) $userRecord['realName']) {
+                $user = $userRecord['realName'].' ('.$user.')';
+            }
+
+            return htmlspecialchars($user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        }
+
+        return '';
+    }
+
+    /**
+     * Get all group UIDs that have a specific permission (recursively including subgroups).
+     *
+     * @param string $permission The permission to check (e.g., 'tx_ximatypo3contentplanner:content-status')
+     *
+     * @return array<int> Array of group UIDs
+     *
+     * @throws Exception
+     */
     private function getGroupUidsWithPermission(string $permission): array
     {
         // Get all groups with their permissions and subgroups
@@ -111,9 +175,9 @@ class BackendUserRepository
         // Build a map for quick lookup
         $groupMap = [];
         foreach ($allGroups as $group) {
-            $groupMap[(int)$group['uid']] = [
+            $groupMap[(int) $group['uid']] = [
                 'custom_options' => $group['custom_options'] ?? '',
-                'subgroups' => ($group['subgroup'] ?? '') !== '' ? array_map('intval', explode(',', (string)$group['subgroup'])) : [],
+                'subgroups' => ($group['subgroup'] ?? '') !== '' ? array_map('intval', explode(',', (string) $group['subgroup'])) : [],
             ];
         }
 
@@ -150,84 +214,20 @@ class BackendUserRepository
     }
 
     /**
-    * Check if a custom_options string contains a specific permission.
-    *
-    * @param string $customOptions The custom_options field value
-    * @param string $permission The permission to check
-    * @return bool
-    */
+     * Check if a custom_options string contains a specific permission.
+     *
+     * @param string $customOptions The custom_options field value
+     * @param string $permission    The permission to check
+     */
     private function hasPermission(string $customOptions, string $permission): bool
     {
-        if ($customOptions === '') {
+        if ('' === $customOptions) {
             return false;
         }
 
         // custom_options is stored as comma-separated values
         $options = array_map('trim', explode(',', $customOptions));
+
         return in_array($permission, $options, true);
-    }
-
-    /**
-    * @return array<string, mixed>|bool
-    * @throws Exception
-    */
-    public function findByUid(int $uid): array|bool
-    {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
-
-        return $queryBuilder
-            ->select('*')
-            ->from('be_users')
-            ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT))
-            )
-            ->executeQuery()->fetchAssociative();
-    }
-
-    /**
-    * @return array<string, mixed>|bool
-    * @throws Exception
-    */
-    public function findByUsername(string $username): array|bool
-    {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
-
-        return $queryBuilder
-            ->select('*')
-            ->from('be_users')
-            ->where(
-                $queryBuilder->expr()->eq('username', $queryBuilder->createNamedParameter($username, Connection::PARAM_STR))
-            )
-            ->executeQuery()->fetchAssociative();
-    }
-
-    /**
-    * @ToDo: Check if there is a core function to get the username by uid
-    * @throws Exception
-    */
-    public function getUsernameByUid(?int $uid): string
-    {
-        if (!(bool)$uid) {
-            return '';
-        }
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
-
-        $userRecord = $queryBuilder
-            ->select('username', 'realName')
-            ->from('be_users')
-            ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT))
-            )
-            ->executeQuery()->fetchAssociative();
-
-        if ($userRecord) {
-            $user = $userRecord['username'];
-            if ((bool)$userRecord['realName']) {
-                $user = $userRecord['realName'] . ' (' . $user . ')';
-            }
-            return htmlspecialchars($user, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        }
-
-        return '';
     }
 }
