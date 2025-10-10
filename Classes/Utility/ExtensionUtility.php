@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
@@ -26,10 +16,12 @@ namespace Xima\XimaTypo3ContentPlanner\Utility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\PathUtility;
+use TYPO3\CMS\Core\Utility\{ExtensionManagementUtility, GeneralUtility, PathUtility};
 use Xima\XimaTypo3ContentPlanner\Configuration;
+
+use function array_key_exists;
+use function in_array;
+use function sprintf;
 
 /**
  * ExtensionUtility.
@@ -45,14 +37,13 @@ class ExtensionUtility
             $table,
             [
                 'tx_ximatypo3contentplanner_status' => [
-                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY .
+                    'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
                     'config' => [
                         'items' => [
                             ['label' => '-- stateless --', 'value' => null],
                         ],
-                        'itemsProcFunc' =>
-                            'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
+                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
                         'type' => 'select',
                         'renderType' => 'selectSingle',
                         'resetSelection' => true,
@@ -66,20 +57,19 @@ class ExtensionUtility
                 ],
                 'tx_ximatypo3contentplanner_assignee' => [
                     'exclude' => 1,
-                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY .
+                    'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee',
                     'config' => [
                         'type' => 'select',
                         'renderType' => 'selectSingle',
                         'items' => [
                             [
-                                'label' => 'LLL:EXT:' . Configuration::EXT_KEY .
+                                'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                                     '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee.empty',
                                 'value' => null,
                             ],
                         ],
-                        'itemsProcFunc' =>
-                            'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getAssignableUsers',
+                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getAssignableUsers',
                         'resetSelection' => true,
                         'minitems' => 0,
                         'maxitems' => 1,
@@ -87,7 +77,7 @@ class ExtensionUtility
                     ],
                 ],
                 'tx_ximatypo3contentplanner_comments' => [
-                    'label' => 'LLL:EXT:' . Configuration::EXT_KEY .
+                    'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_comments',
                     'config' => [
                         'foreign_field' => 'foreign_uid',
@@ -102,26 +92,25 @@ class ExtensionUtility
                         ],
                     ],
                 ],
-            ]
+            ],
         );
 
         $GLOBALS['TCA'][$table]['palettes']['tx_ximatypo3contentplanner'] = [
-            'showitem' =>
-                'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,--linebreak--,tx_ximatypo3contentplanner_comments',
+            'showitem' => 'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,--linebreak--,tx_ximatypo3contentplanner_comments',
         ];
 
         ExtensionManagementUtility::addToAllTCAtypes(
             $table,
-            '--div--;Content Planner,--palette--;;tx_ximatypo3contentplanner'
+            '--div--;Content Planner,--palette--;;tx_ximatypo3contentplanner',
         );
     }
 
     /**
-    * @return string[]
-    */
+     * @return string[]
+     */
     public static function getRecordTables(): array
     {
-        $additionalTables = (array)(
+        $additionalTables = (array) (
             $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']
                 ?? []
         );
@@ -138,14 +127,16 @@ class ExtensionUtility
     {
         $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)
             ->get(Configuration::EXT_KEY);
-        return array_key_exists($feature, $configuration) &&
-            (bool)$configuration[$feature];
+
+        return array_key_exists($feature, $configuration)
+            && (bool) $configuration[$feature];
     }
 
     public static function getExtensionSetting(string $feature): string
     {
         $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)
             ->get(Configuration::EXT_KEY);
+
         return $configuration[$feature] ?? '';
     }
 
@@ -155,8 +146,8 @@ class ExtensionUtility
     }
 
     /**
-    * @param array<string, mixed>|bool|null $record
-    */
+     * @param array<string, mixed>|bool|null $record
+     */
     public static function getTitle(string $key, array|bool|null $record): string
     {
         if ($record) {
@@ -169,12 +160,13 @@ class ExtensionUtility
     }
 
     /**
-    * @param array<string, mixed> $attributes
-    * @throws InvalidFileException
-    */
+     * @param array<string, mixed> $attributes
+     *
+     * @throws InvalidFileException
+     */
     public static function getCssTag(
         string $cssFileLocation,
-        array $attributes
+        array $attributes,
     ): string {
         return sprintf(
             '<link %s />',
@@ -183,24 +175,25 @@ class ExtensionUtility
                 'rel' => 'stylesheet',
                 'media' => 'all',
                 'href' => PathUtility::getPublicResourceWebPath($cssFileLocation),
-            ], true)
+            ], true),
         );
     }
 
     /**
-    * @param array<string, mixed> $attributes
-    * @throws InvalidFileException
-    */
+     * @param array<string, mixed> $attributes
+     *
+     * @throws InvalidFileException
+     */
     public static function getJsTag(
         string $jsFileLocation,
-        array $attributes
+        array $attributes,
     ): string {
         return sprintf(
             '<script type="module" %s></script>',
             GeneralUtility::implodeAttributes([
                 ...$attributes,
                 'src' => PathUtility::getPublicResourceWebPath($jsFileLocation),
-            ], true)
+            ], true),
         );
     }
 }

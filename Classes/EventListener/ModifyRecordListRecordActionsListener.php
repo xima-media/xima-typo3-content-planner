@@ -1,22 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
@@ -26,12 +18,12 @@ use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\IconHelper;
-use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, IconHelper, VisibilityUtility};
+
+use function count;
+use function is_array;
 
 /**
  * ModifyRecordListRecordActionsListener.
@@ -64,7 +56,7 @@ final class ModifyRecordListRecordActionsListener
         }
 
         $allStatus = $this->statusRepository->findAll();
-        if (count($allStatus) === 0) {
+        if (0 === count($allStatus)) {
             return;
         }
 
@@ -82,8 +74,8 @@ final class ModifyRecordListRecordActionsListener
         $title = $status instanceof Status ? $status->getTitle() : 'Status';
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
         $action = '
-                <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="' . $title . '">'
-            . $this->iconFactory->getIcon($icon, IconHelper::getDefaultIconSize())->render() . '</a><ul class="dropdown-menu">';
+                <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'">'
+            .$this->iconFactory->getIcon($icon, IconHelper::getDefaultIconSize())->render().'</a><ul class="dropdown-menu">';
 
         $actionsToAdd = $this->htmlSelectionService->generateSelection($table, $uid);
         foreach ($actionsToAdd as $actionToAdd) {

@@ -3,35 +3,22 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
+use TYPO3\CMS\Core\Utility\{GeneralUtility, VersionNumberUtility};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
 
 /*
 * https://docs.typo3.org/m/typo3/reference-coreapi/12.4/en-us/ApiOverview/Events/Events/Backend/AfterPageTreeItemsPreparedEvent.html
@@ -70,19 +57,19 @@ final class AfterPageTreeItemsPreparedListener
                             && isset($item['_page']['tx_ximatypo3contentplanner_comments'])
                             && $item['_page']['tx_ximatypo3contentplanner_comments'] > 0
                         ) {
-                            $label = $item['_page']['tx_ximatypo3contentplanner_comments'] . ' ' . $GLOBALS['LANG']->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments');
+                            $label = $item['_page']['tx_ximatypo3contentplanner_comments'].' '.$GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
                             $icon = 'actions-message';
 
-                            if (ExtensionUtility::getExtensionSetting(Configuration::FEATURE_TREE_STATUS_INFORMATION) === 'todos') {
+                            if ('todos' === ExtensionUtility::getExtensionSetting(Configuration::FEATURE_TREE_STATUS_INFORMATION)) {
                                 $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
                                 $todoResolved = $item['_page']['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($item['_page']['uid'], 'pages') : 0;
                                 $todoTotal = $item['_page']['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($item['_page']['uid'], 'pages', 'todo_total') : 0;
 
-                                if ($todoTotal === 0 || ($todoResolved === $todoTotal)) {
+                                if (0 === $todoTotal || ($todoResolved === $todoTotal)) {
                                     continue;
                                 }
 
-                                $label = "$todoResolved/$todoTotal " . $GLOBALS['LANG']->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments.todo');
+                                $label = "$todoResolved/$todoTotal ".$GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
                                 $icon = 'actions-check-square';
                             }
                             $item['statusInformation'][] = new \TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation(

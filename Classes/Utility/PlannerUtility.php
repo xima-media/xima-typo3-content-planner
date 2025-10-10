@@ -3,36 +3,26 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use Doctrine\DBAL\Exception;
+use InvalidArgumentException;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\StringUtility;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\BackendUser;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use TYPO3\CMS\Core\Utility\{GeneralUtility, StringUtility};
+use Xima\XimaTypo3ContentPlanner\Domain\Model\{BackendUser, Status};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
+
+use function is_array;
+use function is_int;
+use function is_string;
 
 /**
  * PlannerUtility.
@@ -43,26 +33,22 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 class PlannerUtility
 {
     /**
-    * Simple function to get a list of all available status.
-    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getListOfStatus();
-    *
-    * @return Status[]
-    */
+     * Simple function to get a list of all available status.
+     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getListOfStatus();.
+     *
+     * @return Status[]
+     */
     public static function getListOfStatus(): array
     {
         return GeneralUtility::makeInstance(StatusRepository::class)->findAll();
     }
 
     /**
-    * Simple function to update the status of a record.
-    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::updateStatusForRecord('pages', 1, 'In Progress', 'admin');
-    *
-    * @param string $table
-    * @param int $uid
-    * @param Status|int|string $status
-    * @param BackendUser|int|string|null $assignee
-    * @throws Exception
-    */
+     * Simple function to update the status of a record.
+     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::updateStatusForRecord('pages', 1, 'In Progress', 'admin');.
+     *
+     * @throws Exception
+     */
     public static function updateStatusForRecord(string $table, int $uid, Status|int|string $status, BackendUser|int|string|null $assignee = null): void
     {
         self::preCheckRecordTable($table, $uid);
@@ -75,8 +61,8 @@ class PlannerUtility
             $statusId = $statusRepository->findByTitle($status)->getUid();
         }
 
-        if (!is_int($statusId) || $statusId === 0) {
-            throw new \InvalidArgumentException('Status "' . $statusId . '" is not a valid content planner status.', 9220772840);
+        if (!is_int($statusId) || 0 === $statusId) {
+            throw new InvalidArgumentException('Status "'.$statusId.'" is not a valid content planner status.', 9220772840);
         }
 
         $assigneeId = $assignee;
@@ -94,14 +80,11 @@ class PlannerUtility
     }
 
     /**
-    * Simple function to get the status of a record.
-    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getStatusOfRecord('pages', 1);
-    *
-    * @param string $table
-    * @param int $uid
-    * @return Status|null
-    * @throws Exception
-    */
+     * Simple function to get the status of a record.
+     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getStatusOfRecord('pages', 1);.
+     *
+     * @throws Exception
+     */
     public static function getStatusOfRecord(string $table, int $uid): ?Status
     {
         $record = self::preCheckRecordTable($table, $uid);
@@ -110,47 +93,43 @@ class PlannerUtility
     }
 
     /**
-    * Simple function to get a status.
-    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getStatus('Needs review');
-    *
-    * @param int|string $identifier
-    * @return Status|null
-    */
+     * Simple function to get a status.
+     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getStatus('Needs review');.
+     */
     public static function getStatus(int|string $identifier): ?Status
     {
         $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
         if (is_string($identifier)) {
             return $statusRepository->findByTitle($identifier);
         }
+
         return $statusRepository->findByUid($identifier);
     }
 
     /**
-    * Simple function to fetch all comments of a record.
-    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getCommentsOfRecord('pages', 1);
-    *
-    * @param string $table
-    * @param int $uid
-    * @param bool $raw
-    * @return array<int, array<string, mixed>>|array<int, \Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem>
-    * @throws Exception
-    */
+     * Simple function to fetch all comments of a record.
+     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getCommentsOfRecord('pages', 1);.
+     *
+     * @return array<int, array<string, mixed>>|array<int, \Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem>
+     *
+     * @throws Exception
+     */
     public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false): array
     {
         self::preCheckRecordTable($table, $uid);
+
         return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw);
     }
 
     /**
-    * Simple function to add comment(s) to a content planner record.
-    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::addCommentsToRecord('pages', 1, 'New Comment', 'admin');
-    *
-    * @param string $table
-    * @param int $uid
-    * @param array<int,string>|string $comments
-    * @param BackendUser|int|string $author
-    * @throws Exception
-    */
+     * Simple function to add comment(s) to a content planner record.
+     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::addCommentsToRecord('pages', 1, 'New Comment', 'admin');.
+     *
+     * @param array<int,string>|string $comments
+     * @param BackendUser|int|string   $author
+     *
+     * @throws Exception
+     */
     public static function addCommentsToRecord(string $table, int $uid, array|string $comments, BackendUser|int|string|null $author = null): void
     {
         $record = self::preCheckRecordTable($table, $uid);
@@ -161,18 +140,18 @@ class PlannerUtility
         } elseif (is_string($author)) {
             $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
             $user = $backendUserRepository->findByUsername($author);
-            $authorId = is_array($user) && isset($user['uid']) ? (int)$user['uid'] : null;
+            $authorId = is_array($user) && isset($user['uid']) ? (int) $user['uid'] : null;
         }
 
-        if (!is_int($authorId) || $authorId === 0) {
-            throw new \InvalidArgumentException('Author "' . $authorId . '" is not a valid backend user.', 4723563571);
+        if (!is_int($authorId) || 0 === $authorId) {
+            throw new InvalidArgumentException('Author "'.$authorId.'" is not a valid backend user.', 4723563571);
         }
 
         if (!is_array($comments)) {
             $comments = [$comments];
         }
 
-        $pid = $table === 'pages' ? $record['uid'] : $record['pid'];
+        $pid = 'pages' === $table ? $record['uid'] : $record['pid'];
         $newIds = [];
         $data = [];
 
@@ -195,20 +174,19 @@ class PlannerUtility
     }
 
     /**
-    * Simple function to generate the html todo markup for a comment to easily insert them into the comment content.
-    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::generateTodoForComment(['First todo', 'Second todo']);
-    *
-    * @param string[] $todos
-    * @return string
-    */
+     * Simple function to generate the html todo markup for a comment to easily insert them into the comment content.
+     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::generateTodoForComment(['First todo', 'Second todo']);.
+     *
+     * @param string[] $todos
+     */
     public static function generateTodoForComment(array $todos): string
     {
         $html = '<ul class="todo-list">';
         foreach ($todos as $todo) {
             $html .= '<li><label class="todo-list__label">'
-                . '<input type="checkbox" disabled="disabled">'
-                . '<span class="todo-list__label__description">' . htmlspecialchars($todo, ENT_QUOTES | ENT_HTML5) . '</span>'
-                . '</label></li>';
+                .'<input type="checkbox" disabled="disabled">'
+                .'<span class="todo-list__label__description">'.htmlspecialchars($todo, \ENT_QUOTES | \ENT_HTML5).'</span>'
+                .'</label></li>';
         }
         $html .= '</ul>';
 
@@ -216,14 +194,11 @@ class PlannerUtility
     }
 
     /**
-    * Simple function to clear all comment(s) of a content planner record.
-    * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::clearCommentsOfRecord('pages', 1);
-    *
-    * @param string $table
-    * @param int $uid
-    * @param string|null $like
-    * @throws Exception
-    */
+     * Simple function to clear all comment(s) of a content planner record.
+     * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::clearCommentsOfRecord('pages', 1);.
+     *
+     * @throws Exception
+     */
     public static function clearCommentsOfRecord(string $table, int $uid, ?string $like = null): void
     {
         self::preCheckRecordTable($table, $uid);
@@ -233,18 +208,19 @@ class PlannerUtility
     }
 
     /**
-    * @return array<string, mixed>
-    * @throws Exception
-    */
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
     private static function preCheckRecordTable(string $table, int $uid): array
     {
         if (!ExtensionUtility::isRegisteredRecordTable($table)) {
-            throw new \InvalidArgumentException('Table "' . $table . '" is not a valid content planner record table.', 9518991865);
+            throw new InvalidArgumentException('Table "'.$table.'" is not a valid content planner record table.', 9518991865);
         }
 
         $record = GeneralUtility::makeInstance(RecordRepository::class)->findByUid($table, $uid);
         if (!$record) {
-            throw new \InvalidArgumentException('Record "' . $uid . '" in table "' . $table . '" not found.', 4064696674);
+            throw new InvalidArgumentException('Record "'.$uid.'" in table "'.$table.'" not found.', 4064696674);
         }
 
         return $record;

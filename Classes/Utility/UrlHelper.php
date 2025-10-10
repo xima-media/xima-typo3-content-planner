@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
@@ -27,6 +17,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
+use function in_array;
 
 /**
  * UrlHelper.
@@ -37,8 +29,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class UrlHelper
 {
     /**
-    * @throws RouteNotFoundException
-    */
+     * @throws RouteNotFoundException
+     */
     public static function getContentStatusPropertiesEditUrl(string $table, int $uid, bool $generateReturnUrl = true): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -48,7 +40,8 @@ class UrlHelper
             'returnUrl' => $generateReturnUrl && in_array($request->getAttribute('routing')->getRoute()->getOption('_identifier'), ['web_layout', 'web_list', 'record_edit'], true) ? $request->getAttribute('normalizedParams')->getRequestUri() : null,
             'columnsOnly' => 'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments',
         ];
-        return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
+
+        return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
     public static function getNewCommentUrl(string $table, int $uid): string
@@ -56,9 +49,9 @@ class UrlHelper
         $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $pid = $uid;
-        if ($table !== 'pages') {
+        if ('pages' !== $table) {
             $record = ContentUtility::getExtensionRecord($table, $uid);
-            $pid = (int)$record['pid'];
+            $pid = (int) $record['pid'];
         }
 
         $params = [
@@ -66,12 +59,13 @@ class UrlHelper
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
             'defVals' => ['tx_ximatypo3contentplanner_comment' => ['foreign_table' => $table, 'foreign_uid' => $uid]],
         ];
-        return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
+
+        return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
     /**
-    * @throws RouteNotFoundException
-    */
+     * @throws RouteNotFoundException
+     */
     public static function getEditCommentUrl(int $uid): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -81,12 +75,13 @@ class UrlHelper
             'edit' => ['tx_ximatypo3contentplanner_comment' => [$uid => 'edit']],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
-        return (string)$uriBuilder->buildUriFromRoute('record_edit', $params);
+
+        return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
     /**
-    * @throws RouteNotFoundException
-    */
+     * @throws RouteNotFoundException
+     */
     public static function getResolvedCommentUrl(int $uid, bool $isResolved): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -102,12 +97,13 @@ class UrlHelper
             'data' => ['tx_ximatypo3contentplanner_comment' => [$uid => ['resolved_date' => $isResolvedValue]]],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
-        return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
+
+        return (string) $uriBuilder->buildUriFromRoute('tce_db', $params);
     }
 
     /**
-    * @throws RouteNotFoundException
-    */
+     * @throws RouteNotFoundException
+     */
     public static function getDeleteCommentUrl(int $uid): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -117,32 +113,33 @@ class UrlHelper
             'cmd' => ['tx_ximatypo3contentplanner_comment' => [$uid => ['delete' => 1]]],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
-        return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
+
+        return (string) $uriBuilder->buildUriFromRoute('tce_db', $params);
     }
 
     /**
-    * @throws RouteNotFoundException
-    */
+     * @throws RouteNotFoundException
+     */
     public static function getRecordLink(string $table, int $uid): string
     {
         return match ($table) {
-            'pages' => (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $uid]),
-            default => (string)GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']]]),
+            'pages' => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $uid]),
+            default => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']]]),
         };
     }
 
     /**
-    * @throws RouteNotFoundException
-    */
+     * @throws RouteNotFoundException
+     */
     public static function assignToUser(string $table, int $uid, int|string|null $userId = null, bool $unassign = false): string
     {
         $request = $GLOBALS['TYPO3_REQUEST'];
         /** @var ServerRequestInterface $request */
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
-        if ($userId === null) {
+        if (null === $userId) {
             $userId = $GLOBALS['BE_USER']->user['uid'];
-            if ($userId === 0) {
+            if (0 === $userId) {
                 return '';
             }
         }
@@ -155,6 +152,7 @@ class UrlHelper
             'data' => [$table => [$uid => ['tx_ximatypo3contentplanner_assignee' => $userId]]],
             'redirect' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
-        return (string)$uriBuilder->buildUriFromRoute('tce_db', $params);
+
+        return (string) $uriBuilder->buildUriFromRoute('tce_db', $params);
     }
 }

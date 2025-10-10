@@ -22,14 +22,14 @@ content work, e.g. a migration process.
 
 ## ✨ Features
 
-* Extended page properties for content status, assignee and additional comments
+* Extended page properties for content **status**, **assignee** and additional **comments**
 * Colorful representation of the status within the backend
 * Easy change of status
-* User assignment for distribution of content work
+* Backend user assignment for distribution of content work
 * Comments with todo and resolve feature for additional information
 * Extensive dashboard for detailed content planning
-* Recent updates widget for quick access to the latest changes
-* Filterable content planner record overview
+  * Recent updates widget for quick access to the latest changes
+  * Filterable content planner record overview
 * Extend additional database records with status behavior
 
 ## 🔥 Installation

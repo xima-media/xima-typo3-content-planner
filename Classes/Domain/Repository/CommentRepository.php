@@ -3,31 +3,23 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use InvalidArgumentException;
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
+
+use function in_array;
 
 /**
  * CommentRepository.
@@ -43,12 +35,14 @@ class CommentRepository
     protected array $defaultOrderings = [
         'crdate' => QueryInterface::ORDER_DESCENDING,
     ];
+
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     /**
-    * @return array<int, array<string, mixed>>|array<int, CommentItem>
-    * @throws Exception
-    */
+     * @return array<int, array<string, mixed>>|array<int, CommentItem>
+     *
+     * @throws Exception
+     */
     public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false): array
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
@@ -65,7 +59,7 @@ class CommentRepository
 
         if (!$showResolved) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             );
         }
 
@@ -88,8 +82,8 @@ class CommentRepository
     }
 
     /**
-    * @throws Exception
-    */
+     * @throws Exception
+     */
     public function countAllByRecord(int $id, string $table, bool $countAll = false, bool $onlyResolved = false): int
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
@@ -104,13 +98,13 @@ class CommentRepository
 
         if (!$countAll && !$onlyResolved) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             );
         }
 
         if ($onlyResolved) {
             $query->andWhere(
-                $queryBuilder->expr()->neq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+                $queryBuilder->expr()->neq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             );
         }
 
@@ -121,7 +115,7 @@ class CommentRepository
     {
         $allowedFields = ['todo_resolved', 'todo_total'];
         if (!in_array($todoField, $allowedFields, true)) {
-            throw new \InvalidArgumentException('Invalid todo field: ' . $todoField, 1745394753);
+            throw new InvalidArgumentException('Invalid todo field: '.$todoField, 1745394753);
         }
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
@@ -130,27 +124,28 @@ class CommentRepository
             ->from(self::TABLE)
             ->where(
                 $queryBuilder->expr()->eq('deleted', 0),
-                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT))
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             )
         ;
 
         if (!$allRecords) {
             $query->andWhere(
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR))
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
             );
         }
 
-        return (int)$query->executeQuery()->fetchOne();
+        return (int) $query->executeQuery()->fetchOne();
     }
 
     /**
-    * @return array<string, mixed>|bool
-    * @throws Exception
-    */
+     * @return array<string, mixed>|bool
+     *
+     * @throws Exception
+     */
     public function findByUid(int $uid): array|bool
     {
-        if (!(bool)$uid) {
+        if (!(bool) $uid) {
             return false;
         }
 
@@ -161,7 +156,7 @@ class CommentRepository
             ->from(self::TABLE)
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('deleted', 0)
+                $queryBuilder->expr()->eq('deleted', 0),
             )
             ->executeQuery()->fetchAssociative();
     }
@@ -174,13 +169,13 @@ class CommentRepository
             ->set('deleted', 1)
             ->where(
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR))
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
             )
         ;
 
-        if ((bool)$like) {
+        if ((bool) $like) {
             $queryBuilder->andWhere(
-                $queryBuilder->expr()->like('content', $queryBuilder->createNamedParameter('%' . $queryBuilder->escapeLikeWildcards($like) . '%', Connection::PARAM_STR))
+                $queryBuilder->expr()->like('content', $queryBuilder->createNamedParameter('%'.$queryBuilder->escapeLikeWildcards($like).'%', Connection::PARAM_STR)),
             );
         }
 

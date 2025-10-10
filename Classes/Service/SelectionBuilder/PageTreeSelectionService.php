@@ -3,22 +3,12 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
@@ -27,10 +17,7 @@ use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 
 /**
@@ -53,16 +40,16 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string|int, mixed> $selectionEntriesToAdd
-    * @param array<int>|int|null $uid
-    * @param array<string, mixed>|bool|null $record
-    */
+     * @param array<string|int, mixed>       $selectionEntriesToAdd
+     * @param array<int>|int|null            $uid
+     * @param array<string, mixed>|bool|null $record
+     */
     public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
     {
         if ($this->compareStatus($status, $currentStatus)) {
             return;
         }
-        $selectionEntriesToAdd[(string)$status->getUid()] = [
+        $selectionEntriesToAdd[(string) $status->getUid()] = [
             'label' => $status->getTitle(),
             'iconIdentifier' => $status->getColoredIcon(),
             'callbackAction' => 'change',
@@ -70,37 +57,37 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
-    * @param string|null             $additionalPostIdentifier
-    */
+     * @param array<string, mixed> $selectionEntriesToAdd
+     */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
-        $selectionEntriesToAdd['divider' . ($additionalPostIdentifier ?? '')] = ['type' => 'divider'];
+        $selectionEntriesToAdd['divider'.($additionalPostIdentifier ?? '')] = ['type' => 'divider'];
     }
 
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
-    * @param array<int, int>|int|null $uid
-    * @param array<string, mixed>|bool|null $record
-    */
+     * @param array<string, mixed>           $selectionEntriesToAdd
+     * @param array<int, int>|int|null       $uid
+     * @param array<string, mixed>|bool|null $record
+     */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
     {
         $selectionEntriesToAdd['reset'] = [
-            'label' => 'LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:reset',
+            'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset',
             'iconIdentifier' => 'actions-close',
             'callbackAction' => 'reset',
         ];
     }
 
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
-    * @param array<string, mixed> $record
-    * @throws Exception
-    */
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $record
+     *
+     * @throws Exception
+     */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        $username = $this->backendUserRepository->getUsernameByUid((int)$record['tx_ximatypo3contentplanner_assignee']);
-        if ($username === '') {
+        $username = $this->backendUserRepository->getUsernameByUid((int) $record['tx_ximatypo3contentplanner_assignee']);
+        if ('' === $username) {
             return;
         }
 
@@ -112,34 +99,35 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
-    * @param array<string, mixed> $record
-    * @throws Exception
-    */
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $record
+     *
+     * @throws Exception
+     */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $selectionEntriesToAdd['comments'] = [
-            'label' => (isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countAllByRecord($record['uid'], $table) . ' ' : '') . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments'),
+            'label' => (isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countAllByRecord($record['uid'], $table).' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'),
             'iconIdentifier' => 'actions-message',
             'callbackAction' => 'comments',
         ];
     }
 
     /**
-    * @param array<string, mixed> $selectionEntriesToAdd
-    * @param array<string, mixed> $record
-    */
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $record
+     */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);
-        if ($todoTotal === 0) {
+        if (0 === $todoTotal) {
             return;
         }
 
         $todoResolved = $this->getCommentsTodoResolved($record, $table);
 
         $selectionEntriesToAdd['commentsTodo'] = [
-            'label' => "$todoResolved/$todoTotal " . $this->getLanguageService()->sL('LLL:EXT:' . Configuration::EXT_KEY . '/Resources/Private/Language/locallang_be.xlf:comments.todo'),
+            'label' => "$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo'),
             'iconIdentifier' => 'actions-check-square',
             'callbackAction' => 'comments',
         ];

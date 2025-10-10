@@ -1,22 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
@@ -24,10 +16,10 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 use TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
+
+use function array_key_exists;
 
 /**
  * RenderAdditionalContentToRecordListListener.
@@ -39,7 +31,7 @@ final class RenderAdditionalContentToRecordListListener
 {
     public function __construct(
         private readonly StatusRepository $statusRepository,
-        private readonly RecordRepository $recordRepository
+        private readonly RecordRepository $recordRepository,
     ) {}
 
     public function __invoke(RenderAdditionalContentToRecordListEvent $event): void
@@ -57,11 +49,11 @@ final class RenderAdditionalContentToRecordListListener
         if (!array_key_exists('id', $request->getQueryParams())) {
             return;
         }
-        $pid = (int)$request->getQueryParams()['id'];
+        $pid = (int) $request->getQueryParams()['id'];
         $table = array_key_exists('table', $request->getQueryParams()) ? $request->getQueryParams()['table'] : null;
         $records = [];
 
-        if ($table !== null) {
+        if (null !== $table) {
             if (!ExtensionUtility::isRegisteredRecordTable($table)) {
                 return;
             }
@@ -76,13 +68,13 @@ final class RenderAdditionalContentToRecordListListener
         $additionalCss = '';
 
         foreach ($records as $tableName => $tableRecords) {
-            if ($tableRecords === []) {
+            if ([] === $tableRecords) {
                 continue;
             }
             foreach ($tableRecords as $tableRecord) {
                 $status = $this->statusRepository->findByUid($tableRecord['tx_ximatypo3contentplanner_status']);
                 if ($status instanceof Status) {
-                    $additionalCss .= 'tr[data-table="' . $tableName . '"][data-uid="' . $tableRecord['uid'] . '"] > td { background-color: ' . Configuration\Colors::get($status->getColor(), true) . '; } ';
+                    $additionalCss .= 'tr[data-table="'.$tableName.'"][data-uid="'.$tableRecord['uid'].'"] > td { background-color: '.Configuration\Colors::get($status->getColor(), true).'; } ';
                 }
             }
         }

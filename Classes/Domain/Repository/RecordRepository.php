@@ -3,38 +3,27 @@
 declare(strict_types=1);
 
 /*
- * This file is part of the TYPO3 CMS extension "xima_typo3_content_planner".
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
  *
- * Copyright (C) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ * (c) Konrad Michalik <hej@konradmichalik.dev>
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
-use TYPO3\CMS\Core\Database\Connection;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\Restriction\EndTimeRestriction;
-use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
-use TYPO3\CMS\Core\Database\Query\Restriction\StartTimeRestriction;
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestriction, StartTimeRestriction};
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\PermissionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PermissionUtility};
+
+use function count;
+use function sprintf;
 
 /**
  * RecordRepository.
@@ -57,8 +46,8 @@ class RecordRepository
     public function __construct(private readonly FrontendInterface $cache, private readonly ConnectionPool $connectionPool) {}
 
     /**
-    * @return array<int, array<string, mixed>>|bool
-    */
+     * @return array<int, array<string, mixed>>|bool
+     */
     public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20): array|bool
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
@@ -68,18 +57,18 @@ class RecordRepository
             'limit' => $maxResults,
         ];
 
-        if ((bool)$search) {
+        if ((bool) $search) {
             $additionalWhere .= ' AND (title LIKE :search OR uid = :uid)';
-            $additionalParams['search'] = '%' . $search . '%';
+            $additionalParams['search'] = '%'.$search.'%';
             $additionalParams['uid'] = $search;
         }
 
-        if ((bool)$status) {
+        if ((bool) $status) {
             $additionalWhere .= ' AND tx_ximatypo3contentplanner_status = :status';
             $additionalParams['status'] = $status;
         }
 
-        if ((bool)$assignee) {
+        if ((bool) $assignee) {
             $additionalWhere .= ' AND tx_ximatypo3contentplanner_assignee = :assignee';
             $additionalParams['assignee'] = $assignee;
         }
@@ -87,7 +76,7 @@ class RecordRepository
         $sqlArray = [];
 
         foreach (ExtensionUtility::getRecordTables() as $table) {
-            if ((bool)$type && $type !== $table) {
+            if ((bool) $type && $type !== $table) {
                 continue;
             }
 
@@ -104,7 +93,7 @@ class RecordRepository
             $this->getSqlByTable($table, $sqlArray, $additionalWhereByTable);
         }
 
-        $sql = implode(' UNION ', $sqlArray) . ' ORDER BY tstamp DESC LIMIT :limit';
+        $sql = implode(' UNION ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
 
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
         $results = $statement->fetchAllAssociative();
@@ -114,13 +103,15 @@ class RecordRepository
                 unset($results[$key]);
             }
         }
+
         return $results;
     }
 
     /**
-    * @return array<int, array<string, mixed>>
-    * @throws Exception
-    */
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws Exception
+     */
     public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreVisibilityRestriction = false): array
     {
         $cacheIdentifier = sprintf('%s--%s--p%s', Configuration::CACHE_IDENTIFIER, $table, $pid);
@@ -137,21 +128,21 @@ class RecordRepository
         }
 
         $query = $queryBuilder
-            ->select('uid', $this->getTitleField($table) . ' as title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
+            ->select('uid', $this->getTitleField($table).' as title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status'),
                 $queryBuilder->expr()->neq('tx_ximatypo3contentplanner_status', 0),
-                $queryBuilder->expr()->eq('deleted', 0)
+                $queryBuilder->expr()->eq('deleted', 0),
             );
 
         if ($orderByTstamp) {
             $query->addOrderBy('tstamp', 'DESC');
         }
 
-        if ((bool)$pid) {
+        if ((bool) $pid) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT))
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)),
             );
         }
 
@@ -166,12 +157,13 @@ class RecordRepository
     }
 
     /**
-    * @return array<string, mixed>|bool|null
-    * @throws Exception
-    */
+     * @return array<string, mixed>|bool|null
+     *
+     * @throws Exception
+     */
     public function findByUid(?string $table, ?int $uid, bool $ignoreVisibilityRestriction = false): array|bool|null
     {
-        if (!(bool)$table && !(bool)$uid) {
+        if (!(bool) $table && !(bool) $uid) {
             return null;
         }
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -183,11 +175,11 @@ class RecordRepository
         }
 
         $query = $queryBuilder
-            ->select('uid', 'pid', $this->getTitleField($table) . ' as "title"', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
+            ->select('uid', 'pid', $this->getTitleField($table).' as "title"', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('deleted', 0)
+                $queryBuilder->expr()->eq('deleted', 0),
             );
 
         return $query->executeQuery()
@@ -201,18 +193,18 @@ class RecordRepository
             ->update($table)
             ->set('tx_ximatypo3contentplanner_status', $status)
             ->where(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT))
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             );
 
-        if ($assignee !== false) {
+        if (false !== $assignee) {
             $queryBuilder->set('tx_ximatypo3contentplanner_assignee', $assignee);
         }
         $queryBuilder->executeStatement();
     }
 
     /**
-    * @throws Exception
-    */
+     * @throws Exception
+     */
     public function updateCommentsRelationByRecord(string $table, int $uid): void
     {
         $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
@@ -225,26 +217,26 @@ class RecordRepository
                 ->update($table)
                 ->set('tx_ximatypo3contentplanner_comments', $commentCount)
                 ->where(
-                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT))
+                    $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
                 )
                 ->executeStatement();
         }
     }
 
     /**
-    * @param string[] $sql
-    */
+     * @param string[] $sql
+     */
     private function getSqlByTable(string $table, array &$sql, string $additionalWhere): void
     {
         $titleField = $this->getTitleField($table);
 
-        if ($table === 'pages') {
-            $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
+        if ('pages' === $table) {
+            $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
         } else {
-            $selects = array_merge($this->defaultSelects, [$titleField . ' as title, "' . $table . '" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
+            $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
         }
 
-        $sql[] = '(SELECT ' . implode(',', $selects) . ' FROM ' . $table . ' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0' . $additionalWhere . ')';
+        $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.$additionalWhere.')';
     }
 
     private function getTitleField(string $table): string
@@ -253,22 +245,24 @@ class RecordRepository
     }
 
     /**
-    * @param array<int, array<string, mixed>> $data
-    * @return string[]
-    */
+     * @param array<int, array<string, mixed>> $data
+     *
+     * @return string[]
+     */
     private function collectCacheTags(string $table, array $data, ?int $pid): array
     {
         $tags = [];
         /* @var $item AbstractEntity */
         foreach ($data as $item) {
-            if ($item['uid'] !== null) {
-                $tags[] = $table . '_' . $item['uid'];
+            if (null !== $item['uid']) {
+                $tags[] = $table.'_'.$item['uid'];
             }
         }
 
-        if ((bool)$pid) {
-            $tags[] = $table . '__pageId__' . $pid;
+        if ((bool) $pid) {
+            $tags[] = $table.'__pageId__'.$pid;
         }
+
         return $tags;
     }
 }
