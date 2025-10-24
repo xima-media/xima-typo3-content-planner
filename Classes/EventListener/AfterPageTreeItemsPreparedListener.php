@@ -106,9 +106,14 @@ final class AfterPageTreeItemsPreparedListener
         $setting = ExtensionUtility::getExtensionSetting(Configuration::FEATURE_TREE_STATUS_INFORMATION);
 
         if ('todos' === $setting) {
+            $pageUid = (int) ($item['_page']['uid'] ?? 0);
+            if (0 === $pageUid) {
+                return null;
+            }
+
             $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-            $todoResolved = $commentRepository->countTodoAllByRecord($item['_page']['uid'], 'pages');
-            $todoTotal = $commentRepository->countTodoAllByRecord($item['_page']['uid'], 'pages', 'todo_total');
+            $todoResolved = $commentRepository->countTodoAllByRecord($pageUid, 'pages');
+            $todoTotal = $commentRepository->countTodoAllByRecord($pageUid, 'pages', 'todo_total');
 
             if (0 === $todoTotal || $todoResolved === $todoTotal) {
                 return null;
