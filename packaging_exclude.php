@@ -59,8 +59,11 @@ return [
         'phpstan.neon',
         'phpunit.functional.xml',
         'phpunit.unit.xml',
+        'phpunit.xml',
         'rector.php',
         'renovate.json',
+        'SECURITY.md',
         'typoscript-lint.yml',
+        'version-bumper.yaml',
     ],
 ];
