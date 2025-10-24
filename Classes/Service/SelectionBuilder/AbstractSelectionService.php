@@ -62,28 +62,11 @@ class AbstractSelectionService
         }
 
         $record = $this->getCurrentRecord($table, $uid);
-
         $selectionEntriesToAdd = [];
-        foreach ($allStatus as $statusItem) {
-            $this->addStatusItemToSelection($selectionEntriesToAdd, $statusItem, $this->getCurrentStatus($record), $table, $uid, $record);
-        }
 
-        if (null === $record || (null !== $record['tx_ximatypo3contentplanner_status'] && 0 !== $record['tx_ximatypo3contentplanner_status'])) {
-            if ([] !== $selectionEntriesToAdd) {
-                $this->addDividerItemToSelection($selectionEntriesToAdd);
-            }
-            $this->addStatusResetItemToSelection($selectionEntriesToAdd, $table, $uid, $record);
-        }
-
-        if (null !== $record && null !== $this->getCurrentStatus($record)) {
-            $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
-            $this->addAssigneeItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
-            $this->addCommentsItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
-
-            if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
-                $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
-            }
-        }
+        $this->addAllStatusItems($selectionEntriesToAdd, $allStatus, $record, $table, $uid);
+        $this->addStatusResetSection($selectionEntriesToAdd, $record, $table, $uid);
+        $this->addAdditionalActionsSection($selectionEntriesToAdd, $record, $table, $uid);
 
         $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $selectionEntriesToAdd, $this->getCurrentStatus($record));
 
@@ -272,5 +255,56 @@ class AbstractSelectionService
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    /**
+     * @param array<string, mixed>           $selectionEntriesToAdd
+     * @param array<int, Status>             $allStatus
+     * @param array<string, mixed>|bool|null $record
+     *
+     * @throws NotImplementedException
+     */
+    private function addAllStatusItems(array &$selectionEntriesToAdd, array $allStatus, array|bool|null $record, string $table, int $uid): void
+    {
+        foreach ($allStatus as $statusItem) {
+            $this->addStatusItemToSelection($selectionEntriesToAdd, $statusItem, $this->getCurrentStatus($record), $table, $uid, $record);
+        }
+    }
+
+    /**
+     * @param array<string, mixed>           $selectionEntriesToAdd
+     * @param array<string, mixed>|bool|null $record
+     *
+     * @throws NotImplementedException
+     */
+    private function addStatusResetSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
+    {
+        if (null === $record || (null !== $record['tx_ximatypo3contentplanner_status'] && 0 !== $record['tx_ximatypo3contentplanner_status'])) {
+            if ([] !== $selectionEntriesToAdd) {
+                $this->addDividerItemToSelection($selectionEntriesToAdd);
+            }
+            $this->addStatusResetItemToSelection($selectionEntriesToAdd, $table, $uid, $record);
+        }
+    }
+
+    /**
+     * @param array<string, mixed>           $selectionEntriesToAdd
+     * @param array<string, mixed>|bool|null $record
+     *
+     * @throws NotImplementedException
+     */
+    private function addAdditionalActionsSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
+    {
+        if (null === $record || null === $this->getCurrentStatus($record)) {
+            return;
+        }
+
+        $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
+        $this->addAssigneeItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+        $this->addCommentsItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+
+        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+        }
     }
 }

@@ -163,16 +163,38 @@ class BackendUserRepository
      */
     private function getGroupUidsWithPermission(string $permission): array
     {
-        // Get all groups with their permissions and subgroups
+        $allGroups = $this->fetchAllBackendGroups();
+        $groupMap = $this->buildGroupMap($allGroups);
+        $authorizedGroups = $this->findDirectlyAuthorizedGroups($groupMap, $permission);
+        $this->expandAuthorizationToParentGroups($groupMap, $authorizedGroups);
+
+        return array_keys($authorizedGroups);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function fetchAllBackendGroups(): array
+    {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_groups');
-        $allGroups = $queryBuilder
+
+        return $queryBuilder
             ->select('uid', 'subgroup', 'custom_options')
             ->from('be_groups')
             ->where($queryBuilder->expr()->eq('deleted', 0))
             ->executeQuery()
             ->fetchAllAssociative();
+    }
 
-        // Build a map for quick lookup
+    /**
+     * @param array<int, array<string, mixed>> $allGroups
+     *
+     * @return array<int, array{custom_options: string, subgroups: array<int>}>
+     */
+    private function buildGroupMap(array $allGroups): array
+    {
         $groupMap = [];
         foreach ($allGroups as $group) {
             $groupMap[(int) $group['uid']] = [
@@ -181,7 +203,16 @@ class BackendUserRepository
             ];
         }
 
-        // Find all groups that directly have the permission
+        return $groupMap;
+    }
+
+    /**
+     * @param array<int, array{custom_options: string, subgroups: array<int>}> $groupMap
+     *
+     * @return array<int, true>
+     */
+    private function findDirectlyAuthorizedGroups(array $groupMap, string $permission): array
+    {
         $authorizedGroups = [];
         foreach ($groupMap as $uid => $data) {
             if ($this->hasPermission($data['custom_options'], $permission)) {
@@ -189,28 +220,53 @@ class BackendUserRepository
             }
         }
 
-        // Recursively find parent groups that include authorized subgroups
+        return $authorizedGroups;
+    }
+
+    /**
+     * @param array<int, array{custom_options: string, subgroups: array<int>}> $groupMap
+     * @param array<int, true>                                                 $authorizedGroups
+     */
+    private function expandAuthorizationToParentGroups(array $groupMap, array &$authorizedGroups): void
+    {
         $changed = true;
         while ($changed) {
-            $changed = false;
-            foreach ($groupMap as $uid => $data) {
-                // Skip if already authorized
-                if (isset($authorizedGroups[$uid])) {
-                    continue;
-                }
+            $changed = $this->authorizeGroupsWithAuthorizedSubgroups($groupMap, $authorizedGroups);
+        }
+    }
 
-                // Check if any subgroup is authorized
-                foreach ($data['subgroups'] as $subgroupUid) {
-                    if (isset($authorizedGroups[$subgroupUid])) {
-                        $authorizedGroups[$uid] = true;
-                        $changed = true;
-                        break;
-                    }
-                }
+    /**
+     * @param array<int, array{custom_options: string, subgroups: array<int>}> $groupMap
+     * @param array<int, true>                                                 $authorizedGroups
+     */
+    private function authorizeGroupsWithAuthorizedSubgroups(array $groupMap, array &$authorizedGroups): bool
+    {
+        $changed = false;
+        foreach ($groupMap as $uid => $data) {
+            if (isset($authorizedGroups[$uid]) || !$this->hasAuthorizedSubgroup($data['subgroups'], $authorizedGroups)) {
+                continue;
+            }
+
+            $authorizedGroups[$uid] = true;
+            $changed = true;
+        }
+
+        return $changed;
+    }
+
+    /**
+     * @param array<int>       $subgroups
+     * @param array<int, true> $authorizedGroups
+     */
+    private function hasAuthorizedSubgroup(array $subgroups, array $authorizedGroups): bool
+    {
+        foreach ($subgroups as $subgroupUid) {
+            if (isset($authorizedGroups[$subgroupUid])) {
+                return true;
             }
         }
 
-        return array_keys($authorizedGroups);
+        return false;
     }
 
     /**

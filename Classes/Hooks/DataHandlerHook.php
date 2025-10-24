@@ -31,7 +31,7 @@ use function in_array;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class DataHandlerHook
+final class DataHandlerHook // @phpstan-ignore-line complexity.classLike
 {
     public function __construct(
         private FrontendInterface $cache,

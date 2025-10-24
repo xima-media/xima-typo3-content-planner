@@ -55,42 +55,15 @@ class StatusChangeManager
         $this->nullableField($incomingFieldArray, 'tx_ximatypo3contentplanner_assignee');
         $this->nullableField($incomingFieldArray, 'tx_ximatypo3contentplanner_status');
 
-        // auto reset assignee if status is set to null
-        if (null === $incomingFieldArray['tx_ximatypo3contentplanner_status']) {
-            $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
-
-            if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
-                $this->commentRepository->deleteAllCommentsByRecord($id, $table);
-            }
-        }
+        $this->handleStatusReset($incomingFieldArray, $table, $id);
 
         $preRecord = $this->recordRepository->findByUid($table, $id);
-
         if (false === $preRecord) {
             return;
         }
 
-        // auto assign user if status is initially set
-        if ((!array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray) || null === $incomingFieldArray['tx_ximatypo3contentplanner_assignee'])
-            && null !== $incomingFieldArray['tx_ximatypo3contentplanner_status']
-            && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_AUTO_ASSIGN)) {
-            // Check if status was null before
-            // ToDo: Check if this is the correct way to get the previous status
-            if (null === $preRecord['tx_ximatypo3contentplanner_status']
-                || 0 === $preRecord['tx_ximatypo3contentplanner_status']) {
-                $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = $GLOBALS['BE_USER']->getUserId();
-            }
-        }
-
-        if ($this->isStatusFieldChanged($incomingFieldArray, $preRecord)) {
-            $previousStatus = isset($preRecord['tx_ximatypo3contentplanner_status']) && is_numeric($preRecord['tx_ximatypo3contentplanner_status']) && $preRecord['tx_ximatypo3contentplanner_status'] > 0 ? ContentUtility::getStatus($preRecord['tx_ximatypo3contentplanner_status']) : null;
-            $newStatus = isset($incomingFieldArray['tx_ximatypo3contentplanner_status']) && is_numeric($incomingFieldArray['tx_ximatypo3contentplanner_status']) && $incomingFieldArray['tx_ximatypo3contentplanner_status'] > 0 ? ContentUtility::getStatus((int) $incomingFieldArray['tx_ximatypo3contentplanner_status']) : null;
-            $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus));
-
-            if (null === $incomingFieldArray['tx_ximatypo3contentplanner_status'] && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET)) {
-                $this->clearStatusOfExtensionRecords('tt_content', pid: $id);
-            }
-        }
+        $this->handleAutoAssignment($incomingFieldArray, $preRecord);
+        $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
     }
 
     public function clearStatusOfExtensionRecords(string $table, ?int $status = null, ?int $pid = null): void
@@ -114,6 +87,70 @@ class StatusChangeManager
         }
 
         $queryBuilder->executeQuery();
+    }
+
+    /**
+     * @param array<string, mixed> $incomingFieldArray
+     */
+    private function handleStatusReset(array &$incomingFieldArray, string $table, int $id): void
+    {
+        if (null !== $incomingFieldArray['tx_ximatypo3contentplanner_status']) {
+            return;
+        }
+
+        $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
+
+        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
+            $this->commentRepository->deleteAllCommentsByRecord($id, $table);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $incomingFieldArray
+     * @param array<string, mixed> $preRecord
+     */
+    private function handleAutoAssignment(array &$incomingFieldArray, array $preRecord): void
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_AUTO_ASSIGN)) {
+            return;
+        }
+
+        if (null === $incomingFieldArray['tx_ximatypo3contentplanner_status']) {
+            return;
+        }
+
+        if (array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray)
+            && null !== $incomingFieldArray['tx_ximatypo3contentplanner_assignee']) {
+            return;
+        }
+
+        $hadNoStatusBefore = null === $preRecord['tx_ximatypo3contentplanner_status']
+            || 0 === $preRecord['tx_ximatypo3contentplanner_status'];
+
+        if ($hadNoStatusBefore) {
+            $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = $GLOBALS['BE_USER']->getUserId();
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $incomingFieldArray
+     * @param array<string, mixed> $preRecord
+     *
+     * @throws Exception
+     */
+    private function handleStatusChange(array $incomingFieldArray, array $preRecord, string $table, int $id): void
+    {
+        if (!$this->isStatusFieldChanged($incomingFieldArray, $preRecord)) {
+            return;
+        }
+
+        $previousStatus = isset($preRecord['tx_ximatypo3contentplanner_status']) && is_numeric($preRecord['tx_ximatypo3contentplanner_status']) && $preRecord['tx_ximatypo3contentplanner_status'] > 0 ? ContentUtility::getStatus($preRecord['tx_ximatypo3contentplanner_status']) : null;
+        $newStatus = isset($incomingFieldArray['tx_ximatypo3contentplanner_status']) && is_numeric($incomingFieldArray['tx_ximatypo3contentplanner_status']) && $incomingFieldArray['tx_ximatypo3contentplanner_status'] > 0 ? ContentUtility::getStatus((int) $incomingFieldArray['tx_ximatypo3contentplanner_status']) : null;
+        $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus));
+
+        if (null === $incomingFieldArray['tx_ximatypo3contentplanner_status'] && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET)) {
+            $this->clearStatusOfExtensionRecords('tt_content', pid: $id);
+        }
     }
 
     /**

@@ -58,43 +58,31 @@ final class BulkUpdateCommand extends Command
     {
         $table = $input->getArgument('table');
         $uid = (int) $input->getArgument('uid');
-        $status = (int) $input->getArgument('status');
         $recursive = false !== $input->getOption('recursive');
-        $assignee = $input->getOption('assignee');
-        $statusEntity = null;
 
-        if (0 === $status) {
-            $status = null;
-        } else {
-            $statusEntity = $this->statusRepository->findByUid($status);
-            if (null === $statusEntity) {
-                $output->writeln(sprintf('Status with uid %d not found.', $status));
+        $statusEntity = $this->resolveStatusEntity((int) $input->getArgument('status'), $output);
+        if (null === $statusEntity && 0 !== (int) $input->getArgument('status')) {
+            return Command::FAILURE;
+        }
 
+        $status = null !== $statusEntity ? $statusEntity->getUid() : null;
+
+        // Validate and process assignee option
+        $assigneeRawValue = $input->getOption('assignee');
+        $assigneeOptionProvided = null !== $assigneeRawValue;
+
+        if ($assigneeOptionProvided) {
+            $validatedAssignee = $this->validateAssigneeValue($assigneeRawValue, $output);
+            if (false === $validatedAssignee) {
                 return Command::FAILURE;
             }
-        }
-        if (null !== $assignee) {
-            if (0 === $assignee) {
-                $assignee = null;
-            }
+            $assignee = $this->normalizeAssignee($validatedAssignee, true);
+        } else {
+            $assignee = $this->normalizeAssignee(null, false);
         }
 
-        $count = 0;
-        $uids = [$uid];
-
-        if ($recursive && 'pages' === $table) {
-            $uids = [...$uids, ...$this->getSubpages($uid)];
-        }
-
-        foreach ($uids as $tempUid) {
-            $this->recordRepository->updateStatusByUid($table, $tempUid, $status, $assignee);
-
-            if (null === $status && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
-                $this->commentRepository->deleteAllCommentsByRecord($tempUid, $table);
-            }
-
-            ++$count;
-        }
+        $uids = $this->collectTargetUids($uid, $table, $recursive);
+        $count = $this->performBulkUpdate($uids, $table, $status, $assignee);
 
         $output->writeln(sprintf(
             'Updated %d "%s" records to status "%s".',
@@ -104,6 +92,105 @@ final class BulkUpdateCommand extends Command
         ));
 
         return Command::SUCCESS;
+    }
+
+    private function resolveStatusEntity(int $status, OutputInterface $output): mixed
+    {
+        if (0 === $status) {
+            return null;
+        }
+
+        $statusEntity = $this->statusRepository->findByUid($status);
+        if (null === $statusEntity) {
+            $output->writeln(sprintf('Status with uid %d not found.', $status));
+        }
+
+        return $statusEntity;
+    }
+
+    /**
+     * Validate assignee value with strict integer check.
+     *
+     * @return int|false Returns validated integer or false on validation failure
+     */
+    private function validateAssigneeValue(mixed $value, OutputInterface $output): int|false
+    {
+        // Convert to string for validation
+        $stringValue = (string) $value;
+
+        // Strict integer validation using filter_var with explicit flags
+        $validated = filter_var($stringValue, \FILTER_VALIDATE_INT, ['flags' => \FILTER_NULL_ON_FAILURE]);
+
+        if (null === $validated) {
+            $output->writeln(sprintf(
+                '<error>Invalid assignee value "%s". Must be a valid integer (e.g., 0, 1, 123).</error>',
+                $stringValue,
+            ));
+
+            return false;
+        }
+
+        return $validated;
+    }
+
+    /**
+     * Normalize validated assignee value.
+     *
+     * @param int|null $assignee Already validated integer or null for omitted option
+     *
+     * @return int|false|null Returns false when option was not provided (unchanged),
+     *                        null when explicitly clearing (0),
+     *                        or the integer user ID
+     */
+    private function normalizeAssignee(?int $assignee, bool $optionProvided): int|false|null
+    {
+        // Option was not provided at all - return sentinel to indicate "unchanged"
+        if (!$optionProvided) {
+            return false;
+        }
+
+        // Option was provided with value 0 - explicitly clear assignee
+        if (0 === $assignee) {
+            return null;
+        }
+
+        // Option was provided with a valid user ID
+        return $assignee;
+    }
+
+    /**
+     * @return int[]
+     */
+    private function collectTargetUids(int $uid, string $table, bool $recursive): array
+    {
+        $uids = [$uid];
+
+        if ($recursive && 'pages' === $table) {
+            $uids = [...$uids, ...$this->getSubpages($uid)];
+        }
+
+        return $uids;
+    }
+
+    /**
+     * @param int[]          $uids
+     * @param int|false|null $assignee false means unchanged, null means clear, int means set to user ID
+     */
+    private function performBulkUpdate(array $uids, string $table, ?int $status, int|false|null $assignee): int
+    {
+        $count = 0;
+
+        foreach ($uids as $uid) {
+            $this->recordRepository->updateStatusByUid($table, $uid, $status, $assignee);
+
+            if (null === $status && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
+                $this->commentRepository->deleteAllCommentsByRecord($uid, $table);
+            }
+
+            ++$count;
+        }
+
+        return $count;
     }
 
     /**

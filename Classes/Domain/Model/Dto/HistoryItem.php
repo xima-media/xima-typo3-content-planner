@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -88,37 +89,7 @@ final class HistoryItem
     public function getRelatedRecord(): array|bool
     {
         if ([] === $this->relatedRecord || false === $this->relatedRecord) {
-            switch ($this->data['tablename']) {
-                case 'pages':
-                    $this->data['relatedRecordTablename'] = 'pages';
-                    $this->relatedRecord = ContentUtility::getPage((int) $this->data['recuid']);
-                    break;
-                case 'tx_ximatypo3contentplanner_comment':
-                    if (
-                        null !== $this->data['raw_history']
-                        && array_key_exists('foreign_table', $this->data['raw_history'])
-                        && array_key_exists('foreign_uid', $this->data['raw_history'])
-                        && $this->data['raw_history']['foreign_table']
-                        && $this->data['raw_history']['foreign_uid']
-                    ) {
-                        $table = $this->data['raw_history']['foreign_table'];
-                        $uid = (int) $this->data['raw_history']['foreign_uid'];
-                    } else {
-                        $comment = ContentUtility::getComment((int) $this->data['recuid']);
-                        if (!$comment) {
-                            return [];
-                        }
-                        $table = $comment['foreign_table'];
-                        $uid = (int) $comment['foreign_uid'];
-                    }
-                    $this->data['relatedRecordTablename'] = $table;
-
-                    $this->relatedRecord = ContentUtility::getExtensionRecord($table, $uid);
-                    break;
-                default:
-                    $this->data['relatedRecordTablename'] = $this->data['tablename'];
-                    $this->relatedRecord = ContentUtility::getExtensionRecord($this->data['tablename'], (int) $this->data['recuid']);
-            }
+            $this->loadRelatedRecord();
         }
 
         if (!PermissionUtility::checkAccessForRecord($this->data['tablename'], $this->relatedRecord)) {
@@ -213,5 +184,75 @@ final class HistoryItem
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    private function loadRelatedRecord(): void
+    {
+        switch ($this->data['tablename']) {
+            case 'pages':
+                $this->loadPageRecord();
+                break;
+            case 'tx_ximatypo3contentplanner_comment':
+                $this->loadCommentRelatedRecord();
+                break;
+            default:
+                $this->loadDefaultRecord();
+        }
+    }
+
+    private function loadPageRecord(): void
+    {
+        $this->data['relatedRecordTablename'] = 'pages';
+        $this->relatedRecord = ContentUtility::getPage((int) $this->data['recuid']);
+    }
+
+    private function loadCommentRelatedRecord(): void
+    {
+        $foreignData = $this->resolveForeignDataFromComment();
+        if (null === $foreignData) {
+            $this->relatedRecord = [];
+
+            return;
+        }
+
+        $this->data['relatedRecordTablename'] = $foreignData['table'];
+        $this->relatedRecord = ContentUtility::getExtensionRecord($foreignData['table'], $foreignData['uid']);
+    }
+
+    private function loadDefaultRecord(): void
+    {
+        $this->data['relatedRecordTablename'] = $this->data['tablename'];
+        $this->relatedRecord = ContentUtility::getExtensionRecord($this->data['tablename'], (int) $this->data['recuid']);
+    }
+
+    /**
+     * @return array{table: string, uid: int}|null
+     *
+     * @throws Exception
+     */
+    private function resolveForeignDataFromComment(): ?array
+    {
+        if (
+            null !== $this->data['raw_history']
+            && array_key_exists('foreign_table', $this->data['raw_history'])
+            && array_key_exists('foreign_uid', $this->data['raw_history'])
+            && $this->data['raw_history']['foreign_table']
+            && $this->data['raw_history']['foreign_uid']
+        ) {
+            return [
+                'table' => $this->data['raw_history']['foreign_table'],
+                'uid' => (int) $this->data['raw_history']['foreign_uid'],
+            ];
+        }
+
+        $comment = ContentUtility::getComment((int) $this->data['recuid']);
+        if (!$comment) {
+            return null;
+        }
+
+        return [
+            'table' => $comment['foreign_table'],
+            'uid' => (int) $comment['foreign_uid'],
+        ];
     }
 }

@@ -47,64 +47,25 @@ class RecordRepository
 
     /**
      * @return array<int, array<string, mixed>>|bool
+     *
+     * @throws Exception
      */
     public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20): array|bool
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
-        $additionalWhere = ' AND deleted = 0';
-        $additionalParams = [
-            'limit' => $maxResults,
-        ];
+        $baseWhere = ' AND deleted = 0';
+        $additionalParams = ['limit' => $maxResults];
 
-        if ((bool) $search) {
-            $additionalWhere .= ' AND (title LIKE :search OR uid = :uid)';
-            $additionalParams['search'] = '%'.$search.'%';
-            $additionalParams['uid'] = $search;
-        }
+        $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
-        if ((bool) $status) {
-            $additionalWhere .= ' AND tx_ximatypo3contentplanner_status = :status';
-            $additionalParams['status'] = $status;
-        }
-
-        if ((bool) $assignee) {
-            $additionalWhere .= ' AND tx_ximatypo3contentplanner_assignee = :assignee';
-            $additionalParams['assignee'] = $assignee;
-        }
-
-        $sqlArray = [];
-
-        foreach (ExtensionUtility::getRecordTables() as $table) {
-            if ((bool) $type && $type !== $table) {
-                continue;
-            }
-
-            $additionalWhereByTable = $additionalWhere;
-
-            if ($todo) {
-                // ToDo: Check for performance
-                $subQueryTotal = "(SELECT SUM(todo_total) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
-                $subQueryResolved = "(SELECT SUM(todo_resolved) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
-
-                $additionalWhereByTable .= " AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
-            }
-
-            $this->getSqlByTable($table, $sqlArray, $additionalWhereByTable);
-        }
-
+        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo);
         $sql = implode(' UNION ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
 
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
         $results = $statement->fetchAllAssociative();
 
-        foreach ($results as $key => $record) {
-            if (!PermissionUtility::checkAccessForRecord($record['tablename'], $record)) {
-                unset($results[$key]);
-            }
-        }
-
-        return $results;
+        return $this->filterResultsByPermission($results);
     }
 
     /**
@@ -221,6 +182,76 @@ class RecordRepository
                 )
                 ->executeStatement();
         }
+    }
+
+    /**
+     * @param array<string, mixed> $additionalParams
+     */
+    private function applyFilterConditions(string &$baseWhere, array &$additionalParams, ?string $search, ?int $status, ?int $assignee): void
+    {
+        if ((bool) $search) {
+            $baseWhere .= ' AND (title LIKE :search OR uid = :uid)';
+            $additionalParams['search'] = '%'.$search.'%';
+            $additionalParams['uid'] = $search;
+        }
+
+        if ((bool) $status) {
+            $baseWhere .= ' AND tx_ximatypo3contentplanner_status = :status';
+            $additionalParams['status'] = $status;
+        }
+
+        if ((bool) $assignee) {
+            $baseWhere .= ' AND tx_ximatypo3contentplanner_assignee = :assignee';
+            $additionalParams['assignee'] = $assignee;
+        }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo): array
+    {
+        $sqlArray = [];
+
+        foreach (ExtensionUtility::getRecordTables() as $table) {
+            if ((bool) $type && $type !== $table) {
+                continue;
+            }
+
+            $whereClause = $this->buildWhereClauseForTable($baseWhere, $table, $todo);
+            $this->getSqlByTable($table, $sqlArray, $whereClause);
+        }
+
+        return $sqlArray;
+    }
+
+    private function buildWhereClauseForTable(string $baseWhere, string $table, ?bool $todo): string
+    {
+        if (!$todo) {
+            return $baseWhere;
+        }
+
+        // ToDo: Check for performance
+        $subQueryTotal = "(SELECT SUM(todo_total) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
+        $subQueryResolved = "(SELECT SUM(todo_resolved) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
+
+        return $baseWhere." AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $results
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function filterResultsByPermission(array $results): array
+    {
+        foreach ($results as $key => $record) {
+            if (!PermissionUtility::checkAccessForRecord($record['tablename'], $record)) {
+                unset($results[$key]);
+            }
+        }
+
+        return $results;
     }
 
     /**

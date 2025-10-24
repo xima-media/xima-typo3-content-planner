@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
+use Doctrine\DBAL\Exception;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -34,51 +36,84 @@ final class RenderAdditionalContentToRecordListListener
         private readonly RecordRepository $recordRepository,
     ) {}
 
+    /**
+     * @throws Exception
+     */
     public function __invoke(RenderAdditionalContentToRecordListEvent $event): void
     {
-        if (!VisibilityUtility::checkContentStatusVisibility()) {
-            return;
-        }
-
-        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_LIST_STATUS_INFO)) {
+        if (!VisibilityUtility::checkContentStatusVisibility()
+            || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_LIST_STATUS_INFO)
+        ) {
             return;
         }
 
         $request = $event->getRequest();
-
-        if (!array_key_exists('id', $request->getQueryParams())) {
+        $pid = $this->extractPidFromRequest($request);
+        if (null === $pid) {
             return;
         }
-        $pid = (int) $request->getQueryParams()['id'];
-        $table = array_key_exists('table', $request->getQueryParams()) ? $request->getQueryParams()['table'] : null;
-        $records = [];
 
-        if (null !== $table) {
-            if (!ExtensionUtility::isRegisteredRecordTable($table)) {
-                return;
-            }
+        $table = $request->getQueryParams()['table'] ?? null;
+        $records = $this->loadRecordsForTables($table, $pid);
 
-            $records[$table] = $this->recordRepository->findByPid($table, $pid, ignoreVisibilityRestriction: true);
-        } else {
-            foreach (ExtensionUtility::getRecordTables() as $recordTable) {
-                $records[$recordTable] = $this->recordRepository->findByPid($recordTable, $pid, ignoreVisibilityRestriction: true);
-            }
+        $css = $this->generateStatusCss($records);
+        if ('' !== $css) {
+            $event->addContentAbove("<style>$css</style>");
+        }
+    }
+
+    private function extractPidFromRequest(ServerRequestInterface $request): ?int
+    {
+        if (!array_key_exists('id', $request->getQueryParams())) {
+            return null;
         }
 
-        $additionalCss = '';
+        return (int) $request->getQueryParams()['id'];
+    }
+
+    /**
+     * @return array<string, array<int, array<string, mixed>>>
+     *
+     * @throws Exception
+     */
+    private function loadRecordsForTables(?string $table, int $pid): array
+    {
+        if (null !== $table) {
+            if (!ExtensionUtility::isRegisteredRecordTable($table)) {
+                return [];
+            }
+
+            return [$table => $this->recordRepository->findByPid($table, $pid, ignoreVisibilityRestriction: true)];
+        }
+
+        $records = [];
+        foreach (ExtensionUtility::getRecordTables() as $recordTable) {
+            $records[$recordTable] = $this->recordRepository->findByPid($recordTable, $pid, ignoreVisibilityRestriction: true);
+        }
+
+        return $records;
+    }
+
+    /**
+     * @param array<string, array<int, array<string, mixed>>> $records
+     */
+    private function generateStatusCss(array $records): string
+    {
+        $css = '';
 
         foreach ($records as $tableName => $tableRecords) {
             if ([] === $tableRecords) {
                 continue;
             }
+
             foreach ($tableRecords as $tableRecord) {
                 $status = $this->statusRepository->findByUid($tableRecord['tx_ximatypo3contentplanner_status']);
                 if ($status instanceof Status) {
-                    $additionalCss .= 'tr[data-table="'.$tableName.'"][data-uid="'.$tableRecord['uid'].'"] > td { background-color: '.Configuration\Colors::get($status->getColor(), true).'; } ';
+                    $css .= 'tr[data-table="'.$tableName.'"][data-uid="'.$tableRecord['uid'].'"] > td { background-color: '.Configuration\Colors::get($status->getColor(), true).'; } ';
                 }
             }
         }
 
-        $event->addContentAbove("<style>$additionalCss</style>");
+        return $css;
     }
 }

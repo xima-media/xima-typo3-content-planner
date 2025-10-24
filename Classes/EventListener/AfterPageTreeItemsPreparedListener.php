@@ -41,60 +41,110 @@ final class AfterPageTreeItemsPreparedListener
         }
 
         $items = $event->getItems();
+        $version = VersionNumberUtility::getCurrentTypo3Version();
+        $isTypo3v13 = version_compare($version, '13.0.0', '>=');
+
         foreach ($items as &$item) {
-            $status = null;
-            $version = VersionNumberUtility::getCurrentTypo3Version();
-            if (isset($item['_page']['tx_ximatypo3contentplanner_status'])) {
-                $status = $this->statusRepository->findByUid($item['_page']['tx_ximatypo3contentplanner_status']);
-                if ($status instanceof Status) {
-                    if (version_compare($version, '13.0.0', '>=')) {
-                        $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
-                            label: $status->getTitle(),
-                            color: Configuration\Colors::get($status->getColor()),
-                        );
+            $statusUid = $item['_page']['tx_ximatypo3contentplanner_status'] ?? null;
 
-                        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_TREE_STATUS_INFORMATION)
-                            && isset($item['_page']['tx_ximatypo3contentplanner_comments'])
-                            && $item['_page']['tx_ximatypo3contentplanner_comments'] > 0
-                        ) {
-                            $label = $item['_page']['tx_ximatypo3contentplanner_comments'].' '.$GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
-                            $icon = 'actions-message';
-
-                            if ('todos' === ExtensionUtility::getExtensionSetting(Configuration::FEATURE_TREE_STATUS_INFORMATION)) {
-                                $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-                                $todoResolved = $item['_page']['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($item['_page']['uid'], 'pages') : 0;
-                                $todoTotal = $item['_page']['tx_ximatypo3contentplanner_comments'] ? $commentRepository->countTodoAllByRecord($item['_page']['uid'], 'pages', 'todo_total') : 0;
-
-                                if (0 === $todoTotal || ($todoResolved === $todoTotal)) {
-                                    continue;
-                                }
-
-                                $label = "$todoResolved/$todoTotal ".$GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
-                                $icon = 'actions-check-square';
-                            }
-                            $item['statusInformation'][] = new \TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation(
-                                label: $label,
-                                severity: \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::NOTICE,
-                                icon: $icon,
-                            );
-                        }
-                    } else {
-                        $item['backgroundColor'] = Configuration\Colors::get($status->getColor(), true);
-                    }
-                }
-            } else {
-                if (version_compare($version, '13.0.0', '>=')) {
-                    // Workaround for label behavior in TYPO3 13
-                    // Labels will be inherited from parent pages, if not set explicitly
-                    // Currently there is no way to suppress this behavior
-                    // @see https://github.com/TYPO3/typo3/blob/5619d59f00808f7bec7a311106fda6a52854c0bd/Build/Sources/TypeScript/backend/tree/tree.ts#L1224
-                    $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
-                        label: '',
-                        color: 'inherit',
-                    );
-                }
+            if (null !== $statusUid && 0 !== (int) $statusUid) {
+                $this->applyStatusToItem($item, (int) $statusUid, $isTypo3v13);
+            } elseif ($isTypo3v13) {
+                $this->applyEmptyLabelWorkaround($item);
             }
         }
+
         $event->setItems($items);
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private function applyStatusToItem(array &$item, int $statusUid, bool $isTypo3v13): void
+    {
+        $status = $this->statusRepository->findByUid($statusUid);
+        if (!$status instanceof Status) {
+            return;
+        }
+
+        if ($isTypo3v13) {
+            $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
+                label: $status->getTitle(),
+                color: Configuration\Colors::get($status->getColor()),
+            );
+            $this->addStatusInformationIfEnabled($item);
+        } else {
+            $item['backgroundColor'] = Configuration\Colors::get($status->getColor(), true);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private function addStatusInformationIfEnabled(array &$item): void
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_TREE_STATUS_INFORMATION)) {
+            return;
+        }
+
+        $commentCount = $item['_page']['tx_ximatypo3contentplanner_comments'] ?? 0;
+        if ($commentCount <= 0) {
+            return;
+        }
+
+        $statusInfo = $this->buildStatusInformation($item, $commentCount);
+        if (null !== $statusInfo) {
+            $item['statusInformation'][] = $statusInfo;
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private function buildStatusInformation(array &$item, int $commentCount): ?\TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation
+    {
+        $setting = ExtensionUtility::getExtensionSetting(Configuration::FEATURE_TREE_STATUS_INFORMATION);
+
+        if ('todos' === $setting) {
+            $pageUid = (int) ($item['_page']['uid'] ?? 0);
+            if (0 === $pageUid) {
+                return null;
+            }
+
+            $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+            $todoResolved = $commentRepository->countTodoAllByRecord($pageUid, 'pages');
+            $todoTotal = $commentRepository->countTodoAllByRecord($pageUid, 'pages', 'todo_total');
+
+            if (0 === $todoTotal || $todoResolved === $todoTotal) {
+                return null;
+            }
+
+            $label = "$todoResolved/$todoTotal ".$GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
+            $icon = 'actions-check-square';
+        } else {
+            $label = $commentCount.' '.$GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
+            $icon = 'actions-message';
+        }
+
+        return new \TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation(
+            label: $label,
+            severity: \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::NOTICE,
+            icon: $icon,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private function applyEmptyLabelWorkaround(array &$item): void
+    {
+        // Workaround for label behavior in TYPO3 13
+        // Labels will be inherited from parent pages, if not set explicitly
+        // Currently there is no way to suppress this behavior
+        // @see https://github.com/TYPO3/typo3/blob/5619d59f00808f7bec7a311106fda6a52854c0bd/Build/Sources/TypeScript/backend/tree/tree.ts#L1224
+        $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
+            label: '',
+            color: 'inherit',
+        );
     }
 }

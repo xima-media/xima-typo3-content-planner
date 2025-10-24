@@ -51,16 +51,12 @@ final class ModifyButtonBarEventListener
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
 
-        if ($request->getAttribute('module') instanceof ModuleInterface
-            && !in_array($request->getAttribute('module')->getIdentifier(), ['web_layout', 'record_edit', 'web_list'], true)) {
+        if (!$this->isValidModule($request)) {
             return;
         }
 
-        if (isset($request->getQueryParams()['edit'])) {
-            $table = array_key_first($request->getQueryParams()['edit']);
-        } elseif (isset($request->getQueryParams()['id'])) {
-            $table = 'pages';
-        } else {
+        $table = $this->extractTableFromRequest($request);
+        if (null === $table) {
             return;
         }
 
@@ -69,25 +65,68 @@ final class ModifyButtonBarEventListener
 
             return;
         }
+
         if (!ExtensionUtility::isRegisteredRecordTable($table)) {
             return;
         }
 
-        if ('pages' === $table) {
-            $uid = (int) ($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] : 0));
-        } else {
-            $uid = (int) array_key_first($request->getQueryParams()['edit'][$table]);
-        }
+        $uid = $this->extractUidFromRequest($request, $table);
         $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
 
         if (!$record) {
             return;
         }
-        $status = isset($record['tx_ximatypo3contentplanner_status']) && is_numeric($record['tx_ximatypo3contentplanner_status']) && $record['tx_ximatypo3contentplanner_status'] > 0 ? $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']) : null;
+
+        $this->addStatusDropdownButton($event, $table, $uid, $record);
+    }
+
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
+    }
+
+    private function isValidModule(ServerRequestInterface $request): bool
+    {
+        if (!$request->getAttribute('module') instanceof ModuleInterface) {
+            return true;
+        }
+
+        return in_array($request->getAttribute('module')->getIdentifier(), ['web_layout', 'record_edit', 'web_list'], true);
+    }
+
+    private function extractTableFromRequest(ServerRequestInterface $request): ?string
+    {
+        if (isset($request->getQueryParams()['edit'])) {
+            return array_key_first($request->getQueryParams()['edit']);
+        }
+
+        if (isset($request->getQueryParams()['id'])) {
+            return 'pages';
+        }
+
+        return null;
+    }
+
+    private function extractUidFromRequest(ServerRequestInterface $request, string $table): int
+    {
+        if ('pages' === $table) {
+            return (int) ($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] : 0));
+        }
+
+        return (int) array_key_first($request->getQueryParams()['edit'][$table]);
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     */
+    private function addStatusDropdownButton(ModifyButtonBarEvent $event, string $table, int $uid, array $record): void
+    {
+        $status = $this->resolveStatusFromRecord($record);
 
         $buttonBar = $event->getButtonBar();
         $buttons = $event->getButtons();
         $buttons['right'] ??= [];
+
         $dropDownButton = $buttonBar->makeDropDownButton()
             ->setLabel('Dropdown')
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
@@ -108,9 +147,19 @@ final class ModifyButtonBarEventListener
         $event->setButtons($buttons);
     }
 
-    protected function getLanguageService(): LanguageService
+    /**
+     * @param array<string, mixed> $record
+     */
+    private function resolveStatusFromRecord(array $record): ?Status
     {
-        return $GLOBALS['LANG'];
+        if (!isset($record['tx_ximatypo3contentplanner_status'])
+            || !is_numeric($record['tx_ximatypo3contentplanner_status'])
+            || $record['tx_ximatypo3contentplanner_status'] <= 0
+        ) {
+            return null;
+        }
+
+        return $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
     }
 
     private function removeButtonsExceptSave(ModifyButtonBarEvent $event): void
