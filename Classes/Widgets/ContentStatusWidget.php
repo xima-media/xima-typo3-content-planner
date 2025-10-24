@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -34,10 +35,38 @@ class ContentStatusWidget extends AbstractWidget
     public function renderWidgetContent(): string
     {
         $filter = isset($this->options['useFilter']);
+        ['mode' => $mode, 'assignee' => $assignee, 'todo' => $todo, 'icon' => $icon] = $this->determineWidgetMode();
+
+        $filterValues = $filter ? $this->buildFilterValues() : false;
+        $todoInfo = $todo ? $this->buildTodoInfo() : false;
+
+        return $this->render(
+            'Backend/Widgets/ContentStatusList.html',
+            [
+                'configuration' => $this->configuration,
+                'options' => $this->options,
+                'icon' => $icon,
+                'currentBackendUser' => $assignee,
+                'todo' => $todoInfo,
+                'mode' => $mode,
+                'filter' => $filterValues,
+            ],
+        );
+    }
+
+    protected function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
+    }
+
+    /**
+     * @return array{mode: string, assignee: int|null, todo: bool, icon: string}
+     */
+    private function determineWidgetMode(): array
+    {
         $mode = 'status';
         $assignee = null;
         $todo = false;
-        $filterValues = false;
 
         if (isset($this->options['currentUserAssignee'])) {
             $assignee = $GLOBALS['BE_USER']->getUserId();
@@ -55,52 +84,54 @@ class ContentStatusWidget extends AbstractWidget
             default => 'flag-gray',
         };
 
-        /** @var ContentStatusDataProvider $dataProvider */
-        $dataProvider = $this->dataProvider;
-        if ($filter) {
-            $filterValues = [
-                'status' => $dataProvider->getStatus(),
-                'users' => $dataProvider->getUsers(),
-            ];
-            $recordTables = ExtensionUtility::getRecordTables();
-            if (count($recordTables) > 1) {
-                $recordTables = array_map(function ($table) {
-                    return ['label' => $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']), 'value' => $table];
-                }, $recordTables);
-                $filterValues['types'] = $recordTables;
-            }
-        }
-
-        if ($todo && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
-            $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-            $todoResolved = $commentRepository->countTodoAllByRecord(allRecords: true);
-            $todoTotal = $commentRepository->countTodoAllByRecord(todoField: 'todo_total', allRecords: true);
-
-            $todo = $todoTotal > 0 ? sprintf(
-                '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
-                IconHelper::getIconByIdentifier('actions-check-square'),
-                $todoResolved === $todoTotal ? 'resolved' : 'pending',
-                $todoResolved,
-                $todoTotal,
-            ) : '';
-        }
-
-        return $this->render(
-            'Backend/Widgets/ContentStatusList.html',
-            [
-                'configuration' => $this->configuration,
-                'options' => $this->options,
-                'icon' => $icon,
-                'currentBackendUser' => $assignee,
-                'todo' => $todo,
-                'mode' => $mode,
-                'filter' => $filterValues,
-            ],
-        );
+        return ['mode' => $mode, 'assignee' => $assignee, 'todo' => $todo, 'icon' => $icon];
     }
 
-    protected function getLanguageService(): LanguageService
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    private function buildFilterValues(): array
     {
-        return $GLOBALS['LANG'];
+        /** @var ContentStatusDataProvider $dataProvider */
+        $dataProvider = $this->dataProvider;
+        $filterValues = [
+            'status' => $dataProvider->getStatus(),
+            'users' => $dataProvider->getUsers(),
+        ];
+
+        $recordTables = ExtensionUtility::getRecordTables();
+        if (count($recordTables) > 1) {
+            $recordTables = array_map(function ($table) {
+                return ['label' => $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']), 'value' => $table];
+            }, $recordTables);
+            $filterValues['types'] = $recordTables;
+        }
+
+        return $filterValues;
+    }
+
+    private function buildTodoInfo(): string|bool
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            return false;
+        }
+
+        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+        $todoResolved = $commentRepository->countTodoAllByRecord(allRecords: true);
+        $todoTotal = $commentRepository->countTodoAllByRecord(todoField: 'todo_total', allRecords: true);
+
+        if ($todoTotal <= 0) {
+            return '';
+        }
+
+        return sprintf(
+            '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
+            IconHelper::getIconByIdentifier('actions-check-square'),
+            $todoResolved === $todoTotal ? 'resolved' : 'pending',
+            $todoResolved,
+            $todoTotal,
+        );
     }
 }
