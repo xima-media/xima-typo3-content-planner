@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility;
 
+use DateInterval;
 use DateTime;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -35,25 +36,13 @@ class DiffUtility
         $storedTime = (new DateTime())->setTimestamp($timestamp);
         $interval = $now->diff($storedTime);
 
-        if (0 === $interval->s && 0 === $interval->i && 0 === $interval->h && 0 === $interval->d && 0 === $interval->m && 0 === $interval->y) {
+        if (self::isNowTimestamp($interval)) {
             return self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:timeAgo.now');
         }
 
-        $timeUnits = [
-            'y' => 'year',
-            'm' => 'month',
-            'd' => 'day',
-            'h' => 'hour',
-            'i' => 'minute',
-            's' => 'second',
-        ];
-
-        foreach ($timeUnits as $unit => $label) {
-            if ($interval->$unit > 0) { // @phpstan-ignore property.dynamicName
-                $key = $interval->$unit === 1 ? $label : $label.'s'; // @phpstan-ignore property.dynamicName
-
-                return sprintf(self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:timeAgo.'.$key), $interval->$unit); // @phpstan-ignore property.dynamicName
-            }
+        $result = self::findFirstNonZeroTimeUnit($interval);
+        if (null !== $result) {
+            return $result;
         }
 
         return sprintf(self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:timeAgo.seconds'), $interval->s);
@@ -102,6 +91,33 @@ class DiffUtility
     protected static function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    private static function isNowTimestamp(DateInterval $interval): bool
+    {
+        return 0 === $interval->s && 0 === $interval->i && 0 === $interval->h && 0 === $interval->d && 0 === $interval->m && 0 === $interval->y;
+    }
+
+    private static function findFirstNonZeroTimeUnit(DateInterval $interval): ?string
+    {
+        $timeUnits = [
+            'y' => 'year',
+            'm' => 'month',
+            'd' => 'day',
+            'h' => 'hour',
+            'i' => 'minute',
+            's' => 'second',
+        ];
+
+        foreach ($timeUnits as $unit => $label) {
+            if ($interval->$unit > 0) { // @phpstan-ignore property.dynamicName
+                $key = $interval->$unit === 1 ? $label : $label.'s'; // @phpstan-ignore property.dynamicName
+
+                return sprintf(self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:timeAgo.'.$key), $interval->$unit); // @phpstan-ignore property.dynamicName
+            }
+        }
+
+        return null;
     }
 
     private static function makeRecordDiffReadable(string $field, int $actiontype, string|int|null $old, string|int|null $new): string|bool
