@@ -66,8 +66,20 @@ final class BulkUpdateCommand extends Command
         }
 
         $status = null !== $statusEntity ? $statusEntity->getUid() : null;
-        $assigneeOptionProvided = null !== $input->getOption('assignee');
-        $assignee = $this->normalizeAssignee($input->getOption('assignee'), $assigneeOptionProvided);
+
+        // Validate and process assignee option
+        $assigneeRawValue = $input->getOption('assignee');
+        $assigneeOptionProvided = null !== $assigneeRawValue;
+
+        if ($assigneeOptionProvided) {
+            $validatedAssignee = $this->validateAssigneeValue($assigneeRawValue, $output);
+            if (false === $validatedAssignee) {
+                return Command::FAILURE;
+            }
+            $assignee = $this->normalizeAssignee($validatedAssignee, true);
+        } else {
+            $assignee = $this->normalizeAssignee(null, false);
+        }
 
         $uids = $this->collectTargetUids($uid, $table, $recursive);
         $count = $this->performBulkUpdate($uids, $table, $status, $assignee);
@@ -97,29 +109,53 @@ final class BulkUpdateCommand extends Command
     }
 
     /**
-     * @return int|false|null Returns false when option was not provided (unchanged),
-     *                        null when explicitly clearing (0 or "0"),
-     *                        or the integer user ID
+     * Validate assignee value with strict integer check.
+     *
+     * @return int|false Returns validated integer or false on validation failure
      */
-    private function normalizeAssignee(mixed $assignee, bool $optionProvided): int|false|null
+    private function validateAssigneeValue(mixed $value, OutputInterface $output): int|false
     {
-        // Option was not provided at all - return sentinel to indicate "unchanged"
-        if (!$optionProvided || null === $assignee) {
+        // Convert to string for validation
+        $stringValue = (string) $value;
+
+        // Strict integer validation using filter_var with explicit flags
+        $validated = filter_var($stringValue, \FILTER_VALIDATE_INT, ['flags' => \FILTER_NULL_ON_FAILURE]);
+
+        if (null === $validated) {
+            $output->writeln(sprintf(
+                '<error>Invalid assignee value "%s". Must be a valid integer (e.g., 0, 1, 123).</error>',
+                $stringValue,
+            ));
+
             return false;
         }
 
-        // Option was provided with value "0" or 0 - explicitly clear assignee
-        if (0 === $assignee || '0' === $assignee) {
+        return $validated;
+    }
+
+    /**
+     * Normalize validated assignee value.
+     *
+     * @param int|null $assignee Already validated integer or null for omitted option
+     *
+     * @return int|false|null Returns false when option was not provided (unchanged),
+     *                        null when explicitly clearing (0),
+     *                        or the integer user ID
+     */
+    private function normalizeAssignee(?int $assignee, bool $optionProvided): int|false|null
+    {
+        // Option was not provided at all - return sentinel to indicate "unchanged"
+        if (!$optionProvided) {
+            return false;
+        }
+
+        // Option was provided with value 0 - explicitly clear assignee
+        if (0 === $assignee) {
             return null;
         }
 
-        // Option was provided with a numeric string or int - cast to int
-        if (is_numeric($assignee)) {
-            return (int) $assignee;
-        }
-
-        // Non-numeric, non-null value provided - leave unchanged (treat as invalid)
-        return false;
+        // Option was provided with a valid user ID
+        return $assignee;
     }
 
     /**
