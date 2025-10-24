@@ -47,8 +47,8 @@ final class AfterPageTreeItemsPreparedListener
         foreach ($items as &$item) {
             $statusUid = $item['_page']['tx_ximatypo3contentplanner_status'] ?? null;
 
-            if ($statusUid) {
-                $this->applyStatusToItem($item, $statusUid, $isTypo3v13);
+            if (null !== $statusUid && 0 !== (int) $statusUid) {
+                $this->applyStatusToItem($item, (int) $statusUid, $isTypo3v13);
             } elseif ($isTypo3v13) {
                 $this->applyEmptyLabelWorkaround($item);
             }
