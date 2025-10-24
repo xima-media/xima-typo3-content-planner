@@ -104,7 +104,7 @@ final class BulkUpdateCommand extends Command
     private function normalizeAssignee(mixed $assignee, bool $optionProvided): int|false|null
     {
         // Option was not provided at all - return sentinel to indicate "unchanged"
-        if (!$optionProvided) {
+        if (!$optionProvided || null === $assignee) {
             return false;
         }
 
@@ -113,8 +113,13 @@ final class BulkUpdateCommand extends Command
             return null;
         }
 
-        // Option was provided with a real user ID
-        return (int) $assignee;
+        // Option was provided with a numeric string or int - cast to int
+        if (is_numeric($assignee)) {
+            return (int) $assignee;
+        }
+
+        // Non-numeric, non-null value provided - leave unchanged (treat as invalid)
+        return false;
     }
 
     /**
