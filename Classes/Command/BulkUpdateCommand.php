@@ -66,7 +66,8 @@ final class BulkUpdateCommand extends Command
         }
 
         $status = null !== $statusEntity ? $statusEntity->getUid() : null;
-        $assignee = $this->normalizeAssignee($input->getOption('assignee'));
+        $assigneeOptionProvided = null !== $input->getOption('assignee');
+        $assignee = $this->normalizeAssignee($input->getOption('assignee'), $assigneeOptionProvided);
 
         $uids = $this->collectTargetUids($uid, $table, $recursive);
         $count = $this->performBulkUpdate($uids, $table, $status, $assignee);
@@ -95,9 +96,25 @@ final class BulkUpdateCommand extends Command
         return $statusEntity;
     }
 
-    private function normalizeAssignee(mixed $assignee): mixed
+    /**
+     * @return int|false|null Returns false when option was not provided (unchanged),
+     *                        null when explicitly clearing (0 or "0"),
+     *                        or the integer user ID
+     */
+    private function normalizeAssignee(mixed $assignee, bool $optionProvided): int|false|null
     {
-        return (null !== $assignee && 0 === $assignee) ? null : $assignee;
+        // Option was not provided at all - return sentinel to indicate "unchanged"
+        if (!$optionProvided) {
+            return false;
+        }
+
+        // Option was provided with value "0" or 0 - explicitly clear assignee
+        if (0 === $assignee || '0' === $assignee) {
+            return null;
+        }
+
+        // Option was provided with a real user ID
+        return (int) $assignee;
     }
 
     /**
@@ -115,9 +132,10 @@ final class BulkUpdateCommand extends Command
     }
 
     /**
-     * @param int[] $uids
+     * @param int[]          $uids
+     * @param int|false|null $assignee false means unchanged, null means clear, int means set to user ID
      */
-    private function performBulkUpdate(array $uids, string $table, ?int $status, mixed $assignee): int
+    private function performBulkUpdate(array $uids, string $table, ?int $status, int|false|null $assignee): int
     {
         $count = 0;
 
