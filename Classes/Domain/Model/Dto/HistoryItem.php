@@ -227,6 +227,7 @@ final class HistoryItem
 
     /**
      * @return array{table: string, uid: int}|null
+     *
      * @throws Exception
      */
     private function resolveForeignDataFromComment(): ?array
