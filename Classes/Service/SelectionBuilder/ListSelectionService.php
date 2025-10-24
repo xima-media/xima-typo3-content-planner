@@ -31,7 +31,7 @@ use function sprintf;
  * ListSelectionService.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-2.0
+ * @license GPL-2.0-or-later
  */
 class ListSelectionService extends AbstractSelectionService implements SelectionInterface
 {

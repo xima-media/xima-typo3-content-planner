@@ -26,7 +26,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
  * ProxyController.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-2.0
+ * @license GPL-2.0-or-later
  */
 class ProxyController extends ActionController
 {

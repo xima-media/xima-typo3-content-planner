@@ -22,7 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, Statu
  * ContentStatusDataProvider.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-2.0
+ * @license GPL-2.0-or-later
  */
 class ContentStatusDataProvider implements ListDataProviderInterface
 {

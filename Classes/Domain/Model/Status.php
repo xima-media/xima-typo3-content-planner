@@ -19,7 +19,7 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  * Status.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-2.0
+ * @license GPL-2.0-or-later
  */
 class Status extends AbstractEntity
 {
