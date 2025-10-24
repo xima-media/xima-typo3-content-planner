@@ -58,43 +58,18 @@ final class BulkUpdateCommand extends Command
     {
         $table = $input->getArgument('table');
         $uid = (int) $input->getArgument('uid');
-        $status = (int) $input->getArgument('status');
         $recursive = false !== $input->getOption('recursive');
-        $assignee = $input->getOption('assignee');
-        $statusEntity = null;
 
-        if (0 === $status) {
-            $status = null;
-        } else {
-            $statusEntity = $this->statusRepository->findByUid($status);
-            if (null === $statusEntity) {
-                $output->writeln(sprintf('Status with uid %d not found.', $status));
-
-                return Command::FAILURE;
-            }
-        }
-        if (null !== $assignee) {
-            if (0 === $assignee) {
-                $assignee = null;
-            }
+        $statusEntity = $this->resolveStatusEntity((int) $input->getArgument('status'), $output);
+        if (null === $statusEntity && 0 !== (int) $input->getArgument('status')) {
+            return Command::FAILURE;
         }
 
-        $count = 0;
-        $uids = [$uid];
+        $status = null !== $statusEntity ? $statusEntity->getUid() : null;
+        $assignee = $this->normalizeAssignee($input->getOption('assignee'));
 
-        if ($recursive && 'pages' === $table) {
-            $uids = [...$uids, ...$this->getSubpages($uid)];
-        }
-
-        foreach ($uids as $tempUid) {
-            $this->recordRepository->updateStatusByUid($table, $tempUid, $status, $assignee);
-
-            if (null === $status && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
-                $this->commentRepository->deleteAllCommentsByRecord($tempUid, $table);
-            }
-
-            ++$count;
-        }
+        $uids = $this->collectTargetUids($uid, $table, $recursive);
+        $count = $this->performBulkUpdate($uids, $table, $status, $assignee);
 
         $output->writeln(sprintf(
             'Updated %d "%s" records to status "%s".',
@@ -104,6 +79,59 @@ final class BulkUpdateCommand extends Command
         ));
 
         return Command::SUCCESS;
+    }
+
+    private function resolveStatusEntity(int $status, OutputInterface $output): mixed
+    {
+        if (0 === $status) {
+            return null;
+        }
+
+        $statusEntity = $this->statusRepository->findByUid($status);
+        if (null === $statusEntity) {
+            $output->writeln(sprintf('Status with uid %d not found.', $status));
+        }
+
+        return $statusEntity;
+    }
+
+    private function normalizeAssignee(mixed $assignee): mixed
+    {
+        return (null !== $assignee && 0 === $assignee) ? null : $assignee;
+    }
+
+    /**
+     * @return int[]
+     */
+    private function collectTargetUids(int $uid, string $table, bool $recursive): array
+    {
+        $uids = [$uid];
+
+        if ($recursive && 'pages' === $table) {
+            $uids = [...$uids, ...$this->getSubpages($uid)];
+        }
+
+        return $uids;
+    }
+
+    /**
+     * @param int[] $uids
+     */
+    private function performBulkUpdate(array $uids, string $table, ?int $status, mixed $assignee): int
+    {
+        $count = 0;
+
+        foreach ($uids as $uid) {
+            $this->recordRepository->updateStatusByUid($table, $uid, $status, $assignee);
+
+            if (null === $status && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
+                $this->commentRepository->deleteAllCommentsByRecord($uid, $table);
+            }
+
+            ++$count;
+        }
+
+        return $count;
     }
 
     /**
