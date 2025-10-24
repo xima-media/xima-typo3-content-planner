@@ -17,7 +17,7 @@ namespace Xima\XimaTypo3ContentPlanner\Service\Header;
  * HeaderMode.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-2.0
+ * @license GPL-2.0-or-later
  */
 enum HeaderMode: string
 {

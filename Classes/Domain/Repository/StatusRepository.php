@@ -28,7 +28,7 @@ use function sprintf;
  * @extends Repository<Status>
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
- * @license GPL-2.0
+ * @license GPL-2.0-or-later
  */
 class StatusRepository extends Repository
 {
