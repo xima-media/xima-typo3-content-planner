@@ -41,6 +41,7 @@
 		"konradmichalik/phpstan-typo3-preset": "^0.1.2",
 		"move-elevator/composer-translation-validator": "^1.0.0",
 		"phpunit/phpunit": "^10.2 || ^11.0 || ^12.0",
+		"rector/rector": "^1.0 || 2.2.5",
 		"ssch/typo3-rector": "^2.10 || ^3.0",
 		"typo3/cms-base-distribution": "^12.0 || ^13.4",
 		"typo3/cms-lowlevel": "^12.0 || ^13.4",

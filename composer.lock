@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1debabf9d322777dfad42f33a5ab46be",
+    "content-hash": "68ba859cc306defc6e28ef68df446cad",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -8158,16 +8158,16 @@
         },
         {
             "name": "move-elevator/composer-translation-validator",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/move-elevator/composer-translation-validator.git",
-                "reference": "2320afbfe4dfff5ce31246b9e8be33ae335a638c"
+                "reference": "4762d8961e7a317776ec47cbc3a69f9f341bbf87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/move-elevator/composer-translation-validator/zipball/2320afbfe4dfff5ce31246b9e8be33ae335a638c",
-                "reference": "2320afbfe4dfff5ce31246b9e8be33ae335a638c",
+                "url": "https://api.github.com/repos/move-elevator/composer-translation-validator/zipball/4762d8961e7a317776ec47cbc3a69f9f341bbf87",
+                "reference": "4762d8961e7a317776ec47cbc3a69f9f341bbf87",
                 "shasum": ""
             },
             "require": {
@@ -8176,7 +8176,7 @@
                 "ext-mbstring": "*",
                 "ext-simplexml": "*",
                 "justinrainbow/json-schema": "^5.3 || ^6.4",
-                "php": "^8.1",
+                "php": "~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "symfony/config": "^5.0 || ^6.0 || ^7.0",
                 "symfony/console": "^5.0 || ^6.0 || ^7.0",
@@ -8187,9 +8187,10 @@
             "require-dev": {
                 "armin/editorconfig-cli": "^1.0 || ^2.0",
                 "composer/composer": "^2.0",
-                "eliashaeussler/php-cs-fixer-config": "2.3.0",
                 "eliashaeussler/rector-config": "^3.0",
                 "ergebnis/composer-normalize": "^2.44",
+                "konradmichalik/php-cs-fixer-preset": "^0.1.0",
+                "konradmichalik/php-doc-block-header-fixer": "^0.3.0",
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpstan/phpstan-symfony": "^2.0",
@@ -8201,7 +8202,10 @@
             },
             "type": "composer-plugin",
             "extra": {
-                "class": "MoveElevator\\ComposerTranslationValidator\\Plugin"
+                "class": "MoveElevator\\ComposerTranslationValidator\\Plugin",
+                "konradmichalik/php-cs-fixer-preset": {
+                    "copyright": 2025
+                }
             },
             "autoload": {
                 "psr-4": {
@@ -8222,9 +8226,9 @@
             "description": "A Composer plugin that validates translations files in your project regarding mismatches between language source and target files.",
             "support": {
                 "issues": "https://github.com/move-elevator/composer-translation-validator/issues",
-                "source": "https://github.com/move-elevator/composer-translation-validator/tree/1.2.0"
+                "source": "https://github.com/move-elevator/composer-translation-validator/tree/1.3.0"
             },
-            "time": "2025-08-04T10:11:37+00:00"
+            "time": "2025-10-27T09:05:38+00:00"
         },
         {
             "name": "myclabs/deep-copy",
