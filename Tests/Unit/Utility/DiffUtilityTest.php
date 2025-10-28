@@ -91,9 +91,9 @@ final class DiffUtilityTest extends TestCase
 
     public function testTimeAgoMultipleDays(): void
     {
-        $threeDaysAgo = time() - (3 * 86400);
+        $threeDaysAgo = time() - (3.5 * 86400);
 
-        $result = DiffUtility::timeAgo($threeDaysAgo);
+        $result = DiffUtility::timeAgo((int) ceil($threeDaysAgo));
 
         self::assertSame('3 days ago', $result);
     }
