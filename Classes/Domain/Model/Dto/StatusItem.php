@@ -83,7 +83,7 @@ final class StatusItem
 
     public function getRecordLink(): string
     {
-        return UrlHelper::getRecordLink($this->data['tablename'], $this->data['uid']);
+        return UrlHelper::getRecordLink($this->data['tablename'], (int) $this->data['uid']);
     }
 
     public function getAssignee(): int
