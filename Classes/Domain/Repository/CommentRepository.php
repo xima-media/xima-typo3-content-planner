@@ -74,7 +74,7 @@ class CommentRepository
         foreach ($comments as $result) {
             try {
                 $items[] = CommentItem::create($result);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
             }
         }
 

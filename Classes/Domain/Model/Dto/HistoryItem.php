@@ -188,16 +188,11 @@ final class HistoryItem
 
     private function loadRelatedRecord(): void
     {
-        switch ($this->data['tablename']) {
-            case 'pages':
-                $this->loadPageRecord();
-                break;
-            case 'tx_ximatypo3contentplanner_comment':
-                $this->loadCommentRelatedRecord();
-                break;
-            default:
-                $this->loadDefaultRecord();
-        }
+        match ($this->data['tablename']) {
+            'pages' => $this->loadPageRecord(),
+            'tx_ximatypo3contentplanner_comment' => $this->loadCommentRelatedRecord(),
+            default => $this->loadDefaultRecord(),
+        };
     }
 
     private function loadPageRecord(): void

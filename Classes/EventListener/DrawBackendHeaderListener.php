@@ -28,11 +28,11 @@ use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class DrawBackendHeaderListener
+final readonly class DrawBackendHeaderListener
 {
     public function __construct(
-        private readonly PageRepository $pageRepository,
-        private readonly InfoGenerator $headerInfoGenerator,
+        private PageRepository $pageRepository,
+        private InfoGenerator $headerInfoGenerator,
     ) {}
 
     public function __invoke(ModifyPageLayoutContentEvent $event): void

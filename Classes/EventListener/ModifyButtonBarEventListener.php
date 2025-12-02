@@ -33,13 +33,13 @@ use function in_array;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class ModifyButtonBarEventListener
+final readonly class ModifyButtonBarEventListener
 {
     public function __construct(
-        private readonly IconFactory $iconFactory,
-        private readonly StatusRepository $statusRepository,
-        private readonly RecordRepository $recordRepository,
-        private readonly HeaderSelectionService $buttonSelectionService,
+        private IconFactory $iconFactory,
+        private StatusRepository $statusRepository,
+        private RecordRepository $recordRepository,
+        private HeaderSelectionService $buttonSelectionService,
     ) {}
 
     public function __invoke(ModifyButtonBarEvent $event): void

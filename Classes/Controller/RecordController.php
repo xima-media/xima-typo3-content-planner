@@ -116,16 +116,14 @@ class RecordController extends ActionController
         ]);
 
         foreach ($assignees as &$assignee) {
-            $assignee['uid'] = $assignee['uid'] ?? 0;
+            $assignee['uid'] ??= 0;
             $assignee['name'] = ContentUtility::generateDisplayName($assignee);
             $assignee['isCurrent'] = ((int) $assignee['uid'] === $currentAssignee);
             $assignee['url'] = UrlHelper::assignToUser($recordTable, $recordId, $assignee['uid']);
         }
 
         // Sort the assignees so that the current assignee is always on top
-        usort($assignees, static function ($a, $b) use ($currentAssignee) {
-            return ((int) $b['uid'] === $currentAssignee) <=> ((int) $a['uid'] === $currentAssignee);
-        });
+        usort($assignees, static fn ($a, $b) => ((int) $b['uid'] === $currentAssignee) <=> ((int) $a['uid'] === $currentAssignee));
 
         $result = ViewFactoryHelper::renderView(
             'Default/Assignees.html',
