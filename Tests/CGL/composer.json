@@ -60,7 +60,7 @@
 		],
 		"lint:composer": "@fix:composer --dry-run",
 		"lint:editorconfig": "ec --git-only",
-		"lint:language": "@composer validate-translations ./Resources/Private/Language",
+		"lint:language": "@composer validate-translations ./../../Resources/Private/Language",
 		"lint:php": "@fix:php --dry-run",
 		"migration": [
 			"@migration:rector"
