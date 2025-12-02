@@ -16,7 +16,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 
 defined('TYPO3') || exit;
 
-call_user_func(function () {
+call_user_func(function (): void {
     $temporaryColumns = [
         'tx_ximatypo3contentplanner_hide' => [
             'exclude' => 1,

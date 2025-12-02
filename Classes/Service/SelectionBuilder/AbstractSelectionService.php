@@ -193,7 +193,7 @@ class AbstractSelectionService
     {
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
-        $route = $request->getAttribute('routing')->getRoute()->getOption('_identifier'); // @phpstan-ignore-line
+        $route = $request->getAttribute('routing')->getRoute()->getOption('_identifier');
 
         if ('record_edit' === $route) {
             $routeArray = [

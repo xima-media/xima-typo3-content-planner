@@ -19,14 +19,18 @@ use Ssch\TYPO3Rector\CodeQuality\General\{ConvertImplicitVariablesToExplicitGlob
 use Ssch\TYPO3Rector\Configuration\Typo3Option;
 use Ssch\TYPO3Rector\Set\{Typo3LevelSetList, Typo3SetList};
 
+$rootPath = dirname(__DIR__, 2);
+
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__.'/Classes',
-        __DIR__.'/Configuration',
-        __DIR__.'/ext_emconf.php',
-        __DIR__.'/ext_tables.php',
-        __DIR__.'/Tests/Unit',
+        $rootPath.'/Classes',
+        $rootPath.'/Configuration',
+        $rootPath.'/ext_emconf.php',
+        $rootPath.'/ext_localconf.php',
+        $rootPath.'/Tests/Unit',
     ])
+    // uncomment to reach your current PHP version
+    // ->withPhpSets()
     // uncomment to reach your current PHP version
     // ->withPhpSets()
     ->withPhpVersion(PhpVersion::PHP_81)
@@ -44,18 +48,21 @@ return RectorConfig::configure()
         ConvertImplicitVariablesToExplicitGlobalsRector::class,
     ])
     ->withConfiguredRule(ExtEmConfRector::class, [
-        ExtEmConfRector::PHP_VERSION_CONSTRAINT => '8.1.0-8.3.99',
+        ExtEmConfRector::PHP_VERSION_CONSTRAINT => '8.1.0-8.4.99',
         ExtEmConfRector::TYPO3_VERSION_CONSTRAINT => '12.4.0-13.4.99',
         ExtEmConfRector::ADDITIONAL_VALUES_TO_BE_REMOVED => [],
     ])
     // If you use withImportNames(), you should consider excluding some TYPO3 files.
     ->withSkip([
         // @see https://github.com/sabbelasichon/typo3-rector/issues/2536
-        __DIR__.'/**/Configuration/ExtensionBuilder/*',
+        $rootPath.'/**/Configuration/ExtensionBuilder/*',
         NameImportingPostRector::class => [
             'ext_localconf.php', // This line can be removed since TYPO3 11.4, see https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.4/Important-94280-MoveContentsOfExtPhpIntoLocalScopes.html
             'ext_tables.php', // This line can be removed since TYPO3 11.4, see https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.4/Important-94280-MoveContentsOfExtPhpIntoLocalScopes.html
             'ClassAliasMap.php',
         ],
     ])
+    ->withTypeCoverageLevel(0)
+    ->withDeadCodeLevel(0)
+    ->withCodeQualityLevel(0)
 ;
