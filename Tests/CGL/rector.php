@@ -31,8 +31,6 @@ return RectorConfig::configure()
     ])
     // uncomment to reach your current PHP version
     // ->withPhpSets()
-    // uncomment to reach your current PHP version
-    // ->withPhpSets()
     ->withPhpVersion(PhpVersion::PHP_81)
     ->withSets([
         Typo3SetList::CODE_QUALITY,
