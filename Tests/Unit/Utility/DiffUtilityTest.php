@@ -27,13 +27,11 @@ final class DiffUtilityTest extends TestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         // Mock the global LANG object needed by DiffUtility
         $languageServiceMock = $this->createMock(LanguageService::class);
-        $languageServiceMock->method('sL')->willReturnCallback(function (string $key): string {
+        $languageServiceMock->method('sL')->willReturnCallback(fn (string $key): string =>
             // Simple mock implementation that returns the key itself
-            return match (true) {
+            match (true) {
                 str_contains($key, 'timeAgo.now') => 'now',
                 str_contains($key, 'timeAgo.years') => '%d years ago',
                 str_contains($key, 'timeAgo.year') => '%d year ago',
@@ -47,8 +45,7 @@ final class DiffUtilityTest extends TestCase
                 str_contains($key, 'timeAgo.minute') => '%d minute ago',
                 str_contains($key, 'timeAgo.seconds') => '%d seconds ago',
                 default => $key,
-            };
-        });
+            });
 
         $GLOBALS['LANG'] = $languageServiceMock;
     }

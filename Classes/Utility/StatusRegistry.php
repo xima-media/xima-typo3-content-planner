@@ -99,7 +99,7 @@ class StatusRegistry
                     ];
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             // In case of error, keep the default items
         }
     }

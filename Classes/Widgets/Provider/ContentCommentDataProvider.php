@@ -57,7 +57,7 @@ class ContentCommentDataProvider implements ListDataProviderInterface
         foreach ($results as $result) {
             try {
                 $items[] = CommentItem::create($result);
-            } catch (Exception $e) {
+            } catch (Exception) {
             }
         }
 

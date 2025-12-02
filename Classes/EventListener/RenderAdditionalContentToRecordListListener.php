@@ -29,11 +29,11 @@ use function array_key_exists;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class RenderAdditionalContentToRecordListListener
+final readonly class RenderAdditionalContentToRecordListListener
 {
     public function __construct(
-        private readonly StatusRepository $statusRepository,
-        private readonly RecordRepository $recordRepository,
+        private StatusRepository $statusRepository,
+        private RecordRepository $recordRepository,
     ) {}
 
     /**

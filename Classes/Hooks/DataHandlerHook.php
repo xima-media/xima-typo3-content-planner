@@ -31,13 +31,13 @@ use function in_array;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class DataHandlerHook // @phpstan-ignore-line complexity.classLike
+final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLike
 {
     public function __construct(
         private FrontendInterface $cache,
-        private readonly StatusChangeManager $statusChangeManager,
-        private readonly RecordRepository $recordRepository,
-        private readonly CommentRepository $commentRepository,
+        private StatusChangeManager $statusChangeManager,
+        private RecordRepository $recordRepository,
+        private CommentRepository $commentRepository,
     ) {}
 
     /**

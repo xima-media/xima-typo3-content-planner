@@ -30,9 +30,9 @@ use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class AfterPageTreeItemsPreparedListener
+final readonly class AfterPageTreeItemsPreparedListener
 {
-    public function __construct(protected readonly StatusRepository $statusRepository) {}
+    public function __construct(protected StatusRepository $statusRepository) {}
 
     public function __invoke(AfterPageTreeItemsPreparedEvent $event): void
     {

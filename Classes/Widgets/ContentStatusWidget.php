@@ -103,9 +103,7 @@ class ContentStatusWidget extends AbstractWidget
 
         $recordTables = ExtensionUtility::getRecordTables();
         if (count($recordTables) > 1) {
-            $recordTables = array_map(function ($table) {
-                return ['label' => $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']), 'value' => $table];
-            }, $recordTables);
+            $recordTables = array_map(fn ($table) => ['label' => $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']), 'value' => $table], $recordTables);
             $filterValues['types'] = $recordTables;
         }
 
