@@ -62,7 +62,7 @@ class StatusItemProvider extends AbstractProvider
 
     public function getPriority(): int
     {
-        return 55;
+        return 73;
     }
 
     /**
