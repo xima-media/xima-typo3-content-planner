@@ -31,7 +31,7 @@ final class PrepareStatusSelectionListener
         $selection = $event->getSelection();
 
         if ($event->getCurrentStatus() && 'Needs review' === $event->getCurrentStatus()->getTitle()) {
-            $targetStatus = $this->statusRepository->findOneByTitle('Pending');
+            $targetStatus = $this->statusRepository->findByTitle('Pending');
 
             if ($targetStatus) {
                 unset($selection[$targetStatus->getUid()]);

@@ -4,7 +4,7 @@ services:
             - EXTENSION_KEY=xima_typo3_content_planner
             - EXTENSION_NAME=xima-typo3-content-planner
             - PACKAGE_NAME=xima/xima-typo3-content-planner
-            - TYPO3_VERSIONS=13
+            - TYPO3_VERSIONS=13 14
 
             # TYPO3 v13 config
             - TYPO3_DB_DRIVER=mysqli

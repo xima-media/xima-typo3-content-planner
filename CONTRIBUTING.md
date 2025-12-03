@@ -72,15 +72,15 @@ For testing the extension, you need to set up the TYPO3 instances.
 ddev install all
 
 # Or install specific TYPO3 versions
-ddev install 12
 ddev install 13
+ddev install 14
 
 # Open the overview page
 ddev launch
 
 # Run TYPO3 specific commands
-ddev 12 typo3 cache:flush
 ddev 13 composer install
+ddev 14 composer install
 ddev all typo3 database:updateschema
 ```
 

@@ -168,7 +168,11 @@ class AbstractSelectionService
      */
     protected function getCurrentStatus(array|bool|null $record = null): ?int
     {
-        return is_array($record) ? $record['tx_ximatypo3contentplanner_status'] : null;
+        if (!is_array($record) || !isset($record['tx_ximatypo3contentplanner_status'])) {
+            return null;
+        }
+
+        return (int) $record['tx_ximatypo3contentplanner_status'] ?: null;
     }
 
     protected function compareStatus(Status $status, Status|int|null $currentStatus): bool
