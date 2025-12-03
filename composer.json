@@ -22,12 +22,12 @@
 		"psr/http-server-handler": "^1.0",
 		"psr/http-server-middleware": "^1.0",
 		"symfony/console": "^7.0",
-		"typo3/cms-backend": "^13.0",
-		"typo3/cms-beuser": "^13.0",
-		"typo3/cms-core": "^13.0",
-		"typo3/cms-dashboard": "^13.0",
-		"typo3/cms-extbase": "^13.0",
-		"typo3/cms-fluid": "^13.0",
+		"typo3/cms-backend": "^13.4",
+		"typo3/cms-beuser": "^13.4",
+		"typo3/cms-core": "^13.4",
+		"typo3/cms-dashboard": "^13.4",
+		"typo3/cms-extbase": "^13.4",
+		"typo3/cms-fluid": "^13.4",
 		"typo3fluid/fluid": "^4.2"
 	},
 	"require-dev": {
