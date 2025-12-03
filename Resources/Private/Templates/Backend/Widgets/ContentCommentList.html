@@ -2,14 +2,6 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<f:if condition="{showTitle}">
-    <div class="widget-content-title d-flex align-items-center">
-        <core:icon identifier="{icon}" size="small"/>
-        <span class="mx-3">
-            <f:translate key="{configuration.title}" extensionName="XimaTypo3ContentPlanner"/>
-        </span>
-    </div>
-</f:if>
 <div class="widget-content-main">
     <f:if condition="{records}">
         <f:then>

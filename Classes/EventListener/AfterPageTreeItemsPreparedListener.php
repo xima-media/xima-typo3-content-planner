@@ -14,14 +14,14 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
-use TYPO3\CMS\Core\Utility\{GeneralUtility, VersionNumberUtility};
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
 
 /*
-* https://docs.typo3.org/m/typo3/reference-coreapi/12.4/en-us/ApiOverview/Events/Events/Backend/AfterPageTreeItemsPreparedEvent.html
+* https://docs.typo3.org/m/typo3/reference-coreapi/13.4/en-us/ApiOverview/Events/Events/Backend/AfterPageTreeItemsPreparedEvent.html
 */
 
 /**
@@ -41,15 +41,13 @@ final readonly class AfterPageTreeItemsPreparedListener
         }
 
         $items = $event->getItems();
-        $version = VersionNumberUtility::getCurrentTypo3Version();
-        $isTypo3v13 = version_compare($version, '13.0.0', '>=');
 
         foreach ($items as &$item) {
             $statusUid = $item['_page']['tx_ximatypo3contentplanner_status'] ?? null;
 
             if (null !== $statusUid && 0 !== (int) $statusUid) {
-                $this->applyStatusToItem($item, (int) $statusUid, $isTypo3v13);
-            } elseif ($isTypo3v13) {
+                $this->applyStatusToItem($item, (int) $statusUid);
+            } else {
                 $this->applyEmptyLabelWorkaround($item);
             }
         }
@@ -60,22 +58,18 @@ final readonly class AfterPageTreeItemsPreparedListener
     /**
      * @param array<string, mixed> $item
      */
-    private function applyStatusToItem(array &$item, int $statusUid, bool $isTypo3v13): void
+    private function applyStatusToItem(array &$item, int $statusUid): void
     {
         $status = $this->statusRepository->findByUid($statusUid);
         if (!$status instanceof Status) {
             return;
         }
 
-        if ($isTypo3v13) {
-            $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
-                label: $status->getTitle(),
-                color: Configuration\Colors::get($status->getColor()),
-            );
-            $this->addStatusInformationIfEnabled($item);
-        } else {
-            $item['backgroundColor'] = Configuration\Colors::get($status->getColor(), true);
-        }
+        $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
+            label: $status->getTitle(),
+            color: Configuration\Colors::get($status->getColor()),
+        );
+        $this->addStatusInformationIfEnabled($item);
     }
 
     /**

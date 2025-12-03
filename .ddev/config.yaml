@@ -5,7 +5,6 @@ php_version: "8.3"
 webserver_type: apache-fpm
 xdebug_enabled: false
 additional_hostnames:
-    - 12.xima-typo3-content-planner
     - 13.xima-typo3-content-planner
 additional_fqdns: []
 database:
