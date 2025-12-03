@@ -15,8 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
@@ -86,14 +85,8 @@ class IconHelper
         return GeneralUtility::makeInstance(Avatar::class)->render($user, $size, true);
     }
 
-    public static function getDefaultIconSize(): string|\TYPO3\CMS\Core\Imaging\IconSize
+    public static function getDefaultIconSize(): string|IconSize
     {
-        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
-
-        if ($typo3Version >= 13) {
-            return \TYPO3\CMS\Core\Imaging\IconSize::SMALL;
-        }
-
-        return \TYPO3\CMS\Core\Imaging\Icon::SIZE_SMALL; // @phpstan-ignore classConstant.deprecated
+        return IconSize::SMALL;
     }
 }
