@@ -85,7 +85,7 @@ class IconHelper
         return GeneralUtility::makeInstance(Avatar::class)->render($user, $size, true);
     }
 
-    public static function getDefaultIconSize(): string|IconSize
+    public static function getDefaultIconSize(): IconSize
     {
         return IconSize::SMALL;
     }

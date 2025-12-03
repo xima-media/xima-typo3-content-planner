@@ -36,7 +36,7 @@ content work, e.g. a migration process.
 
 ### Requirements
 
-* TYPO3 >= 12.4
+* TYPO3 13.4 LTS
 * PHP 8.2+
 
 ### Composer
