@@ -106,7 +106,7 @@ final class HistoryItem
 
     public function getStatus(): ?string
     {
-        $status = ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        $status = ContentUtility::getStatus((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
 
         return $status?->getTitle();
     }
