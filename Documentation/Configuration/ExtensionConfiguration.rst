@@ -44,7 +44,7 @@ Features
     :type: boolean
     :Default: 1
 
-    Enable the comment status information in the page tree (v13 only)
+    Enable the comment status information in the page tree
 
 ..  _extconf-resetContentElementStatusOnPageReset:
 
