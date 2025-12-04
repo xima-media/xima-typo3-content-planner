@@ -279,7 +279,7 @@ class AbstractSelectionService
      */
     private function addStatusResetSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
     {
-        if (null === $record || (null !== $record['tx_ximatypo3contentplanner_status'] && 0 !== $record['tx_ximatypo3contentplanner_status'])) {
+        if (!is_array($record) || (null !== $record['tx_ximatypo3contentplanner_status'] && 0 !== $record['tx_ximatypo3contentplanner_status'])) {
             if ([] !== $selectionEntriesToAdd) {
                 $this->addDividerItemToSelection($selectionEntriesToAdd);
             }
@@ -295,7 +295,7 @@ class AbstractSelectionService
      */
     private function addAdditionalActionsSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
     {
-        if (null === $record || null === $this->getCurrentStatus($record)) {
+        if (!is_array($record) || null === $this->getCurrentStatus($record)) {
             return;
         }
 
