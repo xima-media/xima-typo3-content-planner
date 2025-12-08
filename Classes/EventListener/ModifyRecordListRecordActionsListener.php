@@ -14,12 +14,10 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
-use TYPO3\CMS\Backend\Template\Components\ActionGroup;
-use TYPO3\CMS\Backend\Template\Components\Buttons\DropDownButton;
+use TYPO3\CMS\Backend\Template\Components\{ActionGroup, ComponentFactory};
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
@@ -34,15 +32,16 @@ use function is_array;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class ModifyRecordListRecordActionsListener
+final readonly class ModifyRecordListRecordActionsListener
 {
     protected ServerRequest $request;
 
     public function __construct(
-        private readonly IconFactory $iconFactory,
-        private readonly StatusRepository $statusRepository,
-        private readonly RecordRepository $recordRepository,
-        private readonly DropDownSelectionService $dropDownSelectionService,
+        private IconFactory $iconFactory,
+        private StatusRepository $statusRepository,
+        private RecordRepository $recordRepository,
+        private DropDownSelectionService $dropDownSelectionService,
+        private ComponentFactory $componentFactory,
     ) {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
@@ -77,8 +76,7 @@ final class ModifyRecordListRecordActionsListener
         $title = $status instanceof Status ? $status->getTitle() : 'Status';
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
 
-        /** @var DropDownButton $dropDownButton */
-        $dropDownButton = GeneralUtility::makeInstance(DropDownButton::class)
+        $dropDownButton = $this->componentFactory->createDropDownButton()
             ->setLabel($title)
             ->setTitle($title)
             ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
