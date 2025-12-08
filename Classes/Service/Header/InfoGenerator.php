@@ -21,7 +21,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, UrlHelper, View};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 use function array_key_exists;
 
@@ -130,7 +132,7 @@ class InfoGenerator
         string $table,
         Status $status,
     ): string {
-        $content = View::render('Backend/Header/HeaderInfo', [
+        $content = ViewUtility::render('Backend/Header/HeaderInfo', [
             'mode' => $mode->value,
             'data' => $record,
             'table' => $table,
@@ -144,19 +146,19 @@ class InfoGenerator
                 'username' => $this->getAssigneeUsername($record),
                 'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
                 'assignToCurrentUser' => self::checkAssignToCurrentUser($record)
-                    ? UrlHelper::assignToUser($table, $record['uid'])
+                    ? UrlUtility::assignToUser($table, $record['uid'])
                     : false,
                 'unassign' => self::checkUnassign($record)
-                    ? UrlHelper::assignToUser($table, $record['uid'], unassign: true)
+                    ? UrlUtility::assignToUser($table, $record['uid'], unassign: true)
                     : null,
             ],
             'comments' => [
                 'items' => $this->getComments($record, $table),
-                'newCommentUri' => UrlHelper::getNewCommentUrl(
+                'newCommentUri' => UrlUtility::getNewCommentUrl(
                     $table,
                     $record['uid'],
                 ),
-                'editUri' => UrlHelper::getContentStatusPropertiesEditUrl(
+                'editUri' => UrlUtility::getContentStatusPropertiesEditUrl(
                     $table,
                     $record['uid'],
                 ),
@@ -333,16 +335,16 @@ class InfoGenerator
 
             return '';
         }
-        $content = ExtensionUtility::getCssTag(
+        $content = AssetUtility::getCssTag(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
             ['nonce' => $this->requestId->nonce],
         );
-        $content .= ExtensionUtility::getJsTag(
+        $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/comments-list-modal.js',
             ['nonce' => $this->requestId->nonce],
         );
-        $content .= ExtensionUtility::getJsTag(
+        $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/assignee-selection-modal.js',
             ['nonce' => $this->requestId->nonce],

@@ -20,7 +20,8 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
-use Xima\XimaTypo3ContentPlanner\Utility\{ComponentFactoryUtility, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\ComponentFactoryUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 /**
  * DropDownSelectionService.
@@ -99,7 +100,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $assigneeDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($username)
             ->setIcon($this->iconFactory->getIcon('actions-user'))
-            ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
+            ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
     }
 
@@ -112,8 +113,8 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel((isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countAllByRecord($record['uid'], $table).' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'))
             ->setIcon($this->iconFactory->getIcon('actions-message'))
-            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
-            ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
+            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlUtility::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
+            ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['comments'] = $commentsDropDownItem;
     }
 
@@ -132,8 +133,8 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel("$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo'))
             ->setIcon($this->iconFactory->getIcon('actions-check-square'))
-            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
-            ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
+            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlUtility::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
+            ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['commentsTodo'] = $commentsDropDownItem;
     }
 }

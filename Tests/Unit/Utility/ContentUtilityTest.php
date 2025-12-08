@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Utility;
 
 use PHPUnit\Framework\TestCase;
-use Xima\XimaTypo3ContentPlanner\Utility\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 
 /**
  * ContentUtilityTest.

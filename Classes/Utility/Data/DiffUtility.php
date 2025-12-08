@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Xima\XimaTypo3ContentPlanner\Utility;
+namespace Xima\XimaTypo3ContentPlanner\Utility\Data;
 
 use DateInterval;
 use DateTime;

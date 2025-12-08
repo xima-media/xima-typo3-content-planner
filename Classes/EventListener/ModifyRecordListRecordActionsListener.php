@@ -22,7 +22,9 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\{ComponentFactoryUtility, ExtensionUtility, VersionHelper, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\{ComponentFactoryUtility, VersionUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
 use function is_array;
@@ -49,7 +51,7 @@ final readonly class ModifyRecordListRecordActionsListener
     // @phpstan-ignore-next-line complexity.functionLike
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
-        if (!VisibilityUtility::checkContentStatusVisibility()) {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
             return;
         }
         // TYPO3 v13/v14 compatibility: In v14 getRecord() returns RecordInterface, in v13 it returns array
@@ -92,9 +94,9 @@ final readonly class ModifyRecordListRecordActionsListener
         }
 
         $event->setAction(
-            VersionHelper::is14OrHigher() ? $dropDownButton : $dropDownButton->render(),
+            VersionUtility::is14OrHigher() ? $dropDownButton : $dropDownButton->render(),
             'Status',
-            VersionHelper::is14OrHigher() ? ActionGroup::primary : 'primary',
+            VersionUtility::is14OrHigher() ? ActionGroup::primary : 'primary',
             'delete',
         );
     }

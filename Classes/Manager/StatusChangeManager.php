@@ -19,7 +19,8 @@ use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, ExtensionUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 use function array_key_exists;
 use function is_array;

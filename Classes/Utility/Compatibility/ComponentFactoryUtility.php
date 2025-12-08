@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Xima\XimaTypo3ContentPlanner\Utility;
+namespace Xima\XimaTypo3ContentPlanner\Utility\Compatibility;
 
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\{DropDownDivider, DropDownItem};
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDownButton;
@@ -27,7 +27,7 @@ class ComponentFactoryUtility
 {
     public static function createDropDownButton(): DropDownButton
     {
-        if (VersionHelper::is14OrHigher()) {
+        if (VersionUtility::is14OrHigher()) {
             return self::getComponentFactory()->createDropDownButton();
         }
 
@@ -36,7 +36,7 @@ class ComponentFactoryUtility
 
     public static function createDropDownItem(): DropDownItem
     {
-        if (VersionHelper::is14OrHigher()) {
+        if (VersionUtility::is14OrHigher()) {
             return self::getComponentFactory()->createDropDownItem();
         }
 
@@ -45,7 +45,7 @@ class ComponentFactoryUtility
 
     public static function createDropDownDivider(): DropDownDivider
     {
-        if (VersionHelper::is14OrHigher()) {
+        if (VersionUtility::is14OrHigher()) {
             return self::getComponentFactory()->createDropDownDivider();
         }
 

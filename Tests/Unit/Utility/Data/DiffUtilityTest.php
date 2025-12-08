@@ -11,11 +11,11 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Utility;
+namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Utility\Data;
 
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use Xima\XimaTypo3ContentPlanner\Utility\DiffUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\DiffUtility;
 
 /**
  * DiffUtilityTest.

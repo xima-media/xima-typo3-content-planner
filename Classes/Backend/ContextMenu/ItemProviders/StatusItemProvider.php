@@ -22,7 +22,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\PageTreeSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, UrlHelper, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_slice;
 use function in_array;
@@ -76,7 +78,7 @@ class StatusItemProvider extends AbstractProvider
      */
     public function addItems(array $items): array
     {
-        if (!VisibilityUtility::checkContentStatusVisibility()) {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
             return $items;
         }
         /** @var PageRenderer $pageRenderer */
@@ -120,9 +122,9 @@ class StatusItemProvider extends AbstractProvider
         return [
             'data-callback-module' => '@xima/ximatypo3contentplanner/context-menu-actions',
             'data-status' => $itemName,
-            'data-uri' => UrlHelper::getContentStatusPropertiesEditUrl($this->table, (int) $this->identifier, false),
-            'data-new-comment-uri' => UrlHelper::getNewCommentUrl($this->table, (int) $this->identifier),
-            'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($this->table, (int) $this->identifier),
+            'data-uri' => UrlUtility::getContentStatusPropertiesEditUrl($this->table, (int) $this->identifier, false),
+            'data-new-comment-uri' => UrlUtility::getNewCommentUrl($this->table, (int) $this->identifier),
+            'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($this->table, (int) $this->identifier),
         ];
     }
 

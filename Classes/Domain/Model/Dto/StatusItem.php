@@ -20,7 +20,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, ExtensionUtility, IconHelper, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 use function count;
 use function sprintf;
@@ -73,17 +76,17 @@ final class StatusItem
 
     public function getStatusIcon(): string
     {
-        return IconHelper::getIconByStatus($this->status, true);
+        return IconUtility::getIconByStatus($this->status, true);
     }
 
     public function getRecordIcon(): string
     {
-        return IconHelper::getIconByRecord($this->data['tablename'], $this->data, true);
+        return IconUtility::getIconByRecord($this->data['tablename'], $this->data, true);
     }
 
     public function getRecordLink(): string
     {
-        return UrlHelper::getRecordLink($this->data['tablename'], (int) $this->data['uid']);
+        return UrlUtility::getRecordLink($this->data['tablename'], (int) $this->data['uid']);
     }
 
     public function getAssignee(): int
@@ -98,14 +101,14 @@ final class StatusItem
 
     public function getAssigneeAvatar(): string
     {
-        return IconHelper::getAvatarByUserId((int) $this->data['tx_ximatypo3contentplanner_assignee']);
+        return IconUtility::getAvatarByUserId((int) $this->data['tx_ximatypo3contentplanner_assignee']);
     }
 
     public function getCommentsHtml(): string
     {
         return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? sprintf(
             '%s <span class="badge">%d</span>',
-            IconHelper::getIconByIdentifier('actions-message'),
+            IconUtility::getIconByIdentifier('actions-message'),
             $this->data['tx_ximatypo3contentplanner_comments'],
         ) : '';
     }
@@ -118,7 +121,7 @@ final class StatusItem
         }
         $site = $siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $icon = $iconFactory->getIcon('apps-pagetree-folder-root', IconHelper::getDefaultIconSize());
+        $icon = $iconFactory->getIcon('apps-pagetree-folder-root', IconUtility::getDefaultIconSize());
 
         /* @phpstan-ignore-next-line */
         return $icon->render().' '.($site->getAttribute('websiteTitle') ?? $site->getIdentifier());
@@ -132,7 +135,7 @@ final class StatusItem
 
         return $this->getToDoTotal() > 0 ? sprintf(
             '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
-            IconHelper::getIconByIdentifier('actions-check-square'),
+            IconUtility::getIconByIdentifier('actions-check-square'),
             $this->getToDoResolved() === $this->getToDoTotal() ? 'resolved' : 'pending',
             $this->getToDoResolved(),
             $this->getToDoTotal(),
