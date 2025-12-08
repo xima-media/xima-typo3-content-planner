@@ -47,7 +47,7 @@ final class StatusItem
     {
         $item = new self();
         $item->data = $row;
-        $item->status = ContentUtility::getStatus($row['tx_ximatypo3contentplanner_status']);
+        $item->status = ContentUtility::getStatus((int) $row['tx_ximatypo3contentplanner_status']);
 
         return $item;
     }

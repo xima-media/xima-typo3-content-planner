@@ -22,7 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\{HeaderMode, InfoGenerator};
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, RouteUtility};
 
 use function array_key_exists;
 use function in_array;
@@ -162,7 +162,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
     {
         return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
             && null !== $request->getAttribute('module')
-            && 'web_layout' === $request->getAttribute('module')->getIdentifier()
+            && RouteUtility::isPageLayoutRoute($request->getAttribute('module')->getIdentifier())
             && in_array('tt_content', $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'], true);
     }
 
@@ -179,7 +179,7 @@ class BackendContentModifierMiddleware implements MiddlewareInterface
         return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
             && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
             && null !== $request->getAttribute('module')
-            && 'web_list' === $request->getAttribute('module')->getIdentifier();
+            && RouteUtility::isRecordListRoute($request->getAttribute('module')->getIdentifier());
     }
 
     private function getStatusRepository(): StatusRepository

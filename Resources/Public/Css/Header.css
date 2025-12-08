@@ -72,6 +72,11 @@
     border-color: var(--content-planner--color-orange);
 }
 
+.xima-typo3-content-planner--header--actions {
+    display: flex;
+    gap: 1em;
+}
+
 .xima-typo3-content-planner--header--ce-hint {
     display: flex;
     align-items: center;

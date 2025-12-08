@@ -19,17 +19,17 @@ use TYPO3\CMS\Core\View\{ViewFactoryData, ViewFactoryInterface};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 /**
- * ViewFactoryHelper.
+ * View.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class ViewFactoryHelper
+class View
 {
     /**
      * @param array<string, mixed> $values
      */
-    public static function renderView(string $template, array $values, ?ServerRequestInterface $request = null): string
+    public static function render(string $template, array $values, ?ServerRequestInterface $request = null): string
     {
         $viewFactoryData = new ViewFactoryData(
             templateRootPaths: ['EXT:'.Configuration::EXT_KEY.'/Resources/Private/Templates/'],

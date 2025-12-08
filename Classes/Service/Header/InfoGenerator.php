@@ -18,11 +18,10 @@ use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, UrlHelper, View};
 
 use function array_key_exists;
 
@@ -131,20 +130,7 @@ class InfoGenerator
         string $table,
         Status $status,
     ): string {
-        // @ToDo: StandaloneView is deprecated and should be replaced
-        //        with FluidView in TYPO3 v13
-        // @phpstan-ignore-next-line classConstant.deprecatedClass
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-
-        // @ToDo: setTemplatePathAndFilename is deprecated and should be
-        //        replaced with ViewFactoryInterface
-        // @phpstan-ignore-next-line method.deprecatedClass
-        $view->setTemplatePathAndFilename(
-            'EXT:'.Configuration::EXT_KEY.
-            '/Resources/Private/Templates/Backend/Header/HeaderInfo.html',
-        );
-
-        $view->assignMultiple([
+        $content = View::render('Backend/Header/HeaderInfo', [
             'mode' => $mode->value,
             'data' => $record,
             'table' => $table,
@@ -185,7 +171,6 @@ class InfoGenerator
             'userid' => $GLOBALS['BE_USER']->user['uid'],
         ]);
 
-        $content = $view->render();
         $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode);
 
         return $content;

@@ -23,7 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, RouteUtility, VisibilityUtility};
 
 use function count;
 use function is_array;
@@ -168,7 +168,11 @@ class AbstractSelectionService
      */
     protected function getCurrentStatus(array|bool|null $record = null): ?int
     {
-        return is_array($record) ? $record['tx_ximatypo3contentplanner_status'] : null;
+        if (!is_array($record) || !isset($record['tx_ximatypo3contentplanner_status'])) {
+            return null;
+        }
+
+        return (int) $record['tx_ximatypo3contentplanner_status'] ?: null;
     }
 
     protected function compareStatus(Status $status, Status|int|null $currentStatus): bool
@@ -189,7 +193,7 @@ class AbstractSelectionService
      *
      * @throws RouteNotFoundException
      */
-    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status, ?int $pid = null): UriInterface
+    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status): UriInterface
     {
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -203,9 +207,15 @@ class AbstractSelectionService
                     ],
                 ],
             ];
+        } elseif (RouteUtility::isRecordListRoute($route)) {
+            // For record list, use the current page ID from request to stay on the same page
+            $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
+            $routeArray = [
+                'id' => $currentPageId ?: $uid,
+            ];
         } else {
             $routeArray = [
-                'id' => 'web_list' === $route && (bool) $pid ? $pid : $uid,
+                'id' => $uid,
             ];
         }
 

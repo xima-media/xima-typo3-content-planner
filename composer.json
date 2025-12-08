@@ -22,21 +22,28 @@
 		"psr/http-server-handler": "^1.0",
 		"psr/http-server-middleware": "^1.0",
 		"symfony/console": "^7.0",
-		"typo3/cms-backend": "^13.4",
-		"typo3/cms-beuser": "^13.4",
-		"typo3/cms-core": "^13.4",
-		"typo3/cms-dashboard": "^13.4",
-		"typo3/cms-extbase": "^13.4",
-		"typo3/cms-fluid": "^13.4",
-		"typo3fluid/fluid": "^4.2"
+		"typo3/cms-backend": "^13.4 || ^14.0",
+		"typo3/cms-beuser": "^13.4 || ^14.0",
+		"typo3/cms-core": "^13.4 || ^14.0",
+		"typo3/cms-dashboard": "^13.4 || ^14.0",
+		"typo3/cms-extbase": "^13.4 || ^14.0",
+		"typo3/cms-fluid": "^13.4 || ^14.0",
+		"typo3fluid/fluid": "^4.2 || ^5.0"
 	},
 	"require-dev": {
 		"eliashaeussler/version-bumper": "^2.4 || ^3.0",
-		"helhum/typo3-console": "^8.1",
+		"helhum/typo3-console": "^8.1 || dev-support-typo3-v14",
 		"phpunit/phpunit": "^10.2 || ^11.0 || ^12.0",
-		"typo3/cms-base-distribution": "^13.4",
-		"typo3/cms-lowlevel": "^13.4"
+		"typo3/cms-base-distribution": "^13.4 || ^14.0",
+		"typo3/cms-lowlevel": "^13.4 || ^14.0"
 	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "git@github.com:jackd248/TYPO3-Console.git",
+			"name": "typo3-console"
+		}
+	],
 	"autoload": {
 		"psr-4": {
 			"Xima\\XimaTypo3ContentPlanner\\": "Classes/"

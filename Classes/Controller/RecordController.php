@@ -23,7 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, ExtensionUtility, UrlHelper, ViewFactoryHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, ExtensionUtility, UrlHelper, View};
 
 use function array_key_exists;
 
@@ -68,7 +68,7 @@ class RecordController extends ActionController
 
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, sortDirection: $sortComments, showResolved: $showResolvedComments);
 
-        $result = ViewFactoryHelper::renderView(
+        $result = View::render(
             'Default/Comments.html',
             [
                 'comments' => $comments,
@@ -125,7 +125,7 @@ class RecordController extends ActionController
         // Sort the assignees so that the current assignee is always on top
         usort($assignees, static fn ($a, $b) => ((int) $b['uid'] === $currentAssignee) <=> ((int) $a['uid'] === $currentAssignee));
 
-        $result = ViewFactoryHelper::renderView(
+        $result = View::render(
             'Default/Assignees.html',
             [
                 'recordId' => $recordId,

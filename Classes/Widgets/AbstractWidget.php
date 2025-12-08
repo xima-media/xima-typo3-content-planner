@@ -18,7 +18,7 @@ use TYPO3\CMS\Core\Page\{JavaScriptModuleInstruction, PageRenderer};
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\{AdditionalCssInterface, ButtonProviderInterface, JavaScriptInterface, ListDataProviderInterface, WidgetConfigurationInterface, WidgetInterface};
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\ViewFactoryHelper;
+use Xima\XimaTypo3ContentPlanner\Utility\View;
 
 /**
  * AbstractWidget.
@@ -50,7 +50,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addInlineLanguageLabelFile('EXT:ximatypo3contentplanner/Resources/Private/Language/locallang.xlf');
 
-        return ViewFactoryHelper::renderView($templateFile, $templateArguments);
+        return View::render($templateFile, $templateArguments);
     }
 
     abstract public function renderWidgetContent(): string;

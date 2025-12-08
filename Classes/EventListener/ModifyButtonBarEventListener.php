@@ -22,10 +22,8 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\HeaderSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
-
-use function in_array;
+use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
+use Xima\XimaTypo3ContentPlanner\Utility\{ComponentFactoryUtility, ExtensionUtility, RouteUtility, VisibilityUtility};
 
 /**
  * ModifyButtonBarEventListener.
@@ -39,7 +37,7 @@ final readonly class ModifyButtonBarEventListener
         private IconFactory $iconFactory,
         private StatusRepository $statusRepository,
         private RecordRepository $recordRepository,
-        private HeaderSelectionService $buttonSelectionService,
+        private DropDownSelectionService $dropDownSelectionService,
     ) {}
 
     public function __invoke(ModifyButtonBarEvent $event): void
@@ -91,7 +89,7 @@ final readonly class ModifyButtonBarEventListener
             return true;
         }
 
-        return in_array($request->getAttribute('module')->getIdentifier(), ['web_layout', 'record_edit', 'web_list'], true);
+        return RouteUtility::isContentPlannerSupportedModule($request->getAttribute('module')->getIdentifier());
     }
 
     private function extractTableFromRequest(ServerRequestInterface $request): ?string
@@ -123,18 +121,17 @@ final readonly class ModifyButtonBarEventListener
     {
         $status = $this->resolveStatusFromRecord($record);
 
-        $buttonBar = $event->getButtonBar();
         $buttons = $event->getButtons();
         $buttons['right'] ??= [];
 
-        $dropDownButton = $buttonBar->makeDropDownButton()
+        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
             ->setLabel('Dropdown')
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
             ->setIcon($this->iconFactory->getIcon(
                 $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
             ));
 
-        $buttonsToAdd = $this->buttonSelectionService->generateSelection($table, $uid);
+        $buttonsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
         if (false === $buttonsToAdd) {
             return;
         }

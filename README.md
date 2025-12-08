@@ -36,8 +36,15 @@ content work, e.g. a migration process.
 
 ### Requirements
 
-* TYPO3 13.4 LTS
+* TYPO3 13.4 LTS & 14.0+
 * PHP 8.2+
+
+### Supports
+
+| **Version** | **TYPO3** | **PHP** |
+|-------------|-----------|---------|
+| 2.x         | 13-14     | 8.2-8.5 |
+| 1.x         | 12-13     | 8.1-8.4 |
 
 ### Composer
 

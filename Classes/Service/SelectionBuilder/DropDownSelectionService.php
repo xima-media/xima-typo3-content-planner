@@ -15,22 +15,20 @@ namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\{DropDownDivider, DropDownItem};
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
-use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
+use Xima\XimaTypo3ContentPlanner\Utility\{ComponentFactoryUtility, UrlHelper};
 
 /**
- * HeaderSelectionService.
+ * DropDownSelectionService.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class HeaderSelectionService extends AbstractSelectionService implements SelectionInterface
+class DropDownSelectionService extends AbstractSelectionService implements SelectionInterface
 {
     public function __construct(
         StatusRepository $statusRepository,
@@ -56,8 +54,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         if ($this->compareStatus($status, $currentStatus)) {
             return;
         }
-        /** @var DropDownItem $statusDropDownItem */
-        $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+        $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($status->getTitle())
             ->setIcon($this->iconFactory->getIcon($status->getColoredIcon()))
             ->setHref($this->buildUriForStatusChange($table, $uid, $status)->__toString());
@@ -69,7 +66,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
      */
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
-        $selectionEntriesToAdd['divider'.($additionalPostIdentifier ?? '')] = GeneralUtility::makeInstance(DropDownDivider::class);
+        $selectionEntriesToAdd['divider'.($additionalPostIdentifier ?? '')] = ComponentFactoryUtility::createDropDownDivider();
     }
 
     /**
@@ -81,8 +78,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
      */
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
     {
-        /** @var DropDownItem $statusDropDownItem */
-        $statusDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+        $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
             ->setIcon($this->iconFactory->getIcon('actions-close'))
             ->setHref($this->buildUriForStatusChange($table, $uid, null)->__toString());
@@ -100,8 +96,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
             return;
         }
 
-        /** @var DropDownItem $assigneeDropDownItem */
-        $assigneeDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+        $assigneeDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($username)
             ->setIcon($this->iconFactory->getIcon('actions-user'))
             ->setHref(UrlHelper::getContentStatusPropertiesEditUrl($table, $uid));
@@ -114,7 +109,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
      */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+        $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel((isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countAllByRecord($record['uid'], $table).' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'))
             ->setIcon($this->iconFactory->getIcon('actions-message'))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
@@ -134,7 +129,7 @@ class HeaderSelectionService extends AbstractSelectionService implements Selecti
         }
 
         $todoResolved = $this->getCommentsTodoResolved($record, $table);
-        $commentsDropDownItem = GeneralUtility::makeInstance(DropDownItem::class)
+        $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel("$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo'))
             ->setIcon($this->iconFactory->getIcon('actions-check-square'))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlHelper::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlHelper::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
