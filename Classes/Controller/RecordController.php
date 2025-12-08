@@ -24,8 +24,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 use function array_key_exists;
@@ -86,8 +85,8 @@ class RecordController extends ActionController
             ],
         );
 
-        $result .= ExtensionUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css', ['nonce' => $this->requestId->nonce]);
-        $result .= ExtensionUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/comments-reload-content.js', ['nonce' => $this->requestId->nonce]);
+        $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css', ['nonce' => $this->requestId->nonce]);
+        $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/comments-reload-content.js', ['nonce' => $this->requestId->nonce]);
 
         return new JsonResponse(['result' => $result]);
     }
@@ -141,7 +140,7 @@ class RecordController extends ActionController
             ],
         );
 
-        $result .= ExtensionUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/assignee-select.js', ['nonce' => $this->requestId->nonce]);
+        $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/assignee-select.js', ['nonce' => $this->requestId->nonce]);
 
         return new JsonResponse(['result' => $result]);
     }

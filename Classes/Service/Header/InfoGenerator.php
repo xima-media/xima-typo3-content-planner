@@ -22,7 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 use function array_key_exists;
@@ -335,16 +335,16 @@ class InfoGenerator
 
             return '';
         }
-        $content = ExtensionUtility::getCssTag(
+        $content = AssetUtility::getCssTag(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
             ['nonce' => $this->requestId->nonce],
         );
-        $content .= ExtensionUtility::getJsTag(
+        $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/comments-list-modal.js',
             ['nonce' => $this->requestId->nonce],
         );
-        $content .= ExtensionUtility::getJsTag(
+        $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/assignee-selection-modal.js',
             ['nonce' => $this->requestId->nonce],
