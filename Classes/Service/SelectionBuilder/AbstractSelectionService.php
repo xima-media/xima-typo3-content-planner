@@ -26,6 +26,7 @@ use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
 
 use function count;
+use function in_array;
 use function is_array;
 use function is_int;
 
@@ -193,7 +194,7 @@ class AbstractSelectionService
      *
      * @throws RouteNotFoundException
      */
-    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status, ?int $pid = null): UriInterface
+    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status): UriInterface
     {
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -207,9 +208,15 @@ class AbstractSelectionService
                     ],
                 ],
             ];
+        } elseif ($this->isRecordListRoute($route)) {
+            // For record list, use the current page ID from request to stay on the same page
+            $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
+            $routeArray = [
+                'id' => $currentPageId ?: $uid,
+            ];
         } else {
             $routeArray = [
-                'id' => 'web_list' === $route && (bool) $pid ? $pid : $uid,
+                'id' => $uid,
             ];
         }
 
@@ -259,6 +266,15 @@ class AbstractSelectionService
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    /**
+     * Check if the route is the record list module.
+     * Supports both TYPO3 v13 (web_list) and v14 (records).
+     */
+    protected function isRecordListRoute(string $route): bool
+    {
+        return in_array($route, ['web_list', 'records'], true);
     }
 
     /**

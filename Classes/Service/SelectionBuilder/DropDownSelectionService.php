@@ -25,12 +25,12 @@ use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\UrlHelper;
 
 /**
- * HeaderSelectionService.
+ * DropDownSelectionService.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class HeaderSelectionService extends AbstractSelectionService implements SelectionInterface
+class DropDownSelectionService extends AbstractSelectionService implements SelectionInterface
 {
     public function __construct(
         StatusRepository $statusRepository,

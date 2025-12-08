@@ -15,14 +15,15 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Module\ModuleInterface;
-use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
+use TYPO3\CMS\Backend\Template\Components\Buttons\{DropDownButton, InputButton};
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\HeaderSelectionService;
+use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
 
 use function in_array;
@@ -39,7 +40,7 @@ final readonly class ModifyButtonBarEventListener
         private IconFactory $iconFactory,
         private StatusRepository $statusRepository,
         private RecordRepository $recordRepository,
-        private HeaderSelectionService $buttonSelectionService,
+        private DropDownSelectionService $dropDownSelectionService,
     ) {}
 
     public function __invoke(ModifyButtonBarEvent $event): void
@@ -123,18 +124,18 @@ final readonly class ModifyButtonBarEventListener
     {
         $status = $this->resolveStatusFromRecord($record);
 
-        $buttonBar = $event->getButtonBar();
         $buttons = $event->getButtons();
         $buttons['right'] ??= [];
 
-        $dropDownButton = $buttonBar->makeDropDownButton()
+        /** @var DropDownButton $dropDownButton */
+        $dropDownButton = GeneralUtility::makeInstance(DropDownButton::class)
             ->setLabel('Dropdown')
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
             ->setIcon($this->iconFactory->getIcon(
                 $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
             ));
 
-        $buttonsToAdd = $this->buttonSelectionService->generateSelection($table, $uid);
+        $buttonsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
         if (false === $buttonsToAdd) {
             return;
         }

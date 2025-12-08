@@ -14,13 +14,16 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
+use TYPO3\CMS\Backend\Template\Components\ActionGroup;
+use TYPO3\CMS\Backend\Template\Components\Buttons\DropDownButton;
 use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, IconHelper, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
 
 use function count;
 use function is_array;
@@ -39,7 +42,7 @@ final class ModifyRecordListRecordActionsListener
         private readonly IconFactory $iconFactory,
         private readonly StatusRepository $statusRepository,
         private readonly RecordRepository $recordRepository,
-        private readonly ListSelectionService $htmlSelectionService,
+        private readonly DropDownSelectionService $dropDownSelectionService,
     ) {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
@@ -49,7 +52,7 @@ final class ModifyRecordListRecordActionsListener
         if (!VisibilityUtility::checkContentStatusVisibility()) {
             return;
         }
-        $table = $event->getTable();
+        $table = $event->getRecord()->getMainType();
 
         if (!ExtensionUtility::isRegisteredRecordTable($table) || $event->hasAction('Status')) {
             return;
@@ -60,7 +63,7 @@ final class ModifyRecordListRecordActionsListener
             return;
         }
 
-        $uid = $event->getRecord()['uid'];
+        $uid = $event->getRecord()->getUid();
 
         // ToDo: this is necessary cause the status is not in the record, pls check tca for this
         $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
@@ -73,24 +76,23 @@ final class ModifyRecordListRecordActionsListener
 
         $title = $status instanceof Status ? $status->getTitle() : 'Status';
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
-        $action = '
-                <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'">'
-            .$this->iconFactory->getIcon($icon, IconHelper::getDefaultIconSize())->render().'</a><ul class="dropdown-menu">';
 
-        $actionsToAdd = $this->htmlSelectionService->generateSelection($table, $uid);
+        /** @var DropDownButton $dropDownButton */
+        $dropDownButton = GeneralUtility::makeInstance(DropDownButton::class)
+            ->setLabel($title)
+            ->setTitle($title)
+            ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
+
+        $actionsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
         foreach ($actionsToAdd as $actionToAdd) {
-            $action .= $actionToAdd;
+            $dropDownButton->addItem($actionToAdd);
         }
 
-        $action .= '</ul>';
-        $action .= '';
-
         $event->setAction(
-            $action,
+            $dropDownButton,
             'Status',
-            'primary',
+            ActionGroup::primary,
             'delete',
-            '',
         );
     }
 
