@@ -4,7 +4,7 @@ recordListStatusInfo = 1
 recordEditHeaderInfo = 1
 # cat=basic/enable; type=boolean; label=Enable web list header info
 webListHeaderInfo = 1
-# cat=basic/enable; type=options[Nothing=0,Comments=comments,Todos=todos]; label=Enable the additional information in the page tree (v13 only). Choose between "Comments" or "Todos".
+# cat=basic/enable; type=options[Nothing=0,Comments=comments,Todos=todos]; label=Enable the additional information in the page tree. Choose between "Comments" or "Todos".
 treeStatusInformation = comments
 # cat=basic/enable; type=boolean; label=Reset status of content element if status on corresponding page is reset
 resetContentElementStatusOnPageReset = 0
