@@ -11,21 +11,22 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Xima\XimaTypo3ContentPlanner\Utility;
+namespace Xima\XimaTypo3ContentPlanner\Utility\Rendering;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 
 /**
- * IconHelper.
+ * IconUtility.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class IconHelper
+class IconUtility
 {
     public static function getIconByIdentifier(string $identifier): string
     {

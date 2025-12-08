@@ -19,7 +19,8 @@ use TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
 
@@ -41,7 +42,7 @@ final readonly class RenderAdditionalContentToRecordListListener
      */
     public function __invoke(RenderAdditionalContentToRecordListEvent $event): void
     {
-        if (!VisibilityUtility::checkContentStatusVisibility()
+        if (!PermissionUtility::checkContentStatusVisibility()
             || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_LIST_STATUS_INFO)
         ) {
             return;

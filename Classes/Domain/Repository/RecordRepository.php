@@ -20,7 +20,8 @@ use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestric
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PermissionUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
 use function sprintf;

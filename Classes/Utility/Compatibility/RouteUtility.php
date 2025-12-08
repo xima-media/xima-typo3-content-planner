@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Xima\XimaTypo3ContentPlanner\Utility;
+namespace Xima\XimaTypo3ContentPlanner\Utility\Compatibility;
 
 use function in_array;
 
@@ -29,7 +29,7 @@ class RouteUtility
      */
     public static function getRecordListRouteIdentifier(): string
     {
-        return VersionHelper::is14OrHigher() ? 'records' : 'web_list';
+        return VersionUtility::is14OrHigher() ? 'records' : 'web_list';
     }
 
     /**

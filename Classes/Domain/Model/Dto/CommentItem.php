@@ -14,7 +14,11 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, DiffUtility, ExtensionUtility, IconHelper, PermissionUtility, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 /**
  * CommentItem.
@@ -66,17 +70,17 @@ final class CommentItem
 
     public function getStatusIcon(): string
     {
-        return IconHelper::getIconByStatusUid((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
     }
 
     public function getRecordIcon(): string
     {
-        return IconHelper::getIconByRecord($this->data['foreign_table'], $this->getRelatedRecord());
+        return IconUtility::getIconByRecord($this->data['foreign_table'], $this->getRelatedRecord());
     }
 
     public function getRecordLink(): string
     {
-        return UrlHelper::getRecordLink($this->data['foreign_table'], (int) $this->data['foreign_uid']);
+        return UrlUtility::getRecordLink($this->data['foreign_table'], (int) $this->data['foreign_uid']);
     }
 
     public function getAuthorName(): string
@@ -91,17 +95,17 @@ final class CommentItem
 
     public function getEditUri(): string
     {
-        return UrlHelper::getEditCommentUrl((int) $this->data['uid']);
+        return UrlUtility::getEditCommentUrl((int) $this->data['uid']);
     }
 
     public function getResolvedUri(): string
     {
-        return UrlHelper::getResolvedCommentUrl((int) $this->data['uid'], $this->isResolved());
+        return UrlUtility::getResolvedCommentUrl((int) $this->data['uid'], $this->isResolved());
     }
 
     public function getDeleteUri(): string
     {
-        return UrlHelper::getDeleteCommentUrl((int) $this->data['uid']);
+        return UrlUtility::getDeleteCommentUrl((int) $this->data['uid']);
     }
 
     public function isEdited(): bool

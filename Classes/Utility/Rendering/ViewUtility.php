@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Xima\XimaTypo3ContentPlanner\Utility;
+namespace Xima\XimaTypo3ContentPlanner\Utility\Rendering;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Utility\{GeneralUtility, PathUtility};
@@ -19,12 +19,12 @@ use TYPO3\CMS\Core\View\{ViewFactoryData, ViewFactoryInterface};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 /**
- * View.
+ * ViewUtility.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class View
+class ViewUtility
 {
     /**
      * @param array<string, mixed> $values

@@ -22,7 +22,8 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\{HeaderMode, InfoGenerator};
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, RouteUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 use function array_key_exists;
 use function in_array;

@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Xima\XimaTypo3ContentPlanner\Utility;
+namespace Xima\XimaTypo3ContentPlanner\Utility\Security;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Bootstrap;
@@ -59,6 +59,25 @@ class PermissionUtility
             $record['pid'],
             $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW),
         )) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if content status visibility is allowed for the current user.
+     * Checks permission and user settings.
+     */
+    public static function checkContentStatusVisibility(): bool
+    {
+        // check permission
+        if (!$GLOBALS['BE_USER']->isAdmin() && !$GLOBALS['BE_USER']->check('custom_options', 'tx_ximatypo3contentplanner:content-status')) {
+            return false;
+        }
+
+        // check user setting
+        if (1 === $GLOBALS['BE_USER']->user['tx_ximatypo3contentplanner_hide']) {
             return false;
         }
 

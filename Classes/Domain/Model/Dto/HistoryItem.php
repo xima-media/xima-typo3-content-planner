@@ -19,7 +19,11 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, DiffUtility, ExtensionUtility, IconHelper, PermissionUtility, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
 use function is_string;
@@ -101,7 +105,7 @@ final class HistoryItem
 
     public function getRecordLink(): string
     {
-        return UrlHelper::getRecordLink($this->data['relatedRecordTablename'], (int) $this->getRelatedRecord()['uid']);
+        return UrlUtility::getRecordLink($this->data['relatedRecordTablename'], (int) $this->getRelatedRecord()['uid']);
     }
 
     public function getStatus(): ?string
@@ -113,12 +117,12 @@ final class HistoryItem
 
     public function getStatusIcon(): string
     {
-        return IconHelper::getIconByStatusUid((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status'], true);
+        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status'], true);
     }
 
     public function getRecordIcon(): string
     {
-        return IconHelper::getIconByRecord($this->data['relatedRecordTablename'], $this->getRelatedRecord(), true);
+        return IconUtility::getIconByRecord($this->data['relatedRecordTablename'], $this->getRelatedRecord(), true);
     }
 
     public function getTimeAgo(): string
@@ -136,21 +140,21 @@ final class HistoryItem
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         switch ($this->data['tablename']) {
             case 'tx_ximatypo3contentplanner_comment':
-                return IconHelper::getIconByIdentifier('actions-comment');
+                return IconUtility::getIconByIdentifier('actions-comment');
             default:
                 if (!ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
                     break;
                 }
                 switch (array_key_first($this->data['raw_history']['newRecord'])) {
                     case 'tx_ximatypo3contentplanner_status':
-                        return IconHelper::getIconByStatusUid((int) $this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status'], true);
+                        return IconUtility::getIconByStatusUid((int) $this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status'], true);
                     case 'tx_ximatypo3contentplanner_assignee':
-                        return IconHelper::getIconByIdentifier('actions-user');
+                        return IconUtility::getIconByIdentifier('actions-user');
                 }
                 break;
         }
 
-        return IconHelper::getIconByIdentifier('actions-open');
+        return IconUtility::getIconByIdentifier('actions-open');
     }
 
     /**

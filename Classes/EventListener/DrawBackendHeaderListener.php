@@ -16,7 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 use TYPO3\CMS\Backend\Controller\Event\ModifyPageLayoutContentEvent;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Header\{HeaderMode, InfoGenerator};
-use Xima\XimaTypo3ContentPlanner\Utility\VisibilityUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 /*
 * https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Events/Events/Backend/ModifyPageLayoutContentEvent.html#modifypagelayoutcontentevent
@@ -37,7 +37,7 @@ final readonly class DrawBackendHeaderListener
 
     public function __invoke(ModifyPageLayoutContentEvent $event): void
     {
-        if (!VisibilityUtility::checkContentStatusVisibility()) {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
             return;
         }
 

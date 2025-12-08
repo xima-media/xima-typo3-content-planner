@@ -23,7 +23,10 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, ExtensionUtility, UrlHelper, View};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 use function array_key_exists;
 
@@ -68,13 +71,13 @@ class RecordController extends ActionController
 
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, sortDirection: $sortComments, showResolved: $showResolvedComments);
 
-        $result = View::render(
+        $result = ViewUtility::render(
             'Default/Comments.html',
             [
                 'comments' => $comments,
                 'id' => $recordId,
                 'table' => $recordTable,
-                'newCommentUri' => UrlHelper::getNewCommentUrl($recordTable, $recordId),
+                'newCommentUri' => UrlUtility::getNewCommentUrl($recordTable, $recordId),
                 'filter' => [
                     'sortComments' => $sortComments,
                     'showResolvedComments' => $showResolvedComments,
@@ -109,7 +112,7 @@ class RecordController extends ActionController
 
         // Add unassigned option
         array_unshift($assignees, [
-            'url' => UrlHelper::assignToUser($recordTable, $record['uid'], unassign: true),
+            'url' => UrlUtility::assignToUser($recordTable, $record['uid'], unassign: true),
             'username' => '-- Not assigned --',
             'realName' => '',
             'uid' => 0,
@@ -119,21 +122,21 @@ class RecordController extends ActionController
             $assignee['uid'] ??= 0;
             $assignee['name'] = ContentUtility::generateDisplayName($assignee);
             $assignee['isCurrent'] = ((int) $assignee['uid'] === $currentAssignee);
-            $assignee['url'] = UrlHelper::assignToUser($recordTable, $recordId, $assignee['uid']);
+            $assignee['url'] = UrlUtility::assignToUser($recordTable, $recordId, $assignee['uid']);
         }
 
         // Sort the assignees so that the current assignee is always on top
         usort($assignees, static fn ($a, $b) => ((int) $b['uid'] === $currentAssignee) <=> ((int) $a['uid'] === $currentAssignee));
 
-        $result = View::render(
+        $result = ViewUtility::render(
             'Default/Assignees.html',
             [
                 'recordId' => $recordId,
                 'assignees' => $assignees,
                 'assignee' => [
                     'current' => $currentAssignee,
-                    'assignToCurrentUser' => InfoGenerator::checkAssignToCurrentUser($record) ? UrlHelper::assignToUser($recordTable, $record['uid']) : false,
-                    'unassign' => InfoGenerator::checkUnassign($record) ? UrlHelper::assignToUser($recordTable, $record['uid'], unassign: true) : null,
+                    'assignToCurrentUser' => InfoGenerator::checkAssignToCurrentUser($record) ? UrlUtility::assignToUser($recordTable, $record['uid']) : false,
+                    'unassign' => InfoGenerator::checkUnassign($record) ? UrlUtility::assignToUser($recordTable, $record['uid'], unassign: true) : null,
                 ],
             ],
         );

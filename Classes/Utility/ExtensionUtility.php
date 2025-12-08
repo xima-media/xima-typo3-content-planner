@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\SystemResource\Publishing\{SystemResourcePublisherInterface, 
 use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
 use TYPO3\CMS\Core\Utility\{ExtensionManagementUtility, GeneralUtility, PathUtility};
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\VersionUtility;
 
 use function array_key_exists;
 use function in_array;
@@ -46,7 +47,7 @@ class ExtensionUtility
                         'items' => [
                             ['label' => '-- stateless --', 'value' => null],
                         ],
-                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
+                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\Data\StatusRegistry->getStatus',
                         'type' => 'select',
                         'renderType' => 'selectSingle',
                         'resetSelection' => true,
@@ -72,7 +73,7 @@ class ExtensionUtility
                                 'value' => null,
                             ],
                         ],
-                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getAssignableUsers',
+                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\Data\StatusRegistry->getAssignableUsers',
                         'resetSelection' => true,
                         'minitems' => 0,
                         'maxitems' => 1,
@@ -206,7 +207,7 @@ class ExtensionUtility
      */
     private static function getPublicResourcePath(string $resourcePath): string
     {
-        if (VersionHelper::is14OrHigher()) {
+        if (VersionUtility::is14OrHigher()) {
             /** @var SystemResourceFactory $resourceFactory */
             $resourceFactory = GeneralUtility::makeInstance(SystemResourceFactory::class);
             /** @var SystemResourcePublisherInterface $resourcePublisher */
