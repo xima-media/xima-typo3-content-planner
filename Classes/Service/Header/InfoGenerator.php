@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, UrlHelper, ViewFactoryHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, UrlHelper, View};
 
 use function array_key_exists;
 
@@ -130,7 +130,7 @@ class InfoGenerator
         string $table,
         Status $status,
     ): string {
-        $content = ViewFactoryHelper::renderView('Backend/Header/HeaderInfo', [
+        $content = View::render('Backend/Header/HeaderInfo', [
             'mode' => $mode->value,
             'data' => $record,
             'table' => $table,
