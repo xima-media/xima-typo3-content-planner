@@ -21,8 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
