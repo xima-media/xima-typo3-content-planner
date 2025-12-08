@@ -24,6 +24,12 @@ services:
   Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\FolderStatusRepository:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
       $cache: '@cache.ximatypo3contentplanner_cache'
@@ -64,8 +70,34 @@ services:
       - name: event.listener
         identifier: 'xima-typo3-content-planner/backend/modify-record-list-table-actions'
 
+  # TYPO3 v14+ only - AfterFileStorageTreeItemsPreparedEvent does not exist in v13
+  Xima\XimaTypo3ContentPlanner\EventListener\AfterFileStorageTreeItemsPreparedListener:
+    tags:
+      - name: event.listener
+        identifier: 'xima-typo3-content-planner/backend/modify-file-storage-tree-items'
+        event: TYPO3\CMS\Backend\Controller\Event\AfterFileStorageTreeItemsPreparedEvent
+
   Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator:
     public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\FileList\FileListStatusService:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService:
+    public: true
+
+  # Lazy-load Middleware ContentModifiers (instantiated on every request)
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\FileListModifier:
+    lazy: true
+
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebListModifier:
+    lazy: true
+
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebLayoutModifier:
+    lazy: true
+
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\RecordEditModifier:
+    lazy: true
 
   Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
     tags:

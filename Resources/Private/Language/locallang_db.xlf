@@ -51,6 +51,15 @@
 			<trans-unit id="content_planner">
 				<source>Content Planner</source>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_folder">
+				<source>Folder Status</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_folder.folder_identifier">
+				<source>Folder Path</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_folder.storage_uid">
+				<source>Storage</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

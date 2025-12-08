@@ -65,7 +65,7 @@ class RouteUtility
      */
     public static function isContentPlannerSupportedModule(string $moduleIdentifier): bool
     {
-        return in_array($moduleIdentifier, ['web_layout', 'record_edit', 'web_list', 'records'], true);
+        return in_array($moduleIdentifier, ['web_layout', 'record_edit', 'web_list', 'records', 'media_management'], true);
     }
 
     /**
@@ -74,6 +74,15 @@ class RouteUtility
      */
     public static function isReturnUrlRelevantRoute(string $route): bool
     {
-        return in_array($route, ['web_layout', 'web_list', 'records', 'record_edit'], true);
+        return in_array($route, ['web_layout', 'web_list', 'records', 'record_edit', 'media_management'], true);
+    }
+
+    /**
+     * Check if a route identifier matches the file list module.
+     * The identifier is 'media_management' in both TYPO3 13 and 14.
+     */
+    public static function isFileListRoute(string $route): bool
+    {
+        return 'media_management' === $route;
     }
 }

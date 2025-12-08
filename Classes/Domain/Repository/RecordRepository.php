@@ -55,7 +55,7 @@ class RecordRepository
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
-        $baseWhere = ' AND deleted = 0';
+        $baseWhere = '';
         $additionalParams = ['limit' => $maxResults];
 
         $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
@@ -95,8 +95,11 @@ class RecordRepository
             ->andWhere(
                 $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status'),
                 $queryBuilder->expr()->neq('tx_ximatypo3contentplanner_status', 0),
-                $queryBuilder->expr()->eq('deleted', 0),
             );
+
+        if ($this->hasDeletedRestriction($table)) {
+            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
+        }
 
         if ($orderByTstamp) {
             $query->addOrderBy('tstamp', 'DESC');
@@ -141,8 +144,11 @@ class RecordRepository
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('deleted', 0),
             );
+
+        if ($this->hasDeletedRestriction($table)) {
+            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
+        }
 
         return $query->executeQuery()
             ->fetchAssociative();
@@ -268,12 +274,24 @@ class RecordRepository
             $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
         }
 
-        $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.$additionalWhere.')';
+        // Add deleted restriction only for tables that have it
+        $deletedWhere = $this->hasDeletedRestriction($table) ? ' AND deleted = 0' : '';
+
+        $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.$deletedWhere.$additionalWhere.')';
     }
 
     private function getTitleField(string $table): string
     {
         return $GLOBALS['TCA'][$table]['ctrl']['label'];
+    }
+
+    /**
+     * Check if a table has the deleted field restriction.
+     * Tables like sys_file_metadata don't have a deleted field.
+     */
+    private function hasDeletedRestriction(string $table): bool
+    {
+        return isset($GLOBALS['TCA'][$table]['ctrl']['delete']);
     }
 
     /**

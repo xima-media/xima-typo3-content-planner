@@ -1,5 +1,7 @@
 # cat=basic/enable; type=boolean; label=Enable record list status info
 recordListStatusInfo = 1
+# cat=basic/enable; type=boolean; label=Enable filelist support for files (sys_file_metadata) and folders
+enableFilelistSupport = 1
 # cat=basic/enable; type=boolean; label=Enable record edit header info
 recordEditHeaderInfo = 1
 # cat=basic/enable; type=boolean; label=Enable web list header info

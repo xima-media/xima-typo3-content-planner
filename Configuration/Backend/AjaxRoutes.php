@@ -28,4 +28,20 @@ return [
         'path' => '/content-planner/message',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::messageAction',
     ],
+    'ximatypo3contentplanner_folder_status_update' => [
+        'path' => '/content-planner/folder/status',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\FolderController::class.'::updateStatusAction',
+    ],
+    'ximatypo3contentplanner_folder_status_get' => [
+        'path' => '/content-planner/folder/status/get',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\FolderController::class.'::getStatusAction',
+    ],
+    'ximatypo3contentplanner_filelist_status_options' => [
+        'path' => '/content-planner/filelist/status-options',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\FolderController::class.'::getStatusOptionsAction',
+    ],
+    'ximatypo3contentplanner_file_status_update' => [
+        'path' => '/content-planner/file/status',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\FolderController::class.'::updateFileStatusAction',
+    ],
 ];

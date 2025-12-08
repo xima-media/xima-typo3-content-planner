@@ -22,6 +22,7 @@ return [
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
         'hideTable' => true,
+        'rootLevel' => -1,
         'typeicon_classes' => [
             'default' => 'content-message',
         ],
