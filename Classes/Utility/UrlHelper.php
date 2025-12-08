@@ -18,8 +18,6 @@ use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-use function in_array;
-
 /**
  * UrlHelper.
  *
@@ -37,7 +35,7 @@ class UrlHelper
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $params = [
             'edit' => [$table => [$uid => 'edit']],
-            'returnUrl' => $generateReturnUrl && in_array($request->getAttribute('routing')->getRoute()->getOption('_identifier'), ['web_layout', 'web_list', 'record_edit'], true) ? $request->getAttribute('normalizedParams')->getRequestUri() : null,
+            'returnUrl' => $generateReturnUrl && RouteUtility::isReturnUrlRelevantRoute($request->getAttribute('routing')->getRoute()->getOption('_identifier')) ? $request->getAttribute('normalizedParams')->getRequestUri() : null,
             'columnsOnly' => [$table => ['tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments']],
         ];
 

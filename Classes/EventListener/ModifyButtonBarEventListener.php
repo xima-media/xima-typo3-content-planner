@@ -15,17 +15,15 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Module\ModuleInterface;
-use TYPO3\CMS\Backend\Template\Components\Buttons\{InputButton};
-use TYPO3\CMS\Backend\Template\Components\{ComponentFactory, ModifyButtonBarEvent};
+use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
+use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
-
-use function in_array;
+use Xima\XimaTypo3ContentPlanner\Utility\{ComponentFactoryUtility, ExtensionUtility, RouteUtility, VisibilityUtility};
 
 /**
  * ModifyButtonBarEventListener.
@@ -40,7 +38,6 @@ final readonly class ModifyButtonBarEventListener
         private StatusRepository $statusRepository,
         private RecordRepository $recordRepository,
         private DropDownSelectionService $dropDownSelectionService,
-        private ComponentFactory $componentFactory,
     ) {}
 
     public function __invoke(ModifyButtonBarEvent $event): void
@@ -92,7 +89,7 @@ final readonly class ModifyButtonBarEventListener
             return true;
         }
 
-        return in_array($request->getAttribute('module')->getIdentifier(), ['web_layout', 'record_edit', 'web_list'], true);
+        return RouteUtility::isContentPlannerSupportedModule($request->getAttribute('module')->getIdentifier());
     }
 
     private function extractTableFromRequest(ServerRequestInterface $request): ?string
@@ -127,7 +124,7 @@ final readonly class ModifyButtonBarEventListener
         $buttons = $event->getButtons();
         $buttons['right'] ??= [];
 
-        $dropDownButton = $this->componentFactory->createDropDownButton()
+        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
             ->setLabel('Dropdown')
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
             ->setIcon($this->iconFactory->getIcon(

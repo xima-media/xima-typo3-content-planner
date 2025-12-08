@@ -23,10 +23,9 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, RouteUtility, VisibilityUtility};
 
 use function count;
-use function in_array;
 use function is_array;
 use function is_int;
 
@@ -208,7 +207,7 @@ class AbstractSelectionService
                     ],
                 ],
             ];
-        } elseif ($this->isRecordListRoute($route)) {
+        } elseif (RouteUtility::isRecordListRoute($route)) {
             // For record list, use the current page ID from request to stay on the same page
             $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
             $routeArray = [
@@ -266,15 +265,6 @@ class AbstractSelectionService
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
-    }
-
-    /**
-     * Check if the route is the record list module.
-     * Supports both TYPO3 v13 (web_list) and v14 (records).
-     */
-    protected function isRecordListRoute(string $route): bool
-    {
-        return in_array($route, ['web_list', 'records'], true);
     }
 
     /**

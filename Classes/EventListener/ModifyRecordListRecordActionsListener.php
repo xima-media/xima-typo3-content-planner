@@ -14,14 +14,15 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
-use TYPO3\CMS\Backend\Template\Components\{ActionGroup, ComponentFactory};
+use TYPO3\CMS\Backend\Template\Components\ActionGroup;
+use TYPO3\CMS\Core\Domain\RecordInterface;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\{ComponentFactoryUtility, ExtensionUtility, VersionHelper, VisibilityUtility};
 
 use function count;
 use function is_array;
@@ -41,17 +42,19 @@ final readonly class ModifyRecordListRecordActionsListener
         private StatusRepository $statusRepository,
         private RecordRepository $recordRepository,
         private DropDownSelectionService $dropDownSelectionService,
-        private ComponentFactory $componentFactory,
     ) {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
 
+    // @phpstan-ignore-next-line complexity.functionLike
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
         if (!VisibilityUtility::checkContentStatusVisibility()) {
             return;
         }
-        $table = $event->getRecord()->getMainType();
+        // TYPO3 v13/v14 compatibility: In v14 getRecord() returns RecordInterface, in v13 it returns array
+        // @phpstan-ignore instanceof.alwaysTrue, method.notFound
+        $table = $event->getRecord() instanceof RecordInterface ? $event->getRecord()->getMainType() : $event->getTable();
 
         if (!ExtensionUtility::isRegisteredRecordTable($table) || $event->hasAction('Status')) {
             return;
@@ -62,7 +65,9 @@ final readonly class ModifyRecordListRecordActionsListener
             return;
         }
 
-        $uid = $event->getRecord()->getUid();
+        // TYPO3 v13/v14 compatibility: In v14 getRecord() returns RecordInterface, in v13 it returns array
+        // @phpstan-ignore instanceof.alwaysTrue
+        $uid = $event->getRecord() instanceof RecordInterface ? $event->getRecord()->getUid() : $event->getRecord()['uid'];
 
         // ToDo: this is necessary cause the status is not in the record, pls check tca for this
         $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
@@ -76,7 +81,7 @@ final readonly class ModifyRecordListRecordActionsListener
         $title = $status instanceof Status ? $status->getTitle() : 'Status';
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
 
-        $dropDownButton = $this->componentFactory->createDropDownButton()
+        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
             ->setLabel($title)
             ->setTitle($title)
             ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
@@ -87,9 +92,9 @@ final readonly class ModifyRecordListRecordActionsListener
         }
 
         $event->setAction(
-            $dropDownButton,
+            VersionHelper::is14OrHigher() ? $dropDownButton : $dropDownButton->render(),
             'Status',
-            ActionGroup::primary,
+            VersionHelper::is14OrHigher() ? ActionGroup::primary : 'primary',
             'delete',
         );
     }

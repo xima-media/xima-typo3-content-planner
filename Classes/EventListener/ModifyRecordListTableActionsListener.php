@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, IconHelper, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, IconHelper, RouteUtility, VisibilityUtility};
 
 use function count;
 
@@ -119,7 +119,7 @@ final class ModifyRecordListTableActionsListener
             'tce_db',
             [
                 'data' => $dataArray,
-                'redirect' => (string) $this->uriBuilder->buildUriFromRoute('web_list', $routeArray),
+                'redirect' => (string) $this->uriBuilder->buildUriFromRoute(RouteUtility::getRecordListRouteIdentifier(), $routeArray),
             ],
         );
     }

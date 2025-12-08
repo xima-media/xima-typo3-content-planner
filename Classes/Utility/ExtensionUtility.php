@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Utility;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\SystemResource\Publishing\{SystemResourcePublisherInterface, UriGenerationOptions};
 use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
@@ -207,8 +206,7 @@ class ExtensionUtility
      */
     private static function getPublicResourcePath(string $resourcePath): string
     {
-        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class);
-        if ($typo3Version->getMajorVersion() >= 14) {
+        if (VersionHelper::is14OrHigher()) {
             /** @var SystemResourceFactory $resourceFactory */
             $resourceFactory = GeneralUtility::makeInstance(SystemResourceFactory::class);
             /** @var SystemResourcePublisherInterface $resourcePublisher */
