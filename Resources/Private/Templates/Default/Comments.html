@@ -3,10 +3,10 @@
     data-namespace-typo3-fluid="true">
 
 <f:if condition="{comments -> f:count()} || {filter.resolvedCount}">
-    <form id="widget-contentPlanner--comment-filter" data-table="{table}" data-id="{id}">
+    <form id="content-planner-comment-filter" class="content-planner-comment-filter" data-table="{table}" data-id="{id}">
         <div class="form-sort">
-            <label for="widget-contentPlanner--comment-filter-sort">Sort</label>
-            <select id="widget-contentPlanner--comment-filter-sort" name="sortComments"
+            <label for="content-planner-comment-filter-sort">Sort</label>
+            <select id="content-planner-comment-filter-sort" name="sortComments"
                     class="form-select form-select-sm">
                 <f:for each="{0: {value: 'DESC', label: 'Newest'}, 1: {value: 'ASC', label: 'Oldest'}}" as="option">
                     <option value="{option.value}" {f:if(condition:
@@ -19,25 +19,26 @@
         <f:if condition="{filter.resolvedCount}">
             <div class="form-check form-switch">
                 <input type="checkbox" class="form-check-input" value="1"
-                    id="widget-contentPlanner--comment-filter-resolved"
+                    id="content-planner-comment-filter-resolved"
                     name="showResolvedComments"
                     {f:if(condition: '{filter.showResolvedComments}', then: 'checked', else: '')}
                 />
-                <label for="widget-contentPlanner--comment-filter-resolved">Show resolved comments <span
+                <label for="content-planner-comment-filter-resolved">Show resolved comments <span
                     class="badge badge-secondary">{filter.resolvedCount}</span></label>
             </div>
         </f:if>
     </form>
 </f:if>
 
-<div id="widget-contentPlanner--comment-list">
+<div id="content-planner-comment-list" class="content-planner-comment-list">
     <f:if condition="{comments -> f:count()}">
         <f:then>
             <f:for each="{comments}" as="record">
                 <div
-                    class="d-flex widget-contentPlanner--comment {f:if(condition: '{record.resolved}', then: 'resolved', else: '')}">
-                    <be:avatar backendUser="{record.data.author}" size="40"
-                            showIcon="true"/>
+                    class="d-flex content-planner-comment {f:if(condition: '{record.resolved}', then: 'content-planner-comment--resolved', else: '')}">
+                    <span class="content-planner-comment__avatar">
+                        <be:avatar backendUser="{record.data.author}" size="40" showIcon="true"/>
+                    </span>
                     <div class="d-flex flex-column flex-grow-1">
                         <div class="d-flex flex-row justify-content-between gap-2">
                             <div class="flex-grow-1">
@@ -57,7 +58,7 @@
                                     {record.title}
                                 </a>
                             </small>
-                            <div class="btn-group widget-contentPlanner--comment-actions">
+                            <div class="btn-group content-planner-comment__actions">
                                 <a href="#" class="btn btn-default" data-bs-toggle="dropdown"
                                 aria-expanded="false" title="">
                                     <core:icon identifier="actions-menu-alternative" size="small" title="Actions"/>
@@ -100,7 +101,7 @@
                                 </ul>
                             </div>
                         </div>
-                        <div class="text">{record.data.content -> f:format.raw()}</div>
+                        <div class="content-planner-comment__text">{record.data.content -> f:format.raw()}</div>
                         <f:if condition="{record.resolved}">
                             <div>
                                 <small class="text-success">
@@ -117,9 +118,9 @@
             </f:for>
         </f:then>
         <f:else>
-            <div class="row widget-no-items-found">
+            <div class="row content-planner-widget__empty">
                 <f:render partial="Empty"/>
-                <div class="col-12 text-center comment-empty">
+                <div class="col-12 text-center content-planner-comment-empty">
                     <f:format.raw>
                         <f:translate key="comment.empty" extensionName="XimaTypo3ContentPlanner"
                                     arguments="{0: '{newCommentUri}', 1: '{table}', 2: '{id}'}"/>

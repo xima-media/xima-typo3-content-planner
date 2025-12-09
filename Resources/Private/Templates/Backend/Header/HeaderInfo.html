@@ -4,15 +4,15 @@
     data-namespace-typo3-fluid="true"
 >
 
-<div class="xima-typo3-content-planner--header-info" data-color="{status.color}">
-    <div class="left d-flex align-items-center justify-content-center">
+<div class="content-planner-header content-planner-header--color-{status.color}">
+    <div class="content-planner-header__left d-flex align-items-center justify-content-center">
         <core:icon
             identifier="{status.icon}"
             size="medium"
             alternativeMarkupIdentifier="inline"
         />
     </div>
-    <div class="body">
+    <div class="content-planner-header__body">
         <f:if condition="{mode} == 'file_list'">
             <f:then>
                 <span class="d-flex align-items-center flex-grow-1">
@@ -45,8 +45,8 @@
     </div>
 
     <!-- Action buttons -->
-    <div class="xima-typo3-content-planner--header--actions">
-        <div class="xima-typo3-content-planner--header--ce-hint">
+    <div class="content-planner-header__actions">
+        <div class="content-planner-header__ce-hint">
             <f:for each="{contentElements}" as="contentElement">
                 <be:link.editRecord
                     uid="{contentElement.uid}"
@@ -62,7 +62,7 @@
         <f:if condition="{mode} != 'file_list'">
             <div class="btn-group" role="group" aria-label="Assignee">
                 <button
-                    class="btn btn-default contentPlanner--assignee"
+                    class="btn btn-default content-planner-link--assignee"
                     data-content-planner-assignees
                     type="button"
                     title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"
@@ -72,7 +72,7 @@
                 >
                     <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
                         <f:then>
-                            <div class="btn-group-prepend">
+                            <div class="content-planner-btn-group-prepend">
                                 <be:avatar
                                     backendUser="{data.tx_ximatypo3contentplanner_assignee}"
                                     size="16"
@@ -82,7 +82,7 @@
                             {assignee.username}
                         </f:then>
                         <f:else>
-                            <div class="btn-group-prepend">
+                            <div class="content-planner-btn-group-prepend">
                                 <core:icon identifier="actions-user" size="small"/>
                             </div>
                             <div class="text-muted">
@@ -111,7 +111,7 @@
                 </a>
                 <f:if condition="{comments}">
                     <button
-                        class="btn btn-default contentPlanner--comments"
+                        class="btn btn-default content-planner-link--comments"
                         data-content-planner-comments
                         type="button"
                         title="{f:translate(key: 'header.comments', extensionName: 'xima_typo3_content_planner')}"
@@ -127,7 +127,7 @@
                     </button>
                     <f:if condition="{comments.todoTotal}">
                         <button
-                            class="btn btn-default xima-typo3-content-planner--header--comment-todo"
+                            class="btn btn-default content-planner-header__todo-badge"
                             data-content-planner-comments
                             type="button"
                             title="{f:translate(key: 'header.comments.todo', extensionName: 'xima_typo3_content_planner')}"

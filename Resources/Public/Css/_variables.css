@@ -1,0 +1,33 @@
+/**
+ * Content Planner - CSS Custom Properties
+ *
+ * Shared variables for all Content Planner styles.
+ * Uses BEM naming convention with 'content-planner' prefix.
+ */
+
+:root {
+    /* Status Colors */
+    --content-planner-color-black: rgb(144, 164, 174);
+    --content-planner-color-red: rgb(250, 136, 147);
+    --content-planner-color-yellow: rgb(255, 205, 117);
+    --content-planner-color-green: rgb(106, 158, 113);
+    --content-planner-color-blue: rgb(100, 187, 200);
+    --content-planner-color-purple: rgb(92, 107, 192);
+    --content-planner-color-orange: rgb(255, 112, 67);
+
+    /* Status Colors - Light variants (20% opacity) */
+    --content-planner-color-black-light: rgb(144, 164, 174, 0.2);
+    --content-planner-color-red-light: rgb(250, 136, 147, 0.2);
+    --content-planner-color-yellow-light: rgb(255, 205, 117, 0.2);
+    --content-planner-color-green-light: rgb(106, 158, 113, 0.2);
+    --content-planner-color-blue-light: rgb(100, 187, 200, 0.2);
+    --content-planner-color-purple-light: rgb(92, 107, 192, 0.2);
+    --content-planner-color-orange-light: rgb(255, 112, 67, 0.2);
+
+    /* Highlight Color */
+    --content-planner-color-highlight: rgba(253, 212, 150, 0.2);
+    --content-planner-color-highlight-hover: rgba(253, 212, 150, 0.4);
+
+    /* Todo List (CKEditor compatibility) */
+    --ck-todo-list-checkmark-size: 16px;
+}

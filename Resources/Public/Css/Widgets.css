@@ -1,13 +1,91 @@
-:root {
-    --content-planner--color-yellow: rgb(255,205,117);
-    --content-planner--color-green: rgb(106,158,113);
+/**
+ * Content Planner - Widget Styles
+ *
+ * BEM Structure:
+ * - content-planner-widget (Block)
+ * - content-planner-widget__filter, __table, __empty, __loading (Elements)
+ * - content-planner-widget--status, --assigned, --todo, --configurable (Modifiers)
+ */
+
+@import '_variables.css';
+
+/* ==========================================================================
+   Widget Block
+   ========================================================================== */
+
+.content-planner-widget {
+    position: relative;
 }
 
-.widget-content-main .hide {
+/* ==========================================================================
+   Widget Elements
+   ========================================================================== */
+
+/* Filter */
+.content-planner-widget__filter {
+    position: sticky;
+    z-index: 1000;
+    top: 0;
+    margin-right: calc(-1 * var(--widget-padding, 1.25rem));
+    margin-left: calc(-1 * var(--widget-padding, 1.25rem));
+    padding-left: var(--widget-padding, 1.25rem);
+    background-color: var(--typo3-component-bg);
+}
+
+.content-planner-widget__filter .form-check input[type="radio"] {
     display: none;
 }
 
-.widget-content-main .widget-loading {
+.content-planner-widget__filter .form-check input[type="radio"]:checked + label {
+    font-weight: bold;
+}
+
+.content-planner-widget__filter .form-check label {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 2rem;
+    margin-top: -10px;
+    cursor: pointer;
+}
+
+.content-planner-widget__filter .form-check label:hover {
+    background-color: #f5f5f5;
+}
+
+/* Table Wrapper */
+.content-planner-widget__filter + .content-planner-widget__table-wrapper {
+    padding-top: 1.5rem;
+    height: 100%;
+}
+
+/* Table Row - Current User Highlight */
+.content-planner-widget__row--current {
+    background-color: var(--content-planner-color-highlight);
+}
+
+/* Empty State */
+.content-planner-widget__empty {
+    position: absolute;
+    height: 100%;
+    width: 99%;
+    top: 0;
+}
+
+.content-planner-widget__empty-icon {
+    background-repeat: no-repeat;
+    display: block;
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 99%;
+    height: 100%;
+    opacity: 0.125;
+    background-position: 50% 55%;
+    background-size: 25%;
+}
+
+/* Loading State */
+.content-planner-widget__loading {
     width: 100%;
     height: 100%;
     display: flex;
@@ -16,150 +94,113 @@
     z-index: 999;
 }
 
-.widget-content-main .widget-no-items-found {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    top: 0;
-}
-
-.widget-content-main .widget-no-items-found .xima-typo3-content-planner__empty {
-    background-repeat: no-repeat;
-    display: block;
-    position: relative;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.125;
-    background-position: 50% 55%;
-    background-size: 25%;
-}
-
-.widget-content-main .avatar {
-    display: inline-block;
-    margin-right: .25rem;
-}
-
-.widget-content-main .widget-filter + .widget-table-wrapper {
-    padding-top: 1.5rem;
-    height: 100%;
-}
-
-.widget-content-main {
-    position: relative;
-    /*--mask: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0, rgba(0, 0, 0, 1) 90%, rgba(0, 0, 0, 0) 95%, rgba(0, 0, 0, 0) 0) 100% 90% / 100% 100% repeat-x;-webkit-mask: var(--mask);mask: var(--mask);*/
-}
-
-.widget-content-main .widget-filter {
-    position: sticky;
-    z-index: 1000;
-    top: 0;
-    margin-right: calc(-1* var(--widget-padding, 1.25rem));
-    margin-left: calc(-1* var(--widget-padding, 1.25rem));
-    padding-left: var(--widget-padding, 1.25rem);
-    background-color: var(--typo3-component-bg);
-}
-
-.widget-contentPlanner-status--filter {
-    padding-top: 0;
-}
-
-.widget-contentPlanner-status--description {
+/* Description */
+.content-planner-widget__description {
     padding-bottom: 20px;
 }
 
-.widget-content-main .widget-filter .form-check input[type="radio"] {
-    display: none;
+/* Avatar */
+.content-planner-widget .avatar {
+    display: inline-block;
+    margin-right: 0.25rem;
 }
 
-.widget-content-main .widget-filter .form-check input[type="radio"]:checked + label {
-    font-weight: bold;
+/* ==========================================================================
+   Widget Modifiers
+   ========================================================================== */
+
+/* Status Widget with Filter */
+.content-planner-widget--has-filter {
+    padding-top: 0;
 }
 
-.widget-content-main .widget-filter .form-check label {
-    padding: .5rem 1rem;
-    border: 1px solid #ccc;
-    border-radius: 2rem;
-    margin-top: -10px;
-}
-
-.widget-content-main .widget-filter .form-check label:hover {
-    cursor: pointer;
-    background-color: #f5f5f5;
-}
-
-.widget-contentPlanner-status--assigned table .widget-table tr > td, .widget-contentPlanner-status--todo table .widget-table tr > td, .widget-contentPlanner-status  .widget-table tr > td {
-    background: transparent;
-}
-
-.widget-contentPlanner-status--assigned table tr > th:nth-child(2), .widget-contentPlanner-status--assigned table tr > td:nth-child(2),
-.widget-contentPlanner-status--assigned table tr > th:nth-child(4), .widget-contentPlanner-status--assigned table tr > td:nth-child(4),
-.widget-contentPlanner-status--todo table tr > th:nth-child(2), .widget-contentPlanner-status--todo table tr > td:nth-child(2),
-.widget-contentPlanner-status--todo table tr > th:nth-child(4), .widget-contentPlanner-status--todo table tr > td:nth-child(4) {
-    display: none;
-}
-
-.widget-contentPlanner-status--assigned table .widget-table tr > td:nth-child(5),
-.widget-contentPlanner-status--todo table .widget-table tr > td:nth-child(5),
-.widget-contentPlanner-status  .widget-table tr > td:nth-child(5) {
-    text-align: right;
-    padding-left: 0;
-}
-
-.widget-contentPlanner-status--assigned {
+/* Assigned Widget */
+.content-planner-widget--assigned {
     container-name: assigned;
     container-type: inline-size;
 }
 
+.content-planner-widget--assigned table tr > th:nth-child(2),
+.content-planner-widget--assigned table tr > td:nth-child(2),
+.content-planner-widget--assigned table tr > th:nth-child(4),
+.content-planner-widget--assigned table tr > td:nth-child(4) {
+    display: none;
+}
+
+.content-planner-widget--assigned table tr > td:nth-child(5) {
+    text-align: right;
+    padding-left: 0;
+}
+
 @container assigned (width < 340px) {
-    .widget-contentPlanner-status--assigned table tr > th:nth-child(3), .widget-contentPlanner-status--assigned table tr > td:nth-child(3) {
+    .content-planner-widget--assigned table tr > th:nth-child(3),
+    .content-planner-widget--assigned table tr > td:nth-child(3) {
         display: none;
     }
 }
 
-.widget-contentPlanner-status--todo {
+/* Todo Widget */
+.content-planner-widget--todo {
     container-name: todo;
     container-type: inline-size;
 }
 
+.content-planner-widget--todo table tr > th:nth-child(2),
+.content-planner-widget--todo table tr > td:nth-child(2),
+.content-planner-widget--todo table tr > th:nth-child(4),
+.content-planner-widget--todo table tr > td:nth-child(4) {
+    display: none;
+}
+
+.content-planner-widget--todo table tr > td:nth-child(5) {
+    text-align: right;
+    padding-left: 0;
+}
+
 @container todo (width < 340px) {
-    .widget-contentPlanner-status--todo table tr > th:nth-child(3), .widget-contentPlanner-status--todo table tr > td:nth-child(3) {
+    .content-planner-widget--todo table tr > th:nth-child(3),
+    .content-planner-widget--todo table tr > td:nth-child(3) {
         display: none;
     }
 }
 
-.widget-identifier-contentPlanner-notes .widget-content-footer {
-    gap: 1rem;
+/* Status Widget (default) - Comments column alignment */
+.content-planner-widget--status table tr > td:nth-child(5) {
+    text-align: right;
+    padding-left: 0;
 }
 
-.xima-typo3-content-planner--comment-todo[data-status="resolved"] {
-    color: white;
-    background-color: var(--content-planner--color-green);
+/* Server-rendered Widget (TYPO3 v14+) */
+.content-planner-widget--server-rendered {
+    /* No additional styles needed, JS skips AJAX loading */
 }
 
-.xima-typo3-content-planner--comment-todo[data-status="pending"] {
-    background-color: var(--content-planner--color-yellow);
-}
+/* ==========================================================================
+   Update List (History Widget)
+   ========================================================================== */
 
-.update-list {
+.content-planner-update-list {
     list-style: none;
     padding: 0;
     margin: -20px;
 }
 
-.update-list li {
+.content-planner-update-list__item {
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-.update-list li .change-type-icon {
+.content-planner-update-list__item--current {
+    background-color: var(--content-planner-color-highlight);
+}
+
+.content-planner-update-list__icon {
     border-bottom: 1px solid rgba(0, 0, 0, 0.4);
     padding: 20px;
     margin: 0 10px;
     z-index: 2;
 }
 
-.update-list li .text {
+.content-planner-update-list__text {
     margin-left: -31px;
     padding: 20px;
     padding-left: 40px;
@@ -168,6 +209,29 @@
     border-left: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-.widget-content-main table tr.current, .update-list li.current {
-    background-color: rgba(253, 212, 150, 0.2);
+/* ==========================================================================
+   Shared Components
+   ========================================================================== */
+
+/* Badge - Todo Status */
+.content-planner-badge--resolved {
+    color: white;
+    background-color: var(--content-planner-color-green);
+}
+
+.content-planner-badge--pending {
+    background-color: var(--content-planner-color-yellow);
+}
+
+/* Notes Widget Footer */
+.widget-identifier-contentPlanner-notes .widget-content-footer {
+    gap: 1rem;
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.content-planner-hide {
+    display: none;
 }

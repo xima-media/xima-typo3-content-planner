@@ -8,8 +8,8 @@ class FilterStatus {
 
   constructor() {
     document.addEventListener('widgetContentRendered', function(event) {
-      if (event.target.querySelector('.widget-contentPlanner-status')) {
-        const widget = event.target.querySelector('.widget-contentPlanner-status');
+      if (event.target.querySelector('.content-planner-widget')) {
+        const widget = event.target.querySelector('.content-planner-widget');
 
         // Skip server-rendered widgets (TYPO3 v14+ configurable widget)
         if (widget.classList.contains('widget-contentPlanner-status--server-rendered')) {
@@ -22,7 +22,7 @@ class FilterStatus {
 
         if (currentBackendUser) {
           FilterStatus.search(widget, {assignee: currentBackendUser}, () => {
-            const badge = widget.querySelector('.widget-contentPlanner-status--description .badge');
+            const badge = widget.querySelector('.content-planner-widget__description .badge');
             if (badge) {
               badge.innerHTML = widget.querySelectorAll('.widget-table tbody tr').length;
             }
@@ -30,11 +30,11 @@ class FilterStatus {
           widget.classList.add('widget-contentPlanner-status--assigned');
         } else if (todo && todo !== 'false') {
           FilterStatus.search(widget, {todo: true});
-          widget.classList.add('widget-contentPlanner-status--assigned');
+          widget.classList.add('content-planner-widget--todo');
         } else {
           FilterStatus.search(widget);
           let queryArguments = {};
-          const form = event.target.querySelector('.widget-filter-form');
+          const form = event.target.querySelector('.content-planner-widget__filter-form');
           const search = event.target.querySelector('input[name="search"]');
           if (form && search) {
             form.addEventListener('change', function(event) {
@@ -45,7 +45,7 @@ class FilterStatus {
               queryArguments[search.name] = search.value;
               FilterStatus.search(widget, queryArguments);
             });
-            form.querySelector('.widget-filter-reset')?.addEventListener('click', function(event) {
+            form.querySelector('.content-planner-widget__filter-reset')?.addEventListener('click', function(event) {
               form.reset();
               queryArguments = {};
               FilterStatus.search(widget, queryArguments);
@@ -58,7 +58,7 @@ class FilterStatus {
   }
 
   static initCommentLinks(widget) {
-    widget.querySelectorAll('.contentPlanner--comments').forEach(item => {
+    widget.querySelectorAll('.content-planner-link--comments').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault();
         const url = e.currentTarget.getAttribute('href');
@@ -70,13 +70,13 @@ class FilterStatus {
   }
 
   static search(widget, queryArguments = {}, callback) {
-    widget.querySelector('thead').classList.remove('hide');
-    widget.querySelector('.widget-no-items-found').classList.add('hide');
+    widget.querySelector('thead').classList.remove('content-planner-hide');
+    widget.querySelector('.content-planner-widget__empty').classList.add('content-planner-hide');
     const waitingElement = widget.parentElement.parentElement.querySelector('.widget-waiting');
     if (waitingElement) {
-      waitingElement.classList.remove('hide');
+      waitingElement.classList.remove('content-planner-hide');
     }
-    widget.querySelector('.widget-table-wrapper').classList.add('hide');
+    widget.querySelector('.content-planner-widget__table-wrapper').classList.add('content-planner-hide');
     new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterrecords)
       .withQueryArguments(queryArguments)
       .get()
@@ -85,20 +85,19 @@ class FilterStatus {
 
         let html = '';
         if (resolved.length === 0) {
-          widget.querySelector('.widget-no-items-found').classList.remove('hide');
-          widget.querySelector('thead').classList.add('hide');
+          widget.querySelector('.content-planner-widget__empty').classList.remove('content-planner-hide');
+          widget.querySelector('thead').classList.add('content-planner-hide');
         }
         resolved.forEach(function (item) {
           let comments = '';
           if (item.data.tx_ximatypo3contentplanner_comments > 0) {
-            comments = '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>';
+            comments = '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="content-planner-link--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>';
             if (item.todo !== '') {
-              comments += ' <a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="contentPlanner--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.todo + '</a>';
+              comments += ' <a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="content-planner-link--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.todo + '</a>';
             }
           }
 
-          // ToDo: refactor this
-          html += '<tr ' + (item.assignedToCurrentUser ? 'class="current"' : '') + '>' +
+          html += '<tr ' + (item.assignedToCurrentUser ? 'class="content-planner-row--current"' : '') + '>' +
             '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>' +
             '<td>' + (item.site ?? '') + '</td>' +
             '<td><small>' + item.updated + '</small></td>' +
@@ -109,19 +108,11 @@ class FilterStatus {
         let table = widget.querySelector('table tbody');
         table.innerHTML = html;
         if (waitingElement) {
-          waitingElement.classList.add('hide');
+          waitingElement.classList.add('content-planner-hide');
         }
-        widget.querySelector('.widget-table-wrapper').classList.remove('hide');
+        widget.querySelector('.content-planner-widget__table-wrapper').classList.remove('content-planner-hide');
 
-        widget.querySelectorAll('.contentPlanner--comments').forEach(item => {
-          item.addEventListener('click', e => {
-            e.preventDefault();
-            const url = e.currentTarget.getAttribute('href');
-            const table = e.currentTarget.getAttribute('data-table');
-            const id = e.currentTarget.getAttribute('data-id');
-            CommentsModal.fetchComments(url, table, id);
-          });
-        });
+        FilterStatus.initCommentLinks(widget);
 
         if (callback) {
           callback();
