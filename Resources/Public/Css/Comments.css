@@ -1,7 +1,7 @@
 .widget-no-items-found {
     position: absolute;
     height: 100%;
-    width: 100%;
+    width: 99%;
     top: 0;
 }
 
@@ -11,7 +11,7 @@
     position: relative;
     left: 0;
     top: 0;
-    width: 100%;
+    width: 99%;
     height: 100%;
     opacity: 0.125;
     background-position: 50% 55%;
