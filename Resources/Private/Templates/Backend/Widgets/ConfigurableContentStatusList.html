@@ -4,16 +4,18 @@
 
 <div class="widget-content-main content-planner-widget content-planner-widget--configurable content-planner-widget--server-rendered">
 
-    <f:if condition="{mode} == 'todo'">
-        <div class="content-planner-widget__description">
-            <f:format.raw><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todo}"/></f:format.raw>
-        </div>
-    </f:if>
+    <f:if condition="{items}">
+        <f:if condition="{mode} == 'todo'">
+            <div class="content-planner-widget__description">
+                <f:format.raw><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todo}"/></f:format.raw>
+            </div>
+        </f:if>
 
-    <f:if condition="{hasAssigneeFilter}">
-        <div class="content-planner-widget__description">
-            <f:format.raw><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner"/></f:format.raw>
-        </div>
+        <f:if condition="{hasAssigneeFilter}">
+            <div class="content-planner-widget__description">
+                <f:format.raw><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner"/></f:format.raw>
+            </div>
+        </f:if>
     </f:if>
 
     <div class="content-planner-widget__table-wrapper">
