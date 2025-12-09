@@ -77,6 +77,11 @@
 }
 
 /* Table Wrapper */
+.content-planner-widget .widget-table-wrapper,
+.content-planner-widget .content-planner-widget__table-wrapper {
+    height: 100%;
+}
+
 .content-planner-widget__filter + .content-planner-widget__table-wrapper {
     padding-top: 1rem;
 }
@@ -89,9 +94,10 @@
 /* Empty State */
 .content-planner-widget__empty {
     position: absolute;
-    height: 100%;
-    width: 99%;
     top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .content-planner-widget__empty-icon {
