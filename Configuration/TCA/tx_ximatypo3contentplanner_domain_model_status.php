@@ -30,7 +30,6 @@ return [
         'typeicon_classes' => [
             'default' => 'flag-gray',
         ],
-        'searchFields' => 'title',
     ],
     'types' => [
         '0' => [
