@@ -21,7 +21,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
@@ -86,7 +86,9 @@ final class StatusItem
 
     public function getRecordLink(): string
     {
-        return UrlUtility::getRecordLink($this->data['tablename'], (int) $this->data['uid']);
+        $folderIdentifier = $this->getFolderCombinedIdentifier();
+
+        return UrlUtility::getRecordLink($this->data['tablename'], (int) $this->data['uid'], $folderIdentifier);
     }
 
     public function getAssignee(): int
@@ -106,7 +108,7 @@ final class StatusItem
 
     public function getCommentsHtml(): string
     {
-        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? sprintf(
+        return PlannerUtility::hasComments($this->data) ? sprintf(
             '%s <span class="badge">%d</span>',
             IconUtility::getIconByIdentifier('actions-message'),
             $this->data['tx_ximatypo3contentplanner_comments'],
@@ -148,7 +150,7 @@ final class StatusItem
             return 0;
         }
 
-        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
+        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
     }
 
     public function getToDoTotal(): int
@@ -157,7 +159,7 @@ final class StatusItem
             return 0;
         }
 
-        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
     }
 
     /**
@@ -172,7 +174,7 @@ final class StatusItem
             'status' => $this->getStatus(),
             'statusIcon' => $this->getStatusIcon(),
             'recordIcon' => $this->getRecordIcon(),
-            'updated' => (new DateTime())->setTimestamp($this->data['tstamp'])->format('d.m.Y H:i'),
+            'updated' => (new DateTime())->setTimestamp((int) $this->data['tstamp'])->format('d.m.Y H:i'),
             'assignee' => $this->getAssignee(),
             'assigneeName' => $this->getAssigneeName(),
             'assigneeAvatar' => $this->getAssigneeAvatar(),
@@ -181,6 +183,22 @@ final class StatusItem
             'todo' => $this->getToDoHtml(),
             'site' => $this->getSite(),
         ];
+    }
+
+    /**
+     * Get the combined folder identifier for folder records (e.g., "1:/user_upload/").
+     */
+    private function getFolderCombinedIdentifier(): ?string
+    {
+        if ('tx_ximatypo3contentplanner_folder' !== $this->data['tablename']) {
+            return null;
+        }
+
+        if (!isset($this->data['storage_uid'], $this->data['folder_identifier'])) {
+            return null;
+        }
+
+        return $this->data['storage_uid'].':'.$this->data['folder_identifier'];
     }
 
     private function getCommentRepository(): CommentRepository

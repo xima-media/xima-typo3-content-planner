@@ -113,12 +113,28 @@ class ExtensionUtility
                 ?? []
         );
 
-        return array_merge(['pages'], $additionalTables);
+        $baseTables = ['pages'];
+
+        // Add sys_file_metadata and folder table if Filelist support is enabled
+        if (self::isFilelistSupportEnabled()) {
+            $baseTables[] = 'sys_file_metadata';
+            $baseTables[] = 'tx_ximatypo3contentplanner_folder';
+        }
+
+        return array_merge($baseTables, $additionalTables);
     }
 
     public static function isRegisteredRecordTable(string $table): bool
     {
         return in_array($table, self::getRecordTables(), true);
+    }
+
+    /**
+     * Check if Filelist support (sys_file_metadata and folders) is enabled.
+     */
+    public static function isFilelistSupportEnabled(): bool
+    {
+        return self::isFeatureEnabled('enableFilelistSupport');
     }
 
     public static function isFeatureEnabled(string $feature): bool
@@ -148,10 +164,8 @@ class ExtensionUtility
      */
     public static function getTitle(string $key, array|bool|null $record): string
     {
-        if ($record) {
-            return array_key_exists($key, $record)
-                ? $record[$key]
-                : BackendUtility::getNoRecordTitle();
+        if ($record && array_key_exists($key, $record)) {
+            return (string) $record[$key];
         }
 
         return BackendUtility::getNoRecordTitle();

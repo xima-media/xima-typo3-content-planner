@@ -21,10 +21,10 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
@@ -40,11 +40,12 @@ use function is_int;
 class AbstractSelectionService
 {
     public function __construct(
-        private readonly StatusRepository $statusRepository,
+        protected readonly StatusRepository $statusRepository,
         private readonly RecordRepository $recordRepository,
         private readonly StatusSelectionManager $statusSelectionManager,
-        private readonly CommentRepository $commentRepository,
-        private readonly UriBuilder $uriBuilder,
+        protected readonly CommentRepository $commentRepository,
+        protected readonly UriBuilder $uriBuilder,
+        protected readonly FolderStatusRepository $folderStatusRepository,
     ) {}
 
     /**
@@ -156,6 +157,88 @@ class AbstractSelectionService
     }
 
     /**
+     * Generate selection items for a folder.
+     *
+     * @return array<string, mixed>|false
+     *
+     * @throws Exception|RouteNotFoundException
+     */
+    public function generateFolderSelection(string $combinedIdentifier): array|false
+    {
+        $allStatus = $this->statusRepository->findAll();
+        if (0 === count($allStatus)) {
+            return false;
+        }
+
+        $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($combinedIdentifier);
+        $currentStatus = null;
+        if (is_array($folderRecord) && isset($folderRecord['tx_ximatypo3contentplanner_status']) && 0 !== (int) $folderRecord['tx_ximatypo3contentplanner_status']) {
+            $currentStatus = (int) $folderRecord['tx_ximatypo3contentplanner_status'];
+        }
+
+        $selectionEntriesToAdd = [];
+
+        foreach ($allStatus as $statusItem) {
+            $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
+        }
+
+        // Add reset option if status is set
+        if (null !== $currentStatus) {
+            if ([] !== $selectionEntriesToAdd) {
+                $this->addDividerItemToSelection($selectionEntriesToAdd);
+            }
+            $this->addFolderStatusResetItemToSelection($selectionEntriesToAdd, $combinedIdentifier);
+        }
+
+        return $selectionEntriesToAdd;
+    }
+
+    /**
+     * @param array<int|string, mixed> $selectionEntriesToAdd
+     *
+     * @throws NotImplementedException
+     */
+    public function addFolderStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960491);
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @throws NotImplementedException
+     */
+    public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960492);
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    protected function buildUriForFolderStatusChange(string $combinedIdentifier, ?Status $status): UriInterface
+    {
+        /** @var ServerRequestInterface $request */
+        $request = $GLOBALS['TYPO3_REQUEST'];
+        $currentFolderId = $request->getQueryParams()['id'] ?? '';
+
+        return $this->uriBuilder->buildUriFromRoute(
+            'ximatypo3contentplanner_folder_status_update',
+            [
+                'identifier' => $combinedIdentifier,
+                'status' => $status instanceof Status ? $status->getUid() : 0,
+                'redirect' => (string) $this->uriBuilder->buildUriFromRoute(
+                    'ximatypo3contentplanner_message',
+                    [
+                        'redirect' => (string) $this->uriBuilder->buildUriFromRoute('media_management', ['id' => $currentFolderId]),
+                        'message' => $status instanceof Status ? 'status.changed' : 'status.reset',
+                    ],
+                ),
+            ],
+        );
+    }
+
+    /**
      * @return array<string, mixed>|bool|null
      *
      * @throws Exception
@@ -201,25 +284,7 @@ class AbstractSelectionService
         $request = $GLOBALS['TYPO3_REQUEST'];
         $route = $request->getAttribute('routing')->getRoute()->getOption('_identifier');
 
-        if ('record_edit' === $route) {
-            $routeArray = [
-                'edit' => [
-                    $table => [
-                        $uid => 'edit',
-                    ],
-                ],
-            ];
-        } elseif (RouteUtility::isRecordListRoute($route)) {
-            // For record list, use the current page ID from request to stay on the same page
-            $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
-            $routeArray = [
-                'id' => $currentPageId ?: $uid,
-            ];
-        } else {
-            $routeArray = [
-                'id' => $uid,
-            ];
-        }
+        $routeArray = $this->buildRouteArrayForRoute($route, $table, $uid, $request);
 
         $dataArray = [
             $table => [],
@@ -253,7 +318,7 @@ class AbstractSelectionService
      */
     protected function getCommentsTodoResolved(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
+        return PlannerUtility::hasComments($record) ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
     }
 
     /**
@@ -261,12 +326,50 @@ class AbstractSelectionService
      */
     protected function getCommentsTodoTotal(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return PlannerUtility::hasComments($record) ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
     }
 
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    /**
+     * @param array<int, int>|int $uid
+     *
+     * @return array<string, mixed>
+     */
+    private function buildRouteArrayForRoute(string $route, string $table, array|int $uid, ServerRequestInterface $request): array
+    {
+        if ('record_edit' === $route) {
+            return [
+                'edit' => [
+                    $table => [
+                        $uid => 'edit',
+                    ],
+                ],
+            ];
+        }
+
+        if (RouteUtility::isRecordListRoute($route)) {
+            // For record list, use the current page ID from request to stay on the same page
+            $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
+
+            return [
+                'id' => $currentPageId ?: $uid,
+            ];
+        }
+
+        if (RouteUtility::isFileListRoute($route)) {
+            // For file list, use the folder identifier from request to stay on the same folder
+            return [
+                'id' => $request->getQueryParams()['id'] ?? '',
+            ];
+        }
+
+        return [
+            'id' => $uid,
+        ];
     }
 
     /**

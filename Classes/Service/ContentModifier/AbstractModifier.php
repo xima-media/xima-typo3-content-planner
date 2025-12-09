@@ -11,18 +11,20 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-namespace Xima\XimaTypo3ContentPlanner\Service\Header;
+namespace Xima\XimaTypo3ContentPlanner\Service\ContentModifier;
+
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 
 /**
- * HeaderMode.
+ * AbstractModifier.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-enum HeaderMode: string
+abstract class AbstractModifier
 {
-    case EDIT = 'edit';
-    case WEB_LAYOUT = 'web_layout';
-    case WEB_LIST = 'web_list';
-    case FILE_LIST = 'file_list';
+    public function __construct(
+        protected readonly StatusRepository $statusRepository,
+        protected readonly RecordRepository $recordRepository,
+    ) {}
 }

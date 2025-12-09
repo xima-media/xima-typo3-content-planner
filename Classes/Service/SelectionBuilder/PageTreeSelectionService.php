@@ -17,8 +17,9 @@ use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
+use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
 
 /**
  * PageTreeSelectionService.
@@ -33,10 +34,11 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
         UriBuilder $uriBuilder,
-        private readonly CommentRepository $commentRepository,
+        CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
+        FolderStatusRepository $folderStatusRepository,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder, $folderStatusRepository);
     }
 
     /**
@@ -106,8 +108,12 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
      */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
+        $commentsLabel = PlannerUtility::hasComments($record)
+            ? $this->commentRepository->countAllByRecord($record['uid'], $table).' '
+            : '';
+
         $selectionEntriesToAdd['comments'] = [
-            'label' => (isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countAllByRecord($record['uid'], $table).' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'),
+            'label' => $commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'),
             'iconIdentifier' => 'actions-message',
             'callbackAction' => 'comments',
         ];

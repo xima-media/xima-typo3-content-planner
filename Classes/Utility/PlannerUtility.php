@@ -208,6 +208,18 @@ class PlannerUtility
     }
 
     /**
+     * Check if a record has comments.
+     *
+     * @param array<string, mixed> $record
+     */
+    public static function hasComments(array $record): bool
+    {
+        return isset($record['tx_ximatypo3contentplanner_comments'])
+            && is_numeric($record['tx_ximatypo3contentplanner_comments'])
+            && $record['tx_ximatypo3contentplanner_comments'] > 0;
+    }
+
+    /**
      * @return array<string, mixed>
      *
      * @throws Exception

@@ -18,9 +18,10 @@ use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\ComponentFactoryUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 /**
@@ -36,11 +37,12 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
         UriBuilder $uriBuilder,
-        private readonly CommentRepository $commentRepository,
+        CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
         private readonly IconFactory $iconFactory,
+        FolderStatusRepository $folderStatusRepository,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder, $folderStatusRepository);
     }
 
     /**
@@ -110,8 +112,12 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
+        $commentsLabel = PlannerUtility::hasComments($record)
+            ? $this->commentRepository->countAllByRecord($record['uid'], $table).' '
+            : '';
+
         $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
-            ->setLabel((isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countAllByRecord($record['uid'], $table).' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'))
+            ->setLabel($commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'))
             ->setIcon($this->iconFactory->getIcon('actions-message'))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlUtility::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
@@ -136,5 +142,37 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlUtility::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['commentsTodo'] = $commentsDropDownItem;
+    }
+
+    /**
+     * @param array<int|string, mixed> $selectionEntriesToAdd
+     *
+     * @throws RouteNotFoundException
+     */
+    public function addFolderStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): void
+    {
+        if (null !== $currentStatus && $status->getUid() === $currentStatus) {
+            return;
+        }
+
+        $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
+            ->setLabel($status->getTitle())
+            ->setIcon($this->iconFactory->getIcon($status->getColoredIcon()))
+            ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, $status)->__toString());
+        $selectionEntriesToAdd[(string) $status->getUid()] = $statusDropDownItem;
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @throws RouteNotFoundException
+     */
+    public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
+    {
+        $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
+            ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
+            ->setIcon($this->iconFactory->getIcon('actions-close'))
+            ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString());
+        $selectionEntriesToAdd['reset'] = $statusDropDownItem;
     }
 }
