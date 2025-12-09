@@ -53,6 +53,13 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
     {
         return [
             new SettingDefinition(
+                key: 'title',
+                type: 'string',
+                default: '',
+                label: 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:widgets.configurable.setting.title.label',
+                description: 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:widgets.configurable.setting.title.description',
+            ),
+            new SettingDefinition(
                 key: 'mode',
                 type: 'string',
                 default: 'status',
@@ -95,6 +102,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addInlineLanguageLabelFile('EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf');
 
+        $customTitle = $this->getSetting($context, 'title', '');
         $mode = $this->getSetting($context, 'mode', 'status');
         $statusFilter = $this->getSetting($context, 'status', '');
         $assignee = $this->resolveAssigneeFilter($context);
@@ -120,7 +128,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
 
         return new WidgetResult(
             content: $content,
-            label: $this->getWidgetLabel($mode, $statusFilter, $assignee),
+            label: $this->getWidgetLabel($customTitle, $mode, $statusFilter, $assignee),
             refreshable: true,
         );
     }
@@ -293,8 +301,12 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         );
     }
 
-    private function getWidgetLabel(string $mode, string $statusFilter, ?int $assignee): string
+    private function getWidgetLabel(string $customTitle, string $mode, string $statusFilter, ?int $assignee): string
     {
+        if ('' !== $customTitle) {
+            return $customTitle;
+        }
+
         $langService = $this->getLanguageService();
 
         if ('todo' === $mode) {

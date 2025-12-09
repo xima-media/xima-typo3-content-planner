@@ -255,6 +255,12 @@
 			<trans-unit id="widgets.contentPlanner.configurable.description">
 				<source>Customizable widget to display content status records with configurable filters</source>
 			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.title.label">
+				<source>Custom Title</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.title.description">
+				<source>Optional custom title for the widget (leave empty to use default)</source>
+			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.mode.label">
 				<source>Display Mode</source>
 			</trans-unit>
