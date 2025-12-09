@@ -2,18 +2,18 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<div class="widget-content-main widget-contentPlanner-status {f:if(condition: filter, then: 'widget-contentPlanner-status--filter')}">
+<div class="widget-content-main content-planner-widget {f:if(condition: filter, then: 'content-planner-widget--has-filter')}">
     <input type="hidden" name="currentBackendUser" value="{currentBackendUser}"/>
     <input type="hidden" name="todo" value="{todo}"/>
 
     <f:if condition="{mode} == 'todo'">
-        <div class="widget-contentPlanner-status--description">
+        <div class="content-planner-widget__description">
             <f:format.raw><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todo}"/></f:format.raw>
         </div>
     </f:if>
 
     <f:if condition="{mode} == 'assignee'">
-        <div class="widget-contentPlanner-status--description">
+        <div class="content-planner-widget__description">
             <f:format.raw><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner"/></f:format.raw>
         </div>
     </f:if>
@@ -21,9 +21,9 @@
     <f:if condition="{filter}">
         <f:render partial="WidgetFilter" arguments="{_all}" />
     </f:if>
-    <div class="widget-table-wrapper">
+    <div class="content-planner-widget__table-wrapper">
         <table class="widget-table table">
-            <thead class="hide">
+            <thead class="content-planner-hide">
             <tr>
                 <th>
                     <f:translate key="widgets.contentPlanner.header.title" extensionName="XimaTypo3ContentPlanner"/>
@@ -45,10 +45,10 @@
             </tbody>
         </table>
     </div>
-    <div class="row widget-no-items-found">
+    <div class="row content-planner-widget__empty">
         <f:render partial="Empty"/>
     </div>
-    <div class="widget-loading hide">
+    <div class="content-planner-widget__loading content-planner-hide">
         <core:icon identifier="spinner-circle" size="large"/>
     </div>
 </div>

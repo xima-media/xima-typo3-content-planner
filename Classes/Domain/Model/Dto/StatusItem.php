@@ -136,7 +136,7 @@ final class StatusItem
         }
 
         return $this->getToDoTotal() > 0 ? sprintf(
-            '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
+            '%s <span class="content-planner-badge badge" data-status="%s">%d/%d</span>',
             IconUtility::getIconByIdentifier('actions-check-square'),
             $this->getToDoResolved() === $this->getToDoTotal() ? 'resolved' : 'pending',
             $this->getToDoResolved(),

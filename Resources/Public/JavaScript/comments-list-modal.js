@@ -34,7 +34,7 @@ class CommentsListModal {
         active: true,
         btnClass: 'btn-primary',
         trigger: (event, modal) => {
-          CreateAndEditCommentModal.openModal(newCommentUrl, modal.querySelector('#widget-contentPlanner--comment-list'), table, uid)
+          CreateAndEditCommentModal.openModal(newCommentUrl, modal.querySelector('#content-planner-comment-list'), table, uid)
         }
       }] : []),
       ...(editUrl ? [{

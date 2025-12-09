@@ -7,15 +7,15 @@
 <div class="widget-content-main">
     <f:if condition="{records}">
         <f:then>
-            <ul class="update-list">
+            <ul class="content-planner-update-list">
                 <f:for each="{records}" as="record">
                     <f:if condition="{record.historyData} && {record.relatedRecord}">
-                        <li {f:if(condition: record.assignedToCurrentUser, then: 'class="current"')}>
+                        <li class="content-planner-update-list__item {f:if(condition: record.assignedToCurrentUser, then: 'content-planner-update-list__item--current')}">
                             <div class="d-flex align-items-center">
-                                <div class="change-type-icon icon-emphasized">
+                                <div class="content-planner-update-list__icon icon-emphasized">
                                     {record.changeTypeIcon -> f:format.raw()}
                                 </div>
-                                <div class="text">
+                                <div class="content-planner-update-list__text">
                                     {record.historyData -> f:format.raw()}
                                     <f:if condition="{record.data.userid}">
                                         by
@@ -41,7 +41,7 @@
             </ul>
         </f:then>
         <f:else>
-            <div class="row widget-no-items-found">
+            <div class="row content-planner-widget__empty">
                 <f:render partial="Empty"/>
             </div>
         </f:else>

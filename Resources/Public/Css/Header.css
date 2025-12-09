@@ -1,22 +1,19 @@
-:root {
-    --content-planner--color-black: rgb(144,164,174);
-    --content-planner--color-red: rgb(250,136,147);
-    --content-planner--color-yellow: rgb(255,205,117);
-    --content-planner--color-green: rgb(106,158,113);
-    --content-planner--color-blue: rgb(100,187,200);
-    --content-planner--color-purple: rgb(92,107,192);
-    --content-planner--color-orange: rgb(255,112,67);
+/**
+ * Content Planner - Header Styles
+ *
+ * BEM Structure:
+ * - content-planner-header (Block)
+ * - content-planner-header__info, __actions, __body (Elements)
+ * - content-planner-header--color-red, --color-green, etc. (Modifiers)
+ */
 
-    --content-planner--color-black-light: rgb(144,164,174, 0.2);
-    --content-planner--color-red-light: rgb(250,136,147, 0.2);
-    --content-planner--color-yellow-light: rgb(255,205,117, 0.2);
-    --content-planner--color-green-light: rgb(106,158,113, 0.2);
-    --content-planner--color-blue-light: rgb(100,187,200, 0.2);
-    --content-planner--color-purple-light: rgb(92,107,192, 0.2);
-    --content-planner--color-orange-light: rgb(255,112,67, 0.2);
-}
+@import '_variables.css';
 
-.xima-typo3-content-planner--header-info {
+/* ==========================================================================
+   Header Block
+   ========================================================================== */
+
+.content-planner-header {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -28,118 +25,137 @@
     border-top: 12px solid;
 }
 
-.xima-typo3-content-planner--header-info .left {
+/* ==========================================================================
+   Header Elements
+   ========================================================================== */
+
+.content-planner-header__left {
     margin: 0 12px;
 }
 
-.xima-typo3-content-planner--header-info .body {
+.content-planner-header__body {
     flex-grow: 1;
 }
 
-/* Header Colors */
-.xima-typo3-content-planner--header-info[data-color="black"] {
-    background-color: var(--content-planner--color-black-light);
-    border-color: var(--content-planner--color-black);
-}
-
-.xima-typo3-content-planner--header-info[data-color="red"] {
-    background-color: var(--content-planner--color-red-light);
-    border-color: var(--content-planner--color-red);
-}
-
-.xima-typo3-content-planner--header-info[data-color="yellow"] {
-    background-color: var(--content-planner--color-yellow-light);
-    border-color: var(--content-planner--color-yellow);
-}
-
-.xima-typo3-content-planner--header-info[data-color="green"] {
-    background-color: var(--content-planner--color-green-light);
-    border-color: var(--content-planner--color-green);
-}
-
-.xima-typo3-content-planner--header-info[data-color="blue"] {
-    background-color: var(--content-planner--color-blue-light);
-    border-color: var(--content-planner--color-blue);
-}
-
-.xima-typo3-content-planner--header-info[data-color="purple"] {
-    background-color: var(--content-planner--color-purple-light);
-    border-color: var(--content-planner--color-purple);
-}
-
-.xima-typo3-content-planner--header-info[data-color="orange"] {
-    background-color: var(--content-planner--color-orange-light);
-    border-color: var(--content-planner--color-orange);
-}
-
-.xima-typo3-content-planner--header--actions {
+.content-planner-header__actions {
     display: flex;
     gap: 1em;
 }
 
-.xima-typo3-content-planner--header--ce-hint {
+.content-planner-header__btn-group {
+    display: flex;
+    gap: 1em;
+}
+
+/* Content Element Hint */
+.content-planner-header__ce-hint {
     display: flex;
     align-items: center;
     margin-right: 1em;
 }
 
-.xima-typo3-content-planner--header--ce-hint a {
+.content-planner-header__ce-hint a {
     padding: 0 0.5em;
 }
 
-.xima-typo3-content-planner--header--ce-hint a:hover {
+.content-planner-header__ce-hint a:hover {
     text-decoration: none;
     transform: scale(1.4);
 }
 
-/* CE Hint Colors */
-.xima-typo3-content-planner--header--ce-hint a[data-color="black"] {
-    color: var(--content-planner--color-black);
-}
-
-.xima-typo3-content-planner--header--ce-hint a[data-color="red"] {
-    color: var(--content-planner--color-red);
-}
-
-.xima-typo3-content-planner--header--ce-hint a[data-color="yellow"] {
-    color: var(--content-planner--color-yellow);
-}
-
-.xima-typo3-content-planner--header--ce-hint a[data-color="green"] {
-    color: var(--content-planner--color-green);
-}
-
-.xima-typo3-content-planner--header--ce-hint a[data-color="blue"] {
-    color: var(--content-planner--color-blue);
-}
-
-.xima-typo3-content-planner--header--ce-hint a[data-color="purple"] {
-    color: var(--content-planner--color-purple);
-}
-
-.xima-typo3-content-planner--header--ce-hint a[data-color="orange"] {
-    color: var(--content-planner--color-orange);
-}
-
-.current, [data-current-assignee="1"] {
-    background-color: rgba(253, 212, 150, 0.2);
-}
-
-.xima-typo3-content-planner--header-info > .btn-group {
-    display: flex;
-    gap: 1em;
-}
-
-.xima-typo3-content-planner--header--comment-todo .badge[data-status="resolved"] {
+/* Comment Todo Badge in Header */
+.content-planner-header__todo-badge .badge[data-status="resolved"] {
     color: white;
-    background-color: var(--content-planner--color-green);
+    background-color: var(--content-planner-color-green);
 }
 
-.xima-typo3-content-planner--header--comment-todo .badge[data-status="pending"] {
-    background-color: var(--content-planner--color-yellow);
+.content-planner-header__todo-badge .badge[data-status="pending"] {
+    background-color: var(--content-planner-color-yellow);
 }
 
-.btn-group-prepend {
+/* ==========================================================================
+   Header Color Modifiers
+   ========================================================================== */
+
+.content-planner-header--color-black {
+    background-color: var(--content-planner-color-black-light);
+    border-color: var(--content-planner-color-black);
+}
+
+.content-planner-header--color-red {
+    background-color: var(--content-planner-color-red-light);
+    border-color: var(--content-planner-color-red);
+}
+
+.content-planner-header--color-yellow {
+    background-color: var(--content-planner-color-yellow-light);
+    border-color: var(--content-planner-color-yellow);
+}
+
+.content-planner-header--color-green {
+    background-color: var(--content-planner-color-green-light);
+    border-color: var(--content-planner-color-green);
+}
+
+.content-planner-header--color-blue {
+    background-color: var(--content-planner-color-blue-light);
+    border-color: var(--content-planner-color-blue);
+}
+
+.content-planner-header--color-purple {
+    background-color: var(--content-planner-color-purple-light);
+    border-color: var(--content-planner-color-purple);
+}
+
+.content-planner-header--color-orange {
+    background-color: var(--content-planner-color-orange-light);
+    border-color: var(--content-planner-color-orange);
+}
+
+/* ==========================================================================
+   CE Hint Color Modifiers
+   ========================================================================== */
+
+.content-planner-header__ce-hint a[data-color="black"] {
+    color: var(--content-planner-color-black);
+}
+
+.content-planner-header__ce-hint a[data-color="red"] {
+    color: var(--content-planner-color-red);
+}
+
+.content-planner-header__ce-hint a[data-color="yellow"] {
+    color: var(--content-planner-color-yellow);
+}
+
+.content-planner-header__ce-hint a[data-color="green"] {
+    color: var(--content-planner-color-green);
+}
+
+.content-planner-header__ce-hint a[data-color="blue"] {
+    color: var(--content-planner-color-blue);
+}
+
+.content-planner-header__ce-hint a[data-color="purple"] {
+    color: var(--content-planner-color-purple);
+}
+
+.content-planner-header__ce-hint a[data-color="orange"] {
+    color: var(--content-planner-color-orange);
+}
+
+/* ==========================================================================
+   Shared Components
+   ========================================================================== */
+
+/* Current User Highlight */
+.content-planner-row--current,
+[data-current-assignee="1"] {
+    background-color: var(--content-planner-color-highlight);
+}
+
+/* Button Group Prepend */
+.content-planner-btn-group-prepend {
     border-right: 1px solid var(--bs-btn-border-color, var(--typo3-btn-hover-border-color));
     margin: calc(var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) * -1) var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) calc(var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) * -1) calc(var(--bs-btn-padding-x, var(--typo3-btn-padding-x)) * -1);
     padding: var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) var(--bs-btn-padding-x, var(--typo3-btn-padding-x));

@@ -18,7 +18,7 @@ class CommentsReloadContent {
   }
 
   initEventListeners() {
-    document.querySelector('form#widget-contentPlanner--comment-filter')?.addEventListener('change', (event) => {
+    document.querySelector('form#content-planner-comment-filter')?.addEventListener('change', (event) => {
       event.preventDefault()
       const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
       const table = event.target.closest('form').getAttribute('data-table')
@@ -32,13 +32,13 @@ class CommentsReloadContent {
         const table = event.target.getAttribute('data-table')
         const id = event.target.getAttribute('data-id')
         const newCommentUrl = event.target.getAttribute('data-new-comment-uri')
-        CreateAndEditCommentModal.openModal(newCommentUrl, document.querySelector('#widget-contentPlanner--comment-list'), table, id)
+        CreateAndEditCommentModal.openModal(newCommentUrl, document.querySelector('#content-planner-comment-list'), table, id)
       })
     })
   }
 
   getFilterValues() {
-    const filterForm = document.querySelector('form#widget-contentPlanner--comment-filter')
+    const filterForm = document.querySelector('form#content-planner-comment-filter')
     if (!filterForm) {
       console.warn('Filter form not found')
       return null
@@ -60,7 +60,7 @@ class CommentsReloadContent {
       .get()
       .then(async (response) => {
         const resolved = await response.resolve()
-        const commentList = document.querySelector('#widget-contentPlanner--comment-list')
+        const commentList = document.querySelector('#content-planner-comment-list')
         if (!commentList) {
           console.warn('Comment list container not found')
           return
