@@ -57,14 +57,14 @@
                             </td>
                             <td>
                                 <f:if condition="{item.data.tx_ximatypo3contentplanner_comments} > 0">
-                                    <a href="{f:uri.typo3(route: 'ajax_ximatypo3contentplanner_comments')}"
+                                    <a href="{item.link}"
                                        class="contentPlanner--comments"
                                        data-table="{item.data.tablename}"
                                        data-id="{item.data.uid}">
                                         <f:format.raw>{item.comments}</f:format.raw>
                                     </a>
                                     <f:if condition="{item.todo}">
-                                        <a href="{f:uri.typo3(route: 'ajax_ximatypo3contentplanner_comments')}"
+                                        <a href="{item.link}"
                                            class="contentPlanner--comments"
                                            data-table="{item.data.tablename}"
                                            data-id="{item.data.uid}">
