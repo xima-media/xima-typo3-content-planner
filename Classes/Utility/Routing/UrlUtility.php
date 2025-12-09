@@ -120,12 +120,27 @@ class UrlUtility
     /**
      * @throws RouteNotFoundException
      */
-    public static function getRecordLink(string $table, int $uid): string
+    public static function getRecordLink(string $table, int $uid, ?string $folderIdentifier = null): string
     {
         return match ($table) {
             'pages' => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $uid]),
+            'tx_ximatypo3contentplanner_folder' => self::getFolderLink($folderIdentifier),
             default => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']]]),
         };
+    }
+
+    /**
+     * Get a link to the file list for a folder.
+     *
+     * @throws RouteNotFoundException
+     */
+    public static function getFolderLink(?string $folderIdentifier): string
+    {
+        if (null === $folderIdentifier || '' === $folderIdentifier) {
+            return '';
+        }
+
+        return (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('media_management', ['id' => $folderIdentifier]);
     }
 
     /**

@@ -86,7 +86,9 @@ final class StatusItem
 
     public function getRecordLink(): string
     {
-        return UrlUtility::getRecordLink($this->data['tablename'], (int) $this->data['uid']);
+        $folderIdentifier = $this->getFolderCombinedIdentifier();
+
+        return UrlUtility::getRecordLink($this->data['tablename'], (int) $this->data['uid'], $folderIdentifier);
     }
 
     public function getAssignee(): int
@@ -172,7 +174,7 @@ final class StatusItem
             'status' => $this->getStatus(),
             'statusIcon' => $this->getStatusIcon(),
             'recordIcon' => $this->getRecordIcon(),
-            'updated' => (new DateTime())->setTimestamp($this->data['tstamp'])->format('d.m.Y H:i'),
+            'updated' => (new DateTime())->setTimestamp((int) $this->data['tstamp'])->format('d.m.Y H:i'),
             'assignee' => $this->getAssignee(),
             'assigneeName' => $this->getAssigneeName(),
             'assigneeAvatar' => $this->getAssigneeAvatar(),
@@ -181,6 +183,22 @@ final class StatusItem
             'todo' => $this->getToDoHtml(),
             'site' => $this->getSite(),
         ];
+    }
+
+    /**
+     * Get the combined folder identifier for folder records (e.g., "1:/user_upload/").
+     */
+    private function getFolderCombinedIdentifier(): ?string
+    {
+        if ('tx_ximatypo3contentplanner_folder' !== $this->data['tablename']) {
+            return null;
+        }
+
+        if (!isset($this->data['storage_uid'], $this->data['folder_identifier'])) {
+            return null;
+        }
+
+        return $this->data['storage_uid'].':'.$this->data['folder_identifier'];
     }
 
     private function getCommentRepository(): CommentRepository

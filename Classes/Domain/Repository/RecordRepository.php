@@ -266,18 +266,90 @@ class RecordRepository
      */
     private function getSqlByTable(string $table, array &$sql, string $additionalWhere): void
     {
+        // Special handling for sys_file_metadata - join with sys_file to get the filename
+        if ('sys_file_metadata' === $table) {
+            $this->getSqlForFileMetadata($sql, $additionalWhere);
+
+            return;
+        }
+
+        // Special handling for folder status table
+        if ('tx_ximatypo3contentplanner_folder' === $table) {
+            $this->getSqlForFolders($sql, $additionalWhere);
+
+            return;
+        }
+
         $titleField = $this->getTitleField($table);
 
         if ('pages' === $table) {
-            $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']);
+            $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody', 'NULL as storage_uid', 'NULL as folder_identifier']);
         } else {
-            $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody']);
+            $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody', 'NULL as storage_uid', 'NULL as folder_identifier']);
         }
 
         // Add deleted restriction only for tables that have it
         $deletedWhere = $this->hasDeletedRestriction($table) ? ' AND deleted = 0' : '';
 
         $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.$deletedWhere.$additionalWhere.')';
+    }
+
+    /**
+     * Build SQL for sys_file_metadata with JOIN to sys_file for filename.
+     *
+     * @param string[] $sql
+     */
+    private function getSqlForFileMetadata(array &$sql, string $additionalWhere): void
+    {
+        $table = 'sys_file_metadata';
+        $selects = [
+            'x.uid',
+            'x.pid',
+            'x.tstamp',
+            'x.tx_ximatypo3contentplanner_status',
+            'x.tx_ximatypo3contentplanner_assignee',
+            'x.tx_ximatypo3contentplanner_comments',
+            'f.name as title',
+            "'".$table."' as tablename",
+            '0 as perms_userid',
+            '0 as perms_groupid',
+            '0 as perms_user',
+            '0 as perms_group',
+            '0 as perms_everybody',
+            'NULL as storage_uid',
+            'NULL as folder_identifier',
+        ];
+
+        $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x INNER JOIN sys_file f ON x.file = f.uid WHERE x.tx_ximatypo3contentplanner_status IS NOT NULL AND x.tx_ximatypo3contentplanner_status != 0'.$additionalWhere.')';
+    }
+
+    /**
+     * Build SQL for folder status table with readable folder name.
+     *
+     * @param string[] $sql
+     */
+    private function getSqlForFolders(array &$sql, string $additionalWhere): void
+    {
+        $table = 'tx_ximatypo3contentplanner_folder';
+        $selects = [
+            'uid',
+            'pid',
+            'tstamp',
+            'tx_ximatypo3contentplanner_status',
+            'tx_ximatypo3contentplanner_assignee',
+            'tx_ximatypo3contentplanner_comments',
+            'folder_identifier as title',
+            "'".$table."' as tablename",
+            '0 as perms_userid',
+            '0 as perms_groupid',
+            '0 as perms_user',
+            '0 as perms_group',
+            '0 as perms_everybody',
+            'storage_uid',
+            'folder_identifier',
+        ];
+
+        $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0 AND deleted = 0'.$additionalWhere.')';
     }
 
     private function getTitleField(string $table): string
