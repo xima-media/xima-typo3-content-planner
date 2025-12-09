@@ -7,7 +7,7 @@
         <f:then>
             <f:for each="{records}" as="record">
                 <f:if condition="{record.relatedRecord}">
-                    <div class="d-flex widget-contentPlanner--comment">
+                    <div class="d-flex content-planner-comment">
                         <be:avatar backendUser="{record.data.author}" size="40"
                                 showIcon="true"/>
                         <div class="d-flex flex-column flex-grow-1">
@@ -23,14 +23,14 @@
                                     </a>
                                 </small>
                             </div>
-                            <div class="text">{record.data.content -> f:format.raw()}</div>
+                            <div class="content-planner-comment__text">{record.data.content -> f:format.raw()}</div>
                         </div>
                     </div>
                 </f:if>
             </f:for>
         </f:then>
         <f:else>
-            <div class="row widget-no-items-found">
+            <div class="row content-planner-widget__empty">
                 <f:render partial="Empty"/>
             </div>
         </f:else>
