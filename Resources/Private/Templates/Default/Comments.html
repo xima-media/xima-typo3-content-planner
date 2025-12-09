@@ -2,35 +2,35 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<f:if condition="{comments -> f:count()} || {filter.resolvedCount}">
-    <form id="content-planner-comment-filter" class="content-planner-comment-filter" data-table="{table}" data-id="{id}">
-        <div class="form-sort">
-            <label for="content-planner-comment-filter-sort">Sort</label>
-            <select id="content-planner-comment-filter-sort" name="sortComments"
-                    class="form-select form-select-sm">
-                <f:for each="{0: {value: 'DESC', label: 'Newest'}, 1: {value: 'ASC', label: 'Oldest'}}" as="option">
-                    <option value="{option.value}" {f:if(condition:
-                    '{option.value} == {filter.sortComments}', then: 'selected', else: '')}>
-                    {option.label}
-                    </option>
-                </f:for>
-            </select>
-        </div>
-        <f:if condition="{filter.resolvedCount}">
-            <div class="form-check form-switch">
-                <input type="checkbox" class="form-check-input" value="1"
-                    id="content-planner-comment-filter-resolved"
-                    name="showResolvedComments"
-                    {f:if(condition: '{filter.showResolvedComments}', then: 'checked', else: '')}
-                />
-                <label for="content-planner-comment-filter-resolved">Show resolved comments <span
-                    class="badge badge-secondary">{filter.resolvedCount}</span></label>
-            </div>
-        </f:if>
-    </form>
-</f:if>
-
 <div id="content-planner-comment-list" class="content-planner-comment-list">
+    <f:if condition="{comments -> f:count()} || {filter.resolvedCount}">
+        <form id="content-planner-comment-filter" class="content-planner-comment-filter" data-table="{table}" data-id="{id}">
+            <div class="form-sort">
+                <label for="content-planner-comment-filter-sort">Sort</label>
+                <select id="content-planner-comment-filter-sort" name="sortComments"
+                        class="form-select form-select-sm">
+                    <f:for each="{0: {value: 'DESC', label: 'Newest'}, 1: {value: 'ASC', label: 'Oldest'}}" as="option">
+                        <option value="{option.value}" {f:if(condition:
+                        '{option.value} == {filter.sortComments}', then: 'selected', else: '')}>
+                        {option.label}
+                        </option>
+                    </f:for>
+                </select>
+            </div>
+            <f:if condition="{filter.resolvedCount}">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" value="1"
+                           id="content-planner-comment-filter-resolved"
+                           name="showResolvedComments"
+                           {f:if(condition: '{filter.showResolvedComments}', then: 'checked', else: '')}
+                    />
+                    <label for="content-planner-comment-filter-resolved">Show resolved comments <span
+                            class="badge badge-secondary">{filter.resolvedCount}</span></label>
+                </div>
+            </f:if>
+        </form>
+    </f:if>
+
     <f:if condition="{comments -> f:count()}">
         <f:then>
             <f:for each="{comments}" as="record">
@@ -118,9 +118,9 @@
             </f:for>
         </f:then>
         <f:else>
-            <div class="row content-planner-widget__empty">
+            <div class="content-planner-widget__empty content-planner-comment-empty">
                 <f:render partial="Empty"/>
-                <div class="col-12 text-center content-planner-comment-empty">
+                <div class="text-center content-planner-comment-empty__text">
                     <f:format.raw>
                         <f:translate key="comment.empty" extensionName="XimaTypo3ContentPlanner"
                                     arguments="{0: '{newCommentUri}', 1: '{table}', 2: '{id}'}"/>
