@@ -1,0 +1,87 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<div class="widget-content-main widget-contentPlanner-status widget-contentPlanner-status--configurable widget-contentPlanner-status--server-rendered">
+
+    <f:if condition="{mode} == 'todo'">
+        <div class="widget-contentPlanner-status--description">
+            <f:format.raw><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todo}"/></f:format.raw>
+        </div>
+    </f:if>
+
+    <f:if condition="{hasAssigneeFilter}">
+        <div class="widget-contentPlanner-status--description">
+            <f:format.raw><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner"/></f:format.raw>
+        </div>
+    </f:if>
+
+    <div class="widget-table-wrapper">
+        <f:if condition="{items}">
+            <f:then>
+                <table class="widget-table table">
+                    <thead>
+                    <tr>
+                        <th>
+                            <f:translate key="widgets.contentPlanner.header.title" extensionName="XimaTypo3ContentPlanner"/>
+                        </th>
+                        <th>
+                            <f:translate key="widgets.contentPlanner.header.site" extensionName="XimaTypo3ContentPlanner"/>
+                        </th>
+                        <th>
+                            <f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
+                        </th>
+                        <th>
+                            <f:translate key="widgets.contentPlanner.header.assignee" extensionName="XimaTypo3ContentPlanner"/>
+                        </th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <f:for each="{items}" as="item">
+                        <tr class="{f:if(condition: item.assignedToCurrentUser, then: 'current')}">
+                            <td>
+                                <a href="{item.link}">
+                                    <f:format.raw>{item.statusIcon}</f:format.raw>
+                                    <f:format.raw>{item.recordIcon}</f:format.raw>
+                                    <strong>{item.title}</strong>
+                                </a>
+                            </td>
+                            <td>{item.site}</td>
+                            <td><small>{item.updated}</small></td>
+                            <td>
+                                <f:if condition="{item.assignee}">
+                                    <f:format.raw>{item.assigneeAvatar}</f:format.raw>
+                                    {item.assigneeName}
+                                </f:if>
+                            </td>
+                            <td>
+                                <f:if condition="{item.data.tx_ximatypo3contentplanner_comments} > 0">
+                                    <a href="{f:uri.typo3(route: 'ajax_ximatypo3contentplanner_comments')}"
+                                       class="contentPlanner--comments"
+                                       data-table="{item.data.tablename}"
+                                       data-id="{item.data.uid}">
+                                        <f:format.raw>{item.comments}</f:format.raw>
+                                    </a>
+                                    <f:if condition="{item.todo}">
+                                        <a href="{f:uri.typo3(route: 'ajax_ximatypo3contentplanner_comments')}"
+                                           class="contentPlanner--comments"
+                                           data-table="{item.data.tablename}"
+                                           data-id="{item.data.uid}">
+                                            <f:format.raw>{item.todo}</f:format.raw>
+                                        </a>
+                                    </f:if>
+                                </f:if>
+                            </td>
+                        </tr>
+                    </f:for>
+                    </tbody>
+                </table>
+            </f:then>
+            <f:else>
+                <f:render partial="Empty"/>
+            </f:else>
+        </f:if>
+    </div>
+</div>
+</html>

@@ -10,15 +10,25 @@ class FilterStatus {
     document.addEventListener('widgetContentRendered', function(event) {
       if (event.target.querySelector('.widget-contentPlanner-status')) {
         const widget = event.target.querySelector('.widget-contentPlanner-status');
-        let currentBackendUser = event.target.querySelector('input[name="currentBackendUser"]').value ? event.target.querySelector('input[name="currentBackendUser"]').value : false;
-        let todo = event.target.querySelector('input[name="todo"]').value ? event.target.querySelector('input[name="todo"]').value : false;
+
+        // Skip server-rendered widgets (TYPO3 v14+ configurable widget)
+        if (widget.classList.contains('widget-contentPlanner-status--server-rendered')) {
+          FilterStatus.initCommentLinks(widget);
+          return;
+        }
+
+        let currentBackendUser = event.target.querySelector('input[name="currentBackendUser"]')?.value || false;
+        let todo = event.target.querySelector('input[name="todo"]')?.value || false;
 
         if (currentBackendUser) {
           FilterStatus.search(widget, {assignee: currentBackendUser}, () => {
-            widget.querySelector('.widget-contentPlanner-status--description .badge').innerHTML = widget.querySelectorAll('.widget-table tbody tr').length;
+            const badge = widget.querySelector('.widget-contentPlanner-status--description .badge');
+            if (badge) {
+              badge.innerHTML = widget.querySelectorAll('.widget-table tbody tr').length;
+            }
           });
           widget.classList.add('widget-contentPlanner-status--assigned');
-        } else if (todo) {
+        } else if (todo && todo !== 'false') {
           FilterStatus.search(widget, {todo: true});
           widget.classList.add('widget-contentPlanner-status--assigned');
         } else {
@@ -26,22 +36,36 @@ class FilterStatus {
           let queryArguments = {};
           const form = event.target.querySelector('.widget-filter-form');
           const search = event.target.querySelector('input[name="search"]');
-          form.addEventListener('change', function(event) {
-            queryArguments[event.target.name] = event.target.value;
-            FilterStatus.search(widget, queryArguments);
-          });
-          search.addEventListener('input', function(event) {
-            queryArguments[search.name] = search.value;
-            FilterStatus.search(widget, queryArguments);
-          });
-          form.querySelector('.widget-filter-reset').addEventListener('click', function(event) {
-            form.reset();
-            queryArguments = {};
-            FilterStatus.search(widget, queryArguments);
-          });
+          if (form && search) {
+            form.addEventListener('change', function(event) {
+              queryArguments[event.target.name] = event.target.value;
+              FilterStatus.search(widget, queryArguments);
+            });
+            search.addEventListener('input', function(event) {
+              queryArguments[search.name] = search.value;
+              FilterStatus.search(widget, queryArguments);
+            });
+            form.querySelector('.widget-filter-reset')?.addEventListener('click', function(event) {
+              form.reset();
+              queryArguments = {};
+              FilterStatus.search(widget, queryArguments);
+            });
+          }
         }
 
       }
+    });
+  }
+
+  static initCommentLinks(widget) {
+    widget.querySelectorAll('.contentPlanner--comments').forEach(item => {
+      item.addEventListener('click', e => {
+        e.preventDefault();
+        const url = e.currentTarget.getAttribute('href');
+        const table = e.currentTarget.getAttribute('data-table');
+        const id = e.currentTarget.getAttribute('data-id');
+        CommentsModal.fetchComments(url, table, id);
+      });
     });
   }
 
