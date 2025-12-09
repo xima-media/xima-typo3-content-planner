@@ -154,6 +154,10 @@
     background-color: var(--content-planner-color-highlight);
 }
 
+[data-current-assignee="1"]:hover {
+    background-color: var(--content-planner-color-highlight-hover);
+}
+
 /* Button Group Prepend */
 .content-planner-btn-group-prepend {
     border-right: 1px solid var(--bs-btn-border-color, var(--typo3-btn-hover-border-color));

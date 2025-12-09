@@ -26,6 +26,7 @@
 
     /* Highlight Color */
     --content-planner-color-highlight: rgba(253, 212, 150, 0.2);
+    --content-planner-color-highlight-hover: rgba(253, 212, 150, 0.4);
 
     /* Todo List (CKEditor compatibility) */
     --ck-todo-list-checkmark-size: 16px;
