@@ -36,8 +36,9 @@
             <f:for each="{comments}" as="record">
                 <div
                     class="d-flex content-planner-comment {f:if(condition: '{record.resolved}', then: 'content-planner-comment--resolved', else: '')}">
-                    <be:avatar backendUser="{record.data.author}" size="40"
-                            showIcon="true" class="content-planner-comment__avatar"/>
+                    <span class="content-planner-comment__avatar">
+                        <be:avatar backendUser="{record.data.author}" size="40" showIcon="true"/>
+                    </span>
                     <div class="d-flex flex-column flex-grow-1">
                         <div class="d-flex flex-row justify-content-between gap-2">
                             <div class="flex-grow-1">
