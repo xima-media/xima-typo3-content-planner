@@ -29,7 +29,31 @@
     margin-right: calc(-1 * var(--widget-padding, 1.25rem));
     margin-left: calc(-1 * var(--widget-padding, 1.25rem));
     padding-left: var(--widget-padding, 1.25rem);
+    padding-right: var(--widget-padding, 1.25rem);
     background-color: var(--typo3-component-bg);
+}
+
+.content-planner-widget__filter .form-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.content-planner-widget__filter .form-group {
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.content-planner-widget__filter .form-group .form-label {
+    white-space: nowrap;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.content-planner-widget__filter .form-select {
+    min-width: 80px;
+    max-width: 120px;
 }
 
 .content-planner-widget__filter .form-check input[type="radio"] {
@@ -54,8 +78,7 @@
 
 /* Table Wrapper */
 .content-planner-widget__filter + .content-planner-widget__table-wrapper {
-    padding-top: 1.5rem;
-    height: 100%;
+    padding-top: 1rem;
 }
 
 /* Table Row - Current User Highlight */
@@ -112,6 +135,12 @@
 /* Status Widget with Filter */
 .content-planner-widget--has-filter {
     padding-top: 0;
+    overflow-y: visible;
+}
+
+/* Prevent unnecessary scrolling in widgets with short content */
+.content-planner-widget .content-planner-widget__table-wrapper {
+    overflow: visible;
 }
 
 /* Assigned Widget */
