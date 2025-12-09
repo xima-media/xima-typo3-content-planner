@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
@@ -30,6 +31,7 @@ use function array_key_exists;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
+#[AsEventListener(identifier: 'xima-typo3-content-planner/backend/render-additional-content-to-record-list')]
 final readonly class RenderAdditionalContentToRecordListListener
 {
     public function __construct(
