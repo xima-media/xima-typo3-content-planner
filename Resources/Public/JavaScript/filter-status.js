@@ -106,7 +106,9 @@ class FilterStatus {
             '</tr>';
         });
         let table = widget.querySelector('table tbody');
-        table.innerHTML = html;
+        if (table) {
+          table.innerHTML = html;
+        }
         if (waitingElement) {
           waitingElement.classList.add('content-planner-hide');
         }
