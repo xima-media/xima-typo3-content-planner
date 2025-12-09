@@ -163,10 +163,10 @@ class FolderController extends ActionController
             return new JsonResponse(['error' => 'Filelist support is not enabled'], 403);
         }
 
-        $body = $request->getParsedBody();
-        $metaUid = array_key_exists('metaUid', $body) ? (int) $body['metaUid'] : null;
-        $status = array_key_exists('status', $body) ? (int) $body['status'] : null;
-        $assignee = array_key_exists('assignee', $body) ? (int) $body['assignee'] : null;
+        $body = $request->getParsedBody() ?? [];
+        $metaUid = is_array($body) && array_key_exists('metaUid', $body) ? (int) $body['metaUid'] : null;
+        $status = is_array($body) && array_key_exists('status', $body) ? (int) $body['status'] : null;
+        $assignee = is_array($body) && array_key_exists('assignee', $body) ? (int) $body['assignee'] : null;
 
         if (null === $metaUid || 0 === $metaUid) {
             return new JsonResponse(['error' => 'Missing file metadata UID'], 400);
