@@ -12,7 +12,7 @@ class FilterStatus {
         const widget = event.target.querySelector('.content-planner-widget');
 
         // Skip server-rendered widgets (TYPO3 v14+ configurable widget)
-        if (widget.classList.contains('widget-contentPlanner-status--server-rendered')) {
+        if (widget.classList.contains('content-planner-widget--server-rendered')) {
           FilterStatus.initCommentLinks(widget);
           return;
         }
@@ -70,13 +70,13 @@ class FilterStatus {
   }
 
   static search(widget, queryArguments = {}, callback) {
-    widget.querySelector('thead').classList.remove('content-planner-hide');
-    widget.querySelector('.content-planner-widget__empty').classList.add('content-planner-hide');
+    widget.querySelector('thead')?.classList.remove('content-planner-hide');
+    widget.querySelector('.content-planner-widget__empty')?.classList.add('content-planner-hide');
     const waitingElement = widget.parentElement.parentElement.querySelector('.widget-waiting');
     if (waitingElement) {
       waitingElement.classList.remove('content-planner-hide');
     }
-    widget.querySelector('.content-planner-widget__table-wrapper').classList.add('content-planner-hide');
+    widget.querySelector('.content-planner-widget__table-wrapper')?.classList.add('content-planner-hide');
     new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterrecords)
       .withQueryArguments(queryArguments)
       .get()
@@ -85,8 +85,8 @@ class FilterStatus {
 
         let html = '';
         if (resolved.length === 0) {
-          widget.querySelector('.content-planner-widget__empty').classList.remove('content-planner-hide');
-          widget.querySelector('thead').classList.add('content-planner-hide');
+          widget.querySelector('.content-planner-widget__empty')?.classList.remove('content-planner-hide');
+          widget.querySelector('thead')?.classList.add('content-planner-hide');
         }
         resolved.forEach(function (item) {
           let comments = '';
@@ -110,7 +110,7 @@ class FilterStatus {
         if (waitingElement) {
           waitingElement.classList.add('content-planner-hide');
         }
-        widget.querySelector('.content-planner-widget__table-wrapper').classList.remove('content-planner-hide');
+        widget.querySelector('.content-planner-widget__table-wrapper')?.classList.remove('content-planner-hide');
 
         FilterStatus.initCommentLinks(widget);
 
