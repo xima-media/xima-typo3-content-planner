@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputArgument, InputInterface, InputOption};
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,6 +32,10 @@ use function sprintf;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
+#[AsCommand(
+    name: 'content-planner:bulk-update',
+    description: 'A command to perform a bulk operation to content planner entities.',
+)]
 final class BulkUpdateCommand extends Command
 {
     public function __construct(
@@ -44,7 +49,6 @@ final class BulkUpdateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('content-planner:bulk-update')
             ->addArgument('table', InputArgument::OPTIONAL, 'The table to update.', 'pages')
             ->addArgument('uid', InputArgument::OPTIONAL, 'The uid to update.', 1)
             ->addArgument('status', InputArgument::OPTIONAL, 'The status uid to set. If empty, the status will be cleared.', null)

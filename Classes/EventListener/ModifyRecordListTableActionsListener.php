@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListTableActionsEvent;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
@@ -34,6 +35,7 @@ use function count;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
+#[AsEventListener(identifier: 'xima-typo3-content-planner/backend/modify-record-list-table-actions')]
 final class ModifyRecordListTableActionsListener
 {
     protected ServerRequest $request;

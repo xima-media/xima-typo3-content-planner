@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
+use TYPO3\CMS\Backend\Controller\Event\AfterFileStorageTreeItemsPreparedEvent;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Resource\Folder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -27,6 +29,10 @@ use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
+#[AsEventListener(
+    identifier: 'xima-typo3-content-planner/backend/modify-file-storage-tree-items',
+    event: AfterFileStorageTreeItemsPreparedEvent::class,
+)]
 final readonly class AfterFileStorageTreeItemsPreparedListener
 {
     public function __construct(

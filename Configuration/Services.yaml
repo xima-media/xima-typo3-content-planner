@@ -40,43 +40,6 @@ services:
       $cache: '@cache.ximatypo3contentplanner_cache'
       $statusChangeManager: '@Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager'
 
-  Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-page-module-content'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\AfterPageTreeItemsPreparedListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-page-tree-items'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\ModifyButtonBarEventListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-button-bar'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\RenderAdditionalContentToRecordListListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/render-additional-content-to-record-list'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\ModifyRecordListRecordActionsListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-record-list-record-actions'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\ModifyRecordListTableActionsListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-record-list-table-actions'
-
-  # TYPO3 v14+ only - AfterFileStorageTreeItemsPreparedEvent does not exist in v13
-  Xima\XimaTypo3ContentPlanner\EventListener\AfterFileStorageTreeItemsPreparedListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-file-storage-tree-items'
-        event: TYPO3\CMS\Backend\Controller\Event\AfterFileStorageTreeItemsPreparedEvent
-
   Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator:
     public: true
 
@@ -98,12 +61,6 @@ services:
 
   Xima\XimaTypo3ContentPlanner\Service\ContentModifier\RecordEditModifier:
     lazy: true
-
-  Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
-    tags:
-      - name: console.command
-        command: 'content-planner:bulk-update'
-        description: 'A command to perform a bulk operation to content planner entities.'
 
   dashboard.widget.ContentStatus-status:
     class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
