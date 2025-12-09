@@ -11,16 +11,13 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\{ContainerBuilder, Reference};
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\DependencyInjection\Reference;
 use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Dashboard\WidgetRegistry;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Widgets\ConfigurableContentStatusWidget;
 
 return static function (ContainerConfigurator $configurator, ContainerBuilder $containerBuilder): void {

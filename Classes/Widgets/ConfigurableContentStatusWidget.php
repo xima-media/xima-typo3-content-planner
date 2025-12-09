@@ -25,13 +25,12 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, Comme
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{IconUtility, ViewUtility};
 
+use function count;
+use function is_array;
 use function sprintf;
 
 /**
  * ConfigurableContentStatusWidget.
- *
- * TYPO3 v14+ configurable widget that allows users to customize filters
- * for status, assignee, and record type. Data is loaded server-side.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -96,55 +95,23 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addInlineLanguageLabelFile('EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf');
 
-        $mode = $context->settings->has('mode') ? (string) $context->settings->get('mode') : 'status';
-        $statusFilter = $context->settings->has('status') ? (string) $context->settings->get('status') : '';
-        $assigneeFilter = $context->settings->has('assignee') ? (string) $context->settings->get('assignee') : '';
-        $recordTypeFilter = $context->settings->has('recordType') ? (string) $context->settings->get('recordType') : '';
-
-        // Resolve assignee filter
-        $assignee = null;
-        if ('current_user' === $assigneeFilter) {
-            $assignee = $GLOBALS['BE_USER']->getUserId();
-        } elseif ('' !== $assigneeFilter) {
-            $assignee = (int) $assigneeFilter;
-        }
-
-        // Resolve status filter
+        $mode = $this->getSetting($context, 'mode', 'status');
+        $statusFilter = $this->getSetting($context, 'status', '');
+        $assignee = $this->resolveAssigneeFilter($context);
         $status = '' !== $statusFilter ? (int) $statusFilter : null;
-
-        // Resolve record type filter
-        $type = '' !== $recordTypeFilter ? $recordTypeFilter : null;
-
-        // Resolve todo mode
+        $type = $this->resolveRecordTypeFilter($context);
         $todo = 'todo' === $mode;
 
-        // Load records server-side
-        $records = $this->recordRepository->findAllByFilter(
-            status: $status,
-            assignee: $assignee,
-            type: $type,
-            todo: $todo,
-        );
-
-        // Transform records to StatusItems
-        $items = [];
-        if (is_array($records)) {
-            foreach ($records as $record) {
-                $items[] = StatusItem::create($record)->toArray();
-            }
-        }
-
-        $todoInfo = $todo ? $this->buildTodoInfo() : false;
-        $icon = $this->determineIcon($mode, $assignee);
+        $items = $this->loadItems($status, $assignee, $type, $todo);
 
         $content = ViewUtility::render(
             'Backend/Widgets/ConfigurableContentStatusList.html',
             [
                 'configuration' => $this->configuration,
-                'icon' => $icon,
+                'icon' => $this->determineIcon($mode, $assignee),
                 'items' => $items,
                 'itemCount' => count($items),
-                'todo' => $todoInfo,
+                'todo' => $todo ? $this->buildTodoInfo() : false,
                 'mode' => $mode,
                 'hasAssigneeFilter' => null !== $assignee,
             ],
@@ -182,6 +149,53 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    private function getSetting(WidgetContext $context, string $key, string $default): string
+    {
+        return $context->settings->has($key) ? (string) $context->settings->get($key) : $default;
+    }
+
+    private function resolveAssigneeFilter(WidgetContext $context): ?int
+    {
+        $assigneeFilter = $this->getSetting($context, 'assignee', '');
+
+        if ('current_user' === $assigneeFilter) {
+            return $GLOBALS['BE_USER']->getUserId();
+        }
+
+        return '' !== $assigneeFilter ? (int) $assigneeFilter : null;
+    }
+
+    private function resolveRecordTypeFilter(WidgetContext $context): ?string
+    {
+        $recordTypeFilter = $this->getSetting($context, 'recordType', '');
+
+        return '' !== $recordTypeFilter ? $recordTypeFilter : null;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function loadItems(?int $status, ?int $assignee, ?string $type, bool $todo): array
+    {
+        $records = $this->recordRepository->findAllByFilter(
+            status: $status,
+            assignee: $assignee,
+            type: $type,
+            todo: $todo,
+        );
+
+        $items = [];
+        if (is_array($records)) {
+            foreach ($records as $record) {
+                $items[] = StatusItem::create($record)->toArray();
+            }
+        }
+
+        return $items;
     }
 
     /**
