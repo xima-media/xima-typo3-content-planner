@@ -69,7 +69,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         }
 
         $folderIdentifier = $request->getQueryParams()['id'];
-        $isTilesView = isset($request->getQueryParams()['viewMode']) && 'tiles' === $request->getQueryParams()['viewMode'];
+        // Detect tile view from content (more reliable than query param, which may not be present)
+        $isTilesView = str_contains($content, 'class="resource-tiles"');
 
         $additionalCss = $this->fileListStatusService->generateStatusStyles($folderIdentifier, $isTilesView);
 
