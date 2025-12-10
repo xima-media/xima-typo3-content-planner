@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -127,6 +128,8 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @throws RouteNotFoundException
      */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
@@ -174,5 +177,51 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setIcon($this->iconFactory->getIcon('actions-close'))
             ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString());
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws RouteNotFoundException|Exception
+     */
+    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        $table = 'tx_ximatypo3contentplanner_folder';
+        $uid = (int) $folderRecord['uid'];
+
+        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord['tx_ximatypo3contentplanner_assignee'] ?? 0));
+        $label = '' !== $username
+            ? $username
+            : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
+
+        $assigneeDropDownItem = ComponentFactoryUtility::createDropDownItem()
+            ->setLabel($label)
+            ->setIcon($this->iconFactory->getIcon('actions-user'))
+            ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
+        $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws RouteNotFoundException|Exception
+     */
+    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        $table = 'tx_ximatypo3contentplanner_folder';
+        $uid = (int) $folderRecord['uid'];
+
+        $commentsLabel = PlannerUtility::hasComments($folderRecord)
+            ? $this->commentRepository->countAllByRecord($uid, $table).' '
+            : '';
+
+        $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
+            ->setLabel($commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'))
+            ->setIcon($this->iconFactory->getIcon('actions-message'))
+            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => UrlUtility::getNewCommentUrl($table, $uid), 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
+            ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
+        $selectionEntriesToAdd['comments'] = $commentsDropDownItem;
     }
 }

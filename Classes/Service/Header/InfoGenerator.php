@@ -211,7 +211,7 @@ class InfoGenerator
     /**
      * @param array<string, mixed> $folderRecord
      *
-     * @throws Exception
+     * @throws Exception|RouteNotFoundException
      */
     private function renderFolderStatusHeaderContentView(
         array $folderRecord,
@@ -220,6 +220,7 @@ class InfoGenerator
         Status $status,
     ): string {
         $table = 'tx_ximatypo3contentplanner_folder';
+        $uid = (int) $folderRecord['uid'];
 
         $content = ViewUtility::render('Backend/Header/HeaderInfo', [
             'mode' => HeaderMode::FILE_LIST->value,
@@ -236,15 +237,23 @@ class InfoGenerator
             'assignee' => [
                 'username' => $this->getAssigneeUsername($folderRecord),
                 'assignedToCurrentUser' => $this->getAssignedToCurrentUser($folderRecord),
-                'assignToCurrentUser' => false,
-                'unassign' => null,
+                'assignToCurrentUser' => self::checkAssignToCurrentUser($folderRecord)
+                    ? UrlUtility::assignToUser($table, $uid)
+                    : false,
+                'unassign' => self::checkUnassign($folderRecord)
+                    ? UrlUtility::assignToUser($table, $uid, unassign: true)
+                    : null,
             ],
             'comments' => [
                 'items' => $this->getFolderComments($folderRecord),
-                'newCommentUri' => null,
-                'editUri' => null,
-                'todoResolved' => 0,
-                'todoTotal' => 0,
+                'newCommentUri' => UrlUtility::getNewCommentUrl($table, $uid),
+                'editUri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
+                'todoResolved' => ExtensionUtility::isFeatureEnabled(
+                    Configuration::FEATURE_COMMENT_TODOS,
+                ) ? $this->getCommentsTodoResolved($folderRecord, $table) : 0,
+                'todoTotal' => ExtensionUtility::isFeatureEnabled(
+                    Configuration::FEATURE_COMMENT_TODOS,
+                ) ? $this->getCommentsTodoTotal($folderRecord, $table) : 0,
             ],
             'contentElements' => null,
             'userid' => $GLOBALS['BE_USER']->user['uid'],

@@ -18,13 +18,16 @@ class AssigneeSelect {
   }
 
   initEventListeners(modal = null) {
-    document.querySelector('[data-action-assignee-selection]').addEventListener('change', (event) => {
-      event.preventDefault()
-      const selectedOption = event.target.selectedOptions[0]
-      // Workaround to check for unset assignee
-      const hasDoubleDash = selectedOption && typeof selectedOption.label === 'string' && selectedOption.label.includes('--')
-      this.changeAssignee(event.target.value, hasDoubleDash, modal)
-    })
+    const assigneeSelection = document.querySelector('[data-action-assignee-selection]')
+    if (assigneeSelection) {
+      assigneeSelection.addEventListener('change', (event) => {
+        event.preventDefault()
+        const selectedOption = event.target.selectedOptions[0]
+        // Workaround to check for unset assignee
+        const hasDoubleDash = selectedOption && typeof selectedOption.label === 'string' && selectedOption.label.includes('--')
+        this.changeAssignee(event.target.value, hasDoubleDash, modal)
+      })
+    }
 
     document.querySelectorAll('[data-action-assignee]').forEach(item => {
       item.addEventListener('click', event => {

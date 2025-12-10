@@ -162,6 +162,7 @@ class AbstractSelectionService
      * @return array<string, mixed>|false
      *
      * @throws Exception|RouteNotFoundException
+     * @throws NotImplementedException
      */
     public function generateFolderSelection(string $combinedIdentifier): array|false
     {
@@ -190,6 +191,13 @@ class AbstractSelectionService
             $this->addFolderStatusResetItemToSelection($selectionEntriesToAdd, $combinedIdentifier);
         }
 
+        // Add additional actions (assignee, comments) if folder record exists
+        if (is_array($folderRecord) && null !== $currentStatus) {
+            $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
+            $this->addFolderAssigneeItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
+            $this->addFolderCommentsItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
+        }
+
         return $selectionEntriesToAdd;
     }
 
@@ -211,6 +219,28 @@ class AbstractSelectionService
     public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
     {
         throw new NotImplementedException('Method not implemented', 1741960492);
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws NotImplementedException
+     */
+    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960493);
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws NotImplementedException
+     */
+    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960494);
     }
 
     /**

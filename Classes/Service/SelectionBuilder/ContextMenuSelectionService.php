@@ -166,4 +166,43 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'callbackAction' => 'reset',
         ];
     }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws Exception
+     */
+    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord['tx_ximatypo3contentplanner_assignee'] ?? 0));
+        if ('' === $username) {
+            return;
+        }
+
+        $selectionEntriesToAdd['assignee'] = [
+            'label' => $username,
+            'iconIdentifier' => 'actions-user',
+            'callbackAction' => 'load',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws Exception
+     */
+    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        $commentsLabel = PlannerUtility::hasComments($folderRecord)
+            ? $this->commentRepository->countAllByRecord((int) $folderRecord['uid'], 'tx_ximatypo3contentplanner_folder').' '
+            : '';
+
+        $selectionEntriesToAdd['comments'] = [
+            'label' => $commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'),
+            'iconIdentifier' => 'actions-message',
+            'callbackAction' => 'comments',
+        ];
+    }
 }

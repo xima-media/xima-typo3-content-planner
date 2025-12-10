@@ -59,43 +59,41 @@
                 </be:link.editRecord>
             </f:for>
         </div>
-        <f:if condition="{mode} != 'file_list'">
-            <div class="btn-group" role="group" aria-label="Assignee">
-                <button
-                    class="btn btn-default content-planner-link--assignee"
-                    data-content-planner-assignees
-                    type="button"
-                    title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"
-                    data-id="{data.uid}"
-                    data-table="{table}"
-                    data-current-assignee="{data.tx_ximatypo3contentplanner_assignee}"
-                >
-                    <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
-                        <f:then>
-                            <div class="content-planner-btn-group-prepend">
-                                <be:avatar
-                                    backendUser="{data.tx_ximatypo3contentplanner_assignee}"
-                                    size="16"
-                                    showIcon="true"
-                                />
-                            </div>
-                            {assignee.username}
-                        </f:then>
-                        <f:else>
-                            <div class="content-planner-btn-group-prepend">
-                                <core:icon identifier="actions-user" size="small"/>
-                            </div>
-                            <div class="text-muted">
-                                {f:translate(key: 'header.unassigned', extensionName: 'xima_typo3_content_planner')}
-                            </div>
-                        </f:else>
-                    </f:if>
-                </button>
-            </div>
-        </f:if>
+        <div class="btn-group" role="group" aria-label="Assignee">
+            <button
+                class="btn btn-default content-planner-link--assignee"
+                data-content-planner-assignees
+                type="button"
+                title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"
+                data-id="{data.uid}"
+                data-table="{table}"
+                data-current-assignee="{data.tx_ximatypo3contentplanner_assignee}"
+            >
+                <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
+                    <f:then>
+                        <div class="content-planner-btn-group-prepend">
+                            <be:avatar
+                                backendUser="{data.tx_ximatypo3contentplanner_assignee}"
+                                size="16"
+                                showIcon="true"
+                            />
+                        </div>
+                        {assignee.username}
+                    </f:then>
+                    <f:else>
+                        <div class="content-planner-btn-group-prepend">
+                            <core:icon identifier="actions-user" size="small"/>
+                        </div>
+                        <div class="text-muted">
+                            {f:translate(key: 'header.unassigned', extensionName: 'xima_typo3_content_planner')}
+                        </div>
+                    </f:else>
+                </f:if>
+            </button>
+        </div>
 
-        <f:if condition="{mode} != 'file_list'">
-            <div class="btn-group" role="group" aria-label="Comments">
+        <div class="btn-group" role="group" aria-label="Comments">
+            <f:if condition="{comments.newCommentUri}">
                 <a
                     href="{comments.newCommentUri}"
                     id="create-and-edit-comment-modal"
@@ -109,42 +107,42 @@
                         size="small"
                     />
                 </a>
-                <f:if condition="{comments}">
+            </f:if>
+            <f:if condition="{comments}">
+                <button
+                    class="btn btn-default content-planner-link--comments"
+                    data-content-planner-comments
+                    type="button"
+                    title="{f:translate(key: 'header.comments', extensionName: 'xima_typo3_content_planner')}"
+                    data-table="{table}"
+                    data-id="{data.uid}"
+                    data-new-comment-uri="{comments.newCommentUri}"
+                    data-edit-uri="{comments.editUri}"
+                >
+                    <core:icon identifier="actions-message" size="small"/>
+                    <f:if condition="{comments.items -> f:count()}">
+                        <span class="badge badge-secondary">{comments.items -> f:count()}</span>
+                    </f:if>
+                </button>
+                <f:if condition="{comments.todoTotal}">
                     <button
-                        class="btn btn-default content-planner-link--comments"
+                        class="btn btn-default content-planner-header__todo-badge"
                         data-content-planner-comments
                         type="button"
-                        title="{f:translate(key: 'header.comments', extensionName: 'xima_typo3_content_planner')}"
+                        title="{f:translate(key: 'header.comments.todo', extensionName: 'xima_typo3_content_planner')}"
                         data-table="{table}"
                         data-id="{data.uid}"
                         data-new-comment-uri="{comments.newCommentUri}"
                         data-edit-uri="{comments.editUri}"
                     >
-                        <core:icon identifier="actions-message" size="small"/>
-                        <f:if condition="{comments.items -> f:count()}">
-                            <span class="badge badge-secondary">{comments.items -> f:count()}</span>
-                        </f:if>
-                    </button>
-                    <f:if condition="{comments.todoTotal}">
-                        <button
-                            class="btn btn-default content-planner-header__todo-badge"
-                            data-content-planner-comments
-                            type="button"
-                            title="{f:translate(key: 'header.comments.todo', extensionName: 'xima_typo3_content_planner')}"
-                            data-table="{table}"
-                            data-id="{data.uid}"
-                            data-new-comment-uri="{comments.newCommentUri}"
-                            data-edit-uri="{comments.editUri}"
-                        >
-                            <core:icon identifier="actions-check-square" size="small"/>
-                            <span class="badge"
-                                data-status="{f:if(condition: '{comments.todoResolved} == {comments.todoTotal}', then: 'resolved', else: 'pending')}">
-                                {comments.todoResolved}/{comments.todoTotal}
-                            </span></button>
-                    </f:if>
+                        <core:icon identifier="actions-check-square" size="small"/>
+                        <span class="badge"
+                            data-status="{f:if(condition: '{comments.todoResolved} == {comments.todoTotal}', then: 'resolved', else: 'pending')}">
+                            {comments.todoResolved}/{comments.todoTotal}
+                        </span></button>
                 </f:if>
-            </div>
-        </f:if>
+            </f:if>
+        </div>
         <f:if condition="{mode} == 'web_layout' || {mode} == 'web_list'">
             <be:link.editRecord
                 uid="{data.uid}"

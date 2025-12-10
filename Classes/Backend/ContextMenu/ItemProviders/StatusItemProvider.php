@@ -161,6 +161,13 @@ class StatusItemProvider extends AbstractProvider
                 'ximatypo3contentplanner_folder_status_update',
                 ['identifier' => $this->folderIdentifier],
             );
+
+            // Only add edit/comment URLs if folder record exists (has been assigned a status before)
+            if ($this->effectiveIdentifier > 0) {
+                $attributes['data-uri'] = UrlUtility::getContentStatusPropertiesEditUrl($this->effectiveTable, $this->effectiveIdentifier, false);
+                $attributes['data-new-comment-uri'] = UrlUtility::getNewCommentUrl($this->effectiveTable, $this->effectiveIdentifier);
+                $attributes['data-edit-uri'] = UrlUtility::getContentStatusPropertiesEditUrl($this->effectiveTable, $this->effectiveIdentifier);
+            }
         } else {
             $attributes['data-uri'] = UrlUtility::getContentStatusPropertiesEditUrl($this->effectiveTable, $this->effectiveIdentifier, false);
             $attributes['data-new-comment-uri'] = UrlUtility::getNewCommentUrl($this->effectiveTable, $this->effectiveIdentifier);

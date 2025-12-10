@@ -100,6 +100,8 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @throws RouteNotFoundException
      */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
@@ -115,6 +117,8 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @throws RouteNotFoundException
      */
     public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
@@ -161,5 +165,23 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $title = htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['reset'] = '<li><a class="dropdown-item" href="'.$href.'">'.$icon.' '.$title.'</a></li>';
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     */
+    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        // Not used in list view dropdown - assignee/comments only shown in context menu
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     */
+    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        // Not used in list view dropdown - assignee/comments only shown in context menu
     }
 }
