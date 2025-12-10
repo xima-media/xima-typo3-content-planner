@@ -318,7 +318,7 @@ class AbstractSelectionService
      */
     protected function getCommentsTodoResolved(array $record, string $table): int
     {
-        return PlannerUtility::hasComments($record) ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
+        return PlannerUtility::hasComments($record) ? $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table) : 0;
     }
 
     /**
@@ -326,7 +326,7 @@ class AbstractSelectionService
      */
     protected function getCommentsTodoTotal(array $record, string $table): int
     {
-        return PlannerUtility::hasComments($record) ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return PlannerUtility::hasComments($record) ? $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table, 'todo_total') : 0;
     }
 
     protected function getLanguageService(): LanguageService

@@ -247,6 +247,65 @@
 			<trans-unit id="assignee.documentation">
 				<source><![CDATA[You can find more information about the assignee feature in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
 			</trans-unit>
+
+			<!-- Configurable Widget (TYPO3 v14+) -->
+			<trans-unit id="widgets.contentPlanner.configurable.title">
+				<source>Content Planner (Configurable)</source>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.configurable.description">
+				<source>Customizable widget to display content status records with configurable filters</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.title.label">
+				<source>Custom Title</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.title.description">
+				<source>Optional custom title for the widget (leave empty to use default)</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.label">
+				<source>Display Mode</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.description">
+				<source>Choose what kind of records to display</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.status">
+				<source>All Status Records</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.assignee">
+				<source>Assigned Records</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.todo">
+				<source>Records with open TODOs</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.status.label">
+				<source>Status Filter</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.status.description">
+				<source>Filter records by a specific status</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.status.all">
+				<source>All statuses</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.assignee.label">
+				<source>Assignee Filter</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.assignee.description">
+				<source>Filter records by assignee</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.assignee.all">
+				<source>All assignees</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.assignee.currentUser">
+				<source>Current user (me)</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.recordType.label">
+				<source>Record Type</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.recordType.description">
+				<source>Filter records by table type</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.recordType.all">
+				<source>All record types</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

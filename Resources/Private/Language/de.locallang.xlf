@@ -116,6 +116,84 @@
 				<target>Aktuell sind %s offene Aufgaben in den Kommentaren aller Content Planner Datensätze vorhanden.</target>
 			</trans-unit>
 
+			<!-- Configurable Widget Settings -->
+			<trans-unit id="widgets.contentPlanner.configurable.title">
+				<source/>
+				<target>Content Planner (Konfigurierbar)</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.configurable.description">
+				<source/>
+				<target>Anpassbares Widget zur Anzeige von Content-Status-Datensätzen mit konfigurierbaren Filtern</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.title.label">
+				<source/>
+				<target>Eigener Titel</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.title.description">
+				<source/>
+				<target>Optionaler eigener Titel für das Widget (leer lassen für Standardtitel)</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.label">
+				<source/>
+				<target>Anzeigemodus</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.description">
+				<source/>
+				<target>Wähle aus, welche Art von Datensätzen angezeigt werden soll</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.status">
+				<source/>
+				<target>Alle Status-Datensätze</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.assignee">
+				<source/>
+				<target>Zugewiesene Datensätze</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.mode.todo">
+				<source/>
+				<target>Datensätze mit offenen Aufgaben</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.status.label">
+				<source/>
+				<target>Status-Filter</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.status.description">
+				<source/>
+				<target>Datensätze nach einem bestimmten Status filtern</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.status.all">
+				<source/>
+				<target>Alle Status</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.assignee.label">
+				<source/>
+				<target>Zuständigkeits-Filter</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.assignee.description">
+				<source/>
+				<target>Datensätze nach Zuständigkeit filtern</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.assignee.all">
+				<source/>
+				<target>Alle Zuständigen</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.assignee.currentUser">
+				<source/>
+				<target>Aktueller Benutzer</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.recordType.label">
+				<source/>
+				<target>Datensatztyp-Filter</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.recordType.description">
+				<source/>
+				<target>Datensätze nach Typ filtern</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.recordType.all">
+				<source/>
+				<target>Alle Datensatztypen</target>
+			</trans-unit>
+
 			<trans-unit id="button.modal.header.comments">
 				<source/>
 				<target>Kommentare</target>

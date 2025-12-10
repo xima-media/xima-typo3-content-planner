@@ -150,7 +150,7 @@ final class StatusItem
             return 0;
         }
 
-        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
+        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename']) : 0;
     }
 
     public function getToDoTotal(): int
@@ -159,7 +159,7 @@ final class StatusItem
             return 0;
         }
 
-        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
     }
 
     /**

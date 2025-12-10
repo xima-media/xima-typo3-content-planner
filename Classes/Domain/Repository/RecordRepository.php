@@ -60,7 +60,7 @@ class RecordRepository
 
         $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
-        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo);
+        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search);
         $sql = implode(' UNION ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
 
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
@@ -196,27 +196,58 @@ class RecordRepository
      */
     private function applyFilterConditions(string &$baseWhere, array &$additionalParams, ?string $search, ?int $status, ?int $assignee): void
     {
+        // Note: search filter is applied per table in buildSearchCondition() due to different title fields
+
         if ((bool) $search) {
-            $baseWhere .= ' AND (title LIKE :search OR uid = :uid)';
             $additionalParams['search'] = '%'.$search.'%';
             $additionalParams['uid'] = $search;
         }
 
         if ((bool) $status) {
-            $baseWhere .= ' AND tx_ximatypo3contentplanner_status = :status';
+            $baseWhere .= ' AND x.tx_ximatypo3contentplanner_status = :status';
             $additionalParams['status'] = $status;
         }
 
         if ((bool) $assignee) {
-            $baseWhere .= ' AND tx_ximatypo3contentplanner_assignee = :assignee';
+            $baseWhere .= ' AND x.tx_ximatypo3contentplanner_assignee = :assignee';
             $additionalParams['assignee'] = $assignee;
         }
     }
 
     /**
+     * Build search condition for a specific table using its actual title field.
+     */
+    private function buildSearchCondition(string $table, ?string $search): string
+    {
+        if (!(bool) $search) {
+            return '';
+        }
+
+        $titleField = $this->getTitleFieldForSearch($table);
+
+        return ' AND ('.$titleField.' LIKE :search OR x.uid = :uid)';
+    }
+
+    /**
+     * Get the title field for search queries, handling special cases.
+     */
+    private function getTitleFieldForSearch(string $table): string
+    {
+        if ('sys_file_metadata' === $table) {
+            return 'f.name';
+        }
+
+        if ('tx_ximatypo3contentplanner_folder' === $table) {
+            return 'folder_identifier';
+        }
+
+        return $this->getTitleField($table);
+    }
+
+    /**
      * @return string[]
      */
-    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo): array
+    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo, ?string $search = null): array
     {
         $sqlArray = [];
 
@@ -226,6 +257,7 @@ class RecordRepository
             }
 
             $whereClause = $this->buildWhereClauseForTable($baseWhere, $table, $todo);
+            $whereClause .= $this->buildSearchCondition($table, $search);
             $this->getSqlByTable($table, $sqlArray, $whereClause);
         }
 

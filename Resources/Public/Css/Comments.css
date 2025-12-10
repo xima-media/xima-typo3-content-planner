@@ -74,6 +74,11 @@
    ========================================================================== */
 
 .content-planner-comment-list {
+    height: 100%;
+    margin-top: 3rem;
+}
+
+.content-planner-comment-list .content-planner-comment-filter + .content-planner-comment {
     margin-top: 3rem;
 }
 
@@ -108,17 +113,37 @@
    ========================================================================== */
 
 .content-planner-comment-empty {
-    position: absolute;
-    bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.content-planner-comment-empty > .content-planner-widget__empty-icon {
+    background-repeat: no-repeat;
+    display: block;
+    flex-grow: 1;
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 99%;
+    height: 100%;
+    opacity: 0.125;
+    background-position: 50% 55%;
+    background-size: 25%;
+}
+
+.content-planner-comment-empty__text {
+    padding: 1rem;
     color: rgba(125, 125, 125, 0.5);
 }
 
-.content-planner-comment-empty a {
-    text-decoration: underline;
+.content-planner-comment-empty__text a {
+    text-decoration: underline !important;
 }
 
-.content-planner-comment-empty a:hover {
+.content-planner-comment-empty__text a:hover {
     cursor: pointer;
+    text-decoration: none !important;
 }
 
 /* ==========================================================================

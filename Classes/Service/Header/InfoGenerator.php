@@ -311,7 +311,7 @@ class InfoGenerator
     private function getCommentsTodoResolved(array $record, string $table): int
     {
         if (PlannerUtility::hasComments($record)) {
-            return $this->commentRepository->countTodoAllByRecord($record['uid'], $table);
+            return $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table);
         }
 
         return 0;
@@ -323,7 +323,7 @@ class InfoGenerator
     private function getCommentsTodoTotal(array $record, string $table): int
     {
         if (PlannerUtility::hasComments($record)) {
-            return $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total');
+            return $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table, 'todo_total');
         }
 
         return 0;

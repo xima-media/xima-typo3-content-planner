@@ -27,7 +27,7 @@ class FilterStatus {
               badge.innerHTML = widget.querySelectorAll('.widget-table tbody tr').length;
             }
           });
-          widget.classList.add('content-planner-widget--assigned');
+          widget.classList.add('widget-contentPlanner-status--assigned');
         } else if (todo && todo !== 'false') {
           FilterStatus.search(widget, {todo: true});
           widget.classList.add('content-planner-widget--todo');
@@ -70,13 +70,13 @@ class FilterStatus {
   }
 
   static search(widget, queryArguments = {}, callback) {
-    widget.querySelector('thead').classList.remove('content-planner-hide');
-    widget.querySelector('.content-planner-widget__empty').classList.add('content-planner-hide');
+    widget.querySelector('thead')?.classList.remove('content-planner-hide');
+    widget.querySelector('.content-planner-widget__empty')?.classList.add('content-planner-hide');
     const waitingElement = widget.parentElement.parentElement.querySelector('.widget-waiting');
     if (waitingElement) {
       waitingElement.classList.remove('content-planner-hide');
     }
-    widget.querySelector('.content-planner-widget__table-wrapper').classList.add('content-planner-hide');
+    widget.querySelector('.content-planner-widget__table-wrapper')?.classList.add('content-planner-hide');
     new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterrecords)
       .withQueryArguments(queryArguments)
       .get()
@@ -85,8 +85,8 @@ class FilterStatus {
 
         let html = '';
         if (resolved.length === 0) {
-          widget.querySelector('.content-planner-widget__empty').classList.remove('content-planner-hide');
-          widget.querySelector('thead').classList.add('content-planner-hide');
+          widget.querySelector('.content-planner-widget__empty')?.classList.remove('content-planner-hide');
+          widget.querySelector('thead')?.classList.add('content-planner-hide');
         }
         resolved.forEach(function (item) {
           let comments = '';
@@ -106,11 +106,13 @@ class FilterStatus {
             '</tr>';
         });
         let table = widget.querySelector('table tbody');
-        table.innerHTML = html;
+        if (table) {
+          table.innerHTML = html;
+        }
         if (waitingElement) {
           waitingElement.classList.add('content-planner-hide');
         }
-        widget.querySelector('.content-planner-widget__table-wrapper').classList.remove('content-planner-hide');
+        widget.querySelector('.content-planner-widget__table-wrapper')?.classList.remove('content-planner-hide');
 
         FilterStatus.initCommentLinks(widget);
 
