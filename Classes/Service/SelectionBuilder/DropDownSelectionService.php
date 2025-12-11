@@ -74,6 +74,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($status->getTitle())
             ->setIcon($this->iconFactory->getIcon($status->getColoredIcon()))
+            ->setAttributes(['data-content-planner-status-change' => 'true'])
             ->setHref($this->buildUriForStatusChange($table, $uid, $status)->__toString());
         $selectionEntriesToAdd[(string) $status->getUid()] = $statusDropDownItem;
     }
@@ -98,6 +99,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
             ->setIcon($this->iconFactory->getIcon('actions-close'))
+            ->setAttributes(['data-content-planner-status-change' => 'true', 'data-content-planner-status-reset' => 'true'])
             ->setHref($this->buildUriForStatusChange($table, $uid, null)->__toString());
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
     }
@@ -182,6 +184,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($status->getTitle())
             ->setIcon($this->iconFactory->getIcon($status->getColoredIcon()))
+            ->setAttributes(['data-content-planner-status-change' => 'true'])
             ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, $status)->__toString());
         $selectionEntriesToAdd[(string) $status->getUid()] = $statusDropDownItem;
     }
@@ -196,6 +199,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
             ->setIcon($this->iconFactory->getIcon('actions-close'))
+            ->setAttributes(['data-content-planner-status-change' => 'true', 'data-content-planner-status-reset' => 'true'])
             ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString());
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
     }

@@ -17,6 +17,8 @@ use Doctrine\DBAL\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
@@ -63,6 +65,9 @@ final readonly class RenderAdditionalContentToRecordListListener
         if ('' !== $css) {
             $event->addContentAbove("<style>$css</style>");
         }
+
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/record-list-status.js');
     }
 
     private function extractPidFromRequest(ServerRequestInterface $request): ?int

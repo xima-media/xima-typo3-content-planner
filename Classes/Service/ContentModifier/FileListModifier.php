@@ -18,6 +18,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, RecordRepository, StatusRepository, SysFileMetadataRepository};
@@ -89,6 +91,10 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         if ('' !== $additionalCss) {
             $newContent = $this->injectFileListStyles($newContent, $additionalCss, $isTilesView);
         }
+
+        // Load JavaScript module for handling status changes via AJAX
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/record-list-status.js');
 
         $newResponse = new Response();
         $newResponse->getBody()->write($newContent);
