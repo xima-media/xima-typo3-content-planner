@@ -80,7 +80,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $title = htmlspecialchars($status->getTitle(), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd[(string) $status->getUid()] = sprintf(
-            '<li><a class="dropdown-item" href="%s">%s %s</a></li>',
+            '<li><a class="dropdown-item" href="%s" data-content-planner-status-change="true">%s %s</a></li>',
             $href,
             $icon,
             $title,
@@ -109,7 +109,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $title = htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['reset'] = sprintf(
-            '<li><a class="dropdown-item" href="%s">%s %s</a></li>',
+            '<li><a class="dropdown-item" href="%s" data-content-planner-status-change="true" data-content-planner-status-reset="true">%s %s</a></li>',
             $href,
             $icon,
             $title,
@@ -221,7 +221,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $title = htmlspecialchars($status->getTitle(), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd[(string) $status->getUid()] = sprintf(
-            '<li><a class="dropdown-item" href="%s">%s %s</a></li>',
+            '<li><a class="dropdown-item" href="%s" data-content-planner-status-change="true">%s %s</a></li>',
             $href,
             $icon,
             $title,
@@ -240,7 +240,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $title = htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['reset'] = sprintf(
-            '<li><a class="dropdown-item" href="%s">%s %s</a></li>',
+            '<li><a class="dropdown-item" href="%s" data-content-planner-status-change="true" data-content-planner-status-reset="true">%s %s</a></li>',
             $href,
             $icon,
             $title,
