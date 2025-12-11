@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Domain\RecordInterface;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Localization\LanguageService;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
@@ -79,7 +80,7 @@ final readonly class ModifyRecordListRecordActionsListener
             return;
         }
 
-        $statusId = $record['tx_ximatypo3contentplanner_status'];
+        $statusId = $record[Configuration::FIELD_STATUS];
         $status = $this->statusRepository->findByUid($statusId);
 
         $title = $status instanceof Status ? $status->getTitle() : 'Status';

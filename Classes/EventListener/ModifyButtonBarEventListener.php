@@ -72,7 +72,7 @@ final readonly class ModifyButtonBarEventListener
             return;
         }
 
-        if ('tx_ximatypo3contentplanner_comment' === $table) {
+        if (Configuration::TABLE_COMMENT === $table) {
             $this->removeButtonsExceptSave($event);
 
             return;
@@ -157,14 +157,14 @@ final readonly class ModifyButtonBarEventListener
      */
     private function resolveStatusFromRecord(array $record): ?Status
     {
-        if (!isset($record['tx_ximatypo3contentplanner_status'])
-            || !is_numeric($record['tx_ximatypo3contentplanner_status'])
-            || $record['tx_ximatypo3contentplanner_status'] <= 0
+        if (!isset($record[Configuration::FIELD_STATUS])
+            || !is_numeric($record[Configuration::FIELD_STATUS])
+            || $record[Configuration::FIELD_STATUS] <= 0
         ) {
             return null;
         }
 
-        return $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
+        return $this->statusRepository->findByUid($record[Configuration::FIELD_STATUS]);
     }
 
     private function removeButtonsExceptSave(ModifyButtonBarEvent $event): void
@@ -210,8 +210,8 @@ final readonly class ModifyButtonBarEventListener
         $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($folderIdentifier);
         $status = null;
 
-        if (is_array($folderRecord) && isset($folderRecord['tx_ximatypo3contentplanner_status']) && 0 !== (int) $folderRecord['tx_ximatypo3contentplanner_status']) {
-            $status = $this->statusRepository->findByUid((int) $folderRecord['tx_ximatypo3contentplanner_status']);
+        if (is_array($folderRecord) && isset($folderRecord[Configuration::FIELD_STATUS]) && 0 !== (int) $folderRecord[Configuration::FIELD_STATUS]) {
+            $status = $this->statusRepository->findByUid((int) $folderRecord[Configuration::FIELD_STATUS]);
         }
 
         $this->addFolderStatusDropdownButton($event, $folderIdentifier, $status);

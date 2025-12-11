@@ -144,8 +144,8 @@ class DiffUtility
     private static function preparePageAttributeValue(string $field, string|int $value): string|int|null
     {
         return match ($field) {
-            'tx_ximatypo3contentplanner_status' => ContentUtility::getStatus((int) $value)?->getTitle(),
-            'tx_ximatypo3contentplanner_assignee' => ContentUtility::getBackendUsernameById((int) $value),
+            Configuration::FIELD_STATUS => ContentUtility::getStatus((int) $value)?->getTitle(),
+            Configuration::FIELD_ASSIGNEE => ContentUtility::getBackendUsernameById((int) $value),
             default => $value,
         };
     }

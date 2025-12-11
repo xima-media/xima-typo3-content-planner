@@ -18,6 +18,7 @@ use DOMDocument;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -51,7 +52,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler $dataHandler): void
     {
-        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
+        if (array_key_exists(Configuration::TABLE_COMMENT, $dataHandler->datamap)) {
             $this->updateCommentTodo($dataHandler);
             $this->checkCommentResolved($dataHandler);
             $this->checkCommentEdited($dataHandler);
@@ -65,7 +66,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, (int) $id);
         }
 
-        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->datamap)) {
+        if (array_key_exists(Configuration::TABLE_COMMENT, $dataHandler->datamap)) {
             $this->fixNewCommentEntry($dataHandler);
         }
     }
@@ -84,7 +85,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
             return;
         }
-        if ('delete' === $command && 'tx_ximatypo3contentplanner_status' === $table) {
+        if ('delete' === $command && Configuration::TABLE_STATUS === $table) {
             // Clear all status of records that are assigned to the deleted status
             foreach (ExtensionUtility::getRecordTables() as $recordTable) {
                 $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, (int) $id);
@@ -97,7 +98,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     public function processDatamap_beforeStart(DataHandler $dataHandler): void
     {
-        if ('tx_ximatypo3contentplanner_comment' === array_key_first($dataHandler->datamap)) {
+        if (Configuration::TABLE_COMMENT === array_key_first($dataHandler->datamap)) {
             $this->updateCommentTodo($dataHandler);
             $this->checkCommentResolved($dataHandler);
             $this->checkCommentEdited($dataHandler);
@@ -119,12 +120,12 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
     {
-        if ('tx_ximatypo3contentplanner_comment' === $table) {
+        if (Configuration::TABLE_COMMENT === $table) {
             /*
             * This is a workaround to update the relation of comments to the content planner record.
             * The relation is not updated correctly by the DataHandler.
             * The following code example from the official documentation does not work as expected:
-            * dataHandler->datamap[$foreign_table][$foreign_uid]['tx_ximatypo3contentplanner_comments'] = $newCommentUid;
+            * dataHandler->datamap[$foreign_table][$foreign_uid][Configuration::FIELD_COMMENTS] = $newCommentUid;
             * Therefore, we have to update the relation manually.
             */
             if (array_key_exists('foreign_table', $fieldArray) && array_key_exists('foreign_uid', $fieldArray)) {
@@ -148,7 +149,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     private function fixNewCommentEntry(DataHandler &$dataHandler): void
     {
         $id = null;
-        foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $key) {
+        foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $key) {
             if (!MathUtility::canBeInterpretedAsInteger($key)) {
                 $id = $key;
             }
@@ -157,42 +158,42 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         if (null === $id) {
             return;
         }
-        $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
+        $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
 
-        if (array_key_exists('tx_ximatypo3contentplanner_comment', $dataHandler->defaultValues)) {
+        if (array_key_exists(Configuration::TABLE_COMMENT, $dataHandler->defaultValues)) {
             // @ToDo: Why are default values doesn't seem to be set as expected?
-            foreach ($dataHandler->defaultValues['tx_ximatypo3contentplanner_comment'] as $key => $value) {
-                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id][$key] = $value;
+            foreach ($dataHandler->defaultValues[Configuration::TABLE_COMMENT] as $key => $value) {
+                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id][$key] = $value;
             }
         }
     }
 
     private function updateCommentTodo(DataHandler $dataHandler): void
     {
-        foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
-            if (!array_key_exists('content', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])) {
+        foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
+            if (!array_key_exists('content', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])) {
                 continue;
             }
 
-            $content = $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['content'];
+            $content = $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content'];
             if ('' === $content) {
                 continue;
             }
 
             $todos = $this->parseTodos($content);
-            $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['todo_total'] = $todos['total'];
-            $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['todo_resolved'] = $todos['resolved'];
+            $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['todo_total'] = $todos['total'];
+            $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['todo_resolved'] = $todos['resolved'];
         }
     }
 
     private function checkCommentResolved(DataHandler $dataHandler): void
     {
-        foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
-            if (array_key_exists('resolved_date', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])
-                && 0 !== (int) $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_date']
+        foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
+            if (array_key_exists('resolved_date', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])
+                && 0 !== (int) $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date']
             ) {
-                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_user'] = $GLOBALS['BE_USER']->user['uid'];
-                $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['resolved_date'] = time();
+                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'] = $GLOBALS['BE_USER']->user['uid'];
+                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'] = time();
             }
         }
     }
@@ -202,11 +203,11 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     private function checkCommentEdited(DataHandler $dataHandler): void
     {
-        foreach (array_keys($dataHandler->datamap['tx_ximatypo3contentplanner_comment']) as $id) {
-            if (MathUtility::canBeInterpretedAsInteger($id) && array_key_exists('content', $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id])) {
+        foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
+            if (MathUtility::canBeInterpretedAsInteger($id) && array_key_exists('content', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])) {
                 $originalRecord = $this->commentRepository->findByUid((int) $id);
-                if ($originalRecord && $originalRecord['content'] !== $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['content']) {
-                    $dataHandler->datamap['tx_ximatypo3contentplanner_comment'][$id]['edited'] = 1;
+                if ($originalRecord && $originalRecord['content'] !== $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']) {
+                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['edited'] = 1;
                 }
             }
         }

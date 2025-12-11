@@ -66,15 +66,15 @@ final class HistoryItem
             return false;
         }
 
-        if ('tx_ximatypo3contentplanner_comment' === $this->data['tablename'] && array_key_exists('foreign_table', $this->data['raw_history']) && array_key_exists('foreign_uid', $this->data['raw_history'])) {
+        if (Configuration::TABLE_COMMENT === $this->data['tablename'] && array_key_exists('foreign_table', $this->data['raw_history']) && array_key_exists('foreign_uid', $this->data['raw_history'])) {
             $record = ContentUtility::getExtensionRecord($this->data['raw_history']['foreign_table'], (int) $this->data['raw_history']['foreign_uid']);
         }
 
-        if (null === $record || !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
+        if (null === $record || !array_key_exists(Configuration::FIELD_ASSIGNEE, $record)) {
             return false;
         }
 
-        return ((int) $record['tx_ximatypo3contentplanner_assignee']) === $GLOBALS['BE_USER']->user['uid'];
+        return ((int) $record[Configuration::FIELD_ASSIGNEE]) === $GLOBALS['BE_USER']->user['uid'];
     }
 
     public function getPid(): int
@@ -110,14 +110,14 @@ final class HistoryItem
 
     public function getStatus(): ?string
     {
-        $status = ContentUtility::getStatus((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        $status = ContentUtility::getStatus((int) $this->getRelatedRecord()[Configuration::FIELD_STATUS]);
 
         return $status?->getTitle();
     }
 
     public function getStatusIcon(): string
     {
-        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status'], true);
+        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()[Configuration::FIELD_STATUS], true);
     }
 
     public function getRecordIcon(): string
@@ -145,16 +145,16 @@ final class HistoryItem
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         switch ($this->data['tablename']) {
-            case 'tx_ximatypo3contentplanner_comment':
+            case Configuration::TABLE_COMMENT:
                 return IconUtility::getIconByIdentifier('actions-comment');
             default:
                 if (!ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
                     break;
                 }
                 switch (array_key_first($this->data['raw_history']['newRecord'])) {
-                    case 'tx_ximatypo3contentplanner_status':
-                        return IconUtility::getIconByStatusUid((int) $this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status'], true);
-                    case 'tx_ximatypo3contentplanner_assignee':
+                    case Configuration::FIELD_STATUS:
+                        return IconUtility::getIconByStatusUid((int) $this->data['raw_history']['newRecord'][Configuration::FIELD_STATUS], true);
+                    case Configuration::FIELD_ASSIGNEE:
                         return IconUtility::getIconByIdentifier('actions-user');
                 }
                 break;
@@ -184,7 +184,7 @@ final class HistoryItem
             return DiffUtility::checkRecordDiff($data, $actiontype);
         }
 
-        if ('tx_ximatypo3contentplanner_comment' === $tablename) {
+        if (Configuration::TABLE_COMMENT === $tablename) {
             return DiffUtility::checkCommendDiff($data, $actiontype);
         }
 
@@ -200,7 +200,7 @@ final class HistoryItem
     {
         match ($this->data['tablename']) {
             'pages' => $this->loadPageRecord(),
-            'tx_ximatypo3contentplanner_comment' => $this->loadCommentRelatedRecord(),
+            Configuration::TABLE_COMMENT => $this->loadCommentRelatedRecord(),
             default => $this->loadDefaultRecord(),
         };
     }

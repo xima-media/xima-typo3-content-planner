@@ -17,6 +17,7 @@ use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Resource\{File, ResourceFactory};
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 /**
  * SysFileMetadataRepository.
@@ -49,9 +50,9 @@ class SysFileMetadataRepository
                 'sys_file.name as title',
                 'sys_file.identifier',
                 'sys_file.uid as file_uid',
-                'sys_file_metadata.tx_ximatypo3contentplanner_status',
-                'sys_file_metadata.tx_ximatypo3contentplanner_assignee',
-                'sys_file_metadata.tx_ximatypo3contentplanner_comments',
+                'sys_file_metadata.'.Configuration::FIELD_STATUS,
+                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
+                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
             )
             ->from(self::TABLE)
             ->innerJoin(
@@ -87,9 +88,9 @@ class SysFileMetadataRepository
                 'sys_file.name as title',
                 'sys_file.identifier',
                 'sys_file.uid as file_uid',
-                'sys_file_metadata.tx_ximatypo3contentplanner_status',
-                'sys_file_metadata.tx_ximatypo3contentplanner_assignee',
-                'sys_file_metadata.tx_ximatypo3contentplanner_comments',
+                'sys_file_metadata.'.Configuration::FIELD_STATUS,
+                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
+                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
             )
             ->from(self::TABLE)
             ->innerJoin(
@@ -125,9 +126,9 @@ class SysFileMetadataRepository
                 'sys_file.name as title',
                 'sys_file.identifier',
                 'sys_file.uid as file_uid',
-                'sys_file_metadata.tx_ximatypo3contentplanner_status',
-                'sys_file_metadata.tx_ximatypo3contentplanner_assignee',
-                'sys_file_metadata.tx_ximatypo3contentplanner_comments',
+                'sys_file_metadata.'.Configuration::FIELD_STATUS,
+                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
+                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
             )
             ->from(self::TABLE)
             ->innerJoin(
@@ -177,7 +178,7 @@ class SysFileMetadataRepository
 
         foreach ($files as $file) {
             $metadata = $this->findByIdentifier($file->getIdentifier());
-            if ($metadata && null !== $metadata['tx_ximatypo3contentplanner_status'] && 0 !== (int) $metadata['tx_ximatypo3contentplanner_status']) {
+            if ($metadata && null !== $metadata[Configuration::FIELD_STATUS] && 0 !== (int) $metadata[Configuration::FIELD_STATUS]) {
                 $results[] = $metadata;
             }
         }
@@ -195,13 +196,13 @@ class SysFileMetadataRepository
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder
             ->update(self::TABLE)
-            ->set('tx_ximatypo3contentplanner_status', $status)
+            ->set(Configuration::FIELD_STATUS, $status)
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             );
 
         if (false !== $assignee) {
-            $queryBuilder->set('tx_ximatypo3contentplanner_assignee', $assignee);
+            $queryBuilder->set(Configuration::FIELD_ASSIGNEE, $assignee);
         }
 
         $queryBuilder->executeStatement();

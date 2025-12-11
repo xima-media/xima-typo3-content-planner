@@ -35,4 +35,14 @@ class Configuration
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
+
+    // Database tables
+    final public const TABLE_FOLDER = 'tx_ximatypo3contentplanner_folder';
+    final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
+    final public const TABLE_STATUS = 'tx_ximatypo3contentplanner_status';
+
+    // Database fields
+    final public const FIELD_STATUS = 'tx_ximatypo3contentplanner_status';
+    final public const FIELD_ASSIGNEE = 'tx_ximatypo3contentplanner_assignee';
+    final public const FIELD_COMMENTS = 'tx_ximatypo3contentplanner_comments';
 }

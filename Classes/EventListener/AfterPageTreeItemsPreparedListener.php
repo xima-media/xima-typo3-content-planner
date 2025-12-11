@@ -44,7 +44,7 @@ final readonly class AfterPageTreeItemsPreparedListener
         $items = $event->getItems();
 
         foreach ($items as &$item) {
-            $statusUid = $item['_page']['tx_ximatypo3contentplanner_status'] ?? null;
+            $statusUid = $item['_page'][Configuration::FIELD_STATUS] ?? null;
 
             if (null !== $statusUid && 0 !== (int) $statusUid) {
                 $this->applyStatusToItem($item, (int) $statusUid);
@@ -82,7 +82,7 @@ final readonly class AfterPageTreeItemsPreparedListener
             return;
         }
 
-        $commentCount = $item['_page']['tx_ximatypo3contentplanner_comments'] ?? 0;
+        $commentCount = $item['_page'][Configuration::FIELD_COMMENTS] ?? 0;
         if ($commentCount <= 0) {
             return;
         }

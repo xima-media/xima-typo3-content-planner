@@ -105,7 +105,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        $commentsCount = PlannerUtility::hasComments($record) ? (int) $record['tx_ximatypo3contentplanner_comments'] : 0;
+        $commentsCount = PlannerUtility::hasComments($record) ? (int) $record[Configuration::FIELD_COMMENTS] : 0;
 
         $icon = $this->iconFactory->getIcon('actions-message', IconUtility::getDefaultIconSize())->render();
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);

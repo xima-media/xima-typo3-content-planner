@@ -18,6 +18,7 @@ use InvalidArgumentException;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function count;
 
@@ -29,7 +30,7 @@ use function count;
  */
 class FolderStatusRepository
 {
-    private const TABLE = 'tx_ximatypo3contentplanner_folder';
+    private const TABLE = Configuration::TABLE_FOLDER;
 
     public function __construct(
         private readonly ConnectionPool $connectionPool,
@@ -115,7 +116,7 @@ class FolderStatusRepository
         foreach ($subfolders as $subfolder) {
             $subfolderIdentifier = $subfolder->getStorage()->getUid().':'.$subfolder->getIdentifier();
             $status = $this->findByCombinedIdentifier($subfolderIdentifier);
-            if ($status && null !== $status['tx_ximatypo3contentplanner_status'] && 0 !== (int) $status['tx_ximatypo3contentplanner_status']) {
+            if ($status && null !== $status[Configuration::FIELD_STATUS] && 0 !== (int) $status[Configuration::FIELD_STATUS]) {
                 $status['combined_identifier'] = $subfolderIdentifier;
                 $status['title'] = $subfolder->getName();
                 $results[] = $status;
@@ -192,9 +193,9 @@ class FolderStatusRepository
                 'pid' => 0,
                 'storage_uid' => $parsed['storageUid'],
                 'folder_identifier' => $parsed['path'],
-                'tx_ximatypo3contentplanner_status' => $status,
-                'tx_ximatypo3contentplanner_assignee' => $assignee,
-                'tx_ximatypo3contentplanner_comments' => 0,
+                Configuration::FIELD_STATUS => $status,
+                Configuration::FIELD_ASSIGNEE => $assignee,
+                Configuration::FIELD_COMMENTS => 0,
                 'tstamp' => time(),
                 'crdate' => time(),
             ])
@@ -213,14 +214,14 @@ class FolderStatusRepository
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder
             ->update(self::TABLE)
-            ->set('tx_ximatypo3contentplanner_status', $status)
+            ->set(Configuration::FIELD_STATUS, $status)
             ->set('tstamp', time())
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             );
 
         if (false !== $assignee) {
-            $queryBuilder->set('tx_ximatypo3contentplanner_assignee', $assignee);
+            $queryBuilder->set(Configuration::FIELD_ASSIGNEE, $assignee);
         }
 
         $queryBuilder->executeStatement();
@@ -236,7 +237,7 @@ class FolderStatusRepository
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder
             ->update(self::TABLE)
-            ->set('tx_ximatypo3contentplanner_comments', $count)
+            ->set(Configuration::FIELD_COMMENTS, $count)
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             )

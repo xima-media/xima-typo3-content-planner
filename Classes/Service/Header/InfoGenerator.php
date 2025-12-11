@@ -68,7 +68,7 @@ class InfoGenerator
         }
 
         $status = $this->statusRepository->findByUid(
-            $record['tx_ximatypo3contentplanner_status'],
+            $record[Configuration::FIELD_STATUS],
         );
 
         if (!$status instanceof Status) {
@@ -94,11 +94,11 @@ class InfoGenerator
     ): string|bool {
         $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($combinedIdentifier);
 
-        if (!is_array($folderRecord) || !isset($folderRecord['tx_ximatypo3contentplanner_status']) || 0 === (int) $folderRecord['tx_ximatypo3contentplanner_status']) {
+        if (!is_array($folderRecord) || !isset($folderRecord[Configuration::FIELD_STATUS]) || 0 === (int) $folderRecord[Configuration::FIELD_STATUS]) {
             return false;
         }
 
-        $status = $this->statusRepository->findByUid((int) $folderRecord['tx_ximatypo3contentplanner_status']);
+        $status = $this->statusRepository->findByUid((int) $folderRecord[Configuration::FIELD_STATUS]);
 
         if (!$status instanceof Status) {
             return false;
@@ -118,7 +118,7 @@ class InfoGenerator
     public static function checkAssignToCurrentUser(array $record): bool
     {
         if (
-            !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)
+            !array_key_exists(Configuration::FIELD_ASSIGNEE, $record)
             || !ExtensionUtility::isFeatureEnabled(
                 Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT,
             )
@@ -126,9 +126,9 @@ class InfoGenerator
             return false;
         }
 
-        return null === $record['tx_ximatypo3contentplanner_assignee']
-            || 0 === (int) $record['tx_ximatypo3contentplanner_assignee']
-            || (int) $record['tx_ximatypo3contentplanner_assignee'] !==
+        return null === $record[Configuration::FIELD_ASSIGNEE]
+            || 0 === (int) $record[Configuration::FIELD_ASSIGNEE]
+            || (int) $record[Configuration::FIELD_ASSIGNEE] !==
                 (int) $GLOBALS['BE_USER']->user['uid'];
     }
 
@@ -137,13 +137,13 @@ class InfoGenerator
      */
     public static function checkUnassign(array $record): bool
     {
-        if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
+        if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $record)) {
             return false;
         }
 
         if (
-            null !== $record['tx_ximatypo3contentplanner_assignee']
-            && 0 !== (int) $record['tx_ximatypo3contentplanner_assignee']
+            null !== $record[Configuration::FIELD_ASSIGNEE]
+            && 0 !== (int) $record[Configuration::FIELD_ASSIGNEE]
         ) {
             return true;
         }
@@ -219,7 +219,7 @@ class InfoGenerator
         string $folderName,
         Status $status,
     ): string {
-        $table = 'tx_ximatypo3contentplanner_folder';
+        $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
 
         $content = ViewUtility::render('Backend/Header/HeaderInfo', [
@@ -271,12 +271,12 @@ class InfoGenerator
      */
     private function getAssigneeUsername(array $record): string
     {
-        if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
+        if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $record)) {
             return '';
         }
 
         return $this->backendUserRepository->getUsernameByUid(
-            (int) $record['tx_ximatypo3contentplanner_assignee'],
+            (int) $record[Configuration::FIELD_ASSIGNEE],
         );
     }
 
@@ -286,7 +286,7 @@ class InfoGenerator
     private function getAssignedToCurrentUser(array $record): bool
     {
         if (
-            !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)
+            !array_key_exists(Configuration::FIELD_ASSIGNEE, $record)
             || !ExtensionUtility::isFeatureEnabled(
                 Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT,
             )
@@ -294,7 +294,7 @@ class InfoGenerator
             return false;
         }
 
-        return (int) $record['tx_ximatypo3contentplanner_assignee'] ===
+        return (int) $record[Configuration::FIELD_ASSIGNEE] ===
             $GLOBALS['BE_USER']->user['uid'];
     }
 
@@ -428,7 +428,7 @@ class InfoGenerator
     private function getFolderComments(array $folderRecord): array
     {
         if (PlannerUtility::hasComments($folderRecord)) {
-            return $this->commentRepository->findAllByRecord((int) $folderRecord['uid'], 'tx_ximatypo3contentplanner_folder', true);
+            return $this->commentRepository->findAllByRecord((int) $folderRecord['uid'], Configuration::TABLE_FOLDER, true);
         }
 
         return [];

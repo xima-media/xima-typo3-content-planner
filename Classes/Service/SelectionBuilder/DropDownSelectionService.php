@@ -95,7 +95,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        $username = $this->backendUserRepository->getUsernameByUid((int) $record['tx_ximatypo3contentplanner_assignee']);
+        $username = $this->backendUserRepository->getUsernameByUid((int) $record[Configuration::FIELD_ASSIGNEE]);
         if ('' === $username) {
             return;
         }
@@ -187,10 +187,10 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      */
     public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
     {
-        $table = 'tx_ximatypo3contentplanner_folder';
+        $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
 
-        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord['tx_ximatypo3contentplanner_assignee'] ?? 0));
+        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord[Configuration::FIELD_ASSIGNEE] ?? 0));
         $label = '' !== $username
             ? $username
             : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
@@ -210,7 +210,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      */
     public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
     {
-        $table = 'tx_ximatypo3contentplanner_folder';
+        $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
 
         $commentsLabel = PlannerUtility::hasComments($folderRecord)

@@ -88,7 +88,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        $username = $this->backendUserRepository->getUsernameByUid((int) $record['tx_ximatypo3contentplanner_assignee']);
+        $username = $this->backendUserRepository->getUsernameByUid((int) $record[Configuration::FIELD_ASSIGNEE]);
         if ('' === $username) {
             return;
         }
@@ -175,7 +175,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      */
     public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
     {
-        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord['tx_ximatypo3contentplanner_assignee'] ?? 0));
+        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord[Configuration::FIELD_ASSIGNEE] ?? 0));
         if ('' === $username) {
             return;
         }
@@ -196,7 +196,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
     public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
     {
         $commentsLabel = PlannerUtility::hasComments($folderRecord)
-            ? $this->commentRepository->countAllByRecord((int) $folderRecord['uid'], 'tx_ximatypo3contentplanner_folder').' '
+            ? $this->commentRepository->countAllByRecord((int) $folderRecord['uid'], Configuration::TABLE_FOLDER).' '
             : '';
 
         $selectionEntriesToAdd['comments'] = [

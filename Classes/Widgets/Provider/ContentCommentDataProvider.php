@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 use Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
 /**
@@ -35,7 +36,7 @@ class ContentCommentDataProvider implements ListDataProviderInterface
      */
     public function getItems(): array
     {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tx_ximatypo3contentplanner_comment');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_COMMENT);
 
         $query = $queryBuilder
             ->select(
@@ -46,7 +47,7 @@ class ContentCommentDataProvider implements ListDataProviderInterface
                 'c.foreign_uid',
                 'c.foreign_table',
             )
-            ->from('tx_ximatypo3contentplanner_comment', 'c')
+            ->from(Configuration::TABLE_COMMENT, 'c')
             ->setMaxResults(10)
             ->orderBy('tstamp', 'DESC');
 
