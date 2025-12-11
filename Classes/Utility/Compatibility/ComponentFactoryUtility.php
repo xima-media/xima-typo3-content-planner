@@ -54,6 +54,10 @@ class ComponentFactoryUtility
 
     public static function createDropDownHeader(): DropDownHeader
     {
+        if (VersionUtility::is14OrHigher()) {
+            return self::getComponentFactory()->createDropDownHeader();
+        }
+
         return GeneralUtility::makeInstance(DropDownHeader::class);
     }
 
