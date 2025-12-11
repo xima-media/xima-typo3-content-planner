@@ -13,6 +13,10 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner;
 
+use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
+use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
+use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
+
 /**
  * Configuration.
  *
@@ -36,13 +40,40 @@ class Configuration
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
-    // Database tables
     final public const TABLE_FOLDER = 'tx_ximatypo3contentplanner_folder';
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
     final public const TABLE_STATUS = 'tx_ximatypo3contentplanner_status';
 
-    // Database fields
     final public const FIELD_STATUS = 'tx_ximatypo3contentplanner_status';
     final public const FIELD_ASSIGNEE = 'tx_ximatypo3contentplanner_assignee';
     final public const FIELD_COMMENTS = 'tx_ximatypo3contentplanner_comments';
+
+    public static function overrideClasses(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = [
+            'className' => TreeController::class,
+        ];
+    }
+
+    public static function registerHooks(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = DataHandlerHook::class;
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass'][] = DataHandlerHook::class;
+    }
+
+    public static function registerCache(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['ximatypo3contentplanner_cache'] ??= [];
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc']['ximatypo3contentplanner_cache'] = DataHandlerHook::class . '->clearCachePostProc';
+    }
+
+    public static function addRegister(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][self::EXT_KEY]['registerAdditionalRecordTables'] = [];
+    }
+
+    public static function addRtePresets(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['comments'] = 'EXT:' . self::EXT_KEY . '/Configuration/RTE/Comments.yaml';
+    }
 }

@@ -11,24 +11,12 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
-use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
 
 defined('TYPO3') || exit;
 
-$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = [
-    'className' => TreeController::class,
-];
-
-$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['ximatypo3contentplanner_cache'] ??= [];
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc']['ximatypo3contentplanner_cache'] = DataHandlerHook::class.'->clearCachePostProc';
-
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] = DataHandlerHook::class;
-$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processCmdmapClass'][] = DataHandlerHook::class;
-
-$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = [];
-$GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['enableFilelistSupport'] = true;
-
-$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['comments'] = 'EXT:'.Configuration::EXT_KEY.'/Configuration/RTE/Comments.yaml';
+Configuration::overrideClasses();
+Configuration::addRtePresets();
+Configuration::registerCache();
+Configuration::registerHooks();
+Configuration::addRegister();
