@@ -50,6 +50,9 @@ services:
     public: true
 
   # Lazy-load Middleware ContentModifiers (instantiated on every request)
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\FileStorageTreeModifier:
+    lazy: true
+
   Xima\XimaTypo3ContentPlanner\Service\ContentModifier\FileListModifier:
     lazy: true
 

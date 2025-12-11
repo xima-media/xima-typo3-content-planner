@@ -54,6 +54,16 @@ class Colors
         self::STATUS_COLOR_ORANGE => '255,112,67',
     ];
 
+    private const COLOR_HEX_CODES = [
+        self::STATUS_COLOR_BLACK => '#90a4ae',
+        self::STATUS_COLOR_BLUE => '#64bbc8',
+        self::STATUS_COLOR_GREEN => '#6a9e71',
+        self::STATUS_COLOR_YELLOW => '#ffcd75',
+        self::STATUS_COLOR_RED => '#fa8893',
+        self::STATUS_COLOR_PURPLE => '#5c6bc0',
+        self::STATUS_COLOR_ORANGE => '#ff7043',
+    ];
+
     public static function get(string $colorCode, bool $transparency = false): string
     {
         if (!in_array($colorCode, self::STATUS_COLORS, true)) {
@@ -67,5 +77,14 @@ class Colors
         $key = $transparency ? 'rgba' : 'rgb';
 
         return $key.'('.self::COLOR_CODES[$colorCode].($transparency ? ', 0.5' : '').')';
+    }
+
+    public static function getHex(string $colorCode): string
+    {
+        if (!in_array($colorCode, self::STATUS_COLORS, true)) {
+            throw new InvalidArgumentException('Invalid color code', 2653877738);
+        }
+
+        return self::COLOR_HEX_CODES[$colorCode];
     }
 }
