@@ -67,6 +67,7 @@ class AbstractSelectionService
         $record = $this->getCurrentRecord($table, $uid);
         $selectionEntriesToAdd = [];
 
+        $this->addHeaderItemToSelection($selectionEntriesToAdd);
         $this->addAllStatusItems($selectionEntriesToAdd, $allStatus, $record, $table, $uid);
         $this->addStatusResetSection($selectionEntriesToAdd, $record, $table, $uid);
         $this->addAdditionalActionsSection($selectionEntriesToAdd, $record, $table, $uid);
@@ -87,6 +88,16 @@ class AbstractSelectionService
         }
 
         return true;
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @throws NotImplementedException
+     */
+    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960484);
     }
 
     /**
@@ -179,6 +190,7 @@ class AbstractSelectionService
 
         $selectionEntriesToAdd = [];
 
+        $this->addHeaderItemToSelection($selectionEntriesToAdd);
         foreach ($allStatus as $statusItem) {
             $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
         }

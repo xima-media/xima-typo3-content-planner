@@ -61,6 +61,8 @@ class StatusItemProvider extends AbstractProvider
 
     private string $folderIdentifier = '';
 
+    private int $currentAssignee = 0;
+
     public function __construct(
         private readonly ContextMenuSelectionService $contextMenuSelectionService,
         private readonly SysFileMetadataRepository $sysFileMetadataRepository,
@@ -90,6 +92,7 @@ class StatusItemProvider extends AbstractProvider
      * @return array<string, mixed>
      *
      * @throws NotImplementedException|Exception
+     * @throws RouteNotFoundException
      *
      * @phpstan-ignore-next-line property.phpDocType
      */
@@ -123,6 +126,11 @@ class StatusItemProvider extends AbstractProvider
         }
         foreach ($itemsToAdd as $itemKey => $itemToAdd) {
             $this->itemsConfiguration['wrap']['childItems'][$itemKey] = $itemToAdd;
+
+            // Extract currentAssignee from assignee item for getAdditionalAttributes()
+            if ('assignee' === $itemKey && isset($itemToAdd['currentAssignee'])) {
+                $this->currentAssignee = (int) $itemToAdd['currentAssignee'];
+            }
         }
 
         $localItems = $this->prepareItems($this->itemsConfiguration);
@@ -172,6 +180,11 @@ class StatusItemProvider extends AbstractProvider
             $attributes['data-uri'] = UrlUtility::getContentStatusPropertiesEditUrl($this->effectiveTable, $this->effectiveIdentifier, false);
             $attributes['data-new-comment-uri'] = UrlUtility::getNewCommentUrl($this->effectiveTable, $this->effectiveIdentifier);
             $attributes['data-edit-uri'] = UrlUtility::getContentStatusPropertiesEditUrl($this->effectiveTable, $this->effectiveIdentifier);
+        }
+
+        // Add current assignee for assignee modal
+        if ('assignee' === $itemName) {
+            $attributes['data-current-assignee'] = $this->currentAssignee;
         }
 
         return $attributes;

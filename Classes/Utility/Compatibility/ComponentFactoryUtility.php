@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility\Compatibility;
 
-use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\{DropDownDivider, DropDownItem};
+use TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\{DropDownDivider, DropDownHeader, DropDownItem};
 use TYPO3\CMS\Backend\Template\Components\Buttons\DropDownButton;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -50,6 +50,11 @@ class ComponentFactoryUtility
         }
 
         return GeneralUtility::makeInstance(DropDownDivider::class);
+    }
+
+    public static function createDropDownHeader(): DropDownHeader
+    {
+        return GeneralUtility::makeInstance(DropDownHeader::class);
     }
 
     /**

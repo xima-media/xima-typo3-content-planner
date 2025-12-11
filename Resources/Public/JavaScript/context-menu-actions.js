@@ -4,6 +4,7 @@
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 import Viewport from "@typo3/backend/viewport.js";
 import CommentsModal from "@xima/ximatypo3contentplanner/comments-list-modal.js";
+import AssigneeModal from "@xima/ximatypo3contentplanner/assignee-selection-modal.js";
 import Notification from "@xima/ximatypo3contentplanner/notification.js";
 
 class ContextMenuActions {
@@ -28,6 +29,12 @@ class ContextMenuActions {
     const effectiveTable = n.effectiveTable || table;
     const effectiveUid = n.effectiveUid || uid;
     CommentsModal.fetchComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, effectiveTable, effectiveUid, n.newCommentUri, n.editUri);
+  }
+
+  assignee(table, uid, n) {
+    const effectiveTable = n.effectiveTable || table;
+    const effectiveUid = n.effectiveUid || uid;
+    AssigneeModal.fetchUsers(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_assignees, effectiveTable, effectiveUid, n.currentAssignee);
   }
 
   static changeStatus(table, uid, status, folderStatusUrl) {
