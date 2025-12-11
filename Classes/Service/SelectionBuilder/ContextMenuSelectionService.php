@@ -22,12 +22,12 @@ use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
 
 /**
- * PageTreeSelectionService.
+ * ContextMenuSelectionService.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class PageTreeSelectionService extends AbstractSelectionService implements SelectionInterface
+class ContextMenuSelectionService extends AbstractSelectionService implements SelectionInterface
 {
     public function __construct(
         StatusRepository $statusRepository,
@@ -135,6 +135,73 @@ class PageTreeSelectionService extends AbstractSelectionService implements Selec
         $selectionEntriesToAdd['commentsTodo'] = [
             'label' => "$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo'),
             'iconIdentifier' => 'actions-check-square',
+            'callbackAction' => 'comments',
+        ];
+    }
+
+    /**
+     * @param array<int|string, mixed> $selectionEntriesToAdd
+     */
+    public function addFolderStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): void
+    {
+        if (null !== $currentStatus && $status->getUid() === $currentStatus) {
+            return;
+        }
+
+        $selectionEntriesToAdd[(string) $status->getUid()] = [
+            'label' => $status->getTitle(),
+            'iconIdentifier' => $status->getColoredIcon(),
+            'callbackAction' => 'change',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     */
+    public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
+    {
+        $selectionEntriesToAdd['reset'] = [
+            'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset',
+            'iconIdentifier' => 'actions-close',
+            'callbackAction' => 'reset',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws Exception
+     */
+    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord['tx_ximatypo3contentplanner_assignee'] ?? 0));
+        if ('' === $username) {
+            return;
+        }
+
+        $selectionEntriesToAdd['assignee'] = [
+            'label' => $username,
+            'iconIdentifier' => 'actions-user',
+            'callbackAction' => 'load',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws Exception
+     */
+    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        $commentsLabel = PlannerUtility::hasComments($folderRecord)
+            ? $this->commentRepository->countAllByRecord((int) $folderRecord['uid'], 'tx_ximatypo3contentplanner_folder').' '
+            : '';
+
+        $selectionEntriesToAdd['comments'] = [
+            'label' => $commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'),
+            'iconIdentifier' => 'actions-message',
             'callbackAction' => 'comments',
         ];
     }

@@ -9,11 +9,15 @@ import Notification from "@xima/ximatypo3contentplanner/notification.js";
 class ContextMenuActions {
 
   change(table, uid, n) {
-    ContextMenuActions.changeStatus(table, uid, n.status);
+    const effectiveTable = n.effectiveTable || table;
+    const effectiveUid = n.effectiveUid || uid;
+    ContextMenuActions.changeStatus(effectiveTable, effectiveUid, n.status, n.folderStatusUrl);
   }
 
-  reset(table, uid) {
-    ContextMenuActions.changeStatus(table, uid, "");
+  reset(table, uid, n) {
+    const effectiveTable = n.effectiveTable || table;
+    const effectiveUid = n.effectiveUid || uid;
+    ContextMenuActions.changeStatus(effectiveTable, effectiveUid, "", n.folderStatusUrl);
   }
 
   load(table, uid, n) {
@@ -21,23 +25,38 @@ class ContextMenuActions {
   }
 
   comments(table, uid, n) {
-    CommentsModal.fetchComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, table, uid, n.newCommentUri, n.editUri);
+    const effectiveTable = n.effectiveTable || table;
+    const effectiveUid = n.effectiveUid || uid;
+    CommentsModal.fetchComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, effectiveTable, effectiveUid, n.newCommentUri, n.editUri);
   }
 
-  static changeStatus(table, uid, status) {
-    new AjaxRequest(top.TYPO3.settings.RecordCommit.moduleUrl + "&data[" + table + "][" + uid + "][tx_ximatypo3contentplanner_status]=" + status)
+  static changeStatus(table, uid, status, folderStatusUrl) {
+    let url;
+
+    // For folders, use the custom folder status endpoint
+    if (folderStatusUrl) {
+      url = folderStatusUrl + "&status=" + (status || "0");
+    } else {
+      url = top.TYPO3.settings.RecordCommit.moduleUrl + "&data[" + table + "][" + uid + "][tx_ximatypo3contentplanner_status]=" + status;
+    }
+
+    new AjaxRequest(url)
       .get()
       .then(function (result) {
         Notification.message(
-          status === "" ? "status.reset" : "status.changed",
+          status === "" || status === "0" ? "status.reset" : "status.changed",
           result.response.ok ? "success" : "failure"
         )
 
         if (table === 'pages') {
           top.document.dispatchEvent(new CustomEvent("typo3:pagetree:refresh"));
-        } else {
-          top.document.location.reload();
         }
+
+        if (table === 'tx_ximatypo3contentplanner_folder') {
+          top.document.dispatchEvent(new CustomEvent("typo3:filestoragetree:refresh"))
+        }
+
+        Viewport.ContentContainer.refresh();
       })
   }
 }

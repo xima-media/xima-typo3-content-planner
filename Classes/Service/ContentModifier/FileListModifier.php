@@ -69,7 +69,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         }
 
         $folderIdentifier = $request->getQueryParams()['id'];
-        $isTilesView = isset($request->getQueryParams()['viewMode']) && 'tiles' === $request->getQueryParams()['viewMode'];
+        // Detect tile view from content (more reliable than query param, which may not be present)
+        $isTilesView = str_contains($content, 'class="resource-tiles"');
 
         $additionalCss = $this->fileListStatusService->generateStatusStyles($folderIdentifier, $isTilesView);
 
@@ -193,8 +194,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             }
         }
 
-        $dropdown = '<a href="#" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'">'
-            .$iconHtml.'</a><ul class="dropdown-menu">'.$dropdownItemsHtml.'</ul>';
+        $dropdown = '<div class="btn-group dropdown"><a href="#" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'">'
+            .$iconHtml.'</a><ul class="dropdown-menu">'.$dropdownItemsHtml.'</ul></div>';
 
         $result = preg_replace($pattern, '$1'.$dropdown, $content);
 

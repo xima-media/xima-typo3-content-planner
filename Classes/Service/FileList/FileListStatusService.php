@@ -101,7 +101,7 @@ class FileListStatusService
         $color = Configuration\Colors::get($status->getColor(), true);
 
         if ($isTilesView) {
-            return '.filelist-tile[data-filelist-meta-uid="'.$metaUid.'"] { background-color: '.$color.'; }';
+            return '.resource-tile[data-filelist-meta-uid="'.$metaUid.'"] { background-color: '.$color.'; }';
         }
 
         return 'tr[data-filelist-meta-uid="'.$metaUid.'"] > td { background-color: '.$color.'; }';
@@ -113,7 +113,7 @@ class FileListStatusService
         $escapedIdentifier = htmlspecialchars($combinedIdentifier, \ENT_QUOTES);
 
         if ($isTilesView) {
-            return '.filelist-tile[data-filelist-identifier="'.$escapedIdentifier.'"] { background-color: '.$color.'; }';
+            return '.resource-tile[data-filelist-identifier="'.$escapedIdentifier.'"] { background-color: '.$color.'; }';
         }
 
         return 'tr[data-filelist-identifier="'.$escapedIdentifier.'"] > td { background-color: '.$color.'; }';

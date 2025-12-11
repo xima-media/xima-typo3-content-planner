@@ -33,6 +33,9 @@
 			<trans-unit id="currentAssignee">
 				<source>Current Assignee</source>
 			</trans-unit>
+			<trans-unit id="header.unassigned">
+				<source>-- Not assigned --</source>
+			</trans-unit>
 			<trans-unit id="save_and_close">
 				<source>Save and Close</source>
 			</trans-unit>

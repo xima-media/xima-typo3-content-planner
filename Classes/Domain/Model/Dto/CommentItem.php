@@ -13,12 +13,15 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
+
+use function is_array;
 
 /**
  * CommentItem.
@@ -49,6 +52,19 @@ final class CommentItem
 
     public function getTitle(): string
     {
+        // Special handling for sys_file_metadata - get filename from sys_file
+        if ('sys_file_metadata' === $this->data['foreign_table']) {
+            $record = $this->getRelatedRecord();
+            if (is_array($record) && isset($record['file'])) {
+                $fileRecord = BackendUtility::getRecord('sys_file', (int) $record['file'], 'name');
+                if (is_array($fileRecord) && isset($fileRecord['name'])) {
+                    return $fileRecord['name'];
+                }
+            }
+
+            return BackendUtility::getNoRecordTitle();
+        }
+
         return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['foreign_table']), $this->getRelatedRecord());
     }
 
