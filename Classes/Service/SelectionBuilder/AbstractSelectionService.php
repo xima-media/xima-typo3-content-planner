@@ -173,8 +173,8 @@ class AbstractSelectionService
 
         $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($combinedIdentifier);
         $currentStatus = null;
-        if (is_array($folderRecord) && isset($folderRecord['tx_ximatypo3contentplanner_status']) && 0 !== (int) $folderRecord['tx_ximatypo3contentplanner_status']) {
-            $currentStatus = (int) $folderRecord['tx_ximatypo3contentplanner_status'];
+        if (is_array($folderRecord) && isset($folderRecord[Configuration::FIELD_STATUS]) && 0 !== (int) $folderRecord[Configuration::FIELD_STATUS]) {
+            $currentStatus = (int) $folderRecord[Configuration::FIELD_STATUS];
         }
 
         $selectionEntriesToAdd = [];
@@ -283,11 +283,11 @@ class AbstractSelectionService
      */
     protected function getCurrentStatus(array|bool|null $record = null): ?int
     {
-        if (!is_array($record) || !isset($record['tx_ximatypo3contentplanner_status'])) {
+        if (!is_array($record) || !isset($record[Configuration::FIELD_STATUS])) {
             return null;
         }
 
-        return (int) $record['tx_ximatypo3contentplanner_status'] ?: null;
+        return (int) $record[Configuration::FIELD_STATUS] ?: null;
     }
 
     protected function compareStatus(Status $status, Status|int|null $currentStatus): bool
@@ -324,7 +324,7 @@ class AbstractSelectionService
         }
         foreach ($uid as $singleId) {
             $dataArray[$table][$singleId] = [
-                'tx_ximatypo3contentplanner_status' => $status instanceof Status ? $status->getUid() : '',
+                Configuration::FIELD_STATUS => $status instanceof Status ? $status->getUid() : '',
             ];
         }
 
@@ -424,7 +424,7 @@ class AbstractSelectionService
      */
     private function addStatusResetSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
     {
-        if (!is_array($record) || (null !== $record['tx_ximatypo3contentplanner_status'] && 0 !== $record['tx_ximatypo3contentplanner_status'])) {
+        if (!is_array($record) || (null !== $record[Configuration::FIELD_STATUS] && 0 !== $record[Configuration::FIELD_STATUS])) {
             if ([] !== $selectionEntriesToAdd) {
                 $this->addDividerItemToSelection($selectionEntriesToAdd);
             }

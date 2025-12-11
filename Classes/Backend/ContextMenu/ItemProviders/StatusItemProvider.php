@@ -203,7 +203,7 @@ class StatusItemProvider extends AbstractProvider
             if (str_ends_with($this->identifier, '/')) {
                 $this->isFolder = true;
                 $this->folderIdentifier = $this->identifier;
-                $this->effectiveTable = 'tx_ximatypo3contentplanner_folder';
+                $this->effectiveTable = Configuration::TABLE_FOLDER;
 
                 // Try to find existing folder status record
                 $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($this->identifier);

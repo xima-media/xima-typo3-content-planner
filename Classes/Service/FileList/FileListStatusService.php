@@ -59,7 +59,7 @@ class FileListStatusService
                 continue;
             }
 
-            $status = $this->statusRepository->findByUid((int) $metadata['tx_ximatypo3contentplanner_status']);
+            $status = $this->statusRepository->findByUid((int) $metadata[Configuration::FIELD_STATUS]);
             if (!$status instanceof Status) {
                 continue;
             }
@@ -77,7 +77,7 @@ class FileListStatusService
     {
         $subfolders = $this->folderStatusRepository->findSubfoldersWithStatus($folderIdentifier);
         foreach ($subfolders as $subfolder) {
-            $status = $this->statusRepository->findByUid((int) $subfolder['tx_ximatypo3contentplanner_status']);
+            $status = $this->statusRepository->findByUid((int) $subfolder[Configuration::FIELD_STATUS]);
             if (!$status instanceof Status) {
                 continue;
             }
@@ -92,8 +92,8 @@ class FileListStatusService
     private function hasValidStatus(array|false $metadata): bool
     {
         return $metadata
-            && null !== $metadata['tx_ximatypo3contentplanner_status']
-            && 0 !== (int) $metadata['tx_ximatypo3contentplanner_status'];
+            && null !== $metadata[Configuration::FIELD_STATUS]
+            && 0 !== (int) $metadata[Configuration::FIELD_STATUS];
     }
 
     private function buildFileCssRule(int $metaUid, Status $status, bool $isTilesView): string

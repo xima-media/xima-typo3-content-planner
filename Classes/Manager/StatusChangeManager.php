@@ -49,12 +49,12 @@ class StatusChangeManager
      */
     public function processContentPlannerFields(array &$incomingFieldArray, $table, $id): void
     {
-        if (!isset($incomingFieldArray['tx_ximatypo3contentplanner_status'])) {
+        if (!isset($incomingFieldArray[Configuration::FIELD_STATUS])) {
             return;
         }
 
-        $this->nullableField($incomingFieldArray, 'tx_ximatypo3contentplanner_assignee');
-        $this->nullableField($incomingFieldArray, 'tx_ximatypo3contentplanner_status');
+        $this->nullableField($incomingFieldArray, Configuration::FIELD_ASSIGNEE);
+        $this->nullableField($incomingFieldArray, Configuration::FIELD_STATUS);
 
         $this->handleStatusReset($incomingFieldArray, $table, $id);
 
@@ -72,12 +72,12 @@ class StatusChangeManager
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $queryBuilder
             ->update($table)
-            ->set('tx_ximatypo3contentplanner_status', null)
+            ->set(Configuration::FIELD_STATUS, null)
         ;
 
         if ((bool) $status) {
             $queryBuilder->andWhere(
-                $queryBuilder->expr()->eq('tx_ximatypo3contentplanner_status', $status),
+                $queryBuilder->expr()->eq(Configuration::FIELD_STATUS, $status),
             );
         }
 
@@ -95,11 +95,11 @@ class StatusChangeManager
      */
     private function handleStatusReset(array &$incomingFieldArray, string $table, int $id): void
     {
-        if (null !== $incomingFieldArray['tx_ximatypo3contentplanner_status']) {
+        if (null !== $incomingFieldArray[Configuration::FIELD_STATUS]) {
             return;
         }
 
-        $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = null;
+        $incomingFieldArray[Configuration::FIELD_ASSIGNEE] = null;
 
         if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
             $this->commentRepository->deleteAllCommentsByRecord($id, $table);
@@ -116,20 +116,20 @@ class StatusChangeManager
             return;
         }
 
-        if (null === $incomingFieldArray['tx_ximatypo3contentplanner_status']) {
+        if (null === $incomingFieldArray[Configuration::FIELD_STATUS]) {
             return;
         }
 
-        if (array_key_exists('tx_ximatypo3contentplanner_assignee', $incomingFieldArray)
-            && null !== $incomingFieldArray['tx_ximatypo3contentplanner_assignee']) {
+        if (array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray)
+            && null !== $incomingFieldArray[Configuration::FIELD_ASSIGNEE]) {
             return;
         }
 
-        $hadNoStatusBefore = null === $preRecord['tx_ximatypo3contentplanner_status']
-            || 0 === $preRecord['tx_ximatypo3contentplanner_status'];
+        $hadNoStatusBefore = null === $preRecord[Configuration::FIELD_STATUS]
+            || 0 === $preRecord[Configuration::FIELD_STATUS];
 
         if ($hadNoStatusBefore) {
-            $incomingFieldArray['tx_ximatypo3contentplanner_assignee'] = $GLOBALS['BE_USER']->getUserId();
+            $incomingFieldArray[Configuration::FIELD_ASSIGNEE] = $GLOBALS['BE_USER']->getUserId();
         }
     }
 
@@ -145,11 +145,11 @@ class StatusChangeManager
             return;
         }
 
-        $previousStatus = isset($preRecord['tx_ximatypo3contentplanner_status']) && is_numeric($preRecord['tx_ximatypo3contentplanner_status']) && $preRecord['tx_ximatypo3contentplanner_status'] > 0 ? ContentUtility::getStatus((int) $preRecord['tx_ximatypo3contentplanner_status']) : null;
-        $newStatus = isset($incomingFieldArray['tx_ximatypo3contentplanner_status']) && is_numeric($incomingFieldArray['tx_ximatypo3contentplanner_status']) && $incomingFieldArray['tx_ximatypo3contentplanner_status'] > 0 ? ContentUtility::getStatus((int) $incomingFieldArray['tx_ximatypo3contentplanner_status']) : null;
+        $previousStatus = isset($preRecord[Configuration::FIELD_STATUS]) && is_numeric($preRecord[Configuration::FIELD_STATUS]) && $preRecord[Configuration::FIELD_STATUS] > 0 ? ContentUtility::getStatus((int) $preRecord[Configuration::FIELD_STATUS]) : null;
+        $newStatus = isset($incomingFieldArray[Configuration::FIELD_STATUS]) && is_numeric($incomingFieldArray[Configuration::FIELD_STATUS]) && $incomingFieldArray[Configuration::FIELD_STATUS] > 0 ? ContentUtility::getStatus((int) $incomingFieldArray[Configuration::FIELD_STATUS]) : null;
         $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus));
 
-        if (null === $incomingFieldArray['tx_ximatypo3contentplanner_status'] && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET)) {
+        if (null === $incomingFieldArray[Configuration::FIELD_STATUS] && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET)) {
             $this->clearStatusOfExtensionRecords('tt_content', pid: $id);
         }
     }
@@ -174,6 +174,6 @@ class StatusChangeManager
             return false;
         }
 
-        return $preRecord['tx_ximatypo3contentplanner_status'] !== $incomingFieldArray['tx_ximatypo3contentplanner_status'];
+        return $preRecord[Configuration::FIELD_STATUS] !== $incomingFieldArray[Configuration::FIELD_STATUS];
     }
 }

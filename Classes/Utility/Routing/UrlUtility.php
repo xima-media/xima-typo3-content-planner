@@ -17,6 +17,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 
@@ -38,7 +39,7 @@ class UrlUtility
         $params = [
             'edit' => [$table => [$uid => 'edit']],
             'returnUrl' => $generateReturnUrl && RouteUtility::isReturnUrlRelevantRoute($request->getAttribute('routing')->getRoute()->getOption('_identifier')) ? $request->getAttribute('normalizedParams')->getRequestUri() : null,
-            'columnsOnly' => [$table => ['tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments']],
+            'columnsOnly' => [$table => [Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS]],
         ];
 
         return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
@@ -55,9 +56,9 @@ class UrlUtility
         }
 
         $params = [
-            'edit' => ['tx_ximatypo3contentplanner_comment' => [$pid => 'new']],
+            'edit' => [Configuration::TABLE_COMMENT => [$pid => 'new']],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
-            'defVals' => ['tx_ximatypo3contentplanner_comment' => ['foreign_table' => $table, 'foreign_uid' => $uid]],
+            'defVals' => [Configuration::TABLE_COMMENT => ['foreign_table' => $table, 'foreign_uid' => $uid]],
         ];
 
         return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
@@ -72,7 +73,7 @@ class UrlUtility
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
         $params = [
-            'edit' => ['tx_ximatypo3contentplanner_comment' => [$uid => 'edit']],
+            'edit' => [Configuration::TABLE_COMMENT => [$uid => 'edit']],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
 
@@ -94,7 +95,7 @@ class UrlUtility
         }
 
         $params = [
-            'data' => ['tx_ximatypo3contentplanner_comment' => [$uid => ['resolved_date' => $isResolvedValue]]],
+            'data' => [Configuration::TABLE_COMMENT => [$uid => ['resolved_date' => $isResolvedValue]]],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
 
@@ -110,7 +111,7 @@ class UrlUtility
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
         $params = [
-            'cmd' => ['tx_ximatypo3contentplanner_comment' => [$uid => ['delete' => 1]]],
+            'cmd' => [Configuration::TABLE_COMMENT => [$uid => ['delete' => 1]]],
             'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
 
@@ -124,7 +125,7 @@ class UrlUtility
     {
         return match ($table) {
             'pages' => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $uid]),
-            'tx_ximatypo3contentplanner_folder' => self::getFolderLink($folderIdentifier),
+            Configuration::TABLE_FOLDER => self::getFolderLink($folderIdentifier),
             default => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']]]),
         };
     }
@@ -164,7 +165,7 @@ class UrlUtility
         }
 
         $params = [
-            'data' => [$table => [$uid => ['tx_ximatypo3contentplanner_assignee' => $userId]]],
+            'data' => [$table => [$uid => [Configuration::FIELD_ASSIGNEE => $userId]]],
             'redirect' => $request->getAttribute('normalizedParams')->getRequestUri(),
         ];
 

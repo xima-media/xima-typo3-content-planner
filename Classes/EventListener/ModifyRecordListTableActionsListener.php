@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
@@ -116,7 +117,7 @@ final class ModifyRecordListTableActionsListener
         }
         foreach ($event->getRecordIds() as $recordId) {
             $dataArray[$event->getTable()][$recordId] = [
-                'tx_ximatypo3contentplanner_status' => $statusEntry instanceof Status ? $statusEntry->getUid() : '',
+                Configuration::FIELD_STATUS => $statusEntry instanceof Status ? $statusEntry->getUid() : '',
             ];
         }
 

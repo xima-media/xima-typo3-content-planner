@@ -34,7 +34,7 @@ class ExtensionUtility
         ExtensionManagementUtility::addTCAcolumns(
             $table,
             [
-                'tx_ximatypo3contentplanner_status' => [
+                Configuration::FIELD_STATUS => [
                     'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
                     'config' => [
@@ -53,7 +53,7 @@ class ExtensionUtility
                         'nullable' => true,
                     ],
                 ],
-                'tx_ximatypo3contentplanner_assignee' => [
+                Configuration::FIELD_ASSIGNEE => [
                     'exclude' => 1,
                     'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee',
@@ -74,13 +74,13 @@ class ExtensionUtility
                         'nullable' => true,
                     ],
                 ],
-                'tx_ximatypo3contentplanner_comments' => [
+                Configuration::FIELD_COMMENTS => [
                     'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_comments',
                     'config' => [
                         'foreign_field' => 'foreign_uid',
                         'foreign_default_sortby' => 'crdate',
-                        'foreign_table' => 'tx_ximatypo3contentplanner_comment',
+                        'foreign_table' => Configuration::TABLE_COMMENT,
                         'foreign_table_field' => 'foreign_table',
                         'type' => 'inline',
                         'appearance' => [
@@ -118,7 +118,7 @@ class ExtensionUtility
         // Add sys_file_metadata and folder table if Filelist support is enabled
         if (self::isFilelistSupportEnabled()) {
             $baseTables[] = 'sys_file_metadata';
-            $baseTables[] = 'tx_ximatypo3contentplanner_folder';
+            $baseTables[] = Configuration::TABLE_FOLDER;
         }
 
         return array_merge($baseTables, $additionalTables);

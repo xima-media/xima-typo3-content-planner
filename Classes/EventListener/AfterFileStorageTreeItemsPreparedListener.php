@@ -65,12 +65,12 @@ final readonly class AfterFileStorageTreeItemsPreparedListener
             $combinedIdentifier = $resource->getCombinedIdentifier();
             $folderStatus = $this->folderStatusRepository->findByCombinedIdentifier($combinedIdentifier);
 
-            if (false === $folderStatus || !isset($folderStatus['tx_ximatypo3contentplanner_status']) || 0 === (int) $folderStatus['tx_ximatypo3contentplanner_status']) {
+            if (false === $folderStatus || !isset($folderStatus[Configuration::FIELD_STATUS]) || 0 === (int) $folderStatus[Configuration::FIELD_STATUS]) {
                 $this->applyEmptyLabelWorkaround($item);
                 continue;
             }
 
-            $this->applyStatusToItem($item, (int) $folderStatus['tx_ximatypo3contentplanner_status']);
+            $this->applyStatusToItem($item, (int) $folderStatus[Configuration::FIELD_STATUS]);
         }
 
         $event->setItems($items);

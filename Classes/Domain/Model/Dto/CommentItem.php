@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -86,7 +87,7 @@ final class CommentItem
 
     public function getStatusIcon(): string
     {
-        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()[Configuration::FIELD_STATUS]);
     }
 
     public function getRecordIcon(): string

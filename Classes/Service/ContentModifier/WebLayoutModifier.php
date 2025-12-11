@@ -61,7 +61,7 @@ class WebLayoutModifier extends AbstractModifier implements ModifierInterface
         $records = $this->recordRepository->findByPid('tt_content', $pid);
 
         foreach ($records as $record) {
-            $status = $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
+            $status = $this->statusRepository->findByUid($record[Configuration::FIELD_STATUS]);
             if (!$status instanceof Status) {
                 continue;
             }

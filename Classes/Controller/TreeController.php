@@ -17,6 +17,7 @@ use TYPO3\CMS\Backend\Tree\Repository\PageTreeRepository;
 use TYPO3\CMS\Core\Database\Query\Restriction\DocumentTypeExclusionRestriction;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 /**
  * TreeController.
@@ -40,7 +41,7 @@ class TreeController extends \TYPO3\CMS\Backend\Controller\Page\TreeController
         $pageTreeRepository = GeneralUtility::makeInstance(
             PageTreeRepository::class,
             $backendUser->workspace,
-            ['tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_comments'],
+            [Configuration::FIELD_STATUS, Configuration::FIELD_COMMENTS],
             $additionalQueryRestrictions,
         );
         $pageTreeRepository->setAdditionalWhereClause($backendUser->getPagePermsClause(Permission::PAGE_SHOW));

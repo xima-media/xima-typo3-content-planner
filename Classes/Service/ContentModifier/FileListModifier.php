@@ -18,6 +18,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, RecordRepository, StatusRepository, SysFileMetadataRepository};
 use Xima\XimaTypo3ContentPlanner\Service\FileList\FileListStatusService;
@@ -143,8 +144,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             $metaUid = (int) $metadata['uid'];
             $status = null;
 
-            if (isset($metadata['tx_ximatypo3contentplanner_status']) && 0 !== (int) $metadata['tx_ximatypo3contentplanner_status']) {
-                $status = $this->statusRepository->findByUid((int) $metadata['tx_ximatypo3contentplanner_status']);
+            if (isset($metadata[Configuration::FIELD_STATUS]) && 0 !== (int) $metadata[Configuration::FIELD_STATUS]) {
+                $status = $this->statusRepository->findByUid((int) $metadata[Configuration::FIELD_STATUS]);
             }
 
             $dropdownItems = $this->listSelectionService->generateSelection('sys_file_metadata', $metaUid);
@@ -163,8 +164,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             $status = null;
             $statusData = $subfolder['status'];
 
-            if (is_array($statusData) && isset($statusData['tx_ximatypo3contentplanner_status']) && 0 !== (int) $statusData['tx_ximatypo3contentplanner_status']) {
-                $status = $this->statusRepository->findByUid((int) $statusData['tx_ximatypo3contentplanner_status']);
+            if (is_array($statusData) && isset($statusData[Configuration::FIELD_STATUS]) && 0 !== (int) $statusData[Configuration::FIELD_STATUS]) {
+                $status = $this->statusRepository->findByUid((int) $statusData[Configuration::FIELD_STATUS]);
             }
 
             $combinedIdentifier = $subfolder['combined_identifier'];

@@ -50,7 +50,7 @@ final class StatusItem
     {
         $item = new self();
         $item->data = $row;
-        $item->status = ContentUtility::getStatus((int) $row['tx_ximatypo3contentplanner_status']);
+        $item->status = ContentUtility::getStatus((int) $row[Configuration::FIELD_STATUS]);
 
         return $item;
     }
@@ -61,7 +61,7 @@ final class StatusItem
             return false;
         }
 
-        return ((int) $this->data['tx_ximatypo3contentplanner_assignee']) === (int) $GLOBALS['BE_USER']->user['uid'];
+        return ((int) $this->data[Configuration::FIELD_ASSIGNEE]) === (int) $GLOBALS['BE_USER']->user['uid'];
     }
 
     public function getTitle(): string
@@ -93,17 +93,17 @@ final class StatusItem
 
     public function getAssignee(): int
     {
-        return (int) $this->data['tx_ximatypo3contentplanner_assignee'];
+        return (int) $this->data[Configuration::FIELD_ASSIGNEE];
     }
 
     public function getAssigneeName(): string
     {
-        return ContentUtility::getBackendUsernameById((int) $this->data['tx_ximatypo3contentplanner_assignee']);
+        return ContentUtility::getBackendUsernameById((int) $this->data[Configuration::FIELD_ASSIGNEE]);
     }
 
     public function getAssigneeAvatar(): string
     {
-        return IconUtility::getAvatarByUserId((int) $this->data['tx_ximatypo3contentplanner_assignee']);
+        return IconUtility::getAvatarByUserId((int) $this->data[Configuration::FIELD_ASSIGNEE]);
     }
 
     public function getCommentsHtml(): string
@@ -111,7 +111,7 @@ final class StatusItem
         return PlannerUtility::hasComments($this->data) ? sprintf(
             '%s <span class="badge">%d</span>',
             IconUtility::getIconByIdentifier('actions-message'),
-            $this->data['tx_ximatypo3contentplanner_comments'],
+            $this->data[Configuration::FIELD_COMMENTS],
         ) : '';
     }
 
@@ -190,7 +190,7 @@ final class StatusItem
      */
     private function getFolderCombinedIdentifier(): ?string
     {
-        if ('tx_ximatypo3contentplanner_folder' !== $this->data['tablename']) {
+        if (Configuration::TABLE_FOLDER !== $this->data['tablename']) {
             return null;
         }
 

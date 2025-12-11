@@ -39,9 +39,9 @@ class RecordRepository
         'uid',
         'pid',
         'tstamp',
-        'tx_ximatypo3contentplanner_status',
-        'tx_ximatypo3contentplanner_assignee',
-        'tx_ximatypo3contentplanner_comments',
+        Configuration::FIELD_STATUS,
+        Configuration::FIELD_ASSIGNEE,
+        Configuration::FIELD_COMMENTS,
     ];
 
     public function __construct(private readonly FrontendInterface $cache, private readonly ConnectionPool $connectionPool) {}
@@ -90,11 +90,11 @@ class RecordRepository
         }
 
         $query = $queryBuilder
-            ->select('uid', $this->getTitleField($table).' as title', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
+            ->select('uid', $this->getTitleField($table).' as title', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
             ->from($table)
             ->andWhere(
-                $queryBuilder->expr()->isNotNull('tx_ximatypo3contentplanner_status'),
-                $queryBuilder->expr()->neq('tx_ximatypo3contentplanner_status', 0),
+                $queryBuilder->expr()->isNotNull(Configuration::FIELD_STATUS),
+                $queryBuilder->expr()->neq(Configuration::FIELD_STATUS, 0),
             );
 
         if ($this->hasDeletedRestriction($table)) {
@@ -140,7 +140,7 @@ class RecordRepository
         }
 
         $query = $queryBuilder
-            ->select('uid', 'pid', $this->getTitleField($table).' as "title"', 'tx_ximatypo3contentplanner_status', 'tx_ximatypo3contentplanner_assignee', 'tx_ximatypo3contentplanner_comments')
+            ->select('uid', 'pid', $this->getTitleField($table).' as "title"', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
@@ -159,13 +159,13 @@ class RecordRepository
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $queryBuilder
             ->update($table)
-            ->set('tx_ximatypo3contentplanner_status', $status)
+            ->set(Configuration::FIELD_STATUS, $status)
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             );
 
         if (false !== $assignee) {
-            $queryBuilder->set('tx_ximatypo3contentplanner_assignee', $assignee);
+            $queryBuilder->set(Configuration::FIELD_ASSIGNEE, $assignee);
         }
         $queryBuilder->executeStatement();
     }
@@ -183,7 +183,7 @@ class RecordRepository
             $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
             $queryBuilder
                 ->update($table)
-                ->set('tx_ximatypo3contentplanner_comments', $commentCount)
+                ->set(Configuration::FIELD_COMMENTS, $commentCount)
                 ->where(
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
                 )
@@ -237,7 +237,7 @@ class RecordRepository
             return 'f.name';
         }
 
-        if ('tx_ximatypo3contentplanner_folder' === $table) {
+        if (Configuration::TABLE_FOLDER === $table) {
             return 'folder_identifier';
         }
 
@@ -306,7 +306,7 @@ class RecordRepository
         }
 
         // Special handling for folder status table
-        if ('tx_ximatypo3contentplanner_folder' === $table) {
+        if (Configuration::TABLE_FOLDER === $table) {
             $this->getSqlForFolders($sql, $additionalWhere);
 
             return;
@@ -362,14 +362,14 @@ class RecordRepository
      */
     private function getSqlForFolders(array &$sql, string $additionalWhere): void
     {
-        $table = 'tx_ximatypo3contentplanner_folder';
+        $table = Configuration::TABLE_FOLDER;
         $selects = [
             'uid',
             'pid',
             'tstamp',
-            'tx_ximatypo3contentplanner_status',
-            'tx_ximatypo3contentplanner_assignee',
-            'tx_ximatypo3contentplanner_comments',
+            Configuration::FIELD_STATUS,
+            Configuration::FIELD_ASSIGNEE,
+            Configuration::FIELD_COMMENTS,
             'folder_identifier as title',
             "'".$table."' as tablename",
             '0 as perms_userid',

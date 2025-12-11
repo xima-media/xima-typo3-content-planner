@@ -17,6 +17,7 @@ use Doctrine\DBAL\Exception;
 use InvalidArgumentException;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
 use function in_array;
@@ -29,7 +30,7 @@ use function in_array;
  */
 class CommentRepository
 {
-    private const TABLE = 'tx_ximatypo3contentplanner_comment';
+    private const TABLE = Configuration::TABLE_COMMENT;
 
     /** @var array<string, string> */
     protected array $defaultOrderings = [
@@ -185,7 +186,7 @@ class CommentRepository
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $queryBuilder
             ->update($table)
-            ->set('tx_ximatypo3contentplanner_comments', 0)
+            ->set(Configuration::FIELD_COMMENTS, 0)
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
             )
