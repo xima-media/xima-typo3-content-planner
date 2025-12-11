@@ -47,6 +47,19 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     }
 
     /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     */
+    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    {
+        $title = $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status');
+
+        $headerItem = ComponentFactoryUtility::createDropDownHeader()
+            ->setLabel($title);
+        $selectionEntriesToAdd['header'] = $headerItem;
+        $selectionEntriesToAdd['headerDivider'] = ComponentFactoryUtility::createDropDownDivider();
+    }
+
+    /**
      * @param array<string|int, mixed>       $selectionEntriesToAdd
      * @param array<int>|int|null            $uid
      * @param array<string, mixed>|bool|null $record
@@ -92,17 +105,22 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @throws Exception
+     * @throws RouteNotFoundException
      */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        $username = $this->backendUserRepository->getUsernameByUid((int) $record[Configuration::FIELD_ASSIGNEE]);
-        if ('' === $username) {
-            return;
-        }
+        $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
+        $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
+        $label = '' !== $username
+            ? $username
+            : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
 
         $assigneeDropDownItem = ComponentFactoryUtility::createDropDownItem()
-            ->setLabel($username)
+            ->setLabel($label)
             ->setIcon($this->iconFactory->getIcon('actions-user'))
+            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-current-assignee' => $currentAssignee, 'data-content-planner-assignees' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
     }
@@ -110,6 +128,9 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @throws Exception
+     * @throws RouteNotFoundException
      */
     public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
@@ -189,8 +210,9 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     {
         $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
+        $currentAssignee = (int) ($folderRecord[Configuration::FIELD_ASSIGNEE] ?? 0);
 
-        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord[Configuration::FIELD_ASSIGNEE] ?? 0));
+        $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
         $label = '' !== $username
             ? $username
             : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
@@ -198,6 +220,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $assigneeDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($label)
             ->setIcon($this->iconFactory->getIcon('actions-user'))
+            ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-current-assignee' => $currentAssignee, 'data-content-planner-assignees' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
     }

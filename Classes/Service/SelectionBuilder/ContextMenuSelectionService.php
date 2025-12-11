@@ -42,6 +42,16 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
     }
 
     /**
+     * ContextMenu already has a "Status" submenu header, so no additional header needed.
+     *
+     * @param array<string, mixed> $selectionEntriesToAdd
+     */
+    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    {
+        // No-op: ContextMenu is already wrapped in a "Status" submenu
+    }
+
+    /**
      * @param array<string|int, mixed>       $selectionEntriesToAdd
      * @param array<int>|int|null            $uid
      * @param array<string, mixed>|bool|null $record
@@ -88,15 +98,17 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        $username = $this->backendUserRepository->getUsernameByUid((int) $record[Configuration::FIELD_ASSIGNEE]);
-        if ('' === $username) {
-            return;
-        }
+        $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
+        $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
+        $label = '' !== $username
+            ? $username
+            : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
 
         $selectionEntriesToAdd['assignee'] = [
-            'label' => $username,
+            'label' => $label,
             'iconIdentifier' => 'actions-user',
-            'callbackAction' => 'load',
+            'callbackAction' => 'assignee',
+            'currentAssignee' => $currentAssignee,
         ];
     }
 
@@ -175,15 +187,17 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      */
     public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
     {
-        $username = $this->backendUserRepository->getUsernameByUid((int) ($folderRecord[Configuration::FIELD_ASSIGNEE] ?? 0));
-        if ('' === $username) {
-            return;
-        }
+        $currentAssignee = (int) ($folderRecord[Configuration::FIELD_ASSIGNEE] ?? 0);
+        $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
+        $label = '' !== $username
+            ? $username
+            : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
 
         $selectionEntriesToAdd['assignee'] = [
-            'label' => $username,
+            'label' => $label,
             'iconIdentifier' => 'actions-user',
-            'callbackAction' => 'load',
+            'callbackAction' => 'assignee',
+            'currentAssignee' => $currentAssignee,
         ];
     }
 

@@ -13,16 +13,19 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+
+use function sprintf;
 
 /**
  * ListSelectionService.
@@ -40,8 +43,23 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         CommentRepository $commentRepository,
         FolderStatusRepository $folderStatusRepository,
         private readonly IconFactory $iconFactory,
+        private readonly BackendUserRepository $backendUserRepository,
     ) {
         parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder, $folderStatusRepository);
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     */
+    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    {
+        $title = $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status');
+
+        $selectionEntriesToAdd['header'] = sprintf(
+            '<li><h6 class="dropdown-header"><strong>%s</strong></h6></li>',
+            htmlspecialchars($title, \ENT_QUOTES | \ENT_HTML5, 'UTF-8'),
+        );
+        $selectionEntriesToAdd['headerDivider'] = '<li><hr class="dropdown-divider"></li>';
     }
 
     /**
@@ -61,7 +79,12 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $href = $this->buildUriForStatusChange($table, $uid, $status)->__toString();
         $title = htmlspecialchars($status->getTitle(), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
-        $selectionEntriesToAdd[(string) $status->getUid()] = '<li><a class="dropdown-item" href="'.$href.'">'.$icon.' '.$title.'</a></li>';
+        $selectionEntriesToAdd[(string) $status->getUid()] = sprintf(
+            '<li><a class="dropdown-item" href="%s">%s %s</a></li>',
+            $href,
+            $icon,
+            $title,
+        );
     }
 
     /**
@@ -85,7 +108,12 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $href = $this->buildUriForStatusChange($table, $uid, null)->__toString();
         $title = htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
-        $selectionEntriesToAdd['reset'] = '<li><a class="dropdown-item" href="'.$href.'">'.$icon.' '.$title.'</a></li>';
+        $selectionEntriesToAdd['reset'] = sprintf(
+            '<li><a class="dropdown-item" href="%s">%s %s</a></li>',
+            $href,
+            $icon,
+            $title,
+        );
     }
 
     /**
@@ -94,7 +122,25 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
     {
-        // Not implemented for list selection - only used in dropdown buttons
+        $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
+        $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
+        $label = '' !== $username
+            ? $username
+            : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
+
+        $icon = $this->iconFactory->getIcon('actions-user', IconUtility::getDefaultIconSize())->render();
+        $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
+        $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+
+        $selectionEntriesToAdd['assignee'] = sprintf(
+            '<li><a class="dropdown-item" href="%s" data-content-planner-assignees="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-current-assignee="%d">%s %s</a></li>',
+            $href,
+            $table,
+            $uid,
+            $currentAssignee,
+            $icon,
+            $escapedLabel,
+        );
     }
 
     /**
@@ -110,8 +156,20 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $icon = $this->iconFactory->getIcon('actions-message', IconUtility::getDefaultIconSize())->render();
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = ($commentsCount > 0 ? $commentsCount.' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
+        $newCommentUri = htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $editUri = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
-        $selectionEntriesToAdd['comments'] = '<li><a class="dropdown-item" href="'.$href.'">'.$icon.' '.htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8').'</a></li>';
+        $selectionEntriesToAdd['comments'] = sprintf(
+            '<li><a class="dropdown-item" href="%s" data-content-planner-comments="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-new-comment-uri="%s" data-edit-uri="%s">%s %s</a></li>',
+            $href,
+            $table,
+            $uid,
+            $newCommentUri,
+            $editUri,
+            $icon,
+            $escapedLabel,
+        );
     }
 
     /**
@@ -131,8 +189,20 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $icon = $this->iconFactory->getIcon('actions-check-square', IconUtility::getDefaultIconSize())->render();
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = "$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
+        $newCommentUri = htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $editUri = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
-        $selectionEntriesToAdd['commentsTodo'] = '<li><a class="dropdown-item" href="'.$href.'">'.$icon.' '.htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8').'</a></li>';
+        $selectionEntriesToAdd['commentsTodo'] = sprintf(
+            '<li><a class="dropdown-item" href="%s" data-content-planner-comments="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-new-comment-uri="%s" data-edit-uri="%s">%s %s</a></li>',
+            $href,
+            $table,
+            $uid,
+            $newCommentUri,
+            $editUri,
+            $icon,
+            $escapedLabel,
+        );
     }
 
     /**
@@ -150,7 +220,12 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $href = $this->buildUriForFolderStatusChange($combinedIdentifier, $status)->__toString();
         $title = htmlspecialchars($status->getTitle(), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
-        $selectionEntriesToAdd[(string) $status->getUid()] = '<li><a class="dropdown-item" href="'.$href.'">'.$icon.' '.$title.'</a></li>';
+        $selectionEntriesToAdd[(string) $status->getUid()] = sprintf(
+            '<li><a class="dropdown-item" href="%s">%s %s</a></li>',
+            $href,
+            $icon,
+            $title,
+        );
     }
 
     /**
@@ -162,26 +237,79 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     {
         $icon = $this->iconFactory->getIcon('actions-close', IconUtility::getDefaultIconSize())->render();
         $href = $this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString();
-        $title = htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $title = htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
-        $selectionEntriesToAdd['reset'] = '<li><a class="dropdown-item" href="'.$href.'">'.$icon.' '.$title.'</a></li>';
+        $selectionEntriesToAdd['reset'] = sprintf(
+            '<li><a class="dropdown-item" href="%s">%s %s</a></li>',
+            $href,
+            $icon,
+            $title,
+        );
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
+     *
+     * @throws Exception
+     * @throws RouteNotFoundException
      */
     public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
     {
-        // Not used in list view dropdown - assignee/comments only shown in context menu
+        $table = Configuration::TABLE_FOLDER;
+        $uid = (int) $folderRecord['uid'];
+        $currentAssignee = (int) ($folderRecord[Configuration::FIELD_ASSIGNEE] ?? 0);
+
+        $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
+        $label = '' !== $username
+            ? $username
+            : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
+
+        $icon = $this->iconFactory->getIcon('actions-user', IconUtility::getDefaultIconSize())->render();
+        $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
+        $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+
+        $selectionEntriesToAdd['assignee'] = sprintf(
+            '<li><a class="dropdown-item" href="%s" data-content-planner-assignees="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-current-assignee="%d">%s %s</a></li>',
+            $href,
+            $table,
+            $uid,
+            $currentAssignee,
+            $icon,
+            $escapedLabel,
+        );
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
+     *
+     * @throws RouteNotFoundException
+     * @throws Exception
      */
     public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
     {
-        // Not used in list view dropdown - assignee/comments only shown in context menu
+        $table = Configuration::TABLE_FOLDER;
+        $uid = (int) $folderRecord['uid'];
+
+        $commentsCount = PlannerUtility::hasComments($folderRecord) ? $this->commentRepository->countAllByRecord($uid, $table) : 0;
+
+        $icon = $this->iconFactory->getIcon('actions-message', IconUtility::getDefaultIconSize())->render();
+        $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
+        $label = ($commentsCount > 0 ? $commentsCount.' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
+        $newCommentUri = htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $editUri = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+
+        $selectionEntriesToAdd['comments'] = sprintf(
+            '<li><a class="dropdown-item" href="%s" data-content-planner-comments="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-new-comment-uri="%s" data-edit-uri="%s">%s %s</a></li>',
+            $href,
+            $table,
+            $uid,
+            $newCommentUri,
+            $editUri,
+            $icon,
+            $escapedLabel,
+        );
     }
 }
