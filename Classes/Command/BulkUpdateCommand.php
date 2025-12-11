@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 use function is_int;
@@ -42,6 +42,7 @@ final class BulkUpdateCommand extends Command
         private readonly StatusRepository $statusRepository,
         private readonly RecordRepository $recordRepository,
         private readonly CommentRepository $commentRepository,
+        private readonly FolderStatusRepository $folderStatusRepository,
     ) {
         parent::__construct();
     }
@@ -49,19 +50,33 @@ final class BulkUpdateCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('table', InputArgument::OPTIONAL, 'The table to update.', 'pages')
-            ->addArgument('uid', InputArgument::OPTIONAL, 'The uid to update.', 1)
+            ->addArgument('table', InputArgument::OPTIONAL, 'The table to update (pages, sys_file_metadata, folder).', 'pages')
+            ->addArgument('uid', InputArgument::OPTIONAL, 'The uid to update. For folders, use the combined identifier (e.g., "1:/user_upload/folder/").', '1')
             ->addArgument('status', InputArgument::OPTIONAL, 'The status uid to set. If empty, the status will be cleared.', null)
             ->addOption('recursive', 'r', InputOption::VALUE_OPTIONAL, 'Whether to update pages recursively.', false)
             ->addOption('assignee', 'a', InputOption::VALUE_REQUIRED, 'The backend user uid to set an assignee for this record.', null)
             ->addUsage('pages 1 4')
-            ->setHelp('A command to perform a bulk operation to content planner entities.');
+            ->addUsage('sys_file_metadata 123 4')
+            ->addUsage('folder "1:/user_upload/myfolder/" 4')
+            ->addUsage('folder "1:/user_upload/myfolder/" 4 --assignee=1')
+            ->setHelp(
+                'A command to perform a bulk operation to content planner entities.'."\n\n".
+                'Supported tables:'."\n".
+                '  pages             - Update page records'."\n".
+                '  sys_file_metadata - Update file metadata records'."\n".
+                '  folder            - Update folder status (use combined identifier as uid)'."\n\n".
+                'Examples:'."\n".
+                '  bin/typo3 content-planner:bulk-update pages 1 4'."\n".
+                '  bin/typo3 content-planner:bulk-update pages 1 4 -r'."\n".
+                '  bin/typo3 content-planner:bulk-update sys_file_metadata 123 4'."\n".
+                '  bin/typo3 content-planner:bulk-update folder "1:/user_upload/folder/" 4',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $table = $input->getArgument('table');
-        $uid = (int) $input->getArgument('uid');
+        $uidArgument = $input->getArgument('uid');
         $recursive = false !== $input->getOption('recursive');
 
         $statusEntity = $this->resolveStatusEntity((int) $input->getArgument('status'), $output);
@@ -85,6 +100,12 @@ final class BulkUpdateCommand extends Command
             $assignee = $this->normalizeAssignee(null, false);
         }
 
+        // Handle folder updates separately
+        if ('folder' === $table) {
+            return $this->executeFolderUpdate($uidArgument, $status, $assignee, $statusEntity, $output);
+        }
+
+        $uid = (int) $uidArgument;
         $uids = $this->collectTargetUids($uid, $table, $recursive);
         $count = $this->performBulkUpdate($uids, $table, $status, $assignee);
 
@@ -92,6 +113,34 @@ final class BulkUpdateCommand extends Command
             'Updated %d "%s" records to status "%s".',
             $count,
             $table,
+            null !== $statusEntity ? $statusEntity->getTitle() : 'clear',
+        ));
+
+        return Command::SUCCESS;
+    }
+
+    /**
+     * Handle folder status updates using combined identifier.
+     */
+    private function executeFolderUpdate(
+        string $combinedIdentifier,
+        ?int $status,
+        int|false|null $assignee,
+        mixed $statusEntity,
+        OutputInterface $output,
+    ): int {
+        if (!str_contains($combinedIdentifier, ':')) {
+            $output->writeln('<error>Invalid folder identifier. Use combined identifier format (e.g., "1:/user_upload/folder/").</error>');
+
+            return Command::FAILURE;
+        }
+
+        $assigneeValue = false === $assignee ? null : $assignee;
+        $this->folderStatusRepository->createOrUpdate($combinedIdentifier, $status, $assigneeValue);
+
+        $output->writeln(sprintf(
+            'Updated folder "%s" to status "%s".',
+            $combinedIdentifier,
             null !== $statusEntity ? $statusEntity->getTitle() : 'clear',
         ));
 
