@@ -53,12 +53,10 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      */
     public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
     {
-        $icon = $this->iconFactory->getIcon('flag-gray', IconUtility::getDefaultIconSize())->render();
         $title = $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status');
 
         $selectionEntriesToAdd['header'] = sprintf(
-            '<li><h6 class="dropdown-header">%s <strong>%s</strong></h6></li>',
-            $icon,
+            '<li><h6 class="dropdown-header"><strong>%s</strong></h6></li>',
             htmlspecialchars($title, \ENT_QUOTES | \ENT_HTML5, 'UTF-8'),
         );
         $selectionEntriesToAdd['headerDivider'] = '<li><hr class="dropdown-divider"></li>';
