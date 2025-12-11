@@ -115,10 +115,13 @@ class ExtensionUtility
 
         $baseTables = ['pages'];
 
-        // Add sys_file_metadata and folder table if Filelist support is enabled
         if (self::isFilelistSupportEnabled()) {
             $baseTables[] = 'sys_file_metadata';
             $baseTables[] = Configuration::TABLE_FOLDER;
+        }
+
+        if (self::isContentElementSupportEnabled()) {
+            $baseTables[] = 'tt_content';
         }
 
         return array_merge($baseTables, $additionalTables);
@@ -129,12 +132,14 @@ class ExtensionUtility
         return in_array($table, self::getRecordTables(), true);
     }
 
-    /**
-     * Check if Filelist support (sys_file_metadata and folders) is enabled.
-     */
     public static function isFilelistSupportEnabled(): bool
     {
         return self::isFeatureEnabled('enableFilelistSupport');
+    }
+
+    public static function isContentElementSupportEnabled(): bool
+    {
+        return self::isFeatureEnabled('enableContentElementSupport');
     }
 
     public static function isFeatureEnabled(string $feature): bool
