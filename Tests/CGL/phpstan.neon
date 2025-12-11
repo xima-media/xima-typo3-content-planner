@@ -24,3 +24,4 @@ parameters:
 	typo3:
 		requestGetAttributeMapping:
 			routing: 'TYPO3\CMS\Backend\Routing\RouteResult'
+			route: 'TYPO3\CMS\Backend\Routing\Route'

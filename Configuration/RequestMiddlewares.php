@@ -15,8 +15,11 @@ return [
     'backend' => [
         'xima/content-planner-content-element' => [
             'target' => Xima\XimaTypo3ContentPlanner\Middleware\BackendContentModifierMiddleware::class,
-            'after' => [
+            'before' => [
                 'typo3/cms-core/response-propagation',
+            ],
+            'after' => [
+                'typo3/cms-backend/site-resolver',
             ],
         ],
     ],

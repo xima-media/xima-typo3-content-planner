@@ -15,7 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Middleware;
 
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
-use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\{FileListModifier, ModifierInterface, RecordEditModifier, WebLayoutModifier, WebListModifier};
+use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\{FileListModifier, FileStorageTreeModifier, ModifierInterface, RecordEditModifier, WebLayoutModifier, WebListModifier};
 
 /**
  * BackendContentModifierMiddleware.
@@ -23,18 +23,20 @@ use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\{FileListModifier, Modi
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class BackendContentModifierMiddleware implements MiddlewareInterface
+readonly class BackendContentModifierMiddleware implements MiddlewareInterface
 {
     /** @var ModifierInterface[] */
-    private readonly array $modifiers;
+    private array $modifiers;
 
     public function __construct(
+        FileStorageTreeModifier $fileStorageTreeModifier,
         FileListModifier $fileListModifier,
         RecordEditModifier $recordEditModifier,
         WebLayoutModifier $webLayoutModifier,
         WebListModifier $webListModifier,
     ) {
         $this->modifiers = [
+            $fileStorageTreeModifier,
             $fileListModifier,
             $recordEditModifier,
             $webLayoutModifier,
