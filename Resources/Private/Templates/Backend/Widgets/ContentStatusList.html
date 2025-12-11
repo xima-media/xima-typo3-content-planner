@@ -2,7 +2,7 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<div class="widget-content-main content-planner-widget {f:if(condition: filter, then: 'content-planner-widget--has-filter')}">
+<div class="widget-content-main content-planner-widget {f:if(condition: filter, then: 'content-planner-widget--has-filter')} {f:if(condition: '{mode} == \'assignee\'', then: 'content-planner-widget--assigned')} {f:if(condition: '{mode} == \'todo\'', then: 'content-planner-widget--todo')}">
     <input type="hidden" name="currentBackendUser" value="{currentBackendUser}"/>
     <input type="hidden" name="todo" value="{todo}"/>
 
