@@ -64,7 +64,7 @@ class Configuration
     public static function registerCache(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['ximatypo3contentplanner_cache'] ??= [];
-        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc']['ximatypo3contentplanner_cache'] = DataHandlerHook::class . '->clearCachePostProc';
+        $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['clearCachePostProc']['ximatypo3contentplanner_cache'] = DataHandlerHook::class.'->clearCachePostProc';
     }
 
     public static function addRegister(): void
@@ -74,6 +74,6 @@ class Configuration
 
     public static function addRtePresets(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['comments'] = 'EXT:' . self::EXT_KEY . '/Configuration/RTE/Comments.yaml';
+        $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['comments'] = 'EXT:'.self::EXT_KEY.'/Configuration/RTE/Comments.yaml';
     }
 }
