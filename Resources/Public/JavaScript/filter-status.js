@@ -27,7 +27,7 @@ class FilterStatus {
               badge.innerHTML = widget.querySelectorAll('.widget-table tbody tr').length;
             }
           });
-          widget.classList.add('widget-contentPlanner-status--assigned');
+          widget.classList.add('content-planner-widget--assigned');
         } else if (todo && todo !== 'false') {
           FilterStatus.search(widget, {todo: true});
           widget.classList.add('content-planner-widget--todo');

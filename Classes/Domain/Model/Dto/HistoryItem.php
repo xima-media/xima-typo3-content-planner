@@ -26,6 +26,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
+use function is_array;
 use function is_string;
 
 /**
@@ -84,7 +85,11 @@ final class HistoryItem
 
     public function getTitle(): string
     {
-        return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['relatedRecordTablename']), $this->getRelatedRecord());
+        return match ($this->data['relatedRecordTablename'] ?? '') {
+            'sys_file_metadata' => $this->getTitleForFile(),
+            Configuration::TABLE_FOLDER => $this->getTitleForFolder(),
+            default => ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['relatedRecordTablename']), $this->getRelatedRecord()),
+        };
     }
 
     /**
@@ -194,6 +199,42 @@ final class HistoryItem
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    private function getTitleForFile(): string
+    {
+        $record = $this->getRelatedRecord();
+        if (!is_array($record) || !isset($record['file'])) {
+            return ExtensionUtility::getTitle('file', $record);
+        }
+
+        $fileRecord = ContentUtility::getExtensionRecord('sys_file', (int) $record['file']);
+
+        return is_array($fileRecord) && isset($fileRecord['name'])
+            ? $fileRecord['name']
+            : ExtensionUtility::getTitle('file', $record);
+    }
+
+    private function getTitleForFolder(): string
+    {
+        $record = $this->getRelatedRecord();
+        if (!is_array($record) || !isset($record['folder_identifier'])) {
+            return ExtensionUtility::getTitle('folder_identifier', $record);
+        }
+
+        return self::extractFolderName($record['folder_identifier']);
+    }
+
+    /**
+     * Extract the folder name from a full path identifier.
+     * E.g., "/user_upload/subfolder/" becomes "subfolder".
+     */
+    private static function extractFolderName(string $path): string
+    {
+        $path = rtrim($path, '/');
+        $segments = explode('/', $path);
+
+        return end($segments) ?: $path;
     }
 
     private function loadRelatedRecord(): void

@@ -52,6 +52,16 @@
     margin-bottom: 0.25rem;
 }
 
+.content-planner-widget__filter .input-group {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.content-planner-widget__filter .input-group .btn {
+    flex-shrink: 0;
+}
+
 .content-planner-widget__filter .form-select {
     min-width: 80px;
     max-width: 120px;
@@ -142,7 +152,6 @@
 /* Status Widget with Filter */
 .content-planner-widget--has-filter {
     padding-top: 0;
-    overflow-y: visible;
 }
 
 /* Prevent unnecessary scrolling in widgets with short content */
