@@ -53,20 +53,11 @@ final class CommentItem
 
     public function getTitle(): string
     {
-        // Special handling for sys_file_metadata - get filename from sys_file
-        if ('sys_file_metadata' === $this->data['foreign_table']) {
-            $record = $this->getRelatedRecord();
-            if (is_array($record) && isset($record['file'])) {
-                $fileRecord = BackendUtility::getRecord('sys_file', (int) $record['file'], 'name');
-                if (is_array($fileRecord) && isset($fileRecord['name'])) {
-                    return $fileRecord['name'];
-                }
-            }
-
-            return BackendUtility::getNoRecordTitle();
-        }
-
-        return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['foreign_table']), $this->getRelatedRecord());
+        return match ($this->data['foreign_table']) {
+            'sys_file_metadata' => $this->getTitleForFile(),
+            Configuration::TABLE_FOLDER => $this->getTitleForFolder(),
+            default => ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['foreign_table']), $this->getRelatedRecord()),
+        };
     }
 
     /**
@@ -147,5 +138,41 @@ final class CommentItem
     public function getResolvedDate(): int
     {
         return (int) $this->data['resolved_date'];
+    }
+
+    private function getTitleForFile(): string
+    {
+        $record = $this->getRelatedRecord();
+        if (!is_array($record) || !isset($record['file'])) {
+            return BackendUtility::getNoRecordTitle();
+        }
+
+        $fileRecord = BackendUtility::getRecord('sys_file', (int) $record['file'], 'name');
+
+        return is_array($fileRecord) && isset($fileRecord['name'])
+            ? $fileRecord['name']
+            : BackendUtility::getNoRecordTitle();
+    }
+
+    private function getTitleForFolder(): string
+    {
+        $record = $this->getRelatedRecord();
+        if (!is_array($record) || !isset($record['folder_identifier'])) {
+            return BackendUtility::getNoRecordTitle();
+        }
+
+        return self::extractFolderName($record['folder_identifier']);
+    }
+
+    /**
+     * Extract the folder name from a full path identifier.
+     * E.g., "/user_upload/subfolder/" becomes "subfolder".
+     */
+    private static function extractFolderName(string $path): string
+    {
+        $path = rtrim($path, '/');
+        $segments = explode('/', $path);
+
+        return end($segments) ?: $path;
     }
 }

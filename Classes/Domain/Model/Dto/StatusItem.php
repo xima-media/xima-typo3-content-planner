@@ -66,7 +66,13 @@ final class StatusItem
 
     public function getTitle(): string
     {
-        return ExtensionUtility::getTitle('title', $this->data);
+        $title = ExtensionUtility::getTitle('title', $this->data);
+
+        if (Configuration::TABLE_FOLDER === ($this->data['tablename'] ?? '')) {
+            return self::extractFolderName($title);
+        }
+
+        return $title;
     }
 
     public function getStatus(): ?string
@@ -183,6 +189,18 @@ final class StatusItem
             'todo' => $this->getToDoHtml(),
             'site' => $this->getSite(),
         ];
+    }
+
+    /**
+     * Extract the folder name from a full path identifier.
+     * E.g., "/user_upload/subfolder/" becomes "subfolder".
+     */
+    private static function extractFolderName(string $path): string
+    {
+        $path = rtrim($path, '/');
+        $segments = explode('/', $path);
+
+        return end($segments) ?: $path;
     }
 
     /**
