@@ -6,6 +6,10 @@
 Comments
 =======================
 
+..  contents:: Table of Contents
+    :local:
+    :depth: 2
+
 Every backend user with Content Planner access can add comments to records. Comments are a great way to communicate with other users about the status of a record or to provide additional information.
 
 ..  figure:: /Images/comments.gif

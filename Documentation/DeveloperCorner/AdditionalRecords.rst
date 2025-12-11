@@ -50,7 +50,7 @@ Follow the steps below to extend the Content Planner to support additional recor
     $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['xima_typo3_content_planner']['registerAdditionalRecordTables'][] = 'tx_news_domain_model_news';
 
 ..  note::
-    The extension also support the content status functionality for content elements as well. Just add "tt_content" as described above as additional record table.
+    Content elements (tt_content) are supported by default since version 2.0. See :ref:`enableContentElementSupport <extconf-enableContentElementSupport>` in the extension configuration.
 
 ..  figure:: /Images/additional-content.png
     :alt: Content elements as additional records

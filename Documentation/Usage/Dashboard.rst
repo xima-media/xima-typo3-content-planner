@@ -6,6 +6,10 @@
 Dashboard
 =======================
 
+..  contents:: Table of Contents
+    :local:
+    :depth: 2
+
 The extension brings a prepared dashboard preset with a set of widgets to support the content planning process.
 
 Create
@@ -105,6 +109,10 @@ The dashboard provides a set of helpful widgets to get an overview of the curren
 
 Configurable Widget
 ===================
+
+..  versionadded:: 2.0.0
+
+        `Feature: #161 - Add configurable dashboard widget <https://github.com/xima-media/xima-typo3-content-planner/pull/161>`__
 
 ..  important::
 

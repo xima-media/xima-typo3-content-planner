@@ -18,3 +18,6 @@ The following options can be set in the user settings:
 
     ..  note::
         Useful if you have a color overload in the backend or if you don't use the Content Planner status feature.
+
+..  figure:: /Images/user-settings.jpg
+    :alt: Content Planner User Settings
