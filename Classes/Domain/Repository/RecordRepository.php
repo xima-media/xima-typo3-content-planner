@@ -77,8 +77,9 @@ class RecordRepository
     public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreVisibilityRestriction = false): array
     {
         $cacheIdentifier = sprintf('%s--%s--p%s', Configuration::CACHE_IDENTIFIER, $table, $pid);
-        if ($this->cache->has($cacheIdentifier)) {
-            return $this->cache->get($cacheIdentifier);
+        $cachedResult = $this->cache->get($cacheIdentifier);
+        if (is_array($cachedResult)) {
+            return $cachedResult;
         }
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);

@@ -56,8 +56,9 @@ class StatusRepository extends Repository
     public function findAll(): array
     {
         $cacheIdentifier = sprintf('%s--status--all', Configuration::CACHE_IDENTIFIER);
-        if ($this->cache->has($cacheIdentifier)) {
-            return $this->cache->get($cacheIdentifier);
+        $cachedResult = $this->cache->get($cacheIdentifier);
+        if (is_array($cachedResult)) {
+            return $cachedResult;
         }
 
         $query = $this->createQuery();
@@ -70,8 +71,9 @@ class StatusRepository extends Repository
     public function findByUid($uid): ?Status
     {
         $cacheIdentifier = sprintf('%s--status--%s', Configuration::CACHE_IDENTIFIER, $uid);
-        if ($this->cache->has($cacheIdentifier)) {
-            return $this->cache->get($cacheIdentifier);
+        $cachedResult = $this->cache->get($cacheIdentifier);
+        if ($cachedResult instanceof Status) {
+            return $cachedResult;
         }
 
         $query = $this->createQuery();
