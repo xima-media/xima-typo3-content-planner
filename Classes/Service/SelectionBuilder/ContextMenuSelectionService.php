@@ -96,7 +96,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      *
      * @throws Exception
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
         $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
@@ -118,7 +118,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      *
      * @throws Exception
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $commentsLabel = PlannerUtility::hasComments($record)
             ? $this->commentRepository->countAllByRecord($record['uid'], $table).' '
@@ -135,7 +135,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);
         if (0 === $todoTotal) {

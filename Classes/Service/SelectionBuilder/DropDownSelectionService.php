@@ -111,7 +111,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      * @throws Exception
      * @throws RouteNotFoundException
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
         $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
@@ -134,7 +134,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      * @throws Exception
      * @throws RouteNotFoundException
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $commentsLabel = PlannerUtility::hasComments($record)
             ? $this->commentRepository->countAllByRecord($record['uid'], $table).' '
@@ -154,7 +154,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      *
      * @throws RouteNotFoundException
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);
         if (0 === $todoTotal) {

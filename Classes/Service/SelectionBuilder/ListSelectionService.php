@@ -120,7 +120,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
         $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
@@ -130,11 +130,12 @@ class ListSelectionService extends AbstractSelectionService implements Selection
 
         $icon = $this->iconFactory->getIcon('actions-user', IconUtility::getDefaultIconSize())->render();
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
+        $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['assignee'] = sprintf(
             '<li><a class="dropdown-item" href="%s" data-content-planner-assignees="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-current-assignee="%d">%s %s</a></li>',
-            $href,
+            $escapedHref,
             $table,
             $uid,
             $currentAssignee,
@@ -149,24 +150,24 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      *
      * @throws RouteNotFoundException
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $commentsCount = PlannerUtility::hasComments($record) ? (int) $record[Configuration::FIELD_COMMENTS] : 0;
 
         $icon = $this->iconFactory->getIcon('actions-message', IconUtility::getDefaultIconSize())->render();
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = ($commentsCount > 0 ? $commentsCount.' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
+        $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $newCommentUri = htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
-        $editUri = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['comments'] = sprintf(
             '<li><a class="dropdown-item" href="%s" data-content-planner-comments="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-new-comment-uri="%s" data-edit-uri="%s">%s %s</a></li>',
-            $href,
+            $escapedHref,
             $table,
             $uid,
             $newCommentUri,
-            $editUri,
+            $escapedHref,
             $icon,
             $escapedLabel,
         );
@@ -178,7 +179,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      *
      * @throws RouteNotFoundException
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);
         if (0 === $todoTotal) {
@@ -189,17 +190,17 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $icon = $this->iconFactory->getIcon('actions-check-square', IconUtility::getDefaultIconSize())->render();
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = "$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
+        $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $newCommentUri = htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
-        $editUri = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['commentsTodo'] = sprintf(
             '<li><a class="dropdown-item" href="%s" data-content-planner-comments="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-new-comment-uri="%s" data-edit-uri="%s">%s %s</a></li>',
-            $href,
+            $escapedHref,
             $table,
             $uid,
             $newCommentUri,
-            $editUri,
+            $escapedHref,
             $icon,
             $escapedLabel,
         );
@@ -267,11 +268,12 @@ class ListSelectionService extends AbstractSelectionService implements Selection
 
         $icon = $this->iconFactory->getIcon('actions-user', IconUtility::getDefaultIconSize())->render();
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
+        $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['assignee'] = sprintf(
             '<li><a class="dropdown-item" href="%s" data-content-planner-assignees="true" data-force-ajax-url="true" data-table="%s" data-id="%d" data-current-assignee="%d">%s %s</a></li>',
-            $href,
+            $escapedHref,
             $table,
             $uid,
             $currentAssignee,

@@ -130,7 +130,7 @@ class AbstractSelectionService
      *
      * @throws NotImplementedException
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         throw new NotImplementedException('Method not implemented', 1741960487);
     }
@@ -141,7 +141,7 @@ class AbstractSelectionService
      *
      * @throws NotImplementedException
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         throw new NotImplementedException('Method not implemented', 1741960488);
     }
@@ -152,7 +152,7 @@ class AbstractSelectionService
      *
      * @throws NotImplementedException
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         throw new NotImplementedException('Method not implemented', 1741960489);
     }
