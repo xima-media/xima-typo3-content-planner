@@ -55,8 +55,13 @@ class PermissionUtility
             return false;
         }
 
-        if (!$backendUser->check('tables_select', $table) || !BackendUtility::readPageAccess(
-            $record['pid'],
+        if (!$backendUser->check('tables_select', $table)) {
+            return false;
+        }
+
+        // Check page access only if record has a pid (not applicable for sys_file_metadata, folders, etc.)
+        if (isset($record['pid']) && !BackendUtility::readPageAccess(
+            (int) $record['pid'],
             $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW),
         )) {
             return false;
