@@ -6,7 +6,9 @@ services:
 
   Xima\XimaTypo3ContentPlanner\:
     resource: '../Classes/*'
-    exclude: '../Classes/Domain/Model/*'
+    exclude:
+      - '../Classes/Domain/Model/*'
+      - '../Classes/Widgets/ConfigurableContentStatusWidget.php'
 
   cache.ximatypo3contentplanner_cache:
     class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
