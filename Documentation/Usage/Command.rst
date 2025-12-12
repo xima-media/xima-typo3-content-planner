@@ -42,6 +42,7 @@ The following command arguments are available:
     Supported tables:
 
     *   ``pages`` - Update page records
+    *   ``tt_content`` - Update content element records (requires enabled Content Element support)
     *   ``sys_file_metadata`` - Update file metadata records (requires enabled Filelist support)
     *   ``folder`` - Update folder status (requires enabled Filelist support, use combined identifier as uid)
     *   Any custom table registered via ``registerAdditionalRecordTables``

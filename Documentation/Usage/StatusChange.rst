@@ -6,6 +6,10 @@
 Status Change
 =======================
 
+..  contents:: Table of Contents
+    :local:
+    :depth: 2
+
 They are several ways to change the status of a page or a record.
 
 Page Tree
@@ -28,7 +32,7 @@ Module Header
 
     Change page status in the module header
 
-In the module header of the modules :code:`web_layout`, :code:`web_list` and :code:`record_edit`, you can change the status of a page via the status dropdown.
+In the module header of the modules :code:`web_layout`, :code:`web_list`, :code:`record_edit` and :code:`file_list`, you can change the status of a page via the status dropdown.
 
 Edit Form
 ******************
@@ -44,7 +48,7 @@ In the edit form of a record, you can change the status in the "Content Planner"
 Record List
 ******************
 
-..  figure:: /Images/change-list.png
+..  figure:: /Images/records.jpg
     :alt: Change page status in the record list
     :class: with-shadow
 
@@ -54,6 +58,9 @@ In the record list, you can change the status of a record via the dropdown.
 
 ..  note::
     These option is only available for additional database records with status behavior.
+
+..  figure:: /Images/records.gif
+    :alt: Records Screencast Content Planner
 
 Update multiple records
 ==================

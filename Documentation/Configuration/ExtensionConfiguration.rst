@@ -22,6 +22,22 @@ Features
 
     Enable record list status info
 
+..  _extconf-enableFilelistSupport:
+
+..  confval:: enableFilelistSupport
+    :type: boolean
+    :Default: 1
+
+    Enable filelist support for files (sys_file_metadata) and folders
+
+..  _extconf-enableContentElementSupport:
+
+..  confval:: enableContentElementSupport
+    :type: boolean
+    :Default: 1
+
+    Enable content element support (tt_content). When enabled, content elements can have their own status, assignee and comments.
+
 ..  _extconf-recordEditHeaderInfo:
 
 ..  confval:: recordEditHeaderInfo
@@ -41,10 +57,14 @@ Features
 ..  _extconf-treeStatusInformation:
 
 ..  confval:: treeStatusInformation
-    :type: boolean
-    :Default: 1
+    :type: options
+    :Default: comments
 
-    Enable the comment status information in the page tree
+    Enable additional information in the page tree. Choose between:
+
+    - **Nothing** (0): No additional information
+    - **Comments** (comments): Show comment count
+    - **Todos** (todos): Show todo count
 
 ..  _extconf-resetContentElementStatusOnPageReset:
 
@@ -55,7 +75,7 @@ Features
     Reset status of content element, if status on corresponding page is reset
 
     ..  note::
-        Therefor, the :ref:`additional record <additional-records>` needs to be set up for "tt_content".
+        Requires :ref:`enableContentElementSupport <extconf-enableContentElementSupport>` to be enabled (default).
 
 Assignee
 =======
