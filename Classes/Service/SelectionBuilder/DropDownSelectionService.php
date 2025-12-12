@@ -97,7 +97,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
     {
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
-            ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
+            ->setLabel($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'))
             ->setIcon($this->iconFactory->getIcon('actions-close'))
             ->setAttributes(['data-content-planner-status-change' => 'true', 'data-content-planner-status-reset' => 'true'])
             ->setHref($this->buildUriForStatusChange($table, $uid, null)->__toString());
@@ -197,7 +197,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
     {
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
-            ->setLabel($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'))
+            ->setLabel($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'))
             ->setIcon($this->iconFactory->getIcon('actions-close'))
             ->setAttributes(['data-content-planner-status-change' => 'true', 'data-content-planner-status-reset' => 'true'])
             ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString());
