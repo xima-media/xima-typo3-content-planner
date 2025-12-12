@@ -17,4 +17,9 @@ return [
         'access' => 'public',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::messageAction',
     ],
+    'ximatypo3contentplanner_folder_status_update' => [
+        'path' => '/content-planner/folder/status/update',
+        'access' => 'public',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\FolderController::class.'::updateStatusAction',
+    ],
 ];

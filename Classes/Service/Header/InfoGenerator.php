@@ -18,13 +18,15 @@ use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 use function array_key_exists;
+use function is_array;
 
 /**
  * InfoGenerator.
@@ -34,13 +36,13 @@ use function array_key_exists;
  */
 class InfoGenerator
 {
-    private ?StatusRepository $statusRepository = null;
-    private ?RecordRepository $recordRepository = null;
-    private ?BackendUserRepository $backendUserRepository = null;
-    private ?CommentRepository $commentRepository = null;
-
     public function __construct(
         private readonly RequestId $requestId,
+        private readonly StatusRepository $statusRepository,
+        private readonly RecordRepository $recordRepository,
+        private readonly BackendUserRepository $backendUserRepository,
+        private readonly CommentRepository $commentRepository,
+        private readonly FolderStatusRepository $folderStatusRepository,
     ) {}
 
     public function generateStatusHeader(
@@ -54,7 +56,7 @@ class InfoGenerator
         }
 
         if (null === $record) {
-            $record = $this->getRecordRepository()->findByUid(
+            $record = $this->recordRepository->findByUid(
                 $table,
                 $uid,
                 ignoreVisibilityRestriction: true,
@@ -65,8 +67,8 @@ class InfoGenerator
             return false;
         }
 
-        $status = $this->getStatusRepository()->findByUid(
-            $record['tx_ximatypo3contentplanner_status'],
+        $status = $this->statusRepository->findByUid(
+            $record[Configuration::FIELD_STATUS],
         );
 
         if (!$status instanceof Status) {
@@ -82,12 +84,41 @@ class InfoGenerator
     }
 
     /**
+     * Generate status header for a folder.
+     *
+     * @throws Exception
+     */
+    public function generateFolderStatusHeader(
+        string $combinedIdentifier,
+        string $folderName,
+    ): string|bool {
+        $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($combinedIdentifier);
+
+        if (!is_array($folderRecord) || !isset($folderRecord[Configuration::FIELD_STATUS]) || 0 === (int) $folderRecord[Configuration::FIELD_STATUS]) {
+            return false;
+        }
+
+        $status = $this->statusRepository->findByUid((int) $folderRecord[Configuration::FIELD_STATUS]);
+
+        if (!$status instanceof Status) {
+            return false;
+        }
+
+        return $this->renderFolderStatusHeaderContentView(
+            $folderRecord,
+            $combinedIdentifier,
+            $folderName,
+            $status,
+        );
+    }
+
+    /**
      * @param array<string, mixed> $record
      */
     public static function checkAssignToCurrentUser(array $record): bool
     {
         if (
-            !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)
+            !array_key_exists(Configuration::FIELD_ASSIGNEE, $record)
             || !ExtensionUtility::isFeatureEnabled(
                 Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT,
             )
@@ -95,9 +126,9 @@ class InfoGenerator
             return false;
         }
 
-        return null === $record['tx_ximatypo3contentplanner_assignee']
-            || 0 === (int) $record['tx_ximatypo3contentplanner_assignee']
-            || (int) $record['tx_ximatypo3contentplanner_assignee'] !==
+        return null === $record[Configuration::FIELD_ASSIGNEE]
+            || 0 === (int) $record[Configuration::FIELD_ASSIGNEE]
+            || (int) $record[Configuration::FIELD_ASSIGNEE] !==
                 (int) $GLOBALS['BE_USER']->user['uid'];
     }
 
@@ -106,13 +137,13 @@ class InfoGenerator
      */
     public static function checkUnassign(array $record): bool
     {
-        if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
+        if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $record)) {
             return false;
         }
 
         if (
-            null !== $record['tx_ximatypo3contentplanner_assignee']
-            && 0 !== (int) $record['tx_ximatypo3contentplanner_assignee']
+            null !== $record[Configuration::FIELD_ASSIGNEE]
+            && 0 !== (int) $record[Configuration::FIELD_ASSIGNEE]
         ) {
             return true;
         }
@@ -131,20 +162,7 @@ class InfoGenerator
         string $table,
         Status $status,
     ): string {
-        // @ToDo: StandaloneView is deprecated and should be replaced
-        //        with FluidView in TYPO3 v13
-        // @phpstan-ignore-next-line classConstant.deprecatedClass
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-
-        // @ToDo: setTemplatePathAndFilename is deprecated and should be
-        //        replaced with ViewFactoryInterface
-        // @phpstan-ignore-next-line method.deprecatedClass
-        $view->setTemplatePathAndFilename(
-            'EXT:'.Configuration::EXT_KEY.
-            '/Resources/Private/Templates/Backend/Header/HeaderInfo.html',
-        );
-
-        $view->assignMultiple([
+        $content = ViewUtility::render('Backend/Header/HeaderInfo', [
             'mode' => $mode->value,
             'data' => $record,
             'table' => $table,
@@ -158,19 +176,19 @@ class InfoGenerator
                 'username' => $this->getAssigneeUsername($record),
                 'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
                 'assignToCurrentUser' => self::checkAssignToCurrentUser($record)
-                    ? UrlHelper::assignToUser($table, $record['uid'])
+                    ? UrlUtility::assignToUser($table, $record['uid'])
                     : false,
                 'unassign' => self::checkUnassign($record)
-                    ? UrlHelper::assignToUser($table, $record['uid'], unassign: true)
+                    ? UrlUtility::assignToUser($table, $record['uid'], unassign: true)
                     : null,
             ],
             'comments' => [
                 'items' => $this->getComments($record, $table),
-                'newCommentUri' => UrlHelper::getNewCommentUrl(
+                'newCommentUri' => UrlUtility::getNewCommentUrl(
                     $table,
                     $record['uid'],
                 ),
-                'editUri' => UrlHelper::getContentStatusPropertiesEditUrl(
+                'editUri' => UrlUtility::getContentStatusPropertiesEditUrl(
                     $table,
                     $record['uid'],
                 ),
@@ -185,23 +203,80 @@ class InfoGenerator
             'userid' => $GLOBALS['BE_USER']->user['uid'],
         ]);
 
-        $content = $view->render();
         $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode);
 
         return $content;
     }
 
     /**
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws Exception|RouteNotFoundException
+     */
+    private function renderFolderStatusHeaderContentView(
+        array $folderRecord,
+        string $combinedIdentifier,
+        string $folderName,
+        Status $status,
+    ): string {
+        $table = Configuration::TABLE_FOLDER;
+        $uid = (int) $folderRecord['uid'];
+
+        $content = ViewUtility::render('Backend/Header/HeaderInfo', [
+            'mode' => HeaderMode::FILE_LIST->value,
+            'data' => $folderRecord,
+            'table' => $table,
+            'pid' => null,
+            'folderIdentifier' => $combinedIdentifier,
+            'folderName' => $folderName,
+            'status' => [
+                'title' => $status->getTitle(),
+                'color' => $status->getColor(),
+                'icon' => $status->getColoredIcon(),
+            ],
+            'assignee' => [
+                'username' => $this->getAssigneeUsername($folderRecord),
+                'assignedToCurrentUser' => $this->getAssignedToCurrentUser($folderRecord),
+                'assignToCurrentUser' => self::checkAssignToCurrentUser($folderRecord)
+                    ? UrlUtility::assignToUser($table, $uid)
+                    : false,
+                'unassign' => self::checkUnassign($folderRecord)
+                    ? UrlUtility::assignToUser($table, $uid, unassign: true)
+                    : null,
+            ],
+            'comments' => [
+                'items' => $this->getFolderComments($folderRecord),
+                'newCommentUri' => UrlUtility::getNewCommentUrl($table, $uid),
+                'editUri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
+                'todoResolved' => ExtensionUtility::isFeatureEnabled(
+                    Configuration::FEATURE_COMMENT_TODOS,
+                ) ? $this->getCommentsTodoResolved($folderRecord, $table) : 0,
+                'todoTotal' => ExtensionUtility::isFeatureEnabled(
+                    Configuration::FEATURE_COMMENT_TODOS,
+                ) ? $this->getCommentsTodoTotal($folderRecord, $table) : 0,
+            ],
+            'contentElements' => null,
+            'userid' => $GLOBALS['BE_USER']->user['uid'],
+        ]);
+
+        $content .= $this->addFrontendAssets(false);
+
+        return $content;
+    }
+
+    /**
      * @param array<string, mixed> $record
+     *
+     * @throws Exception
      */
     private function getAssigneeUsername(array $record): string
     {
-        if (!array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
+        if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $record)) {
             return '';
         }
 
-        return $this->getBackendUserRepository()->getUsernameByUid(
-            (int) $record['tx_ximatypo3contentplanner_assignee'],
+        return $this->backendUserRepository->getUsernameByUid(
+            (int) $record[Configuration::FIELD_ASSIGNEE],
         );
     }
 
@@ -211,7 +286,7 @@ class InfoGenerator
     private function getAssignedToCurrentUser(array $record): bool
     {
         if (
-            !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)
+            !array_key_exists(Configuration::FIELD_ASSIGNEE, $record)
             || !ExtensionUtility::isFeatureEnabled(
                 Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT,
             )
@@ -219,7 +294,7 @@ class InfoGenerator
             return false;
         }
 
-        return (int) $record['tx_ximatypo3contentplanner_assignee'] ===
+        return (int) $record[Configuration::FIELD_ASSIGNEE] ===
             $GLOBALS['BE_USER']->user['uid'];
     }
 
@@ -232,16 +307,8 @@ class InfoGenerator
      */
     private function getComments(array $record, string $table): array
     {
-        if (
-            isset($record['tx_ximatypo3contentplanner_comments'])
-            && is_numeric($record['tx_ximatypo3contentplanner_comments'])
-            && $record['tx_ximatypo3contentplanner_comments'] > 0
-        ) {
-            return $this->getCommentRepository()->findAllByRecord(
-                $record['uid'],
-                $table,
-                true,
-            );
+        if (PlannerUtility::hasComments($record)) {
+            return $this->commentRepository->findAllByRecord($record['uid'], $table, true);
         }
 
         return [];
@@ -252,15 +319,8 @@ class InfoGenerator
      */
     private function getCommentsTodoResolved(array $record, string $table): int
     {
-        if (
-            isset($record['tx_ximatypo3contentplanner_comments'])
-            && is_numeric($record['tx_ximatypo3contentplanner_comments'])
-            && $record['tx_ximatypo3contentplanner_comments'] > 0
-        ) {
-            return $this->getCommentRepository()->countTodoAllByRecord(
-                $record['uid'],
-                $table,
-            );
+        if (PlannerUtility::hasComments($record)) {
+            return $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table);
         }
 
         return 0;
@@ -271,16 +331,8 @@ class InfoGenerator
      */
     private function getCommentsTodoTotal(array $record, string $table): int
     {
-        if (
-            isset($record['tx_ximatypo3contentplanner_comments'])
-            && is_numeric($record['tx_ximatypo3contentplanner_comments'])
-            && $record['tx_ximatypo3contentplanner_comments'] > 0
-        ) {
-            return $this->getCommentRepository()->countTodoAllByRecord(
-                $record['uid'],
-                $table,
-                'todo_total',
-            );
+        if (PlannerUtility::hasComments($record)) {
+            return $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table, 'todo_total');
         }
 
         return 0;
@@ -314,7 +366,7 @@ class InfoGenerator
             ExtensionUtility::isRegisteredRecordTable('tt_content')
             && 'pages' === $table
         ) {
-            return $this->getRecordRepository()->findByPid(
+            return $this->recordRepository->findByPid(
                 'tt_content',
                 $record['uid'],
                 false,
@@ -348,16 +400,16 @@ class InfoGenerator
 
             return '';
         }
-        $content = ExtensionUtility::getCssTag(
+        $content = AssetUtility::getCssTag(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
             ['nonce' => $this->requestId->nonce],
         );
-        $content .= ExtensionUtility::getJsTag(
+        $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/comments-list-modal.js',
             ['nonce' => $this->requestId->nonce],
         );
-        $content .= ExtensionUtility::getJsTag(
+        $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/assignee-selection-modal.js',
             ['nonce' => $this->requestId->nonce],
@@ -366,39 +418,19 @@ class InfoGenerator
         return $content;
     }
 
-    private function getStatusRepository(): StatusRepository
+    /**
+     * @param array<string, mixed> $folderRecord
+     *
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function getFolderComments(array $folderRecord): array
     {
-        if (null === $this->statusRepository) {
-            $this->statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
+        if (PlannerUtility::hasComments($folderRecord)) {
+            return $this->commentRepository->findAllByRecord((int) $folderRecord['uid'], Configuration::TABLE_FOLDER, true);
         }
 
-        return $this->statusRepository;
-    }
-
-    private function getRecordRepository(): RecordRepository
-    {
-        if (null === $this->recordRepository) {
-            $this->recordRepository = GeneralUtility::makeInstance(RecordRepository::class);
-        }
-
-        return $this->recordRepository;
-    }
-
-    private function getBackendUserRepository(): BackendUserRepository
-    {
-        if (null === $this->backendUserRepository) {
-            $this->backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
-        }
-
-        return $this->backendUserRepository;
-    }
-
-    private function getCommentRepository(): CommentRepository
-    {
-        if (null === $this->commentRepository) {
-            $this->commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        }
-
-        return $this->commentRepository;
+        return [];
     }
 }

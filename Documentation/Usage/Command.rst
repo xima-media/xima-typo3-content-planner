@@ -39,6 +39,14 @@ The following command arguments are available:
 
     Defines the table of content planner records to be updated.
 
+    Supported tables:
+
+    *   ``pages`` - Update page records
+    *   ``tt_content`` - Update content element records (requires enabled Content Element support)
+    *   ``sys_file_metadata`` - Update file metadata records (requires enabled Filelist support)
+    *   ``folder`` - Update folder status (requires enabled Filelist support, use combined identifier as uid)
+    *   Any custom table registered via ``registerAdditionalRecordTables``
+
     Example:
 
     ..  tabs::
@@ -48,22 +56,29 @@ The following command arguments are available:
             ..  code-block:: bash
 
                 vendor/bin/typo3 content-planner:bulk-update pages
-                vendor/bin/typo3 content-planner:bulk-update sys_category
+                vendor/bin/typo3 content-planner:bulk-update sys_file_metadata
+                vendor/bin/typo3 content-planner:bulk-update folder
 
         ..  group-tab:: Legacy installation
 
             ..  code-block:: bash
 
                 typo3/sysext/core/bin/typo3 content-planner:bulk-update pages
-                typo3/sysext/core/bin/typo3 content-planner:bulk-update sys_category
+                typo3/sysext/core/bin/typo3 content-planner:bulk-update sys_file_metadata
+                typo3/sysext/core/bin/typo3 content-planner:bulk-update folder
 
 ..  confval:: uid
     :Required: false
-    :type: integer
+    :type: integer|string
     :Default: 1
     :Multiple allowed: false
 
     Defines the uid of the record to be updated.
+
+    ..  note::
+        For folders, use the **combined identifier** instead of a numeric uid.
+        The combined identifier consists of the storage uid and the folder path,
+        separated by a colon (e.g., ``1:/user_upload/myfolder/``).
 
     Example:
 
@@ -74,14 +89,16 @@ The following command arguments are available:
             ..  code-block:: bash
 
                 vendor/bin/typo3 content-planner:bulk-update pages 12
-                vendor/bin/typo3 content-planner:bulk-update sys_category 32
+                vendor/bin/typo3 content-planner:bulk-update sys_file_metadata 123
+                vendor/bin/typo3 content-planner:bulk-update folder "1:/user_upload/myfolder/"
 
         ..  group-tab:: Legacy installation
 
             ..  code-block:: bash
 
                 typo3/sysext/core/bin/typo3 content-planner:bulk-update pages 12
-                typo3/sysext/core/bin/typo3 content-planner:bulk-update sys_category 32
+                typo3/sysext/core/bin/typo3 content-planner:bulk-update sys_file_metadata 123
+                typo3/sysext/core/bin/typo3 content-planner:bulk-update folder "1:/user_upload/myfolder/"
 
 ..  confval:: status
     :Required: false
@@ -100,14 +117,16 @@ The following command arguments are available:
             ..  code-block:: bash
 
                 vendor/bin/typo3 content-planner:bulk-update pages 12 1
-                vendor/bin/typo3 content-planner:bulk-update sys_category 32 2
+                vendor/bin/typo3 content-planner:bulk-update sys_file_metadata 123 2
+                vendor/bin/typo3 content-planner:bulk-update folder "1:/user_upload/myfolder/" 3
 
         ..  group-tab:: Legacy installation
 
             ..  code-block:: bash
 
                 typo3/sysext/core/bin/typo3 content-planner:bulk-update pages 12 1
-                typo3/sysext/core/bin/typo3 content-planner:bulk-update sys_category 32 2
+                typo3/sysext/core/bin/typo3 content-planner:bulk-update sys_file_metadata 123 2
+                typo3/sysext/core/bin/typo3 content-planner:bulk-update folder "1:/user_upload/myfolder/" 3
 
 The following command options are available:
 

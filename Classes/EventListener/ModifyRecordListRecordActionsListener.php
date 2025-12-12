@@ -14,13 +14,19 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
+use TYPO3\CMS\Backend\Template\Components\ActionGroup;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Domain\RecordInterface;
 use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Localization\LanguageService;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, IconHelper, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\{ComponentFactoryUtility, VersionUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
 use function is_array;
@@ -31,25 +37,29 @@ use function is_array;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class ModifyRecordListRecordActionsListener
+#[AsEventListener(identifier: 'xima-typo3-content-planner/backend/modify-record-list-record-actions')]
+final readonly class ModifyRecordListRecordActionsListener
 {
     protected ServerRequest $request;
 
     public function __construct(
-        private readonly IconFactory $iconFactory,
-        private readonly StatusRepository $statusRepository,
-        private readonly RecordRepository $recordRepository,
-        private readonly ListSelectionService $htmlSelectionService,
+        private IconFactory $iconFactory,
+        private StatusRepository $statusRepository,
+        private RecordRepository $recordRepository,
+        private DropDownSelectionService $dropDownSelectionService,
     ) {
         $this->request = $GLOBALS['TYPO3_REQUEST'];
     }
 
+    // @phpstan-ignore-next-line complexity.functionLike
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
-        if (!VisibilityUtility::checkContentStatusVisibility()) {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
             return;
         }
-        $table = $event->getTable();
+        // TYPO3 v13/v14 compatibility: In v14 getRecord() returns RecordInterface, in v13 it returns array
+        // @phpstan-ignore instanceof.alwaysTrue, method.notFound
+        $table = $event->getRecord() instanceof RecordInterface ? $event->getRecord()->getMainType() : $event->getTable();
 
         if (!ExtensionUtility::isRegisteredRecordTable($table) || $event->hasAction('Status')) {
             return;
@@ -60,7 +70,9 @@ final class ModifyRecordListRecordActionsListener
             return;
         }
 
-        $uid = $event->getRecord()['uid'];
+        // TYPO3 v13/v14 compatibility: In v14 getRecord() returns RecordInterface, in v13 it returns array
+        // @phpstan-ignore instanceof.alwaysTrue
+        $uid = $event->getRecord() instanceof RecordInterface ? $event->getRecord()->getUid() : $event->getRecord()['uid'];
 
         // ToDo: this is necessary cause the status is not in the record, pls check tca for this
         $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
@@ -68,29 +80,27 @@ final class ModifyRecordListRecordActionsListener
             return;
         }
 
-        $statusId = $record['tx_ximatypo3contentplanner_status'];
+        $statusId = $record[Configuration::FIELD_STATUS];
         $status = $this->statusRepository->findByUid($statusId);
 
         $title = $status instanceof Status ? $status->getTitle() : 'Status';
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
-        $action = '
-                <a href="#" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'">'
-            .$this->iconFactory->getIcon($icon, IconHelper::getDefaultIconSize())->render().'</a><ul class="dropdown-menu">';
 
-        $actionsToAdd = $this->htmlSelectionService->generateSelection($table, $uid);
+        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
+            ->setLabel($title)
+            ->setTitle($title)
+            ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
+
+        $actionsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
         foreach ($actionsToAdd as $actionToAdd) {
-            $action .= $actionToAdd;
+            $dropDownButton->addItem($actionToAdd);
         }
 
-        $action .= '</ul>';
-        $action .= '';
-
         $event->setAction(
-            $action,
+            VersionUtility::is14OrHigher() ? $dropDownButton : $dropDownButton->render(),
             'Status',
-            'primary',
+            VersionUtility::is14OrHigher() ? ActionGroup::primary : 'primary',
             'delete',
-            '',
         );
     }
 

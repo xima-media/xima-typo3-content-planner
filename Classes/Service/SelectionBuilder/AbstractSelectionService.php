@@ -21,9 +21,11 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
 use function is_array;
@@ -38,11 +40,12 @@ use function is_int;
 class AbstractSelectionService
 {
     public function __construct(
-        private readonly StatusRepository $statusRepository,
+        protected readonly StatusRepository $statusRepository,
         private readonly RecordRepository $recordRepository,
         private readonly StatusSelectionManager $statusSelectionManager,
-        private readonly CommentRepository $commentRepository,
-        private readonly UriBuilder $uriBuilder,
+        protected readonly CommentRepository $commentRepository,
+        protected readonly UriBuilder $uriBuilder,
+        protected readonly FolderStatusRepository $folderStatusRepository,
     ) {}
 
     /**
@@ -64,6 +67,7 @@ class AbstractSelectionService
         $record = $this->getCurrentRecord($table, $uid);
         $selectionEntriesToAdd = [];
 
+        $this->addHeaderItemToSelection($selectionEntriesToAdd);
         $this->addAllStatusItems($selectionEntriesToAdd, $allStatus, $record, $table, $uid);
         $this->addStatusResetSection($selectionEntriesToAdd, $record, $table, $uid);
         $this->addAdditionalActionsSection($selectionEntriesToAdd, $record, $table, $uid);
@@ -79,11 +83,21 @@ class AbstractSelectionService
             return false;
         }
 
-        if (!VisibilityUtility::checkContentStatusVisibility()) {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @throws NotImplementedException
+     */
+    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960484);
     }
 
     /**
@@ -116,7 +130,7 @@ class AbstractSelectionService
      *
      * @throws NotImplementedException
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         throw new NotImplementedException('Method not implemented', 1741960487);
     }
@@ -127,7 +141,7 @@ class AbstractSelectionService
      *
      * @throws NotImplementedException
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         throw new NotImplementedException('Method not implemented', 1741960488);
     }
@@ -138,7 +152,7 @@ class AbstractSelectionService
      *
      * @throws NotImplementedException
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, ?string $table = null, ?int $uid = null): void
+    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {
         throw new NotImplementedException('Method not implemented', 1741960489);
     }
@@ -151,6 +165,119 @@ class AbstractSelectionService
     public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
     {
         throw new NotImplementedException('Method not implemented', 1741960490);
+    }
+
+    /**
+     * Generate selection items for a folder.
+     *
+     * @return array<string, mixed>|false
+     *
+     * @throws Exception|RouteNotFoundException
+     * @throws NotImplementedException
+     */
+    public function generateFolderSelection(string $combinedIdentifier): array|false
+    {
+        $allStatus = $this->statusRepository->findAll();
+        if (0 === count($allStatus)) {
+            return false;
+        }
+
+        $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($combinedIdentifier);
+        $currentStatus = null;
+        if (is_array($folderRecord) && isset($folderRecord[Configuration::FIELD_STATUS]) && 0 !== (int) $folderRecord[Configuration::FIELD_STATUS]) {
+            $currentStatus = (int) $folderRecord[Configuration::FIELD_STATUS];
+        }
+
+        $selectionEntriesToAdd = [];
+
+        $this->addHeaderItemToSelection($selectionEntriesToAdd);
+        foreach ($allStatus as $statusItem) {
+            $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
+        }
+
+        // Add reset option if status is set
+        if (null !== $currentStatus) {
+            if ([] !== $selectionEntriesToAdd) {
+                $this->addDividerItemToSelection($selectionEntriesToAdd);
+            }
+            $this->addFolderStatusResetItemToSelection($selectionEntriesToAdd, $combinedIdentifier);
+        }
+
+        // Add additional actions (assignee, comments) if folder record exists
+        if (is_array($folderRecord) && null !== $currentStatus) {
+            $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
+            $this->addFolderAssigneeItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
+            $this->addFolderCommentsItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
+        }
+
+        return $selectionEntriesToAdd;
+    }
+
+    /**
+     * @param array<int|string, mixed> $selectionEntriesToAdd
+     *
+     * @throws NotImplementedException
+     */
+    public function addFolderStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960491);
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @throws NotImplementedException
+     */
+    public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960492);
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws NotImplementedException
+     */
+    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960493);
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     * @param array<string, mixed> $folderRecord
+     *
+     * @throws NotImplementedException
+     */
+    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    {
+        throw new NotImplementedException('Method not implemented', 1741960494);
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    protected function buildUriForFolderStatusChange(string $combinedIdentifier, ?Status $status): UriInterface
+    {
+        /** @var ServerRequestInterface $request */
+        $request = $GLOBALS['TYPO3_REQUEST'];
+        $currentFolderId = $request->getQueryParams()['id'] ?? '';
+
+        return $this->uriBuilder->buildUriFromRoute(
+            'ximatypo3contentplanner_folder_status_update',
+            [
+                'identifier' => $combinedIdentifier,
+                'status' => $status instanceof Status ? $status->getUid() : 0,
+                'redirect' => (string) $this->uriBuilder->buildUriFromRoute(
+                    'ximatypo3contentplanner_message',
+                    [
+                        'redirect' => (string) $this->uriBuilder->buildUriFromRoute('media_management', ['id' => $currentFolderId]),
+                        'message' => $status instanceof Status ? 'status.changed' : 'status.reset',
+                    ],
+                ),
+            ],
+        );
     }
 
     /**
@@ -168,7 +295,11 @@ class AbstractSelectionService
      */
     protected function getCurrentStatus(array|bool|null $record = null): ?int
     {
-        return is_array($record) ? $record['tx_ximatypo3contentplanner_status'] : null;
+        if (!is_array($record) || !isset($record[Configuration::FIELD_STATUS])) {
+            return null;
+        }
+
+        return (int) $record[Configuration::FIELD_STATUS] ?: null;
     }
 
     protected function compareStatus(Status $status, Status|int|null $currentStatus): bool
@@ -189,25 +320,13 @@ class AbstractSelectionService
      *
      * @throws RouteNotFoundException
      */
-    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status, ?int $pid = null): UriInterface
+    protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status): UriInterface
     {
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
         $route = $request->getAttribute('routing')->getRoute()->getOption('_identifier');
 
-        if ('record_edit' === $route) {
-            $routeArray = [
-                'edit' => [
-                    $table => [
-                        $uid => 'edit',
-                    ],
-                ],
-            ];
-        } else {
-            $routeArray = [
-                'id' => 'web_list' === $route && (bool) $pid ? $pid : $uid,
-            ];
-        }
+        $routeArray = $this->buildRouteArrayForRoute($route, $table, $uid, $request);
 
         $dataArray = [
             $table => [],
@@ -217,7 +336,7 @@ class AbstractSelectionService
         }
         foreach ($uid as $singleId) {
             $dataArray[$table][$singleId] = [
-                'tx_ximatypo3contentplanner_status' => $status instanceof Status ? $status->getUid() : '',
+                Configuration::FIELD_STATUS => $status instanceof Status ? $status->getUid() : '',
             ];
         }
 
@@ -241,7 +360,7 @@ class AbstractSelectionService
      */
     protected function getCommentsTodoResolved(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table) : 0;
+        return PlannerUtility::hasComments($record) ? $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table) : 0;
     }
 
     /**
@@ -249,12 +368,50 @@ class AbstractSelectionService
      */
     protected function getCommentsTodoTotal(array $record, string $table): int
     {
-        return isset($record['tx_ximatypo3contentplanner_comments']) && is_numeric($record['tx_ximatypo3contentplanner_comments']) && $record['tx_ximatypo3contentplanner_comments'] > 0 ? $this->commentRepository->countTodoAllByRecord($record['uid'], $table, 'todo_total') : 0;
+        return PlannerUtility::hasComments($record) ? $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table, 'todo_total') : 0;
     }
 
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    /**
+     * @param array<int, int>|int $uid
+     *
+     * @return array<string, mixed>
+     */
+    private function buildRouteArrayForRoute(string $route, string $table, array|int $uid, ServerRequestInterface $request): array
+    {
+        if ('record_edit' === $route) {
+            return [
+                'edit' => [
+                    $table => [
+                        $uid => 'edit',
+                    ],
+                ],
+            ];
+        }
+
+        if (RouteUtility::isRecordListRoute($route)) {
+            // For record list, use the current page ID from request to stay on the same page
+            $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
+
+            return [
+                'id' => $currentPageId ?: $uid,
+            ];
+        }
+
+        if (RouteUtility::isFileListRoute($route)) {
+            // For file list, use the folder identifier from request to stay on the same folder
+            return [
+                'id' => $request->getQueryParams()['id'] ?? '',
+            ];
+        }
+
+        return [
+            'id' => $uid,
+        ];
     }
 
     /**
@@ -279,7 +436,7 @@ class AbstractSelectionService
      */
     private function addStatusResetSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
     {
-        if (!is_array($record) || (null !== $record['tx_ximatypo3contentplanner_status'] && 0 !== $record['tx_ximatypo3contentplanner_status'])) {
+        if (!is_array($record) || (null !== $record[Configuration::FIELD_STATUS] && 0 !== $record[Configuration::FIELD_STATUS])) {
             if ([] !== $selectionEntriesToAdd) {
                 $this->addDividerItemToSelection($selectionEntriesToAdd);
             }

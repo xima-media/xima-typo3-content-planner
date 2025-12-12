@@ -13,8 +13,16 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, DiffUtility, ExtensionUtility, IconHelper, PermissionUtility, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
+
+use function is_array;
 
 /**
  * CommentItem.
@@ -45,7 +53,11 @@ final class CommentItem
 
     public function getTitle(): string
     {
-        return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['foreign_table']), $this->getRelatedRecord());
+        return match ($this->data['foreign_table']) {
+            'sys_file_metadata' => $this->getTitleForFile(),
+            Configuration::TABLE_FOLDER => $this->getTitleForFolder(),
+            default => ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['foreign_table']), $this->getRelatedRecord()),
+        };
     }
 
     /**
@@ -66,17 +78,17 @@ final class CommentItem
 
     public function getStatusIcon(): string
     {
-        return IconHelper::getIconByStatusUid((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()[Configuration::FIELD_STATUS]);
     }
 
     public function getRecordIcon(): string
     {
-        return IconHelper::getIconByRecord($this->data['foreign_table'], $this->getRelatedRecord());
+        return IconUtility::getIconByRecord($this->data['foreign_table'], $this->getRelatedRecord());
     }
 
     public function getRecordLink(): string
     {
-        return UrlHelper::getRecordLink($this->data['foreign_table'], (int) $this->data['foreign_uid']);
+        return UrlUtility::getRecordLink($this->data['foreign_table'], (int) $this->data['foreign_uid']);
     }
 
     public function getAuthorName(): string
@@ -91,17 +103,17 @@ final class CommentItem
 
     public function getEditUri(): string
     {
-        return UrlHelper::getEditCommentUrl((int) $this->data['uid']);
+        return UrlUtility::getEditCommentUrl((int) $this->data['uid']);
     }
 
     public function getResolvedUri(): string
     {
-        return UrlHelper::getResolvedCommentUrl((int) $this->data['uid'], $this->isResolved());
+        return UrlUtility::getResolvedCommentUrl((int) $this->data['uid'], $this->isResolved());
     }
 
     public function getDeleteUri(): string
     {
-        return UrlHelper::getDeleteCommentUrl((int) $this->data['uid']);
+        return UrlUtility::getDeleteCommentUrl((int) $this->data['uid']);
     }
 
     public function isEdited(): bool
@@ -126,5 +138,41 @@ final class CommentItem
     public function getResolvedDate(): int
     {
         return (int) $this->data['resolved_date'];
+    }
+
+    private function getTitleForFile(): string
+    {
+        $record = $this->getRelatedRecord();
+        if (!is_array($record) || !isset($record['file'])) {
+            return BackendUtility::getNoRecordTitle();
+        }
+
+        $fileRecord = BackendUtility::getRecord('sys_file', (int) $record['file'], 'name');
+
+        return is_array($fileRecord) && isset($fileRecord['name'])
+            ? $fileRecord['name']
+            : BackendUtility::getNoRecordTitle();
+    }
+
+    private function getTitleForFolder(): string
+    {
+        $record = $this->getRelatedRecord();
+        if (!is_array($record) || !isset($record['folder_identifier'])) {
+            return BackendUtility::getNoRecordTitle();
+        }
+
+        return self::extractFolderName($record['folder_identifier']);
+    }
+
+    /**
+     * Extract the folder name from a full path identifier.
+     * E.g., "/user_upload/subfolder/" becomes "subfolder".
+     */
+    private static function extractFolderName(string $path): string
+    {
+        $path = rtrim($path, '/');
+        $segments = explode('/', $path);
+
+        return end($segments) ?: $path;
     }
 }

@@ -1,44 +1,50 @@
-.widget-no-items-found {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    top: 0;
-}
+/**
+ * Content Planner - Comment Styles
+ *
+ * BEM Structure:
+ * - content-planner-comment (Block)
+ * - content-planner-comment__avatar, __text, __actions (Elements)
+ * - content-planner-comment--resolved (Modifiers)
+ */
 
-.widget-no-items-found .xima-typo3-content-planner__empty {
-    background-repeat: no-repeat;
-    display: block;
-    position: relative;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.125;
-    background-position: 50% 55%;
-    background-size: 25%;
-}
+@import '_variables.css';
 
-.widget-contentPlanner--comment {
+/* ==========================================================================
+   Comment Block
+   ========================================================================== */
+
+.content-planner-comment {
     padding-bottom: 2rem;
     gap: 1rem;
     container-name: comment;
     container-type: inline-size;
 }
 
-.widget-contentPlanner--comment.resolved {
+/* ==========================================================================
+   Comment Modifiers
+   ========================================================================== */
+
+.content-planner-comment--resolved {
     opacity: 0.6;
 }
 
-.widget-contentPlanner--comment > .avatar {
+/* ==========================================================================
+   Comment Elements
+   ========================================================================== */
+
+/* Avatar */
+.content-planner-comment__avatar {
     flex: 0 0 40px;
 }
 
 @container comment (width < 300px) {
-    .widget-contentPlanner--comment > .avatar {
+    .content-planner-comment__avatar {
         display: none;
     }
 }
-.widget-contentPlanner--comment .text {
+
+/* Text */
+.content-planner-comment__text {
     position: relative;
     display: inline-block;
     padding: 1rem;
@@ -46,11 +52,12 @@
     margin: 1rem 0;
 }
 
-.widget-contentPlanner--comment .text p {
+.content-planner-comment__text p {
     margin-bottom: 0;
 }
 
-.widget-contentPlanner--comment-actions > a {
+/* Actions */
+.content-planner-comment__actions > a {
     font-size: smaller;
     min-height: 22px;
     padding: 0 6px;
@@ -58,15 +65,28 @@
     border-radius: 0;
 }
 
-.widget-contentPlanner--comment-actions a:hover {
+.content-planner-comment__actions a:hover {
     cursor: pointer;
 }
 
-#widget-contentPlanner--comment-list {
+/* ==========================================================================
+   Comment List
+   ========================================================================== */
+
+.content-planner-comment-list {
+    height: 100%;
     margin-top: 3rem;
 }
 
-#widget-contentPlanner--comment-filter {
+.content-planner-comment-list .content-planner-comment-filter + .content-planner-comment {
+    margin-top: 3rem;
+}
+
+/* ==========================================================================
+   Comment Filter
+   ========================================================================== */
+
+.content-planner-comment-filter {
     width: 100%;
     background: rgba(125, 125, 125, 0.1);
     position: absolute;
@@ -81,41 +101,60 @@
     z-index: 10;
 }
 
-#widget-contentPlanner--comment-filter .form-sort, #widget-contentPlanner--comment-filter .form-check {
+.content-planner-comment-filter .form-sort,
+.content-planner-comment-filter .form-check {
     display: flex;
     gap: 0.5rem;
     align-items: center;
 }
 
-.widget-no-items-found .comment-empty {
-    position: absolute;
-    bottom: 1rem;
+/* ==========================================================================
+   Comment Empty State
+   ========================================================================== */
+
+.content-planner-comment-empty {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.content-planner-comment-empty > .content-planner-widget__empty-icon {
+    background-repeat: no-repeat;
+    display: block;
+    flex-grow: 1;
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 99%;
+    height: 100%;
+    opacity: 0.125;
+    background-position: 50% 55%;
+    background-size: 25%;
+}
+
+.content-planner-comment-empty__text {
+    padding: 1rem;
     color: rgba(125, 125, 125, 0.5);
 }
 
-.widget-no-items-found .comment-empty a {
-    text-decoration: underline;
+.content-planner-comment-empty__text a {
+    text-decoration: underline !important;
 }
 
-.widget-no-items-found .comment-empty a:hover {
+.content-planner-comment-empty__text a:hover {
     cursor: pointer;
+    text-decoration: none !important;
 }
 
-/*
-* Copyright (c) 2003-2025, CKSource Holding sp. z o.o. All rights reserved.
-* For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
-*/
+/* ==========================================================================
+   CKEditor Todo List Styles
+   Copyright (c) 2003-2025, CKSource Holding sp. z o.o. All rights reserved.
+   For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-licensing-options
+   ========================================================================== */
 
-:root {
-    --ck-todo-list-checkmark-size: 16px;
-}
-
-/*
-* To-do list content styles.
-*/
 .todo-list {
     list-style: none;
-    margin: .5em 0;
+    margin: 0.5em 0;
 
     & li {
         position: relative;
@@ -134,8 +173,6 @@
             width: var(--ck-todo-list-checkmark-size);
             height: var(--ck-todo-list-checkmark-size);
             vertical-align: middle;
-
-            /* Needed on iOS */
             border: 0;
 
             /* LTR styles */
@@ -174,8 +211,6 @@
                 box-sizing: content-box;
                 pointer-events: none;
                 content: '';
-
-                /* Calculate tick position, size and border-width proportional to the checkmark size. */
                 left: calc(var(--ck-todo-list-checkmark-size) / 3);
                 top: calc(var(--ck-todo-list-checkmark-size) / 5.3);
                 width: calc(var(--ck-todo-list-checkmark-size) / 5.3);

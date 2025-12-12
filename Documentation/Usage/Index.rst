@@ -14,5 +14,6 @@ This section describes how to properly use the extension in various ways.
     StatusChange
     Assignee
     Comments
+    Filelist
     Dashboard
     Command

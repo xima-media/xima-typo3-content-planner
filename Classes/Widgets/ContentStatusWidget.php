@@ -18,7 +18,8 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, IconHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
 
 use function count;
@@ -103,9 +104,7 @@ class ContentStatusWidget extends AbstractWidget
 
         $recordTables = ExtensionUtility::getRecordTables();
         if (count($recordTables) > 1) {
-            $recordTables = array_map(function ($table) {
-                return ['label' => $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']), 'value' => $table];
-            }, $recordTables);
+            $recordTables = array_map(fn ($table) => ['label' => $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title']), 'value' => $table], $recordTables);
             $filterValues['types'] = $recordTables;
         }
 
@@ -127,8 +126,8 @@ class ContentStatusWidget extends AbstractWidget
         }
 
         return sprintf(
-            '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
-            IconHelper::getIconByIdentifier('actions-check-square'),
+            '%s <span class="content-planner-badge badge" data-status="%s">%d/%d</span>',
+            IconUtility::getIconByIdentifier('actions-check-square'),
             $todoResolved === $todoTotal ? 'resolved' : 'pending',
             $todoResolved,
             $todoTotal,

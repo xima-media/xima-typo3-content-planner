@@ -2,20 +2,12 @@
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<f:if condition="{showTitle}">
-    <div class="widget-content-title d-flex align-items-center">
-        <core:icon identifier="{icon}" size="small"/>
-        <span class="mx-3">
-            <f:translate key="{configuration.title}" extensionName="XimaTypo3ContentPlanner"/>
-        </span>
-    </div>
-</f:if>
-<div class="widget-content-main">
+<div class="widget-content-main content-planner-widget">
     <f:if condition="{records}">
         <f:then>
             <f:for each="{records}" as="record">
                 <f:if condition="{record.relatedRecord}">
-                    <div class="d-flex widget-contentPlanner--comment">
+                    <div class="d-flex content-planner-comment">
                         <be:avatar backendUser="{record.data.author}" size="40"
                                 showIcon="true"/>
                         <div class="d-flex flex-column flex-grow-1">
@@ -31,14 +23,14 @@
                                     </a>
                                 </small>
                             </div>
-                            <div class="text">{record.data.content -> f:format.raw()}</div>
+                            <div class="content-planner-comment__text">{record.data.content -> f:format.raw()}</div>
                         </div>
                     </div>
                 </f:if>
             </f:for>
         </f:then>
         <f:else>
-            <div class="row widget-no-items-found">
+            <div class="content-planner-widget__empty">
                 <f:render partial="Empty"/>
             </div>
         </f:else>

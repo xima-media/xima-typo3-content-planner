@@ -1,19 +1,19 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-    xmlns:xcp="Xima\XimaTypo3ContentPlanner\ViewHelpers"
+    xmlns:xcp="http://typo3.org/ns/Xima/XimaTypo3ContentPlanner/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
 
 <f:variable name="relax">EXT:xima_typo3_content_planner/Resources/Public/Icons/icon-relax-{xcp:randomNumber(min: 1,max: 5)}.svg</f:variable>
-<div class="xima-typo3-content-planner__empty" style="background-image:url({f:uri.resource(path:relax)});"></div>
+<div class="content-planner-widget__empty-icon" style="background-image:url({f:uri.resource(path:relax)});"></div>
 
 <style>
-    html[data-color-scheme="dark"] .xima-typo3-content-planner__empty {
+    html[data-color-scheme="dark"] .content-planner-widget__empty-icon {
         filter: invert(100%);
         -webkit-filter: invert(100%);
     }
 
     @media (prefers-color-scheme: dark) {
-        html[data-color-scheme="auto"] .xima-typo3-content-planner__empty {
+        html[data-color-scheme="auto"] .content-planner-widget__empty-icon {
             filter: invert(100%);
             -webkit-filter: invert(100%);
         }

@@ -24,4 +24,5 @@ enum HeaderMode: string
     case EDIT = 'edit';
     case WEB_LAYOUT = 'web_layout';
     case WEB_LIST = 'web_list';
+    case FILE_LIST = 'file_list';
 }

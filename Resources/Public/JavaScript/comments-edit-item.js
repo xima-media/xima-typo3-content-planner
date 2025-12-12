@@ -17,7 +17,7 @@ class CommentsEditItem {
         const table = currentTarget.getAttribute('data-table')
         const id = currentTarget.getAttribute('data-id')
         const editCommentUrl = currentTarget.getAttribute('data-edit-comment-uri')
-        CreateAndEditCommentModal.openModal(editCommentUrl, document.querySelector('#widget-contentPlanner--comment-list'), table, id)
+        CreateAndEditCommentModal.openModal(editCommentUrl, document.querySelector('#content-planner-comment-list'), table, id)
       })
     })
   }

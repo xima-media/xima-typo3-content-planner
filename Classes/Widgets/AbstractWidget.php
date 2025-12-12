@@ -14,12 +14,11 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Page\{JavaScriptModuleInstruction, PageRenderer};
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\{AdditionalCssInterface, ButtonProviderInterface, JavaScriptInterface, ListDataProviderInterface, WidgetConfigurationInterface, WidgetInterface};
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\ViewFactoryHelper;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
 
 /**
  * AbstractWidget.
@@ -48,14 +47,10 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
      */
     public function render(string $templateFile, array $templateArguments): string
     {
-        $typo3Version = GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion();
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addInlineLanguageLabelFile('EXT:ximatypo3contentplanner/Resources/Private/Language/locallang.xlf');
 
-        return ViewFactoryHelper::renderView($templateFile, array_merge($templateArguments, [
-            'showTitle' => ($typo3Version <= 12),
-            'filterBgFix' => ($typo3Version <= 12),
-        ]));
+        return ViewUtility::render($templateFile, $templateArguments);
     }
 
     abstract public function renderWidgetContent(): string;

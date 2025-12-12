@@ -60,7 +60,7 @@ class CommentsDeleteItem {
       id: target.getAttribute('data-id')
     }
 
-    document.querySelector('#widget-contentPlanner--comment-list')
+    document.querySelector('#content-planner-comment-list')
       .dispatchEvent(new CustomEvent('typo3:contentplanner:reloadcomments', {
         detail: eventDetail,
         bubbles: true,

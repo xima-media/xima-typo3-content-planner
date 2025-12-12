@@ -18,7 +18,7 @@ content work, e.g. a migration process.
 
 (* also supports other records as well)
 
-![Page](./Documentation/Images/page.png)
+![Page](./Documentation/Images/page.jpg)
 
 ## ✨ Features
 
@@ -31,13 +31,21 @@ content work, e.g. a migration process.
   * Recent updates widget for quick access to the latest changes
   * Filterable content planner record overview
 * Extend additional database records with status behavior
+  * Default support for content elements and files/folders in the file list
 
 ## 🔥 Installation
 
 ### Requirements
 
-* TYPO3 >= 12.4
-* PHP 8.1+
+* TYPO3 13.4 LTS & 14.0+
+* PHP 8.2+
+
+### Supports
+
+| **Version** | **TYPO3** | **PHP** |
+|-------------|-----------|---------|
+| 2.x         | 13-14     | 8.2-8.5 |
+| 1.x         | 12-13     | 8.1-8.5 |
 
 ### Composer
 

@@ -12,7 +12,9 @@ declare(strict_types=1);
  */
 
 use Rector\Config\RectorConfig;
+use Rector\Php81\Rector\FuncCall\NullToStrictStringFuncCallArgRector;
 use Rector\PostRector\Rector\NameImportingPostRector;
+use Rector\Set\ValueObject\LevelSetList;
 use Rector\TypeDeclaration\Rector\ClassMethod\AddVoidReturnTypeWhereNoReturnRector;
 use Rector\ValueObject\PhpVersion;
 use Ssch\TYPO3Rector\CodeQuality\General\{ConvertImplicitVariablesToExplicitGlobalsRector, ExtEmConfRector};
@@ -31,11 +33,12 @@ return RectorConfig::configure()
     ])
     // uncomment to reach your current PHP version
     // ->withPhpSets()
-    ->withPhpVersion(PhpVersion::PHP_81)
+    ->withPhpVersion(PhpVersion::PHP_82)
     ->withSets([
         Typo3SetList::CODE_QUALITY,
         Typo3SetList::GENERAL,
-        Typo3LevelSetList::UP_TO_TYPO3_12,
+        Typo3LevelSetList::UP_TO_TYPO3_13,
+        LevelSetList::UP_TO_PHP_82,
     ])
     // To have a better analysis from PHPStan, we teach it here some more things
     ->withPHPStanConfigs([
@@ -46,8 +49,8 @@ return RectorConfig::configure()
         ConvertImplicitVariablesToExplicitGlobalsRector::class,
     ])
     ->withConfiguredRule(ExtEmConfRector::class, [
-        ExtEmConfRector::PHP_VERSION_CONSTRAINT => '8.1.0-8.4.99',
-        ExtEmConfRector::TYPO3_VERSION_CONSTRAINT => '12.4.0-13.4.99',
+        ExtEmConfRector::PHP_VERSION_CONSTRAINT => '8.2.0-8.5.99',
+        ExtEmConfRector::TYPO3_VERSION_CONSTRAINT => '13.4.0-14.3.99',
         ExtEmConfRector::ADDITIONAL_VALUES_TO_BE_REMOVED => [],
     ])
     // If you use withImportNames(), you should consider excluding some TYPO3 files.
@@ -59,6 +62,7 @@ return RectorConfig::configure()
             'ext_tables.php', // This line can be removed since TYPO3 11.4, see https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/11.4/Important-94280-MoveContentsOfExtPhpIntoLocalScopes.html
             'ClassAliasMap.php',
         ],
+        NullToStrictStringFuncCallArgRector::class,
     ])
     ->withTypeCoverageLevel(0)
     ->withDeadCodeLevel(0)

@@ -146,7 +146,7 @@ class BackendUserRepository
                 $user = $userRecord['realName'].' ('.$user.')';
             }
 
-            return htmlspecialchars($user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+            return htmlspecialchars((string) $user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         }
 
         return '';
@@ -199,7 +199,7 @@ class BackendUserRepository
         foreach ($allGroups as $group) {
             $groupMap[(int) $group['uid']] = [
                 'custom_options' => $group['custom_options'] ?? '',
-                'subgroups' => ($group['subgroup'] ?? '') !== '' ? array_map('intval', explode(',', (string) $group['subgroup'])) : [],
+                'subgroups' => ($group['subgroup'] ?? '') !== '' ? array_map(intval(...), explode(',', (string) $group['subgroup'])) : [],
             ];
         }
 
@@ -282,7 +282,7 @@ class BackendUserRepository
         }
 
         // custom_options is stored as comma-separated values
-        $options = array_map('trim', explode(',', $customOptions));
+        $options = array_map(trim(...), explode(',', $customOptions));
 
         return in_array($permission, $options, true);
     }

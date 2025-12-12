@@ -1,0 +1,106 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the "xima_typo3_content_planner" TYPO3 CMS extension.
+ *
+ * (c) 2024-2025 Konrad Michalik <hej@konradmichalik.dev>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Xima\XimaTypo3ContentPlanner\Utility\Data;
+
+use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, StatusRepository};
+
+use function is_array;
+
+/**
+ * StatusRegistry.
+ *
+ * @author Konrad Michalik <hej@konradmichalik.dev>
+ * @license GPL-2.0-or-later
+ */
+class StatusRegistry
+{
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function getStatus(array &$config): void
+    {
+        $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
+
+        foreach ($statusRepository->findAll() as $status) {
+            $config['items'][] = [
+                $status->getTitle(),
+                $status->getUid(),
+                $status->getColoredIcon(),
+            ];
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function getStatusIcons(array &$config): void
+    {
+        foreach (Configuration\Icons::STATUS_ICONS as $icon) {
+            $config['items'][] = [
+                $icon,
+                $icon,
+                "$icon-black",
+            ];
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function getStatusColors(array &$config): void
+    {
+        foreach (Configuration\Colors::STATUS_COLORS as $color) {
+            $config['items'][] = [
+                $color,
+                $color,
+                "color-$color",
+            ];
+        }
+    }
+
+    /**
+     * Get backend users with Content Planner permission.
+     *
+     * @param array<string, mixed> $config
+     *
+     * @throws Exception
+     */
+    public function getAssignableUsers(array &$config): void
+    {
+        $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
+
+        try {
+            $users = $backendUserRepository->findAllWithPermission();
+
+            if (is_array($users)) {
+                foreach ($users as $user) {
+                    $label = $user['username'];
+                    if (($user['realName'] ?? '') !== '') {
+                        $label = $user['realName'].' ('.$user['username'].')';
+                    }
+
+                    $config['items'][] = [
+                        'label' => $label,
+                        'value' => $user['uid'],
+                    ];
+                }
+            }
+        } catch (\Exception) {
+            // In case of error, keep the default items
+        }
+    }
+}

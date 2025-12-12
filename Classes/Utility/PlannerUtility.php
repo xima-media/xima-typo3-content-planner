@@ -17,6 +17,7 @@ use Doctrine\DBAL\Exception;
 use InvalidArgumentException;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\{GeneralUtility, StringUtility};
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{BackendUser, Status};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
 
@@ -89,7 +90,7 @@ class PlannerUtility
     {
         $record = self::preCheckRecordTable($table, $uid);
 
-        return GeneralUtility::makeInstance(StatusRepository::class)->findByUid($record['tx_ximatypo3contentplanner_status']);
+        return GeneralUtility::makeInstance(StatusRepository::class)->findByUid($record[Configuration::FIELD_STATUS]);
     }
 
     /**
@@ -157,7 +158,7 @@ class PlannerUtility
 
         foreach ($comments as $comment) {
             $newId = StringUtility::getUniqueId('NEW');
-            $data['tx_ximatypo3contentplanner_comment'][$newId] = [
+            $data[Configuration::TABLE_COMMENT][$newId] = [
                 'foreign_uid' => $uid,
                 'foreign_table' => $table,
                 'content' => $comment,
@@ -205,6 +206,18 @@ class PlannerUtility
 
         $commentsRepository = GeneralUtility::makeInstance(CommentRepository::class);
         $commentsRepository->deleteAllCommentsByRecord($uid, $table, $like);
+    }
+
+    /**
+     * Check if a record has comments.
+     *
+     * @param array<string, mixed> $record
+     */
+    public static function hasComments(array $record): bool
+    {
+        return isset($record[Configuration::FIELD_COMMENTS])
+            && is_numeric($record[Configuration::FIELD_COMMENTS])
+            && $record[Configuration::FIELD_COMMENTS] > 0;
     }
 
     /**

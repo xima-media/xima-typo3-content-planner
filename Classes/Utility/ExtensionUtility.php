@@ -15,13 +15,11 @@ namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
-use TYPO3\CMS\Core\Utility\{ExtensionManagementUtility, GeneralUtility, PathUtility};
+use TYPO3\CMS\Core\Utility\{ExtensionManagementUtility, GeneralUtility};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function array_key_exists;
 use function in_array;
-use function sprintf;
 
 /**
  * ExtensionUtility.
@@ -36,14 +34,14 @@ class ExtensionUtility
         ExtensionManagementUtility::addTCAcolumns(
             $table,
             [
-                'tx_ximatypo3contentplanner_status' => [
+                Configuration::FIELD_STATUS => [
                     'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
                     'config' => [
                         'items' => [
                             ['label' => '-- stateless --', 'value' => null],
                         ],
-                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getStatus',
+                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\Data\StatusRegistry->getStatus',
                         'type' => 'select',
                         'renderType' => 'selectSingle',
                         'resetSelection' => true,
@@ -55,7 +53,7 @@ class ExtensionUtility
                         'nullable' => true,
                     ],
                 ],
-                'tx_ximatypo3contentplanner_assignee' => [
+                Configuration::FIELD_ASSIGNEE => [
                     'exclude' => 1,
                     'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee',
@@ -69,20 +67,20 @@ class ExtensionUtility
                                 'value' => null,
                             ],
                         ],
-                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\StatusRegistry->getAssignableUsers',
+                        'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\Data\StatusRegistry->getAssignableUsers',
                         'resetSelection' => true,
                         'minitems' => 0,
                         'maxitems' => 1,
                         'nullable' => true,
                     ],
                 ],
-                'tx_ximatypo3contentplanner_comments' => [
+                Configuration::FIELD_COMMENTS => [
                     'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_comments',
                     'config' => [
                         'foreign_field' => 'foreign_uid',
                         'foreign_default_sortby' => 'crdate',
-                        'foreign_table' => 'tx_ximatypo3contentplanner_comment',
+                        'foreign_table' => Configuration::TABLE_COMMENT,
                         'foreign_table_field' => 'foreign_table',
                         'type' => 'inline',
                         'appearance' => [
@@ -115,12 +113,33 @@ class ExtensionUtility
                 ?? []
         );
 
-        return array_merge(['pages'], $additionalTables);
+        $baseTables = ['pages'];
+
+        if (self::isFilelistSupportEnabled()) {
+            $baseTables[] = 'sys_file_metadata';
+            $baseTables[] = Configuration::TABLE_FOLDER;
+        }
+
+        if (self::isContentElementSupportEnabled()) {
+            $baseTables[] = 'tt_content';
+        }
+
+        return array_merge($baseTables, $additionalTables);
     }
 
     public static function isRegisteredRecordTable(string $table): bool
     {
         return in_array($table, self::getRecordTables(), true);
+    }
+
+    public static function isFilelistSupportEnabled(): bool
+    {
+        return self::isFeatureEnabled('enableFilelistSupport');
+    }
+
+    public static function isContentElementSupportEnabled(): bool
+    {
+        return self::isFeatureEnabled('enableContentElementSupport');
     }
 
     public static function isFeatureEnabled(string $feature): bool
@@ -150,50 +169,10 @@ class ExtensionUtility
      */
     public static function getTitle(string $key, array|bool|null $record): string
     {
-        if ($record) {
-            return array_key_exists($key, $record)
-                ? $record[$key]
-                : BackendUtility::getNoRecordTitle();
+        if ($record && array_key_exists($key, $record)) {
+            return (string) $record[$key];
         }
 
         return BackendUtility::getNoRecordTitle();
-    }
-
-    /**
-     * @param array<string, mixed> $attributes
-     *
-     * @throws InvalidFileException
-     */
-    public static function getCssTag(
-        string $cssFileLocation,
-        array $attributes,
-    ): string {
-        return sprintf(
-            '<link %s />',
-            GeneralUtility::implodeAttributes([
-                ...$attributes,
-                'rel' => 'stylesheet',
-                'media' => 'all',
-                'href' => PathUtility::getPublicResourceWebPath($cssFileLocation),
-            ], true),
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $attributes
-     *
-     * @throws InvalidFileException
-     */
-    public static function getJsTag(
-        string $jsFileLocation,
-        array $attributes,
-    ): string {
-        return sprintf(
-            '<script type="module" %s></script>',
-            GeneralUtility::implodeAttributes([
-                ...$attributes,
-                'src' => PathUtility::getPublicResourceWebPath($jsFileLocation),
-            ], true),
-        );
     }
 }

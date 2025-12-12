@@ -61,8 +61,8 @@ interface SelectionInterface
     public function addAssigneeItemToSelection(
         array &$selectionEntriesToAdd,
         array $record,
-        ?string $table = null,
-        ?int $uid = null,
+        string $table,
+        int $uid,
     ): void;
 
     /**
@@ -72,7 +72,7 @@ interface SelectionInterface
     public function addCommentsItemToSelection(
         array &$selectionEntriesToAdd,
         array $record,
-        ?string $table = null,
-        ?int $uid = null,
+        string $table,
+        int $uid,
     ): void;
 }

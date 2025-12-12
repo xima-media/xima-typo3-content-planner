@@ -67,6 +67,18 @@
 				<source/>
 				<target>Content Planner</target>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_folder">
+				<source/>
+				<target>Ordner-Status</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_folder.folder_identifier">
+				<source/>
+				<target>Ordner-Pfad</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_folder.storage_uid">
+				<source/>
+				<target>Speicher</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

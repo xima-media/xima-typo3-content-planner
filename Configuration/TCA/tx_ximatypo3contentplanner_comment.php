@@ -22,14 +22,15 @@ return [
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
         'hideTable' => true,
+        'rootLevel' => -1,
         'typeicon_classes' => [
             'default' => 'content-message',
         ],
-        'searchFields' => 'title,text',
         'default_sortby' => 'crdate DESC',
         'security' => [
             'ignorePageTypeRestriction' => true,
         ],
+        'versioningWS' => true,
     ],
     'types' => [
         '0' => [
@@ -56,6 +57,7 @@ return [
                 'rows' => 5,
                 'max' => 500,
                 'required' => true,
+                'searchable' => false,
             ],
         ],
         'author' => [

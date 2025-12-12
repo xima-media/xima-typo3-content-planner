@@ -14,7 +14,7 @@ What does it do?
 This extension provides a page status functionality to support the planning of
 content work, e.g. a migration process.
 
-..  figure:: /Images/page.png
+..  figure:: /Images/page.jpg
     :alt: Content Planner Intro
 
 ..  _features:
@@ -31,6 +31,8 @@ Features
 - Recent updates :ref:`widget <dashboard-widgets>` for quick access to the latest changes
 - Filterable content planner record overview
 - Extend :ref:`additional database records <additional-records>` with status behavior
+- Content element (tt_content) support out of the box
+- :ref:`Filelist support <filelist>` for files and folders
 
 Screencast
 ========

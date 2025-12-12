@@ -19,9 +19,14 @@ use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, DiffUtility, ExtensionUtility, IconHelper, PermissionUtility, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
+use function is_array;
 use function is_string;
 
 /**
@@ -45,7 +50,7 @@ final class HistoryItem
     {
         $item = new self();
         $item->data = $sysHistoryRow;
-        $item->data['raw_history'] = isset($sysHistoryRow['history_data']) && is_string($sysHistoryRow['history_data']) && '' !== $sysHistoryRow['history_data'] ? json_decode($sysHistoryRow['history_data'], true) : null;
+        $item->data['raw_history'] = $item->getRawHistoryData();
 
         return $item;
     }
@@ -62,15 +67,15 @@ final class HistoryItem
             return false;
         }
 
-        if ('tx_ximatypo3contentplanner_comment' === $this->data['tablename'] && array_key_exists('foreign_table', $this->data['raw_history']) && array_key_exists('foreign_uid', $this->data['raw_history'])) {
+        if (Configuration::TABLE_COMMENT === $this->data['tablename'] && array_key_exists('foreign_table', $this->data['raw_history']) && array_key_exists('foreign_uid', $this->data['raw_history'])) {
             $record = ContentUtility::getExtensionRecord($this->data['raw_history']['foreign_table'], (int) $this->data['raw_history']['foreign_uid']);
         }
 
-        if (null === $record || !array_key_exists('tx_ximatypo3contentplanner_assignee', $record)) {
+        if (null === $record || !array_key_exists(Configuration::FIELD_ASSIGNEE, $record)) {
             return false;
         }
 
-        return ((int) $record['tx_ximatypo3contentplanner_assignee']) === $GLOBALS['BE_USER']->user['uid'];
+        return ((int) $record[Configuration::FIELD_ASSIGNEE]) === $GLOBALS['BE_USER']->user['uid'];
     }
 
     public function getPid(): int
@@ -80,7 +85,11 @@ final class HistoryItem
 
     public function getTitle(): string
     {
-        return ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['relatedRecordTablename']), $this->getRelatedRecord());
+        return match ($this->data['relatedRecordTablename'] ?? '') {
+            'sys_file_metadata' => $this->getTitleForFile(),
+            Configuration::TABLE_FOLDER => $this->getTitleForFolder(),
+            default => ExtensionUtility::getTitle(ExtensionUtility::getTitleField($this->data['relatedRecordTablename']), $this->getRelatedRecord()),
+        };
     }
 
     /**
@@ -101,24 +110,24 @@ final class HistoryItem
 
     public function getRecordLink(): string
     {
-        return UrlHelper::getRecordLink($this->data['relatedRecordTablename'], (int) $this->getRelatedRecord()['uid']);
+        return UrlUtility::getRecordLink($this->data['relatedRecordTablename'], (int) $this->getRelatedRecord()['uid']);
     }
 
     public function getStatus(): ?string
     {
-        $status = ContentUtility::getStatus($this->getRelatedRecord()['tx_ximatypo3contentplanner_status']);
+        $status = ContentUtility::getStatus((int) $this->getRelatedRecord()[Configuration::FIELD_STATUS]);
 
         return $status?->getTitle();
     }
 
     public function getStatusIcon(): string
     {
-        return IconHelper::getIconByStatusUid((int) $this->getRelatedRecord()['tx_ximatypo3contentplanner_status'], true);
+        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()[Configuration::FIELD_STATUS], true);
     }
 
     public function getRecordIcon(): string
     {
-        return IconHelper::getIconByRecord($this->data['relatedRecordTablename'], $this->getRelatedRecord(), true);
+        return IconUtility::getIconByRecord($this->data['relatedRecordTablename'], $this->getRelatedRecord(), true);
     }
 
     public function getTimeAgo(): string
@@ -128,29 +137,35 @@ final class HistoryItem
 
     public function getUser(): string
     {
-        return isset($this->data['realName']) && is_string($this->data['realName']) && '' !== $this->data['realName'] ? $this->data['realName'].' ('.$this->data['username'].')' : $this->data['username'];
+        $realName = $this->data['realName'] ?? '';
+
+        if (is_string($realName) && '' !== $realName) {
+            return $realName.' ('.$this->data['username'].')';
+        }
+
+        return $this->data['username'];
     }
 
     public function getChangeTypeIcon(): string
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         switch ($this->data['tablename']) {
-            case 'tx_ximatypo3contentplanner_comment':
-                return IconHelper::getIconByIdentifier('actions-comment');
+            case Configuration::TABLE_COMMENT:
+                return IconUtility::getIconByIdentifier('actions-comment');
             default:
                 if (!ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
                     break;
                 }
                 switch (array_key_first($this->data['raw_history']['newRecord'])) {
-                    case 'tx_ximatypo3contentplanner_status':
-                        return IconHelper::getIconByStatusUid((int) $this->data['raw_history']['newRecord']['tx_ximatypo3contentplanner_status'], true);
-                    case 'tx_ximatypo3contentplanner_assignee':
-                        return IconHelper::getIconByIdentifier('actions-user');
+                    case Configuration::FIELD_STATUS:
+                        return IconUtility::getIconByStatusUid((int) $this->data['raw_history']['newRecord'][Configuration::FIELD_STATUS], true);
+                    case Configuration::FIELD_ASSIGNEE:
+                        return IconUtility::getIconByIdentifier('actions-user');
                 }
                 break;
         }
 
-        return IconHelper::getIconByIdentifier('actions-open');
+        return IconUtility::getIconByIdentifier('actions-open');
     }
 
     /**
@@ -174,7 +189,7 @@ final class HistoryItem
             return DiffUtility::checkRecordDiff($data, $actiontype);
         }
 
-        if ('tx_ximatypo3contentplanner_comment' === $tablename) {
+        if (Configuration::TABLE_COMMENT === $tablename) {
             return DiffUtility::checkCommendDiff($data, $actiontype);
         }
 
@@ -186,18 +201,49 @@ final class HistoryItem
         return $GLOBALS['LANG'];
     }
 
+    private function getTitleForFile(): string
+    {
+        $record = $this->getRelatedRecord();
+        if (!is_array($record) || !isset($record['file'])) {
+            return ExtensionUtility::getTitle('file', $record);
+        }
+
+        $fileRecord = ContentUtility::getExtensionRecord('sys_file', (int) $record['file']);
+
+        return is_array($fileRecord) && isset($fileRecord['name'])
+            ? $fileRecord['name']
+            : ExtensionUtility::getTitle('file', $record);
+    }
+
+    private function getTitleForFolder(): string
+    {
+        $record = $this->getRelatedRecord();
+        if (!is_array($record) || !isset($record['folder_identifier'])) {
+            return ExtensionUtility::getTitle('folder_identifier', $record);
+        }
+
+        return self::extractFolderName($record['folder_identifier']);
+    }
+
+    /**
+     * Extract the folder name from a full path identifier.
+     * E.g., "/user_upload/subfolder/" becomes "subfolder".
+     */
+    private static function extractFolderName(string $path): string
+    {
+        $path = rtrim($path, '/');
+        $segments = explode('/', $path);
+
+        return end($segments) ?: $path;
+    }
+
     private function loadRelatedRecord(): void
     {
-        switch ($this->data['tablename']) {
-            case 'pages':
-                $this->loadPageRecord();
-                break;
-            case 'tx_ximatypo3contentplanner_comment':
-                $this->loadCommentRelatedRecord();
-                break;
-            default:
-                $this->loadDefaultRecord();
-        }
+        match ($this->data['tablename']) {
+            'pages' => $this->loadPageRecord(),
+            Configuration::TABLE_COMMENT => $this->loadCommentRelatedRecord(),
+            default => $this->loadDefaultRecord(),
+        };
     }
 
     private function loadPageRecord(): void

@@ -16,10 +16,14 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Controller\Event\RenderAdditionalContentToRecordListEvent;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
 
@@ -29,11 +33,12 @@ use function array_key_exists;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class RenderAdditionalContentToRecordListListener
+#[AsEventListener(identifier: 'xima-typo3-content-planner/backend/render-additional-content-to-record-list')]
+final readonly class RenderAdditionalContentToRecordListListener
 {
     public function __construct(
-        private readonly StatusRepository $statusRepository,
-        private readonly RecordRepository $recordRepository,
+        private StatusRepository $statusRepository,
+        private RecordRepository $recordRepository,
     ) {}
 
     /**
@@ -41,7 +46,7 @@ final class RenderAdditionalContentToRecordListListener
      */
     public function __invoke(RenderAdditionalContentToRecordListEvent $event): void
     {
-        if (!VisibilityUtility::checkContentStatusVisibility()
+        if (!PermissionUtility::checkContentStatusVisibility()
             || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_LIST_STATUS_INFO)
         ) {
             return;
@@ -60,6 +65,9 @@ final class RenderAdditionalContentToRecordListListener
         if ('' !== $css) {
             $event->addContentAbove("<style>$css</style>");
         }
+
+        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/record-list-status.js');
     }
 
     private function extractPidFromRequest(ServerRequestInterface $request): ?int
@@ -107,7 +115,7 @@ final class RenderAdditionalContentToRecordListListener
             }
 
             foreach ($tableRecords as $tableRecord) {
-                $status = $this->statusRepository->findByUid($tableRecord['tx_ximatypo3contentplanner_status']);
+                $status = $this->statusRepository->findByUid($tableRecord[Configuration::FIELD_STATUS]);
                 if ($status instanceof Status) {
                     $css .= 'tr[data-table="'.$tableName.'"][data-uid="'.$tableRecord['uid'].'"] > td { background-color: '.Configuration\Colors::get($status->getColor(), true).'; } ';
                 }

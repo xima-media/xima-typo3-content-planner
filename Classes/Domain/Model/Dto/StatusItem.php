@@ -20,7 +20,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\{ContentUtility, ExtensionUtility, IconHelper, UrlHelper};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 use function count;
 use function sprintf;
@@ -47,7 +50,7 @@ final class StatusItem
     {
         $item = new self();
         $item->data = $row;
-        $item->status = ContentUtility::getStatus($row['tx_ximatypo3contentplanner_status']);
+        $item->status = ContentUtility::getStatus((int) $row[Configuration::FIELD_STATUS]);
 
         return $item;
     }
@@ -58,12 +61,18 @@ final class StatusItem
             return false;
         }
 
-        return ((int) $this->data['tx_ximatypo3contentplanner_assignee']) === (int) $GLOBALS['BE_USER']->user['uid'];
+        return ((int) $this->data[Configuration::FIELD_ASSIGNEE]) === (int) $GLOBALS['BE_USER']->user['uid'];
     }
 
     public function getTitle(): string
     {
-        return ExtensionUtility::getTitle('title', $this->data);
+        $title = ExtensionUtility::getTitle('title', $this->data);
+
+        if (Configuration::TABLE_FOLDER === ($this->data['tablename'] ?? '')) {
+            return self::extractFolderName($title);
+        }
+
+        return $title;
     }
 
     public function getStatus(): ?string
@@ -73,40 +82,42 @@ final class StatusItem
 
     public function getStatusIcon(): string
     {
-        return IconHelper::getIconByStatus($this->status, true);
+        return IconUtility::getIconByStatus($this->status, true);
     }
 
     public function getRecordIcon(): string
     {
-        return IconHelper::getIconByRecord($this->data['tablename'], $this->data, true);
+        return IconUtility::getIconByRecord($this->data['tablename'], $this->data, true);
     }
 
     public function getRecordLink(): string
     {
-        return UrlHelper::getRecordLink($this->data['tablename'], (int) $this->data['uid']);
+        $folderIdentifier = $this->getFolderCombinedIdentifier();
+
+        return UrlUtility::getRecordLink($this->data['tablename'], (int) $this->data['uid'], $folderIdentifier);
     }
 
     public function getAssignee(): int
     {
-        return (int) $this->data['tx_ximatypo3contentplanner_assignee'];
+        return (int) $this->data[Configuration::FIELD_ASSIGNEE];
     }
 
     public function getAssigneeName(): string
     {
-        return ContentUtility::getBackendUsernameById((int) $this->data['tx_ximatypo3contentplanner_assignee']);
+        return ContentUtility::getBackendUsernameById((int) $this->data[Configuration::FIELD_ASSIGNEE]);
     }
 
     public function getAssigneeAvatar(): string
     {
-        return IconHelper::getAvatarByUserId((int) $this->data['tx_ximatypo3contentplanner_assignee']);
+        return IconUtility::getAvatarByUserId((int) $this->data[Configuration::FIELD_ASSIGNEE]);
     }
 
     public function getCommentsHtml(): string
     {
-        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? sprintf(
+        return PlannerUtility::hasComments($this->data) ? sprintf(
             '%s <span class="badge">%d</span>',
-            IconHelper::getIconByIdentifier('actions-message'),
-            $this->data['tx_ximatypo3contentplanner_comments'],
+            IconUtility::getIconByIdentifier('actions-message'),
+            $this->data[Configuration::FIELD_COMMENTS],
         ) : '';
     }
 
@@ -118,7 +129,7 @@ final class StatusItem
         }
         $site = $siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-        $icon = $iconFactory->getIcon('apps-pagetree-folder-root', IconHelper::getDefaultIconSize());
+        $icon = $iconFactory->getIcon('apps-pagetree-folder-root', IconUtility::getDefaultIconSize());
 
         /* @phpstan-ignore-next-line */
         return $icon->render().' '.($site->getAttribute('websiteTitle') ?? $site->getIdentifier());
@@ -131,8 +142,8 @@ final class StatusItem
         }
 
         return $this->getToDoTotal() > 0 ? sprintf(
-            '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
-            IconHelper::getIconByIdentifier('actions-check-square'),
+            '%s <span class="content-planner-badge badge" data-status="%s">%d/%d</span>',
+            IconUtility::getIconByIdentifier('actions-check-square'),
             $this->getToDoResolved() === $this->getToDoTotal() ? 'resolved' : 'pending',
             $this->getToDoResolved(),
             $this->getToDoTotal(),
@@ -145,7 +156,7 @@ final class StatusItem
             return 0;
         }
 
-        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename']) : 0;
+        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename']) : 0;
     }
 
     public function getToDoTotal(): int
@@ -154,7 +165,7 @@ final class StatusItem
             return 0;
         }
 
-        return isset($this->data['tx_ximatypo3contentplanner_comments']) && is_numeric($this->data['tx_ximatypo3contentplanner_comments']) && $this->data['tx_ximatypo3contentplanner_comments'] > 0 ? $this->getCommentRepository()->countTodoAllByRecord($this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
     }
 
     /**
@@ -169,7 +180,7 @@ final class StatusItem
             'status' => $this->getStatus(),
             'statusIcon' => $this->getStatusIcon(),
             'recordIcon' => $this->getRecordIcon(),
-            'updated' => (new DateTime())->setTimestamp($this->data['tstamp'])->format('d.m.Y H:i'),
+            'updated' => (new DateTime())->setTimestamp((int) $this->data['tstamp'])->format('d.m.Y H:i'),
             'assignee' => $this->getAssignee(),
             'assigneeName' => $this->getAssigneeName(),
             'assigneeAvatar' => $this->getAssigneeAvatar(),
@@ -178,6 +189,34 @@ final class StatusItem
             'todo' => $this->getToDoHtml(),
             'site' => $this->getSite(),
         ];
+    }
+
+    /**
+     * Extract the folder name from a full path identifier.
+     * E.g., "/user_upload/subfolder/" becomes "subfolder".
+     */
+    private static function extractFolderName(string $path): string
+    {
+        $path = rtrim($path, '/');
+        $segments = explode('/', $path);
+
+        return end($segments) ?: $path;
+    }
+
+    /**
+     * Get the combined folder identifier for folder records (e.g., "1:/user_upload/").
+     */
+    private function getFolderCombinedIdentifier(): ?string
+    {
+        if (Configuration::TABLE_FOLDER !== $this->data['tablename']) {
+            return null;
+        }
+
+        if (!isset($this->data['storage_uid'], $this->data['folder_identifier'])) {
+            return null;
+        }
+
+        return $this->data['storage_uid'].':'.$this->data['folder_identifier'];
     }
 
     private function getCommentRepository(): CommentRepository

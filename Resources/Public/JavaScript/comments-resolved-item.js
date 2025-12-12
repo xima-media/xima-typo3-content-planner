@@ -60,7 +60,7 @@ class CommentsResolvedItem {
       id: target.getAttribute('data-id')
     }
 
-    const commentList = document.querySelector('#widget-contentPlanner--comment-list')
+    const commentList = document.querySelector('#content-planner-comment-list')
     if (!commentList) {
       console.warn('Comment list container not found')
       return

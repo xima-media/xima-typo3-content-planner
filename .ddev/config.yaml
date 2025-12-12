@@ -5,8 +5,8 @@ php_version: "8.3"
 webserver_type: apache-fpm
 xdebug_enabled: false
 additional_hostnames:
-    - 12.xima-typo3-content-planner
     - 13.xima-typo3-content-planner
+    - 14.xima-typo3-content-planner
 additional_fqdns: []
 database:
     type: mariadb
@@ -14,7 +14,7 @@ database:
 hooks:
     post-start:
         - exec: composer install --ignore-platform-reqs --no-scripts
-        - exec: mkdir -p /var/www/html/.Build/ && cp /var/www/html/.ddev/.typo3-setup/templates/* /var/www/html/.Build/
+        - exec: mkdir -p /var/www/html/.Build/ && cp /var/www/html/.ddev/.setup/templates/* /var/www/html/.Build/
 webimage_extra_packages: [libxml2-utils]
 use_dns_when_possible: true
 composer_version: "2"

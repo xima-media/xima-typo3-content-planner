@@ -6,7 +6,9 @@ services:
 
   Xima\XimaTypo3ContentPlanner\:
     resource: '../Classes/*'
-    exclude: '../Classes/Domain/Model/*'
+    exclude:
+      - '../Classes/Domain/Model/*'
+      - '../Classes/Widgets/ConfigurableContentStatusWidget.php'
 
   cache.ximatypo3contentplanner_cache:
     class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
@@ -24,6 +26,12 @@ services:
   Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\FolderStatusRepository:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
       $cache: '@cache.ximatypo3contentplanner_cache'
@@ -34,44 +42,30 @@ services:
       $cache: '@cache.ximatypo3contentplanner_cache'
       $statusChangeManager: '@Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager'
 
-  Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-page-module-content'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\AfterPageTreeItemsPreparedListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-page-tree-items'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\ModifyButtonBarEventListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-button-bar'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\RenderAdditionalContentToRecordListListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/render-additional-content-to-record-list'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\ModifyRecordListRecordActionsListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-record-list-record-actions'
-
-  Xima\XimaTypo3ContentPlanner\EventListener\ModifyRecordListTableActionsListener:
-    tags:
-      - name: event.listener
-        identifier: 'xima-typo3-content-planner/backend/modify-record-list-table-actions'
-
   Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator:
     public: true
 
-  Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand:
-    tags:
-      - name: console.command
-        command: 'content-planner:bulk-update'
-        description: 'A command to perform a bulk operation to content planner entities.'
+  Xima\XimaTypo3ContentPlanner\Service\FileList\FileListStatusService:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService:
+    public: true
+
+  # Lazy-load Middleware ContentModifiers (instantiated on every request)
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\FileStorageTreeModifier:
+    lazy: true
+
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\FileListModifier:
+    lazy: true
+
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebListModifier:
+    lazy: true
+
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebLayoutModifier:
+    lazy: true
+
+  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\RecordEditModifier:
+    lazy: true
 
   dashboard.widget.ContentStatus-status:
     class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'

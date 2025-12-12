@@ -17,15 +17,18 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Module\ModuleInterface;
 use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\HeaderSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, VisibilityUtility};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\{ComponentFactoryUtility, RouteUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
-use function in_array;
+use function is_array;
 
 /**
  * ModifyButtonBarEventListener.
@@ -33,18 +36,20 @@ use function in_array;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class ModifyButtonBarEventListener
+#[AsEventListener(identifier: 'xima-typo3-content-planner/backend/modify-button-bar')]
+final readonly class ModifyButtonBarEventListener
 {
     public function __construct(
-        private readonly IconFactory $iconFactory,
-        private readonly StatusRepository $statusRepository,
-        private readonly RecordRepository $recordRepository,
-        private readonly HeaderSelectionService $buttonSelectionService,
+        private IconFactory $iconFactory,
+        private StatusRepository $statusRepository,
+        private RecordRepository $recordRepository,
+        private DropDownSelectionService $dropDownSelectionService,
+        private FolderStatusRepository $folderStatusRepository,
     ) {}
 
     public function __invoke(ModifyButtonBarEvent $event): void
     {
-        if (!VisibilityUtility::checkContentStatusVisibility()) {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
             return;
         }
 
@@ -55,12 +60,19 @@ final class ModifyButtonBarEventListener
             return;
         }
 
+        // Handle file list module (folders)
+        if ($this->isFileListModule($request)) {
+            $this->handleFileListModule($event, $request);
+
+            return;
+        }
+
         $table = $this->extractTableFromRequest($request);
         if (null === $table) {
             return;
         }
 
-        if ('tx_ximatypo3contentplanner_comment' === $table) {
+        if (Configuration::TABLE_COMMENT === $table) {
             $this->removeButtonsExceptSave($event);
 
             return;
@@ -91,7 +103,7 @@ final class ModifyButtonBarEventListener
             return true;
         }
 
-        return in_array($request->getAttribute('module')->getIdentifier(), ['web_layout', 'record_edit', 'web_list'], true);
+        return RouteUtility::isContentPlannerSupportedModule($request->getAttribute('module')->getIdentifier());
     }
 
     private function extractTableFromRequest(ServerRequestInterface $request): ?string
@@ -110,7 +122,20 @@ final class ModifyButtonBarEventListener
     private function extractUidFromRequest(ServerRequestInterface $request, string $table): int
     {
         if ('pages' === $table) {
-            return (int) ($request->getParsedBody()['id'] ?? $request->getQueryParams()['id'] ?? (isset($request->getQueryParams()['edit']['pages']) ? array_keys($request->getQueryParams()['edit']['pages'])[0] : 0));
+            $parsedBody = $request->getParsedBody();
+            $queryParams = $request->getQueryParams();
+
+            if (isset($parsedBody['id'])) {
+                return (int) $parsedBody['id'];
+            }
+            if (isset($queryParams['id'])) {
+                return (int) $queryParams['id'];
+            }
+            if (isset($queryParams['edit']['pages'])) {
+                return (int) array_key_first($queryParams['edit']['pages']);
+            }
+
+            return 0;
         }
 
         return (int) array_key_first($request->getQueryParams()['edit'][$table]);
@@ -122,29 +147,9 @@ final class ModifyButtonBarEventListener
     private function addStatusDropdownButton(ModifyButtonBarEvent $event, string $table, int $uid, array $record): void
     {
         $status = $this->resolveStatusFromRecord($record);
+        $buttonsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
 
-        $buttonBar = $event->getButtonBar();
-        $buttons = $event->getButtons();
-        $buttons['right'] ??= [];
-
-        $dropDownButton = $buttonBar->makeDropDownButton()
-            ->setLabel('Dropdown')
-            ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
-            ->setIcon($this->iconFactory->getIcon(
-                $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
-            ));
-
-        $buttonsToAdd = $this->buttonSelectionService->generateSelection($table, $uid);
-        if (false === $buttonsToAdd) {
-            return;
-        }
-
-        foreach ($buttonsToAdd as $buttonToAdd) {
-            $dropDownButton->addItem($buttonToAdd);
-        }
-
-        $buttons['right'][] = [$dropDownButton];
-        $event->setButtons($buttons);
+        $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
     }
 
     /**
@@ -152,14 +157,14 @@ final class ModifyButtonBarEventListener
      */
     private function resolveStatusFromRecord(array $record): ?Status
     {
-        if (!isset($record['tx_ximatypo3contentplanner_status'])
-            || !is_numeric($record['tx_ximatypo3contentplanner_status'])
-            || $record['tx_ximatypo3contentplanner_status'] <= 0
+        if (!isset($record[Configuration::FIELD_STATUS])
+            || !is_numeric($record[Configuration::FIELD_STATUS])
+            || $record[Configuration::FIELD_STATUS] <= 0
         ) {
             return null;
         }
 
-        return $this->statusRepository->findByUid($record['tx_ximatypo3contentplanner_status']);
+        return $this->statusRepository->findByUid($record[Configuration::FIELD_STATUS]);
     }
 
     private function removeButtonsExceptSave(ModifyButtonBarEvent $event): void
@@ -178,6 +183,70 @@ final class ModifyButtonBarEventListener
                 }
             }
         }
+        $event->setButtons($buttons);
+    }
+
+    private function isFileListModule(ServerRequestInterface $request): bool
+    {
+        if (!ExtensionUtility::isFilelistSupportEnabled()) {
+            return false;
+        }
+
+        $module = $request->getAttribute('module');
+        if (!$module instanceof ModuleInterface) {
+            return false;
+        }
+
+        return RouteUtility::isFileListRoute($module->getIdentifier());
+    }
+
+    private function handleFileListModule(ModifyButtonBarEvent $event, ServerRequestInterface $request): void
+    {
+        $folderIdentifier = $request->getQueryParams()['id'] ?? null;
+        if (null === $folderIdentifier || '' === $folderIdentifier) {
+            return;
+        }
+
+        $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($folderIdentifier);
+        $status = null;
+
+        if (is_array($folderRecord) && isset($folderRecord[Configuration::FIELD_STATUS]) && 0 !== (int) $folderRecord[Configuration::FIELD_STATUS]) {
+            $status = $this->statusRepository->findByUid((int) $folderRecord[Configuration::FIELD_STATUS]);
+        }
+
+        $this->addFolderStatusDropdownButton($event, $folderIdentifier, $status);
+    }
+
+    private function addFolderStatusDropdownButton(ModifyButtonBarEvent $event, string $folderIdentifier, ?Status $status): void
+    {
+        $buttonsToAdd = $this->dropDownSelectionService->generateFolderSelection($folderIdentifier);
+
+        $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
+    }
+
+    /**
+     * @param array<string, mixed>|false $buttonsToAdd
+     */
+    private function attachDropdownToButtonBar(ModifyButtonBarEvent $event, ?Status $status, array|false $buttonsToAdd): void
+    {
+        if (false === $buttonsToAdd) {
+            return;
+        }
+
+        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
+            ->setLabel('Dropdown')
+            ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
+            ->setIcon($this->iconFactory->getIcon(
+                $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
+            ));
+
+        foreach ($buttonsToAdd as $buttonToAdd) {
+            $dropDownButton->addItem($buttonToAdd);
+        }
+
+        $buttons = $event->getButtons();
+        $buttons['right'] ??= [];
+        $buttons['right'][] = [$dropDownButton];
         $event->setButtons($buttons);
     }
 }
