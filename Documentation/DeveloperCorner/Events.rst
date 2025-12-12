@@ -10,7 +10,7 @@ PSR-14 Events
     :local:
     :depth: 2
 
-The extensions contains some PSR-14 events which make it possible to extend the extension with own functionality.
+The extension contains some PSR-14 events which make it possible to extend the extension with own functionality.
 You can for example adjust the status selection or react on status changes for implementing some kind of a workflow.
 
 If you are new to PSR-14 events, please refer to the official TYPO3 documentation about
@@ -57,6 +57,8 @@ StatusChangeEvent
 
 This event is dispatched after the status of a record has been changed. You can use it to trigger additional actions like notifications or workflow transitions.
 
+Note that ``$newStatus`` may be ``null`` when a status is cleared from a record.
+
 ..  code-block:: php
     :caption: Classes/EventListener/StatusChangeListener.php
 
@@ -72,10 +74,10 @@ This event is dispatched after the status of a record has been changed. You can 
             $table = $event->getTable();
             $uid = $event->getUid();
             $newStatus = $event->getNewStatus();
-            $oldStatus = $event->getOldStatus();
+            $previousStatus = $event->getPreviousStatus();
 
-            // Example: Send notification when status changes to "Needs Review"
-            if ($newStatus?->getTitle() === 'Needs Review') {
+            // Example: Send notification when status changes to a specific status (uid 3)
+            if ($newStatus?->getUid() === 3) {
                 // Trigger notification logic
             }
         }
