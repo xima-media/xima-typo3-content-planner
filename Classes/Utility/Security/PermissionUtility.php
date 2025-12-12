@@ -48,8 +48,8 @@ class PermissionUtility
         }
 
         /* @var $backendUser \TYPO3\CMS\Core\Authentication\BackendUserAuthentication */
-        if ('pages' === $table && !BackendUtility::readPageAccess(
-            $record['uid'],
+        if ('pages' === $table && isset($record['uid']) && !BackendUtility::readPageAccess(
+            (int) $record['uid'],
             $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW),
         )) {
             return false;
