@@ -20,6 +20,7 @@ use TYPO3\CMS\Extbase\Persistence\{QueryInterface, Repository};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
+use function is_array;
 use function sprintf;
 
 /**

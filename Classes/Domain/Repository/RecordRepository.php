@@ -24,6 +24,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
+use function is_array;
 use function sprintf;
 
 /**
