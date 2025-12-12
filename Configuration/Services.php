@@ -18,7 +18,6 @@ use TYPO3\CMS\Dashboard\WidgetRegistry;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Widgets\ConfigurableContentStatusWidget;
 
 return static function (ContainerConfigurator $configurator, ContainerBuilder $containerBuilder): void {
     $services = $configurator->services();
@@ -31,7 +30,7 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $c
      */
     if ($typo3Version->getMajorVersion() >= 14 && $containerBuilder->hasDefinition(WidgetRegistry::class)) {
         $services->set('dashboard.widget.contentPlanner-configurable')
-            ->class(ConfigurableContentStatusWidget::class)
+            ->class('Xima\\XimaTypo3ContentPlanner\\Widgets\\ConfigurableContentStatusWidget')
             ->arg('$configuration', new Reference(WidgetConfigurationInterface::class))
             ->arg('$statusRepository', new Reference(StatusRepository::class))
             ->arg('$backendUserRepository', new Reference(BackendUserRepository::class))
