@@ -257,9 +257,12 @@ class StatusItemProvider extends AbstractProvider
         // Check if identifier is a combined identifier (e.g., "1:/user_upload/file.pdf")
         if (str_contains($this->identifier, ':')) {
             $parts = explode(':', $this->identifier, 2);
-            if (isset($parts[1])) {
-                return $this->sysFileMetadataRepository->findByIdentifier($parts[1]);
+            $path = trim($parts[1] ?? '');
+            if ('' === $path) {
+                return false;
             }
+
+            return $this->sysFileMetadataRepository->findByIdentifier($path);
         }
 
         // Try as direct path identifier
