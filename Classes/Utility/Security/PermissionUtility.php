@@ -82,7 +82,7 @@ class PermissionUtility
         }
 
         // check user setting
-        if (1 === $GLOBALS['BE_USER']->user['tx_ximatypo3contentplanner_hide']) {
+        if (1 === ($GLOBALS['BE_USER']->user['tx_ximatypo3contentplanner_hide'] ?? 0)) {
             return false;
         }
 
