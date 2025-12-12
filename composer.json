@@ -32,18 +32,11 @@
 	},
 	"require-dev": {
 		"eliashaeussler/version-bumper": "^2.4 || ^3.0",
-		"helhum/typo3-console": "^8.1 || dev-support-typo3-v14",
+		"helhum/typo3-console": "^8.1",
 		"phpunit/phpunit": "^10.2 || ^11.0 || ^12.0",
 		"typo3/cms-base-distribution": "^13.4 || ^14.0",
 		"typo3/cms-lowlevel": "^13.4 || ^14.0"
 	},
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "git@github.com:jackd248/TYPO3-Console.git",
-			"name": "typo3-console"
-		}
-	],
 	"autoload": {
 		"psr-4": {
 			"Xima\\XimaTypo3ContentPlanner\\": "Classes/"

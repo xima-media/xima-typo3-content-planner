@@ -291,16 +291,12 @@ function update_typo3() {
 # Function to install required Composer packages for TYPO3.
 function install_composer_packages() {
   _progress " ├─ Install composer packages"
-    if [ "$VERSION" == "14" ]; then
-      # Temporary workaround for helhum/typo3-console not yet supporting TYPO3 v14
-      composer config repositories.typo3-console vcs git@github.com:jackd248/TYPO3-Console.git -d $BASE_PATH
-    fi
     composer req typo3/cms-base-distribution:"^$VERSION" \
             typo3/cms-reports:"^$VERSION" \
             typo3/cms-lowlevel:"^$VERSION" \
             $PACKAGE_NAME:'*@dev' \
             test/sitepackage:'*@dev' \
-            helhum/typo3-console:'* || dev-support-typo3-v14' \
+            helhum/typo3-console:'*' \
             --no-progress -n -d $BASE_PATH
   _done
 }

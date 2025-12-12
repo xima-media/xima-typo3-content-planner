@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9e424d75b3970e1acc6fe0ffdba2d9f",
+    "content-hash": "8924b6ededf6bbcba088cc900da32e5e",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -6470,16 +6470,16 @@
         },
         {
             "name": "helhum/typo3-console",
-            "version": "dev-support-typo3-v14",
+            "version": "v8.3.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jackd248/TYPO3-Console.git",
-                "reference": "25463482724fdec94ad9f31c33300382bc7cc3dd"
+                "url": "https://github.com/TYPO3-Console/TYPO3-Console.git",
+                "reference": "2ce41715a96d4c8fe250a361422243ab20968675"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jackd248/TYPO3-Console/zipball/25463482724fdec94ad9f31c33300382bc7cc3dd",
-                "reference": "25463482724fdec94ad9f31c33300382bc7cc3dd",
+                "url": "https://api.github.com/repos/TYPO3-Console/TYPO3-Console/zipball/2ce41715a96d4c8fe250a361422243ab20968675",
+                "reference": "2ce41715a96d4c8fe250a361422243ab20968675",
                 "shasum": ""
             },
             "require": {
@@ -6516,17 +6516,17 @@
             },
             "type": "typo3-cms-extension",
             "extra": {
-                "branch-alias": {
-                    "dev-main": "8.2.x-dev"
-                },
                 "typo3/cms": {
                     "Package": {
-                        "serviceProvider": "Helhum\\Typo3Console\\ServiceProvider",
                         "protected": true,
+                        "serviceProvider": "Helhum\\Typo3Console\\ServiceProvider",
                         "partOfMinimalUsableSystem": true
                     },
                     "extension-key": "typo3_console",
                     "ignore-as-root": false
+                },
+                "branch-alias": {
+                    "dev-main": "8.3.x-dev"
                 }
             },
             "autoload": {
@@ -6537,40 +6537,7 @@
                     ]
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Helhum\\Typo3Console\\Tests\\": "Tests/Console/"
-                }
-            },
-            "scripts": {
-                "set-version": [
-                    "Helhum\\Typo3Console\\Composer\\ScriptHelper::setVersion"
-                ],
-                "extension-copy": [
-                    "@extension-clean",
-                    "mkdir -p ../extension",
-                    "rsync -r  --times --perms --links --delete --verbose --exclude /config --exclude /public --exclude /var --exclude /vendor --exclude .git --exclude /Tests --exclude /.ddev --exclude /.github --exclude '/.*' --exclude '/phpunit*' --exclude '/sonar*' --exclude '/render*' ./ ../extension/",
-                    "mv ../extension/Resources/Private/ExtensionArtifacts/ext_emconf.php ../extension",
-                    "mv ../extension/Resources/Private/ExtensionArtifacts/activate ../extension"
-                ],
-                "extension-build": [
-                    "@extension-copy",
-                    "@composer install -d ../extension/Resources/Private/ExtensionArtifacts/"
-                ],
-                "extension-release": [
-                    "@extension-build",
-                    "rm ../extension/Resources/Private/ExtensionArtifacts/composer.*"
-                ],
-                "extension-clean": [
-                    "rm -rf ../extension/*"
-                ],
-                "docs:test-render": [
-                    "docker run --rm --pull always -v $(pwd):/project ghcr.io/typo3-documentation/render-guides:latest --config=Documentation --no-progress --fail-on-log"
-                ],
-                "docs:render": [
-                    "docker run --rm --pull always -v $(pwd):/project ghcr.io/typo3-documentation/render-guides:latest --config=Documentation"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -6578,35 +6545,35 @@
                 {
                     "name": "Helmut Hummel",
                     "email": "info@helhum.io",
-                    "role": "Developer",
-                    "homepage": "https://helhum.io"
+                    "homepage": "https://helhum.io",
+                    "role": "Developer"
                 }
             ],
             "description": "A reliable and powerful command line interface for TYPO3 CMS",
             "homepage": "https://insight.helhum.io/post/104528981610/about-the-beauty-and-power-of-typo3-console",
             "keywords": [
-                "TYPO3",
                 "cli",
                 "command",
                 "commandline",
-                "console"
+                "console",
+                "typo3"
             ],
             "support": {
+                "docs": "https://docs.typo3.org/p/helhum/typo3-console/main/en-us/",
                 "issues": "https://github.com/TYPO3-Console/TYPO3-Console/issues",
-                "source": "https://github.com/TYPO3-Console/TYPO3-Console",
-                "docs": "https://docs.typo3.org/p/helhum/typo3-console/main/en-us/"
+                "source": "https://github.com/TYPO3-Console/TYPO3-Console"
             },
             "funding": [
                 {
-                    "type": "custom",
-                    "url": "https://www.paypal.me/helhum/19.99"
+                    "url": "https://www.paypal.me/helhum/19.99",
+                    "type": "custom"
                 },
                 {
-                    "type": "github",
-                    "url": "https://github.com/helhum"
+                    "url": "https://github.com/helhum",
+                    "type": "github"
                 }
             ],
-            "time": "2025-11-25T16:24:20+00:00"
+            "time": "2025-12-11T22:18:32+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -9658,9 +9625,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "helhum/typo3-console": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
