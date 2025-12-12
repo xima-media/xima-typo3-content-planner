@@ -145,6 +145,30 @@
     margin-right: 0.25rem;
 }
 
+/* Comment List */
+.content-planner-comment {
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--typo3-list-item-border-color, #e0e0e0);
+}
+
+.content-planner-comment:last-child {
+    border-bottom: none;
+}
+
+.content-planner-comment .avatar {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+}
+
+.content-planner-comment .avatar img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
 /* ==========================================================================
    Widget Modifiers
    ========================================================================== */
