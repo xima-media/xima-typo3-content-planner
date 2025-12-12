@@ -113,12 +113,27 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             return $content;
         }
 
-        // Inject as first element inside t3-filelist-container
-        $result = preg_replace(
-            '/(<div\b[^>]*class="[^"]*t3-filelist-container[^"]*"[^>]*>)/is',
-            '$1'.$headerContent,
+        // Check if t3-filelist-container is hidden (empty folder)
+        $isContainerHidden = (bool) preg_match(
+            '/<div\b[^>]*class="[^"]*t3-filelist-container[^"]*hidden[^"]*"[^>]*>/is',
             $content,
         );
+
+        if ($isContainerHidden) {
+            // Folder is empty: inject into t3-filelist-info-container instead
+            $result = preg_replace(
+                '/(<div\b[^>]*class="[^"]*t3-filelist-info-container[^"]*"[^>]*>)/is',
+                '$1'.$headerContent,
+                $content,
+            );
+        } else {
+            // Normal case: inject into t3-filelist-container
+            $result = preg_replace(
+                '/(<div\b[^>]*class="[^"]*t3-filelist-container[^"]*"[^>]*>)/is',
+                '$1'.$headerContent,
+                $content,
+            );
+        }
 
         return $result ?? $content;
     }

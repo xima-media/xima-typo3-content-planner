@@ -30,7 +30,7 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $c
      */
     if ($typo3Version->getMajorVersion() >= 14 && $containerBuilder->hasDefinition(WidgetRegistry::class)) {
         $services->set('dashboard.widget.contentPlanner-configurable')
-            ->class(\Xima\XimaTypo3ContentPlanner\Widgets\ConfigurableContentStatusWidget::class)
+            ->class(Xima\XimaTypo3ContentPlanner\Widgets\ConfigurableContentStatusWidget::class)
             ->arg('$configuration', new Reference(WidgetConfigurationInterface::class))
             ->arg('$statusRepository', new Reference(StatusRepository::class))
             ->arg('$backendUserRepository', new Reference(BackendUserRepository::class))
