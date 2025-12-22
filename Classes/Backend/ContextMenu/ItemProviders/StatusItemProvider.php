@@ -81,9 +81,14 @@ class StatusItemProvider extends AbstractProvider
         return ExtensionUtility::isRegisteredRecordTable($this->table) && '' !== $this->identifier;
     }
 
+    /**
+     * Very low priority ensures this provider runs last, after all standard items exist.
+     * Higher priority = executed first. Using near-minimum value to avoid conflicts
+     * with other extensions that might use arbitrary priority values.
+     */
     public function getPriority(): int
     {
-        return 73;
+        return 17;
     }
 
     /**
