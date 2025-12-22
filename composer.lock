@@ -6032,16 +6032,16 @@
         },
         {
             "name": "typo3fluid/fluid",
-            "version": "5.0.2",
+            "version": "5.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TYPO3/Fluid.git",
-                "reference": "03ef568664db2802bbc60e5f1ca81f20340d56f7"
+                "reference": "993b77a2a7d9392e024b9980c8462e40c125c9cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TYPO3/Fluid/zipball/03ef568664db2802bbc60e5f1ca81f20340d56f7",
-                "reference": "03ef568664db2802bbc60e5f1ca81f20340d56f7",
+                "url": "https://api.github.com/repos/TYPO3/Fluid/zipball/993b77a2a7d9392e024b9980c8462e40c125c9cf",
+                "reference": "993b77a2a7d9392e024b9980c8462e40c125c9cf",
                 "shasum": ""
             },
             "require": {
@@ -6087,7 +6087,7 @@
                 "issues": "https://github.com/TYPO3/Fluid/issues",
                 "source": "https://github.com/TYPO3/Fluid"
             },
-            "time": "2025-11-24T09:27:34+00:00"
+            "time": "2025-12-16T17:26:28+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -6470,16 +6470,16 @@
         },
         {
             "name": "helhum/typo3-console",
-            "version": "v8.3.0",
+            "version": "v8.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TYPO3-Console/TYPO3-Console.git",
-                "reference": "2ce41715a96d4c8fe250a361422243ab20968675"
+                "reference": "0a6f26d125b780a40c674820c42c78ce5607ff4c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TYPO3-Console/TYPO3-Console/zipball/2ce41715a96d4c8fe250a361422243ab20968675",
-                "reference": "2ce41715a96d4c8fe250a361422243ab20968675",
+                "url": "https://api.github.com/repos/TYPO3-Console/TYPO3-Console/zipball/0a6f26d125b780a40c674820c42c78ce5607ff4c",
+                "reference": "0a6f26d125b780a40c674820c42c78ce5607ff4c",
                 "shasum": ""
             },
             "require": {
@@ -6573,7 +6573,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-12-11T22:18:32+00:00"
+            "time": "2025-12-12T12:00:43+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -7222,16 +7222,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.3",
+            "version": "12.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "6dc2e076d09960efbb0c1272aa9bc156fc80955e"
+                "reference": "4ba0e923f9d3fc655de22f9547c01d15a41fc93a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6dc2e076d09960efbb0c1272aa9bc156fc80955e",
-                "reference": "6dc2e076d09960efbb0c1272aa9bc156fc80955e",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4ba0e923f9d3fc655de22f9547c01d15a41fc93a",
+                "reference": "4ba0e923f9d3fc655de22f9547c01d15a41fc93a",
                 "shasum": ""
             },
             "require": {
@@ -7299,7 +7299,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.3"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.4"
             },
             "funding": [
                 {
@@ -7323,7 +7323,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-11T08:52:59+00:00"
+            "time": "2025-12-15T06:05:34+00:00"
         },
         {
             "name": "sebastian/cli-parser",
