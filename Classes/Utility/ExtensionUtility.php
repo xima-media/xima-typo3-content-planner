@@ -74,27 +74,11 @@ class ExtensionUtility
                         'nullable' => true,
                     ],
                 ],
-                Configuration::FIELD_COMMENTS => [
-                    'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
-                        '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_comments',
-                    'config' => [
-                        'foreign_field' => 'foreign_uid',
-                        'foreign_default_sortby' => 'crdate',
-                        'foreign_table' => Configuration::TABLE_COMMENT,
-                        'foreign_table_field' => 'foreign_table',
-                        'type' => 'inline',
-                        'appearance' => [
-                            'collapseAll' => true,
-                            'expandSingle' => true,
-                            'useSortable' => false,
-                        ],
-                    ],
-                ],
             ],
         );
 
         $GLOBALS['TCA'][$table]['palettes']['tx_ximatypo3contentplanner'] = [
-            'showitem' => 'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,--linebreak--,tx_ximatypo3contentplanner_comments',
+            'showitem' => 'tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee',
         ];
 
         ExtensionManagementUtility::addToAllTCAtypes(
