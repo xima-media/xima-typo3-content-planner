@@ -43,6 +43,15 @@ final class StatusItem
 
     private ?CommentRepository $commentRepository = null;
 
+    private readonly IconFactory $iconFactory;
+    private readonly SiteFinder $siteFinder;
+
+    public function __construct()
+    {
+        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+        $this->siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+    }
+
     /**
      * @param array<string, mixed> $row
      */
@@ -123,12 +132,12 @@ final class StatusItem
 
     public function getSite(): ?string
     {
-        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+        $siteFinder = $this->siteFinder;
         if (count($siteFinder->getAllSites()) <= 1) {
             return null;
         }
         $site = $siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+        $iconFactory = $this->iconFactory;
         $icon = $iconFactory->getIcon('apps-pagetree-folder-root', IconUtility::getDefaultIconSize());
 
         /* @phpstan-ignore-next-line */

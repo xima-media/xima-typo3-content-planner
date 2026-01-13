@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Controller\Event\AfterFileStorageTreeItemsPreparedEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Resource\Folder;
@@ -42,6 +43,8 @@ final readonly class AfterFileStorageTreeItemsPreparedListener
 
     /**
      * @param object $event AfterFileStorageTreeItemsPreparedEvent (TYPO3 v14+)
+     *
+     * @throws Exception
      */
     public function __invoke(object $event): void
     {
