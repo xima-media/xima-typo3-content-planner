@@ -135,6 +135,8 @@ class ProxyController extends ActionController
         ],
     ];
 
+    public function __construct(private readonly FlashMessageService $flashMessageService) {}
+
     public function messageAction(ServerRequestInterface $request): ResponseInterface
     {
         $messagePath = $request->getQueryParams()['message'] ?? null;
@@ -149,7 +151,7 @@ class ProxyController extends ActionController
                 return new JsonResponse(['error' => 'Invalid message path'], 400);
             }
 
-            $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+            $flashMessageService = $this->flashMessageService;
             $notificationQueue = $flashMessageService->getMessageQueueByIdentifier(
                 FlashMessageQueue::NOTIFICATION_QUEUE,
             );

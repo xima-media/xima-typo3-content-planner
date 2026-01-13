@@ -43,6 +43,13 @@ final class HistoryItem
     /** @var array<string, mixed>|bool|null */
     public array|bool|null $relatedRecord = [];
 
+    private readonly IconFactory $iconFactory;
+
+    public function __construct()
+    {
+        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+    }
+
     /**
      * @param array<string, mixed> $sysHistoryRow
      */
@@ -148,7 +155,7 @@ final class HistoryItem
 
     public function getChangeTypeIcon(): string
     {
-        $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
+        $iconFactory = $this->iconFactory;
         switch ($this->data['tablename']) {
             case Configuration::TABLE_COMMENT:
                 return IconUtility::getIconByIdentifier('actions-comment');
