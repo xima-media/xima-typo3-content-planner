@@ -43,6 +43,7 @@ final readonly class AfterFileStorageTreeItemsPreparedListener
 
     /**
      * @param object $event AfterFileStorageTreeItemsPreparedEvent (TYPO3 v14+)
+     *
      * @throws Exception
      */
     public function __invoke(object $event): void
