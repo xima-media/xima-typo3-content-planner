@@ -130,6 +130,12 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             */
             if (array_key_exists('foreign_table', $fieldArray) && array_key_exists('foreign_uid', $fieldArray)) {
                 $this->recordRepository->updateCommentsRelationByRecord($fieldArray['foreign_table'], (int) $fieldArray['foreign_uid']);
+            } elseif (array_key_exists('resolved_date', $fieldArray) && MathUtility::canBeInterpretedAsInteger($id)) {
+                // Update comment counter when a comment is resolved/unresolved
+                $comment = $this->commentRepository->findByUid((int) $id);
+                if ($comment && isset($comment['foreign_table'], $comment['foreign_uid'])) {
+                    $this->recordRepository->updateCommentsRelationByRecord($comment['foreign_table'], (int) $comment['foreign_uid']);
+                }
             }
         }
     }
