@@ -25,9 +25,9 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class ContentCommentDataProvider implements ListDataProviderInterface
+readonly class ContentCommentDataProvider implements ListDataProviderInterface
 {
-    public function __construct(private readonly ConnectionPool $connectionPool) {}
+    public function __construct(private ConnectionPool $connectionPool) {}
 
     /**
      * @return CommentItem[]
@@ -48,6 +48,10 @@ class ContentCommentDataProvider implements ListDataProviderInterface
                 'c.foreign_table',
             )
             ->from(Configuration::TABLE_COMMENT, 'c')
+            ->where(
+                $queryBuilder->expr()->eq('c.deleted', 0),
+                $queryBuilder->expr()->eq('c.resolved_date', 0),
+            )
             ->setMaxResults(10)
             ->orderBy('crdate', 'DESC');
 
