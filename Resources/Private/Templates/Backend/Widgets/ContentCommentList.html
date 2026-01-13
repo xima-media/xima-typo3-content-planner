@@ -14,7 +14,7 @@
                             <div class="d-flex flex-row justify-content-between">
                                 <div>
                                     <strong>{record.authorName}</strong>
-                                    <small>{record.data.tstamp -> f:format.date(format:'d.m.Y  H:i')}</small>
+                                    <small>{record.data.crdate -> f:format.date(format:'d.m.Y  H:i')}</small>
                                 </div>
                                 <small>
                                     <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
