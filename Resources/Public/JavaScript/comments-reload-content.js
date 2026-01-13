@@ -14,6 +14,9 @@ class CommentsReloadContent {
     window.addEventListener('typo3:contentplanner:reloadcomments', ({detail: {url, table, id}}) => {
       this.loadComments(url, table, id)
     })
+    window.addEventListener('typo3:contentplanner:reinitializelistener', () => {
+      this.initEventListeners()
+    })
     this.initEventListeners()
   }
 
