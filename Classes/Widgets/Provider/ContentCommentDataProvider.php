@@ -43,13 +43,13 @@ class ContentCommentDataProvider implements ListDataProviderInterface
                 'c.uid',
                 'c.content',
                 'c.author',
-                'c.tstamp',
+                'c.crdate',
                 'c.foreign_uid',
                 'c.foreign_table',
             )
             ->from(Configuration::TABLE_COMMENT, 'c')
             ->setMaxResults(10)
-            ->orderBy('tstamp', 'DESC');
+            ->orderBy('crdate', 'DESC');
 
         $items = [];
         $results = $query->executeQuery()
