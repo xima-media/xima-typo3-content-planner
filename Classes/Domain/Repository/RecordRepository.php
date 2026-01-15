@@ -180,7 +180,7 @@ class RecordRepository
         $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
         $commentCount = $commentRepository->countAllByRecord($uid, $table);
 
-        $record = $this->findByUid($table, $uid);
+        $record = $this->findByUid($table, $uid, true);
         if ($record) {
             $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
             $queryBuilder
