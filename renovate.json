@@ -5,6 +5,7 @@
 		"github>konradmichalik/renovate-config:typo3-extension"
 	],
 	"ignorePaths": [
-		"package-lock.json"
+		"package-lock.json",
+		"Tests/Acceptance/Fixtures/**"
 	]
 }
