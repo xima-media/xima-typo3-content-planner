@@ -33,7 +33,7 @@ class FolderStatusRepository
     private const TABLE = Configuration::TABLE_FOLDER;
 
     public function __construct(
-        private readonly ConnectionPool $connectionPool,
+        private readonly ConnectionPool $connectionPool, private readonly \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory,
     ) {}
 
     /**
@@ -105,7 +105,7 @@ class FolderStatusRepository
     public function findSubfoldersWithStatus(string $combinedIdentifier): array
     {
         try {
-            $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+            $resourceFactory = $this->resourceFactory;
             $folder = $resourceFactory->getFolderObjectFromCombinedIdentifier($combinedIdentifier);
             $subfolders = $folder->getSubfolders();
         } catch (\Exception) {
@@ -134,7 +134,7 @@ class FolderStatusRepository
     public function getAllSubfolders(string $combinedIdentifier): array
     {
         try {
-            $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+            $resourceFactory = $this->resourceFactory;
             $folder = $resourceFactory->getFolderObjectFromCombinedIdentifier($combinedIdentifier);
             $subfolders = $folder->getSubfolders();
         } catch (\Exception) {

@@ -50,6 +50,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         private readonly FolderStatusRepository $folderStatusRepository,
         private readonly IconFactory $iconFactory,
         private readonly InfoGenerator $infoGenerator,
+        private readonly \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer,
     ) {
         parent::__construct($statusRepository, $recordRepository);
     }
@@ -93,7 +94,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         }
 
         // Load JavaScript module for handling status changes via AJAX
-        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer = $this->pageRenderer;
         $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/record-list-status.js');
 
         $newResponse = new Response();

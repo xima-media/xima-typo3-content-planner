@@ -39,6 +39,7 @@ final readonly class RenderAdditionalContentToRecordListListener
     public function __construct(
         private StatusRepository $statusRepository,
         private RecordRepository $recordRepository,
+        private readonly \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer,
     ) {}
 
     /**
@@ -66,7 +67,7 @@ final readonly class RenderAdditionalContentToRecordListListener
             $event->addContentAbove("<style>$css</style>");
         }
 
-        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer = $this->pageRenderer;
         $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/record-list-status.js');
     }
 

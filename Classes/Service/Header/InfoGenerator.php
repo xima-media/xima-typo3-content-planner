@@ -43,6 +43,7 @@ class InfoGenerator
         private readonly BackendUserRepository $backendUserRepository,
         private readonly CommentRepository $commentRepository,
         private readonly FolderStatusRepository $folderStatusRepository,
+        private readonly \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer,
     ) {}
 
     public function generateStatusHeader(
@@ -380,7 +381,7 @@ class InfoGenerator
     {
         if ($usePageRenderer) {
             /** @var PageRenderer $pageRenderer */
-            $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+            $pageRenderer = $this->pageRenderer;
             $pageRenderer->loadJavaScriptModule(
                 '@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js',
             );

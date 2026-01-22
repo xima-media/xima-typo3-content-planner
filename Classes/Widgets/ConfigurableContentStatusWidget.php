@@ -42,6 +42,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         private readonly StatusRepository $statusRepository,
         private readonly BackendUserRepository $backendUserRepository,
         private readonly RecordRepository $recordRepository,
+        private readonly \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer,
     ) {}
 
     /**
@@ -99,7 +100,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
      */
     public function renderWidget(WidgetContext $context): WidgetResult
     {
-        $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
+        $pageRenderer = $this->pageRenderer;
         $pageRenderer->addInlineLanguageLabelFile('EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf');
 
         $customTitle = $this->getSetting($context, 'title', '');

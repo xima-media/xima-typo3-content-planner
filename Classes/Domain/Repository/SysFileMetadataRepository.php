@@ -30,7 +30,7 @@ class SysFileMetadataRepository
     private const TABLE = 'sys_file_metadata';
 
     public function __construct(
-        private readonly ConnectionPool $connectionPool,
+        private readonly ConnectionPool $connectionPool, private readonly \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory,
     ) {}
 
     /**
@@ -155,7 +155,7 @@ class SysFileMetadataRepository
     public function findFilesByFolder(string $combinedIdentifier): array
     {
         try {
-            $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+            $resourceFactory = $this->resourceFactory;
             $folder = $resourceFactory->getFolderObjectFromCombinedIdentifier($combinedIdentifier);
 
             return $folder->getFiles();
