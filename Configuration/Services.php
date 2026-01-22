@@ -14,6 +14,7 @@ declare(strict_types=1);
 use Symfony\Component\DependencyInjection\{ContainerBuilder, Reference};
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Dashboard\WidgetRegistry;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -35,6 +36,7 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $c
             ->arg('$statusRepository', new Reference(StatusRepository::class))
             ->arg('$backendUserRepository', new Reference(BackendUserRepository::class))
             ->arg('$recordRepository', new Reference(RecordRepository::class))
+            ->arg('$pageRenderer', new Reference(PageRenderer::class))
             ->tag('dashboard.widget', [
                 'identifier' => 'contentPlanner-configurable',
                 'groupNames' => 'contentPlanner',
