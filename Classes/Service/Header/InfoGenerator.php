@@ -17,7 +17,6 @@ use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
@@ -43,7 +42,7 @@ class InfoGenerator
         private readonly BackendUserRepository $backendUserRepository,
         private readonly CommentRepository $commentRepository,
         private readonly FolderStatusRepository $folderStatusRepository,
-        private readonly \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer,
+        private readonly PageRenderer $pageRenderer,
     ) {}
 
     public function generateStatusHeader(

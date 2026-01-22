@@ -19,7 +19,6 @@ use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, SysFileMetadataRepository};
@@ -68,7 +67,7 @@ class StatusItemProvider extends AbstractProvider
         private readonly SysFileMetadataRepository $sysFileMetadataRepository,
         private readonly FolderStatusRepository $folderStatusRepository,
         private readonly UriBuilder $uriBuilder,
-        private readonly \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer,
+        private readonly PageRenderer $pageRenderer,
     ) {
         parent::__construct();
     }

@@ -19,7 +19,6 @@ use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, RecordRepository, StatusRepository, SysFileMetadataRepository};
@@ -50,7 +49,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         private readonly FolderStatusRepository $folderStatusRepository,
         private readonly IconFactory $iconFactory,
         private readonly InfoGenerator $infoGenerator,
-        private readonly \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer,
+        private readonly PageRenderer $pageRenderer,
     ) {
         parent::__construct($statusRepository, $recordRepository);
     }

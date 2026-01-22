@@ -42,7 +42,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         private readonly StatusRepository $statusRepository,
         private readonly BackendUserRepository $backendUserRepository,
         private readonly RecordRepository $recordRepository,
-        private readonly \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer,
+        private readonly PageRenderer $pageRenderer,
     ) {}
 
     /**
