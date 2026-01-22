@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Resource\{File, ResourceFactory};
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 /**
@@ -30,7 +29,7 @@ class SysFileMetadataRepository
     private const TABLE = 'sys_file_metadata';
 
     public function __construct(
-        private readonly ConnectionPool $connectionPool, private readonly \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory,
+        private readonly ConnectionPool $connectionPool, private readonly ResourceFactory $resourceFactory,
     ) {}
 
     /**

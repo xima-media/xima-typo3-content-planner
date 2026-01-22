@@ -17,7 +17,6 @@ use Doctrine\DBAL\Exception;
 use InvalidArgumentException;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function count;
@@ -33,7 +32,7 @@ class FolderStatusRepository
     private const TABLE = Configuration::TABLE_FOLDER;
 
     public function __construct(
-        private readonly ConnectionPool $connectionPool, private readonly \TYPO3\CMS\Core\Resource\ResourceFactory $resourceFactory,
+        private readonly ConnectionPool $connectionPool, private readonly ResourceFactory $resourceFactory,
     ) {}
 
     /**
