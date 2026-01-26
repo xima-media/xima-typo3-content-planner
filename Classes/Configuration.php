@@ -97,4 +97,88 @@ class Configuration
     {
         $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['comments'] = 'EXT:'.self::EXT_KEY.'/Configuration/RTE/Comments.yaml';
     }
+
+    public static function registerUserSettings(): void
+    {
+        $GLOBALS['TYPO3_USER_SETTINGS']['columns']['tx_ximatypo3contentplanner_hide'] = [
+            'label' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide',
+            'description' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide.description',
+            'type' => 'check',
+            'table' => 'be_users',
+        ];
+
+        $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] .= ',
+            --div--;LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:content_planner,
+                tx_ximatypo3contentplanner_hide,
+        ';
+    }
+
+    public static function registerPermissions(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['customPermOptions'][self::PERMISSION_GROUP] = [
+            'header' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.group',
+            'items' => [
+                // View only - enables feature visibility without any actions
+                self::PERMISSION_VIEW_ONLY => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.view_only',
+                    'actions-eye',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.view_only.description',
+                ],
+                // Full access - grants visibility and all permissions at once
+                self::PERMISSION_CONTENT_STATUS => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.content_status',
+                    'actions-check-circle-alt',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.content_status.description',
+                ],
+                // Status permissions
+                self::PERMISSION_STATUS_CHANGE => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.status_change',
+                    'actions-edit',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.status_change.description',
+                ],
+                self::PERMISSION_STATUS_UNSET => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.status_unset',
+                    'actions-close',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.status_unset.description',
+                ],
+                // Comment permissions
+                self::PERMISSION_COMMENT_EDIT_OWN => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_edit_own',
+                    'actions-open',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_edit_own.description',
+                ],
+                self::PERMISSION_COMMENT_EDIT_FOREIGN => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_edit_foreign',
+                    'actions-open',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_edit_foreign.description',
+                ],
+                self::PERMISSION_COMMENT_RESOLVE => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_resolve',
+                    'actions-check-circle',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_resolve.description',
+                ],
+                self::PERMISSION_COMMENT_DELETE_OWN => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_delete_own',
+                    'actions-delete',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_delete_own.description',
+                ],
+                self::PERMISSION_COMMENT_DELETE_FOREIGN => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_delete_foreign',
+                    'actions-delete',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_delete_foreign.description',
+                ],
+                // Assignment permissions
+                self::PERMISSION_ASSIGN_REASSIGN => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_reassign',
+                    'actions-user',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_reassign.description',
+                ],
+                self::PERMISSION_ASSIGN_OTHER_USER => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_other_user',
+                    'actions-user',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_other_user.description',
+                ],
+            ],
+        ];
+    }
 }
