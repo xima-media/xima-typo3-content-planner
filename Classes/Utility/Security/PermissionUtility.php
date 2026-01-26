@@ -300,10 +300,52 @@ class PermissionUtility
 
     /**
      * Check if user has full access permission (grants all permissions).
+     * This includes:
+     * - Explicit full-access permission
+     * - Legacy mode: content-status without any granular permissions (backward compatibility).
      */
     public static function hasFullAccess(): bool
     {
-        return self::checkPermission(Configuration::PERMISSION_FULL_ACCESS);
+        // Explicit full-access permission
+        if (self::checkPermission(Configuration::PERMISSION_FULL_ACCESS)) {
+            return true;
+        }
+
+        // Legacy mode: user has content-status but no granular permissions
+        // This ensures backward compatibility for existing installations
+        if (self::checkPermission(Configuration::PERMISSION_CONTENT_STATUS) && !self::hasAnyGranularPermission()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has any granular permission configured.
+     * Used to determine if user is in "granular mode" or "legacy mode".
+     */
+    private static function hasAnyGranularPermission(): bool
+    {
+        $granularPermissions = [
+            Configuration::PERMISSION_FULL_ACCESS,
+            Configuration::PERMISSION_STATUS_CHANGE,
+            Configuration::PERMISSION_STATUS_UNSET,
+            Configuration::PERMISSION_COMMENT_EDIT_OWN,
+            Configuration::PERMISSION_COMMENT_EDIT_FOREIGN,
+            Configuration::PERMISSION_COMMENT_RESOLVE,
+            Configuration::PERMISSION_COMMENT_DELETE_OWN,
+            Configuration::PERMISSION_COMMENT_DELETE_FOREIGN,
+            Configuration::PERMISSION_ASSIGN_REASSIGN,
+            Configuration::PERMISSION_ASSIGN_OTHER_USER,
+        ];
+
+        foreach ($granularPermissions as $permission) {
+            if (self::checkPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

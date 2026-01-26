@@ -38,57 +38,6 @@ final class PermissionUtilityTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * @return object
-     */
-    private function createMockBackendUser(bool $isAdmin = false, array $user = [], array $permissions = [])
-    {
-        return new class($isAdmin, $user, $permissions) {
-            /** @var array<string, mixed> */
-            public array $user;
-
-            private bool $isAdmin;
-
-            /** @var array<string, bool> */
-            private array $permissions;
-
-            /**
-             * @param array<string, mixed> $user
-             * @param array<string, bool>  $permissions
-             */
-            public function __construct(bool $isAdmin, array $user, array $permissions)
-            {
-                $this->isAdmin = $isAdmin;
-                $this->user = array_merge([
-                    'uid' => 1,
-                    'username' => 'test_user',
-                    'usergroup' => '1,2',
-                    'tx_ximatypo3contentplanner_hide' => 0,
-                ], $user);
-                $this->permissions = $permissions;
-            }
-
-            public function isAdmin(): bool
-            {
-                return $this->isAdmin;
-            }
-
-            public function check(string $type, string $permission): bool
-            {
-                if ($this->isAdmin) {
-                    return true;
-                }
-
-                return $this->permissions[$type.':'.$permission] ?? false;
-            }
-
-            public function getUserId(): int
-            {
-                return (int) ($this->user['uid'] ?? 0);
-            }
-        };
-    }
-
     // ==================== isOwnComment Tests ====================
 
     public function testIsOwnCommentReturnsTrueForOwnComment(): void
@@ -196,6 +145,37 @@ final class PermissionUtilityTest extends TestCase
         self::assertFalse(PermissionUtility::hasFullAccess());
     }
 
+    // ==================== Legacy Mode Tests (Backward Compatibility) ====================
+
+    public function testLegacyModeGrantsFullAccessWithOnlyContentStatus(): void
+    {
+        // User has only content-status, no granular permissions -> legacy mode = full access
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
+            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+        ]);
+
+        self::assertTrue(PermissionUtility::hasFullAccess());
+        self::assertTrue(PermissionUtility::canChangeStatus());
+        self::assertTrue(PermissionUtility::canUnsetStatus());
+        self::assertTrue(PermissionUtility::canResolveComment());
+        self::assertTrue(PermissionUtility::canEditComment(['author' => 5]));
+        self::assertTrue(PermissionUtility::canEditComment(['author' => 10]));
+        self::assertTrue(PermissionUtility::canDeleteComment(['author' => 5]));
+    }
+
+    public function testGranularModeExitsLegacyWhenAnyGranularPermissionSet(): void
+    {
+        // User has content-status AND a granular permission -> granular mode, NOT full access
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
+            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:status-change' => true,
+        ]);
+
+        self::assertFalse(PermissionUtility::hasFullAccess());
+        self::assertTrue(PermissionUtility::canChangeStatus()); // Has this permission
+        self::assertFalse(PermissionUtility::canUnsetStatus()); // Does NOT have this permission
+    }
+
     // ==================== canEditComment Tests ====================
 
     public function testCanEditOwnCommentWithPermission(): void
@@ -212,8 +192,11 @@ final class PermissionUtilityTest extends TestCase
 
     public function testCanNotEditOwnCommentWithoutPermission(): void
     {
+        // User has content-status and one granular permission (status-change) to exit legacy mode,
+        // but NOT the comment-edit-own permission
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
             'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:status-change' => true,
         ]);
 
         $comment = ['author' => 5];
@@ -261,8 +244,11 @@ final class PermissionUtilityTest extends TestCase
 
     public function testCanNotDeleteOwnCommentWithoutPermission(): void
     {
+        // User has content-status and one granular permission (status-change) to exit legacy mode,
+        // but NOT the comment-delete-own permission
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
             'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:status-change' => true,
         ]);
 
         $comment = ['author' => 5];
@@ -298,5 +284,56 @@ final class PermissionUtilityTest extends TestCase
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], []);
 
         self::assertFalse(PermissionUtility::canAssignSelf());
+    }
+
+    /**
+     * @return object
+     */
+    private function createMockBackendUser(bool $isAdmin = false, array $user = [], array $permissions = [])
+    {
+        return new class($isAdmin, $user, $permissions) {
+            /** @var array<string, mixed> */
+            public array $user;
+
+            private bool $isAdmin;
+
+            /** @var array<string, bool> */
+            private array $permissions;
+
+            /**
+             * @param array<string, mixed> $user
+             * @param array<string, bool>  $permissions
+             */
+            public function __construct(bool $isAdmin, array $user, array $permissions)
+            {
+                $this->isAdmin = $isAdmin;
+                $this->user = array_merge([
+                    'uid' => 1,
+                    'username' => 'test_user',
+                    'usergroup' => '1,2',
+                    'tx_ximatypo3contentplanner_hide' => 0,
+                ], $user);
+                $this->permissions = $permissions;
+            }
+
+            public function isAdmin(): bool
+            {
+                return $this->isAdmin;
+            }
+
+            public function check(string $type, string $permission): bool
+            {
+                if ($this->isAdmin) {
+                    return true;
+                }
+
+                return $this->permissions[$type.':'.$permission] ?? false;
+            }
+
+            public function getUserId(): int
+            {
+                return (int) ($this->user['uid'] ?? 0);
+            }
+        };
     }
 }
