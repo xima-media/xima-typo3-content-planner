@@ -30,6 +30,18 @@
 			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide.description">
 				<source>Disable the display of content planner status information and color within the TYPO3 backend</source>
 			</trans-unit>
+			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_statuses">
+				<source>Allowed Statuses</source>
+			</trans-unit>
+			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_statuses.description">
+				<source>Restrict which statuses this group can use. Leave empty to allow all statuses.</source>
+			</trans-unit>
+			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_tables">
+				<source>Allowed Tables</source>
+			</trans-unit>
+			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_tables.description">
+				<source>Restrict which record tables this group can manage. Leave empty to allow all tables.</source>
+			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_status.title">
 				<source>Title</source>
 			</trans-unit>
