@@ -48,6 +48,26 @@ class Configuration
     final public const FIELD_ASSIGNEE = 'tx_ximatypo3contentplanner_assignee';
     final public const FIELD_COMMENTS = 'tx_ximatypo3contentplanner_comments';
 
+    // Permission identifiers
+    final public const PERMISSION_GROUP = 'tx_ximatypo3contentplanner';
+    final public const PERMISSION_CONTENT_STATUS = 'content-status';
+    final public const PERMISSION_FULL_ACCESS = 'full-access';
+
+    // Status Permissions
+    final public const PERMISSION_STATUS_CHANGE = 'status-change';
+    final public const PERMISSION_STATUS_UNSET = 'status-unset';
+
+    // Comment Permissions
+    final public const PERMISSION_COMMENT_EDIT_OWN = 'comment-edit-own';
+    final public const PERMISSION_COMMENT_EDIT_FOREIGN = 'comment-edit-foreign';
+    final public const PERMISSION_COMMENT_RESOLVE = 'comment-resolve';
+    final public const PERMISSION_COMMENT_DELETE_OWN = 'comment-delete-own';
+    final public const PERMISSION_COMMENT_DELETE_FOREIGN = 'comment-delete-foreign';
+
+    // Assignment Permissions
+    final public const PERMISSION_ASSIGN_REASSIGN = 'assign-reassign';
+    final public const PERMISSION_ASSIGN_OTHER_USER = 'assign-other-user';
+
     public static function overrideClasses(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = [
