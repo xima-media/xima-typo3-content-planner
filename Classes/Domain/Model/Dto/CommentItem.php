@@ -140,6 +140,30 @@ final class CommentItem
         return (int) $this->data['resolved_date'];
     }
 
+    /**
+     * Check if the current user can edit this comment.
+     */
+    public function canCurrentUserEdit(): bool
+    {
+        return PermissionUtility::canEditComment($this->data);
+    }
+
+    /**
+     * Check if the current user can delete this comment.
+     */
+    public function canCurrentUserDelete(): bool
+    {
+        return PermissionUtility::canDeleteComment($this->data);
+    }
+
+    /**
+     * Check if the current user can resolve this comment.
+     */
+    public function canCurrentUserResolve(): bool
+    {
+        return PermissionUtility::canResolveComment();
+    }
+
     private function getTitleForFile(): string
     {
         $record = $this->getRelatedRecord();

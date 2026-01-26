@@ -87,6 +87,11 @@ class AbstractSelectionService
             return false;
         }
 
+        // Check if user has permission for this table
+        if (!PermissionUtility::isTableAllowedForUser($table)) {
+            return false;
+        }
+
         return true;
     }
 
@@ -177,6 +182,10 @@ class AbstractSelectionService
      */
     public function generateFolderSelection(string $combinedIdentifier): array|false
     {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return false;
+        }
+
         $allStatus = $this->statusRepository->findAll();
         if (0 === count($allStatus)) {
             return false;
@@ -191,12 +200,20 @@ class AbstractSelectionService
         $selectionEntriesToAdd = [];
 
         $this->addHeaderItemToSelection($selectionEntriesToAdd);
-        foreach ($allStatus as $statusItem) {
-            $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
+
+        // Only add status items if user can change status
+        if (PermissionUtility::canChangeStatus()) {
+            foreach ($allStatus as $statusItem) {
+                // Only add status if user is allowed to use it
+                if (!PermissionUtility::isStatusAllowedForUser($statusItem->getUid())) {
+                    continue;
+                }
+                $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
+            }
         }
 
-        // Add reset option if status is set
-        if (null !== $currentStatus) {
+        // Add reset option if status is set and user can unset
+        if (null !== $currentStatus && PermissionUtility::canUnsetStatus()) {
             if ([] !== $selectionEntriesToAdd) {
                 $this->addDividerItemToSelection($selectionEntriesToAdd);
             }
@@ -423,7 +440,17 @@ class AbstractSelectionService
      */
     private function addAllStatusItems(array &$selectionEntriesToAdd, array $allStatus, array|bool|null $record, string $table, int $uid): void
     {
+        // Check if user can change status at all
+        if (!PermissionUtility::canChangeStatus()) {
+            return;
+        }
+
         foreach ($allStatus as $statusItem) {
+            // Only add status if user is allowed to use it
+            if (!PermissionUtility::isStatusAllowedForUser($statusItem->getUid())) {
+                continue;
+            }
+
             $this->addStatusItemToSelection($selectionEntriesToAdd, $statusItem, $this->getCurrentStatus($record), $table, $uid, $record);
         }
     }
@@ -436,6 +463,11 @@ class AbstractSelectionService
      */
     private function addStatusResetSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
     {
+        // Check if user can unset status
+        if (!PermissionUtility::canUnsetStatus()) {
+            return;
+        }
+
         if (!is_array($record) || (null !== $record[Configuration::FIELD_STATUS] && 0 !== $record[Configuration::FIELD_STATUS])) {
             if ([] !== $selectionEntriesToAdd) {
                 $this->addDividerItemToSelection($selectionEntriesToAdd);
