@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility\Security;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\{ArrayParameterType, Exception};
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -363,14 +363,19 @@ class PermissionUtility
 
         $allowedValues = [];
 
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getConnectionForTable('be_groups');
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('be_groups');
 
-        $result = $connection->select(
-            [$column],
-            'be_groups',
-            ['uid' => $userGroupIds],
-        );
+        $result = $queryBuilder
+            ->select($column)
+            ->from('be_groups')
+            ->where(
+                $queryBuilder->expr()->in(
+                    'uid',
+                    $queryBuilder->createNamedParameter($userGroupIds, ArrayParameterType::INTEGER),
+                ),
+            )
+            ->executeQuery();
 
         while ($row = $result->fetchAssociative()) {
             $values = $explodeFunc((string) ($row[$column] ?? ''));
