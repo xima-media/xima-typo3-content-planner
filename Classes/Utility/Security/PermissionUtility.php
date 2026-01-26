@@ -100,11 +100,7 @@ class PermissionUtility
      */
     public static function canChangeStatus(?int $statusUid = null): bool
     {
-        if (!self::checkContentStatusVisibility()) {
-            return false;
-        }
-
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::hasUnrestrictedAccess()) {
             return true;
         }
 
@@ -125,11 +121,7 @@ class PermissionUtility
      */
     public static function canUnsetStatus(): bool
     {
-        if (!self::checkContentStatusVisibility()) {
-            return false;
-        }
-
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::hasUnrestrictedAccess()) {
             return true;
         }
 
@@ -183,11 +175,7 @@ class PermissionUtility
      */
     public static function canEditComment(array $comment): bool
     {
-        if (!self::checkContentStatusVisibility()) {
-            return false;
-        }
-
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::hasUnrestrictedAccess()) {
             return true;
         }
 
@@ -207,11 +195,7 @@ class PermissionUtility
      */
     public static function canDeleteComment(array $comment): bool
     {
-        if (!self::checkContentStatusVisibility()) {
-            return false;
-        }
-
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::hasUnrestrictedAccess()) {
             return true;
         }
 
@@ -229,11 +213,7 @@ class PermissionUtility
      */
     public static function canResolveComment(): bool
     {
-        if (!self::checkContentStatusVisibility()) {
-            return false;
-        }
-
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::hasUnrestrictedAccess()) {
             return true;
         }
 
@@ -260,11 +240,7 @@ class PermissionUtility
      */
     public static function canReassign(): bool
     {
-        if (!self::checkContentStatusVisibility()) {
-            return false;
-        }
-
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::hasUnrestrictedAccess()) {
             return true;
         }
 
@@ -276,11 +252,7 @@ class PermissionUtility
      */
     public static function canAssignOtherUser(): bool
     {
-        if (!self::checkContentStatusVisibility()) {
-            return false;
-        }
-
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::hasUnrestrictedAccess()) {
             return true;
         }
 
@@ -295,8 +267,6 @@ class PermissionUtility
     {
         return self::checkContentStatusVisibility();
     }
-
-    // ==================== Helper Methods ====================
 
     /**
      * Check if user has full access permission (grants all permissions).
@@ -318,6 +288,21 @@ class PermissionUtility
         }
 
         return false;
+    }
+
+    // ==================== Helper Methods ====================
+
+    /**
+     * Check if user has unrestricted access (admin, full-access, or legacy mode).
+     * Returns false if content status visibility is disabled.
+     */
+    private static function hasUnrestrictedAccess(): bool
+    {
+        if (!self::checkContentStatusVisibility()) {
+            return false;
+        }
+
+        return $GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess();
     }
 
     /**
@@ -366,29 +351,10 @@ class PermissionUtility
      */
     private static function getAllowedStatusUidsForUser(): array
     {
-        $userGroupIds = GeneralUtility::intExplode(',', (string) ($GLOBALS['BE_USER']->user['usergroup'] ?? ''), true);
-
-        if ([] === $userGroupIds) {
-            return [];
-        }
-
-        $allowedStatuses = [];
-
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getConnectionForTable('be_groups');
-
-        $result = $connection->select(
-            ['tx_ximatypo3contentplanner_allowed_statuses'],
-            'be_groups',
-            ['uid' => $userGroupIds],
+        return self::getAllowedValuesFromUserGroups(
+            'tx_ximatypo3contentplanner_allowed_statuses',
+            static fn (string $value): array => GeneralUtility::intExplode(',', $value, true),
         );
-
-        while ($row = $result->fetchAssociative()) {
-            $statuses = GeneralUtility::intExplode(',', (string) ($row['tx_ximatypo3contentplanner_allowed_statuses'] ?? ''), true);
-            $allowedStatuses = array_merge($allowedStatuses, $statuses);
-        }
-
-        return array_unique($allowedStatuses);
     }
 
     /**
@@ -398,28 +364,43 @@ class PermissionUtility
      */
     private static function getAllowedTablesForUser(): array
     {
+        return self::getAllowedValuesFromUserGroups(
+            'tx_ximatypo3contentplanner_allowed_tables',
+            static fn (string $value): array => GeneralUtility::trimExplode(',', $value, true),
+        );
+    }
+
+    /**
+     * Generic method to get allowed values from user groups.
+     *
+     * @param callable(string): array<int, mixed> $explodeFunc
+     *
+     * @return array<int, mixed>
+     */
+    private static function getAllowedValuesFromUserGroups(string $column, callable $explodeFunc): array
+    {
         $userGroupIds = GeneralUtility::intExplode(',', (string) ($GLOBALS['BE_USER']->user['usergroup'] ?? ''), true);
 
         if ([] === $userGroupIds) {
             return [];
         }
 
-        $allowedTables = [];
+        $allowedValues = [];
 
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable('be_groups');
 
         $result = $connection->select(
-            ['tx_ximatypo3contentplanner_allowed_tables'],
+            [$column],
             'be_groups',
             ['uid' => $userGroupIds],
         );
 
         while ($row = $result->fetchAssociative()) {
-            $tables = GeneralUtility::trimExplode(',', (string) ($row['tx_ximatypo3contentplanner_allowed_tables'] ?? ''), true);
-            $allowedTables = array_merge($allowedTables, $tables);
+            $values = $explodeFunc((string) ($row[$column] ?? ''));
+            $allowedValues = array_merge($allowedValues, $values);
         }
 
-        return array_unique($allowedTables);
+        return array_unique($allowedValues);
     }
 }
