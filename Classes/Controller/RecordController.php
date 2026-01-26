@@ -108,25 +108,8 @@ class RecordController extends ActionController
             return new JsonResponse(['error' => 'Record not found'], 404);
         }
 
-        $assignees = $this->backendUserRepository->findAllWithPermission();
-
-        // Add unassigned option
-        array_unshift($assignees, [
-            'url' => UrlUtility::assignToUser($recordTable, $record['uid'], unassign: true),
-            'username' => '-- Not assigned --',
-            'realName' => '',
-            'uid' => 0,
-        ]);
-
-        foreach ($assignees as &$assignee) {
-            $assignee['uid'] ??= 0;
-            $assignee['name'] = ContentUtility::generateDisplayName($assignee);
-            $assignee['isCurrent'] = ((int) $assignee['uid'] === $currentAssignee);
-            $assignee['url'] = UrlUtility::assignToUser($recordTable, $recordId, $assignee['uid']);
-        }
-
-        // Sort the assignees so that the current assignee is always on top
-        usort($assignees, static fn ($a, $b) => ((int) $b['uid'] === $currentAssignee) <=> ((int) $a['uid'] === $currentAssignee));
+        $permissions = $this->getAssignmentPermissions($currentAssignee);
+        $assignees = $this->prepareAssigneeList($recordTable, $recordId, $currentAssignee, $permissions);
 
         $result = ViewUtility::render(
             'Default/Assignees.html',
@@ -135,14 +118,98 @@ class RecordController extends ActionController
                 'assignees' => $assignees,
                 'assignee' => [
                     'current' => $currentAssignee,
-                    'assignToCurrentUser' => InfoGenerator::checkAssignToCurrentUser($record) ? UrlUtility::assignToUser($recordTable, $record['uid']) : false,
-                    'unassign' => InfoGenerator::checkUnassign($record) ? UrlUtility::assignToUser($recordTable, $record['uid'], unassign: true) : null,
+                    'assignToCurrentUser' => $permissions['canAssignSelf'] && InfoGenerator::checkAssignToCurrentUser($record)
+                        ? UrlUtility::assignToUser($recordTable, $record['uid'])
+                        : false,
+                    'unassign' => $permissions['canReassign'] && InfoGenerator::checkUnassign($record)
+                        ? UrlUtility::assignToUser($recordTable, $record['uid'], unassign: true)
+                        : null,
                 ],
+                'canChangeAssignee' => $permissions['canChangeAssignee'],
             ],
         );
 
         $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/assignee-select.js', ['nonce' => $this->requestId->nonce]);
 
         return new JsonResponse(['result' => $result]);
+    }
+
+    /**
+     * Get assignment permissions for the current user.
+     *
+     * @return array{canAssignSelf: bool, canAssignOther: bool, canReassign: bool, canChangeAssignee: bool}
+     */
+    private function getAssignmentPermissions(int $currentAssignee): array
+    {
+        $canAssignSelf = PermissionUtility::canAssignSelf();
+        $canAssignOther = PermissionUtility::canAssignOtherUser();
+        $canReassign = PermissionUtility::canReassign();
+        $hasExistingAssignee = $currentAssignee > 0;
+
+        return [
+            'canAssignSelf' => $canAssignSelf,
+            'canAssignOther' => $canAssignOther,
+            'canReassign' => $canReassign,
+            'canChangeAssignee' => $canAssignOther
+                || ($canAssignSelf && !$hasExistingAssignee)
+                || ($canReassign && $hasExistingAssignee),
+        ];
+    }
+
+    /**
+     * Prepare the list of assignees with proper URLs based on permissions.
+     *
+     * @param array{canAssignSelf: bool, canAssignOther: bool, canReassign: bool, canChangeAssignee: bool} $permissions
+     *
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws RouteNotFoundException
+     */
+    private function prepareAssigneeList(string $table, int $recordId, int $currentAssignee, array $permissions): array
+    {
+        $assignees = $this->backendUserRepository->findAllWithPermission();
+        $currentUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+
+        array_unshift($assignees, [
+            'username' => '-- Not assigned --',
+            'realName' => '',
+            'uid' => 0,
+        ]);
+
+        foreach ($assignees as &$assignee) {
+            $assigneeUid = (int) ($assignee['uid'] ?? 0);
+            $assignee['uid'] = $assigneeUid;
+            $assignee['name'] = ContentUtility::generateDisplayName($assignee);
+            $assignee['isCurrent'] = $assigneeUid === $currentAssignee;
+            $assignee['url'] = $this->canAssignToUser($assigneeUid, $currentUserId, $permissions)
+                ? UrlUtility::assignToUser($table, $recordId, $assigneeUid)
+                : '';
+        }
+
+        usort($assignees, static fn ($a, $b) => ((int) $b['uid'] === $currentAssignee) <=> ((int) $a['uid'] === $currentAssignee));
+
+        return $assignees;
+    }
+
+    /**
+     * Check if user can assign to a specific user.
+     *
+     * @param array{canAssignSelf: bool, canAssignOther: bool, canReassign: bool, canChangeAssignee: bool} $permissions
+     */
+    private function canAssignToUser(int $targetUserId, int $currentUserId, array $permissions): bool
+    {
+        if (!$permissions['canChangeAssignee']) {
+            return false;
+        }
+
+        if ($permissions['canAssignOther']) {
+            return true;
+        }
+
+        if (0 === $targetUserId) {
+            return true; // Unassign is always allowed if canChangeAssignee is true
+        }
+
+        return $permissions['canAssignSelf'] && $targetUserId === $currentUserId;
     }
 }
