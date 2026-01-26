@@ -15,7 +15,6 @@ namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -39,13 +38,13 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         StatusRepository $statusRepository,
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
-        UriBuilder $uriBuilder,
+        SelectionUriBuilder $selectionUriBuilder,
         CommentRepository $commentRepository,
         FolderStatusRepository $folderStatusRepository,
         private readonly IconFactory $iconFactory,
         private readonly BackendUserRepository $backendUserRepository,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder, $folderStatusRepository);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $selectionUriBuilder, $folderStatusRepository);
     }
 
     /**
@@ -119,6 +118,8 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @throws Exception|RouteNotFoundException
      */
     public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
     {

@@ -26,8 +26,6 @@ final class PermissionUtilityTest extends TestCase
 {
     protected function setUp(): void
     {
-        parent::setUp();
-
         // Reset BE_USER global for each test
         $GLOBALS['BE_USER'] = $this->createMockBackendUser();
     }
@@ -35,7 +33,6 @@ final class PermissionUtilityTest extends TestCase
     protected function tearDown(): void
     {
         unset($GLOBALS['BE_USER']);
-        parent::tearDown();
     }
 
     // ==================== isOwnComment Tests ====================
@@ -295,25 +292,18 @@ final class PermissionUtilityTest extends TestCase
             /** @var array<string, mixed> */
             public array $user;
 
-            private bool $isAdmin;
-
-            /** @var array<string, bool> */
-            private array $permissions;
-
             /**
              * @param array<string, mixed> $user
              * @param array<string, bool>  $permissions
              */
-            public function __construct(bool $isAdmin, array $user, array $permissions)
+            public function __construct(private readonly bool $isAdmin, array $user, private array $permissions)
             {
-                $this->isAdmin = $isAdmin;
                 $this->user = array_merge([
                     'uid' => 1,
                     'username' => 'test_user',
                     'usergroup' => '1,2',
                     'tx_ximatypo3contentplanner_hide' => 0,
                 ], $user);
-                $this->permissions = $permissions;
             }
 
             public function isAdmin(): bool

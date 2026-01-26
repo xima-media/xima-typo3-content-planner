@@ -15,7 +15,6 @@ namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -37,13 +36,13 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         StatusRepository $statusRepository,
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
-        UriBuilder $uriBuilder,
+        SelectionUriBuilder $selectionUriBuilder,
         CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
         private readonly IconFactory $iconFactory,
         FolderStatusRepository $folderStatusRepository,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder, $folderStatusRepository);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $selectionUriBuilder, $folderStatusRepository);
     }
 
     /**

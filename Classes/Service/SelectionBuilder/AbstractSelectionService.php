@@ -14,22 +14,19 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use Doctrine\DBAL\Exception;
-use Psr\Http\Message\{ServerRequestInterface, UriInterface};
+use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
-use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
 use function is_array;
-use function is_int;
 
 /**
  * AbstractSelectionService.
@@ -44,7 +41,7 @@ class AbstractSelectionService
         private readonly RecordRepository $recordRepository,
         private readonly StatusSelectionManager $statusSelectionManager,
         protected readonly CommentRepository $commentRepository,
-        protected readonly UriBuilder $uriBuilder,
+        protected readonly SelectionUriBuilder $selectionUriBuilder,
         protected readonly FolderStatusRepository $folderStatusRepository,
     ) {}
 
@@ -246,29 +243,9 @@ class AbstractSelectionService
         throw new NotImplementedException('Method not implemented', 1741960494);
     }
 
-    /**
-     * @throws RouteNotFoundException
-     */
     protected function buildUriForFolderStatusChange(string $combinedIdentifier, ?Status $status): UriInterface
     {
-        /** @var ServerRequestInterface $request */
-        $request = $GLOBALS['TYPO3_REQUEST'];
-        $currentFolderId = $request->getQueryParams()['id'] ?? '';
-
-        return $this->uriBuilder->buildUriFromRoute(
-            'ximatypo3contentplanner_folder_status_update',
-            [
-                'identifier' => $combinedIdentifier,
-                'status' => $status instanceof Status ? $status->getUid() : 0,
-                'redirect' => (string) $this->uriBuilder->buildUriFromRoute(
-                    'ximatypo3contentplanner_message',
-                    [
-                        'redirect' => (string) $this->uriBuilder->buildUriFromRoute('media_management', ['id' => $currentFolderId]),
-                        'message' => $status instanceof Status ? 'status.changed' : 'status.reset',
-                    ],
-                ),
-            ],
-        );
+        return $this->selectionUriBuilder->buildUriForFolderStatusChange($combinedIdentifier, $status);
     }
 
     /**
@@ -313,37 +290,7 @@ class AbstractSelectionService
      */
     protected function buildUriForStatusChange(string $table, array|int $uid, ?Status $status): UriInterface
     {
-        /** @var ServerRequestInterface $request */
-        $request = $GLOBALS['TYPO3_REQUEST'];
-        $route = $request->getAttribute('routing')->getRoute()->getOption('_identifier');
-
-        $routeArray = $this->buildRouteArrayForRoute($route, $table, $uid, $request);
-
-        $dataArray = [
-            $table => [],
-        ];
-        if (is_int($uid)) {
-            $uid = [$uid];
-        }
-        foreach ($uid as $singleId) {
-            $dataArray[$table][$singleId] = [
-                Configuration::FIELD_STATUS => $status instanceof Status ? $status->getUid() : '',
-            ];
-        }
-
-        return $this->uriBuilder->buildUriFromRoute(
-            'tce_db',
-            [
-                'data' => $dataArray,
-                'redirect' => $this->uriBuilder->buildUriFromRoute(
-                    'ximatypo3contentplanner_message',
-                    [
-                        'redirect' => (string) $this->uriBuilder->buildUriFromRoute($route, $routeArray),
-                        'message' => $status instanceof Status ? 'status.changed' : 'status.reset',
-                    ],
-                ),
-            ],
-        );
+        return $this->selectionUriBuilder->buildUriForStatusChange($table, $uid, $status);
     }
 
     /**
@@ -431,44 +378,6 @@ class AbstractSelectionService
         $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
         $this->addFolderAssigneeItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
         $this->addFolderCommentsItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
-    }
-
-    /**
-     * @param array<int, int>|int $uid
-     *
-     * @return array<string, mixed>
-     */
-    private function buildRouteArrayForRoute(string $route, string $table, array|int $uid, ServerRequestInterface $request): array
-    {
-        if ('record_edit' === $route) {
-            return [
-                'edit' => [
-                    $table => [
-                        $uid => 'edit',
-                    ],
-                ],
-            ];
-        }
-
-        if (RouteUtility::isRecordListRoute($route)) {
-            // For record list, use the current page ID from request to stay on the same page
-            $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
-
-            return [
-                'id' => $currentPageId ?: $uid,
-            ];
-        }
-
-        if (RouteUtility::isFileListRoute($route)) {
-            // For file list, use the folder identifier from request to stay on the same folder
-            return [
-                'id' => $request->getQueryParams()['id'] ?? '',
-            ];
-        }
-
-        return [
-            'id' => $uid,
-        ];
     }
 
     /**
