@@ -219,7 +219,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
                 // Remove both fields - user has no permission to change resolve state
                 unset(
                     $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'],
-                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user']
+                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'],
                 );
                 continue;
             }
