@@ -48,6 +48,66 @@
 			<trans-unit id="permission.content_status.description">
 				<source>Allow the usage of content status within pages</source>
 			</trans-unit>
+			<trans-unit id="permission.full_access">
+				<source>Full Access</source>
+			</trans-unit>
+			<trans-unit id="permission.full_access.description">
+				<source>Grants all Content Planner permissions at once</source>
+			</trans-unit>
+			<trans-unit id="permission.status_change">
+				<source>Change Status</source>
+			</trans-unit>
+			<trans-unit id="permission.status_change.description">
+				<source>Allow changing the status of records</source>
+			</trans-unit>
+			<trans-unit id="permission.status_unset">
+				<source>Unset Status</source>
+			</trans-unit>
+			<trans-unit id="permission.status_unset.description">
+				<source>Allow removing the status from records</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_edit_own">
+				<source>Edit Own Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_edit_own.description">
+				<source>Allow editing of own comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_edit_foreign">
+				<source>Edit Foreign Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_edit_foreign.description">
+				<source>Allow editing of comments from other users</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_resolve">
+				<source>Resolve Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_resolve.description">
+				<source>Allow marking comments as resolved</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_delete_own">
+				<source>Delete Own Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_delete_own.description">
+				<source>Allow deletion of own comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_delete_foreign">
+				<source>Delete Foreign Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_delete_foreign.description">
+				<source>Allow deletion of comments from other users</source>
+			</trans-unit>
+			<trans-unit id="permission.assign_reassign">
+				<source>Reassign</source>
+			</trans-unit>
+			<trans-unit id="permission.assign_reassign.description">
+				<source>Allow changing existing assignees</source>
+			</trans-unit>
+			<trans-unit id="permission.assign_other_user">
+				<source>Assign Other Users</source>
+			</trans-unit>
+			<trans-unit id="permission.assign_other_user.description">
+				<source>Allow assigning other users (not just yourself)</source>
+			</trans-unit>
 			<trans-unit id="content_planner">
 				<source>Content Planner</source>
 			</trans-unit>
