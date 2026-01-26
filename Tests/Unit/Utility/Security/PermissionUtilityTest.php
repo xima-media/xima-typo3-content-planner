@@ -278,6 +278,43 @@ final class PermissionUtilityTest extends TestCase
         self::assertTrue(PermissionUtility::canDeleteComment($comment));
     }
 
+    // ==================== canCreateComment Tests ====================
+
+    public function testCanCreateCommentReturnsTrueForAdmin(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(true);
+
+        self::assertTrue(PermissionUtility::canCreateComment());
+    }
+
+    public function testCanCreateCommentReturnsTrueWithFullAccess(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+        ]);
+
+        self::assertTrue(PermissionUtility::canCreateComment());
+    }
+
+    public function testCanCreateCommentReturnsTrueWithPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+            'custom_options:tx_ximatypo3contentplanner:comment-create' => true,
+        ]);
+
+        self::assertTrue(PermissionUtility::canCreateComment());
+    }
+
+    public function testCanCreateCommentReturnsFalseWithoutPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+        ]);
+
+        self::assertFalse(PermissionUtility::canCreateComment());
+    }
+
     // ==================== canAssignSelf Tests ====================
 
     public function testCanAssignSelfReturnsTrueWithVisibility(): void

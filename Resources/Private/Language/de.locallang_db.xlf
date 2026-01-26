@@ -71,6 +71,14 @@
 				<source/>
 				<target>Gewährt vollen Zugriff auf alle Content Planner Funktionen</target>
 			</trans-unit>
+			<trans-unit id="permission.comment_create">
+				<source/>
+				<target>Kommentare erstellen</target>
+			</trans-unit>
+			<trans-unit id="permission.comment_create.description">
+				<source/>
+				<target>Erlaubt das Erstellen neuer Kommentare an Datensätzen</target>
+			</trans-unit>
 			<trans-unit id="content_planner">
 				<source/>
 				<target>Content Planner</target>

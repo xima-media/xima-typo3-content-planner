@@ -173,6 +173,18 @@ class PermissionUtility
     // ==================== Comment Permissions ====================
 
     /**
+     * Check if user can create comments.
+     */
+    public static function canCreateComment(): bool
+    {
+        if (self::hasUnrestrictedAccess()) {
+            return true;
+        }
+
+        return self::checkPermission(Configuration::PERMISSION_COMMENT_CREATE);
+    }
+
+    /**
      * Check if user can edit a specific comment.
      *
      * @param array<string, mixed> $comment

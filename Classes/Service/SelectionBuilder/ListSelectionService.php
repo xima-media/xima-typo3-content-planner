@@ -23,6 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function sprintf;
 
@@ -159,7 +160,9 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = ($commentsCount > 0 ? $commentsCount.' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
         $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
-        $newCommentUri = htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $newCommentUri = PermissionUtility::canCreateComment()
+            ? htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8')
+            : '';
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['comments'] = sprintf(
@@ -192,7 +195,9 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = "$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
         $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
-        $newCommentUri = htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $newCommentUri = PermissionUtility::canCreateComment()
+            ? htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8')
+            : '';
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
         $selectionEntriesToAdd['commentsTodo'] = sprintf(
@@ -300,7 +305,9 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         $icon = $this->iconFactory->getIcon('actions-message', IconUtility::getDefaultIconSize())->render();
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = ($commentsCount > 0 ? $commentsCount.' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
-        $newCommentUri = htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $newCommentUri = PermissionUtility::canCreateComment()
+            ? htmlspecialchars(UrlUtility::getNewCommentUrl($table, $uid), \ENT_QUOTES | \ENT_HTML5, 'UTF-8')
+            : '';
         $editUri = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 

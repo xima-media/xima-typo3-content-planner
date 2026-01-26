@@ -59,6 +59,7 @@ class Configuration
     final public const PERMISSION_STATUS_UNSET = 'status-unset';
 
     // Comment Permissions
+    final public const PERMISSION_COMMENT_CREATE = 'comment-create';
     final public const PERMISSION_COMMENT_EDIT_OWN = 'comment-edit-own';
     final public const PERMISSION_COMMENT_EDIT_FOREIGN = 'comment-edit-foreign';
     final public const PERMISSION_COMMENT_RESOLVE = 'comment-resolve';
@@ -142,6 +143,11 @@ class Configuration
                     'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.status_unset.description',
                 ],
                 // Comment permissions
+                self::PERMISSION_COMMENT_CREATE => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_create',
+                    'actions-plus',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_create.description',
+                ],
                 self::PERMISSION_COMMENT_EDIT_OWN => [
                     'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_edit_own',
                     'actions-open',

@@ -26,6 +26,7 @@ use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
 
@@ -76,7 +77,7 @@ class RecordController extends ActionController
                 'comments' => $comments,
                 'id' => $recordId,
                 'table' => $recordTable,
-                'newCommentUri' => UrlUtility::getNewCommentUrl($recordTable, $recordId),
+                'newCommentUri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($recordTable, $recordId) : '',
                 'filter' => [
                     'sortComments' => $sortComments,
                     'showResolvedComments' => $showResolvedComments,

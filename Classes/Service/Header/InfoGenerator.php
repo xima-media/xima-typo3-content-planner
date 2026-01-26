@@ -23,6 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, Comme
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
 use function is_array;
@@ -184,10 +185,9 @@ class InfoGenerator
             ],
             'comments' => [
                 'items' => $this->getComments($record, $table),
-                'newCommentUri' => UrlUtility::getNewCommentUrl(
-                    $table,
-                    $record['uid'],
-                ),
+                'newCommentUri' => PermissionUtility::canCreateComment()
+                    ? UrlUtility::getNewCommentUrl($table, $record['uid'])
+                    : '',
                 'editUri' => UrlUtility::getContentStatusPropertiesEditUrl(
                     $table,
                     $record['uid'],
@@ -246,7 +246,9 @@ class InfoGenerator
             ],
             'comments' => [
                 'items' => $this->getFolderComments($folderRecord),
-                'newCommentUri' => UrlUtility::getNewCommentUrl($table, $uid),
+                'newCommentUri' => PermissionUtility::canCreateComment()
+                    ? UrlUtility::getNewCommentUrl($table, $uid)
+                    : '',
                 'editUri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
                 'todoResolved' => ExtensionUtility::isFeatureEnabled(
                     Configuration::FEATURE_COMMENT_TODOS,

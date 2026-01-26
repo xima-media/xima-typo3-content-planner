@@ -78,6 +78,12 @@
 			<trans-unit id="permission.status_unset.description">
 				<source>Allow removing the status from records</source>
 			</trans-unit>
+			<trans-unit id="permission.comment_create">
+				<source>Create Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_create.description">
+				<source>Allow creating new comments on records</source>
+			</trans-unit>
 			<trans-unit id="permission.comment_edit_own">
 				<source>Edit Own Comments</source>
 			</trans-unit>
