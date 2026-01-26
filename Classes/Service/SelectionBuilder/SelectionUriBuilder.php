@@ -20,7 +20,9 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
 
+use function is_array;
 use function is_int;
+use function reset;
 
 /**
  * SelectionUriBuilder.
@@ -95,11 +97,14 @@ class SelectionUriBuilder
      */
     private function buildRouteArrayForRoute(string $route, string $table, array|int $uid, ServerRequestInterface $request): array
     {
+        // Normalize $uid to a scalar value - extract first element if array
+        $normalizedUid = is_array($uid) ? (int) reset($uid) : $uid;
+
         if ('record_edit' === $route) {
             return [
                 'edit' => [
                     $table => [
-                        $uid => 'edit',
+                        $normalizedUid => 'edit',
                     ],
                 ],
             ];
@@ -109,7 +114,7 @@ class SelectionUriBuilder
             $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
 
             return [
-                'id' => $currentPageId ?: $uid,
+                'id' => $currentPageId ?: $normalizedUid,
             ];
         }
 
@@ -120,7 +125,7 @@ class SelectionUriBuilder
         }
 
         return [
-            'id' => $uid,
+            'id' => $normalizedUid,
         ];
     }
 

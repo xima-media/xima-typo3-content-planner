@@ -205,17 +205,36 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     private function checkCommentResolved(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
-            if (array_key_exists('resolved_date', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])
-                && 0 !== (int) $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date']
-            ) {
-                // Check if user can resolve comments
-                if (!PermissionUtility::canResolveComment()) {
-                    unset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date']);
-                    continue;
-                }
+            $commentData = $dataHandler->datamap[Configuration::TABLE_COMMENT][$id];
+            $hasResolvedDateChange = array_key_exists('resolved_date', $commentData);
+            $hasResolvedUserChange = array_key_exists('resolved_user', $commentData);
 
+            // Guard any changes to resolved_date or resolved_user
+            if (!$hasResolvedDateChange && !$hasResolvedUserChange) {
+                continue;
+            }
+
+            // Check if user can resolve/unresolve comments
+            if (!PermissionUtility::canResolveComment()) {
+                // Remove both fields - user has no permission to change resolve state
+                unset(
+                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'],
+                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user']
+                );
+                continue;
+            }
+
+            // User has permission - determine if resolving or unresolving
+            $isResolving = $hasResolvedDateChange && 0 !== (int) $commentData['resolved_date'];
+
+            if ($isResolving) {
+                // Resolving: set server-side values (never trust client values)
                 $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'] = $GLOBALS['BE_USER']->user['uid'];
                 $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'] = time();
+            } else {
+                // Unresolving: clear both fields
+                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'] = 0;
+                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'] = 0;
             }
         }
     }

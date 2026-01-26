@@ -46,5 +46,5 @@ call_user_func(static function (): void {
     ];
 
     ExtensionManagementUtility::addTCAcolumns('be_groups', $temporaryColumns);
-    ExtensionManagementUtility::addToAllTCAtypes('be_groups', '--div--;Content Planner,tx_ximatypo3contentplanner_allowed_statuses,tx_ximatypo3contentplanner_allowed_tables');
+    ExtensionManagementUtility::addToAllTCAtypes('be_groups', '--div--;LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:content_planner,tx_ximatypo3contentplanner_allowed_statuses,tx_ximatypo3contentplanner_allowed_tables');
 });
