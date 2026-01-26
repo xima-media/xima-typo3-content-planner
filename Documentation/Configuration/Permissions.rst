@@ -13,21 +13,21 @@ All other users require the necessary authorization via the TYPO3 backend permis
 Basic Permissions
 =================
 
-Via the "Access Rights" tab add the **Content Status** (`tx_ximatypo3contentplanner:content-status`) permission within the *Custom module options*.
+Via the "Access Rights" tab add one of the following permissions within the *Custom module options*:
+
+**View Only** (`tx_ximatypo3contentplanner:view-only`)
+    Enables Content Planner visibility (status indicators, comments panel) without any action permissions. Use this in combination with granular permissions.
+
+**Full Access** (`tx_ximatypo3contentplanner:content-status`)
+    Grants visibility and all Content Planner permissions at once. This is useful for power users who should have unrestricted access to all features.
 
 ..  note::
-    Only users with admin rights and the necessary permissions can access the Content Planner functionalities and can be selected as assignees.
+    Only users with admin rights or the necessary permissions can access the Content Planner functionalities and can be selected as assignees.
 
 Granular Permissions
 ====================
 
-In addition to the basic **Content Status** permission, you can configure granular permissions to control specific actions:
-
-Full Access
------------
-
-**Full Access** (`tx_ximatypo3contentplanner:full-access`)
-    Grants all Content Planner permissions at once. This is useful for power users who should have unrestricted access to all features.
+In addition to the basic permissions, you can configure granular permissions to control specific actions. These require either **View Only** or **Full Access** as a prerequisite for visibility.
 
 Status Permissions
 ------------------
@@ -40,6 +40,12 @@ Status Permissions
 
 Comment Permissions
 -------------------
+
+..  note::
+    Comment permissions require that users also have **Tables (modify)** (`tables_modify`) permission for the `Content Planner Comment [tx_ximatypo3contentplanner_comment]` table in TYPO3's standard access rights.
+
+**Create Comments** (`tx_ximatypo3contentplanner:comment-create`)
+    Allow creating new comments on records.
 
 **Edit Own Comments** (`tx_ximatypo3contentplanner:comment-edit-own`)
     Allow editing of comments created by the user themselves.
@@ -80,62 +86,24 @@ Allowed Tables
 
 Similarly, you can restrict which record tables (pages, tt_content, sys_file_metadata, etc.) a group can manage with Content Planner features.
 
-Example Configurations
-======================
-
-Editor (Limited)
-----------------
-
-- Content Status: Yes
-- Change Status: Yes
-- Edit Own Comments: Yes
-- Delete Own Comments: Yes
-- Allowed Statuses: Draft, In Review
-
-Chief Editor
-------------
-
-- Content Status: Yes
-- Full Access: Yes
-- Allowed Statuses: All (leave empty)
-- Allowed Tables: All (leave empty)
-
-Content Manager
----------------
-
-- Content Status: Yes
-- Change Status: Yes
-- Unset Status: Yes
-- Edit Own/Foreign Comments: Yes
-- Delete Own/Foreign Comments: Yes
-- Resolve Comments: Yes
-- Reassign: Yes
-- Assign Other Users: Yes
-
 Migration from Previous Versions
 ================================
 
-If you upgrade from a version without granular permissions, existing user groups with the **Content Status** permission will continue to work as before - they automatically get full access (legacy mode).
-
-**How Legacy Mode Works:**
-
-- If a user has **only** the ``content-status`` permission (no granular permissions), they get **full access** to all features (same as before the update)
-- As soon as you add **any** granular permission to a user group, that group switches to **granular mode** and only the explicitly granted permissions apply
+If you upgrade from a version without granular permissions, existing user groups with the **Content Status** permission will continue to work as before - the permission now grants full access.
 
 To use granular permissions:
 
-1. Keep the **Content Status** permission as the basic access gate
+1. Use **View Only** for read-only access or **Full Access** for unrestricted access
 2. Add the desired fine-grained permissions for each user group
 3. Optionally restrict allowed statuses and tables per group
-4. Consider using **Full Access** for administrator-level groups instead of individual permissions
 
 ..  tip::
-    If you want to keep the old behavior (full access for all), simply don't add any granular permissions. Users with ``content-status`` will continue to have full access.
+    If you want to keep the old behavior (full access for all), simply use the **Full Access** permission. It grants all Content Planner features at once.
 
 Additional Required Permissions
 ===============================
 
 Don't forget to also add the following permissions as well:
 
-- "Tables (listing)" (tables_select) and "Tables (modify)" (tables_modify) permissions for the `Content Planner Comment [tx_ximatypo3contentplanner_comment]` table
-- All wanted :ref:`dashboard widget <dashboard-widgets>` in the "Dashboard widgets" (availableWidgets) permission
+- "Tables (listing)" (`tables_select`) and "Tables (modify)" (`tables_modify`) permissions for the `Content Planner Comment [tx_ximatypo3contentplanner_comment]` table
+- All wanted :ref:`dashboard widget <dashboard-widgets>` in the "Dashboard widgets" (`availableWidgets`) permission
