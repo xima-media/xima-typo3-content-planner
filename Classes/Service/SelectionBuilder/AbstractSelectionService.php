@@ -192,40 +192,14 @@ class AbstractSelectionService
         }
 
         $folderRecord = $this->folderStatusRepository->findByCombinedIdentifier($combinedIdentifier);
-        $currentStatus = null;
-        if (is_array($folderRecord) && isset($folderRecord[Configuration::FIELD_STATUS]) && 0 !== (int) $folderRecord[Configuration::FIELD_STATUS]) {
-            $currentStatus = (int) $folderRecord[Configuration::FIELD_STATUS];
-        }
+        $currentStatus = $this->getFolderCurrentStatus($folderRecord);
 
         $selectionEntriesToAdd = [];
 
         $this->addHeaderItemToSelection($selectionEntriesToAdd);
-
-        // Only add status items if user can change status
-        if (PermissionUtility::canChangeStatus()) {
-            foreach ($allStatus as $statusItem) {
-                // Only add status if user is allowed to use it
-                if (!PermissionUtility::isStatusAllowedForUser($statusItem->getUid())) {
-                    continue;
-                }
-                $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
-            }
-        }
-
-        // Add reset option if status is set and user can unset
-        if (null !== $currentStatus && PermissionUtility::canUnsetStatus()) {
-            if ([] !== $selectionEntriesToAdd) {
-                $this->addDividerItemToSelection($selectionEntriesToAdd);
-            }
-            $this->addFolderStatusResetItemToSelection($selectionEntriesToAdd, $combinedIdentifier);
-        }
-
-        // Add additional actions (assignee, comments) if folder record exists
-        if (is_array($folderRecord) && null !== $currentStatus) {
-            $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
-            $this->addFolderAssigneeItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
-            $this->addFolderCommentsItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
-        }
+        $this->addAllFolderStatusItems($selectionEntriesToAdd, $allStatus, $currentStatus, $combinedIdentifier);
+        $this->addFolderStatusResetSection($selectionEntriesToAdd, $currentStatus, $combinedIdentifier);
+        $this->addFolderAdditionalActionsSection($selectionEntriesToAdd, $folderRecord, $currentStatus, $combinedIdentifier);
 
         return $selectionEntriesToAdd;
     }
@@ -391,6 +365,72 @@ class AbstractSelectionService
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    /**
+     * @param array<string, mixed>|false $folderRecord
+     */
+    private function getFolderCurrentStatus(array|false $folderRecord): ?int
+    {
+        if (!is_array($folderRecord) || !isset($folderRecord[Configuration::FIELD_STATUS])) {
+            return null;
+        }
+
+        return 0 !== (int) $folderRecord[Configuration::FIELD_STATUS] ? (int) $folderRecord[Configuration::FIELD_STATUS] : null;
+    }
+
+    /**
+     * @param array<int|string, mixed> $selectionEntriesToAdd
+     * @param array<int, Status>       $allStatus
+     *
+     * @throws NotImplementedException
+     */
+    private function addAllFolderStatusItems(array &$selectionEntriesToAdd, array $allStatus, ?int $currentStatus, string $combinedIdentifier): void
+    {
+        if (!PermissionUtility::canChangeStatus()) {
+            return;
+        }
+
+        foreach ($allStatus as $statusItem) {
+            if (!PermissionUtility::isStatusAllowedForUser($statusItem->getUid())) {
+                continue;
+            }
+            $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @throws NotImplementedException
+     */
+    private function addFolderStatusResetSection(array &$selectionEntriesToAdd, ?int $currentStatus, string $combinedIdentifier): void
+    {
+        if (null === $currentStatus || !PermissionUtility::canUnsetStatus()) {
+            return;
+        }
+
+        if ([] !== $selectionEntriesToAdd) {
+            $this->addDividerItemToSelection($selectionEntriesToAdd);
+        }
+        $this->addFolderStatusResetItemToSelection($selectionEntriesToAdd, $combinedIdentifier);
+    }
+
+    /**
+     * @param array<string, mixed>       $selectionEntriesToAdd
+     * @param array<string, mixed>|false $folderRecord
+     *
+     * @throws NotImplementedException
+     */
+    private function addFolderAdditionalActionsSection(array &$selectionEntriesToAdd, array|false $folderRecord, ?int $currentStatus, string $combinedIdentifier): void
+    {
+        if (!is_array($folderRecord) || null === $currentStatus) {
+            return;
+        }
+
+        $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
+        $this->addFolderAssigneeItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
+        $this->addFolderCommentsItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
     }
 
     /**

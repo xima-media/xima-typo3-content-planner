@@ -226,18 +226,29 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     private function checkCommentEdited(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
-            if (MathUtility::canBeInterpretedAsInteger($id) && array_key_exists('content', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])) {
-                $originalRecord = $this->commentRepository->findByUid((int) $id);
-                if ($originalRecord && $originalRecord['content'] !== $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']) {
-                    // Check if user can edit this comment
-                    if (!PermissionUtility::canEditComment($originalRecord)) {
-                        unset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']);
-                        continue;
-                    }
-
-                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['edited'] = 1;
-                }
+            if (!MathUtility::canBeInterpretedAsInteger($id)) {
+                continue;
             }
+
+            if (!array_key_exists('content', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])) {
+                continue;
+            }
+
+            $originalRecord = $this->commentRepository->findByUid((int) $id);
+            if (!$originalRecord) {
+                continue;
+            }
+
+            if ($originalRecord['content'] === $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']) {
+                continue;
+            }
+
+            if (!PermissionUtility::canEditComment($originalRecord)) {
+                unset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']);
+                continue;
+            }
+
+            $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['edited'] = 1;
         }
     }
 
