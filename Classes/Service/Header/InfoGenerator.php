@@ -176,10 +176,10 @@ class InfoGenerator
             'assignee' => [
                 'username' => $this->getAssigneeUsername($record),
                 'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
-                'assignToCurrentUser' => self::checkAssignToCurrentUser($record)
+                'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($record)
                     ? UrlUtility::assignToUser($table, $record['uid'])
                     : false,
-                'unassign' => self::checkUnassign($record)
+                'unassign' => PermissionUtility::canReassign() && self::checkUnassign($record)
                     ? UrlUtility::assignToUser($table, $record['uid'], unassign: true)
                     : null,
             ],
@@ -237,10 +237,10 @@ class InfoGenerator
             'assignee' => [
                 'username' => $this->getAssigneeUsername($folderRecord),
                 'assignedToCurrentUser' => $this->getAssignedToCurrentUser($folderRecord),
-                'assignToCurrentUser' => self::checkAssignToCurrentUser($folderRecord)
+                'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($folderRecord)
                     ? UrlUtility::assignToUser($table, $uid)
                     : false,
-                'unassign' => self::checkUnassign($folderRecord)
+                'unassign' => PermissionUtility::canReassign() && self::checkUnassign($folderRecord)
                     ? UrlUtility::assignToUser($table, $uid, unassign: true)
                     : null,
             ],
