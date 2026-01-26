@@ -142,11 +142,11 @@ final class PermissionUtilityTest extends TestCase
         self::assertFalse(PermissionUtility::hasFullAccess());
     }
 
-    // ==================== Legacy Mode Tests (Backward Compatibility) ====================
+    // ==================== Full Access Tests ====================
 
-    public function testLegacyModeGrantsFullAccessWithOnlyContentStatus(): void
+    public function testFullAccessPermissionGrantsAllPermissions(): void
     {
-        // User has only content-status, no granular permissions -> legacy mode = full access
+        // User has content-status (now labeled "Full Access") -> full access to everything
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
             'custom_options:tx_ximatypo3contentplanner:content-status' => true,
         ]);
@@ -160,14 +160,28 @@ final class PermissionUtilityTest extends TestCase
         self::assertTrue(PermissionUtility::canDeleteComment(['author' => 5]));
     }
 
-    public function testGranularModeExitsLegacyWhenAnyGranularPermissionSet(): void
+    public function testViewOnlyPermissionGrantsVisibilityButNotActions(): void
     {
-        // User has content-status AND a granular permission -> granular mode, NOT full access
+        // User has only view-only -> can see but no actions
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+        ]);
+
+        self::assertTrue(PermissionUtility::checkContentStatusVisibility());
+        self::assertFalse(PermissionUtility::hasFullAccess());
+        self::assertFalse(PermissionUtility::canChangeStatus());
+        self::assertFalse(PermissionUtility::canUnsetStatus());
+    }
+
+    public function testViewOnlyWithGranularPermissions(): void
+    {
+        // User has view-only AND a granular permission -> can see and perform specific action
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:status-change' => true,
         ]);
 
+        self::assertTrue(PermissionUtility::checkContentStatusVisibility());
         self::assertFalse(PermissionUtility::hasFullAccess());
         self::assertTrue(PermissionUtility::canChangeStatus()); // Has this permission
         self::assertFalse(PermissionUtility::canUnsetStatus()); // Does NOT have this permission
@@ -178,7 +192,7 @@ final class PermissionUtilityTest extends TestCase
     public function testCanEditOwnCommentWithPermission(): void
     {
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:comment-edit-own' => true,
         ]);
 
@@ -189,10 +203,9 @@ final class PermissionUtilityTest extends TestCase
 
     public function testCanNotEditOwnCommentWithoutPermission(): void
     {
-        // User has content-status and one granular permission (status-change) to exit legacy mode,
-        // but NOT the comment-edit-own permission
+        // User has view-only and status-change, but NOT comment-edit-own
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:status-change' => true,
         ]);
 
@@ -204,7 +217,7 @@ final class PermissionUtilityTest extends TestCase
     public function testCanEditForeignCommentWithPermission(): void
     {
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:comment-edit-foreign' => true,
         ]);
 
@@ -215,8 +228,9 @@ final class PermissionUtilityTest extends TestCase
 
     public function testCanNotEditForeignCommentWithoutPermission(): void
     {
+        // User has view-only and comment-edit-own, but NOT comment-edit-foreign
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:comment-edit-own' => true,
         ]);
 
@@ -230,7 +244,7 @@ final class PermissionUtilityTest extends TestCase
     public function testCanDeleteOwnCommentWithPermission(): void
     {
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:comment-delete-own' => true,
         ]);
 
@@ -241,10 +255,9 @@ final class PermissionUtilityTest extends TestCase
 
     public function testCanNotDeleteOwnCommentWithoutPermission(): void
     {
-        // User has content-status and one granular permission (status-change) to exit legacy mode,
-        // but NOT the comment-delete-own permission
+        // User has view-only and status-change, but NOT comment-delete-own
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:status-change' => true,
         ]);
 
@@ -256,7 +269,7 @@ final class PermissionUtilityTest extends TestCase
     public function testCanDeleteForeignCommentWithPermission(): void
     {
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['uid' => 5], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:comment-delete-foreign' => true,
         ]);
 

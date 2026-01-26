@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility\Security;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -80,8 +81,11 @@ class PermissionUtility
      */
     public static function checkContentStatusVisibility(): bool
     {
-        // check permission
-        if (!$GLOBALS['BE_USER']->isAdmin() && !self::checkPermission(Configuration::PERMISSION_CONTENT_STATUS)) {
+        // check permission - either view-only or full-access (content-status) grants visibility
+        if (!$GLOBALS['BE_USER']->isAdmin()
+            && !self::checkPermission(Configuration::PERMISSION_VIEW_ONLY)
+            && !self::checkPermission(Configuration::PERMISSION_CONTENT_STATUS)
+        ) {
             return false;
         }
 
@@ -270,20 +274,18 @@ class PermissionUtility
 
     /**
      * Check if user has full access permission (grants all permissions).
-     * This includes:
-     * - Explicit full-access permission
-     * - Legacy mode: content-status without any granular permissions (backward compatibility).
+     * Full access is granted by the "Full Access" permission (content-status key).
+     * Also supports deprecated full-access key for backward compatibility.
      */
     public static function hasFullAccess(): bool
     {
-        // Explicit full-access permission
-        if (self::checkPermission(Configuration::PERMISSION_FULL_ACCESS)) {
+        // Full Access permission (content-status key, labeled "Full Access")
+        if (self::checkPermission(Configuration::PERMISSION_CONTENT_STATUS)) {
             return true;
         }
 
-        // Legacy mode: user has content-status but no granular permissions
-        // This ensures backward compatibility for existing installations
-        if (self::checkPermission(Configuration::PERMISSION_CONTENT_STATUS) && !self::hasAnyGranularPermission()) {
+        // Backward compatibility: deprecated full-access permission
+        if (self::checkPermission(Configuration::PERMISSION_FULL_ACCESS)) {
             return true;
         }
 
@@ -303,34 +305,6 @@ class PermissionUtility
         }
 
         return $GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess();
-    }
-
-    /**
-     * Check if user has any granular permission configured.
-     * Used to determine if user is in "granular mode" or "legacy mode".
-     */
-    private static function hasAnyGranularPermission(): bool
-    {
-        $granularPermissions = [
-            Configuration::PERMISSION_FULL_ACCESS,
-            Configuration::PERMISSION_STATUS_CHANGE,
-            Configuration::PERMISSION_STATUS_UNSET,
-            Configuration::PERMISSION_COMMENT_EDIT_OWN,
-            Configuration::PERMISSION_COMMENT_EDIT_FOREIGN,
-            Configuration::PERMISSION_COMMENT_RESOLVE,
-            Configuration::PERMISSION_COMMENT_DELETE_OWN,
-            Configuration::PERMISSION_COMMENT_DELETE_FOREIGN,
-            Configuration::PERMISSION_ASSIGN_REASSIGN,
-            Configuration::PERMISSION_ASSIGN_OTHER_USER,
-        ];
-
-        foreach ($granularPermissions as $permission) {
-            if (self::checkPermission($permission)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -376,6 +350,8 @@ class PermissionUtility
      * @param callable(string): array<int, mixed> $explodeFunc
      *
      * @return array<int, mixed>
+     *
+     * @throws Exception
      */
     private static function getAllowedValuesFromUserGroups(string $column, callable $explodeFunc): array
     {

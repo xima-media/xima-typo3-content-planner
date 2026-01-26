@@ -30,17 +30,17 @@ $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] .= ',
 $GLOBALS['TYPO3_CONF_VARS']['BE']['customPermOptions'][Configuration::PERMISSION_GROUP] = [
     'header' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.group',
     'items' => [
-        // Legacy permission (backward compatibility) - enables basic feature visibility
+        // View only - enables feature visibility without any actions
+        Configuration::PERMISSION_VIEW_ONLY => [
+            'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.view_only',
+            'actions-eye',
+            'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.view_only.description',
+        ],
+        // Full access - grants visibility and all permissions at once
         Configuration::PERMISSION_CONTENT_STATUS => [
             'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.content_status',
-            'flag-black',
-            'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.content_status.description',
-        ],
-        // Full access - grants all permissions at once
-        Configuration::PERMISSION_FULL_ACCESS => [
-            'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.full_access',
             'actions-check-circle-alt',
-            'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.full_access.description',
+            'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.content_status.description',
         ],
         // Status permissions
         Configuration::PERMISSION_STATUS_CHANGE => [

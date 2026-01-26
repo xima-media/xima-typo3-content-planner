@@ -54,17 +54,17 @@
 			<trans-unit id="permission.group">
 				<source>Content Planner</source>
 			</trans-unit>
+			<trans-unit id="permission.view_only">
+				<source>View Only</source>
+			</trans-unit>
+			<trans-unit id="permission.view_only.description">
+				<source>Allow viewing Content Planner status information (read-only, no actions)</source>
+			</trans-unit>
 			<trans-unit id="permission.content_status">
-				<source>Content Status</source>
-			</trans-unit>
-			<trans-unit id="permission.content_status.description">
-				<source>Allow the usage of content status within pages</source>
-			</trans-unit>
-			<trans-unit id="permission.full_access">
 				<source>Full Access</source>
 			</trans-unit>
-			<trans-unit id="permission.full_access.description">
-				<source>Grants all Content Planner permissions at once</source>
+			<trans-unit id="permission.content_status.description">
+				<source>Grants full access to all Content Planner features</source>
 			</trans-unit>
 			<trans-unit id="permission.status_change">
 				<source>Change Status</source>

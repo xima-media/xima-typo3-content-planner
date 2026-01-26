@@ -55,13 +55,21 @@
 				<source/>
 				<target>Content Planner</target>
 			</trans-unit>
+			<trans-unit id="permission.view_only">
+				<source/>
+				<target>Nur Ansicht</target>
+			</trans-unit>
+			<trans-unit id="permission.view_only.description">
+				<source/>
+				<target>Erlaubt das Anzeigen von Content Planner Statusinformationen (nur lesen, keine Aktionen)</target>
+			</trans-unit>
 			<trans-unit id="permission.content_status">
 				<source/>
-				<target>Inhaltsstatus</target>
+				<target>Vollzugriff</target>
 			</trans-unit>
 			<trans-unit id="permission.content_status.description">
 				<source/>
-				<target>Erlauben Sie die Verwendung des Inhaltsstatus innerhalb von Datensätzen</target>
+				<target>Gewährt vollen Zugriff auf alle Content Planner Funktionen</target>
 			</trans-unit>
 			<trans-unit id="content_planner">
 				<source/>

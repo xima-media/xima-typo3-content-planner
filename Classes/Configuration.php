@@ -50,8 +50,9 @@ class Configuration
 
     // Permission identifiers
     final public const PERMISSION_GROUP = 'tx_ximatypo3contentplanner';
-    final public const PERMISSION_CONTENT_STATUS = 'content-status';
-    final public const PERMISSION_FULL_ACCESS = 'full-access';
+    final public const PERMISSION_VIEW_ONLY = 'view-only';
+    final public const PERMISSION_CONTENT_STATUS = 'content-status'; // Legacy key, now labeled "Full Access"
+    final public const PERMISSION_FULL_ACCESS = 'full-access'; // Deprecated, use PERMISSION_CONTENT_STATUS
 
     // Status Permissions
     final public const PERMISSION_STATUS_CHANGE = 'status-change';
