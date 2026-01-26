@@ -379,7 +379,7 @@ class PermissionUtility
 
         while ($row = $result->fetchAssociative()) {
             $values = $explodeFunc((string) ($row[$column] ?? ''));
-            $allowedValues = array_merge($allowedValues, $values);
+            $allowedValues = [...$allowedValues, ...$values];
         }
 
         return array_unique($allowedValues);
