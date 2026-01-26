@@ -17,9 +17,7 @@ use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Template\Components\ActionGroup;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Domain\RecordInterface;
-use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
-use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
@@ -40,16 +38,12 @@ use function is_array;
 #[AsEventListener(identifier: 'xima-typo3-content-planner/backend/modify-record-list-record-actions')]
 final readonly class ModifyRecordListRecordActionsListener
 {
-    protected ServerRequest $request;
-
     public function __construct(
         private IconFactory $iconFactory,
         private StatusRepository $statusRepository,
         private RecordRepository $recordRepository,
         private DropDownSelectionService $dropDownSelectionService,
-    ) {
-        $this->request = $GLOBALS['TYPO3_REQUEST'];
-    }
+    ) {}
 
     // @phpstan-ignore-next-line complexity.functionLike
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
@@ -102,10 +96,5 @@ final readonly class ModifyRecordListRecordActionsListener
             VersionUtility::is14OrHigher() ? ActionGroup::primary : 'primary',
             'delete',
         );
-    }
-
-    protected function getLanguageService(): LanguageService
-    {
-        return $GLOBALS['LANG'];
     }
 }

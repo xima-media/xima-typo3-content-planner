@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 defined('TYPO3') || exit('Access denied.');
 
-call_user_func(function (): void {
+call_user_func(static function (): void {
     if (Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility::isFilelistSupportEnabled()) {
         Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility::addContentPlannerTabToTCA('sys_file_metadata');
     }

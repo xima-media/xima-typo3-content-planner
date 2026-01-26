@@ -33,7 +33,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 #[AsEventListener(identifier: 'xima-typo3-content-planner/backend/modify-page-tree-items')]
 final readonly class AfterPageTreeItemsPreparedListener
 {
-    public function __construct(protected StatusRepository $statusRepository) {}
+    public function __construct(private StatusRepository $statusRepository) {}
 
     public function __invoke(AfterPageTreeItemsPreparedEvent $event): void
     {

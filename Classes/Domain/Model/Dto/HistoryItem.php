@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
@@ -201,11 +200,6 @@ final class HistoryItem
         }
 
         return false;
-    }
-
-    protected function getLanguageService(): LanguageService
-    {
-        return $GLOBALS['LANG'];
     }
 
     private function getTitleForFile(): string
