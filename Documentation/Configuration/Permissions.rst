@@ -115,13 +115,22 @@ Content Manager
 Migration from Previous Versions
 ================================
 
-If you upgrade from a version without granular permissions, existing user groups with the **Content Status** permission will continue to work as before. The system treats the Content Status permission as the basic access gate.
+If you upgrade from a version without granular permissions, existing user groups with the **Content Status** permission will continue to work as before - they automatically get full access (legacy mode).
+
+**How Legacy Mode Works:**
+
+- If a user has **only** the ``content-status`` permission (no granular permissions), they get **full access** to all features (same as before the update)
+- As soon as you add **any** granular permission to a user group, that group switches to **granular mode** and only the explicitly granted permissions apply
 
 To use granular permissions:
 
-1. Enable the desired fine-grained permissions for each user group
-2. Optionally restrict allowed statuses and tables per group
-3. Consider using **Full Access** for administrator-level groups
+1. Keep the **Content Status** permission as the basic access gate
+2. Add the desired fine-grained permissions for each user group
+3. Optionally restrict allowed statuses and tables per group
+4. Consider using **Full Access** for administrator-level groups instead of individual permissions
+
+..  tip::
+    If you want to keep the old behavior (full access for all), simply don't add any granular permissions. Users with ``content-status`` will continue to have full access.
 
 Additional Required Permissions
 ===============================
