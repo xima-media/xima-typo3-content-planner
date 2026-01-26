@@ -297,7 +297,7 @@ class InfoGenerator
         }
 
         return (int) $record[Configuration::FIELD_ASSIGNEE] ===
-            $GLOBALS['BE_USER']->user['uid'];
+            (int) $GLOBALS['BE_USER']->user['uid'];
     }
 
     /**
