@@ -133,7 +133,7 @@ class Configuration
                 // Status permissions
                 self::PERMISSION_STATUS_CHANGE => [
                     'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.status_change',
-                    'actions-edit',
+                    'actions-document-edit-access',
                     'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.status_change.description',
                 ],
                 self::PERMISSION_STATUS_UNSET => [

@@ -26,7 +26,7 @@ call_user_func(static function (): void {
                 'type' => 'select',
                 'renderType' => 'selectCheckBox',
                 'foreign_table' => 'tx_ximatypo3contentplanner_domain_model_status',
-                'foreign_table_where' => ' AND {#tx_ximatypo3contentplanner_domain_model_status}.{#hidden} = 0 AND {#tx_ximatypo3contentplanner_domain_model_status}.{#deleted} = 0 ORDER BY {#tx_ximatypo3contentplanner_domain_model_status}.{#sorting}',
+                'foreign_table_where' => 'AND {#tx_ximatypo3contentplanner_domain_model_status}.{#hidden} = 0 AND {#tx_ximatypo3contentplanner_domain_model_status}.{#deleted} = 0',
                 'size' => 5,
                 'autoSizeMax' => 20,
             ],
