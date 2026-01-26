@@ -29,7 +29,7 @@ final class DiffUtilityTest extends TestCase
     {
         // Mock the global LANG object needed by DiffUtility
         $languageServiceMock = $this->createMock(LanguageService::class);
-        $languageServiceMock->method('sL')->willReturnCallback(fn (string $key): string =>
+        $languageServiceMock->method('sL')->willReturnCallback(static fn (string $key): string =>
             // Simple mock implementation that returns the key itself
             match (true) {
                 str_contains($key, 'timeAgo.now') => 'now',

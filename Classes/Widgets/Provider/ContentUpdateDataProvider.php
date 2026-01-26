@@ -52,7 +52,7 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
 
         $tablesArray = array_merge(['pages'], $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
         // surround every table with quotes
-        $tables = implode(',', array_map(fn ($table) => '"'.$table.'"', $tablesArray));
+        $tables = implode(',', array_map(static fn ($table) => '"'.$table.'"', $tablesArray));
         $query = $queryBuilder
             ->select(
                 'h.uid',

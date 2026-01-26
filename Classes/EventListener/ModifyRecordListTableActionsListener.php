@@ -17,7 +17,6 @@ use Psr\Http\Message\UriInterface;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListTableActionsEvent;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
-use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -37,17 +36,13 @@ use function count;
  * @license GPL-2.0-or-later
  */
 #[AsEventListener(identifier: 'xima-typo3-content-planner/backend/modify-record-list-table-actions')]
-final class ModifyRecordListTableActionsListener
+final readonly class ModifyRecordListTableActionsListener
 {
-    protected ServerRequest $request;
-
     public function __construct(
-        private readonly IconFactory $iconFactory,
-        private readonly UriBuilder $uriBuilder,
-        private readonly StatusRepository $statusRepository,
-    ) {
-        $this->request = $GLOBALS['TYPO3_REQUEST'];
-    }
+        private IconFactory $iconFactory,
+        private UriBuilder $uriBuilder,
+        private StatusRepository $statusRepository,
+    ) {}
 
     public function __invoke(ModifyRecordListTableActionsEvent $event): void
     {
@@ -98,7 +93,7 @@ final class ModifyRecordListTableActionsListener
         );
     }
 
-    protected function getLanguageService(): LanguageService
+    private function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }

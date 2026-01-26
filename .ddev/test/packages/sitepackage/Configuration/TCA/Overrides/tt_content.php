@@ -13,6 +13,6 @@ declare(strict_types=1);
 
 defined('TYPO3') || exit('Access denied.');
 
-call_user_func(function () {
+call_user_func(static function () {
     Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility::addContentPlannerTabToTCA('tt_content');
 });

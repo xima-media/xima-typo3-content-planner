@@ -270,7 +270,7 @@ final class BulkUpdateCommand extends Command
     private function flattenArray(array $array): array
     {
         $result = [];
-        array_walk_recursive($array, function (mixed $value, string|int $key) use (&$result): void {
+        array_walk_recursive($array, static function (mixed $value, string|int $key) use (&$result): void {
             if ('uid' === $key || is_int($value)) {
                 $result[] = $value;
             }

@@ -92,7 +92,7 @@ final readonly class ModifyButtonBarEventListener
         $this->addStatusDropdownButton($event, $table, $uid, $record);
     }
 
-    protected function getLanguageService(): LanguageService
+    private function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }
