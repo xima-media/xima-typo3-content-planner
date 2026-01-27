@@ -65,11 +65,25 @@ Comment Permissions
 Assignment Permissions
 ----------------------
 
+..  note::
+    Users need at least one assignment permission (self-assign via visibility, reassign, or assign other users) to edit the assignee field. Without any assignment permission, the assignee field is displayed as read-only.
+
 **Reassign** (`tx_ximatypo3contentplanner:assign-reassign`)
     Allow changing existing assignees.
 
 **Assign Other Users** (`tx_ximatypo3contentplanner:assign-other-user`)
     Allow assigning other users, not just themselves.
+
+Read-Only Fields in Record Editing
+===================================
+
+When editing records (e.g. page properties), the Content Planner fields are automatically set to **read-only** if the user lacks the corresponding permission:
+
+- **Status field**: read-only without *Change Status* permission
+- **Assignee field**: read-only without any assignment permission (self-assign, reassign, or assign other users)
+- **Comments field**: read-only without *Create Comments* permission (or missing `tables_modify` for the comment table)
+
+This ensures that users with *View Only* access can see the current status, assignee, and comments, but cannot modify them directly in the record form.
 
 Per-Group Restrictions
 ======================

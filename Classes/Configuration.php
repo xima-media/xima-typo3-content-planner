@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner;
 
 use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
+use TYPO3\CMS\Backend\Form\FormDataProvider\EvaluateDisplayConditions;
 use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
+use Xima\XimaTypo3ContentPlanner\Form\FormDataProvider\ContentPlannerFieldsReadOnly;
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
 
 /**
@@ -92,6 +94,15 @@ class Configuration
     public static function addRegister(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][self::EXT_KEY]['registerAdditionalRecordTables'] = [];
+    }
+
+    public static function registerFormDataProviders(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']['tcaDatabaseRecord'][ContentPlannerFieldsReadOnly::class] = [
+            'depends' => [
+                EvaluateDisplayConditions::class,
+            ],
+        ];
     }
 
     public static function addRtePresets(): void
