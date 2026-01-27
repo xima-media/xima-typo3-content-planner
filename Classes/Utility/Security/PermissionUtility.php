@@ -177,6 +177,12 @@ class PermissionUtility
      */
     public static function canCreateComment(): bool
     {
+        if (!$GLOBALS['BE_USER']->isAdmin()
+            && !$GLOBALS['BE_USER']->check('tables_modify', Configuration::TABLE_COMMENT)
+        ) {
+            return false;
+        }
+
         if (self::hasUnrestrictedAccess()) {
             return true;
         }

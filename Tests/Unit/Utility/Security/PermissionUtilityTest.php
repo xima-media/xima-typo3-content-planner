@@ -291,6 +291,7 @@ final class PermissionUtilityTest extends TestCase
     {
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
             'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'tables_modify:tx_ximatypo3contentplanner_comment' => true,
         ]);
 
         self::assertTrue(PermissionUtility::canCreateComment());
@@ -301,6 +302,7 @@ final class PermissionUtilityTest extends TestCase
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
             'custom_options:tx_ximatypo3contentplanner:view-only' => true,
             'custom_options:tx_ximatypo3contentplanner:comment-create' => true,
+            'tables_modify:tx_ximatypo3contentplanner_comment' => true,
         ]);
 
         self::assertTrue(PermissionUtility::canCreateComment());
@@ -310,6 +312,17 @@ final class PermissionUtilityTest extends TestCase
     {
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
             'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+            'tables_modify:tx_ximatypo3contentplanner_comment' => true,
+        ]);
+
+        self::assertFalse(PermissionUtility::canCreateComment());
+    }
+
+    public function testCanCreateCommentReturnsFalseWithoutTablesModify(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+            'custom_options:tx_ximatypo3contentplanner:comment-create' => true,
         ]);
 
         self::assertFalse(PermissionUtility::canCreateComment());
