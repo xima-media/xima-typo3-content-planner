@@ -78,12 +78,22 @@ final class CommentItem
 
     public function getStatusIcon(): string
     {
-        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()[Configuration::FIELD_STATUS]);
+        $record = $this->getRelatedRecord();
+        if (!is_array($record)) {
+            return IconUtility::getIconByStatusUid(0);
+        }
+
+        return IconUtility::getIconByStatusUid((int) $record[Configuration::FIELD_STATUS]);
     }
 
     public function getRecordIcon(): string
     {
-        return IconUtility::getIconByRecord($this->data['foreign_table'], $this->getRelatedRecord());
+        $record = $this->getRelatedRecord();
+        if (!is_array($record)) {
+            return '';
+        }
+
+        return IconUtility::getIconByRecord($this->data['foreign_table'], $record);
     }
 
     public function getRecordLink(): string

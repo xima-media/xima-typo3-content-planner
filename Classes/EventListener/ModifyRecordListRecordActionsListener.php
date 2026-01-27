@@ -47,12 +47,12 @@ final readonly class ModifyRecordListRecordActionsListener
         private DropDownSelectionService $dropDownSelectionService,
     ) {}
 
-    // @phpstan-ignore-next-line complexity.functionLike
-
     /**
      * @throws NotImplementedException
      * @throws Exception
      * @throws \Exception
+     *
+     * @phpstan-ignore complexity.functionLike
      */
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
