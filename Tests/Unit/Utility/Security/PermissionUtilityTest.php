@@ -32,6 +32,7 @@ final class PermissionUtilityTest extends TestCase
 
     protected function tearDown(): void
     {
+        PermissionUtility::resetCache();
         unset($GLOBALS['BE_USER']);
     }
 

@@ -33,6 +33,14 @@ use function is_array;
 class PermissionUtility
 {
     /**
+     * Static cache for allowed values from user groups (per-request memoization).
+     * Key: column name, Value: resolved allowed values array.
+     *
+     * @var array<string, array<int, mixed>>
+     */
+    private static array $allowedValuesCache = [];
+
+    /**
      * @param array<string, mixed>|bool $record
      */
     public static function checkAccessForRecord(string $table, $record): bool
@@ -310,6 +318,16 @@ class PermissionUtility
         return false;
     }
 
+    /**
+     * Reset the static cache. Useful for testing or after permission changes.
+     *
+     * @internal
+     */
+    public static function resetCache(): void
+    {
+        self::$allowedValuesCache = [];
+    }
+
     // ==================== Helper Methods ====================
 
     /**
@@ -340,6 +358,8 @@ class PermissionUtility
      * Get the list of allowed status UIDs for the current user.
      *
      * @return array<int, int>
+     *
+     * @throws Exception
      */
     private static function getAllowedStatusUidsForUser(): array
     {
@@ -353,6 +373,8 @@ class PermissionUtility
      * Get the list of allowed tables for the current user.
      *
      * @return array<int, string>
+     *
+     * @throws Exception
      */
     private static function getAllowedTablesForUser(): array
     {
@@ -373,6 +395,10 @@ class PermissionUtility
      */
     private static function getAllowedValuesFromUserGroups(string $column, callable $explodeFunc): array
     {
+        if (isset(self::$allowedValuesCache[$column])) {
+            return self::$allowedValuesCache[$column];
+        }
+
         $userGroupIds = GeneralUtility::intExplode(',', (string) ($GLOBALS['BE_USER']->user['usergroup'] ?? ''), true);
 
         if ([] === $userGroupIds) {
@@ -400,6 +426,8 @@ class PermissionUtility
             $allowedValues = [...$allowedValues, ...$values];
         }
 
-        return array_unique($allowedValues);
+        self::$allowedValuesCache[$column] = array_unique($allowedValues);
+
+        return self::$allowedValuesCache[$column];
     }
 }
