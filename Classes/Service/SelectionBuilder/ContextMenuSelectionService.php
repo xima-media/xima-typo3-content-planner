@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder;
 
 use Doctrine\DBAL\Exception;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
@@ -33,12 +32,12 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
         StatusRepository $statusRepository,
         RecordRepository $recordRepository,
         StatusSelectionManager $statusSelectionManager,
-        UriBuilder $uriBuilder,
+        SelectionUriBuilder $selectionUriBuilder,
         CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
         FolderStatusRepository $folderStatusRepository,
     ) {
-        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $uriBuilder, $folderStatusRepository);
+        parent::__construct($statusRepository, $recordRepository, $statusSelectionManager, $commentRepository, $selectionUriBuilder, $folderStatusRepository);
     }
 
     /**

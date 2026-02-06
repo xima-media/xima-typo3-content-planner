@@ -20,3 +20,4 @@ Configuration::addRtePresets();
 Configuration::registerCache();
 Configuration::registerHooks();
 Configuration::addRegister();
+Configuration::registerFormDataProviders();

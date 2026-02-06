@@ -61,7 +61,7 @@
         </div>
         <div class="btn-group" role="group" aria-label="Assignee">
             <button
-                class="btn btn-default content-planner-link--assignee"
+                class="btn btn-default content-planner-link--assignee{f:if(condition: assignee.assignedToCurrentUser, then: ' content-planner-link--assignee-current')}"
                 data-content-planner-assignees
                 type="button"
                 title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"

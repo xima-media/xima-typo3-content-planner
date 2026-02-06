@@ -21,6 +21,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRep
 use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
 use function is_array;
@@ -55,6 +56,31 @@ class StatusChangeManager
 
         $this->nullableField($incomingFieldArray, Configuration::FIELD_ASSIGNEE);
         $this->nullableField($incomingFieldArray, Configuration::FIELD_STATUS);
+
+        // Check table permission
+        if (!PermissionUtility::isTableAllowedForUser($table)) {
+            unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
+
+            return;
+        }
+
+        // Check status change permission
+        $newStatusUid = $incomingFieldArray[Configuration::FIELD_STATUS];
+        if (null === $newStatusUid) {
+            // Unsetting status - check if user can unset
+            if (!PermissionUtility::canUnsetStatus()) {
+                unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
+
+                return;
+            }
+        } else {
+            // Setting status - check if user can change to this specific status
+            if (!PermissionUtility::canChangeStatus((int) $newStatusUid)) {
+                unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
+
+                return;
+            }
+        }
 
         $this->handleStatusReset($incomingFieldArray, $table, $id);
 

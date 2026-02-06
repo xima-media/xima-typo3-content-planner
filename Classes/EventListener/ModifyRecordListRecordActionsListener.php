@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Backend\Template\Components\ActionGroup;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Domain\RecordInterface;
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
+use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
@@ -45,7 +47,13 @@ final readonly class ModifyRecordListRecordActionsListener
         private DropDownSelectionService $dropDownSelectionService,
     ) {}
 
-    // @phpstan-ignore-next-line complexity.functionLike
+    /**
+     * @throws NotImplementedException
+     * @throws Exception
+     * @throws \Exception
+     *
+     * @phpstan-ignore complexity.functionLike
+     */
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
         if (!PermissionUtility::checkContentStatusVisibility()) {
@@ -86,6 +94,9 @@ final readonly class ModifyRecordListRecordActionsListener
             ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
 
         $actionsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
+        if (!is_array($actionsToAdd)) {
+            return;
+        }
         foreach ($actionsToAdd as $actionToAdd) {
             $dropDownButton->addItem($actionToAdd);
         }

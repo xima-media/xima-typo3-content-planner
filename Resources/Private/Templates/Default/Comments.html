@@ -58,12 +58,14 @@
                                     {record.title}
                                 </a>
                             </small>
+                            <f:if condition="{record.canCurrentUserEdit} || {record.canCurrentUserResolve} || {record.canCurrentUserDelete}">
                             <div class="btn-group content-planner-comment__actions">
                                 <a href="#" class="btn btn-default" data-bs-toggle="dropdown"
                                 aria-expanded="false" title="">
                                     <core:icon identifier="actions-menu-alternative" size="small" title="Actions"/>
                                 </a>
                                 <ul class="dropdown-menu">
+                                    <f:if condition="{record.canCurrentUserEdit}">
                                     <li>
                                         <a class="dropdown-item" data-id="{id}" data-table="{table}"
                                         data-edit-comment-uri="{record.editUri}">
@@ -72,6 +74,8 @@
                                                         extensionName="XimaTypo3ContentPlanner"/>
                                         </a>
                                     </li>
+                                    </f:if>
+                                    <f:if condition="{record.canCurrentUserResolve}">
                                     <li>
                                         <f:variable name="status"
                                                     value="{f:if(condition: '{record.resolved}', then: 'unresolve', else: 'resolve')}"/>
@@ -86,6 +90,8 @@
                                                         extensionName="XimaTypo3ContentPlanner"/>
                                         </a>
                                     </li>
+                                    </f:if>
+                                    <f:if condition="{record.canCurrentUserDelete}">
                                     <li>
                                         <a class="dropdown-item" data-id="{id}" data-table="{table}"
                                         data-delete-comment-uri="{record.deleteUri}"
@@ -98,8 +104,10 @@
                                                         extensionName="XimaTypo3ContentPlanner"/>
                                         </a>
                                     </li>
+                                    </f:if>
                                 </ul>
                             </div>
+                            </f:if>
                         </div>
                         <div class="content-planner-comment__text">{record.data.content -> f:format.raw()}</div>
                         <f:if condition="{record.resolved}">

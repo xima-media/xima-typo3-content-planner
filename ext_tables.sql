@@ -10,6 +10,12 @@ CREATE TABLE be_users
 	tx_ximatypo3contentplanner_hide tinyint(4) unsigned DEFAULT 0 NOT NULL,
 );
 
+CREATE TABLE be_groups
+(
+	tx_ximatypo3contentplanner_allowed_statuses text,
+	tx_ximatypo3contentplanner_allowed_tables text,
+);
+
 CREATE TABLE tx_ximatypo3contentplanner_comment
 (
 	uid           int(11) NOT NULL auto_increment,

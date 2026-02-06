@@ -27,9 +27,10 @@ final class DiffUtilityTest extends TestCase
 {
     protected function setUp(): void
     {
-        // Mock the global LANG object needed by DiffUtility
-        $languageServiceMock = $this->createMock(LanguageService::class);
-        $languageServiceMock->method('sL')->willReturnCallback(static fn (string $key): string =>
+        // Stub the global LANG object needed by DiffUtility
+        // Using createStub() instead of createMock() because we don't set expectations
+        $languageServiceStub = $this->createStub(LanguageService::class);
+        $languageServiceStub->method('sL')->willReturnCallback(static fn (string $key): string =>
             // Simple mock implementation that returns the key itself
             match (true) {
                 str_contains($key, 'timeAgo.now') => 'now',
@@ -47,7 +48,7 @@ final class DiffUtilityTest extends TestCase
                 default => $key,
             });
 
-        $GLOBALS['LANG'] = $languageServiceMock;
+        $GLOBALS['LANG'] = $languageServiceStub;
     }
 
     public function testTimeAgoCurrentTime(): void
