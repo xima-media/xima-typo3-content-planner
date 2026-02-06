@@ -110,10 +110,10 @@ class DiffUtility
         ];
 
         foreach ($timeUnits as $unit => $label) {
-            if ($interval->$unit > 0) { // @phpstan-ignore property.dynamicName
-                $key = $interval->$unit === 1 ? $label : $label.'s'; // @phpstan-ignore property.dynamicName
+            if ($interval->$unit > 0) {
+                $key = $interval->$unit === 1 ? $label : $label.'s';
 
-                return sprintf(self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:timeAgo.'.$key), $interval->$unit); // @phpstan-ignore property.dynamicName
+                return sprintf(self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:timeAgo.'.$key), $interval->$unit);
             }
         }
 
