@@ -86,18 +86,16 @@ class StatusRegistry
         try {
             $users = $backendUserRepository->findAllWithPermission();
 
-            if (is_array($users)) {
-                foreach ($users as $user) {
-                    $label = $user['username'];
-                    if (($user['realName'] ?? '') !== '') {
-                        $label = $user['realName'].' ('.$user['username'].')';
-                    }
-
-                    $config['items'][] = [
-                        'label' => $label,
-                        'value' => $user['uid'],
-                    ];
+            foreach ($users as $user) {
+                $label = $user['username'];
+                if (($user['realName'] ?? '') !== '') {
+                    $label = $user['realName'].' ('.$user['username'].')';
                 }
+
+                $config['items'][] = [
+                    'label' => $label,
+                    'value' => $user['uid'],
+                ];
             }
         } catch (\Exception) {
             // In case of error, keep the default items

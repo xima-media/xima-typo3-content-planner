@@ -53,9 +53,9 @@ class BackendUserRepository
     {
         // First, get all group UIDs that have the permission (including subgroups recursively)
         $authorizedGroupUids = $this->getGroupUidsWithAnyPermission([
-            Configuration::PERMISSION_GROUP . ':' . Configuration::PERMISSION_CONTENT_STATUS,
-            Configuration::PERMISSION_GROUP . ':' . Configuration::PERMISSION_VIEW_ONLY,
-            Configuration::PERMISSION_GROUP . ':' . Configuration::PERMISSION_FULL_ACCESS,
+            Configuration::PERMISSION_GROUP.':'.Configuration::PERMISSION_CONTENT_STATUS,
+            Configuration::PERMISSION_GROUP.':'.Configuration::PERMISSION_VIEW_ONLY,
+            Configuration::PERMISSION_GROUP.':'.Configuration::PERMISSION_FULL_ACCESS,
         ]);
 
         // Build query for users
