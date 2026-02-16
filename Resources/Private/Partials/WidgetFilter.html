@@ -17,56 +17,13 @@
 
             </div>
         </div>
-        <div class="form-group">
-            <label for="status" class="form-label">Status</label>
-            <div class="input-group">
-                <button type="submit" class="btn btn-default disabled">
-                                <span class="visually-hidden"><f:translate
-                                    id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></span>
-                    <core:icon identifier="flag-gray"/>
-                </button>
-                <select name="status" id="status" class="form-select">
-                    <option value="">-</option>
-                    <f:for each="{filter.status}" as="status">
-                        <option value="{status.uid}">{status.title}</option>
-                    </f:for>
-                </select>
-            </div>
+        <div class="form-group align-self-end">
+            <button class="btn btn-default content-planner-widget__filter-modal-trigger" type="button">
+                <core:icon identifier="actions-filter" size="small"/>
+                <span class="content-planner-widget__filter-label"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.button" default="Filter"/></span>
+                <span class="badge badge-pill badge-warning content-planner-widget__filter-badge" hidden></span>
+            </button>
         </div>
-        <div class="form-group">
-            <label for="users" class="form-label">Assignee</label>
-            <div class="input-group">
-                <button type="submit" class="btn btn-default disabled">
-                                <span class="visually-hidden"><f:translate
-                                    id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></span>
-                    <core:icon identifier="actions-user"/>
-                </button>
-                <select name="assignee" id="users" class="form-select">
-                    <option value="">-</option>
-                    <f:for each="{filter.users}" as="user">
-                        <option value="{user.uid}">{user.username}</option>
-                    </f:for>
-                </select>
-            </div>
-        </div>
-        <f:if condition="{filter.types}">
-            <div class="form-group">
-                <label for="type" class="form-label">Type</label>
-                <div class="input-group">
-                    <button type="submit" class="btn btn-default disabled">
-                                <span class="visually-hidden"><f:translate
-                                    id="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></span>
-                        <core:icon identifier="actions-extension"/>
-                    </button>
-                    <select name="type" id="type" class="form-select">
-                        <option value="">-</option>
-                        <f:for each="{filter.types}" as="type">
-                            <option value="{type.value}">{type.label}</option>
-                        </f:for>
-                    </select>
-                </div>
-            </div>
-        </f:if>
         <div class="form-group align-self-end">
             <button class="btn btn-default content-planner-widget__filter-reset" type="reset">
                 <core:icon identifier="actions-close" size="small"/>
@@ -76,4 +33,52 @@
     </div>
 </form>
 
+<template class="content-planner-widget__filter-modal-content">
+    <div class="content-planner-widget__filter-modal-form">
+        <div class="form-group mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select name="status" id="status" class="form-select">
+                <option value="">-</option>
+                <f:for each="{filter.status}" as="status">
+                    <option value="{status.uid}">{status.title}</option>
+                </f:for>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <label for="users" class="form-label"><f:translate key="widgets.contentPlanner.header.assignee" extensionName="XimaTypo3ContentPlanner" default="Assignee"/></label>
+            <div class="input-group">
+                <select name="assignee" id="users" class="form-select">
+                    <option value="">-</option>
+                    <f:for each="{filter.users}" as="user">
+                        <option value="{user.uid}">{user.username}</option>
+                    </f:for>
+                </select>
+                <button type="button" class="btn btn-default content-planner-widget__filter-assign-to-me" data-backend-user-id="{backendUserId}" title="{f:translate(key: 'header.assignToMe', extensionName: 'XimaTypo3ContentPlanner', default: 'Assigned to me')}">
+                    <core:icon identifier="actions-assign-to-me" size="small"/>
+                </button>
+            </div>
+        </div>
+        <f:if condition="{filter.types}">
+            <div class="form-group mb-3">
+                <label for="type" class="form-label">Type</label>
+                <select name="type" id="type" class="form-select">
+                    <option value="">-</option>
+                    <f:for each="{filter.types}" as="type">
+                        <option value="{type.value}">{type.label}</option>
+                    </f:for>
+                </select>
+            </div>
+        </f:if>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="openComments" id="openComments" value="1">
+            <label class="form-check-label" for="openComments"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openComments" default="Open comments"/></label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="todo" id="todo" value="1">
+            <label class="form-check-label" for="todo"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openTodos" default="Open TODOs"/></label>
+        </div>
+    </div>
+</template>
+
 </div>
+</html>

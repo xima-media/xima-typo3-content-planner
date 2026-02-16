@@ -65,24 +65,26 @@
     max-width: 150px;
 }
 
-.content-planner-widget__filter .form-check input[type="radio"] {
-    display: none;
+/* Filter Modal Trigger Button */
+.content-planner-widget__filter-modal-trigger {
+    position: relative;
 }
 
-.content-planner-widget__filter .form-check input[type="radio"]:checked + label {
-    font-weight: bold;
+.content-planner-widget__filter-badge {
+    position: absolute;
+    top: -0.5rem;
+    inset-inline-end: -0.5rem;
+    z-index: 4;
 }
 
-.content-planner-widget__filter .form-check label {
-    padding: 0.5rem 1rem;
-    border: 1px solid #ccc;
-    border-radius: 2rem;
-    margin-top: -10px;
-    cursor: pointer;
+/* Filter Modal Form */
+.content-planner-widget__filter-modal-form .form-label {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
 }
 
-.content-planner-widget__filter .form-check label:hover {
-    background-color: #f5f5f5;
+.content-planner-widget__filter-modal-form .form-select {
+    width: 100%;
 }
 
 /* Table Wrapper */
