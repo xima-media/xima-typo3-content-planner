@@ -108,7 +108,7 @@ class RecordController extends ActionController
             return new JsonResponse(['error' => 'Record not found'], 404);
         }
 
-        $permissions = $this->getAssignmentPermissions($currentAssignee);
+        $permissions = $this->getAssignmentPermissions();
         $assignees = $this->prepareAssigneeList($recordTable, $recordId, $currentAssignee, $permissions);
 
         $result = ViewUtility::render(
@@ -121,7 +121,7 @@ class RecordController extends ActionController
                     'assignToCurrentUser' => $permissions['canAssignSelf'] && InfoGenerator::checkAssignToCurrentUser($record)
                         ? UrlUtility::assignToUser($recordTable, $record['uid'])
                         : false,
-                    'unassign' => $permissions['canReassign'] && InfoGenerator::checkUnassign($record)
+                    'unassign' => InfoGenerator::canUnassignRecord($record) && InfoGenerator::checkUnassign($record)
                         ? UrlUtility::assignToUser($recordTable, $record['uid'], unassign: true)
                         : null,
                 ],
@@ -137,29 +137,24 @@ class RecordController extends ActionController
     /**
      * Get assignment permissions for the current user.
      *
-     * @return array{canAssignSelf: bool, canAssignOther: bool, canReassign: bool, canChangeAssignee: bool}
+     * @return array{canAssignSelf: bool, canAssignOthers: bool, canChangeAssignee: bool}
      */
-    private function getAssignmentPermissions(int $currentAssignee): array
+    private function getAssignmentPermissions(): array
     {
         $canAssignSelf = PermissionUtility::canAssignSelf();
-        $canAssignOther = PermissionUtility::canAssignOtherUser();
-        $canReassign = PermissionUtility::canReassign();
-        $hasExistingAssignee = $currentAssignee > 0;
+        $canAssignOthers = PermissionUtility::canAssignOthers();
 
         return [
             'canAssignSelf' => $canAssignSelf,
-            'canAssignOther' => $canAssignOther,
-            'canReassign' => $canReassign,
-            'canChangeAssignee' => $canAssignOther
-                || ($canAssignSelf && !$hasExistingAssignee)
-                || ($canReassign && $hasExistingAssignee),
+            'canAssignOthers' => $canAssignOthers,
+            'canChangeAssignee' => $canAssignSelf || $canAssignOthers,
         ];
     }
 
     /**
      * Prepare the list of assignees with proper URLs based on permissions.
      *
-     * @param array{canAssignSelf: bool, canAssignOther: bool, canReassign: bool, canChangeAssignee: bool} $permissions
+     * @param array{canAssignSelf: bool, canAssignOthers: bool, canChangeAssignee: bool} $permissions
      *
      * @return array<int, array<string, mixed>>
      *
@@ -181,7 +176,7 @@ class RecordController extends ActionController
             $assignee['uid'] = $assigneeUid;
             $assignee['name'] = ContentUtility::generateDisplayName($assignee);
             $assignee['isCurrent'] = $assigneeUid === $currentAssignee;
-            $assignee['url'] = $this->canAssignToUser($assigneeUid, $currentUserId, $permissions)
+            $assignee['url'] = $this->canAssignToUser($assigneeUid, $currentUserId, $currentAssignee, $permissions)
                 ? UrlUtility::assignToUser($table, $recordId, $assigneeUid)
                 : '';
         }
@@ -192,24 +187,25 @@ class RecordController extends ActionController
     }
 
     /**
-     * Check if user can assign to a specific user.
+     * Check if user can assign to a specific user in the dropdown list.
      *
-     * @param array{canAssignSelf: bool, canAssignOther: bool, canReassign: bool, canChangeAssignee: bool} $permissions
+     * @param array{canAssignSelf: bool, canAssignOthers: bool, canChangeAssignee: bool} $permissions
      */
-    private function canAssignToUser(int $targetUserId, int $currentUserId, array $permissions): bool
+    private function canAssignToUser(int $targetUserId, int $currentUserId, int $currentAssignee, array $permissions): bool
     {
         if (!$permissions['canChangeAssignee']) {
             return false;
         }
 
-        if ($permissions['canAssignOther']) {
+        if ($permissions['canAssignOthers']) {
             return true;
         }
 
+        // assign-self only: can assign yourself or unassign yourself
         if (0 === $targetUserId) {
-            return true; // Unassign is always allowed if canChangeAssignee is true
+            return $currentAssignee === $currentUserId;
         }
 
-        return $permissions['canAssignSelf'] && $targetUserId === $currentUserId;
+        return $targetUserId === $currentUserId;
     }
 }

@@ -83,8 +83,8 @@ final class PermissionUtilityTest extends TestCase
         self::assertTrue(PermissionUtility::canChangeStatus());
         self::assertTrue(PermissionUtility::canUnsetStatus());
         self::assertTrue(PermissionUtility::canResolveComment());
-        self::assertTrue(PermissionUtility::canReassign());
-        self::assertTrue(PermissionUtility::canAssignOtherUser());
+        self::assertTrue(PermissionUtility::canAssignSelf());
+        self::assertTrue(PermissionUtility::canAssignOthers());
         self::assertTrue(PermissionUtility::isStatusAllowedForUser(1));
         self::assertTrue(PermissionUtility::isTableAllowedForUser('pages'));
     }
@@ -331,20 +331,71 @@ final class PermissionUtilityTest extends TestCase
 
     // ==================== canAssignSelf Tests ====================
 
-    public function testCanAssignSelfReturnsTrueWithVisibility(): void
+    public function testCanAssignSelfReturnsTrueWithAssignSelfPermission(): void
     {
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
-            'custom_options:tx_ximatypo3contentplanner:content-status' => true,
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+            'custom_options:tx_ximatypo3contentplanner:assign-self' => true,
         ]);
 
         self::assertTrue(PermissionUtility::canAssignSelf());
     }
 
-    public function testCanAssignSelfReturnsFalseWithoutVisibility(): void
+    public function testCanAssignSelfReturnsTrueWithAssignOthersPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+            'custom_options:tx_ximatypo3contentplanner:assign-others' => true,
+        ]);
+
+        self::assertTrue(PermissionUtility::canAssignSelf());
+    }
+
+    public function testCanAssignSelfReturnsFalseWithoutAssignmentPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+        ]);
+
+        self::assertFalse(PermissionUtility::canAssignSelf());
+    }
+
+    public function testCanAssignSelfReturnsFalseWithoutAnyPermission(): void
     {
         $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], []);
 
         self::assertFalse(PermissionUtility::canAssignSelf());
+    }
+
+    // ==================== canAssignOthers Tests ====================
+
+    public function testCanAssignOthersReturnsTrueWithPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+            'custom_options:tx_ximatypo3contentplanner:assign-others' => true,
+        ]);
+
+        self::assertTrue(PermissionUtility::canAssignOthers());
+    }
+
+    public function testCanAssignOthersReturnsFalseWithOnlyAssignSelf(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+            'custom_options:tx_ximatypo3contentplanner:assign-self' => true,
+        ]);
+
+        self::assertFalse(PermissionUtility::canAssignOthers());
+    }
+
+    public function testCanAssignOthersReturnsFalseWithoutPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'custom_options:tx_ximatypo3contentplanner:view-only' => true,
+        ]);
+
+        self::assertFalse(PermissionUtility::canAssignOthers());
     }
 
     /**

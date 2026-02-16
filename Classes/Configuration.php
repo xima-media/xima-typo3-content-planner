@@ -69,8 +69,8 @@ class Configuration
     final public const PERMISSION_COMMENT_DELETE_FOREIGN = 'comment-delete-foreign';
 
     // Assignment Permissions
-    final public const PERMISSION_ASSIGN_REASSIGN = 'assign-reassign';
-    final public const PERMISSION_ASSIGN_OTHER_USER = 'assign-other-user';
+    final public const PERMISSION_ASSIGN_SELF = 'assign-self';
+    final public const PERMISSION_ASSIGN_OTHERS = 'assign-others';
 
     public static function overrideClasses(): void
     {
@@ -185,15 +185,15 @@ class Configuration
                     'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.comment_delete_foreign.description',
                 ],
                 // Assignment permissions
-                self::PERMISSION_ASSIGN_REASSIGN => [
-                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_reassign',
+                self::PERMISSION_ASSIGN_SELF => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_self',
                     'actions-user',
-                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_reassign.description',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_self.description',
                 ],
-                self::PERMISSION_ASSIGN_OTHER_USER => [
-                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_other_user',
+                self::PERMISSION_ASSIGN_OTHERS => [
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_others',
                     'actions-user',
-                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_other_user.description',
+                    'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:permission.assign_others.description',
                 ],
             ],
         ];

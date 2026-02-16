@@ -134,6 +134,28 @@ class InfoGenerator
     }
 
     /**
+     * Check if the current user can unassign a record.
+     * assign-others: can always unassign. assign-self: can only unassign yourself.
+     *
+     * @param array<string, mixed> $record
+     */
+    public static function canUnassignRecord(array $record): bool
+    {
+        if (PermissionUtility::canAssignOthers()) {
+            return true;
+        }
+
+        if (!PermissionUtility::canAssignSelf()) {
+            return false;
+        }
+
+        $currentUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        $assigneeId = (int) ($record[Configuration::FIELD_ASSIGNEE] ?? 0);
+
+        return $currentUserId > 0 && $currentUserId === $assigneeId;
+    }
+
+    /**
      * @param array<string, mixed> $record
      */
     public static function checkUnassign(array $record): bool
@@ -179,7 +201,7 @@ class InfoGenerator
                 'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($record)
                     ? UrlUtility::assignToUser($table, $record['uid'])
                     : false,
-                'unassign' => PermissionUtility::canReassign() && self::checkUnassign($record)
+                'unassign' => self::canUnassignRecord($record) && self::checkUnassign($record)
                     ? UrlUtility::assignToUser($table, $record['uid'], unassign: true)
                     : null,
             ],
@@ -240,7 +262,7 @@ class InfoGenerator
                 'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($folderRecord)
                     ? UrlUtility::assignToUser($table, $uid)
                     : false,
-                'unassign' => PermissionUtility::canReassign() && self::checkUnassign($folderRecord)
+                'unassign' => self::canUnassignRecord($folderRecord) && self::checkUnassign($folderRecord)
                     ? UrlUtility::assignToUser($table, $uid, unassign: true)
                     : null,
             ],

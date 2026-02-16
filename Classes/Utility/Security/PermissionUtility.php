@@ -266,36 +266,28 @@ class PermissionUtility
     // ==================== Assignment Permissions ====================
 
     /**
-     * Check if user can reassign (change existing assignee).
-     */
-    public static function canReassign(): bool
-    {
-        if (self::hasUnrestrictedAccess()) {
-            return true;
-        }
-
-        return self::checkPermission(Configuration::PERMISSION_ASSIGN_REASSIGN);
-    }
-
-    /**
-     * Check if user can assign other users (not just themselves).
-     */
-    public static function canAssignOtherUser(): bool
-    {
-        if (self::hasUnrestrictedAccess()) {
-            return true;
-        }
-
-        return self::checkPermission(Configuration::PERMISSION_ASSIGN_OTHER_USER);
-    }
-
-    /**
-     * Check if user can assign themselves.
-     * This is always allowed if the user has content status visibility.
+     * Check if user can assign themselves (and unassign themselves).
      */
     public static function canAssignSelf(): bool
     {
-        return self::checkContentStatusVisibility();
+        if (self::hasUnrestrictedAccess()) {
+            return true;
+        }
+
+        return self::checkPermission(Configuration::PERMISSION_ASSIGN_SELF)
+            || self::checkPermission(Configuration::PERMISSION_ASSIGN_OTHERS);
+    }
+
+    /**
+     * Check if user can assign/unassign any user.
+     */
+    public static function canAssignOthers(): bool
+    {
+        if (self::hasUnrestrictedAccess()) {
+            return true;
+        }
+
+        return self::checkPermission(Configuration::PERMISSION_ASSIGN_OTHERS);
     }
 
     /**

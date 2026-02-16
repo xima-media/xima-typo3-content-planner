@@ -61,7 +61,7 @@ class ContentPlannerFieldsReadOnly implements FormDataProviderInterface
 
     private function canModifyAssignee(): bool
     {
-        return PermissionUtility::canAssignOtherUser()
-            || PermissionUtility::canReassign();
+        return PermissionUtility::canAssignSelf()
+            || PermissionUtility::canAssignOthers();
     }
 }

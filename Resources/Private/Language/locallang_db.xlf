@@ -114,17 +114,17 @@
 			<trans-unit id="permission.comment_delete_foreign.description">
 				<source>Allow deletion of comments from other users</source>
 			</trans-unit>
-			<trans-unit id="permission.assign_reassign">
-				<source>Reassign</source>
+			<trans-unit id="permission.assign_self">
+				<source>Assign Self</source>
 			</trans-unit>
-			<trans-unit id="permission.assign_reassign.description">
-				<source>Allow changing existing assignees</source>
+			<trans-unit id="permission.assign_self.description">
+				<source>Allow assigning and unassigning yourself</source>
 			</trans-unit>
-			<trans-unit id="permission.assign_other_user">
-				<source>Assign Other Users</source>
+			<trans-unit id="permission.assign_others">
+				<source>Assign Others</source>
 			</trans-unit>
-			<trans-unit id="permission.assign_other_user.description">
-				<source>Allow assigning other users (not just yourself)</source>
+			<trans-unit id="permission.assign_others.description">
+				<source>Allow assigning, reassigning and unassigning any user</source>
 			</trans-unit>
 			<trans-unit id="content_planner">
 				<source>Content Planner</source>

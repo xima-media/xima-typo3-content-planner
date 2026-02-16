@@ -66,13 +66,13 @@ Assignment Permissions
 ----------------------
 
 ..  note::
-    Users need at least one assignment permission (self-assign via visibility, reassign, or assign other users) to edit the assignee field. Without any assignment permission, the assignee field is displayed as read-only.
+    Users need at least one assignment permission to edit the assignee field. Without any assignment permission, the assignee field is displayed as read-only.
 
-**Reassign** (`tx_ximatypo3contentplanner:assign-reassign`)
-    Allow changing existing assignees.
+**Assign Self** (`tx_ximatypo3contentplanner:assign-self`)
+    Allow assigning and unassigning yourself. Users with this permission can use the "Assign to me" shortcut and select themselves from the assignee dropdown. Unassigning is only possible if the record is currently assigned to the user themselves.
 
-**Assign Other Users** (`tx_ximatypo3contentplanner:assign-other-user`)
-    Allow assigning other users, not just themselves.
+**Assign Others** (`tx_ximatypo3contentplanner:assign-others`)
+    Allow assigning, reassigning and unassigning any user. This is a superset of *Assign Self* - users with this permission can select any user from the assignee dropdown, change existing assignments, and unassign anyone.
 
 Read-Only Fields in Record Editing
 ===================================
@@ -80,7 +80,7 @@ Read-Only Fields in Record Editing
 When editing records (e.g. page properties), the Content Planner fields are automatically set to **read-only** if the user lacks the corresponding permission:
 
 - **Status field**: read-only without *Change Status* permission
-- **Assignee field**: read-only without any assignment permission (self-assign, reassign, or assign other users)
+- **Assignee field**: read-only without any assignment permission (*Assign Self* or *Assign Others*)
 - **Comments field**: read-only without *Create Comments* permission (or missing `tables_modify` for the comment table)
 
 This ensures that users with *View Only* access can see the current status, assignee, and comments, but cannot modify them directly in the record form.
