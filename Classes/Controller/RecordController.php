@@ -51,8 +51,9 @@ class RecordController extends ActionController
         $assignee = array_key_exists('assignee', $request->getQueryParams()) ? (int) $request->getQueryParams()['assignee'] : null;
         $todo = array_key_exists('todo', $request->getQueryParams()) ? (bool) $request->getQueryParams()['todo'] : false;
         $type = array_key_exists('type', $request->getQueryParams()) ? $request->getQueryParams()['type'] : null;
+        $openComments = array_key_exists('openComments', $request->getQueryParams()) ? (bool) $request->getQueryParams()['openComments'] : false;
 
-        $records = $this->recordRepository->findAllByFilter($search, $status, assignee: $assignee, type: $type, todo: $todo);
+        $records = $this->recordRepository->findAllByFilter($search, $status, assignee: $assignee, type: $type, todo: $todo, openComments: $openComments);
         $result = [];
         foreach ($records as $record) {
             $result[] = StatusItem::create($record)->toArray();
