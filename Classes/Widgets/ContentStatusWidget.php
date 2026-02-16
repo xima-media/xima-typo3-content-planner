@@ -48,6 +48,7 @@ class ContentStatusWidget extends AbstractWidget
                 'options' => $this->options,
                 'icon' => $icon,
                 'currentBackendUser' => $assignee,
+                'backendUserId' => $GLOBALS['BE_USER']->getUserId(),
                 'todo' => $todoInfo,
                 'mode' => $mode,
                 'filter' => $filterValues,
