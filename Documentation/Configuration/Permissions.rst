@@ -120,4 +120,4 @@ Additional Required Permissions
 Don't forget to also add the following permissions as well:
 
 - "Tables (listing)" (`tables_select`) and "Tables (modify)" (`tables_modify`) permissions for the `Content Planner Comment [tx_ximatypo3contentplanner_comment]` table
-- All wanted :ref:`dashboard widget <dashboard-widgets>` in the "Dashboard widgets" (`availableWidgets`) permission
+- All desired :ref:`dashboard widgets <dashboard-widgets>` in the "Dashboard widgets" (`availableWidgets`) permission.
