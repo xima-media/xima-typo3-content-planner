@@ -153,7 +153,7 @@ final class CommentItem
     /**
      * Check if the current user can edit this comment.
      */
-    public function canCurrentUserEdit(): bool
+    public function getCanCurrentUserEdit(): bool
     {
         return PermissionUtility::canEditComment($this->data);
     }
@@ -161,7 +161,7 @@ final class CommentItem
     /**
      * Check if the current user can delete this comment.
      */
-    public function canCurrentUserDelete(): bool
+    public function getCanCurrentUserDelete(): bool
     {
         return PermissionUtility::canDeleteComment($this->data);
     }
@@ -169,7 +169,7 @@ final class CommentItem
     /**
      * Check if the current user can resolve this comment.
      */
-    public function canCurrentUserResolve(): bool
+    public function getCanCurrentUserResolve(): bool
     {
         return PermissionUtility::canResolveComment();
     }
