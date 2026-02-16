@@ -179,6 +179,21 @@
 			<trans-unit id="filter.reset">
 				<source>Reset</source>
 			</trans-unit>
+			<trans-unit id="filter.button">
+				<source>Filter</source>
+			</trans-unit>
+			<trans-unit id="filter.modal.title">
+				<source>Filter records</source>
+			</trans-unit>
+			<trans-unit id="filter.modal.apply">
+				<source>Apply</source>
+			</trans-unit>
+			<trans-unit id="filter.openComments">
+				<source>Open comments</source>
+			</trans-unit>
+			<trans-unit id="filter.openTodos">
+				<source>Open TODOs</source>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source>edited</source>

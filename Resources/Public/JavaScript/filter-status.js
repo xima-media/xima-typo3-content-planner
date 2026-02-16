@@ -2,9 +2,13 @@
 * Module: @xima/ximatypo3contentplanner/filter-status
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
+import Modal from "@typo3/backend/modal.js";
+import Persistent from "@typo3/backend/storage/persistent.js";
 import CommentsModal from "@xima/ximatypo3contentplanner/comments-list-modal.js";
 
 class FilterStatus {
+
+  static STORAGE_KEY = 'contentPlannerFilter';
 
   constructor() {
     document.addEventListener('widgetContentRendered', function(event) {
@@ -32,29 +36,179 @@ class FilterStatus {
           FilterStatus.search(widget, {todo: true});
           widget.classList.add('content-planner-widget--todo');
         } else {
-          FilterStatus.search(widget);
-          let queryArguments = {};
+          let queryArguments = FilterStatus.loadFilter();
           const form = event.target.querySelector('.content-planner-widget__filter-form');
           const search = event.target.querySelector('input[name="search"]');
+          const filterTrigger = event.target.querySelector('.content-planner-widget__filter-modal-trigger');
+          const filterTemplate = event.target.querySelector('.content-planner-widget__filter-modal-content');
+
+          // Restore search field value
+          if (search && queryArguments.search) {
+            search.value = queryArguments.search;
+          }
+
+          // Restore badge state
+          if (filterTrigger) {
+            FilterStatus.updateBadge(filterTrigger, queryArguments);
+          }
+
+          FilterStatus.search(widget, queryArguments);
+
           if (form && search) {
-            form.addEventListener('change', function(event) {
-              queryArguments[event.target.name] = event.target.value;
-              FilterStatus.search(widget, queryArguments);
-            });
             search.addEventListener('input', function(event) {
               queryArguments[search.name] = search.value;
+              FilterStatus.saveFilter(queryArguments);
               FilterStatus.search(widget, queryArguments);
             });
-            form.querySelector('.content-planner-widget__filter-reset')?.addEventListener('click', function(event) {
+
+            if (filterTrigger && filterTemplate) {
+              filterTrigger.addEventListener('click', function() {
+                FilterStatus.openFilterModal(widget, filterTemplate, queryArguments, (newArgs) => {
+                  queryArguments = newArgs;
+                  FilterStatus.saveFilter(queryArguments);
+                  FilterStatus.search(widget, queryArguments);
+                  FilterStatus.updateBadge(filterTrigger, queryArguments);
+                });
+              });
+            }
+
+            form.querySelector('.content-planner-widget__filter-reset')?.addEventListener('click', function() {
               form.reset();
               queryArguments = {};
+              FilterStatus.saveFilter(queryArguments);
               FilterStatus.search(widget, queryArguments);
+              if (filterTrigger) {
+                FilterStatus.updateBadge(filterTrigger, queryArguments);
+              }
             });
           }
         }
 
       }
     });
+  }
+
+  static loadFilter() {
+    try {
+      const stored = Persistent.get(FilterStatus.STORAGE_KEY);
+      if (typeof stored === 'object' && stored !== null) {
+        return stored;
+      }
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  static saveFilter(queryArguments) {
+    const toStore = Object.fromEntries(
+      Object.entries(queryArguments).filter(([, v]) => v)
+    );
+    if (Object.keys(toStore).length === 0) {
+      Persistent.unset(FilterStatus.STORAGE_KEY);
+    } else {
+      Persistent.set(FilterStatus.STORAGE_KEY, toStore);
+    }
+  }
+
+  static openFilterModal(widget, filterTemplate, currentArgs, onApply) {
+    const content = filterTemplate.content.cloneNode(true);
+    const container = document.createElement('div');
+    container.appendChild(content);
+
+    // Restore current filter values in the modal
+    for (const [key, value] of Object.entries(currentArgs)) {
+      if (key === 'search') continue;
+      const element = container.querySelector(`[name="${key}"]`);
+      if (element && element.type === 'checkbox') {
+        element.checked = !!value;
+      } else if (element) {
+        element.value = value;
+      }
+    }
+
+    // "Assign to me" shortcut button
+    const assignToMeBtn = container.querySelector('.content-planner-widget__filter-assign-to-me');
+    const assigneeSelect = container.querySelector('[name="assignee"]');
+    if (assignToMeBtn && assigneeSelect) {
+      assignToMeBtn.addEventListener('click', function() {
+        assigneeSelect.value = assignToMeBtn.dataset.backendUserId;
+      });
+    }
+
+    const buttons = [
+      {
+        text: TYPO3.lang?.['filter.modal.apply'] || 'Apply',
+        name: 'apply',
+        icon: 'actions-check',
+        active: true,
+        btnClass: 'btn-primary',
+        trigger: (event, modal) => {
+          const newArgs = { ...currentArgs };
+          modal.querySelectorAll('.content-planner-widget__filter-modal-form select').forEach((select) => {
+            if (select.value) {
+              newArgs[select.name] = select.value;
+            } else {
+              delete newArgs[select.name];
+            }
+          });
+          modal.querySelectorAll('.content-planner-widget__filter-modal-form input[type="checkbox"]').forEach((checkbox) => {
+            if (checkbox.checked) {
+              newArgs[checkbox.name] = checkbox.value;
+            } else {
+              delete newArgs[checkbox.name];
+            }
+          });
+          onApply(newArgs);
+          modal.hideModal();
+        }
+      },
+      {
+        text: TYPO3.lang?.['filter.reset'] || 'Reset',
+        name: 'reset',
+        icon: 'actions-close',
+        active: true,
+        btnClass: 'btn-default',
+        trigger: (event, modal) => {
+          const newArgs = {};
+          if (currentArgs.search) {
+            newArgs.search = currentArgs.search;
+          }
+          onApply(newArgs);
+          modal.hideModal();
+        }
+      },
+      {
+        text: TYPO3.lang?.['button.modal.footer.close'] || 'Close',
+        name: 'close',
+        icon: 'actions-close',
+        active: true,
+        btnClass: 'btn-secondary',
+        trigger: (event, modal) => modal.hideModal()
+      }
+    ];
+
+    Modal.advanced({
+      title: TYPO3.lang?.['filter.modal.title'] || 'Filter records',
+      content: container,
+      size: Modal.sizes.small,
+      staticBackdrop: true,
+      buttons,
+    });
+  }
+
+  static updateBadge(filterTrigger, queryArguments) {
+    const badge = filterTrigger.querySelector('.content-planner-widget__filter-badge');
+    if (!badge) return;
+
+    const activeCount = Object.keys(queryArguments).filter(key => key !== 'search' && queryArguments[key]).length;
+    if (activeCount > 0) {
+      badge.textContent = activeCount;
+      badge.hidden = false;
+    } else {
+      badge.textContent = '';
+      badge.hidden = true;
+    }
   }
 
   static initCommentLinks(widget) {

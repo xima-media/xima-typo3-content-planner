@@ -52,7 +52,7 @@ class RecordRepository
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20): array|bool
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): array|bool
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
@@ -61,7 +61,7 @@ class RecordRepository
 
         $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
-        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search);
+        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments);
         $sql = implode(' UNION ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
 
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
@@ -249,7 +249,7 @@ class RecordRepository
     /**
      * @return string[]
      */
-    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo, ?string $search = null): array
+    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo, ?string $search = null, bool $openComments = false): array
     {
         $sqlArray = [];
 
@@ -258,7 +258,7 @@ class RecordRepository
                 continue;
             }
 
-            $whereClause = $this->buildWhereClauseForTable($baseWhere, $table, $todo);
+            $whereClause = $this->buildWhereClauseForTable($baseWhere, $table, $todo, $openComments);
             $whereClause .= $this->buildSearchCondition($table, $search);
             $this->getSqlByTable($table, $sqlArray, $whereClause);
         }
@@ -266,17 +266,23 @@ class RecordRepository
         return $sqlArray;
     }
 
-    private function buildWhereClauseForTable(string $baseWhere, string $table, ?bool $todo): string
+    private function buildWhereClauseForTable(string $baseWhere, string $table, ?bool $todo, bool $openComments = false): string
     {
-        if (!$todo) {
-            return $baseWhere;
+        $where = $baseWhere;
+        $commentBase = "FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table' AND deleted = 0";
+
+        if ($todo) {
+            $subQueryTotal = "(SELECT SUM(todo_total) $commentBase)";
+            $subQueryResolved = "(SELECT SUM(todo_resolved) $commentBase)";
+            $where .= " AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
         }
 
-        // ToDo: Check for performance
-        $subQueryTotal = "(SELECT SUM(todo_total) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
-        $subQueryResolved = "(SELECT SUM(todo_resolved) FROM tx_ximatypo3contentplanner_comment WHERE foreign_uid = x.uid AND foreign_table = '$table')";
+        if ($openComments) {
+            $subQueryOpenComments = "(SELECT COUNT(*) $commentBase AND resolved_date = 0)";
+            $where .= " AND ($subQueryOpenComments > 0)";
+        }
 
-        return $baseWhere." AND ($subQueryTotal > 0) AND ($subQueryResolved < $subQueryTotal)";
+        return $where;
     }
 
     /**
