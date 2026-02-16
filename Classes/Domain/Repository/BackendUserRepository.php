@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function in_array;
 
@@ -29,11 +30,11 @@ class BackendUserRepository
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     /**
-     * @return array<int, array<string, mixed>>|bool
+     * @return array<int, array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAll(): array|bool
+    public function findAll(): array
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
@@ -44,14 +45,18 @@ class BackendUserRepository
     }
 
     /**
-     * @return array<int, array<string, mixed>>|bool
+     * @return array<int, array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllWithPermission(): array|bool
+    public function findAllWithPermission(): array
     {
         // First, get all group UIDs that have the permission (including subgroups recursively)
-        $authorizedGroupUids = $this->getGroupUidsWithPermission('tx_ximatypo3contentplanner:content-status');
+        $authorizedGroupUids = $this->getGroupUidsWithAnyPermission([
+            Configuration::PERMISSION_GROUP.':'.Configuration::PERMISSION_CONTENT_STATUS,
+            Configuration::PERMISSION_GROUP.':'.Configuration::PERMISSION_VIEW_ONLY,
+            Configuration::PERMISSION_GROUP.':'.Configuration::PERMISSION_FULL_ACCESS,
+        ]);
 
         // Build query for users
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
@@ -153,19 +158,19 @@ class BackendUserRepository
     }
 
     /**
-     * Get all group UIDs that have a specific permission (recursively including subgroups).
+     * Get all group UIDs that have any of the given permissions (recursively including subgroups).
      *
-     * @param string $permission The permission to check (e.g., 'tx_ximatypo3contentplanner:content-status')
+     * @param array<string> $permissions The permissions to check
      *
      * @return array<int> Array of group UIDs
      *
      * @throws Exception
      */
-    private function getGroupUidsWithPermission(string $permission): array
+    private function getGroupUidsWithAnyPermission(array $permissions): array
     {
         $allGroups = $this->fetchAllBackendGroups();
         $groupMap = $this->buildGroupMap($allGroups);
-        $authorizedGroups = $this->findDirectlyAuthorizedGroups($groupMap, $permission);
+        $authorizedGroups = $this->findDirectlyAuthorizedGroupsByAny($groupMap, $permissions);
         $this->expandAuthorizationToParentGroups($groupMap, $authorizedGroups);
 
         return array_keys($authorizedGroups);
@@ -208,14 +213,15 @@ class BackendUserRepository
 
     /**
      * @param array<int, array{custom_options: string, subgroups: array<int>}> $groupMap
+     * @param array<string>                                                    $permissions
      *
      * @return array<int, true>
      */
-    private function findDirectlyAuthorizedGroups(array $groupMap, string $permission): array
+    private function findDirectlyAuthorizedGroupsByAny(array $groupMap, array $permissions): array
     {
         $authorizedGroups = [];
         foreach ($groupMap as $uid => $data) {
-            if ($this->hasPermission($data['custom_options'], $permission)) {
+            if ($this->hasAnyPermission($data['custom_options'], $permissions)) {
                 $authorizedGroups[$uid] = true;
             }
         }
@@ -270,12 +276,12 @@ class BackendUserRepository
     }
 
     /**
-     * Check if a custom_options string contains a specific permission.
+     * Check if a custom_options string contains any of the given permissions.
      *
-     * @param string $customOptions The custom_options field value
-     * @param string $permission    The permission to check
+     * @param string        $customOptions The custom_options field value
+     * @param array<string> $permissions   The permissions to check
      */
-    private function hasPermission(string $customOptions, string $permission): bool
+    private function hasAnyPermission(string $customOptions, array $permissions): bool
     {
         if ('' === $customOptions) {
             return false;
@@ -284,6 +290,12 @@ class BackendUserRepository
         // custom_options is stored as comma-separated values
         $options = array_map(trim(...), explode(',', $customOptions));
 
-        return in_array($permission, $options, true);
+        foreach ($permissions as $permission) {
+            if (in_array($permission, $options, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

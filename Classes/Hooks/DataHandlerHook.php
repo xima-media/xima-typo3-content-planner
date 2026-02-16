@@ -22,6 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
 use function in_array;
@@ -80,7 +81,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      * @param mixed      $value
      * @param mixed      $pasteUpdate
      */
-    public function processCmdmap_preProcess($command, $table, $id, $value, DataHandler $parentObject, $pasteUpdate): void
+    public function processCmdmap_preProcess($command, $table, $id, &$value, DataHandler $parentObject, $pasteUpdate): void
     {
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
             return;
@@ -89,6 +90,15 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             // Clear all status of records that are assigned to the deleted status
             foreach (ExtensionUtility::getRecordTables() as $recordTable) {
                 $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, (int) $id);
+            }
+        }
+
+        // Check comment delete permission
+        if ('delete' === $command && Configuration::TABLE_COMMENT === $table) {
+            $comment = $this->commentRepository->findByUid((int) $id);
+            if ($comment && !PermissionUtility::canDeleteComment($comment)) {
+                // Prevent deletion by removing the command from the command map
+                unset($parentObject->cmdmap[$table][$id]);
             }
         }
     }
@@ -195,11 +205,36 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     private function checkCommentResolved(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
-            if (array_key_exists('resolved_date', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])
-                && 0 !== (int) $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date']
-            ) {
+            $commentData = $dataHandler->datamap[Configuration::TABLE_COMMENT][$id];
+            $hasResolvedDateChange = array_key_exists('resolved_date', $commentData);
+            $hasResolvedUserChange = array_key_exists('resolved_user', $commentData);
+
+            // Guard any changes to resolved_date or resolved_user
+            if (!$hasResolvedDateChange && !$hasResolvedUserChange) {
+                continue;
+            }
+
+            // Check if user can resolve/unresolve comments
+            if (!PermissionUtility::canResolveComment()) {
+                // Remove both fields - user has no permission to change resolve state
+                unset(
+                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'],
+                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'],
+                );
+                continue;
+            }
+
+            // User has permission - determine if resolving or unresolving
+            $isResolving = $hasResolvedDateChange && 0 !== (int) $commentData['resolved_date'];
+
+            if ($isResolving) {
+                // Resolving: set server-side values (never trust client values)
                 $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'] = $GLOBALS['BE_USER']->user['uid'];
                 $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'] = time();
+            } else {
+                // Unresolving: clear both fields
+                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'] = 0;
+                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'] = 0;
             }
         }
     }
@@ -210,12 +245,29 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     private function checkCommentEdited(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
-            if (MathUtility::canBeInterpretedAsInteger($id) && array_key_exists('content', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])) {
-                $originalRecord = $this->commentRepository->findByUid((int) $id);
-                if ($originalRecord && $originalRecord['content'] !== $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']) {
-                    $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['edited'] = 1;
-                }
+            if (!MathUtility::canBeInterpretedAsInteger($id)) {
+                continue;
             }
+
+            if (!array_key_exists('content', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])) {
+                continue;
+            }
+
+            $originalRecord = $this->commentRepository->findByUid((int) $id);
+            if (!$originalRecord) {
+                continue;
+            }
+
+            if ($originalRecord['content'] === $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']) {
+                continue;
+            }
+
+            if (!PermissionUtility::canEditComment($originalRecord)) {
+                unset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']);
+                continue;
+            }
+
+            $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['edited'] = 1;
         }
     }
 

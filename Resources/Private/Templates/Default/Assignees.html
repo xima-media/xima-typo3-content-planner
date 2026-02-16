@@ -20,9 +20,10 @@
             </span>
 
             <select id="assignee-selection" data-action-assignee-selection name="assignee"
-                    class="form-select form-select-sm">
+                    class="form-select form-select-sm"
+                    <f:if condition="{canChangeAssignee}"><f:else>disabled</f:else></f:if>>
                 <f:for each="{assignees}" as="assigneeEntry" iteration="iterator">
-                    <option value="{assigneeEntry.url}" {f:if(condition: assigneeEntry.isCurrent, then:'selected')}>
+                    <option value="{assigneeEntry.url}" {f:if(condition: assigneeEntry.isCurrent, then:'selected')} <f:if condition="{assigneeEntry.url}"><f:else>disabled</f:else></f:if>>
                         {assigneeEntry.name}
                     </option>
 

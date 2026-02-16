@@ -78,12 +78,22 @@ final class CommentItem
 
     public function getStatusIcon(): string
     {
-        return IconUtility::getIconByStatusUid((int) $this->getRelatedRecord()[Configuration::FIELD_STATUS]);
+        $record = $this->getRelatedRecord();
+        if (!is_array($record)) {
+            return IconUtility::getIconByStatusUid(0);
+        }
+
+        return IconUtility::getIconByStatusUid((int) $record[Configuration::FIELD_STATUS]);
     }
 
     public function getRecordIcon(): string
     {
-        return IconUtility::getIconByRecord($this->data['foreign_table'], $this->getRelatedRecord());
+        $record = $this->getRelatedRecord();
+        if (!is_array($record)) {
+            return '';
+        }
+
+        return IconUtility::getIconByRecord($this->data['foreign_table'], $record);
     }
 
     public function getRecordLink(): string
@@ -138,6 +148,30 @@ final class CommentItem
     public function getResolvedDate(): int
     {
         return (int) $this->data['resolved_date'];
+    }
+
+    /**
+     * Check if the current user can edit this comment.
+     */
+    public function getCanCurrentUserEdit(): bool
+    {
+        return PermissionUtility::canEditComment($this->data);
+    }
+
+    /**
+     * Check if the current user can delete this comment.
+     */
+    public function getCanCurrentUserDelete(): bool
+    {
+        return PermissionUtility::canDeleteComment($this->data);
+    }
+
+    /**
+     * Check if the current user can resolve this comment.
+     */
+    public function getCanCurrentUserResolve(): bool
+    {
+        return PermissionUtility::canResolveComment();
     }
 
     private function getTitleForFile(): string

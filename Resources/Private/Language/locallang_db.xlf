@@ -30,6 +30,18 @@
 			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide.description">
 				<source>Disable the display of content planner status information and color within the TYPO3 backend</source>
 			</trans-unit>
+			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_statuses">
+				<source>Allowed Statuses</source>
+			</trans-unit>
+			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_statuses.description">
+				<source>Restrict which statuses this group can use. Leave empty to allow all statuses.</source>
+			</trans-unit>
+			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_tables">
+				<source>Allowed Tables</source>
+			</trans-unit>
+			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_tables.description">
+				<source>Restrict which record tables this group can manage. Leave empty to allow all tables.</source>
+			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_status.title">
 				<source>Title</source>
 			</trans-unit>
@@ -42,11 +54,77 @@
 			<trans-unit id="permission.group">
 				<source>Content Planner</source>
 			</trans-unit>
+			<trans-unit id="permission.view_only">
+				<source>View Only</source>
+			</trans-unit>
+			<trans-unit id="permission.view_only.description">
+				<source>Allow viewing Content Planner status information (read-only, no actions)</source>
+			</trans-unit>
 			<trans-unit id="permission.content_status">
-				<source>Content Status</source>
+				<source>Full Access</source>
 			</trans-unit>
 			<trans-unit id="permission.content_status.description">
-				<source>Allow the usage of content status within pages</source>
+				<source>Grants full access to all Content Planner features</source>
+			</trans-unit>
+			<trans-unit id="permission.status_change">
+				<source>Change Status</source>
+			</trans-unit>
+			<trans-unit id="permission.status_change.description">
+				<source>Allow changing the status of records</source>
+			</trans-unit>
+			<trans-unit id="permission.status_unset">
+				<source>Unset Status</source>
+			</trans-unit>
+			<trans-unit id="permission.status_unset.description">
+				<source>Allow removing the status from records</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_create">
+				<source>Create Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_create.description">
+				<source>Allow creating new comments on records</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_edit_own">
+				<source>Edit Own Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_edit_own.description">
+				<source>Allow editing of own comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_edit_foreign">
+				<source>Edit Foreign Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_edit_foreign.description">
+				<source>Allow editing of comments from other users</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_resolve">
+				<source>Resolve Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_resolve.description">
+				<source>Allow marking comments as resolved</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_delete_own">
+				<source>Delete Own Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_delete_own.description">
+				<source>Allow deletion of own comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_delete_foreign">
+				<source>Delete Foreign Comments</source>
+			</trans-unit>
+			<trans-unit id="permission.comment_delete_foreign.description">
+				<source>Allow deletion of comments from other users</source>
+			</trans-unit>
+			<trans-unit id="permission.assign_self">
+				<source>Assign Self</source>
+			</trans-unit>
+			<trans-unit id="permission.assign_self.description">
+				<source>Allow assigning and unassigning yourself</source>
+			</trans-unit>
+			<trans-unit id="permission.assign_others">
+				<source>Assign Others</source>
+			</trans-unit>
+			<trans-unit id="permission.assign_others.description">
+				<source>Allow assigning, reassigning and unassigning any user</source>
 			</trans-unit>
 			<trans-unit id="content_planner">
 				<source>Content Planner</source>

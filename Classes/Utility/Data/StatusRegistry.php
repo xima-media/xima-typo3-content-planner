@@ -86,21 +86,57 @@ class StatusRegistry
         try {
             $users = $backendUserRepository->findAllWithPermission();
 
-            if (is_array($users)) {
-                foreach ($users as $user) {
-                    $label = $user['username'];
-                    if (($user['realName'] ?? '') !== '') {
-                        $label = $user['realName'].' ('.$user['username'].')';
-                    }
-
-                    $config['items'][] = [
-                        'label' => $label,
-                        'value' => $user['uid'],
-                    ];
+            foreach ($users as $user) {
+                $label = $user['username'];
+                if (($user['realName'] ?? '') !== '') {
+                    $label = $user['realName'].' ('.$user['username'].')';
                 }
+
+                $config['items'][] = [
+                    'label' => $label,
+                    'value' => $user['uid'],
+                ];
             }
         } catch (\Exception) {
             // In case of error, keep the default items
         }
+    }
+
+    /**
+     * Get all record tables registered for Content Planner status management.
+     *
+     * @param array<string, mixed> $config
+     */
+    public function getRecordTablesForTCA(array &$config): void
+    {
+        $tables = self::getRegisteredTables();
+
+        foreach ($tables as $table) {
+            $label = $GLOBALS['TCA'][$table]['ctrl']['title'] ?? $table;
+            $config['items'][] = [
+                'label' => $label,
+                'value' => $table,
+            ];
+        }
+    }
+
+    /**
+     * Get all tables registered for Content Planner status management.
+     *
+     * @return array<int, string>
+     */
+    public static function getRegisteredTables(): array
+    {
+        // Core tables that always have Content Planner fields
+        $tables = ['pages', 'tt_content', 'sys_file_metadata'];
+
+        // Add additional tables registered via extension configuration
+        $additionalTables = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] ?? [];
+
+        if (is_array($additionalTables)) {
+            $tables = array_merge($tables, $additionalTables);
+        }
+
+        return array_unique($tables);
     }
 }

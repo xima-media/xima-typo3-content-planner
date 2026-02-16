@@ -151,11 +151,11 @@
 
 /* Current User Highlight */
 .content-planner-row--current,
-[data-current-assignee="1"] {
+.content-planner-link--assignee-current {
     background-color: var(--content-planner-color-highlight);
 }
 
-[data-current-assignee="1"]:hover {
+.content-planner-link--assignee-current:hover {
     background-color: var(--content-planner-color-highlight-hover);
 }
 
