@@ -36,7 +36,7 @@
 <template class="content-planner-widget__filter-modal-content">
     <div class="content-planner-widget__filter-modal-form">
         <div class="form-group mb-3">
-            <label for="status" class="form-label">Status</label>
+            <label for="status" class="form-label"><f:translate key="widgets.contentPlanner.header.flag" extensionName="XimaTypo3ContentPlanner" default="Status"/></label>
             <select name="status" id="status" class="form-select">
                 <option value="">-</option>
                 <f:for each="{filter.status}" as="status">
@@ -53,14 +53,14 @@
                         <option value="{user.uid}">{user.username}</option>
                     </f:for>
                 </select>
-                <button type="button" class="btn btn-default content-planner-widget__filter-assign-to-me" data-backend-user-id="{backendUserId}" title="{f:translate(key: 'header.assignToMe', extensionName: 'XimaTypo3ContentPlanner', default: 'Assigned to me')}">
+                <button type="button" class="btn btn-default content-planner-widget__filter-assign-to-me" data-backend-user-id="{backendUserId}" title="{f:translate(key: 'header.assignToMe', extensionName: 'XimaTypo3ContentPlanner', default: 'Assign to me')}">
                     <core:icon identifier="actions-assign-to-me" size="small"/>
                 </button>
             </div>
         </div>
         <f:if condition="{filter.types}">
             <div class="form-group mb-3">
-                <label for="type" class="form-label">Type</label>
+                <label for="type" class="form-label"><f:translate key="widgets.configurable.setting.recordType.label" extensionName="XimaTypo3ContentPlanner" default="Record Type"/></label>
                 <select name="type" id="type" class="form-select">
                     <option value="">-</option>
                     <f:for each="{filter.types}" as="type">
