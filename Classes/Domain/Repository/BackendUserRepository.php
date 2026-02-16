@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function in_array;
 
@@ -29,11 +30,11 @@ class BackendUserRepository
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     /**
-     * @return array<int, array<string, mixed>>|bool
+     * @return array<int, array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAll(): array|bool
+    public function findAll(): array
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
@@ -44,16 +45,17 @@ class BackendUserRepository
     }
 
     /**
-     * @return array<int, array<string, mixed>>|bool
+     * @return array<int, array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllWithPermission(): array|bool
+    public function findAllWithPermission(): array
     {
         // First, get all group UIDs that have the permission (including subgroups recursively)
         $authorizedGroupUids = $this->getGroupUidsWithAnyPermission([
-            'tx_ximatypo3contentplanner:content-status',
-            'tx_ximatypo3contentplanner:view-only',
+            Configuration::PERMISSION_GROUP . ':' . Configuration::PERMISSION_CONTENT_STATUS,
+            Configuration::PERMISSION_GROUP . ':' . Configuration::PERMISSION_VIEW_ONLY,
+            Configuration::PERMISSION_GROUP . ':' . Configuration::PERMISSION_FULL_ACCESS,
         ]);
 
         // Build query for users

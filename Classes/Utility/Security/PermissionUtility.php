@@ -93,6 +93,7 @@ class PermissionUtility
         if (!$GLOBALS['BE_USER']->isAdmin()
             && !self::checkPermission(Configuration::PERMISSION_VIEW_ONLY)
             && !self::checkPermission(Configuration::PERMISSION_CONTENT_STATUS)
+            && !self::checkPermission(Configuration::PERMISSION_FULL_ACCESS)
         ) {
             return false;
         }
@@ -394,7 +395,9 @@ class PermissionUtility
         $userGroupIds = GeneralUtility::intExplode(',', (string) ($GLOBALS['BE_USER']->user['usergroup'] ?? ''), true);
 
         if ([] === $userGroupIds) {
-            return [];
+            self::$allowedValuesCache[$column] = [];
+
+            return self::$allowedValuesCache[$column];
         }
 
         $allowedValues = [];
