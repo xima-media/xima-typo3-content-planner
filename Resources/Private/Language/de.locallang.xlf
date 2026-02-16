@@ -315,6 +315,26 @@
 				<source/>
 				<target>Zurücksetzen</target>
 			</trans-unit>
+			<trans-unit id="filter.button">
+				<source/>
+				<target>Filter</target>
+			</trans-unit>
+			<trans-unit id="filter.modal.title">
+				<source/>
+				<target>Datensätze filtern</target>
+			</trans-unit>
+			<trans-unit id="filter.modal.apply">
+				<source/>
+				<target>Anwenden</target>
+			</trans-unit>
+			<trans-unit id="filter.openComments">
+				<source/>
+				<target>Offene Kommentare</target>
+			</trans-unit>
+			<trans-unit id="filter.openTodos">
+				<source/>
+				<target>Offene ToDos</target>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source/>
