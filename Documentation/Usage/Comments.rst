@@ -116,3 +116,19 @@ A comment can be marked as completed via the context menu.
     :alt: Resolved comments
 
     Resolved comments can can be displayed again using the filter
+
+..  _comments-share:
+
+Share link
+=================
+
+..  versionadded:: 2.1.0
+
+Comments and the entire comment modal can be shared with other backend users via a direct link. The link navigates the recipient to the record, automatically opens the comment modal and, if a specific comment was shared, scrolls to it and briefly highlights it.
+
+Use the context menu of a comment to copy the share link to the clipboard. To share a link to the entire comment modal, use the action menu in the filter bar.
+
+..  figure:: /Images/comment-share.jpg
+    :alt: Share link for comments
+
+    Share a direct link to a comment or the comment modal

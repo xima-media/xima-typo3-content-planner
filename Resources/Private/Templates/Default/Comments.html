@@ -16,6 +16,23 @@
                         </option>
                     </f:for>
                 </select>
+                <f:if condition="{shareUrl}">
+                    <div class="dropdown">
+                        <a href="#" class="btn btn-default btn-sm" data-bs-toggle="dropdown"
+                           aria-expanded="false" title="">
+                            <core:icon identifier="actions-menu-alternative" size="small"/>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" data-share-modal-uri="{shareUrl}">
+                                    <core:icon identifier="actions-link" size="small"/>
+                                    <f:translate key="comment.actions.share"
+                                                extensionName="XimaTypo3ContentPlanner"/>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </f:if>
             </div>
             <f:if condition="{filter.resolvedCount}">
                 <div class="form-check form-switch">
@@ -35,7 +52,8 @@
         <f:then>
             <f:for each="{comments}" as="record">
                 <div
-                    class="d-flex content-planner-comment {f:if(condition: '{record.resolved}', then: 'content-planner-comment--resolved', else: '')}">
+                    class="d-flex content-planner-comment {f:if(condition: '{record.resolved}', then: 'content-planner-comment--resolved', else: '')}"
+                    data-comment-uid="{record.data.uid}">
                     <span class="content-planner-comment__avatar">
                         <be:avatar backendUser="{record.data.author}" size="40" showIcon="true"/>
                     </span>
@@ -58,7 +76,6 @@
                                     {record.title}
                                 </a>
                             </small>
-                            <f:if condition="{record.canCurrentUserEdit} || {record.canCurrentUserResolve} || {record.canCurrentUserDelete}">
                             <div class="btn-group content-planner-comment__actions">
                                 <a href="#" class="btn btn-default" data-bs-toggle="dropdown"
                                 aria-expanded="false" title="">
@@ -91,7 +108,15 @@
                                         </a>
                                     </li>
                                     </f:if>
+                                    <li>
+                                        <a class="dropdown-item" data-share-comment-uri="{record.shareUri}">
+                                            <core:icon identifier="actions-link" size="small" title="Share"/>
+                                            <f:translate key="comment.actions.share"
+                                                        extensionName="XimaTypo3ContentPlanner"/>
+                                        </a>
+                                    </li>
                                     <f:if condition="{record.canCurrentUserDelete}">
+                                    <li><hr class="dropdown-divider"/></li>
                                     <li>
                                         <a class="dropdown-item" data-id="{id}" data-table="{table}"
                                         data-delete-comment-uri="{record.deleteUri}"
@@ -107,7 +132,6 @@
                                     </f:if>
                                 </ul>
                             </div>
-                            </f:if>
                         </div>
                         <div class="content-planner-comment__text">{record.data.content -> f:format.raw()}</div>
                         <f:if condition="{record.resolved}">

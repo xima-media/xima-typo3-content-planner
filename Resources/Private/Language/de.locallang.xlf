@@ -392,6 +392,18 @@
 				<source/>
 				<target>Löschen</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.share">
+				<source/>
+				<target>Link teilen</target>
+			</trans-unit>
+			<trans-unit id="comment.share.copied">
+				<source/>
+				<target>Link in Zwischenablage kopiert</target>
+			</trans-unit>
+			<trans-unit id="comment.share.failed">
+				<source/>
+				<target>Link konnte nicht kopiert werden</target>
+			</trans-unit>
 			<trans-unit id="comment.resolved">
 				<source/>
 				<target>Erledigt von %s am %s</target>

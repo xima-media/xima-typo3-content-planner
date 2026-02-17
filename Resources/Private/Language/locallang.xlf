@@ -237,6 +237,15 @@
 			<trans-unit id="comment.actions.delete.button">
 				<source>Delete</source>
 			</trans-unit>
+			<trans-unit id="comment.actions.share">
+				<source>Share link</source>
+			</trans-unit>
+			<trans-unit id="comment.share.copied">
+				<source>Link copied to clipboard</source>
+			</trans-unit>
+			<trans-unit id="comment.share.failed">
+				<source>Failed to copy link</source>
+			</trans-unit>
 			<trans-unit id="comment.resolved">
 				<source>Resolved by %s on %s</source>
 			</trans-unit>
