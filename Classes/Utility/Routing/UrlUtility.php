@@ -119,29 +119,46 @@ class UrlUtility
     }
 
     /**
+     * @param array<string, mixed> $extraParams
+     *
      * @throws RouteNotFoundException
      */
-    public static function getRecordLink(string $table, int $uid, ?string $folderIdentifier = null): string
+    public static function getRecordLink(string $table, int $uid, ?string $folderIdentifier = null, array $extraParams = []): string
     {
         return match ($table) {
-            'pages' => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $uid]),
-            Configuration::TABLE_FOLDER => self::getFolderLink($folderIdentifier),
-            default => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']]]),
+            'pages' => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('web_layout', ['id' => $uid, ...$extraParams]),
+            Configuration::TABLE_FOLDER => self::getFolderLink($folderIdentifier, $extraParams),
+            default => (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', ['edit' => [$table => [$uid => 'edit']], ...$extraParams]),
         };
     }
 
     /**
      * Get a link to the file list for a folder.
      *
+     * @param array<string, mixed> $extraParams
+     *
      * @throws RouteNotFoundException
      */
-    public static function getFolderLink(?string $folderIdentifier): string
+    public static function getFolderLink(?string $folderIdentifier, array $extraParams = []): string
     {
         if (null === $folderIdentifier || '' === $folderIdentifier) {
             return '';
         }
 
-        return (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('media_management', ['id' => $folderIdentifier]);
+        return (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('media_management', ['id' => $folderIdentifier, ...$extraParams]);
+    }
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    public static function getShareUrl(string $table, int $uid, ?int $commentUid = null): string
+    {
+        $params = ['table' => $table, 'uid' => $uid];
+        if (null !== $commentUid) {
+            $params['comment'] = $commentUid;
+        }
+
+        return (string) GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('ximatypo3contentplanner_share', $params);
     }
 
     /**

@@ -17,7 +17,7 @@ use Doctrine\DBAL\Exception;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Core\RequestId;
-use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Http\{JsonResponse, RedirectResponse};
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
@@ -44,6 +44,61 @@ class RecordController extends ActionController
         private readonly BackendUserRepository $backendUserRepository,
         private readonly RequestId $requestId,
     ) {}
+
+    /**
+     * @throws RouteNotFoundException
+     */
+    public function shareAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $table = $request->getQueryParams()['table'] ?? '';
+        $uid = (int) ($request->getQueryParams()['uid'] ?? 0);
+        $commentUid = isset($request->getQueryParams()['comment'])
+            ? (int) $request->getQueryParams()['comment']
+            : null;
+
+        if ('' === $table || 0 === $uid) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
+        if (!$record) {
+            return new JsonResponse(['error' => 'Record not found'], 404);
+        }
+
+        if (!PermissionUtility::checkAccessForRecord($table, $record)) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $validCommentUid = null;
+        $commentResolved = false;
+        if (null !== $commentUid) {
+            $comment = $this->commentRepository->findByUid($commentUid);
+            if (is_array($comment)
+                && $comment['foreign_table'] === $table
+                && (int) $comment['foreign_uid'] === $uid
+            ) {
+                $validCommentUid = $commentUid;
+                $commentResolved = (int) ($comment['resolved_date'] ?? 0) > 0;
+            }
+        }
+
+        $extraParams = ['tx_contentplanner_comments' => 1];
+        if (null !== $validCommentUid) {
+            $extraParams['tx_contentplanner_comment'] = $validCommentUid;
+            if ($commentResolved) {
+                $extraParams['tx_contentplanner_comment_resolved'] = 1;
+            }
+        }
+
+        $folderIdentifier = $record['folder_identifier'] ?? null;
+        $redirectUrl = UrlUtility::getRecordLink($table, $uid, $folderIdentifier, $extraParams);
+
+        return new RedirectResponse($redirectUrl, 302);
+    }
 
     public function filterAction(ServerRequestInterface $request): ResponseInterface
     {
@@ -79,6 +134,7 @@ class RecordController extends ActionController
                 'id' => $recordId,
                 'table' => $recordTable,
                 'newCommentUri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($recordTable, $recordId) : '',
+                'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [
                     'sortComments' => $sortComments,
                     'showResolvedComments' => $showResolvedComments,

@@ -22,4 +22,9 @@ return [
         'access' => 'public',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\FolderController::class.'::updateStatusAction',
     ],
+    'ximatypo3contentplanner_share' => [
+        'path' => '/content-planner/share',
+        'access' => 'public',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::shareAction',
+    ],
 ];

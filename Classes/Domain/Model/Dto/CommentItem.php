@@ -126,6 +126,15 @@ final class CommentItem
         return UrlUtility::getDeleteCommentUrl((int) $this->data['uid']);
     }
 
+    public function getShareUri(): string
+    {
+        return UrlUtility::getShareUrl(
+            $this->data['foreign_table'],
+            (int) $this->data['foreign_uid'],
+            (int) $this->data['uid'],
+        );
+    }
+
     public function isEdited(): bool
     {
         return (bool) $this->data['edited'];
