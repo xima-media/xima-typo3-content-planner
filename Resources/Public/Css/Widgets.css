@@ -300,7 +300,7 @@
 .content-planner-widget--assigned table tr > *:nth-child(3) { width: 25%; }
 .content-planner-widget--assigned table tr > *:nth-child(5) { width: 20%; }
 
-@container assigned (width < 340px) {
+@container assigned (width < 450px) {
     .content-planner-widget--assigned table tr > *:nth-child(3) {
         display: none;
     }
@@ -324,7 +324,7 @@
 .content-planner-widget--todo table tr > *:nth-child(3) { width: 25%; }
 .content-planner-widget--todo table tr > *:nth-child(5) { width: 20%; }
 
-@container todo (width < 340px) {
+@container todo (width < 450px) {
     .content-planner-widget--todo table tr > *:nth-child(3) {
         display: none;
     }
