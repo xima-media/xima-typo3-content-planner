@@ -208,6 +208,10 @@
     border-bottom: 1px solid var(--typo3-list-item-border-color, #e0e0e0);
 }
 
+.content-planner-widget > .content-planner-comment:first-child {
+    padding-top: 0;
+}
+
 .content-planner-widget > .content-planner-comment:last-child {
     border-bottom: none;
 }
