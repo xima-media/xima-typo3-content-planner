@@ -29,6 +29,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
+use function is_array;
 
 /**
  * RecordController.
@@ -73,31 +74,37 @@ class RecordController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $validCommentUid = null;
-        $commentResolved = false;
-        if (null !== $commentUid) {
-            $comment = $this->commentRepository->findByUid($commentUid);
-            if (is_array($comment)
-                && $comment['foreign_table'] === $table
-                && (int) $comment['foreign_uid'] === $uid
-            ) {
-                $validCommentUid = $commentUid;
-                $commentResolved = (int) ($comment['resolved_date'] ?? 0) > 0;
-            }
-        }
-
-        $extraParams = ['tx_contentplanner_comments' => 1];
-        if (null !== $validCommentUid) {
-            $extraParams['tx_contentplanner_comment'] = $validCommentUid;
-            if ($commentResolved) {
-                $extraParams['tx_contentplanner_comment_resolved'] = 1;
-            }
-        }
-
+        $extraParams = $this->buildShareRedirectParams($table, $uid, $commentUid);
         $folderIdentifier = $record['folder_identifier'] ?? null;
         $redirectUrl = UrlUtility::getRecordLink($table, $uid, $folderIdentifier, $extraParams);
 
         return new RedirectResponse($redirectUrl, 302);
+    }
+
+    /**
+     * Build redirect query parameters for the share action.
+     *
+     * @return array<string, int>
+     */
+    private function buildShareRedirectParams(string $table, int $uid, ?int $commentUid): array
+    {
+        $params = ['tx_contentplanner_comments' => 1];
+
+        if (null === $commentUid) {
+            return $params;
+        }
+
+        $comment = $this->commentRepository->findByUid($commentUid);
+        if (!is_array($comment) || $comment['foreign_table'] !== $table || (int) $comment['foreign_uid'] !== $uid) {
+            return $params;
+        }
+
+        $params['tx_contentplanner_comment'] = $commentUid;
+        if ((int) ($comment['resolved_date'] ?? 0) > 0) {
+            $params['tx_contentplanner_comment_resolved'] = 1;
+        }
+
+        return $params;
     }
 
     public function filterAction(ServerRequestInterface $request): ResponseInterface
