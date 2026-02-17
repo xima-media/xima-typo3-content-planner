@@ -14,7 +14,9 @@
    ========================================================================== */
 
 .content-planner-comment {
-    padding-bottom: 2rem;
+    /* Padding + negative margin for highlight animation breathing room */
+    padding: 0.75rem 0.75rem 2rem;
+    margin: 0 -0.75rem;
     gap: 1rem;
     container-name: comment;
     container-type: inline-size;
