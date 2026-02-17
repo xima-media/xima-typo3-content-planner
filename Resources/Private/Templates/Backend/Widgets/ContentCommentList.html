@@ -7,24 +7,22 @@
         <f:then>
             <f:for each="{records}" as="record">
                 <f:if condition="{record.relatedRecord}">
-                    <div class="d-flex content-planner-comment">
-                        <be:avatar backendUser="{record.data.author}" size="40"
-                                showIcon="true"/>
-                        <div class="d-flex flex-column flex-grow-1">
-                            <div class="d-flex flex-row justify-content-between">
-                                <div>
-                                    <strong>{record.authorName}</strong>
-                                    <small>{record.data.crdate -> f:format.date(format:'d.m.Y  H:i')}</small>
-                                </div>
-                                <small>
-                                    <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
-                                    <a href="{record.recordLink}">
-                                        {record.title}
-                                    </a>
-                                </small>
-                            </div>
-                            <div class="content-planner-comment__text">{record.data.content -> f:format.raw()}</div>
+                    <div class="content-planner-comment">
+                        <div class="content-planner-comment__header">
+                            <span class="content-planner-comment__meta">
+                                <be:avatar backendUser="{record.data.author}" size="16" showIcon="false"/>
+                                <strong>{record.authorName}</strong>
+                                <small title="{record.data.crdate -> f:format.date(format:'d.m.Y H:i')}">{record.timeAgo}</small>
+                            </span>
+                            <small class="content-planner-comment__record">
+                                <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
+                                <a href="{record.shareUri}" title="{record.title}">
+                                    {record.title}
+                                </a>
+                            </small>
                         </div>
+                        <a href="{record.shareUri}"
+                           class="content-planner-comment__text content-planner-comment__text--widget">{record.data.content -> f:format.raw()}</a>
                     </div>
                 </f:if>
             </f:for>
