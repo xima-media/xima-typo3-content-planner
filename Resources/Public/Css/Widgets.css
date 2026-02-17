@@ -195,10 +195,10 @@
 
 /* Comment Text (Widget) */
 .content-planner-comment__text.content-planner-comment__text--widget {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
+    display: block;
     overflow: hidden;
+    max-height: 6em;
+    line-height: 1.5;
     width: 100%;
     margin: 0.25rem 0 0;
     padding: 0.75rem;
