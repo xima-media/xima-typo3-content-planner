@@ -81,32 +81,6 @@ class RecordController extends ActionController
         return new RedirectResponse($redirectUrl, 302);
     }
 
-    /**
-     * Build redirect query parameters for the share action.
-     *
-     * @return array<string, int>
-     */
-    private function buildShareRedirectParams(string $table, int $uid, ?int $commentUid): array
-    {
-        $params = ['tx_contentplanner_comments' => 1];
-
-        if (null === $commentUid) {
-            return $params;
-        }
-
-        $comment = $this->commentRepository->findByUid($commentUid);
-        if (!is_array($comment) || $comment['foreign_table'] !== $table || (int) $comment['foreign_uid'] !== $uid) {
-            return $params;
-        }
-
-        $params['tx_contentplanner_comment'] = $commentUid;
-        if ((int) ($comment['resolved_date'] ?? 0) > 0) {
-            $params['tx_contentplanner_comment_resolved'] = 1;
-        }
-
-        return $params;
-    }
-
     public function filterAction(ServerRequestInterface $request): ResponseInterface
     {
         $search = array_key_exists('search', $request->getQueryParams()) ? $request->getQueryParams()['search'] : null;
@@ -196,6 +170,32 @@ class RecordController extends ActionController
         $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/assignee-select.js', ['nonce' => $this->requestId->nonce]);
 
         return new JsonResponse(['result' => $result]);
+    }
+
+    /**
+     * Build redirect query parameters for the share action.
+     *
+     * @return array<string, int>
+     */
+    private function buildShareRedirectParams(string $table, int $uid, ?int $commentUid): array
+    {
+        $params = ['tx_contentplanner_comments' => 1];
+
+        if (null === $commentUid) {
+            return $params;
+        }
+
+        $comment = $this->commentRepository->findByUid($commentUid);
+        if (!is_array($comment) || $comment['foreign_table'] !== $table || (int) $comment['foreign_uid'] !== $uid) {
+            return $params;
+        }
+
+        $params['tx_contentplanner_comment'] = $commentUid;
+        if ((int) ($comment['resolved_date'] ?? 0) > 0) {
+            $params['tx_contentplanner_comment_resolved'] = 1;
+        }
+
+        return $params;
     }
 
     /**
