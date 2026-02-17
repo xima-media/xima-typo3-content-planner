@@ -128,7 +128,7 @@ class CommentsListModal {
 
   scrollToComment(modal, commentUid) {
     setTimeout(() => {
-      const commentElement = modal.querySelector(`[data-comment-uid="${commentUid}"]`)
+      const commentElement = modal.querySelector(`[data-comment-uid="${CSS.escape(commentUid)}"]`)
       if (commentElement) {
         commentElement.scrollIntoView({behavior: 'smooth', block: 'center'})
         commentElement.classList.add('content-planner-comment--highlight')

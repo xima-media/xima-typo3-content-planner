@@ -26,6 +26,10 @@ class CommentsShareLink {
 
   copyToClipboard(url) {
     const absoluteUrl = new URL(url, window.location.origin).href
+    if (!navigator.clipboard) {
+      this.showError()
+      return
+    }
     navigator.clipboard.writeText(absoluteUrl)
       .then(() => this.showSuccess())
       .catch(() => this.showError())
