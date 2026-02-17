@@ -112,7 +112,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         $todo = 'todo' === $mode;
 
         $items = $this->loadItems($status, $assignee, $type, $todo);
-        $hasSite = array_filter($items, static fn(array $item): bool => '' !== ($item['site'] ?? ''));
+        $hasSite = array_filter($items, static fn (array $item): bool => '' !== ($item['site'] ?? ''));
 
         $content = ViewUtility::render(
             'Backend/Widgets/ConfigurableContentStatusList.html',

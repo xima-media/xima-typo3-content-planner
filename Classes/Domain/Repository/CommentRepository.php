@@ -20,6 +20,7 @@ use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
+use function count;
 use function in_array;
 
 /**
