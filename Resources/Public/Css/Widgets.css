@@ -305,8 +305,8 @@
         display: none;
     }
 
-    .content-planner-widget--assigned table tr > *:nth-child(1) { width: 75%; }
-    .content-planner-widget--assigned table tr > *:nth-child(5) { width: 25%; }
+    .content-planner-widget--assigned table tr > *:nth-child(1) { width: auto; }
+    .content-planner-widget--assigned table tr > *:nth-child(5) { width: 120px; }
 }
 
 /* Todo Widget */
@@ -329,8 +329,8 @@
         display: none;
     }
 
-    .content-planner-widget--todo table tr > *:nth-child(1) { width: 75%; }
-    .content-planner-widget--todo table tr > *:nth-child(5) { width: 25%; }
+    .content-planner-widget--todo table tr > *:nth-child(1) { width: auto; }
+    .content-planner-widget--todo table tr > *:nth-child(5) { width: 120px; }
 }
 
 /* Server-rendered Widget (TYPO3 v14+) */
