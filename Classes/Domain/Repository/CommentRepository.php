@@ -20,6 +20,7 @@ use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
+use function count;
 use function in_array;
 
 /**
@@ -137,6 +138,31 @@ class CommentRepository
         }
 
         return (int) $query->executeQuery()->fetchOne();
+    }
+
+    /**
+     * Find the UID of the comment with todos for a record - only if exactly one such comment exists.
+     * Returns null when multiple comments have todos (caller should fall back to the comments modal).
+     */
+    public function findSingleTodoCommentUid(int $id, string $table): ?int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+
+        $results = $queryBuilder
+            ->select('uid')
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+                $queryBuilder->expr()->gt('todo_total', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->setMaxResults(2)
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return 1 === count($results) ? (int) $results[0] : null;
     }
 
     /**

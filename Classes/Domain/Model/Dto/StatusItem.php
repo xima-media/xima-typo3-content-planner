@@ -20,7 +20,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
@@ -42,6 +42,8 @@ final class StatusItem
     public ?Status $status = null;
 
     private ?CommentRepository $commentRepository = null;
+    private ?int $cachedToDoTotal = null;
+    private ?int $cachedToDoResolved = null;
 
     private readonly IconFactory $iconFactory;
     private readonly SiteFinder $siteFinder;
@@ -159,13 +161,32 @@ final class StatusItem
         ) : '';
     }
 
+    public function getToDoShareUrl(): string
+    {
+        if ($this->getToDoTotal() <= 0) {
+            return '';
+        }
+
+        $commentUid = $this->getCommentRepository()->findSingleTodoCommentUid((int) $this->data['uid'], $this->data['tablename']);
+
+        if (null === $commentUid) {
+            return '';
+        }
+
+        return UrlUtility::getShareUrl($this->data['tablename'], (int) $this->data['uid'], $commentUid);
+    }
+
     public function getToDoResolved(): int
     {
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
             return 0;
         }
 
-        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename']) : 0;
+        if (null === $this->cachedToDoResolved) {
+            $this->cachedToDoResolved = PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename']) : 0;
+        }
+
+        return $this->cachedToDoResolved;
     }
 
     public function getToDoTotal(): int
@@ -174,7 +195,11 @@ final class StatusItem
             return 0;
         }
 
-        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        if (null === $this->cachedToDoTotal) {
+            $this->cachedToDoTotal = PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        }
+
+        return $this->cachedToDoTotal;
     }
 
     /**
@@ -189,13 +214,15 @@ final class StatusItem
             'status' => $this->getStatus(),
             'statusIcon' => $this->getStatusIcon(),
             'recordIcon' => $this->getRecordIcon(),
-            'updated' => (new DateTime())->setTimestamp((int) $this->data['tstamp'])->format('d.m.Y H:i'),
+            'updated' => DiffUtility::timeAgo((int) $this->data['tstamp']),
+            'updatedRaw' => (new DateTime())->setTimestamp((int) $this->data['tstamp'])->format('d.m.Y H:i'),
             'assignee' => $this->getAssignee(),
             'assigneeName' => $this->getAssigneeName(),
             'assigneeAvatar' => $this->getAssigneeAvatar(),
             'assignedToCurrentUser' => $this->getAssignedToCurrentUser(),
             'comments' => $this->getCommentsHtml(),
             'todo' => $this->getToDoHtml(),
+            'todoShareUrl' => $this->getToDoShareUrl(),
             'site' => $this->getSite(),
         ];
     }

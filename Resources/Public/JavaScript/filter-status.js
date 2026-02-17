@@ -246,15 +246,17 @@ class FilterStatus {
           let comments = '';
           if (item.data.tx_ximatypo3contentplanner_comments > 0) {
             comments = '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="content-planner-link--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>';
-            if (item.todo !== '') {
-              comments += ' <a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="content-planner-link--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.todo + '</a>';
+            if (item.todo !== '' && item.todoShareUrl) {
+              comments += '<a href="' + item.todoShareUrl + '">' + item.todo + '</a>';
+            } else if (item.todo !== '') {
+              comments += '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="content-planner-link--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.todo + '</a>';
             }
           }
 
           html += '<tr ' + (item.assignedToCurrentUser ? 'class="content-planner-row--current"' : '') + '>' +
             '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>' +
             '<td>' + (item.site ?? '') + '</td>' +
-            '<td><small>' + item.updated + '</small></td>' +
+            '<td><small title="' + item.updatedRaw + '">' + item.updated + '</small></td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
             '<td>' + comments + '</td>' +
             '</tr>';
@@ -263,6 +265,10 @@ class FilterStatus {
         if (table) {
           table.innerHTML = html;
         }
+
+        // Hide Site column when no items have a site value
+        const hasSite = resolved.some(item => item.site);
+        widget.classList.toggle('content-planner-widget--no-site', !hasSite);
         if (waitingElement) {
           waitingElement.classList.add('content-planner-hide');
         }
