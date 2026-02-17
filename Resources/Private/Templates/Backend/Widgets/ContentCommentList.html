@@ -22,7 +22,7 @@
                             </small>
                         </div>
                         <a href="{record.shareUri}"
-                           class="content-planner-comment__text content-planner-comment__text--widget">{record.data.content -> f:format.raw()}</a>
+                           class="content-planner-comment__text content-planner-comment__text--widget">{record.data.content -> f:format.crop(maxCharacters: 150, append: '…', respectHtml: true) -> f:format.raw()}</a>
                     </div>
                 </f:if>
             </f:for>
