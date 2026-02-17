@@ -42,6 +42,8 @@ final class StatusItem
     public ?Status $status = null;
 
     private ?CommentRepository $commentRepository = null;
+    private ?int $cachedToDoTotal = null;
+    private ?int $cachedToDoResolved = null;
 
     private readonly IconFactory $iconFactory;
     private readonly SiteFinder $siteFinder;
@@ -180,7 +182,11 @@ final class StatusItem
             return 0;
         }
 
-        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename']) : 0;
+        if (null === $this->cachedToDoResolved) {
+            $this->cachedToDoResolved = PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename']) : 0;
+        }
+
+        return $this->cachedToDoResolved;
     }
 
     public function getToDoTotal(): int
@@ -189,7 +195,11 @@ final class StatusItem
             return 0;
         }
 
-        return PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        if (null === $this->cachedToDoTotal) {
+            $this->cachedToDoTotal = PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
+        }
+
+        return $this->cachedToDoTotal;
     }
 
     /**
