@@ -23,9 +23,47 @@ class CommentsListModal {
         )
       })
     })
+
+    this.handleDeepLink()
   }
 
-  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false) {
+  handleDeepLink() {
+    const params = new URLSearchParams(window.location.search)
+    const shouldOpenComments = params.get('tx_contentplanner_comments')
+    const targetCommentUid = params.get('tx_contentplanner_comment')
+    const commentResolved = params.get('tx_contentplanner_comment_resolved')
+
+    if (!shouldOpenComments) {
+      return
+    }
+
+    const trigger = document.querySelector('[data-content-planner-comments]')
+    if (!trigger) {
+      return
+    }
+
+    // Clean URL params immediately
+    const cleanUrl = new URL(window.location.href)
+    cleanUrl.searchParams.delete('tx_contentplanner_comments')
+    cleanUrl.searchParams.delete('tx_contentplanner_comment')
+    cleanUrl.searchParams.delete('tx_contentplanner_comment_resolved')
+    history.replaceState(null, '', cleanUrl.toString())
+
+    setTimeout(() => {
+      const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
+      this.fetchComments(
+        url,
+        trigger.getAttribute('data-table'),
+        trigger.getAttribute('data-id'),
+        trigger.getAttribute('data-new-comment-uri'),
+        trigger.getAttribute('data-edit-uri'),
+        targetCommentUid || null,
+        !!commentResolved
+      )
+    }, 300)
+  }
+
+  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false, scrollToCommentUid = null, showResolved = false) {
     const buttons = [
       ...(newCommentUrl ? [{
         text: TYPO3.lang?.['button.modal.footer.new'] || 'New',
@@ -58,8 +96,13 @@ class CommentsListModal {
       }
     ]
 
+    const queryArguments = {table, uid}
+    if (showResolved) {
+      queryArguments.showResolvedComments = 1
+    }
+
     new AjaxRequest(url)
-      .withQueryArguments({table, uid})
+      .withQueryArguments(queryArguments)
       .get()
       .then(async response => {
         const resolved = await response.resolve()
@@ -74,9 +117,26 @@ class CommentsListModal {
               bubbles: true,
               composed: true
             }))
+
+            if (scrollToCommentUid) {
+              this.scrollToComment(modal, scrollToCommentUid)
+            }
           }
         })
       })
+  }
+
+  scrollToComment(modal, commentUid) {
+    setTimeout(() => {
+      const commentElement = modal.querySelector(`[data-comment-uid="${commentUid}"]`)
+      if (commentElement) {
+        commentElement.scrollIntoView({behavior: 'smooth', block: 'center'})
+        commentElement.classList.add('content-planner-comment--highlight')
+        setTimeout(() => {
+          commentElement.classList.remove('content-planner-comment--highlight')
+        }, 2500)
+      }
+    }, 200)
   }
 }
 

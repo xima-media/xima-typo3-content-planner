@@ -5,6 +5,7 @@ import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import CommentsEditItem from "@xima/ximatypo3contentplanner/comments-edit-item.js"
 import CommentsResolvedItem from "@xima/ximatypo3contentplanner/comments-resolved-item.js";
 import CommentsDeleteItem from "@xima/ximatypo3contentplanner/comments-delete-item.js"
+import CommentsShareLink from "@xima/ximatypo3contentplanner/comments-share-link.js"
 import CreateAndEditCommentModal from "@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js"
 
 class CommentsReloadContent {
@@ -73,6 +74,7 @@ class CommentsReloadContent {
         CommentsEditItem.initEventListeners()
         CommentsResolvedItem.initEventListeners()
         CommentsDeleteItem.initEventListeners()
+        CommentsShareLink.initEventListeners()
         this.initEventListeners()
       })
       .catch((error) => {
