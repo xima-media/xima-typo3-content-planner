@@ -2,7 +2,7 @@
     xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<div class="widget-content-main content-planner-widget content-planner-widget--configurable content-planner-widget--server-rendered">
+<div class="widget-content-main content-planner-widget content-planner-widget--configurable content-planner-widget--server-rendered {f:if(condition: '!{hasSite}', then: 'content-planner-widget--no-site')}">
 
     <f:if condition="{items}">
         <f:if condition="{mode} == 'todo'">
@@ -50,7 +50,7 @@
                                 </a>
                             </td>
                             <td>{item.site}</td>
-                            <td><small>{item.updated}</small></td>
+                            <td><small title="{item.updatedRaw}">{item.updated}</small></td>
                             <td>
                                 <f:if condition="{item.assignee}">
                                     <f:format.raw>{item.assigneeAvatar}</f:format.raw>
@@ -66,12 +66,21 @@
                                         <f:format.raw>{item.comments}</f:format.raw>
                                     </a>
                                     <f:if condition="{item.todo}">
-                                        <a href="{item.link}"
-                                           class="contentPlanner--comments"
-                                           data-table="{item.data.tablename}"
-                                           data-id="{item.data.uid}">
-                                            <f:format.raw>{item.todo}</f:format.raw>
-                                        </a>
+                                        <f:if condition="{item.todoShareUrl}">
+                                            <f:then>
+                                                <a href="{item.todoShareUrl}">
+                                                    <f:format.raw>{item.todo}</f:format.raw>
+                                                </a>
+                                            </f:then>
+                                            <f:else>
+                                                <a href="{item.link}"
+                                                   class="contentPlanner--comments"
+                                                   data-table="{item.data.tablename}"
+                                                   data-id="{item.data.uid}">
+                                                    <f:format.raw>{item.todo}</f:format.raw>
+                                                </a>
+                                            </f:else>
+                                        </f:if>
                                     </f:if>
                                 </f:if>
                             </td>
