@@ -10,7 +10,7 @@
       }
     ],
     "require": {
-      "xima/xima-typo3-content-planner": "2.1.0"
+      "xima/xima-typo3-content-planner": "2.1.1"
     },
     "suggest": {},
     "conflict": {},
