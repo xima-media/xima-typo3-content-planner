@@ -4,437 +4,437 @@
 		<header/>
 		<body>
 			<trans-unit id="dashboard.contentPlanner">
-				<source/>
+				<source>Content Planner</source>
 				<target>Content Planner</target>
 			</trans-unit>
 			<trans-unit id="dashboard.contentPlanner.description">
-				<source/>
+				<source>Overview dashboard for content status information</source>
 				<target>Übersichtsdashboard für Inhaltsstatusinformationen</target>
 			</trans-unit>
 			<trans-unit id="widget_group.contentPlanner">
-				<source/>
+				<source>Content Planner</source>
 				<target>Content Planner</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.title">
-				<source/>
+				<source>Status</source>
 				<target>Status</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.description">
-				<source/>
+				<source>Display all records with content status</source>
 				<target>Alle Datensätze mit Inhaltsstatus anzeigen</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.current.title">
-				<source/>
+				<source>Current Assignee</source>
 				<target>Aktueller Zuständigkeit</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.current.description">
-				<source/>
+				<source>Display all records with your assignment</source>
 				<target>Alle Datensätze mit Ihrer Zuweisung anzeigen</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.todo.title">
-				<source/>
+				<source>ToDo</source>
 				<target>Offene Aufgaben</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.todo.description">
-				<source/>
+				<source>Display all records with open todos in the comments</source>
 				<target>Zeigt alle Datensätze mit offenen Aufgaben in den zugehörigen Kommentaren</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.title">
-				<source/>
+				<source>Overview</source>
 				<target>Übersicht</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.description">
-				<source/>
+				<source>Display a donut chart with the distribution of content status</source>
 				<target>Ein Diagramm mit der Verteilung des Inhaltsstatus anzeigen</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.comment.title">
-				<source/>
+				<source>Recent Comments</source>
 				<target>Neueste Kommentare</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.comment.description">
-				<source/>
+				<source>Display the recent content comments</source>
 				<target>Die neuesten Inhaltskommentare anzeigen</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.update.title">
-				<source/>
+				<source>Recent Updates</source>
 				<target>Neueste Updates</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.update.description">
-				<source/>
+				<source>Display the recent updates according to content status changes</source>
 				<target>Die neuesten Updates hinsichtlich Inhaltsstatusänderungen anzeigen</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.flag">
-				<source/>
+				<source>Status</source>
 				<target>Status</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.title">
-				<source/>
+				<source>Record</source>
 				<target>Datensatz</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.site">
-				<source/>
+				<source>Site</source>
 				<target>Seite</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.tstamp">
-				<source/>
+				<source>Changed</source>
 				<target>Geändert</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.assignee">
-				<source/>
+				<source>Assignee</source>
 				<target>Zuständigkeit</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.author">
-				<source/>
+				<source>Author</source>
 				<target>Autor</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.comment">
-				<source/>
+				<source>Comment</source>
 				<target>Kommentar</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.comments">
-				<source/>
+				<source>Comments</source>
 				<target>Kommentare</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.page">
-				<source/>
+				<source>Page</source>
 				<target>Seite</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.user">
-				<source/>
+				<source>User</source>
 				<target>Benutzer</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.change">
-				<source/>
+				<source>Change note</source>
 				<target>Änderungshinweis</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.assignee">
-				<source/>
+				<source><![CDATA[There are currently <span class="badge">0</span> content planner records assigned to you.]]></source>
 				<target><![CDATA[Aktuell sind dir <span class="badge">0</span> Content Planner Datensätze zugewiesen.]]></target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.todo">
-				<source/>
+				<source>There are currently %s open tasks in the comments of all content planner records.</source>
 				<target>Aktuell sind %s offene Aufgaben in den Kommentaren aller Content Planner Datensätze vorhanden.</target>
 			</trans-unit>
 
 			<!-- Configurable Widget Settings -->
 			<trans-unit id="widgets.contentPlanner.configurable.title">
-				<source/>
+				<source>Content Planner (Configurable)</source>
 				<target>Content Planner (Konfigurierbar)</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.configurable.description">
-				<source/>
+				<source>Customizable widget to display content status records with configurable filters</source>
 				<target>Anpassbares Widget zur Anzeige von Content-Status-Datensätzen mit konfigurierbaren Filtern</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.title.label">
-				<source/>
+				<source>Custom Title</source>
 				<target>Eigener Titel</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.title.description">
-				<source/>
+				<source>Optional custom title for the widget (leave empty to use default)</source>
 				<target>Optionaler eigener Titel für das Widget (leer lassen für Standardtitel)</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.mode.label">
-				<source/>
+				<source>Display Mode</source>
 				<target>Anzeigemodus</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.mode.description">
-				<source/>
+				<source>Choose what kind of records to display</source>
 				<target>Wähle aus, welche Art von Datensätzen angezeigt werden soll</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.mode.status">
-				<source/>
+				<source>All Status Records</source>
 				<target>Alle Status-Datensätze</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.mode.assignee">
-				<source/>
+				<source>Assigned Records</source>
 				<target>Zugewiesene Datensätze</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.mode.todo">
-				<source/>
+				<source>Records with open TODOs</source>
 				<target>Datensätze mit offenen Aufgaben</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.status.label">
-				<source/>
+				<source>Status Filter</source>
 				<target>Status-Filter</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.status.description">
-				<source/>
+				<source>Filter records by a specific status</source>
 				<target>Datensätze nach einem bestimmten Status filtern</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.status.all">
-				<source/>
+				<source>All statuses</source>
 				<target>Alle Status</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.assignee.label">
-				<source/>
+				<source>Assignee Filter</source>
 				<target>Zuständigkeits-Filter</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.assignee.description">
-				<source/>
+				<source>Filter records by assignee</source>
 				<target>Datensätze nach Zuständigkeit filtern</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.assignee.all">
-				<source/>
+				<source>All assignees</source>
 				<target>Alle Zuständigen</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.assignee.currentUser">
-				<source/>
+				<source>Current user (me)</source>
 				<target>Aktueller Benutzer</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.recordType.label">
-				<source/>
+				<source>Record Type</source>
 				<target>Datensatztyp-Filter</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.recordType.description">
-				<source/>
+				<source>Filter records by table type</source>
 				<target>Datensätze nach Typ filtern</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.recordType.all">
-				<source/>
+				<source>All record types</source>
 				<target>Alle Datensatztypen</target>
 			</trans-unit>
 
 			<trans-unit id="button.modal.header.comments">
-				<source/>
+				<source>Comments</source>
 				<target>Kommentare</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
-				<source/>
+				<source>Cancel</source>
 				<target>Abbrechen</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.new">
-				<source/>
+				<source>New</source>
 				<target>Neu</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.edit">
-				<source/>
+				<source>Edit</source>
 				<target>Edit</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.save">
-				<source/>
+				<source>Save</source>
 				<target>Speichern</target>
 			</trans-unit>
 
 			<!-- header info -->
 			<trans-unit id="header.status">
-				<source/>
+				<source>Status</source>
 				<target>Status</target>
 			</trans-unit>
 			<trans-unit id="header.editStatus">
-				<source/>
+				<source>Edit status properties</source>
 				<target>Status Eigenschaften bearbeiten</target>
 			</trans-unit>
 			<trans-unit id="header.editContentElement">
-				<source/>
-				<target>Inhaltselement ”%s” bearbeiten</target>
+				<source>Edit content element "%s"</source>
+				<target>Inhaltselement "%s" bearbeiten</target>
 			</trans-unit>
 			<trans-unit id="header.assignee">
-				<source/>
+				<source>Current assignee</source>
 				<target>Zuständiger Nutzer</target>
 			</trans-unit>
 			<trans-unit id="header.assignToMe">
-				<source/>
+				<source>Assign to me</source>
 				<target>Mir zuweisen</target>
 			</trans-unit>
 			<trans-unit id="header.unassign">
-				<source/>
+				<source>Unassign</source>
 				<target>Zuweisung aufheben</target>
 			</trans-unit>
 			<trans-unit id="header.unassigned">
-				<source/>
+				<source>-- Not assigned --</source>
 				<target>-- Nicht zugewiesen --</target>
 			</trans-unit>
 			<trans-unit id="header.newComment">
-				<source/>
+				<source>Add a new comment</source>
 				<target>Neuen Kommentar hinzufügen</target>
 			</trans-unit>
 			<trans-unit id="header.comments">
-				<source/>
+				<source>Comments</source>
 				<target>Kommentare</target>
 			</trans-unit>
 			<trans-unit id="header.comments.todo">
-				<source/>
+				<source>Shows the count of the pending todos within the comments</source>
 				<target>Zeigt die Anzahl der offenen ToDos aus den Kommentaren</target>
 			</trans-unit>
 
 			<!-- time ago -->
 			<trans-unit id="timeAgo.years">
-				<source/>
+				<source>%s years ago</source>
 				<target>vor %s Jahren</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.year">
-				<source/>
+				<source>%s year ago</source>
 				<target>vor %s Jahr</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.months">
-				<source/>
+				<source>%s months ago</source>
 				<target>vor %s Monaten</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.month">
-				<source/>
+				<source>%s month ago</source>
 				<target>vor %s Monat</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.days">
-				<source/>
+				<source>%s days ago</source>
 				<target>vor %s Tagen</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.day">
-				<source/>
+				<source>%s day ago</source>
 				<target>vor %s Tag</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.hours">
-				<source/>
+				<source>%s hours ago</source>
 				<target>vor %s Stunden</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.hour">
-				<source/>
+				<source>%s hour ago</source>
 				<target>vor %s Stunde</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.minutes">
-				<source/>
+				<source>%s minutes ago</source>
 				<target>vor %s Minuten</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.minute">
-				<source/>
+				<source>%s minute ago</source>
 				<target>vor %s Minute</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.seconds">
-				<source/>
+				<source>%s seconds ago</source>
 				<target>vor %s Sekunden</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.second">
-				<source/>
+				<source>%s second ago</source>
 				<target>vor %s Sekunde</target>
 			</trans-unit>
 			<trans-unit id="timeAgo.now">
-				<source/>
+				<source>now</source>
 				<target>jetzt</target>
 			</trans-unit>
 
 			<trans-unit id="filter.reset">
-				<source/>
+				<source>Reset</source>
 				<target>Zurücksetzen</target>
 			</trans-unit>
 			<trans-unit id="filter.button">
-				<source/>
+				<source>Filter</source>
 				<target>Filter</target>
 			</trans-unit>
 			<trans-unit id="filter.modal.title">
-				<source/>
+				<source>Filter records</source>
 				<target>Datensätze filtern</target>
 			</trans-unit>
 			<trans-unit id="filter.modal.apply">
-				<source/>
+				<source>Apply</source>
 				<target>Anwenden</target>
 			</trans-unit>
 			<trans-unit id="filter.openComments">
-				<source/>
+				<source>Open comments</source>
 				<target>Offene Kommentare</target>
 			</trans-unit>
 			<trans-unit id="filter.openTodos">
-				<source/>
+				<source>Open TODOs</source>
 				<target>Offene ToDos</target>
 			</trans-unit>
 
 			<trans-unit id="comment.edited">
-				<source/>
+				<source>edited</source>
 				<target>bearbeitet</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.edit">
-				<source/>
+				<source>Edit</source>
 				<target>Bearbeiten</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.resolve">
-				<source/>
+				<source>Mark as resolved</source>
 				<target>Als Erledigt markieren</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.resolve.title">
-				<source/>
+				<source>Resolve comment</source>
 				<target>Erledigen</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.resolve.description">
-				<source/>
+				<source>Are you sure you want to mark this comment as resolved?</source>
 				<target>Sind sie sicher, dass sie den Kommentar als erledigt markieren möchten?</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.resolve.button">
-				<source/>
+				<source>Resolve</source>
 				<target>Erledigen</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.unresolve">
-				<source/>
+				<source>Reopen</source>
 				<target>Erneut öffnen</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.unresolve.title">
-				<source/>
+				<source>Unresolve comment</source>
 				<target>Erneut öffnen</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.unresolve.description">
-				<source/>
+				<source>Are you sure you want to mark this comment as unresolved?</source>
 				<target>Sind sie sicher, dass sie den Kommentar erneut öffnen möchten?</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.unresolve.button">
-				<source/>
+				<source>Unresolve</source>
 				<target>Öffnen</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.delete">
-				<source/>
+				<source>Delete</source>
 				<target>Löschen</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.delete.title">
-				<source/>
+				<source>Delete comment</source>
 				<target>Löschen</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.delete.description">
-				<source/>
+				<source>Are you sure you want to delete this comment?</source>
 				<target>Sind sie sicher, dass sie den Kommentar löschen möchten?</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.delete.button">
-				<source/>
+				<source>Delete</source>
 				<target>Löschen</target>
 			</trans-unit>
 			<trans-unit id="comment.actions.share">
-				<source/>
+				<source>Share link</source>
 				<target>Link teilen</target>
 			</trans-unit>
 			<trans-unit id="comment.share.copied">
-				<source/>
+				<source>Link copied to clipboard</source>
 				<target>Link in Zwischenablage kopiert</target>
 			</trans-unit>
 			<trans-unit id="comment.share.failed">
-				<source/>
+				<source>Failed to copy link</source>
 				<target>Link konnte nicht kopiert werden</target>
 			</trans-unit>
 			<trans-unit id="comment.resolved">
-				<source/>
+				<source>Resolved by %s on %s</source>
 				<target>Erledigt von %s am %s</target>
 			</trans-unit>
 			<trans-unit id="comment.empty">
-				<source/>
+				<source><![CDATA[Currently there are no comments available yet. You may want to create a <a data-new-comment-uri="%s" data-table="%s" data-id="%s">new comment</a>?]]></source>
 				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s">neuen Kommentar</a> erstellen?]]></target>
 			</trans-unit>
 
 			<trans-unit id="assignee.selection.label">
-				<source/>
+				<source>Select an assignee</source>
 				<target>Zuständigen auswählen</target>
 			</trans-unit>
 			<trans-unit id="assignee.info">
-				<source/>
+				<source>For every content planner record, a dedicated assignee can be set. The assignee is the backend user responsible for the current record.</source>
 				<target>Für jeden Content Planner-Datensatz kann ein eigener zuständige Nutzer festgelegt werden. Der Zuständige ist der Backend-Benutzer, der für den aktuellen Datensatz verantwortlich ist.</target>
 			</trans-unit>
 			<trans-unit id="assignee.further">
-				<source/>
+				<source>Further information</source>
 				<target>Weitere Informationen</target>
 			</trans-unit>
 			<trans-unit id="assignee.shortcut">
-				<source/>
+				<source>Use the shortcut buttons to easily assign the record to yourself (%s) or unassign it (%s).</source>
 				<target>Nutze die Shortcut Buttons, um den Datensatz einfach dir selbst (%s) zuzuweisen oder die Zuweisung aufzuheben (%s).</target>
 			</trans-unit>
 			<trans-unit id="assignee.permission">
-				<source/>
+				<source>Only admins and backend users with the necessary permission are shown in the assignee selection.</source>
 				<target>Nur Admins und Backend-Benutzer mit entsprechender Berechtigung werden in der Zuständigen-Auswahl angezeigt.</target>
 			</trans-unit>
 			<trans-unit id="assignee.documentation">
-				<source/>
+				<source><![CDATA[You can find more information about the assignee feature in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
 				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
 			</trans-unit>
 		</body>
