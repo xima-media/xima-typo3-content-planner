@@ -44,10 +44,10 @@
 				<source><![CDATA[The <em>status</em> was set to <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.record.2.unset.tx_ximatypo3contentplanner_status">
-				<source><![CDATA[The <em>status</em>  was unset from <strong>%s</strong>]]></source>
+				<source><![CDATA[The <em>status</em> was unset from <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.record.2.change.tx_ximatypo3contentplanner_status">
-				<source><![CDATA[The <em>status</em>  was changed from <strong>%s</strong> to <strong>%s</strong>]]></source>
+				<source><![CDATA[The <em>status</em> was changed from <strong>%s</strong> to <strong>%s</strong>]]></source>
 			</trans-unit>
 			<trans-unit id="history.record.2.set.tx_ximatypo3contentplanner_assignee">
 				<source><![CDATA[The <em>assignee</em> was set to <strong>%s</strong>]]></source>
@@ -71,7 +71,7 @@
 				<source><![CDATA[A <em>comment</em> was reopened]]></source>
 			</trans-unit>
 			<trans-unit id="history.comment.4">
-				<source><![CDATA[A <em>comment</em> was been removed]]></source>
+				<source><![CDATA[A <em>comment</em> has been removed]]></source>
 			</trans-unit>
 
 			<trans-unit id="message.status.changed.success.title">
