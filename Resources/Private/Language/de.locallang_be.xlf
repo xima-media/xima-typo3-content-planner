@@ -4,221 +4,225 @@
 		<header/>
 		<body>
 			<trans-unit id="status">
-				<source/>
+				<source>Content Status</source>
 				<target>Inhaltsstatus</target>
 			</trans-unit>
 			<trans-unit id="status.danger">
-				<source/>
+				<source>Pending</source>
 				<target>Ausstehend</target>
 			</trans-unit>
 			<trans-unit id="status.info">
-				<source/>
+				<source>In progress</source>
 				<target>In Bearbeitung</target>
 			</trans-unit>
 			<trans-unit id="status.warning">
-				<source/>
+				<source>Needs review</source>
 				<target>Benötigt Überprüfung</target>
 			</trans-unit>
 			<trans-unit id="status.success">
-				<source/>
+				<source>Completed</source>
 				<target>Abgeschlossen</target>
 			</trans-unit>
 			<trans-unit id="reset">
-				<source/>
+				<source>Reset Status</source>
 				<target>Status zurücksetzen</target>
 			</trans-unit>
 			<trans-unit id="comment">
-				<source/>
+				<source>Content Planner Comment</source>
 				<target>Content Planner Kommentar</target>
 			</trans-unit>
 			<trans-unit id="comments">
-				<source/>
+				<source>Comment(s)</source>
 				<target>Kommentar(e)</target>
 			</trans-unit>
 			<trans-unit id="comments.todo">
 				<source>ToDo(s)</source>
 			</trans-unit>
 			<trans-unit id="currentAssignee">
-				<source/>
+				<source>Current Assignee</source>
 				<target>Aktueller Zuständiger</target>
 			</trans-unit>
+			<trans-unit id="header.unassigned">
+				<source>-- Not assigned --</source>
+				<target>-- Nicht zugewiesen --</target>
+			</trans-unit>
 			<trans-unit id="save_and_close">
-				<source/>
+				<source>Save and Close</source>
 				<target>Speichern und Schließen</target>
 			</trans-unit>
 			<!-- history -->
 			<trans-unit id="history.record.2.set.tx_ximatypo3contentplanner_status">
-				<source/>
+				<source><![CDATA[The <em>status</em> was set to <strong>%s</strong>]]></source>
 				<target><![CDATA[Der <em>Status</em> wurde auf <strong>%s</strong> gesetzt]]></target>
 			</trans-unit>
 			<trans-unit id="history.record.2.unset.tx_ximatypo3contentplanner_status">
-				<source/>
+				<source><![CDATA[The <em>status</em> was unset from <strong>%s</strong>]]></source>
 				<target><![CDATA[Der <em>Status</em> wurde von <strong>%s</strong> entfernt]]></target>
 			</trans-unit>
 			<trans-unit id="history.record.2.change.tx_ximatypo3contentplanner_status">
-				<source/>
+				<source><![CDATA[The <em>status</em> was changed from <strong>%s</strong> to <strong>%s</strong>]]></source>
 				<target><![CDATA[Der <em>Status</em> wurde von <strong>%s</strong> zu <strong>%s</strong> geändert]]></target>
 			</trans-unit>
 			<trans-unit id="history.record.2.set.tx_ximatypo3contentplanner_assignee">
-				<source/>
+				<source><![CDATA[The <em>assignee</em> was set to <strong>%s</strong>]]></source>
 				<target><![CDATA[Die <em>Zuständigkeit</em> wurde auf <strong>%s</strong> gesetzt]]></target>
 			</trans-unit>
 			<trans-unit id="history.record.2.unset.tx_ximatypo3contentplanner_assignee">
-				<source/>
+				<source><![CDATA[The <em>assignee</em> was unset from <strong>%s</strong>]]></source>
 				<target><![CDATA[Die <em>Zuständigkeit</em> wurde von <strong>%s</strong> entfernt]]></target>
 			</trans-unit>
 			<trans-unit id="history.record.2.change.tx_ximatypo3contentplanner_assignee">
-				<source/>
+				<source><![CDATA[The <em>assignee</em> was changed from <strong>%s</strong> to <strong>%s</strong>]]></source>
 				<target><![CDATA[Die <em>Zuständigkeit</em> wurde von <strong>%s</strong> zu <strong>%s</strong> geändert]]></target>
 			</trans-unit>
 			<trans-unit id="history.comment.1">
-				<source/>
+				<source><![CDATA[A new <em>comment</em> has been added]]></source>
 				<target><![CDATA[Ein neuer <em>Kommentar</em> wurde hinzugefügt]]></target>
 			</trans-unit>
 			<trans-unit id="history.comment.2">
-				<source/>
+				<source><![CDATA[A <em>comment</em> was updated]]></source>
 				<target><![CDATA[Ein <em>Kommentar</em> wurde aktualisiert]]></target>
 			</trans-unit>
 			<trans-unit id="history.comment.2.resolved">
-				<source/>
+				<source><![CDATA[A <em>comment</em> was marked as resolved]]></source>
 				<target><![CDATA[Ein <em>Kommentar</em> wurde als erledigt markiert]]></target>
 			</trans-unit>
 			<trans-unit id="history.comment.2.unresolved">
-				<source/>
+				<source><![CDATA[A <em>comment</em> was reopened]]></source>
 				<target><![CDATA[Ein <em>Kommentar</em> wurde wieder geöffnet]]></target>
 			</trans-unit>
 			<trans-unit id="history.comment.4">
-				<source/>
+				<source><![CDATA[A <em>comment</em> has been removed]]></source>
 				<target><![CDATA[Ein <em>Kommentar</em> wurde entfernt]]></target>
 			</trans-unit>
 
 			<trans-unit id="message.status.changed.success.title">
-				<source/>
+				<source>Status changed</source>
 				<target>Status geändert</target>
 			</trans-unit>
 			<trans-unit id="message.status.changed.success.message">
-				<source/>
+				<source>The status of the record has been changed successfully.</source>
 				<target>Der Status des Eintrags wurde erfolgreich geändert.</target>
 			</trans-unit>
 			<trans-unit id="message.status.changed.failure.title">
-				<source/>
+				<source>Status change failed</source>
 				<target>Status konnte nicht geändert werden</target>
 			</trans-unit>
 			<trans-unit id="message.status.changed.failure.message">
-				<source/>
+				<source>The status of the record could not be changed.</source>
 				<target>Der Status des Eintrags konnte nicht geändert werden.</target>
 			</trans-unit>
 			<trans-unit id="message.status.reset.success.title">
-				<source/>
+				<source>Status reset</source>
 				<target>Status entfernt</target>
 			</trans-unit>
 			<trans-unit id="message.status.reset.success.message">
-				<source/>
+				<source>The status of the record has been unset successfully.</source>
 				<target>Der Status des Eintrags wurde erfolgreich entfernt.</target>
 			</trans-unit>
 			<trans-unit id="message.status.reset.failure.title">
-				<source/>
+				<source>Status reset failed</source>
 				<target>Status konnte nicht entfernt werden</target>
 			</trans-unit>
 			<trans-unit id="message.status.reset.failure.message">
-				<source/>
+				<source>The status of the record could not be unset.</source>
 				<target>Der Status des Eintrags konnte nicht entfernt werden.</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.changed.success.title">
-				<source/>
+				<source>Assignee changed</source>
 				<target>Zuständigkeit geändert</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.changed.success.message">
-				<source/>
+				<source>The assignee of the record has been changed successfully.</source>
 				<target>Die Zuständigkeit des Eintrags wurde erfolgreich geändert.</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.changed.failure.title">
-				<source/>
+				<source>Assignee change failed</source>
 				<target>Zuständigkeit konnte nicht geändert werden</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.changed.failure.message">
-				<source/>
+				<source>The assignee of the record could not be changed.</source>
 				<target>Die Zuständigkeit des Eintrags konnte nicht geändert werden.</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.reset.success.title">
-				<source/>
+				<source>Assignee reset</source>
 				<target>Zuständigkeit entfernt</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.reset.success.message">
-				<source/>
+				<source>The assignee of the record has been unset successfully.</source>
 				<target>Die Zuständigkeit des Eintrags wurde erfolgreich entfernt.</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.reset.failure.title">
-				<source/>
+				<source>Assignee reset failed</source>
 				<target>Zuständigkeit konnte nicht entfernt werden</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.reset.failure.message">
-				<source/>
+				<source>The assignee of the record could not be unset.</source>
 				<target>Die Zuständigkeit des Eintrags konnte nicht entfernt werden.</target>
 			</trans-unit>
 			<trans-unit id="message.comment.create.success.title">
-				  <source/>
-				  <target>Kommentar erstellt</target>
+				<source>Comment created</source>
+				<target>Kommentar erstellt</target>
 			</trans-unit>
 			<trans-unit id="message.comment.create.success.message">
-				  <source/>
-				  <target>Der Kommentar wurde erfolgreich erstellt.</target>
+				<source>The comment has been created successfully.</source>
+				<target>Der Kommentar wurde erfolgreich erstellt.</target>
 			</trans-unit>
 			<trans-unit id="message.comment.create.failure.title">
-				  <source/>
-				  <target>Kommentar konnte nicht erstellt werden</target>
+				<source>Comment create failed</source>
+				<target>Kommentar konnte nicht erstellt werden</target>
 			</trans-unit>
 			<trans-unit id="message.comment.create.failure.message">
-				  <source/>
-				  <target>Der Kommentar konnte nicht erstellt werden.</target>
+				<source>The comment could not be created.</source>
+				<target>Der Kommentar konnte nicht erstellt werden.</target>
 			</trans-unit>
 			<trans-unit id="message.comment.edit.success.title">
-				 <source/>
-				 <target>Kommentar bearbeitet</target>
+				<source>Comment edited</source>
+				<target>Kommentar bearbeitet</target>
 			</trans-unit>
 			<trans-unit id="message.comment.edit.success.message">
-				 <source/>
-				 <target>Der Kommentar wurde erfolgreich bearbeitet.</target>
+				<source>The comment has been edited successfully.</source>
+				<target>Der Kommentar wurde erfolgreich bearbeitet.</target>
 			</trans-unit>
 			<trans-unit id="message.comment.edit.failure.title">
-				 <source/>
-				 <target>Kommentar konnte nicht bearbeitet werden</target>
+				<source>Comment edit failed</source>
+				<target>Kommentar konnte nicht bearbeitet werden</target>
 			</trans-unit>
 			<trans-unit id="message.comment.edit.failure.message">
-				 <source/>
-				 <target>Der Kommentar konnte nicht bearbeitet werden.</target>
+				<source>The comment could not be edited.</source>
+				<target>Der Kommentar konnte nicht bearbeitet werden.</target>
 			</trans-unit>
 			<trans-unit id="message.comment.resolve.success.title">
-				 <source/>
-				 <target>Kommentar erledigt</target>
+				<source>Comment resolved</source>
+				<target>Kommentar erledigt</target>
 			</trans-unit>
 			<trans-unit id="message.comment.resolve.success.message">
-				 <source/>
-				 <target>Der Kommentar wurde als erledigt markiert.</target>
+				<source>The comment has been marked as resolved.</source>
+				<target>Der Kommentar wurde als erledigt markiert.</target>
 			</trans-unit>
 			<trans-unit id="message.comment.resolve.failure.title">
-				 <source/>
-				 <target>Kommentar konnte nicht erledigt werden</target>
+				<source>Comment resolve failed</source>
+				<target>Kommentar konnte nicht erledigt werden</target>
 			</trans-unit>
 			<trans-unit id="message.comment.resolve.failure.message">
-				 <source/>
-				 <target>Der Kommentar konnte nicht als erledigt markiert werden.</target>
+				<source>The comment could not be marked as resolved.</source>
+				<target>Der Kommentar konnte nicht als erledigt markiert werden.</target>
 			</trans-unit>
 			<trans-unit id="message.comment.delete.success.title">
-				 <source/>
-				 <target>Kommentar gelöscht</target>
+				<source>Comment deleted</source>
+				<target>Kommentar gelöscht</target>
 			</trans-unit>
 			<trans-unit id="message.comment.delete.success.message">
-				 <source/>
-				 <target>Der Kommentar wurde erfolgreich gelöscht.</target>
+				<source>The comment has been deleted successfully.</source>
+				<target>Der Kommentar wurde erfolgreich gelöscht.</target>
 			</trans-unit>
 			<trans-unit id="message.comment.delete.failure.title">
-				 <source/>
-				 <target>Kommentar konnte nicht gelöscht werden</target>
+				<source>Comment delete failed</source>
+				<target>Kommentar konnte nicht gelöscht werden</target>
 			</trans-unit>
 			<trans-unit id="message.comment.delete.failure.message">
-				 <source/>
-				 <target>Der Kommentar konnte nicht gelöscht werden.</target>
+				<source>The comment could not be deleted.</source>
+				<target>Der Kommentar konnte nicht gelöscht werden.</target>
 			</trans-unit>
 		</body>
 	</file>

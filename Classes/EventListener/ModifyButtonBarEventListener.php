@@ -241,6 +241,9 @@ final readonly class ModifyButtonBarEventListener
             ));
 
         foreach ($buttonsToAdd as $buttonToAdd) {
+            if (!$buttonToAdd->isValid()) {
+                continue;
+            }
             $dropDownButton->addItem($buttonToAdd);
         }
 
