@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use DateTime;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -72,7 +73,10 @@ final class StatusItem
             return false;
         }
 
-        return ((int) $this->data[Configuration::FIELD_ASSIGNEE]) === (int) $GLOBALS['BE_USER']->user['uid'];
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
+        return ((int) $this->data[Configuration::FIELD_ASSIGNEE]) === (int) ($backendUser->user['uid'] ?? 0);
     }
 
     public function getTitle(): string

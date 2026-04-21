@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Manager;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -43,12 +44,10 @@ class StatusChangeManager
 
     /**
      * @param array<string, mixed> $incomingFieldArray
-     * @param string               $table
-     * @param int                  $id
      *
      * @throws Exception
      */
-    public function processContentPlannerFields(array &$incomingFieldArray, $table, $id): void
+    public function processContentPlannerFields(array &$incomingFieldArray, string $table, int $id): void
     {
         if (!isset($incomingFieldArray[Configuration::FIELD_STATUS])) {
             return;
@@ -93,6 +92,7 @@ class StatusChangeManager
         $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
     }
 
+    /** @phpstan-ignore typePerfect.narrowPublicClassMethodParamType */
     public function clearStatusOfExtensionRecords(string $table, ?int $status = null, ?int $pid = null): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -155,7 +155,9 @@ class StatusChangeManager
             || 0 === $preRecord[Configuration::FIELD_STATUS];
 
         if ($hadNoStatusBefore) {
-            $incomingFieldArray[Configuration::FIELD_ASSIGNEE] = $GLOBALS['BE_USER']->getUserId();
+            /** @var BackendUserAuthentication $backendUser */
+            $backendUser = $GLOBALS['BE_USER'];
+            $incomingFieldArray[Configuration::FIELD_ASSIGNEE] = $backendUser->getUserId();
         }
     }
 

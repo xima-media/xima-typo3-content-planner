@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -48,7 +49,7 @@ class ContentStatusWidget extends AbstractWidget
                 'options' => $this->options,
                 'icon' => $icon,
                 'currentBackendUser' => $assignee,
-                'backendUserId' => $GLOBALS['BE_USER']->getUserId(),
+                'backendUserId' => $this->getBackendUserId(),
                 'todo' => $todoInfo,
                 'mode' => $mode,
                 'filter' => $filterValues,
@@ -61,6 +62,14 @@ class ContentStatusWidget extends AbstractWidget
         return $GLOBALS['LANG'];
     }
 
+    private function getBackendUserId(): int
+    {
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
+        return $backendUser->getUserId();
+    }
+
     /**
      * @return array{mode: string, assignee: int|null, todo: bool, icon: string}
      */
@@ -71,7 +80,7 @@ class ContentStatusWidget extends AbstractWidget
         $todo = false;
 
         if (isset($this->options['currentUserAssignee'])) {
-            $assignee = $GLOBALS['BE_USER']->getUserId();
+            $assignee = $this->getBackendUserId();
             $mode = 'assignee';
         }
 

@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -114,10 +115,14 @@ final readonly class AfterPageTreeItemsPreparedListener
                 return null;
             }
 
-            $label = "$todoResolved/$todoTotal ".$GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
+            /** @var LanguageService $languageService */
+            $languageService = $GLOBALS['LANG'];
+            $label = "$todoResolved/$todoTotal ".$languageService->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
             $icon = 'actions-check-square';
         } else {
-            $label = $commentCount.' '.$GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
+            /** @var LanguageService $languageService */
+            $languageService = $GLOBALS['LANG'];
+            $label = $commentCount.' '.$languageService->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
             $icon = 'actions-message';
         }
 

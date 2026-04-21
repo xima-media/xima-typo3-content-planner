@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\{JavaScriptModuleInstruction, PageRenderer};
 use TYPO3\CMS\Core\Settings\SettingDefinition;
@@ -172,7 +173,10 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         $assigneeFilter = $this->getSetting($context, 'assignee', '');
 
         if ('current_user' === $assigneeFilter) {
-            return $GLOBALS['BE_USER']->getUserId();
+            /** @var BackendUserAuthentication $backendUser */
+            $backendUser = $GLOBALS['BE_USER'];
+
+            return $backendUser->getUserId();
         }
 
         return '' !== $assigneeFilter ? (int) $assigneeFilter : null;

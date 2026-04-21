@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 
 use Doctrine\DBAL\Exception;
 use DOMDocument;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
@@ -174,7 +175,9 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         if (null === $id) {
             return;
         }
-        $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['author'] = $GLOBALS['BE_USER']->getUserId();
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['author'] = $backendUser->getUserId();
 
         if (array_key_exists(Configuration::TABLE_COMMENT, $dataHandler->defaultValues)) {
             // @ToDo: Why are default values doesn't seem to be set as expected?
@@ -229,7 +232,9 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
 
             if ($isResolving) {
                 // Resolving: set server-side values (never trust client values)
-                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'] = $GLOBALS['BE_USER']->user['uid'];
+                /** @var BackendUserAuthentication $resolvedBackendUser */
+                $resolvedBackendUser = $GLOBALS['BE_USER'];
+                $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_user'] = $resolvedBackendUser->user['uid'];
                 $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['resolved_date'] = time();
             } else {
                 // Unresolving: clear both fields

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -81,7 +82,10 @@ final class HistoryItem
             return false;
         }
 
-        return ((int) $record[Configuration::FIELD_ASSIGNEE]) === $GLOBALS['BE_USER']->user['uid'];
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
+        return ((int) $record[Configuration::FIELD_ASSIGNEE]) === (int) ($backendUser->user['uid'] ?? 0);
     }
 
     public function getPid(): int
