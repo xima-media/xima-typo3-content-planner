@@ -15,8 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Utility\Routing;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
-use TYPO3\CMS\Backend\Routing\RouteResult;
-use TYPO3\CMS\Backend\Routing\{UriBuilder};
+use TYPO3\CMS\Backend\Routing\{RouteResult, UriBuilder};
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
