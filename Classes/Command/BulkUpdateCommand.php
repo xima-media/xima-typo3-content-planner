@@ -20,6 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
@@ -126,7 +127,7 @@ final class BulkUpdateCommand extends Command
         string $combinedIdentifier,
         ?int $status,
         int|false|null $assignee,
-        mixed $statusEntity,
+        ?Status $statusEntity,
         OutputInterface $output,
     ): int {
         if (!str_contains($combinedIdentifier, ':')) {
@@ -147,7 +148,7 @@ final class BulkUpdateCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function resolveStatusEntity(int $status, OutputInterface $output): mixed
+    private function resolveStatusEntity(int $status, OutputInterface $output): ?Status
     {
         if (0 === $status) {
             return null;

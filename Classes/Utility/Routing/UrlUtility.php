@@ -15,7 +15,10 @@ namespace Xima\XimaTypo3ContentPlanner\Utility\Routing;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Backend\Routing\RouteResult;
+use TYPO3\CMS\Backend\Routing\{UriBuilder};
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
@@ -34,11 +37,25 @@ class UrlUtility
      */
     public static function getContentStatusPropertiesEditUrl(string $table, int $uid, bool $generateReturnUrl = true): string
     {
+        /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+
+        $returnUrl = null;
+        if ($generateReturnUrl) {
+            /** @var RouteResult $routing */
+            $routing = $request->getAttribute('routing');
+            $route = $routing->getRoute();
+            if (RouteUtility::isReturnUrlRelevantRoute($route->getOption('_identifier'))) {
+                /** @var NormalizedParams $normalizedParams */
+                $normalizedParams = $request->getAttribute('normalizedParams');
+                $returnUrl = $normalizedParams->getRequestUri();
+            }
+        }
+
         $params = [
             'edit' => [$table => [$uid => 'edit']],
-            'returnUrl' => $generateReturnUrl && RouteUtility::isReturnUrlRelevantRoute($request->getAttribute('routing')->getRoute()->getOption('_identifier')) ? $request->getAttribute('normalizedParams')->getRequestUri() : null,
+            'returnUrl' => $returnUrl,
             'columnsOnly' => [$table => [Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS]],
         ];
 
@@ -47,6 +64,7 @@ class UrlUtility
 
     public static function getNewCommentUrl(string $table, int $uid): string
     {
+        /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
         $pid = $uid;
@@ -55,9 +73,11 @@ class UrlUtility
             $pid = (int) $record['pid'];
         }
 
+        /** @var NormalizedParams $normalizedParams */
+        $normalizedParams = $request->getAttribute('normalizedParams');
         $params = [
             'edit' => [Configuration::TABLE_COMMENT => [$pid => 'new']],
-            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+            'returnUrl' => $normalizedParams->getRequestUri(),
             'defVals' => [Configuration::TABLE_COMMENT => ['foreign_table' => $table, 'foreign_uid' => $uid]],
         ];
 
@@ -69,12 +89,15 @@ class UrlUtility
      */
     public static function getEditCommentUrl(int $uid): string
     {
+        /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
+        /** @var NormalizedParams $normalizedParams */
+        $normalizedParams = $request->getAttribute('normalizedParams');
         $params = [
             'edit' => [Configuration::TABLE_COMMENT => [$uid => 'edit']],
-            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+            'returnUrl' => $normalizedParams->getRequestUri(),
         ];
 
         return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
@@ -85,18 +108,17 @@ class UrlUtility
      */
     public static function getResolvedCommentUrl(int $uid, bool $isResolved): string
     {
+        /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
-        if ($isResolved) {
-            $isResolvedValue = 0;
-        } else {
-            $isResolvedValue = time();
-        }
+        $isResolvedValue = $isResolved ? 0 : time();
 
+        /** @var NormalizedParams $normalizedParams */
+        $normalizedParams = $request->getAttribute('normalizedParams');
         $params = [
             'data' => [Configuration::TABLE_COMMENT => [$uid => ['resolved_date' => $isResolvedValue]]],
-            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+            'returnUrl' => $normalizedParams->getRequestUri(),
         ];
 
         return (string) $uriBuilder->buildUriFromRoute('tce_db', $params);
@@ -107,12 +129,15 @@ class UrlUtility
      */
     public static function getDeleteCommentUrl(int $uid): string
     {
+        /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
+        /** @var NormalizedParams $normalizedParams */
+        $normalizedParams = $request->getAttribute('normalizedParams');
         $params = [
             'cmd' => [Configuration::TABLE_COMMENT => [$uid => ['delete' => 1]]],
-            'returnUrl' => $request->getAttribute('normalizedParams')->getRequestUri(),
+            'returnUrl' => $normalizedParams->getRequestUri(),
         ];
 
         return (string) $uriBuilder->buildUriFromRoute('tce_db', $params);
@@ -166,12 +191,14 @@ class UrlUtility
      */
     public static function assignToUser(string $table, int $uid, int|string|null $userId = null, bool $unassign = false): string
     {
-        $request = $GLOBALS['TYPO3_REQUEST'];
         /** @var ServerRequestInterface $request */
+        $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
         if (null === $userId) {
-            $userId = $GLOBALS['BE_USER']->user['uid'];
+            /** @var BackendUserAuthentication $backendUser */
+            $backendUser = $GLOBALS['BE_USER'];
+            $userId = $backendUser->user['uid'];
             if (0 === $userId) {
                 return '';
             }
@@ -181,9 +208,11 @@ class UrlUtility
             $userId = '';
         }
 
+        /** @var NormalizedParams $normalizedParams */
+        $normalizedParams = $request->getAttribute('normalizedParams');
         $params = [
             'data' => [$table => [$uid => [Configuration::FIELD_ASSIGNEE => $userId]]],
-            'redirect' => $request->getAttribute('normalizedParams')->getRequestUri(),
+            'redirect' => $normalizedParams->getRequestUri(),
         ];
 
         return (string) $uriBuilder->buildUriFromRoute('tce_db', $params);

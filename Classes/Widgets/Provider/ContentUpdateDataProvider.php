@@ -45,6 +45,8 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
      * @return HistoryItem[]
      *
      * @throws Exception
+     *
+     * @phpstan-ignore-next-line typePerfect.narrowPublicClassMethodParamType
      */
     public function fetchUpdateData(?int $beUser = null, ?int $tstamp = null, ?int $maxItems = null): array
     {

@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Utility\Security;
 
 use Doctrine\DBAL\{ArrayParameterType, Exception};
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
@@ -49,21 +50,20 @@ class PermissionUtility
             return false;
         }
 
-        $backendUser = $GLOBALS['BE_USER'];
+        $backendUser = self::getBackendUser();
         if (null === $backendUser->user) {
             Bootstrap::initializeBackendAuthentication();
             $backendUser->initializeUserSessionManager();
-            $backendUser = $GLOBALS['BE_USER'];
+            $backendUser = self::getBackendUser();
         }
 
         if ('_cli_' === $backendUser->user['username']) {
             return true;
         }
 
-        /* @var $backendUser \TYPO3\CMS\Core\Authentication\BackendUserAuthentication */
         if ('pages' === $table && isset($record['uid']) && !BackendUtility::readPageAccess(
             (int) $record['uid'],
-            $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW),
+            $backendUser->getPagePermsClause(Permission::PAGE_SHOW),
         )) {
             return false;
         }
@@ -75,7 +75,7 @@ class PermissionUtility
         // Check page access only if record has a pid (not applicable for sys_file_metadata, folders, etc.)
         if (isset($record['pid']) && !BackendUtility::readPageAccess(
             (int) $record['pid'],
-            $GLOBALS['BE_USER']->getPagePermsClause(Permission::PAGE_SHOW),
+            $backendUser->getPagePermsClause(Permission::PAGE_SHOW),
         )) {
             return false;
         }
@@ -89,8 +89,9 @@ class PermissionUtility
      */
     public static function checkContentStatusVisibility(): bool
     {
+        $backendUser = self::getBackendUser();
         // check permission - either view-only or full-access (content-status) grants visibility
-        if (!$GLOBALS['BE_USER']->isAdmin()
+        if (!$backendUser->isAdmin()
             && !self::checkPermission(Configuration::PERMISSION_VIEW_ONLY)
             && !self::checkPermission(Configuration::PERMISSION_CONTENT_STATUS)
             && !self::checkPermission(Configuration::PERMISSION_FULL_ACCESS)
@@ -99,7 +100,7 @@ class PermissionUtility
         }
 
         // check user setting
-        if (1 === ($GLOBALS['BE_USER']->user['tx_ximatypo3contentplanner_hide'] ?? 0)) {
+        if (1 === ($backendUser->user['tx_ximatypo3contentplanner_hide'] ?? 0)) {
             return false;
         }
 
@@ -146,7 +147,7 @@ class PermissionUtility
      */
     public static function isStatusAllowedForUser(int $statusUid): bool
     {
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::getBackendUser()->isAdmin() || self::hasFullAccess()) {
             return true;
         }
 
@@ -165,7 +166,7 @@ class PermissionUtility
      */
     public static function isTableAllowedForUser(string $table): bool
     {
-        if ($GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess()) {
+        if (self::getBackendUser()->isAdmin() || self::hasFullAccess()) {
             return true;
         }
 
@@ -186,8 +187,9 @@ class PermissionUtility
      */
     public static function canCreateComment(): bool
     {
-        if (!$GLOBALS['BE_USER']->isAdmin()
-            && !$GLOBALS['BE_USER']->check('tables_modify', Configuration::TABLE_COMMENT)
+        $backendUser = self::getBackendUser();
+        if (!$backendUser->isAdmin()
+            && !$backendUser->check('tables_modify', Configuration::TABLE_COMMENT)
         ) {
             return false;
         }
@@ -258,7 +260,7 @@ class PermissionUtility
      */
     public static function isOwnComment(array $comment): bool
     {
-        $currentUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        $currentUserId = (int) (self::getBackendUser()->user['uid'] ?? 0);
         $authorId = (int) ($comment['author'] ?? 0);
 
         return $currentUserId > 0 && $currentUserId === $authorId;
@@ -324,6 +326,14 @@ class PermissionUtility
     // ==================== Helper Methods ====================
 
     /**
+     * @return BackendUserAuthentication
+     */
+    private static function getBackendUser(): object
+    {
+        return $GLOBALS['BE_USER'];
+    }
+
+    /**
      * Check if user has unrestricted access (admin, full-access, or legacy mode).
      * Returns false if content status visibility is disabled.
      */
@@ -333,7 +343,7 @@ class PermissionUtility
             return false;
         }
 
-        return $GLOBALS['BE_USER']->isAdmin() || self::hasFullAccess();
+        return self::getBackendUser()->isAdmin() || self::hasFullAccess();
     }
 
     /**
@@ -341,7 +351,7 @@ class PermissionUtility
      */
     private static function checkPermission(string $permission): bool
     {
-        return $GLOBALS['BE_USER']->check(
+        return self::getBackendUser()->check(
             'custom_options',
             Configuration::PERMISSION_GROUP.':'.$permission,
         );
@@ -392,7 +402,7 @@ class PermissionUtility
             return self::$allowedValuesCache[$column];
         }
 
-        $userGroupIds = GeneralUtility::intExplode(',', (string) ($GLOBALS['BE_USER']->user['usergroup'] ?? ''), true);
+        $userGroupIds = GeneralUtility::intExplode(',', (string) (self::getBackendUser()->user['usergroup'] ?? ''), true);
 
         if ([] === $userGroupIds) {
             self::$allowedValuesCache[$column] = [];

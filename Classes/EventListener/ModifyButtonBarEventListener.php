@@ -225,7 +225,7 @@ final readonly class ModifyButtonBarEventListener
     }
 
     /**
-     * @param array<string, mixed>|false $buttonsToAdd
+     * @param array<string, \TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItemInterface>|false $buttonsToAdd
      */
     private function attachDropdownToButtonBar(ModifyButtonBarEvent $event, ?Status $status, array|false $buttonsToAdd): void
     {

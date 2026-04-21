@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Service\Header;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -127,10 +128,13 @@ class InfoGenerator
             return false;
         }
 
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
         return null === $record[Configuration::FIELD_ASSIGNEE]
             || 0 === (int) $record[Configuration::FIELD_ASSIGNEE]
             || (int) $record[Configuration::FIELD_ASSIGNEE] !==
-                (int) $GLOBALS['BE_USER']->user['uid'];
+                (int) ($backendUser->user['uid'] ?? 0);
     }
 
     /**
@@ -149,7 +153,9 @@ class InfoGenerator
             return false;
         }
 
-        $currentUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $currentUserId = (int) ($backendUser->user['uid'] ?? 0);
         $assigneeId = (int) ($record[Configuration::FIELD_ASSIGNEE] ?? 0);
 
         return $currentUserId > 0 && $currentUserId === $assigneeId;
@@ -222,7 +228,7 @@ class InfoGenerator
                 ) ? $this->getCommentsTodoTotal($record, $table) : 0,
             ],
             'contentElements' => $this->getContentElements($record, $table),
-            'userid' => $GLOBALS['BE_USER']->user['uid'],
+            'userid' => $this->getBackendUserId(),
         ]);
 
         $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode);
@@ -280,7 +286,7 @@ class InfoGenerator
                 ) ? $this->getCommentsTodoTotal($folderRecord, $table) : 0,
             ],
             'contentElements' => null,
-            'userid' => $GLOBALS['BE_USER']->user['uid'],
+            'userid' => $this->getBackendUserId(),
         ]);
 
         $content .= $this->addFrontendAssets(false);
@@ -319,7 +325,7 @@ class InfoGenerator
         }
 
         return (int) $record[Configuration::FIELD_ASSIGNEE] ===
-            (int) $GLOBALS['BE_USER']->user['uid'];
+            $this->getBackendUserId();
     }
 
     /**
@@ -398,6 +404,14 @@ class InfoGenerator
         }
 
         return null;
+    }
+
+    private function getBackendUserId(): int
+    {
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
+        return (int) ($backendUser->user['uid'] ?? 0);
     }
 
     private function addFrontendAssets(bool $usePageRenderer = true): string

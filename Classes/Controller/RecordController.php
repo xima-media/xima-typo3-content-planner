@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\{JsonResponse, RedirectResponse};
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -81,7 +82,7 @@ class RecordController extends ActionController
         return new RedirectResponse($redirectUrl, 302);
     }
 
-    public function filterAction(ServerRequestInterface $request): ResponseInterface
+    public function filterAction(ServerRequestInterface $request): JsonResponse
     {
         $search = array_key_exists('search', $request->getQueryParams()) ? $request->getQueryParams()['search'] : null;
         $status = array_key_exists('status', $request->getQueryParams()) ? (int) $request->getQueryParams()['status'] : null;
@@ -99,7 +100,7 @@ class RecordController extends ActionController
         return new JsonResponse($result);
     }
 
-    public function commentsAction(ServerRequestInterface $request): ResponseInterface
+    public function commentsAction(ServerRequestInterface $request): JsonResponse
     {
         $recordId = (int) $request->getQueryParams()['uid'];
         $recordTable = $request->getQueryParams()['table'];
@@ -227,7 +228,9 @@ class RecordController extends ActionController
     private function prepareAssigneeList(string $table, int $recordId, int $currentAssignee, array $permissions): array
     {
         $assignees = $this->backendUserRepository->findAllWithPermission();
-        $currentUserId = (int) ($GLOBALS['BE_USER']->user['uid'] ?? 0);
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $currentUserId = (int) ($backendUser->user['uid'] ?? 0);
 
         array_unshift($assignees, [
             'username' => '-- Not assigned --',
