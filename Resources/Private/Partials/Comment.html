@@ -111,7 +111,14 @@
             </div>
         </f:if>
         <f:if condition="{comment.replies}">
-            <div class="content-planner-comment-replies">
+            <a class="content-planner-comment-replies-toggle"
+               data-bs-toggle="collapse" href="#replies-{comment.data.uid}"
+               role="button" aria-expanded="false" aria-controls="replies-{comment.data.uid}">
+                <core:icon identifier="actions-chevron-right" size="small"/>
+                <f:translate key="comment.replies.toggle" extensionName="XimaTypo3ContentPlanner"
+                            arguments="{0: '{comment.replyCount}', 1: '{comment.lastReplyTimeAgo}'}"/>
+            </a>
+            <div class="collapse content-planner-comment-replies" id="replies-{comment.data.uid}">
                 <f:for each="{comment.replies}" as="reply">
                     <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1}" />
                 </f:for>

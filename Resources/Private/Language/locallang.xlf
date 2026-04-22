@@ -243,6 +243,9 @@
 			<trans-unit id="comment.actions.reply">
 				<source>Reply</source>
 			</trans-unit>
+			<trans-unit id="comment.replies.toggle">
+				<source>%1$d replies · last %2$s</source>
+			</trans-unit>
 			<trans-unit id="comment.share.copied">
 				<source>Link copied to clipboard</source>
 			</trans-unit>

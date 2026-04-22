@@ -111,6 +111,30 @@
    Comment Replies
    ========================================================================== */
 
+.content-planner-comment-replies-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8125rem;
+    color: var(--bs-secondary-color, #6c757d);
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 0.25rem;
+}
+
+.content-planner-comment-replies-toggle:hover {
+    color: var(--bs-body-color, #212529);
+    text-decoration: none;
+}
+
+.content-planner-comment-replies-toggle .icon {
+    transition: transform 0.2s ease;
+}
+
+.content-planner-comment-replies-toggle[aria-expanded="true"] .icon {
+    transform: rotate(90deg);
+}
+
 .content-planner-comment-replies {
     margin-left: 1.5rem;
     padding-left: 1rem;

@@ -400,6 +400,10 @@
 				<source>Reply</source>
 				<target>Antworten</target>
 			</trans-unit>
+			<trans-unit id="comment.replies.toggle">
+				<source>%1$d replies · last %2$s</source>
+				<target>%1$d Antworten · letzte %2$s</target>
+			</trans-unit>
 			<trans-unit id="comment.share.copied">
 				<source>Link copied to clipboard</source>
 				<target>Link in Zwischenablage kopiert</target>

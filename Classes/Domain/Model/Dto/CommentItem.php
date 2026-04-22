@@ -22,6 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function count;
 use function is_array;
 
 /**
@@ -211,6 +212,22 @@ final class CommentItem
     public function hasReplies(): bool
     {
         return [] !== $this->replies;
+    }
+
+    public function getReplyCount(): int
+    {
+        return count($this->replies);
+    }
+
+    public function getLastReplyTimeAgo(): string
+    {
+        if ([] === $this->replies) {
+            return '';
+        }
+
+        $lastReply = end($this->replies);
+
+        return DiffUtility::timeAgo($lastReply->data['crdate']);
     }
 
     private function getTitleForFile(): string
