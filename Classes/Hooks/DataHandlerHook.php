@@ -102,7 +102,10 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
 
         // Check comment delete permission
         if (Configuration::TABLE_COMMENT === $table) {
-            $this->guardCommentDeletePermission((int) $id, $table, $parentObject);
+            $comment = $this->commentRepository->findByUid((int) $id);
+            if ($comment && !PermissionUtility::canDeleteComment($comment)) {
+                unset($parentObject->cmdmap[$table][$id]);
+            }
         }
     }
 
@@ -163,14 +166,6 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             $tags[] = $params['table'].'__pageId__'.$params['uid_page'];
         }
         $this->cache->flushByTags($tags);
-    }
-
-    private function guardCommentDeletePermission(int $id, string $table, DataHandler $parentObject): void
-    {
-        $comment = $this->commentRepository->findByUid($id);
-        if ($comment && !PermissionUtility::canDeleteComment($comment)) {
-            unset($parentObject->cmdmap[$table][$id]);
-        }
     }
 
     private function fixNewCommentEntry(DataHandler &$dataHandler): void
