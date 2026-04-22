@@ -132,22 +132,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
     {
         if (Configuration::TABLE_COMMENT === $table) {
-            /*
-            * This is a workaround to update the relation of comments to the content planner record.
-            * The relation is not updated correctly by the DataHandler.
-            * The following code example from the official documentation does not work as expected:
-            * dataHandler->datamap[$foreign_table][$foreign_uid][Configuration::FIELD_COMMENTS] = $newCommentUid;
-            * Therefore, we have to update the relation manually.
-            */
-            if (array_key_exists('foreign_table', $fieldArray) && array_key_exists('foreign_uid', $fieldArray)) {
-                $this->recordRepository->updateCommentsRelationByRecord($fieldArray['foreign_table'], (int) $fieldArray['foreign_uid']);
-            } elseif (array_key_exists('resolved_date', $fieldArray) && MathUtility::canBeInterpretedAsInteger($id)) {
-                // Update comment counter when a comment is resolved/unresolved
-                $comment = $this->commentRepository->findByUid((int) $id);
-                if ($comment && isset($comment['foreign_table'], $comment['foreign_uid'])) {
-                    $this->recordRepository->updateCommentsRelationByRecord($comment['foreign_table'], (int) $comment['foreign_uid']);
-                }
-            }
+            $this->updateCommentCountRelation($status, $id, $fieldArray, $dataHandler);
         }
     }
 
@@ -161,6 +146,44 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             $tags[] = $params['table'].'__pageId__'.$params['uid_page'];
         }
         $this->cache->flushByTags($tags);
+    }
+
+    /**
+     * Update the denormalized comment count on the parent record.
+     *
+     * @param array<string, mixed> $fieldArray
+     */
+    private function updateCommentCountRelation(string $status, string|int $id, array $fieldArray, DataHandler $dataHandler): void
+    {
+        // Direct path: foreign_table/foreign_uid available in saved fields
+        if (array_key_exists('foreign_table', $fieldArray) && array_key_exists('foreign_uid', $fieldArray)) {
+            $this->recordRepository->updateCommentsRelationByRecord($fieldArray['foreign_table'], (int) $fieldArray['foreign_uid']);
+
+            return;
+        }
+
+        // Fallback for new comments (e.g. replies): read saved record from DB
+        if ('new' === $status) {
+            $resolvedId = $dataHandler->substNEWwithIDs[$id] ?? null;
+            if (null !== $resolvedId) {
+                $this->updateCountFromSavedComment((int) $resolvedId);
+            }
+
+            return;
+        }
+
+        // Resolve/unresolve: update count from existing comment
+        if (array_key_exists('resolved_date', $fieldArray) && MathUtility::canBeInterpretedAsInteger($id)) {
+            $this->updateCountFromSavedComment((int) $id);
+        }
+    }
+
+    private function updateCountFromSavedComment(int $commentUid): void
+    {
+        $comment = $this->commentRepository->findByUid($commentUid);
+        if ($comment && isset($comment['foreign_table'], $comment['foreign_uid'])) {
+            $this->recordRepository->updateCommentsRelationByRecord($comment['foreign_table'], (int) $comment['foreign_uid']);
+        }
     }
 
     private function fixNewCommentEntry(DataHandler &$dataHandler): void
