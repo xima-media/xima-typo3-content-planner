@@ -200,6 +200,14 @@ final class CommentItem
         return (int) ($this->data['parent_uid'] ?? 0);
     }
 
+    /**
+     * @return CommentItem[]
+     */
+    public function getReplies(): array
+    {
+        return $this->replies;
+    }
+
     public function hasReplies(): bool
     {
         return [] !== $this->replies;
