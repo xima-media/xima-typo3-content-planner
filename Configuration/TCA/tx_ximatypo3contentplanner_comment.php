@@ -110,5 +110,10 @@ return [
                 'type' => 'passthrough',
             ],
         ],
+        'parent_uid' => [
+            'config' => [
+                'type' => 'passthrough',
+            ],
+        ],
     ],
 ];

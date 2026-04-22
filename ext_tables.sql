@@ -31,6 +31,7 @@ CREATE TABLE tx_ximatypo3contentplanner_comment
 	resolved_date int(11) DEFAULT '0' NOT NULL,
 	todo_resolved int(11) unsigned NOT NULL DEFAULT 0,
 	todo_total    int(11) unsigned NOT NULL DEFAULT 0,
+	parent_uid    int(11) DEFAULT '0' NOT NULL,
 	PRIMARY KEY (uid)
 );
 
