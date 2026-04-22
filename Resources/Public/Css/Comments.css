@@ -115,11 +115,15 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.8125rem;
+    font-size: inherit;
     color: var(--bs-secondary-color, #6c757d);
     cursor: pointer;
     text-decoration: none;
-    margin-top: 0.25rem;
+    margin-top: 0;
+}
+
+.content-planner-comment-replies-toggle > span {
+    font-size: 80%;
 }
 
 .content-planner-comment-replies-toggle:hover {
@@ -136,20 +140,16 @@
 }
 
 .content-planner-comment-replies {
-    margin-left: 2.5rem;
-    padding-left: 0.75rem;
+    margin-left: 0.4375rem;
+    padding-left: 1rem;
     border-left: 2px solid var(--bs-border-color, #dee2e6);
     margin-top: 0.25rem;
 }
 
 .content-planner-comment--reply {
-    padding: 0.375rem 0;
+    padding: 0.75rem 0;
     margin: 0;
-    gap: 0.375rem;
-}
-
-.content-planner-comment--reply + .content-planner-comment--reply {
-    border-top: 1px solid var(--bs-border-color-translucent, rgba(0, 0, 0, 0.05));
+    gap: 0.5rem;
 }
 
 .content-planner-comment--reply .content-planner-comment__avatar {
@@ -157,13 +157,12 @@
 }
 
 .content-planner-comment--reply .content-planner-comment__text {
-    padding: 0.375rem 0.625rem;
+    padding: 0.5rem 0.75rem;
     margin: 0.25rem 0 0;
-    font-size: 0.8125rem;
 }
 
 .content-planner-comment--reply .content-planner-comment__actions > a {
-    min-height: 18px;
+    min-height: 20px;
     padding: 0 4px;
 }
 

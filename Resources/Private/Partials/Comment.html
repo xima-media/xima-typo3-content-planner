@@ -115,8 +115,8 @@
                data-bs-toggle="collapse" href="#replies-{comment.data.uid}"
                role="button" aria-expanded="false" aria-controls="replies-{comment.data.uid}">
                 <core:icon identifier="actions-chevron-right" size="small"/>
-                <f:translate key="comment.replies.toggle" extensionName="XimaTypo3ContentPlanner"
-                            arguments="{0: '{comment.replyCount}', 1: '{comment.lastReplyTimeAgo}'}"/>
+                <span><f:translate key="comment.replies.toggle" extensionName="XimaTypo3ContentPlanner"
+                            arguments="{0: '{comment.replyCount}', 1: '{comment.lastReplyTimeAgo}'}"/></span>
             </a>
             <div class="collapse content-planner-comment-replies" id="replies-{comment.data.uid}">
                 <f:for each="{comment.replies}" as="reply">
