@@ -84,10 +84,16 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     public function processCmdmap_preProcess($command, $table, $id, &$value, DataHandler $parentObject, $pasteUpdate): void
     {
-        if (!MathUtility::canBeInterpretedAsInteger($id)) {
+        if (!MathUtility::canBeInterpretedAsInteger($id) || 'delete' !== $command) {
             return;
         }
-        if ('delete' === $command && Configuration::TABLE_STATUS === $table) {
+
+        // Cascade-delete comments when a tracked record is deleted
+        if (ExtensionUtility::isRegisteredRecordTable($table)) {
+            $this->commentRepository->deleteAllCommentsByRecord((int) $id, $table);
+        }
+
+        if (Configuration::TABLE_STATUS === $table) {
             // Clear all status of records that are assigned to the deleted status
             foreach (ExtensionUtility::getRecordTables() as $recordTable) {
                 $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, (int) $id);
@@ -95,10 +101,9 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
 
         // Check comment delete permission
-        if ('delete' === $command && Configuration::TABLE_COMMENT === $table) {
+        if (Configuration::TABLE_COMMENT === $table) {
             $comment = $this->commentRepository->findByUid((int) $id);
             if ($comment && !PermissionUtility::canDeleteComment($comment)) {
-                // Prevent deletion by removing the command from the command map
                 unset($parentObject->cmdmap[$table][$id]);
             }
         }
