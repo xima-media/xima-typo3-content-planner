@@ -19,13 +19,13 @@ namespace Xima\XimaTypo3ContentPlanner\Event;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class CommentCreatedEvent
+final readonly class CommentCreatedEvent
 {
     public function __construct(
-        private readonly string $table,
-        private readonly int $recordUid,
-        private readonly int $commentUid,
-        private readonly int $authorUid,
+        private string $table,
+        private int $recordUid,
+        private int $commentUid,
+        private int $authorUid,
     ) {}
 
     public function getTable(): string
