@@ -16,14 +16,12 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Event;
 use PHPUnit\Framework\TestCase;
 use Xima\XimaTypo3ContentPlanner\Event\CommentResolvedEvent;
 
-
 /**
  * CommentResolvedEventTest.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-
 final class CommentResolvedEventTest extends TestCase
 {
     public function testGetters(): void
