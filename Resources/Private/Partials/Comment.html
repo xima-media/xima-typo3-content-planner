@@ -110,7 +110,7 @@
                 </small>
             </div>
         </f:if>
-        <f:if condition="{comment.hasReplies}">
+        <f:if condition="{comment.replies}">
             <div class="content-planner-comment-replies">
                 <f:for each="{comment.replies}" as="reply">
                     <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1}" />
