@@ -209,11 +209,6 @@ final class CommentItem
         return $this->replies;
     }
 
-    public function hasReplies(): bool
-    {
-        return [] !== $this->replies;
-    }
-
     public function getReplyCount(): int
     {
         return count($this->replies);
