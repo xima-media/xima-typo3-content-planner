@@ -84,22 +84,22 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     public function processCmdmap_preProcess($command, $table, $id, &$value, DataHandler $parentObject, $pasteUpdate): void
     {
-        if (!MathUtility::canBeInterpretedAsInteger($id)) {
+        if (!MathUtility::canBeInterpretedAsInteger($id) || 'delete' !== $command) {
             return;
         }
-        if ('delete' === $command && Configuration::TABLE_STATUS === $table) {
-            // Clear all status of records that are assigned to the deleted status
+
+        if (Configuration::TABLE_STATUS === $table) {
             foreach (ExtensionUtility::getRecordTables() as $recordTable) {
                 $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, (int) $id);
             }
         }
 
-        // Check comment delete permission
-        if ('delete' === $command && Configuration::TABLE_COMMENT === $table) {
+        if (Configuration::TABLE_COMMENT === $table) {
             $comment = $this->commentRepository->findByUid((int) $id);
             if ($comment && !PermissionUtility::canDeleteComment($comment)) {
-                // Prevent deletion by removing the command from the command map
                 unset($parentObject->cmdmap[$table][$id]);
+            } elseif ($comment) {
+                $this->commentRepository->deleteRepliesByParentUid((int) $id);
             }
         }
     }
@@ -179,11 +179,33 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         $backendUser = $GLOBALS['BE_USER'];
         $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['author'] = $backendUser->getUserId();
 
+        $this->flattenNestedReply($dataHandler, $id);
+
         if (array_key_exists(Configuration::TABLE_COMMENT, $dataHandler->defaultValues)) {
             // @ToDo: Why are default values doesn't seem to be set as expected?
             foreach ($dataHandler->defaultValues[Configuration::TABLE_COMMENT] as $key => $value) {
                 $dataHandler->datamap[Configuration::TABLE_COMMENT][$id][$key] = $value;
             }
+        }
+    }
+
+    /**
+     * Flatten nested replies: if parent_uid points to a reply, redirect to the root comment.
+     */
+    private function flattenNestedReply(DataHandler &$dataHandler, string $id): void
+    {
+        if (!isset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['parent_uid'])) {
+            return;
+        }
+
+        $parentUid = (int) $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['parent_uid'];
+        if ($parentUid <= 0) {
+            return;
+        }
+
+        $parentComment = $this->commentRepository->findByUid($parentUid);
+        if ($parentComment && (int) ($parentComment['parent_uid'] ?? 0) > 0) {
+            $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['parent_uid'] = $parentComment['parent_uid'];
         }
     }
 
