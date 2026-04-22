@@ -50,20 +50,40 @@ class CommentRepository
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
+        $isActivitySort = 'ACTIVITY' === $sortDirection;
+        $effectiveSortDirection = $isActivitySort ? 'DESC' : $sortDirection;
+
         $query = $queryBuilder
-            ->select('*')
+            ->select(self::TABLE.'.*')
             ->from(self::TABLE)
             ->where(
-                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
-                $queryBuilder->expr()->eq('deleted', 0),
-                $queryBuilder->expr()->eq('parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
-            )
-            ->orderBy('crdate', $sortDirection);
+                $queryBuilder->expr()->eq(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq(self::TABLE.'.deleted', 0),
+                $queryBuilder->expr()->eq(self::TABLE.'.parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            );
+
+        if ($isActivitySort) {
+            $replyTable = self::TABLE.'_replies';
+            $query->leftJoin(
+                self::TABLE,
+                self::TABLE,
+                $replyTable,
+                $queryBuilder->expr()->and(
+                    $queryBuilder->expr()->eq($replyTable.'.parent_uid', $queryBuilder->quoteIdentifier(self::TABLE.'.uid')),
+                    $queryBuilder->expr()->eq($replyTable.'.deleted', 0),
+                ),
+            );
+            $query->addSelectLiteral('GREATEST('.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate').', COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)) AS last_activity');
+            $query->groupBy(self::TABLE.'.uid');
+            $query->orderBy('last_activity', 'DESC');
+        } else {
+            $query->orderBy(self::TABLE.'.crdate', $effectiveSortDirection);
+        }
 
         if (!$showResolved) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq(self::TABLE.'.resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             );
         }
 

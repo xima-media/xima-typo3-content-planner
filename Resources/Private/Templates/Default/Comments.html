@@ -8,7 +8,7 @@
                 <label for="content-planner-comment-filter-sort">Sort</label>
                 <select id="content-planner-comment-filter-sort" name="sortComments"
                         class="form-select form-select-sm">
-                    <f:for each="{0: {value: 'DESC', label: 'Newest'}, 1: {value: 'ASC', label: 'Oldest'}}" as="option">
+                    <f:for each="{0: {value: 'DESC', label: 'Newest'}, 1: {value: 'ASC', label: 'Oldest'}, 2: {value: 'ACTIVITY', label: 'Last activity'}}" as="option">
                         <option value="{option.value}" {f:if(condition:
                         '{option.value} == {filter.sortComments}', then: 'selected', else: '')}>
                         {option.label}

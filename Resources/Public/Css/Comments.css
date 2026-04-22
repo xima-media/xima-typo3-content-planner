@@ -136,17 +136,26 @@
 }
 
 .content-planner-comment-replies {
-    margin-left: 1.5rem;
+    margin-left: 0.5rem;
     padding-left: 1rem;
     border-left: 2px solid var(--bs-border-color, #dee2e6);
+    margin-top: 0.5rem;
 }
 
 .content-planner-comment--reply {
-    padding-bottom: 0.75rem;
+    padding: 0.5rem 0;
+    margin: 0;
+    gap: 0.5rem;
 }
 
 .content-planner-comment--reply .content-planner-comment__avatar {
-    flex: 0 0 32px;
+    flex: 0 0 24px;
+}
+
+.content-planner-comment--reply .content-planner-comment__text {
+    padding: 0.5rem 0.75rem;
+    margin: 0.375rem 0 0;
+    font-size: 0.875rem;
 }
 
 /* ==========================================================================
