@@ -92,9 +92,81 @@ Note that ``$newStatus`` may be ``null`` when a status is cleared from a record.
           identifier: 'my-extension/status-change'
 
 
+CommentCreatedEvent
+====================
+
+This event is dispatched after a new comment has been saved to the database. This includes both root comments and replies. Use it for notifications, activity logging, or integration with external systems.
+
+The ``table`` property refers to the record being commented on (e.g. ``pages``), not the comment table itself.
+
+..  code-block:: php
+    :caption: Classes/EventListener/CommentNotificationListener.php
+
+    <?php
+    namespace MyVendor\MyExtension\EventListener;
+
+    use Xima\XimaTypo3ContentPlanner\Event\CommentCreatedEvent;
+
+    final class CommentNotificationListener
+    {
+        public function __invoke(CommentCreatedEvent $event): void
+        {
+            $table = $event->getTable();           // e.g. 'pages'
+            $recordUid = $event->getRecordUid();   // UID of the commented record
+            $commentUid = $event->getCommentUid(); // UID of the new comment
+            $authorUid = $event->getAuthorUid();   // UID of the backend user
+
+            // Example: Send Slack notification
+        }
+    }
+
+..  code-block:: yaml
+    :caption: Configuration/Services.yaml
+
+    MyVendor\MyExtension\EventListener\CommentNotificationListener:
+      tags:
+        - name: event.listener
+          identifier: 'my-extension/comment-notification'
+
+CommentResolvedEvent
+=====================
+
+This event is dispatched when a comment is marked as resolved. It is **not** dispatched when a comment is reopened (unresolved).
+
+..  code-block:: php
+    :caption: Classes/EventListener/CommentResolvedListener.php
+
+    <?php
+    namespace MyVendor\MyExtension\EventListener;
+
+    use Xima\XimaTypo3ContentPlanner\Event\CommentResolvedEvent;
+
+    final class CommentResolvedListener
+    {
+        public function __invoke(CommentResolvedEvent $event): void
+        {
+            $table = $event->getTable();               // e.g. 'pages'
+            $recordUid = $event->getRecordUid();       // UID of the commented record
+            $commentUid = $event->getCommentUid();     // UID of the resolved comment
+            $resolvedByUid = $event->getResolvedByUid(); // UID of the resolving user
+
+            // Example: Log resolution for audit trail
+        }
+    }
+
+..  code-block:: yaml
+    :caption: Configuration/Services.yaml
+
+    MyVendor\MyExtension\EventListener\CommentResolvedListener:
+      tags:
+        - name: event.listener
+          identifier: 'my-extension/comment-resolved'
+
 ..  seealso::
 
     View the sources on GitHub:
 
     -   `PrepareStatusSelectionEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/PrepareStatusSelectionEvent.php>`__
     -   `StatusChangeEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/StatusChangeEvent.php>`__
+    -   `CommentCreatedEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/CommentCreatedEvent.php>`__
+    -   `CommentResolvedEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/CommentResolvedEvent.php>`__

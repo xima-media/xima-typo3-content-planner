@@ -15,12 +15,14 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 
 use Doctrine\DBAL\Exception;
 use DOMDocument;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Event\{CommentCreatedEvent, CommentResolvedEvent};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
@@ -41,6 +43,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         private StatusChangeManager $statusChangeManager,
         private RecordRepository $recordRepository,
         private CommentRepository $commentRepository,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     /**
@@ -134,9 +137,39 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      *
      * @throws Exception
      */
-    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
+    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void // @phpstan-ignore-line complexity.functionLike
     {
         if (Configuration::TABLE_COMMENT === $table) {
+            // Dispatch CommentCreatedEvent for new comments
+            if ('new' === $status) {
+                $resolvedId = $dataHandler->substNEWwithIDs[$id] ?? null;
+                if (null !== $resolvedId && isset($fieldArray['foreign_table'], $fieldArray['foreign_uid'])) {
+                    /** @var BackendUserAuthentication $backendUser */
+                    $backendUser = $GLOBALS['BE_USER'];
+                    $this->eventDispatcher->dispatch(new CommentCreatedEvent(
+                        table: $fieldArray['foreign_table'],
+                        recordUid: (int) $fieldArray['foreign_uid'],
+                        commentUid: (int) $resolvedId,
+                        authorUid: (int) $backendUser->getUserId(),
+                    ));
+                }
+            }
+
+            // Dispatch CommentResolvedEvent when a comment is resolved
+            if ('update' === $status && array_key_exists('resolved_date', $fieldArray) && (int) $fieldArray['resolved_date'] > 0 && MathUtility::canBeInterpretedAsInteger($id)) {
+                $comment = $this->commentRepository->findByUid((int) $id);
+                if ($comment && isset($comment['foreign_table'], $comment['foreign_uid'])) {
+                    /** @var BackendUserAuthentication $resolvedBackendUser */
+                    $resolvedBackendUser = $GLOBALS['BE_USER'];
+                    $this->eventDispatcher->dispatch(new CommentResolvedEvent(
+                        table: $comment['foreign_table'],
+                        recordUid: (int) $comment['foreign_uid'],
+                        commentUid: (int) $id,
+                        resolvedByUid: (int) $resolvedBackendUser->getUserId(),
+                    ));
+                }
+            }
+
             /*
             * This is a workaround to update the relation of comments to the content planner record.
             * The relation is not updated correctly by the DataHandler.
