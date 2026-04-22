@@ -120,8 +120,8 @@
                     data-edit-uri="{comments.editUri}"
                 >
                     <core:icon identifier="actions-message" size="small"/>
-                    <f:if condition="{comments.items -> f:count()}">
-                        <span class="badge badge-secondary">{comments.items -> f:count()}</span>
+                    <f:if condition="{comments.count}">
+                        <span class="badge badge-secondary">{comments.count}</span>
                     </f:if>
                 </button>
                 <f:if condition="{comments.todoTotal}">

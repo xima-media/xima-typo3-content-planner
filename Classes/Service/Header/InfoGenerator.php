@@ -213,6 +213,7 @@ class InfoGenerator
             ],
             'comments' => [
                 'items' => $this->getComments($record, $table),
+                'count' => $this->commentRepository->countAllByRecord((int) $record['uid'], $table),
                 'newCommentUri' => PermissionUtility::canCreateComment()
                     ? UrlUtility::getNewCommentUrl($table, $record['uid'])
                     : '',
@@ -274,6 +275,7 @@ class InfoGenerator
             ],
             'comments' => [
                 'items' => $this->getFolderComments($folderRecord),
+                'count' => $this->commentRepository->countAllByRecord($uid, $table),
                 'newCommentUri' => PermissionUtility::canCreateComment()
                     ? UrlUtility::getNewCommentUrl($table, $uid)
                     : '',
