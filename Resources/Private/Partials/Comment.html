@@ -6,7 +6,7 @@
     class="d-flex content-planner-comment {f:if(condition: '{isReply}', then: 'content-planner-comment--reply', else: '')} {f:if(condition: '{comment.resolved}', then: 'content-planner-comment--resolved', else: '')}"
     data-comment-uid="{comment.data.uid}">
     <span class="content-planner-comment__avatar">
-        <be:avatar backendUser="{comment.data.author}" size="{f:if(condition: '{isReply}', then: '32', else: '40')}" showIcon="true"/>
+        <be:avatar backendUser="{comment.data.author}" size="{f:if(condition: '{isReply}', then: '24', else: '40')}" showIcon="true"/>
     </span>
     <div class="d-flex flex-column flex-grow-1">
         <div class="d-flex flex-row justify-content-between gap-2">
