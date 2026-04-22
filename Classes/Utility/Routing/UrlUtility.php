@@ -61,7 +61,7 @@ class UrlUtility
         return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
-    public static function getNewCommentUrl(string $table, int $uid): string
+    public static function getNewCommentUrl(string $table, int $uid, ?int $parentCommentUid = null): string
     {
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
@@ -74,10 +74,14 @@ class UrlUtility
 
         /** @var NormalizedParams $normalizedParams */
         $normalizedParams = $request->getAttribute('normalizedParams');
+        $defVals = ['foreign_table' => $table, 'foreign_uid' => $uid];
+        if (null !== $parentCommentUid) {
+            $defVals['parent_uid'] = $parentCommentUid;
+        }
         $params = [
             'edit' => [Configuration::TABLE_COMMENT => [$pid => 'new']],
             'returnUrl' => $normalizedParams->getRequestUri(),
-            'defVals' => [Configuration::TABLE_COMMENT => ['foreign_table' => $table, 'foreign_uid' => $uid]],
+            'defVals' => [Configuration::TABLE_COMMENT => $defVals],
         ];
 
         return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
