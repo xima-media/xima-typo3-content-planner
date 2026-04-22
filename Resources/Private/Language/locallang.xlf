@@ -240,6 +240,9 @@
 			<trans-unit id="comment.actions.share">
 				<source>Share link</source>
 			</trans-unit>
+			<trans-unit id="comment.actions.reply">
+				<source>Reply</source>
+			</trans-unit>
 			<trans-unit id="comment.share.copied">
 				<source>Link copied to clipboard</source>
 			</trans-unit>

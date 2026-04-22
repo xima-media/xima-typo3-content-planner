@@ -396,6 +396,10 @@
 				<source>Share link</source>
 				<target>Link teilen</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.reply">
+				<source>Reply</source>
+				<target>Antworten</target>
+			</trans-unit>
 			<trans-unit id="comment.share.copied">
 				<source>Link copied to clipboard</source>
 				<target>Link in Zwischenablage kopiert</target>

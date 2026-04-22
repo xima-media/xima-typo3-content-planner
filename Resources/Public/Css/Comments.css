@@ -108,6 +108,24 @@
 }
 
 /* ==========================================================================
+   Comment Replies
+   ========================================================================== */
+
+.content-planner-comment-replies {
+    margin-left: 1.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--bs-border-color, #dee2e6);
+}
+
+.content-planner-comment--reply {
+    padding-bottom: 0.75rem;
+}
+
+.content-planner-comment--reply .content-planner-comment__avatar {
+    flex: 0 0 32px;
+}
+
+/* ==========================================================================
    Comment Filter
    ========================================================================== */
 

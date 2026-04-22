@@ -39,6 +39,17 @@ class CommentsReloadContent {
         CreateAndEditCommentModal.openModal(newCommentUrl, document.querySelector('#content-planner-comment-list'), table, id)
       })
     })
+
+    document.querySelectorAll('[data-reply-comment-uri]').forEach(item => {
+      item.addEventListener('click', event => {
+        event.preventDefault()
+        const target = event.target.closest('[data-reply-comment-uri]')
+        const table = target.getAttribute('data-table')
+        const id = target.getAttribute('data-id')
+        const replyUrl = target.getAttribute('data-reply-comment-uri')
+        CreateAndEditCommentModal.openModal(replyUrl, document.querySelector('#content-planner-comment-list'), table, id)
+      })
+    })
   }
 
   getFilterValues() {

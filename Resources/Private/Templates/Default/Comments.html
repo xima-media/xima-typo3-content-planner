@@ -1,5 +1,4 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
-    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
 <div id="content-planner-comment-list" class="content-planner-comment-list">
@@ -51,102 +50,7 @@
     <f:if condition="{comments -> f:count()}">
         <f:then>
             <f:for each="{comments}" as="record">
-                <div
-                    class="d-flex content-planner-comment {f:if(condition: '{record.resolved}', then: 'content-planner-comment--resolved', else: '')}"
-                    data-comment-uid="{record.data.uid}">
-                    <span class="content-planner-comment__avatar">
-                        <be:avatar backendUser="{record.data.author}" size="40" showIcon="true"/>
-                    </span>
-                    <div class="d-flex flex-column flex-grow-1">
-                        <div class="d-flex flex-row justify-content-between gap-2">
-                            <div class="flex-grow-1">
-                                <strong>{record.authorName}</strong>
-                                <small title="{record.data.crdate -> f:format.date(format:'d.m.Y H:i')}">{record.timeAgo}</small>
-                                <f:if condition="{record.edited}">
-                                    <small class="px-2">
-                                        <code>
-                                            <f:translate key="comment.edited" extensionName="XimaTypo3ContentPlanner"/>
-                                        </code>
-                                    </small>
-                                </f:if>
-                            </div>
-                            <small>
-                                <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
-                                <a href="{record.recordLink}">
-                                    {record.title}
-                                </a>
-                            </small>
-                            <div class="btn-group content-planner-comment__actions">
-                                <a href="#" class="btn btn-default" data-bs-toggle="dropdown"
-                                aria-expanded="false" title="">
-                                    <core:icon identifier="actions-menu-alternative" size="small" title="Actions"/>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <f:if condition="{record.canCurrentUserEdit}">
-                                    <li>
-                                        <a class="dropdown-item" data-id="{id}" data-table="{table}"
-                                        data-edit-comment-uri="{record.editUri}">
-                                            <core:icon identifier="actions-open" size="small" title="Edit"/>
-                                            <f:translate key="comment.actions.edit"
-                                                        extensionName="XimaTypo3ContentPlanner"/>
-                                        </a>
-                                    </li>
-                                    </f:if>
-                                    <f:if condition="{record.canCurrentUserResolve}">
-                                    <li>
-                                        <f:variable name="status"
-                                                    value="{f:if(condition: '{record.resolved}', then: 'unresolve', else: 'resolve')}"/>
-                                        <a class="dropdown-item" data-id="{id}" data-table="{table}"
-                                        data-resolved-comment-uri="{record.resolvedUri}"
-                                        data-resolved-comment-title="{f:translate(key: 'comment.actions.{status}.title', extensionName: 'XimaTypo3ContentPlanner')}"
-                                        data-resolved-comment-description="{f:translate(key: 'comment.actions.{status}.description', extensionName: 'XimaTypo3ContentPlanner')}"
-                                        data-resolved-comment-button="{f:translate(key: 'comment.actions.{status}.button', extensionName: 'XimaTypo3ContentPlanner')}"
-                                        >
-                                            <core:icon identifier="actions-check-circle" size="small" title="Resolved"/>
-                                            <f:translate key="comment.actions.{status}"
-                                                        extensionName="XimaTypo3ContentPlanner"/>
-                                        </a>
-                                    </li>
-                                    </f:if>
-                                    <li>
-                                        <a class="dropdown-item" data-share-comment-uri="{record.shareUri}">
-                                            <core:icon identifier="actions-link" size="small" title="Share"/>
-                                            <f:translate key="comment.actions.share"
-                                                        extensionName="XimaTypo3ContentPlanner"/>
-                                        </a>
-                                    </li>
-                                    <f:if condition="{record.canCurrentUserDelete}">
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li>
-                                        <a class="dropdown-item" data-id="{id}" data-table="{table}"
-                                        data-delete-comment-uri="{record.deleteUri}"
-                                        data-delete-comment-title="{f:translate(key: 'comment.actions.delete.title', extensionName: 'XimaTypo3ContentPlanner')}"
-                                        data-delete-comment-description="{f:translate(key: 'comment.actions.delete.description', extensionName: 'XimaTypo3ContentPlanner')}"
-                                        data-delete-comment-button="{f:translate(key: 'comment.actions.delete.button', extensionName: 'XimaTypo3ContentPlanner')}"
-                                        >
-                                            <core:icon identifier="actions-delete" size="small" title="Delete"/>
-                                            <f:translate key="comment.actions.delete"
-                                                        extensionName="XimaTypo3ContentPlanner"/>
-                                        </a>
-                                    </li>
-                                    </f:if>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="content-planner-comment__text">{record.data.content -> f:format.raw()}</div>
-                        <f:if condition="{record.resolved}">
-                            <div>
-                                <small class="text-success">
-                                    <core:icon identifier="actions-check-circle" size="small" title="Resolved"/>
-                                </small>
-                                <small>
-                                    <f:translate key="comment.resolved" extensionName="XimaTypo3ContentPlanner"
-                                                arguments="{0: '{record.resolvedUser}', 1: '{record.resolvedDate -> f:format.date(format:\'d.m.Y H:i\')}'}"/>
-                                </small>
-                            </div>
-                        </f:if>
-                    </div>
-                </div>
+                <f:render partial="Comment" arguments="{comment: record, id: id, table: table, isReply: 0}" />
             </f:for>
         </f:then>
         <f:else>
