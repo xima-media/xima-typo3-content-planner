@@ -22,6 +22,8 @@ class CommentsReloadContent {
   }
 
   initEventListeners() {
+    this.initCommentHover()
+
     document.querySelector('form#content-planner-comment-filter')?.addEventListener('change', (event) => {
       event.preventDefault()
       const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
@@ -47,8 +49,32 @@ class CommentsReloadContent {
         const table = target.getAttribute('data-table')
         const id = target.getAttribute('data-id')
         const replyUrl = target.getAttribute('data-reply-comment-uri')
+        // Extract parent_uid from the reply URL to highlight new reply after reload
+        const parentUid = new URL(replyUrl, window.location.origin).searchParams
+          .get('defVals[tx_ximatypo3contentplanner_comment][parent_uid]')
+        this.pendingHighlightParentUid = parentUid || null
         CreateAndEditCommentModal.openModal(replyUrl, document.querySelector('#content-planner-comment-list'), table, id)
       })
+    })
+  }
+
+  initCommentHover() {
+    const container = document.querySelector('#content-planner-comment-list')
+    if (!container || container.dataset.hoverInitialized) {
+      return
+    }
+    container.dataset.hoverInitialized = 'true'
+    container.addEventListener('mouseover', (event) => {
+      const comment = event.target.closest('[data-comment-uid]')
+      if (comment && !comment.classList.contains('content-planner-comment--hover')) {
+        container.querySelectorAll('.content-planner-comment--hover')
+          .forEach(el => el.classList.remove('content-planner-comment--hover'))
+        comment.classList.add('content-planner-comment--hover')
+      }
+    })
+    container.addEventListener('mouseleave', () => {
+      container.querySelectorAll('.content-planner-comment--hover')
+        .forEach(el => el.classList.remove('content-planner-comment--hover'))
     })
   }
 
@@ -87,11 +113,43 @@ class CommentsReloadContent {
         CommentsDeleteItem.initEventListeners()
         CommentsShareLink.initEventListeners()
         this.initEventListeners()
+        this.highlightNewReply(parent)
       })
       .catch((error) => {
         console.error('Failed to load comments:', error)
         top.TYPO3.Notification.error('Error', 'Failed to load comments.')
       })
+  }
+
+  highlightNewReply(container) {
+    const parentUid = this.pendingHighlightParentUid
+    this.pendingHighlightParentUid = null
+    if (!parentUid) {
+      return
+    }
+
+    const collapseEl = container.querySelector(`#replies-${CSS.escape(parentUid)}`)
+    if (!collapseEl) {
+      return
+    }
+
+    // Expand the collapse
+    collapseEl.classList.add('show')
+    const toggle = container.querySelector(`[aria-controls="replies-${CSS.escape(parentUid)}"]`)
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', 'true')
+    }
+
+    // Highlight the newest reply (highest UID = most recently created)
+    const replies = [...collapseEl.querySelectorAll('[data-comment-uid]')]
+    const newestReply = replies.reduce((a, b) =>
+      parseInt(a.dataset.commentUid) > parseInt(b.dataset.commentUid) ? a : b
+    , replies[0])
+    if (newestReply) {
+      newestReply.scrollIntoView({behavior: 'smooth', block: 'center'})
+      newestReply.classList.add('content-planner-comment--highlight')
+      setTimeout(() => newestReply.classList.remove('content-planner-comment--highlight'), 2500)
+    }
   }
 }
 
