@@ -14,8 +14,6 @@
         </meta>
         <static_tables index="relStaticTables" type="array"></static_tables>
         <excludeMap type="array">
-            <item index="be_users:2">1</item>
-            <item index="be_users:1">1</item>
             <item index="sys_file_storage:1">1</item>
             <item index="sys_log:16">1</item>
             <item index="sys_log:15">1</item>
@@ -153,11 +151,82 @@
                     <softrefs type="array"></softrefs>
                 </rec>
             </table>
+            <table index="be_users" type="array">
+                <rec index="2" type="array">
+                    <uid>2</uid>
+                    <pid>0</pid>
+                    <title>anna.schmidt</title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+                <rec index="3" type="array">
+                    <uid>3</uid>
+                    <pid>0</pid>
+                    <title>max.mueller</title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+            </table>
+            <table index="tx_ximatypo3contentplanner_comment" type="array">
+                <rec index="1" type="array">
+                    <uid>1</uid>
+                    <pid>1</pid>
+                    <title></title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+                <rec index="2" type="array">
+                    <uid>2</uid>
+                    <pid>1</pid>
+                    <title></title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+                <rec index="3" type="array">
+                    <uid>3</uid>
+                    <pid>2</pid>
+                    <title></title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+                <rec index="4" type="array">
+                    <uid>4</uid>
+                    <pid>2</pid>
+                    <title></title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+                <rec index="5" type="array">
+                    <uid>5</uid>
+                    <pid>2</pid>
+                    <title></title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+                <rec index="6" type="array">
+                    <uid>6</uid>
+                    <pid>4</pid>
+                    <title></title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+                <rec index="7" type="array">
+                    <uid>7</uid>
+                    <pid>4</pid>
+                    <title></title>
+                    <relations index="rels" type="array"></relations>
+                    <softrefs type="array"></softrefs>
+                </rec>
+            </table>
         </records>
         <pid_lookup type="array">
             <page_contents index="0" type="array">
                 <table index="pages" type="array">
                     <item index="1">1</item>
+                </table>
+                <table index="be_users" type="array">
+                    <item index="2">1</item>
+                    <item index="3">1</item>
                 </table>
             </page_contents>
             <page_contents index="1" type="array">
@@ -171,6 +240,23 @@
                     <item index="4">1</item>
                     <item index="3">1</item>
                     <item index="2">1</item>
+                </table>
+                <table index="tx_ximatypo3contentplanner_comment" type="array">
+                    <item index="1">1</item>
+                    <item index="2">1</item>
+                </table>
+            </page_contents>
+            <page_contents index="2" type="array">
+                <table index="tx_ximatypo3contentplanner_comment" type="array">
+                    <item index="3">1</item>
+                    <item index="4">1</item>
+                    <item index="5">1</item>
+                </table>
+            </page_contents>
+            <page_contents index="4" type="array">
+                <table index="tx_ximatypo3contentplanner_comment" type="array">
+                    <item index="6">1</item>
+                    <item index="7">1</item>
                 </table>
             </page_contents>
             <page_contents index="6" type="array">
@@ -262,9 +348,9 @@
                 <field index="canonical_link"></field>
                 <field index="sitemap_priority">0.5</field>
                 <field index="sitemap_changefreq"></field>
-                <field index="tx_ximatypo3contentplanner_status" type="NULL"></field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="NULL"></field>
-                <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_status" type="integer">4</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">1</field>
+                <field index="tx_ximatypo3contentplanner_comments" type="integer">2</field>
             </fieldlist>
             <related index="rels" type="array"></related>
         </tablerow>
@@ -343,8 +429,8 @@
                 <field index="selected_categories" type="NULL"></field>
                 <field index="date" type="integer">0</field>
                 <field index="tx_impexp_origuid" type="integer">0</field>
-                <field index="tx_ximatypo3contentplanner_status" type="integer">0</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_status" type="integer">4</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">1</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -426,8 +512,8 @@ Third point</field>
                 <field index="selected_categories" type="NULL"></field>
                 <field index="date" type="integer">0</field>
                 <field index="tx_impexp_origuid" type="integer">0</field>
-                <field index="tx_ximatypo3contentplanner_status" type="integer">0</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_status" type="integer">2</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">3</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -541,8 +627,8 @@ Third point</field>
                 <field index="title">Important</field>
                 <field index="items" type="integer">0</field>
                 <field index="parent" type="integer">0</field>
-                <field index="tx_ximatypo3contentplanner_status" type="integer">0</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_status" type="integer">1</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">2</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -571,8 +657,8 @@ Third point</field>
                 <field index="title">Sales</field>
                 <field index="items" type="integer">0</field>
                 <field index="parent" type="integer">0</field>
-                <field index="tx_ximatypo3contentplanner_status" type="integer">0</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_status" type="integer">3</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">3</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -771,9 +857,9 @@ Third point</field>
                 <field index="canonical_link"></field>
                 <field index="sitemap_priority">0.5</field>
                 <field index="sitemap_changefreq"></field>
-                <field index="tx_ximatypo3contentplanner_status" type="NULL"></field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="NULL"></field>
-                <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_status" type="integer">3</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">2</field>
+                <field index="tx_ximatypo3contentplanner_comments" type="integer">2</field>
             </fieldlist>
             <related index="rels" type="array"></related>
         </tablerow>
@@ -856,8 +942,8 @@ Third point</field>
                 <field index="canonical_link"></field>
                 <field index="sitemap_priority">0.5</field>
                 <field index="sitemap_changefreq"></field>
-                <field index="tx_ximatypo3contentplanner_status" type="NULL"></field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="NULL"></field>
+                <field index="tx_ximatypo3contentplanner_status" type="integer">1</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">3</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -941,9 +1027,202 @@ Third point</field>
                 <field index="canonical_link"></field>
                 <field index="sitemap_priority">0.5</field>
                 <field index="sitemap_changefreq"></field>
-                <field index="tx_ximatypo3contentplanner_status" type="NULL"></field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="NULL"></field>
-                <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_status" type="integer">2</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">2</field>
+                <field index="tx_ximatypo3contentplanner_comments" type="integer">3</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="be_users:2" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">2</field>
+                <field index="pid" type="integer">0</field>
+                <field index="tstamp" type="integer">1736858391</field>
+                <field index="crdate" type="integer">1736858391</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="disable" type="integer">0</field>
+                <field index="starttime" type="integer">0</field>
+                <field index="endtime" type="integer">0</field>
+                <field index="username">anna.schmidt</field>
+                <field index="password">$2y$12$BAh0mTURWbbgS43ugWc6iemEYEvL80q.U9/T1y3N8sSCbz5UrLEgm</field>
+                <field index="admin" type="integer">0</field>
+                <field index="usergroup"></field>
+                <field index="lang">default</field>
+                <field index="email">anna.schmidt@example.com</field>
+                <field index="realName">Anna Schmidt</field>
+                <field index="options" type="integer">0</field>
+                <field index="avatar" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_hide" type="integer">0</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="be_users:3" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">3</field>
+                <field index="pid" type="integer">0</field>
+                <field index="tstamp" type="integer">1736858391</field>
+                <field index="crdate" type="integer">1736858391</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="disable" type="integer">0</field>
+                <field index="starttime" type="integer">0</field>
+                <field index="endtime" type="integer">0</field>
+                <field index="username">max.mueller</field>
+                <field index="password">$2y$12$BAh0mTURWbbgS43ugWc6iemEYEvL80q.U9/T1y3N8sSCbz5UrLEgm</field>
+                <field index="admin" type="integer">0</field>
+                <field index="usergroup"></field>
+                <field index="lang">default</field>
+                <field index="email">max.mueller@example.com</field>
+                <field index="realName">Max Mueller</field>
+                <field index="options" type="integer">0</field>
+                <field index="avatar" type="integer">0</field>
+                <field index="tx_ximatypo3contentplanner_hide" type="integer">0</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="tx_ximatypo3contentplanner_comment:1" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">1</field>
+                <field index="pid" type="integer">1</field>
+                <field index="tstamp" type="integer">1736860000</field>
+                <field index="crdate" type="integer">1736860000</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="hidden" type="integer">0</field>
+                <field index="foreign_uid" type="integer">1</field>
+                <field index="foreign_table">pages</field>
+                <field index="content">&lt;p&gt;Startseite ist fertig. Bitte nochmal die Texte gegenlesen.&lt;/p&gt;</field>
+                <field index="author" type="integer">1</field>
+                <field index="edited" type="integer">0</field>
+                <field index="resolved_user" type="integer">2</field>
+                <field index="resolved_date" type="integer">1736862000</field>
+                <field index="todo_resolved" type="integer">0</field>
+                <field index="todo_total" type="integer">0</field>
+                <field index="parent_uid" type="integer">0</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="tx_ximatypo3contentplanner_comment:2" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">2</field>
+                <field index="pid" type="integer">1</field>
+                <field index="tstamp" type="integer">1736861000</field>
+                <field index="crdate" type="integer">1736861000</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="hidden" type="integer">0</field>
+                <field index="foreign_uid" type="integer">1</field>
+                <field index="foreign_table">pages</field>
+                <field index="content">&lt;p&gt;Sieht gut aus, Layout und Inhalte passen. Freigabe erteilt!&lt;/p&gt;</field>
+                <field index="author" type="integer">2</field>
+                <field index="edited" type="integer">0</field>
+                <field index="resolved_user" type="integer">0</field>
+                <field index="resolved_date" type="integer">0</field>
+                <field index="todo_resolved" type="integer">0</field>
+                <field index="todo_total" type="integer">0</field>
+                <field index="parent_uid" type="integer">0</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="tx_ximatypo3contentplanner_comment:3" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">3</field>
+                <field index="pid" type="integer">2</field>
+                <field index="tstamp" type="integer">1736862000</field>
+                <field index="crdate" type="integer">1736862000</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="hidden" type="integer">0</field>
+                <field index="foreign_uid" type="integer">2</field>
+                <field index="foreign_table">pages</field>
+                <field index="content">&lt;p&gt;Die Projektuebersicht braucht noch aktuelle Screenshots und eine Beschreibung der Meilensteine.&lt;/p&gt;</field>
+                <field index="author" type="integer">2</field>
+                <field index="edited" type="integer">0</field>
+                <field index="resolved_user" type="integer">0</field>
+                <field index="resolved_date" type="integer">0</field>
+                <field index="todo_resolved" type="integer">0</field>
+                <field index="todo_total" type="integer">0</field>
+                <field index="parent_uid" type="integer">0</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="tx_ximatypo3contentplanner_comment:4" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">4</field>
+                <field index="pid" type="integer">2</field>
+                <field index="tstamp" type="integer">1736863000</field>
+                <field index="crdate" type="integer">1736863000</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="hidden" type="integer">0</field>
+                <field index="foreign_uid" type="integer">2</field>
+                <field index="foreign_table">pages</field>
+                <field index="content">&lt;p&gt;Ich kuemmere mich um die Screenshots. Die Meilensteine kann ich bis Donnerstag ergaenzen.&lt;/p&gt;</field>
+                <field index="author" type="integer">3</field>
+                <field index="edited" type="integer">0</field>
+                <field index="resolved_user" type="integer">0</field>
+                <field index="resolved_date" type="integer">0</field>
+                <field index="todo_resolved" type="integer">0</field>
+                <field index="todo_total" type="integer">0</field>
+                <field index="parent_uid" type="integer">3</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="tx_ximatypo3contentplanner_comment:5" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">5</field>
+                <field index="pid" type="integer">2</field>
+                <field index="tstamp" type="integer">1736864000</field>
+                <field index="crdate" type="integer">1736864000</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="hidden" type="integer">0</field>
+                <field index="foreign_uid" type="integer">2</field>
+                <field index="foreign_table">pages</field>
+                <field index="content">&lt;p&gt;Super, danke! Deadline fuer die gesamte Seite ist naechsten Freitag.&lt;/p&gt;</field>
+                <field index="author" type="integer">2</field>
+                <field index="edited" type="integer">0</field>
+                <field index="resolved_user" type="integer">0</field>
+                <field index="resolved_date" type="integer">0</field>
+                <field index="todo_resolved" type="integer">0</field>
+                <field index="todo_total" type="integer">0</field>
+                <field index="parent_uid" type="integer">3</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="tx_ximatypo3contentplanner_comment:6" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">6</field>
+                <field index="pid" type="integer">4</field>
+                <field index="tstamp" type="integer">1736865000</field>
+                <field index="crdate" type="integer">1736865000</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="hidden" type="integer">0</field>
+                <field index="foreign_uid" type="integer">4</field>
+                <field index="foreign_table">pages</field>
+                <field index="content">&lt;p&gt;Die Texte auf der Services-Seite muessen noch vom Marketing freigegeben werden, bevor wir live gehen.&lt;/p&gt;</field>
+                <field index="author" type="integer">1</field>
+                <field index="edited" type="integer">0</field>
+                <field index="resolved_user" type="integer">0</field>
+                <field index="resolved_date" type="integer">0</field>
+                <field index="todo_resolved" type="integer">0</field>
+                <field index="todo_total" type="integer">0</field>
+                <field index="parent_uid" type="integer">0</field>
+            </fieldlist>
+            <related index="rels" type="array"></related>
+        </tablerow>
+        <tablerow index="tx_ximatypo3contentplanner_comment:7" type="array">
+            <fieldlist index="data" type="array">
+                <field index="uid" type="integer">7</field>
+                <field index="pid" type="integer">4</field>
+                <field index="tstamp" type="integer">1736866000</field>
+                <field index="crdate" type="integer">1736866000</field>
+                <field index="deleted" type="integer">0</field>
+                <field index="hidden" type="integer">0</field>
+                <field index="foreign_uid" type="integer">4</field>
+                <field index="foreign_table">pages</field>
+                <field index="content">&lt;p&gt;Marketing-Freigabe ist raus. Warten auf Rueckmeldung, sollte bis Mittwoch kommen.&lt;/p&gt;</field>
+                <field index="author" type="integer">3</field>
+                <field index="edited" type="integer">1</field>
+                <field index="resolved_user" type="integer">0</field>
+                <field index="resolved_date" type="integer">0</field>
+                <field index="todo_resolved" type="integer">0</field>
+                <field index="todo_total" type="integer">0</field>
+                <field index="parent_uid" type="integer">6</field>
             </fieldlist>
             <related index="rels" type="array"></related>
         </tablerow>
