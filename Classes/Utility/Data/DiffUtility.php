@@ -53,15 +53,22 @@ class DiffUtility
      */
     public static function checkCommendDiff(?array $data, int $actiontype): string|bool
     {
+        $isReply = false;
+        if (null !== $data && [] !== $data) {
+            $parentUid = (int) ($data['newRecord']['parent_uid'] ?? $data['parent_uid'] ?? 0);
+            $isReply = $parentUid > 0;
+        }
+        $prefix = $isReply ? 'history.reply.' : 'history.comment.';
+
         if (null !== $data && [] !== $data && array_key_exists('newRecord', $data) && array_key_exists('resolved_date', $data['newRecord'])) {
             if (0 === (int) $data['newRecord']['resolved_date']) {
-                return self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:history.comment.'.$actiontype.'.unresolved');
+                return self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:'.$prefix.$actiontype.'.unresolved');
             }
 
-            return self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:history.comment.'.$actiontype.'.resolved');
+            return self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:'.$prefix.$actiontype.'.resolved');
         }
 
-        return self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:history.comment.'.$actiontype);
+        return self::getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:'.$prefix.$actiontype);
     }
 
     /**
