@@ -28,4 +28,8 @@ return [
         'path' => '/content-planner/message',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::messageAction',
     ],
+    'ximatypo3contentplanner_usersetting' => [
+        'path' => '/content-planner/user-setting',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::userSettingAction',
+    ],
 ];

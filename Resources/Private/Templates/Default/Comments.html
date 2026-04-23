@@ -1,7 +1,7 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<div id="content-planner-comment-list" class="content-planner-comment-list">
+<div id="content-planner-comment-list" class="content-planner-comment-list" data-replies-expanded="{f:if(condition: '{repliesExpanded}', then: '1', else: '0')}">
     <f:if condition="{comments -> f:count()} || {filter.resolvedCount}">
         <form id="content-planner-comment-filter" class="content-planner-comment-filter" data-table="{table}" data-id="{id}">
             <div class="form-sort">
@@ -29,6 +29,25 @@
                                                 extensionName="XimaTypo3ContentPlanner"/>
                                 </a>
                             </li>
+                            <li><hr class="dropdown-divider"/></li>
+                            <li>
+                                <f:if condition="{repliesExpanded}">
+                                    <f:then>
+                                        <a class="dropdown-item" data-toggle-replies-expanded="0">
+                                            <core:icon identifier="actions-chevron-up" size="small"/>
+                                            <f:translate key="comment.actions.replies.collapse"
+                                                        extensionName="XimaTypo3ContentPlanner"/>
+                                        </a>
+                                    </f:then>
+                                    <f:else>
+                                        <a class="dropdown-item" data-toggle-replies-expanded="1">
+                                            <core:icon identifier="actions-chevron-down" size="small"/>
+                                            <f:translate key="comment.actions.replies.expand"
+                                                        extensionName="XimaTypo3ContentPlanner"/>
+                                        </a>
+                                    </f:else>
+                                </f:if>
+                            </li>
                         </ul>
                     </div>
                 </f:if>
@@ -50,7 +69,7 @@
     <f:if condition="{comments -> f:count()}">
         <f:then>
             <f:for each="{comments}" as="record">
-                <f:render partial="Comment" arguments="{comment: record, id: id, table: table, isReply: 0, showRecordInfo: 0}" />
+                <f:render partial="Comment" arguments="{comment: record, id: id, table: table, isReply: 0, showRecordInfo: 0, repliesExpanded: repliesExpanded}" />
             </f:for>
         </f:then>
         <f:else>
