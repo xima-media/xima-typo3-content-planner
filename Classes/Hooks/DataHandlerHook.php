@@ -137,7 +137,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      *
      * @throws Exception
      */
-    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void // @phpstan-ignore-line complexity.functionLike
+    public function processDatamap_afterDatabaseOperations($status, $table, $id, $fieldArray, DataHandler $dataHandler): void
     {
         if (Configuration::TABLE_COMMENT === $table) {
             $this->dispatchCommentEvents($status, $id, $fieldArray, $dataHandler);
@@ -256,32 +256,56 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     private function dispatchCommentEvents(string $status, string|int $id, array $fieldArray, DataHandler $dataHandler): void
     {
         if ('new' === $status) {
-            $resolvedId = $dataHandler->substNEWwithIDs[$id] ?? null;
-            if (null !== $resolvedId && isset($fieldArray['foreign_table'], $fieldArray['foreign_uid'])) {
-                /** @var BackendUserAuthentication $backendUser */
-                $backendUser = $GLOBALS['BE_USER'];
-                $this->eventDispatcher->dispatch(new CommentCreatedEvent(
-                    table: $fieldArray['foreign_table'],
-                    recordUid: (int) $fieldArray['foreign_uid'],
-                    commentUid: (int) $resolvedId,
-                    authorUid: (int) $backendUser->getUserId(),
-                ));
-            }
+            $this->dispatchCommentCreatedEvent($id, $fieldArray, $dataHandler);
         }
 
-        if ('update' === $status && array_key_exists('resolved_date', $fieldArray) && (int) $fieldArray['resolved_date'] > 0 && MathUtility::canBeInterpretedAsInteger($id)) {
-            $comment = $this->commentRepository->findByUid((int) $id);
-            if ($comment && isset($comment['foreign_table'], $comment['foreign_uid'])) {
-                /** @var BackendUserAuthentication $resolvedBackendUser */
-                $resolvedBackendUser = $GLOBALS['BE_USER'];
-                $this->eventDispatcher->dispatch(new CommentResolvedEvent(
-                    table: $comment['foreign_table'],
-                    recordUid: (int) $comment['foreign_uid'],
-                    commentUid: (int) $id,
-                    resolvedByUid: (int) $resolvedBackendUser->getUserId(),
-                ));
-            }
+        if ('update' === $status) {
+            $this->dispatchCommentResolvedEvent($id, $fieldArray);
         }
+    }
+
+    /**
+     * @param array<string, mixed> $fieldArray
+     */
+    private function dispatchCommentCreatedEvent(string|int $id, array $fieldArray, DataHandler $dataHandler): void
+    {
+        $resolvedId = $dataHandler->substNEWwithIDs[$id] ?? null;
+        if (null === $resolvedId || !isset($fieldArray['foreign_table'], $fieldArray['foreign_uid'])) {
+            return;
+        }
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $this->eventDispatcher->dispatch(new CommentCreatedEvent(
+            table: $fieldArray['foreign_table'],
+            recordUid: (int) $fieldArray['foreign_uid'],
+            commentUid: (int) $resolvedId,
+            authorUid: (int) $backendUser->getUserId(),
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $fieldArray
+     */
+    private function dispatchCommentResolvedEvent(string|int $id, array $fieldArray): void
+    {
+        if (!array_key_exists('resolved_date', $fieldArray) || (int) $fieldArray['resolved_date'] <= 0 || !MathUtility::canBeInterpretedAsInteger($id)) {
+            return;
+        }
+
+        $comment = $this->commentRepository->findByUid((int) $id);
+        if (!$comment || !isset($comment['foreign_table'], $comment['foreign_uid'])) {
+            return;
+        }
+
+        /** @var BackendUserAuthentication $resolvedBackendUser */
+        $resolvedBackendUser = $GLOBALS['BE_USER'];
+        $this->eventDispatcher->dispatch(new CommentResolvedEvent(
+            table: $comment['foreign_table'],
+            recordUid: (int) $comment['foreign_uid'],
+            commentUid: (int) $id,
+            resolvedByUid: (int) $resolvedBackendUser->getUserId(),
+        ));
     }
 
     private function updateCommentTodo(DataHandler $dataHandler): void
