@@ -131,12 +131,24 @@ Creating replies
 
 Use the **Reply** action in the comment's dropdown menu or click the reply button at the bottom of the reply list. A reply is created the same way as a regular comment — through the FormEngine modal.
 
+..  figure:: /Images/comment-reply-menu.jpg
+    :alt: Reply action in dropdown menu
+    :class: with-shadow
+
+    Reply action in the comment dropdown menu
+
 Replies to replies are automatically flattened to a single level (all replies belong to the root comment).
 
 Collapsible section
 --------------------
 
 Replies are collapsed by default. A toggle shows the reply count and the time of the most recent reply (e.g., "3 replies · last 5 minutes ago"). Click the toggle to expand or collapse the reply list.
+
+..  figure:: /Images/comment-reply.jpg
+    :alt: Threaded reply with collapsible section
+    :class: with-shadow
+
+    Expanded reply section with inline reply button
 
 Sorting
 --------
