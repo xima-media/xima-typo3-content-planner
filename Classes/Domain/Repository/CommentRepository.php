@@ -63,7 +63,13 @@ class CommentRepository
                     $queryBuilder->expr()->eq($replyTable.'.deleted', 0),
                 ),
             )
-            ->addSelectLiteral('GREATEST('.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate').', COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)) AS last_activity')
+            ->addSelectLiteral(
+                'CASE WHEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
+                .' >= COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
+                .' THEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
+                .' ELSE COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
+                .' END AS last_activity',
+            )
             ->where(
                 $queryBuilder->expr()->eq(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
                 $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
