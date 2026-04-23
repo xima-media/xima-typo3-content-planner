@@ -22,6 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function count;
 use function is_array;
 
 /**
@@ -34,6 +35,9 @@ final class CommentItem
 {
     /** @var array<string, mixed> */
     public array $data = [];
+
+    /** @var CommentItem[] */
+    public array $replies = [];
 
     /** @var array<string, mixed>|bool */
     public array|bool $relatedRecord = [];
@@ -135,6 +139,15 @@ final class CommentItem
         );
     }
 
+    public function getReplyUri(): string
+    {
+        return UrlUtility::getNewCommentUrl(
+            $this->data['foreign_table'],
+            (int) $this->data['foreign_uid'],
+            (int) $this->data['uid'],
+        );
+    }
+
     public function isEdited(): bool
     {
         return (bool) $this->data['edited'];
@@ -181,6 +194,41 @@ final class CommentItem
     public function getCanCurrentUserResolve(): bool
     {
         return PermissionUtility::canResolveComment();
+    }
+
+    public function getParentUid(): int
+    {
+        return (int) ($this->data['parent_uid'] ?? 0);
+    }
+
+    /**
+     * @return CommentItem[]
+     */
+    public function getReplies(): array
+    {
+        return $this->replies;
+    }
+
+    public function getReplyCount(): int
+    {
+        return count($this->replies);
+    }
+
+    public function getLastReplyTimeAgo(): string
+    {
+        if ([] === $this->replies) {
+            return '';
+        }
+
+        $latestCrdate = 0;
+        foreach ($this->replies as $reply) {
+            $crdate = (int) $reply->data['crdate'];
+            if ($crdate > $latestCrdate) {
+                $latestCrdate = $crdate;
+            }
+        }
+
+        return DiffUtility::timeAgo($latestCrdate);
     }
 
     private function getTitleForFile(): string

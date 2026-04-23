@@ -78,7 +78,17 @@
     margin-bottom: 0;
 }
 
-/* Actions */
+/* Actions — hidden until comment hover or dropdown open */
+.content-planner-comment__actions {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.content-planner-comment--hover > * > * > .content-planner-comment__actions,
+.content-planner-comment__actions:has(.dropdown-menu.show) {
+    opacity: 1;
+}
+
 .content-planner-comment__actions > button {
     font-size: smaller;
     min-height: 22px;
@@ -102,6 +112,69 @@
 
 .content-planner-comment-list .content-planner-comment-filter + .content-planner-comment {
     margin-top: 3rem;
+}
+
+/* ==========================================================================
+   Comment Replies
+   ========================================================================== */
+
+.content-planner-comment-replies-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: inherit;
+    color: var(--bs-secondary-color, #6c757d);
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 0;
+}
+
+.content-planner-comment-replies-toggle > span {
+    font-size: 80%;
+}
+
+.content-planner-comment-replies-toggle:hover {
+    color: var(--bs-body-color, #212529);
+    text-decoration: none;
+}
+
+.content-planner-comment-replies-toggle .icon {
+    transition: transform 0.2s ease;
+}
+
+.content-planner-comment-replies-toggle[aria-expanded="true"] .icon {
+    transform: rotate(90deg);
+}
+
+.content-planner-comment-replies {
+    margin-left: 0.4375rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--bs-border-color, #dee2e6);
+    margin-top: 0.25rem;
+}
+
+.content-planner-comment--reply {
+    padding: 0.75rem 0;
+    margin: 0;
+    gap: 0.5rem;
+}
+
+.content-planner-comment--reply .content-planner-comment__avatar {
+    flex: 0 0 24px;
+}
+
+.content-planner-comment--reply .content-planner-comment__text {
+    padding: 0.5rem 0.75rem;
+    margin: 0.25rem 0 0;
+}
+
+.content-planner-comment--reply .content-planner-comment__actions > button {
+    min-height: 20px;
+    padding: 0 4px;
+}
+
+.content-planner-comment-reply-inline {
+    margin-top: 0.75rem;
 }
 
 /* ==========================================================================

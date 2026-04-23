@@ -396,6 +396,22 @@
 				<source>Share link</source>
 				<target>Link teilen</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.reply">
+				<source>Reply</source>
+				<target>Antworten</target>
+			</trans-unit>
+			<trans-unit id="comment.badge.reply">
+				<source>Reply</source>
+				<target>Antwort</target>
+			</trans-unit>
+			<trans-unit id="comment.reply.toggle">
+				<source>1 reply · last %1$s</source>
+				<target>1 Antwort · zuletzt %1$s</target>
+			</trans-unit>
+			<trans-unit id="comment.replies.toggle">
+				<source>%1$d replies · last %2$s</source>
+				<target>%1$d Antworten · zuletzt %2$s</target>
+			</trans-unit>
 			<trans-unit id="comment.share.copied">
 				<source>Link copied to clipboard</source>
 				<target>Link in Zwischenablage kopiert</target>

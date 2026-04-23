@@ -128,15 +128,26 @@ class CommentsListModal {
 
   scrollToComment(modal, commentUid) {
     setTimeout(() => {
-      const commentElement = modal.querySelector(`[data-comment-uid="${CSS.escape(commentUid)}"]`)
-      if (commentElement) {
-        commentElement.scrollIntoView({behavior: 'smooth', block: 'center'})
-        commentElement.classList.add('content-planner-comment--highlight')
-        setTimeout(() => {
-          commentElement.classList.remove('content-planner-comment--highlight')
-        }, 2500)
-      }
-    }, 200)
+      // Expand all collapsed reply sections so the target comment is visible
+      modal.querySelectorAll('.content-planner-comment-replies.collapse:not(.show)').forEach(el => {
+        el.classList.add('show')
+        const toggle = modal.querySelector(`[aria-controls="${CSS.escape(el.id)}"]`)
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'true')
+        }
+      })
+
+      setTimeout(() => {
+        const commentElement = modal.querySelector(`[data-comment-uid="${CSS.escape(commentUid)}"]`)
+        if (commentElement) {
+          commentElement.scrollIntoView({behavior: 'smooth', block: 'center'})
+          commentElement.classList.add('content-planner-comment--highlight')
+          setTimeout(() => {
+            commentElement.classList.remove('content-planner-comment--highlight')
+          }, 2500)
+        }
+      }, 100)
+    }, 300)
   }
 }
 

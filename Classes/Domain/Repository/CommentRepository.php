@@ -20,6 +20,7 @@ use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
+use function array_map;
 use function count;
 use function in_array;
 
@@ -49,33 +50,57 @@ class CommentRepository
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
+        $replyTable = self::TABLE.'_replies';
         $query = $queryBuilder
-            ->select('*')
+            ->select(self::TABLE.'.*')
             ->from(self::TABLE)
-            ->where(
-                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
-                $queryBuilder->expr()->eq('deleted', 0),
+            ->leftJoin(
+                self::TABLE,
+                self::TABLE,
+                $replyTable,
+                $queryBuilder->expr()->and(
+                    $queryBuilder->expr()->eq($replyTable.'.parent_uid', $queryBuilder->quoteIdentifier(self::TABLE.'.uid')),
+                    $queryBuilder->expr()->eq($replyTable.'.deleted', 0),
+                ),
             )
-            ->orderBy('crdate', $sortDirection);
+            ->addSelectLiteral(
+                'CASE WHEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
+                .' >= COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
+                .' THEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
+                .' ELSE COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
+                .' END AS last_activity',
+            )
+            ->where(
+                $queryBuilder->expr()->eq(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq(self::TABLE.'.deleted', 0),
+                $queryBuilder->expr()->eq(self::TABLE.'.parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->groupBy(self::TABLE.'.uid')
+            ->orderBy('last_activity', $sortDirection);
 
         if (!$showResolved) {
             $query->andWhere(
-                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq(self::TABLE.'.resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             );
         }
 
-        $comments = $query
+        $rootComments = $query
             ->executeQuery()->fetchAllAssociative();
 
         if ($raw) {
-            return $comments;
+            return $rootComments;
         }
 
+        $rootUids = array_map(static fn (array $row): int => (int) $row['uid'], $rootComments);
+        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved, $sortDirection) : [];
+
         $items = [];
-        foreach ($comments as $result) {
+        foreach ($rootComments as $result) {
             try {
-                $items[] = CommentItem::create($result);
+                $item = CommentItem::create($result);
+                $item->replies = $repliesByParent[(int) $result['uid']] ?? [];
+                $items[] = $item;
             } catch (\Exception) {
             }
         }
@@ -188,6 +213,18 @@ class CommentRepository
             ->executeQuery()->fetchAssociative();
     }
 
+    public function deleteRepliesByParentUid(int $parentUid): void
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder
+            ->update(self::TABLE)
+            ->set('deleted', 1)
+            ->where(
+                $queryBuilder->expr()->eq('parent_uid', $queryBuilder->createNamedParameter($parentUid, Connection::PARAM_INT)),
+            )
+            ->executeStatement();
+    }
+
     public function deleteAllCommentsByRecord(int $id, string $table, ?string $like = null): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
@@ -217,5 +254,44 @@ class CommentRepository
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
             )
             ->executeStatement();
+    }
+
+    /**
+     * @param array<int, int> $parentUids
+     *
+     * @return array<int, array<int, CommentItem>>
+     *
+     * @throws Exception
+     */
+    private function findRepliesByParentUids(array $parentUids, bool $showResolved = false, string $sortDirection = 'DESC'): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+
+        $query = $queryBuilder
+            ->select('*')
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->in('parent_uid', $queryBuilder->createNamedParameter($parentUids, Connection::PARAM_INT_ARRAY)),
+                $queryBuilder->expr()->eq('deleted', 0),
+            )
+            ->orderBy('crdate', $sortDirection);
+
+        if (!$showResolved) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            );
+        }
+
+        $replies = $query->executeQuery()->fetchAllAssociative();
+
+        $grouped = [];
+        foreach ($replies as $row) {
+            try {
+                $grouped[(int) $row['parent_uid']][] = CommentItem::create($row);
+            } catch (\Exception) {
+            }
+        }
+
+        return $grouped;
     }
 }

@@ -117,6 +117,56 @@ A comment can be marked as completed via the context menu.
 
     Resolved comments can can be displayed again using the filter
 
+..  _comments-replies:
+
+Threaded Replies
+=================
+
+..  versionadded:: 2.2.0
+
+Comments support single-level threaded replies. Each root comment can have replies that are displayed as an indented, collapsible section below it.
+
+Creating replies
+-----------------
+
+Use the **Reply** action in the comment's dropdown menu or click the reply button at the bottom of the reply list. A reply is created the same way as a regular comment — through the FormEngine modal.
+
+..  figure:: /Images/comment-reply-menu.jpg
+    :alt: Reply action in dropdown menu
+    :class: with-shadow
+
+    Reply action in the comment dropdown menu
+
+Replies to replies are automatically flattened to a single level (all replies belong to the root comment).
+
+Collapsible section
+--------------------
+
+Replies are collapsed by default. A toggle shows the reply count and the time of the most recent reply (e.g., "3 replies · last 5 minutes ago"). Click the toggle to expand or collapse the reply list.
+
+..  figure:: /Images/comment-reply.jpg
+    :alt: Threaded reply with collapsible section
+    :class: with-shadow
+
+    Expanded reply section with inline reply button
+
+Sorting
+--------
+
+Root comments are sorted by **last activity** — either their own creation date or the creation date of their most recent reply, whichever is newer. This means a root comment with a fresh reply automatically moves to the top. The "Newest/Oldest" dropdown controls the sort direction for both root comments and replies.
+
+Comment count
+--------------
+
+The comment count badge in the page header includes both root comments and replies. This reflects the total discussion activity on a record.
+
+Activity stream & widgets
+--------------------------
+
+Replies appear in the activity stream with the label "A new reply comment has been added" and in the comment dashboard widget with a reply badge.
+
+Share links for replies automatically expand the collapse section and scroll to the specific reply.
+
 ..  _comments-share:
 
 Share link

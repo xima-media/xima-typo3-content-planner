@@ -46,6 +46,7 @@ readonly class ContentCommentDataProvider implements ListDataProviderInterface
                 'c.crdate',
                 'c.foreign_uid',
                 'c.foreign_table',
+                'c.parent_uid',
             )
             ->from(Configuration::TABLE_COMMENT, 'c')
             ->where(

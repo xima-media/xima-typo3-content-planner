@@ -95,6 +95,26 @@
 				<source><![CDATA[A <em>comment</em> has been removed]]></source>
 				<target><![CDATA[Ein <em>Kommentar</em> wurde entfernt]]></target>
 			</trans-unit>
+			<trans-unit id="history.reply.1">
+				<source><![CDATA[A new <em>reply comment</em> has been added]]></source>
+				<target><![CDATA[Eine neue <em>Antwort</em> wurde hinzugefügt]]></target>
+			</trans-unit>
+			<trans-unit id="history.reply.2">
+				<source><![CDATA[A <em>reply comment</em> was updated]]></source>
+				<target><![CDATA[Eine <em>Antwort</em> wurde aktualisiert]]></target>
+			</trans-unit>
+			<trans-unit id="history.reply.2.resolved">
+				<source><![CDATA[A <em>reply comment</em> was marked as resolved]]></source>
+				<target><![CDATA[Eine <em>Antwort</em> wurde als erledigt markiert]]></target>
+			</trans-unit>
+			<trans-unit id="history.reply.2.unresolved">
+				<source><![CDATA[A <em>reply comment</em> was reopened]]></source>
+				<target><![CDATA[Eine <em>Antwort</em> wurde wieder geöffnet]]></target>
+			</trans-unit>
+			<trans-unit id="history.reply.4">
+				<source><![CDATA[A <em>reply comment</em> has been removed]]></source>
+				<target><![CDATA[Eine <em>Antwort</em> wurde entfernt]]></target>
+			</trans-unit>
 
 			<trans-unit id="message.status.changed.success.title">
 				<source>Status changed</source>

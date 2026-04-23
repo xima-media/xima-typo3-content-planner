@@ -13,6 +13,12 @@
                                 <be:avatar backendUser="{record.data.author}" size="16" showIcon="false"/>
                                 <strong>{record.authorName}</strong>
                                 <small title="{record.data.crdate -> f:format.date(format:'d.m.Y H:i')}">{record.timeAgo}</small>
+                                <f:if condition="{record.parentUid}">
+                                    <small class="text-body-secondary">
+                                        <core:icon identifier="actions-arrow-down-right-alt" size="small"/>
+                                        <f:translate key="comment.badge.reply" extensionName="XimaTypo3ContentPlanner"/>
+                                    </small>
+                                </f:if>
                             </span>
                             <small class="content-planner-comment__record">
                                 <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
