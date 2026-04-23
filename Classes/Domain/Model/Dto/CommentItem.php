@@ -220,9 +220,15 @@ final class CommentItem
             return '';
         }
 
-        $lastReply = end($this->replies);
+        $latestCrdate = 0;
+        foreach ($this->replies as $reply) {
+            $crdate = (int) $reply->data['crdate'];
+            if ($crdate > $latestCrdate) {
+                $latestCrdate = $crdate;
+            }
+        }
 
-        return DiffUtility::timeAgo($lastReply->data['crdate']);
+        return DiffUtility::timeAgo($latestCrdate);
     }
 
     private function getTitleForFile(): string
