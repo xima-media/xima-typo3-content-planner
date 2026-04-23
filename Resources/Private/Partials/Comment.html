@@ -21,7 +21,7 @@
                     </small>
                 </f:if>
             </div>
-            <f:if condition="!{isReply}">
+            <f:if condition="{showRecordInfo} && !{isReply}">
                 <small>
                     <core:icon identifier="{comment.statusIcon}" size="small" title="{comment.status}"/>
                     <a href="{comment.recordLink}">
@@ -65,13 +65,12 @@
                     <li>
                         <a class="dropdown-item" data-id="{id}" data-table="{table}"
                         data-reply-comment-uri="{comment.replyUri}">
-                            <core:icon identifier="actions-message" size="small" title="Reply"/>
+                            <core:icon identifier="actions-arrow-down-right-alt" size="small" title="Reply"/>
                             <f:translate key="comment.actions.reply"
                                         extensionName="XimaTypo3ContentPlanner"/>
                         </a>
                     </li>
                     </f:if>
-                    <f:if condition="!{isReply}">
                     <li>
                         <a class="dropdown-item" data-share-comment-uri="{comment.shareUri}">
                             <core:icon identifier="actions-link" size="small" title="Share"/>
@@ -79,7 +78,6 @@
                                         extensionName="XimaTypo3ContentPlanner"/>
                         </a>
                     </li>
-                    </f:if>
                     <f:if condition="{comment.canCurrentUserDelete}">
                     <li><hr class="dropdown-divider"/></li>
                     <li>
@@ -122,11 +120,11 @@
                 <f:for each="{comment.replies}" as="reply">
                     <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1}" />
                 </f:for>
-                <a class="content-planner-comment-reply-inline" data-id="{id}" data-table="{table}"
-                   data-reply-comment-uri="{comment.replyUri}">
-                    <core:icon identifier="actions-message" size="small"/>
+                <button type="button" class="btn btn-default btn-sm content-planner-comment-reply-inline"
+                        data-id="{id}" data-table="{table}" data-reply-comment-uri="{comment.replyUri}">
+                    <core:icon identifier="actions-arrow-down-right-alt" size="small"/>
                     <f:translate key="comment.actions.reply" extensionName="XimaTypo3ContentPlanner"/>
-                </a>
+                </button>
             </div>
         </f:if>
     </div>
