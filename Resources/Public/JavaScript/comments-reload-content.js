@@ -42,20 +42,23 @@ class CommentsReloadContent {
       })
     })
 
-    document.querySelectorAll('[data-reply-comment-uri]').forEach(item => {
-      item.addEventListener('click', event => {
-        event.preventDefault()
+    if (!this.replyDelegateInitialized) {
+      document.addEventListener('click', event => {
         const target = event.target.closest('[data-reply-comment-uri]')
+        if (!target) {
+          return
+        }
+        event.preventDefault()
         const table = target.getAttribute('data-table')
         const id = target.getAttribute('data-id')
         const replyUrl = target.getAttribute('data-reply-comment-uri')
-        // Extract parent_uid from the reply URL to highlight new reply after reload
         const parentUid = new URL(replyUrl, window.location.origin).searchParams
           .get('defVals[tx_ximatypo3contentplanner_comment][parent_uid]')
         this.pendingHighlightParentUid = parentUid || null
         CreateAndEditCommentModal.openModal(replyUrl, document.querySelector('#content-planner-comment-list'), table, id)
       })
-    })
+      this.replyDelegateInitialized = true
+    }
   }
 
   initCommentHover() {
