@@ -227,7 +227,14 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
 
         $parentComment = $this->commentRepository->findByUid($parentUid);
-        if ($parentComment && (int) ($parentComment['parent_uid'] ?? 0) > 0) {
+        if (!$parentComment) {
+            // Parent deleted — demote to root comment
+            $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['parent_uid'] = 0;
+
+            return;
+        }
+
+        if ((int) ($parentComment['parent_uid'] ?? 0) > 0) {
             $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['parent_uid'] = $parentComment['parent_uid'];
         }
     }
