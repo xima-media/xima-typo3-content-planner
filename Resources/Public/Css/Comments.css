@@ -79,7 +79,7 @@
 }
 
 /* Actions */
-.content-planner-comment__actions > a {
+.content-planner-comment__actions > button {
     font-size: smaller;
     min-height: 22px;
     padding: 0 6px;
@@ -87,9 +87,6 @@
     border-radius: 0;
 }
 
-.content-planner-comment__actions a:hover {
-    cursor: pointer;
-}
 
 /* ==========================================================================
    Comment List
