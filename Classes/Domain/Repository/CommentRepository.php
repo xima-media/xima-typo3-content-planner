@@ -50,22 +50,11 @@ class CommentRepository
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
-        $isActivitySort = 'ACTIVITY' === $sortDirection;
-        $effectiveSortDirection = $isActivitySort ? 'DESC' : $sortDirection;
-
+        $replyTable = self::TABLE.'_replies';
         $query = $queryBuilder
             ->select(self::TABLE.'.*')
             ->from(self::TABLE)
-            ->where(
-                $queryBuilder->expr()->eq(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
-                $queryBuilder->expr()->eq(self::TABLE.'.deleted', 0),
-                $queryBuilder->expr()->eq(self::TABLE.'.parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
-            );
-
-        if ($isActivitySort) {
-            $replyTable = self::TABLE.'_replies';
-            $query->leftJoin(
+            ->leftJoin(
                 self::TABLE,
                 self::TABLE,
                 $replyTable,
@@ -73,13 +62,16 @@ class CommentRepository
                     $queryBuilder->expr()->eq($replyTable.'.parent_uid', $queryBuilder->quoteIdentifier(self::TABLE.'.uid')),
                     $queryBuilder->expr()->eq($replyTable.'.deleted', 0),
                 ),
-            );
-            $query->addSelectLiteral('GREATEST('.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate').', COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)) AS last_activity');
-            $query->groupBy(self::TABLE.'.uid');
-            $query->orderBy('last_activity', 'DESC');
-        } else {
-            $query->orderBy(self::TABLE.'.crdate', $effectiveSortDirection);
-        }
+            )
+            ->addSelectLiteral('GREATEST('.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate').', COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)) AS last_activity')
+            ->where(
+                $queryBuilder->expr()->eq(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq(self::TABLE.'.deleted', 0),
+                $queryBuilder->expr()->eq(self::TABLE.'.parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->groupBy(self::TABLE.'.uid')
+            ->orderBy('last_activity', $sortDirection);
 
         if (!$showResolved) {
             $query->andWhere(
@@ -95,7 +87,7 @@ class CommentRepository
         }
 
         $rootUids = array_map(static fn (array $row): int => (int) $row['uid'], $rootComments);
-        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved) : [];
+        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved, $sortDirection) : [];
 
         $items = [];
         foreach ($rootComments as $result) {
@@ -265,7 +257,7 @@ class CommentRepository
      *
      * @throws Exception
      */
-    private function findRepliesByParentUids(array $parentUids, bool $showResolved = false): array
+    private function findRepliesByParentUids(array $parentUids, bool $showResolved = false, string $sortDirection = 'DESC'): array
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
@@ -276,7 +268,7 @@ class CommentRepository
                 $queryBuilder->expr()->in('parent_uid', $queryBuilder->createNamedParameter($parentUids, Connection::PARAM_INT_ARRAY)),
                 $queryBuilder->expr()->eq('deleted', 0),
             )
-            ->orderBy('crdate', 'ASC');
+            ->orderBy('crdate', $sortDirection);
 
         if (!$showResolved) {
             $query->andWhere(
