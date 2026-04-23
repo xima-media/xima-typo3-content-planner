@@ -404,9 +404,13 @@
 				<source>Reply</source>
 				<target>Antwort</target>
 			</trans-unit>
+			<trans-unit id="comment.reply.toggle">
+				<source>1 reply · last %1$s</source>
+				<target>1 Antwort · zuletzt %1$s</target>
+			</trans-unit>
 			<trans-unit id="comment.replies.toggle">
 				<source>%1$d replies · last %2$s</source>
-				<target>%1$d Antworten · letzte %2$s</target>
+				<target>%1$d Antworten · zuletzt %2$s</target>
 			</trans-unit>
 			<trans-unit id="comment.share.copied">
 				<source>Link copied to clipboard</source>

@@ -246,6 +246,9 @@
 			<trans-unit id="comment.badge.reply">
 				<source>Reply</source>
 			</trans-unit>
+			<trans-unit id="comment.reply.toggle">
+				<source>1 reply · last %1$s</source>
+			</trans-unit>
 			<trans-unit id="comment.replies.toggle">
 				<source>%1$d replies · last %2$s</source>
 			</trans-unit>
