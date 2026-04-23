@@ -89,7 +89,7 @@
     opacity: 1;
 }
 
-.content-planner-comment__actions > a {
+.content-planner-comment__actions > button {
     font-size: smaller;
     min-height: 22px;
     padding: 0 6px;
@@ -97,9 +97,6 @@
     border-radius: 0;
 }
 
-.content-planner-comment__actions a:hover {
-    cursor: pointer;
-}
 
 /* ==========================================================================
    Comment List
@@ -171,7 +168,7 @@
     margin: 0.25rem 0 0;
 }
 
-.content-planner-comment--reply .content-planner-comment__actions > a {
+.content-planner-comment--reply .content-planner-comment__actions > button {
     min-height: 20px;
     padding: 0 4px;
 }

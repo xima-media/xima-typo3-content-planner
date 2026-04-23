@@ -17,10 +17,10 @@
                 </select>
                 <f:if condition="{shareUrl}">
                     <div class="dropdown">
-                        <a href="#" class="btn btn-default btn-sm" data-bs-toggle="dropdown"
-                           aria-expanded="false" title="">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle dropdown-toggle-no-chevron" data-bs-toggle="dropdown"
+                                aria-expanded="false">
                             <core:icon identifier="actions-menu-alternative" size="small"/>
-                        </a>
+                        </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item" data-share-modal-uri="{shareUrl}">

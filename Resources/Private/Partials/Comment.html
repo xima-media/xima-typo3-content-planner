@@ -30,10 +30,10 @@
                 </small>
             </f:if>
             <div class="btn-group content-planner-comment__actions">
-                <a href="#" class="btn btn-default" data-bs-toggle="dropdown"
-                aria-expanded="false" title="">
+                <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-no-chevron" data-bs-toggle="dropdown"
+                        aria-expanded="false">
                     <core:icon identifier="actions-menu-alternative" size="small" title="Actions"/>
-                </a>
+                </button>
                 <ul class="dropdown-menu">
                     <f:if condition="{comment.canCurrentUserEdit}">
                     <li>
