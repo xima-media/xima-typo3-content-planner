@@ -122,6 +122,11 @@
                 <f:for each="{comment.replies}" as="reply">
                     <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1}" />
                 </f:for>
+                <a class="content-planner-comment-reply-inline" data-id="{id}" data-table="{table}"
+                   data-reply-comment-uri="{comment.replyUri}">
+                    <core:icon identifier="actions-message" size="small"/>
+                    <f:translate key="comment.actions.reply" extensionName="XimaTypo3ContentPlanner"/>
+                </a>
             </div>
         </f:if>
     </div>
