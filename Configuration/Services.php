@@ -42,7 +42,7 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $c
                 'groupNames' => 'contentPlanner',
                 'title' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.configurable.title',
                 'description' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.configurable.description',
-                'iconIdentifier' => 'flag-gray',
+                'iconIdentifier' => 'dashboard-custom',
                 'height' => 'large',
                 'width' => 'medium',
             ]);

@@ -56,7 +56,7 @@ Use the shortcuts beneath the select field for "Assign to me" and "Unassign" to 
 Edit Form
 ========
 
-The assignee can be select in the edit form of the record in the "Content Planner" tab.
+The assignee can be selected in the edit form of the record in the "Content Planner" tab.
 
 ..  figure:: /Images/assignee-edit.png
     :alt: Change the assignee of a record

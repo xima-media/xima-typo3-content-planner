@@ -9,7 +9,7 @@ Status
 Default Status
 ==================
 
-By default, they are four different default status available:
+By default, there are four different statuses available:
 
 - **Pending**: The page is not yet ready for editing.
 - **In progress**: The page is currently being edited.
@@ -26,7 +26,7 @@ By default, they are four different default status available:
 Custom Status
 ==================
 
-The status are content generated on the root page.
+Statuses are managed as records on the root page (pid 0).
 
 ..  figure:: /Images/status-default.png
     :alt: Default Status Records

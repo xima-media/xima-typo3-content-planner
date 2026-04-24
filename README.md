@@ -1,6 +1,6 @@
 <div align="center">
 
-![Extension icon](Resources/Public/Icons/Extension.svg)
+![Extension icon](Resources/Public/Icons/Extension.png)
 
 # TYPO3 extension `xima_typo3_content_planner`
 
@@ -13,25 +13,34 @@
 
 </div>
 
-This extension provides a page* status functionality to support the planning of
-content work, e.g. a migration process.
+This TYPO3 extension adds content planning capabilities to the TYPO3 backend: assign a **status** to pages (and other records), **assign** responsible editors and leave **comments** with todos — all directly in the page tree, record list and file list.
 
-(* also supports other records as well)
+> [!NOTE]
+> Ideal for content migrations, editorial workflows or any process where you need to track who is working on what.
 
 ![Page](./Documentation/Images/page.jpg)
 
 ## ✨ Features
 
-* Extended page properties for content **status**, **assignee** and additional **comments**
-* Colorful representation of the status within the backend
-* Easy change of status
-* Backend user assignment for distribution of content work
-* Comments with todo and resolve feature for additional information
-* Extensive dashboard for detailed content planning
-  * Recent updates widget for quick access to the latest changes
-  * Filterable content planner record overview
-* Extend additional database records with status behavior
-  * Default support for content elements and files/folders in the file list
+**[Status](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Configuration/Status.html)** — Colorful, customizable status labels for pages and records
+* [Change status](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/StatusChange.html) via page tree, module header, record list or edit form
+* Bulk update multiple records at once or via [console command](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Command.html)
+
+**[Assignee](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html)** — Assign responsible editors to records
+* Quick actions: "Assign to me" / "Unassign" shortcuts
+* Optional auto-assignment on status change
+
+**[Comments](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html)** — Discuss records directly in the backend
+* [Todos](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html#todos) and [resolution](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html#resolution) tracking within comments
+* [Threaded replies](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html#threaded-replies) and [shareable links](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html#share-link)
+
+**[Dashboard](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Dashboard.html)** — Ready-to-use dashboard preset with dedicated widgets
+* Overview, status, updates, assignee, todo, comments widgets
+* [Configurable widget](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Dashboard.html#configurable-widget) with custom filters (TYPO3 v14+)
+
+**Extensibility** — Works beyond pages
+* Extend [additional database records](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/AdditionalRecords.html) with status behavior
+* Built-in support for content elements and [files/folders](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Filelist.html)
 
 ## 🔥 Installation
 

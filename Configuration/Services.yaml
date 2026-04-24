@@ -80,7 +80,7 @@ services:
         groupNames: 'contentPlanner'
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.status.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.status.description'
-        iconIdentifier: 'flag-gray'
+        iconIdentifier: 'dashboard-status'
         height: 'large'
         width: 'medium'
 
@@ -97,7 +97,7 @@ services:
         groupNames: 'contentPlanner'
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.description'
-        iconIdentifier: 'flag-gray'
+        iconIdentifier: 'dashboard-assignee'
         height: 'medium'
         width: 'small'
 
@@ -114,7 +114,7 @@ services:
         groupNames: 'contentPlanner'
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.description'
-        iconIdentifier: 'flag-gray'
+        iconIdentifier: 'dashboard-todo'
         height: 'medium'
         width: 'small'
 
@@ -131,7 +131,7 @@ services:
         groupNames: 'contentPlanner'
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.comment.description'
-        iconIdentifier: 'content-message'
+        iconIdentifier: 'dashboard-comments'
         height: 'medium'
         width: 'small'
 
@@ -147,7 +147,7 @@ services:
         groupNames: 'contentPlanner'
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.overview.description'
-        iconIdentifier: 'content-widget-chart-pie'
+        iconIdentifier: 'dashboard-overview'
         height: 'medium'
         width: 'small'
 
@@ -161,6 +161,6 @@ services:
         groupNames: 'contentPlanner'
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.update.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.update.description'
-        iconIdentifier: 'content-thumbtack'
+        iconIdentifier: 'dashboard-updates'
         height: 'medium'
         width: 'small'
