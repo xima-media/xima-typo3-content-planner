@@ -32,10 +32,9 @@ Content Planner
     :alt: Content Planner Logo
     :align: center
 
-This extension provides a colorful page* status functionality to support the planning of
-content work, e.g. a migration process.
-
-(* also supports other records as well)
+This TYPO3 extension adds content planning capabilities to the TYPO3 backend:
+assign a **status** to pages (and other records), **assign** responsible editors
+and leave **comments** with todos — all directly in the page tree, record list and file list.
 
 ----
 
