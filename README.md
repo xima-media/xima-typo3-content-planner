@@ -1,6 +1,6 @@
 <div align="center">
 
-![Extension icon](Resources/Public/Icons/Extension.svg)
+![Extension icon](Resources/Public/Icons/Extension.png)
 
 # TYPO3 extension `xima_typo3_content_planner`
 
@@ -22,16 +22,16 @@ content work, e.g. a migration process.
 
 ## ✨ Features
 
-* Extended page properties for content **status**, **assignee** and additional **comments**
+* Extended page properties for content [**status**](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Configuration/Status.html), [**assignee**](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html) and additional [**comments**](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html)
 * Colorful representation of the status within the backend
-* Easy change of status
-* Backend user assignment for distribution of content work
-* Comments with todo and resolve feature for additional information
-* Extensive dashboard for detailed content planning
-  * Recent updates widget for quick access to the latest changes
+* Easy [change of status](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/StatusChange.html)
+* Backend user [assignment](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html) for distribution of content work
+* Comments with [todo](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html#todos) and [resolve](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html#resolution) feature for additional information
+* Extensive [dashboard](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Dashboard.html) for detailed content planning
+  * Recent updates [widget](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Dashboard.html#widgets) for quick access to the latest changes
   * Filterable content planner record overview
-* Extend additional database records with status behavior
-  * Default support for content elements and files/folders in the file list
+* Extend [additional database records](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/AdditionalRecords.html) with status behavior
+  * Default support for content elements and [files/folders in the file list](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Filelist.html)
 
 ## 🔥 Installation
 
