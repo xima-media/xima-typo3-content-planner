@@ -116,6 +116,12 @@ Settings
 
 The widget can be configured through the widget settings dialog:
 
+..  figure:: /Images/widget-custom.jpg
+    :alt: Configurable widget settings dialog
+    :class: with-shadow
+
+    Widget settings dialog with all available filter options
+
 .. t3-field-list-table::
     :header-rows: 1
 
