@@ -406,6 +406,39 @@ return [
         'sprite' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/sprites/thumbtacks.svg#thumbtack-orange',
         'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/svgs/thumbtacks/thumbtack-orange.svg',
     ],
+    // dashboard widgets
+    'dashboard-overview' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-overview.svg',
+    ],
+    'dashboard-status' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-status.svg',
+    ],
+    'dashboard-updates' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-updates.svg',
+    ],
+    'dashboard-assignee' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-assignee.svg',
+    ],
+    'dashboard-todo' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-todo.svg',
+    ],
+    'dashboard-comments' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-comments.svg',
+    ],
+    'dashboard-custom' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-custom.svg',
+    ],
+    'dashboard-preset' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-preset.svg',
+    ],
     // color
     'color-black' => [
         'provider' => SvgSpriteIconProvider::class,
