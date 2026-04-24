@@ -66,7 +66,7 @@ class WebLayoutModifier extends AbstractModifier implements ModifierInterface
                 continue;
             }
             $statusColor = Configuration\Colors::get($status->getColor());
-            $styling[] = '.t3-page-ce[data-uid="'.$record['uid'].'"]:before { content: "";display:block;box-shadow:var(--pagemodule-element-box-shadow);padding:.5em;border-left: 5px solid '.$statusColor.';border-radius: 5px 5px 0 0;background-color:'.$statusColor.'; }';
+            $styling[] = '.t3-page-ce[data-uid="'.$record['uid'].'"] .t3-page-ce-element:before { content: "";display:block;padding:.5em;border-left: 5px solid '.$statusColor.';background-color:'.$statusColor.'; }';
         }
 
         return '<style>'.implode(' ', $styling).'</style>';
