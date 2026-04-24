@@ -33,18 +33,18 @@
                             <li>
                                 <f:if condition="{repliesExpanded}">
                                     <f:then>
-                                        <a class="dropdown-item" data-toggle-replies-expanded="0">
+                                        <button type="button" class="dropdown-item" data-toggle-replies-expanded="0">
                                             <core:icon identifier="actions-chevron-up" size="small"/>
                                             <f:translate key="comment.actions.replies.collapse"
                                                         extensionName="XimaTypo3ContentPlanner"/>
-                                        </a>
+                                        </button>
                                     </f:then>
                                     <f:else>
-                                        <a class="dropdown-item" data-toggle-replies-expanded="1">
+                                        <button type="button" class="dropdown-item" data-toggle-replies-expanded="1">
                                             <core:icon identifier="actions-chevron-down" size="small"/>
                                             <f:translate key="comment.actions.replies.expand"
                                                         extensionName="XimaTypo3ContentPlanner"/>
-                                        </a>
+                                        </button>
                                     </f:else>
                                 </f:if>
                             </li>

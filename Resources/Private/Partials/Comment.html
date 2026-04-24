@@ -119,7 +119,7 @@
             </a>
             <div class="{f:if(condition: '{repliesExpanded}', then: 'collapse show', else: 'collapse')} content-planner-comment-replies" id="replies-{comment.data.uid}">
                 <f:for each="{comment.replies}" as="reply">
-                    <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1}" />
+                    <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1, repliesExpanded: repliesExpanded}" />
                 </f:for>
                 <button type="button" class="btn btn-default btn-sm content-planner-comment-reply-inline"
                         data-id="{id}" data-table="{table}" data-reply-comment-uri="{comment.replyUri}">

@@ -190,10 +190,14 @@ class RecordController extends ActionController
             return new JsonResponse(['error' => 'Invalid setting key'], 400);
         }
 
+        if (!in_array($value, ['0', '1'], true)) {
+            return new JsonResponse(['error' => 'Invalid setting value'], 400);
+        }
+
         /** @var BackendUserAuthentication $backendUser */
         $backendUser = $GLOBALS['BE_USER'];
         $contentPlannerSettings = $backendUser->uc['contentPlanner'] ?? [];
-        $contentPlannerSettings[$key] = (bool) $value;
+        $contentPlannerSettings[$key] = '1' === $value;
         $backendUser->uc['contentPlanner'] = $contentPlannerSettings;
         $backendUser->writeUC();
 
