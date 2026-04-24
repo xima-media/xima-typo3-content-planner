@@ -28,6 +28,10 @@ Content Planner
 
 ----
 
+..  figure:: /Images/logo.png
+    :alt: Content Planner Logo
+    :align: center
+
 This extension provides a colorful page* status functionality to support the planning of
 content work, e.g. a migration process.
 

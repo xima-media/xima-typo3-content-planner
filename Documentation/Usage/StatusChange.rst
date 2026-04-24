@@ -10,7 +10,7 @@ Status Change
     :local:
     :depth: 2
 
-They are several ways to change the status of a page or a record.
+There are several ways to change the status of a page or a record.
 
 Page Tree
 ******************
@@ -57,7 +57,7 @@ Record List
 In the record list, you can change the status of a record via the dropdown.
 
 ..  note::
-    These option is only available for additional database records with status behavior.
+    This option is only available for additional database records with status behavior.
 
 ..  figure:: /Images/records.gif
     :alt: Records Screencast Content Planner

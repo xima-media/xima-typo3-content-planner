@@ -12,15 +12,15 @@ Filelist
 
 The Content Planner extension supports status management for files and folders in the TYPO3 Filelist module. This allows you to track the status of media assets during content migration or review processes.
 
+..  contents:: Table of Contents
+    :local:
+    :depth: 2
+
 ..  figure:: /Images/filelist.jpg
     :alt: Filelist with Content Planner support
     :class: with-shadow
 
     Filelist module with status support for folders and files
-
-..  contents:: Table of Contents
-    :local:
-    :depth: 2
 
 Enable Filelist Support
 =======================

@@ -150,6 +150,8 @@ Replies are collapsed by default. A toggle shows the reply count and the time of
 
     Expanded reply section with inline reply button
 
+The default expand/collapse behavior can be changed globally via the "Expand replies" / "Collapse replies" button in the comment modal's action menu. This preference is persisted per user. See :ref:`repliesExpanded <user-settings-repliesExpanded>` in user settings.
+
 Sorting
 --------
 

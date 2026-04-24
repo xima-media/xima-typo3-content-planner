@@ -35,7 +35,7 @@ Features
 - :ref:`Filelist support <filelist>` for files and folders
 
 Screencast
-========
+----------
 
 ..  figure:: /Images/screencast.gif
     :alt: Screencast Content Planner

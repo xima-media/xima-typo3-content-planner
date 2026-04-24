@@ -17,7 +17,7 @@ Create
 
 To create a new dashboard, click on the "Add dashboard" (+) button near the dashboard tabs in the dashboard module.
 
-..  figure:: /Images/dashboard-new.png
+..  figure:: /Images/dashboard-new.jpg
     :alt: Create new dashboard using the preset
     :class: with-shadow
 
@@ -45,65 +45,55 @@ The dashboard provides a set of helpful widgets to get an overview of the curren
     Dashboard overview
 
 
-.. t3-field-list-table::
-    :header-rows: 1
+..  image:: /Images/widgets/dashboard-overview.png
+    :width: 64
+    :alt: Overview
 
-    -
-        :Field:
-            Widget:
+Overview
+    Bar chart showing the distribution of records by status.
 
-        :Description:
-            Description:
+..  image:: /Images/widgets/dashboard-updates.png
+    :width: 64
+    :alt: Recent Updates
 
-    -
-        :Field:
-            Overview
+Recent Updates
+    Update stream showing the latest changes to the content planner records.
 
-        :Description:
-            Bar chart showing the distribution of records by status.
+..  image:: /Images/widgets/dashboard-assignee.png
+    :width: 64
+    :alt: Current Assignee
 
-    -
-        :Field:
-            Recent Updates
+Current Assignee
+    Short list with all records assigned to the current user.
 
-        :Description:
-            Update stream showing the latest changes to the content planner records.
+..  image:: /Images/widgets/dashboard-todo.png
+    :width: 64
+    :alt: ToDo
 
-    -
-        :Field:
-            Current Assignee
+ToDo
+    Display all records with open todos in the comments.
 
-        :Description:
-            Short list with all records assigned to the current user.
+..  image:: /Images/widgets/dashboard-comments.png
+    :width: 64
+    :alt: Recent Comments
 
-    -
-        :Field:
-            ToDo
+Recent Comments
+    Shows the latest comments on the content planner records.
 
-        :Description:
-            Display all records with open todos in the comments.
+..  image:: /Images/widgets/dashboard-status.png
+    :width: 64
+    :alt: Status
 
-    -
-        :Field:
-            Recent Comments
+Status
+    Filterable list of all records with the current status.
 
-        :Description:
-            Showings the latest comments on the content planner records.
+..  image:: /Images/widgets/dashboard-custom.png
+    :width: 64
+    :alt: Content Planner (Configurable)
 
-    -
-        :Field:
-            Status
-
-        :Description:
-            Filterable list of all records with the current status.
-
-    -
-        :Field:
-            Content Planner (Configurable)
-
-        :Description:
-            A fully customizable widget that combines the functionality of multiple widgets.
-            Available in TYPO3 v14+ only. See :ref:`dashboard-configurable-widget` for details.
+Content Planner (Configurable)
+    A fully customizable widget that combines the functionality of multiple widgets.
+    Available in TYPO3 v14+ only. See :ref:`dashboard-configurable-widget` for details.
 
 ..  _dashboard-configurable-widget:
 
