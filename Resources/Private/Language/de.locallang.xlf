@@ -400,6 +400,14 @@
 				<source>Reply</source>
 				<target>Antworten</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.replies.expand">
+				<source>Expand replies</source>
+				<target>Antworten ausklappen</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.replies.collapse">
+				<source>Collapse replies</source>
+				<target>Antworten einklappen</target>
+			</trans-unit>
 			<trans-unit id="comment.badge.reply">
 				<source>Reply</source>
 				<target>Antwort</target>

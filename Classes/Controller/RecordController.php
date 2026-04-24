@@ -30,6 +30,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
+use function in_array;
 use function is_array;
 
 /**
@@ -40,6 +41,8 @@ use function is_array;
  */
 class RecordController extends ActionController
 {
+    private const ALLOWED_USER_SETTINGS = ['repliesExpanded'];
+
     public function __construct(
         private readonly RecordRepository $recordRepository,
         private readonly CommentRepository $commentRepository,
@@ -107,6 +110,10 @@ class RecordController extends ActionController
         $sortComments = $request->getQueryParams()['sortComments'] ?? 'DESC';
         $showResolvedComments = (bool) ($request->getQueryParams()['showResolvedComments'] ?? false);
 
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $repliesExpanded = (bool) ($backendUser->uc['contentPlanner']['repliesExpanded'] ?? false);
+
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, sortDirection: $sortComments, showResolved: $showResolvedComments);
 
         $result = ViewUtility::render(
@@ -115,6 +122,7 @@ class RecordController extends ActionController
                 'comments' => $comments,
                 'id' => $recordId,
                 'table' => $recordTable,
+                'repliesExpanded' => $repliesExpanded,
                 'newCommentUri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($recordTable, $recordId) : '',
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [
@@ -171,6 +179,29 @@ class RecordController extends ActionController
         $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/assignee-select.js', ['nonce' => $this->requestId->nonce]);
 
         return new JsonResponse(['result' => $result]);
+    }
+
+    public function userSettingAction(ServerRequestInterface $request): JsonResponse
+    {
+        $key = $request->getQueryParams()['key'] ?? '';
+        $value = $request->getQueryParams()['value'] ?? '';
+
+        if (!in_array($key, self::ALLOWED_USER_SETTINGS, true)) {
+            return new JsonResponse(['error' => 'Invalid setting key'], 400);
+        }
+
+        if (!in_array($value, ['0', '1'], true)) {
+            return new JsonResponse(['error' => 'Invalid setting value'], 400);
+        }
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $contentPlannerSettings = $backendUser->uc['contentPlanner'] ?? [];
+        $contentPlannerSettings[$key] = '1' === $value;
+        $backendUser->uc['contentPlanner'] = $contentPlannerSettings;
+        $backendUser->writeUC();
+
+        return new JsonResponse(['key' => $key, 'value' => $contentPlannerSettings[$key]]);
     }
 
     /**

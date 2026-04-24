@@ -23,6 +23,7 @@ class CommentsReloadContent {
 
   initEventListeners() {
     this.initCommentHover()
+    this.initRepliesToggle()
 
     document.querySelector('form#content-planner-comment-filter')?.addEventListener('change', (event) => {
       event.preventDefault()
@@ -59,6 +60,32 @@ class CommentsReloadContent {
       })
       this.replyDelegateInitialized = true
     }
+  }
+
+  initRepliesToggle() {
+    document.querySelectorAll('[data-toggle-replies-expanded]').forEach(item => {
+      item.addEventListener('click', event => {
+        event.preventDefault()
+        const newValue = item.getAttribute('data-toggle-replies-expanded')
+
+        new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_usersetting)
+          .withQueryArguments({key: 'repliesExpanded', value: newValue})
+          .get()
+          .then(() => {
+            const filterForm = document.querySelector('form#content-planner-comment-filter')
+            if (filterForm) {
+              const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
+              const table = filterForm.getAttribute('data-table')
+              const uid = filterForm.getAttribute('data-id')
+              this.loadComments(url, table, uid)
+            }
+          })
+          .catch((error) => {
+            console.error('Failed to save user setting:', error)
+            top.TYPO3.Notification.error('Error', 'Failed to save setting.')
+          })
+      })
+    })
   }
 
   initCommentHover() {
