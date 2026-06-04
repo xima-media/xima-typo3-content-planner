@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner;
 
 use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
 use TYPO3\CMS\Backend\Form\FormDataProvider\EvaluateDisplayConditions;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
 use Xima\XimaTypo3ContentPlanner\Form\FormDataProvider\ContentPlannerFieldsReadOnly;
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
@@ -112,17 +113,41 @@ class Configuration
 
     public static function registerUserSettings(): void
     {
+        $label = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide';
+        $description = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide.description';
+        $tabLabel = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:content_planner';
+        $showitemAddition = '--div--;'.$tabLabel.',tx_ximatypo3contentplanner_hide';
+
+        // TYPO3 v14.2+ migrated user settings to TCA. The legacy
+        // $GLOBALS['TYPO3_USER_SETTINGS'] format without a 'config' key
+        // triggers a null pointer when opening the user settings module
+        // on v14.3. See https://docs.typo3.org/permalink/t3coreapi:user-settings-extending-migration
+        // @phpstan-ignore-next-line function.alreadyNarrowedType (kept for TYPO3 v13 backward compatibility)
+        if (method_exists(ExtensionManagementUtility::class, 'addUserSetting')) {
+            $GLOBALS['TCA']['be_users']['columns']['user_settings']['columns']['tx_ximatypo3contentplanner_hide'] = [
+                'label' => $label,
+                'description' => $description,
+                'config' => [
+                    'type' => 'check',
+                    'renderType' => 'checkboxToggle',
+                ],
+                'table' => 'be_users',
+            ];
+
+            $GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem']
+                = ($GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem'] ?? '').','.$showitemAddition;
+
+            return;
+        }
+
         $GLOBALS['TYPO3_USER_SETTINGS']['columns']['tx_ximatypo3contentplanner_hide'] = [
-            'label' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide',
-            'description' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide.description',
+            'label' => $label,
+            'description' => $description,
             'type' => 'check',
             'table' => 'be_users',
         ];
 
-        $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] .= ',
-            --div--;LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:content_planner,
-                tx_ximatypo3contentplanner_hide,
-        ';
+        $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] .= ','.$showitemAddition;
     }
 
     public static function registerPermissions(): void
