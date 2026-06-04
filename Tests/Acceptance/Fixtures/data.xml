@@ -152,15 +152,15 @@
                 </rec>
             </table>
             <table index="be_users" type="array">
-                <rec index="2" type="array">
-                    <uid>2</uid>
+                <rec index="100" type="array">
+                    <uid>100</uid>
                     <pid>0</pid>
                     <title>anna.schmidt</title>
                     <relations index="rels" type="array"></relations>
                     <softrefs type="array"></softrefs>
                 </rec>
-                <rec index="3" type="array">
-                    <uid>3</uid>
+                <rec index="101" type="array">
+                    <uid>101</uid>
                     <pid>0</pid>
                     <title>max.mueller</title>
                     <relations index="rels" type="array"></relations>
@@ -225,8 +225,8 @@
                     <item index="1">1</item>
                 </table>
                 <table index="be_users" type="array">
-                    <item index="2">1</item>
-                    <item index="3">1</item>
+                    <item index="100">1</item>
+                    <item index="101">1</item>
                 </table>
             </page_contents>
             <page_contents index="1" type="array">
@@ -513,7 +513,7 @@ Third point</field>
                 <field index="date" type="integer">0</field>
                 <field index="tx_impexp_origuid" type="integer">0</field>
                 <field index="tx_ximatypo3contentplanner_status" type="integer">2</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">3</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">101</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -628,7 +628,7 @@ Third point</field>
                 <field index="items" type="integer">0</field>
                 <field index="parent" type="integer">0</field>
                 <field index="tx_ximatypo3contentplanner_status" type="integer">1</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">2</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">100</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -658,7 +658,7 @@ Third point</field>
                 <field index="items" type="integer">0</field>
                 <field index="parent" type="integer">0</field>
                 <field index="tx_ximatypo3contentplanner_status" type="integer">3</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">3</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">101</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -858,7 +858,7 @@ Third point</field>
                 <field index="sitemap_priority">0.5</field>
                 <field index="sitemap_changefreq"></field>
                 <field index="tx_ximatypo3contentplanner_status" type="integer">3</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">2</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">100</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">2</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -943,7 +943,7 @@ Third point</field>
                 <field index="sitemap_priority">0.5</field>
                 <field index="sitemap_changefreq"></field>
                 <field index="tx_ximatypo3contentplanner_status" type="integer">1</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">3</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">101</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">0</field>
             </fieldlist>
             <related index="rels" type="array"></related>
@@ -1028,14 +1028,14 @@ Third point</field>
                 <field index="sitemap_priority">0.5</field>
                 <field index="sitemap_changefreq"></field>
                 <field index="tx_ximatypo3contentplanner_status" type="integer">2</field>
-                <field index="tx_ximatypo3contentplanner_assignee" type="integer">2</field>
+                <field index="tx_ximatypo3contentplanner_assignee" type="integer">100</field>
                 <field index="tx_ximatypo3contentplanner_comments" type="integer">3</field>
             </fieldlist>
             <related index="rels" type="array"></related>
         </tablerow>
-        <tablerow index="be_users:2" type="array">
+        <tablerow index="be_users:100" type="array">
             <fieldlist index="data" type="array">
-                <field index="uid" type="integer">2</field>
+                <field index="uid" type="integer">100</field>
                 <field index="pid" type="integer">0</field>
                 <field index="tstamp" type="integer">1736858391</field>
                 <field index="crdate" type="integer">1736858391</field>
@@ -1056,9 +1056,9 @@ Third point</field>
             </fieldlist>
             <related index="rels" type="array"></related>
         </tablerow>
-        <tablerow index="be_users:3" type="array">
+        <tablerow index="be_users:101" type="array">
             <fieldlist index="data" type="array">
-                <field index="uid" type="integer">3</field>
+                <field index="uid" type="integer">101</field>
                 <field index="pid" type="integer">0</field>
                 <field index="tstamp" type="integer">1736858391</field>
                 <field index="crdate" type="integer">1736858391</field>
@@ -1092,7 +1092,7 @@ Third point</field>
                 <field index="content">&lt;p&gt;Startseite ist fertig. Bitte nochmal die Texte gegenlesen.&lt;/p&gt;</field>
                 <field index="author" type="integer">1</field>
                 <field index="edited" type="integer">0</field>
-                <field index="resolved_user" type="integer">2</field>
+                <field index="resolved_user" type="integer">100</field>
                 <field index="resolved_date" type="integer">1736862000</field>
                 <field index="todo_resolved" type="integer">0</field>
                 <field index="todo_total" type="integer">0</field>
@@ -1111,7 +1111,7 @@ Third point</field>
                 <field index="foreign_uid" type="integer">1</field>
                 <field index="foreign_table">pages</field>
                 <field index="content">&lt;p&gt;Sieht gut aus, Layout und Inhalte passen. Freigabe erteilt!&lt;/p&gt;</field>
-                <field index="author" type="integer">2</field>
+                <field index="author" type="integer">100</field>
                 <field index="edited" type="integer">0</field>
                 <field index="resolved_user" type="integer">0</field>
                 <field index="resolved_date" type="integer">0</field>
@@ -1132,7 +1132,7 @@ Third point</field>
                 <field index="foreign_uid" type="integer">2</field>
                 <field index="foreign_table">pages</field>
                 <field index="content">&lt;p&gt;Die Projektuebersicht braucht noch aktuelle Screenshots und eine Beschreibung der Meilensteine.&lt;/p&gt;</field>
-                <field index="author" type="integer">2</field>
+                <field index="author" type="integer">100</field>
                 <field index="edited" type="integer">0</field>
                 <field index="resolved_user" type="integer">0</field>
                 <field index="resolved_date" type="integer">0</field>
@@ -1153,7 +1153,7 @@ Third point</field>
                 <field index="foreign_uid" type="integer">2</field>
                 <field index="foreign_table">pages</field>
                 <field index="content">&lt;p&gt;Ich kuemmere mich um die Screenshots. Die Meilensteine kann ich bis Donnerstag ergaenzen.&lt;/p&gt;</field>
-                <field index="author" type="integer">3</field>
+                <field index="author" type="integer">101</field>
                 <field index="edited" type="integer">0</field>
                 <field index="resolved_user" type="integer">0</field>
                 <field index="resolved_date" type="integer">0</field>
@@ -1174,7 +1174,7 @@ Third point</field>
                 <field index="foreign_uid" type="integer">2</field>
                 <field index="foreign_table">pages</field>
                 <field index="content">&lt;p&gt;Super, danke! Deadline fuer die gesamte Seite ist naechsten Freitag.&lt;/p&gt;</field>
-                <field index="author" type="integer">2</field>
+                <field index="author" type="integer">100</field>
                 <field index="edited" type="integer">0</field>
                 <field index="resolved_user" type="integer">0</field>
                 <field index="resolved_date" type="integer">0</field>
@@ -1216,7 +1216,7 @@ Third point</field>
                 <field index="foreign_uid" type="integer">4</field>
                 <field index="foreign_table">pages</field>
                 <field index="content">&lt;p&gt;Marketing-Freigabe ist raus. Warten auf Rueckmeldung, sollte bis Mittwoch kommen.&lt;/p&gt;</field>
-                <field index="author" type="integer">3</field>
+                <field index="author" type="integer">101</field>
                 <field index="edited" type="integer">1</field>
                 <field index="resolved_user" type="integer">0</field>
                 <field index="resolved_date" type="integer">0</field>
