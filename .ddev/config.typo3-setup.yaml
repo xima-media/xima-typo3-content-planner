@@ -1,0 +1,8 @@
+type: php
+docroot: .Build
+additional_hostnames:
+  - 13.xima-typo3-content-planner
+  - 14.xima-typo3-content-planner
+hooks:
+   post-start:
+    - exec: mkdir -p /var/www/html/.Build/ && cp /var/www/html/.ddev/.setup/templates/* /var/www/html/.Build/
