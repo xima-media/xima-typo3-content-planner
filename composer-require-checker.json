@@ -1,0 +1,12 @@
+{
+	"symbol-whitelist": [
+		"TYPO3\\CMS\\Backend\\Controller\\Event\\AfterFileStorageTreeItemsPreparedEvent",
+		"TYPO3\\CMS\\Backend\\Template\\Components\\ActionGroup",
+		"TYPO3\\CMS\\Core\\SystemResource\\Publishing\\SystemResourcePublisherInterface",
+		"TYPO3\\CMS\\Core\\SystemResource\\Publishing\\UriGenerationOptions",
+		"TYPO3\\CMS\\Core\\SystemResource\\SystemResourceFactory",
+		"TYPO3\\CMS\\Dashboard\\Widgets\\WidgetContext",
+		"TYPO3\\CMS\\Dashboard\\Widgets\\WidgetRendererInterface",
+		"TYPO3\\CMS\\Dashboard\\Widgets\\WidgetResult"
+	]
+}
