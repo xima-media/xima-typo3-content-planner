@@ -15,8 +15,6 @@ namespace Xima\XimaTypo3ContentPlanner\Utility\Rendering;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
-use TYPO3\CMS\Core\SystemResource\Publishing\{SystemResourcePublisherInterface, UriGenerationOptions};
-use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
 use TYPO3\CMS\Core\Utility\{GeneralUtility, PathUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\VersionUtility;
 
@@ -75,18 +73,27 @@ class AssetUtility
     public static function getPublicResourcePath(string $resourcePath): string
     {
         if (VersionUtility::is14OrHigher()) {
-            /** @var SystemResourceFactory $resourceFactory */
-            $resourceFactory = GeneralUtility::makeInstance(SystemResourceFactory::class);
-            /** @var SystemResourcePublisherInterface $resourcePublisher */
-            $resourcePublisher = GeneralUtility::makeInstance(SystemResourcePublisherInterface::class);
+            // FQN strings to keep PHPStan happy when analysing against TYPO3 v13,
+            // where these classes do not exist. Runtime path is v14-only anyway.
+            $factoryClass = 'TYPO3\\CMS\\Core\\SystemResource\\SystemResourceFactory';
+            $publisherClass = 'TYPO3\\CMS\\Core\\SystemResource\\Publishing\\SystemResourcePublisherInterface';
+            $optionsClass = 'TYPO3\\CMS\\Core\\SystemResource\\Publishing\\UriGenerationOptions';
+
+            // @phpstan-ignore argument.type
+            $resourceFactory = GeneralUtility::makeInstance($factoryClass);
+            // @phpstan-ignore argument.type
+            $resourcePublisher = GeneralUtility::makeInstance($publisherClass);
+            // @phpstan-ignore class.notFound, method.notFound
             $resource = $resourceFactory->createPublicResource($resourcePath);
             /** @var ServerRequestInterface|null $request */
             $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
 
+            // @phpstan-ignore class.notFound, method.notFound
             return (string) $resourcePublisher->generateUri(
                 $resource,
                 $request,
-                new UriGenerationOptions(absoluteUri: false),
+                // @phpstan-ignore class.notFound
+                new $optionsClass(absoluteUri: false),
             );
         }
 

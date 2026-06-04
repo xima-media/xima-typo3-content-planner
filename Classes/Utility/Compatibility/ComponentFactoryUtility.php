@@ -28,6 +28,7 @@ class ComponentFactoryUtility
     public static function createDropDownButton(): DropDownButton
     {
         if (VersionUtility::is14OrHigher()) {
+            // @phpstan-ignore method.notFound
             return self::getComponentFactory()->createDropDownButton();
         }
 
@@ -37,6 +38,7 @@ class ComponentFactoryUtility
     public static function createDropDownItem(): DropDownItem
     {
         if (VersionUtility::is14OrHigher()) {
+            // @phpstan-ignore method.notFound
             return self::getComponentFactory()->createDropDownItem();
         }
 
@@ -46,6 +48,7 @@ class ComponentFactoryUtility
     public static function createDropDownDivider(): DropDownDivider
     {
         if (VersionUtility::is14OrHigher()) {
+            // @phpstan-ignore method.notFound
             return self::getComponentFactory()->createDropDownDivider();
         }
 
@@ -55,6 +58,7 @@ class ComponentFactoryUtility
     public static function createDropDownHeader(): DropDownHeader
     {
         if (VersionUtility::is14OrHigher()) {
+            // @phpstan-ignore method.notFound
             return self::getComponentFactory()->createDropDownHeader();
         }
 
@@ -62,13 +66,16 @@ class ComponentFactoryUtility
     }
 
     /**
-     * @return \TYPO3\CMS\Backend\Template\Components\ComponentFactory
+     * Returns the v14-only ComponentFactory instance. Return type is `object`
+     * (not the FQN) so PHPStan does not have to resolve the v14 class when
+     * analysing against TYPO3 v13.
      */
     private static function getComponentFactory(): object
     {
-        // Use dynamic class name to avoid autoload issues on TYPO3 13
+        // Dynamic class name to avoid autoload issues on TYPO3 13
         $componentFactoryClass = 'TYPO3\\CMS\\Backend\\Template\\Components\\ComponentFactory';
 
+        // @phpstan-ignore argument.type
         return GeneralUtility::makeInstance($componentFactoryClass);
     }
 }
