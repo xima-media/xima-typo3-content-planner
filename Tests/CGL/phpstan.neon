@@ -5,6 +5,11 @@ includes:
 parameters:
 	level: 6
 
+	# Allow unmatched ignores: necessary because the lock-file determines which
+	# TYPO3 major is installed when PHPStan runs, and some ignores only match
+	# in v13 or v14 (e.g. deprecation notices, instanceof always-true/always-false).
+	reportUnmatchedIgnoredErrors: false
+
 	scanDirectories:
 		- ../../vendor
 		- ../../vendor/phpunit/phpunit/src
@@ -17,6 +22,7 @@ parameters:
 		- ../../.Build (?)
 		# TYPO3 v14 only - uses classes that don't exist in v13
 		- ../../Classes/EventListener/AfterFileStorageTreeItemsPreparedListener.php
+		- ../../Classes/Widgets/ConfigurableContentStatusWidget.php
 
 	type_coverage:
 		constant: 0 # TODO: Set to 100, when PHP 8.3 is minimum requirement
