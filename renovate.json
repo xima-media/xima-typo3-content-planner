@@ -7,8 +7,5 @@
 	"ignorePaths": [
 		"package-lock.json",
 		"Tests/Acceptance/Fixtures/**"
-	],
-	"constraints": {
-		"php": ">=8.2"
-	}
+	]
 }
