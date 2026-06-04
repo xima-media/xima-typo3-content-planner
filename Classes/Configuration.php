@@ -134,10 +134,8 @@ class Configuration
                 'table' => 'be_users',
             ];
 
-            $existingShowitem = trim($GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem'] ?? '', ", \t\n\r\0\x0B");
-            $GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem'] = '' !== $existingShowitem
-                ? $existingShowitem.','.$showitemAddition
-                : $showitemAddition;
+            $GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem']
+                = ($GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem'] ?? '').','.$showitemAddition;
 
             return;
         }
