@@ -1,6 +1,6 @@
 {
 	"name": "xima/xima-typo3-content-planner",
-	"description": "This extension provides a page status functionality to support the planning of content work.",
+	"description": "Content Planner - This extension provides a page status functionality to support the planning of content work.",
 	"license": [
 		"GPL-2.0-or-later"
 	],

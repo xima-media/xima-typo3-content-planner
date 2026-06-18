@@ -3,6 +3,10 @@
 	<file source-language="en" datatype="plaintext" original="messages">
 		<header/>
 		<body>
+			<trans-unit id="extension.title" resname="extension.title">
+				<source>Content Planner</source>
+				<target>Content Planner</target>
+			</trans-unit>
 			<trans-unit id="pages.tx_ximatypo3contentplanner_status">
 				<source>Status</source>
 				<target>Status</target>
