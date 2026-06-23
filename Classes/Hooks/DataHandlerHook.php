@@ -150,7 +150,8 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     public function clearCachePostProc(array $params): void
     {
-        $tags = array_keys($params['tags']);
+        $rawTags = $params['tags'] ?? [];
+        $tags = array_is_list($rawTags) ? $rawTags : array_keys($rawTags);
         if (in_array('uid_page', $params, true) && in_array('table', $params, true)) {
             $tags[] = $params['table'].'__pageId__'.$params['uid_page'];
         }
