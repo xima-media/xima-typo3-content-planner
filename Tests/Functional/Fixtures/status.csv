@@ -1,0 +1,5 @@
+"tx_ximatypo3contentplanner_domain_model_status"
+,"uid","pid","sorting","title","icon","color"
+,1,0,10,"Draft","flag","blue"
+,2,0,20,"In Progress","heart","yellow"
+,3,0,30,"Done","star","green"
