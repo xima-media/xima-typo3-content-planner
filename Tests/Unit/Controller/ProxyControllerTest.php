@@ -105,18 +105,14 @@ final class ProxyControllerTest extends TestCase
     private function createMockBackendUser(array $moduleData): object
     {
         return new class($moduleData) {
-            /** @var array<string, mixed> */
-            public array $stored;
-
             /** @var array{0: string, 1: mixed}|null */
             public ?array $pushed = null;
 
             /**
-             * @param array<string, mixed> $moduleData
+             * @param array<string, mixed> $stored
              */
-            public function __construct(array $moduleData)
+            public function __construct(public array $stored)
             {
-                $this->stored = $moduleData;
             }
 
             public function getModuleData(string $key): mixed
