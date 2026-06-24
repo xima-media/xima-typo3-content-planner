@@ -40,3 +40,5 @@ call_user_func(static function (): void {
     ExtensionManagementUtility::addTCAcolumns('be_users', $temporaryColumns);
     ExtensionManagementUtility::addToAllTCAtypes('be_users', '--div--;Content  Planner,--palette--;;tx_ximatypo3contentplanner');
 });
+
+Configuration::registerUserSettings();

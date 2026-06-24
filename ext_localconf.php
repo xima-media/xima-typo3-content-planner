@@ -21,3 +21,4 @@ Configuration::registerCache();
 Configuration::registerHooks();
 Configuration::addRegister();
 Configuration::registerFormDataProviders();
+Configuration::registerPermissions();
