@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 use Doctrine\DBAL\Exception;
 use DOMDocument;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
@@ -143,6 +144,21 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             $this->dispatchCommentEvents($status, $id, $fieldArray, $dataHandler);
             $this->updateCommentCountRelation($status, $id, $fieldArray, $dataHandler);
         }
+
+        if ($this->shouldRefreshPageTree($table, $fieldArray)) {
+            BackendUtility::setUpdateSignal('updatePageTree');
+        }
+    }
+
+    /**
+     * The page tree node color is derived from the content planner status field, but the core does
+     * not treat this custom field as tree-relevant — so a FormEngine save would not refresh the tree.
+     *
+     * @param array<string, mixed> $fieldArray
+     */
+    public function shouldRefreshPageTree(string $table, array $fieldArray): bool
+    {
+        return 'pages' === $table && array_key_exists(Configuration::FIELD_STATUS, $fieldArray);
     }
 
     /**
