@@ -40,8 +40,9 @@ class Notification {
           top.TYPO3.Notification.error('Error', 'Failed to fetch notification message.');
         }
       }).catch(error => {
-          console.error('AJAX request failed:', error);
-          top.TYPO3.Notification.error('Error', 'Network error occurred while fetching notification message.');
+          // The request was likely aborted by a content frame refresh (e.g. Firefox NS_BINDING_ABORTED).
+          // The underlying action already completed, so the missing notification toast is non-critical.
+          console.debug('Content Planner: notification message request did not complete:', error);
       });
   }
 }
