@@ -11,7 +11,7 @@ database:
 hooks:
     post-start:
         - exec: composer install --ignore-platform-reqs --no-scripts
-webimage_extra_packages: [libxml2-utils]
+webimage_extra_packages: [libxml2-utils, php8.2-pcov]
 use_dns_when_possible: true
 composer_version: "2"
 web_environment: []
