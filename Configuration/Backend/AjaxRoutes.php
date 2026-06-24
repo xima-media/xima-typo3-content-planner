@@ -32,4 +32,8 @@ return [
         'path' => '/content-planner/user-setting',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::userSettingAction',
     ],
+    'ximatypo3contentplanner_closedocument' => [
+        'path' => '/content-planner/close-document',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::closeDocumentAction',
+    ],
 ];

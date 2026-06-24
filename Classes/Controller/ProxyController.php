@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Controller;
 
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\{JsonResponse, RedirectResponse};
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\{FlashMessage, FlashMessageQueue, FlashMessageService};
@@ -21,6 +22,9 @@ use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+
+use function count;
+use function is_array;
 
 /**
  * ProxyController.
@@ -178,6 +182,38 @@ class ProxyController extends ActionController
             'message' => $this->getLanguageService()->sL($message['message']),
             'severity' => $message['severity'],
         ]);
+    }
+
+    /**
+     * Removes orphaned "open document" references of the comment table from the FormEngine
+     * module data. Comments are edited through an ephemeral iframe modal: after saving, FormEngine
+     * re-renders the record in edit mode and registers it as an open document, which the modal then
+     * silently closes — leaving a stale entry in the "opendocs" toolbar. This cleans it up.
+     */
+    public function closeDocumentAction(ServerRequestInterface $request): ResponseInterface
+    {
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $docData = $backendUser->getModuleData('FormEngine');
+
+        if (!is_array($docData) || !isset($docData[0]) || !is_array($docData[0])) {
+            return new JsonResponse(['openDocuments' => 0, 'removed' => 0]);
+        }
+
+        $docHandler = $docData[0];
+        $removed = 0;
+        foreach ($docHandler as $identifier => $document) {
+            if (Configuration::TABLE_COMMENT === ($document[3]['table'] ?? null)) {
+                unset($docHandler[$identifier]);
+                ++$removed;
+            }
+        }
+
+        if ($removed > 0) {
+            $backendUser->pushModuleData('FormEngine', [$docHandler, $docData[1] ?? '']);
+        }
+
+        return new JsonResponse(['openDocuments' => count($docHandler), 'removed' => $removed]);
     }
 
     /**

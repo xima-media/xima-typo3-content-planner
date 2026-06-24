@@ -3,6 +3,7 @@
 */
 import Modal from "@typo3/backend/modal.js"
 import Viewport from "@typo3/backend/viewport.js"
+import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Notification from "@xima/ximatypo3contentplanner/notification.js";
 
 class CreateAndEditCommentModal {
@@ -47,21 +48,39 @@ class CreateAndEditCommentModal {
           const isNew = iframe.contentWindow.document.querySelector('.is-new') !== null
           iframe.removeEventListener('load', initialLoad)
           iframe.addEventListener('load', function afterSubmit() {
-            Viewport.ContentContainer.refresh()
-            modal.hideModal()
+            const finish = () => {
+              Viewport.ContentContainer.refresh()
+              modal.hideModal()
 
-            Notification.message(isNew ? 'comment.create' : 'comment.edit', 'success')
-            if (element) {
-              element.dispatchEvent(new CustomEvent('typo3:contentplanner:reloadcomments', {
-                detail: {
-                  url: TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments,
-                  table,
-                  id: uid
-                },
-                bubbles: true,
-                composed: true
-              }))
+              Notification.message(isNew ? 'comment.create' : 'comment.edit', 'success')
+              if (element) {
+                element.dispatchEvent(new CustomEvent('typo3:contentplanner:reloadcomments', {
+                  detail: {
+                    url: TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments,
+                    table,
+                    id: uid
+                  },
+                  bubbles: true,
+                  composed: true
+                }))
+              }
             }
+
+            // Saving re-renders the comment in edit mode, registering it as an "open document".
+            // Clean up that orphaned reference before tearing down the modal (see issue #238).
+            new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_closedocument)
+              .get()
+              .then(() => {
+                // Official opendocs refresh signal — the toolbar (top frame) re-renders on this event.
+                // No-op when opendocs is not installed (no listener registered).
+                try {
+                  top.document.dispatchEvent(new CustomEvent('typo3:opendocs:updateRequested'))
+                } catch (e) {
+                  // top frame not reachable — server-side state is already clean
+                }
+              })
+              .catch(error => console.debug('Content Planner: close-document request did not complete:', error))
+              .finally(finish)
           })
         })
       },
