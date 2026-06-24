@@ -91,8 +91,6 @@
 			"@test:unit",
 			"@test:functional"
 		],
-		"test:unit": "phpunit -c phpunit.xml --no-coverage",
-		"test:functional": "phpunit -c phpunit.functional.xml --no-coverage",
 		"test:coverage": [
 			"@putenv XDEBUG_MODE=coverage",
 			"@test:coverage:clean",
@@ -101,6 +99,8 @@
 			"@test:coverage:merge"
 		],
 		"test:coverage:clean": "rm -rf .Build/coverage/cov && mkdir -p .Build/coverage/cov",
-		"test:coverage:merge": "phpcov merge --clover .Build/coverage/clover.xml --html .Build/coverage/html --text php://stdout .Build/coverage/cov"
+		"test:coverage:merge": "phpcov merge --clover .Build/coverage/clover.xml --html .Build/coverage/html --text php://stdout .Build/coverage/cov",
+		"test:functional": "phpunit -c phpunit.functional.xml --no-coverage",
+		"test:unit": "phpunit -c phpunit.xml --no-coverage"
 	}
 }
