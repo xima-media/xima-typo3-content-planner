@@ -1,0 +1,8 @@
+"sys_file"
+,"uid","pid","storage","identifier","name","extension","mime_type","missing"
+,1,0,1,"/user_upload/example.pdf","example.pdf","pdf","application/pdf",0
+,2,0,1,"/user_upload/image.jpg","image.jpg","jpg","image/jpeg",0
+"sys_file_metadata"
+,"uid","pid","file","tx_ximatypo3contentplanner_status","tx_ximatypo3contentplanner_assignee","tx_ximatypo3contentplanner_comments"
+,1,0,1,2,1,0
+,2,0,2,0,0,0

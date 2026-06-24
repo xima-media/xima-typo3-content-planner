@@ -1,0 +1,5 @@
+"pages"
+,"uid","pid","title","tstamp","deleted","hidden","tx_ximatypo3contentplanner_status","tx_ximatypo3contentplanner_assignee","tx_ximatypo3contentplanner_comments","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody"
+,1,0,"Home",1000,0,0,2,1,1,1,0,31,31,31
+,2,1,"No status page",2000,0,0,0,0,0,1,0,31,31,31
+,3,1,"Status with comments page",3000,0,0,3,1,2,1,0,31,31,31

@@ -1,0 +1,5 @@
+"tx_ximatypo3contentplanner_comment"
+,"uid","pid","foreign_uid","foreign_table","content","author","edited","resolved_user","resolved_date","todo_resolved","todo_total","parent_uid","crdate","tstamp","deleted"
+,1,1,1,"pages","Root comment with a question","1","0","0","0","1","2","0","1700000100","1700000100","0"
+,2,1,1,"pages","A reply to the root comment","2","1","0","0","0","0","1","1700000200","1700000200","0"
+,3,1,1,"pages","Resolved comment","2","0","1","1700000300","0","0","0","1700000050","1700000300","0"
