@@ -136,6 +136,32 @@ final class ColorsTest extends TestCase
         Colors::get('');
     }
 
+    public function testGetHexWithAllValidColors(): void
+    {
+        $expectedResults = [
+            'black' => '#90a4ae',
+            'blue' => '#64bbc8',
+            'green' => '#6a9e71',
+            'yellow' => '#ffcd75',
+            'red' => '#fa8893',
+            'purple' => '#5c6bc0',
+            'orange' => '#ff7043',
+        ];
+
+        foreach ($expectedResults as $color => $expectedHex) {
+            self::assertSame($expectedHex, Colors::getHex($color), "Color '{$color}' should return correct hex value");
+        }
+    }
+
+    public function testGetHexWithInvalidColorCodeThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid color code');
+        $this->expectExceptionCode(2653877738);
+
+        Colors::getHex('invalid_color');
+    }
+
     public function testColorNamingConvention(): void
     {
         foreach (Colors::STATUS_COLORS as $color) {
