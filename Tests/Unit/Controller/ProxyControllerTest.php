@@ -111,9 +111,7 @@ final class ProxyControllerTest extends TestCase
             /**
              * @param array<string, mixed> $stored
              */
-            public function __construct(public array $stored)
-            {
-            }
+            public function __construct(public array $stored) {}
 
             public function getModuleData(string $key): mixed
             {
