@@ -83,30 +83,6 @@
 				<source>Assignee</source>
 				<target>Zuständigkeit</target>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.author">
-				<source>Author</source>
-				<target>Autor</target>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.comment">
-				<source>Comment</source>
-				<target>Kommentar</target>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.comments">
-				<source>Comments</source>
-				<target>Kommentare</target>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.page">
-				<source>Page</source>
-				<target>Seite</target>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.user">
-				<source>User</source>
-				<target>Benutzer</target>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.change">
-				<source>Change note</source>
-				<target>Änderungshinweis</target>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.assignee">
 				<source><![CDATA[There are currently <span class="badge">0</span> content planner records assigned to you.]]></source>
 				<target><![CDATA[Aktuell sind dir <span class="badge">0</span> Content Planner Datensätze zugewiesen.]]></target>
@@ -209,10 +185,6 @@
 			<trans-unit id="button.modal.footer.edit">
 				<source>Edit</source>
 				<target>Bearbeiten</target>
-			</trans-unit>
-			<trans-unit id="button.modal.footer.save">
-				<source>Save</source>
-				<target>Speichern</target>
 			</trans-unit>
 
 			<!-- header info -->
@@ -460,6 +432,12 @@
 			<trans-unit id="assignee.documentation">
 				<source><![CDATA[You can find more information about the assignee feature in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
 				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
+			</trans-unit>
+
+			<!-- mail -->
+			<trans-unit id="mail.signature">
+				<source></source>
+				<target></target>
 			</trans-unit>
 		</body>
 	</file>

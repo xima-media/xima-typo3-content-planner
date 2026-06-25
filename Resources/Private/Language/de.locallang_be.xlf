@@ -7,22 +7,6 @@
 				<source>Content Status</source>
 				<target>Inhaltsstatus</target>
 			</trans-unit>
-			<trans-unit id="status.danger">
-				<source>Pending</source>
-				<target>Ausstehend</target>
-			</trans-unit>
-			<trans-unit id="status.info">
-				<source>In progress</source>
-				<target>In Bearbeitung</target>
-			</trans-unit>
-			<trans-unit id="status.warning">
-				<source>Needs review</source>
-				<target>Benötigt Überprüfung</target>
-			</trans-unit>
-			<trans-unit id="status.success">
-				<source>Completed</source>
-				<target>Abgeschlossen</target>
-			</trans-unit>
 			<trans-unit id="reset">
 				<source>Reset Status</source>
 				<target>Status zurücksetzen</target>
@@ -37,10 +21,6 @@
 			</trans-unit>
 			<trans-unit id="comments.todo">
 				<source>ToDo(s)</source>
-			</trans-unit>
-			<trans-unit id="currentAssignee">
-				<source>Current Assignee</source>
-				<target>Aktueller Zuständiger</target>
 			</trans-unit>
 			<trans-unit id="header.unassigned">
 				<source>-- Not assigned --</source>
