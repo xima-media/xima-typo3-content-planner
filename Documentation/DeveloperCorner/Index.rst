@@ -16,4 +16,5 @@ into the status process.
 
     AdditionalRecords
     Events
+    ExtensionUtility
     PlannerUtility
