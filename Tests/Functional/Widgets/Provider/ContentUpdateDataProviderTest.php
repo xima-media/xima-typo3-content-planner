@@ -57,7 +57,7 @@ final class ContentUpdateDataProviderTest extends AbstractFunctionalTestCase
     #[Test]
     public function fetchUpdateDataReturnsEmptyArrayForFutureTimestamp(): void
     {
-        $items = $this->subject->fetchUpdateData(tstamp: 99999999, maxItems: 15);
+        $items = $this->subject->fetchUpdateData(tstamp: time() + 3600, maxItems: 15);
 
         self::assertSame([], $items);
     }

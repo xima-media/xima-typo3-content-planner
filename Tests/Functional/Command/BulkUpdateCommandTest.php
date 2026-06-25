@@ -199,17 +199,19 @@ final class BulkUpdateCommandTest extends AbstractFunctionalTestCase
     public function clearingStatusDeletesCommentsWhenFeatureEnabled(): void
     {
         $previous = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] ?? [];
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET] = '1';
-        GeneralUtility::makeInstance(ExtensionConfiguration::class)->set(Configuration::EXT_KEY, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]);
+        try {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET] = '1';
+            GeneralUtility::makeInstance(ExtensionConfiguration::class)->set(Configuration::EXT_KEY, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]);
 
-        $exitCode = $this->tester->execute([
-            'table' => 'pages',
-            'uid' => '1',
-            'status' => '0',
-        ]);
-
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $previous;
-        GeneralUtility::makeInstance(ExtensionConfiguration::class)->set(Configuration::EXT_KEY, $previous);
+            $exitCode = $this->tester->execute([
+                'table' => 'pages',
+                'uid' => '1',
+                'status' => '0',
+            ]);
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $previous;
+            GeneralUtility::makeInstance(ExtensionConfiguration::class)->set(Configuration::EXT_KEY, $previous);
+        }
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertSame(0, $this->get(CommentRepository::class)->countAllByRecord(1, 'pages'));

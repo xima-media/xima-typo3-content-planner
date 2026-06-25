@@ -18,8 +18,6 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
-use function count;
-
 /**
  * StatusRepositoryTest.
  *
@@ -54,7 +52,12 @@ final class StatusRepositoryTest extends AbstractFunctionalTestCase
         $first = $this->subject->findAll();
         $second = $this->subject->findAll();
 
-        self::assertSame(count($first), count($second));
+        $identify = static fn (array $statuses): array => array_map(
+            static fn (Status $status): string => $status->getUid().':'.$status->getTitle(),
+            $statuses,
+        );
+
+        self::assertSame($identify($first), $identify($second));
     }
 
     #[Test]

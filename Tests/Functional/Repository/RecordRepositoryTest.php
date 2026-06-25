@@ -14,7 +14,8 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Repository;
 
 use PHPUnit\Framework\Attributes\Test;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -136,11 +137,24 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     {
         $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
 
+        // The comment fixture targets foreign_uid=10; create that page so the relation can be written.
+        $this->get(ConnectionPool::class)->getConnectionForTable('pages')->insert('pages', [
+            'uid' => 10,
+            'pid' => 1,
+            'title' => 'Commented page',
+            'perms_user' => 31,
+            'perms_group' => 31,
+            'perms_everybody' => 31,
+        ]);
+
+        $expectedCount = $this->get(CommentRepository::class)->countAllByRecord(10, 'pages');
+        self::assertGreaterThan(0, $expectedCount);
+
         $this->subject->updateCommentsRelationByRecord('pages', 10);
 
-        // Record 10 does not exist in pages fixture, so nothing updates; ensure no error and page 1 untouched.
-        $record = $this->subject->findByUid('pages', 1);
+        $record = $this->subject->findByUid('pages', 10);
         self::assertIsArray($record);
+        self::assertSame($expectedCount, (int) $record['tx_ximatypo3contentplanner_comments']);
     }
 
     // NOTE: findAllByFilter() builds raw "(SELECT ...) UNION (SELECT ...)" SQL which is invalid
