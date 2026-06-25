@@ -1,0 +1,9 @@
+orphans:
+  # These key families are assembled at runtime and cannot be detected statically:
+  #   - timeAgo.*                    DiffUtility builds 'timeAgo.' . $unit
+  #   - history.*                    DiffUtility builds 'history.record|comment|reply.' . $parts
+  #   - comment.actions.{status}.*   Fluid resolves {status} (resolve|unresolve) at render time
+  suppressions:
+    - 'timeAgo.*'
+    - 'history.*'
+    - 'comment.actions.*'
