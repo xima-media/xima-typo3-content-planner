@@ -15,8 +15,10 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\EventListener;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Template\Components\{ButtonBar, ModifyButtonBarEvent};
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\EventListener\ModifyButtonBarEventListener;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\VersionUtility;
 
 /**
  * ModifyButtonBarEventListenerTest.
@@ -99,6 +101,11 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
      */
     private function createEvent(array $buttons = []): ModifyButtonBarEvent
     {
-        return new ModifyButtonBarEvent($buttons, $this->get(ButtonBar::class), $GLOBALS['TYPO3_REQUEST']);
+        $buttonBar = GeneralUtility::makeInstance(ButtonBar::class);
+
+        // TYPO3 v14 added the request as a third constructor argument.
+        return VersionUtility::is14OrHigher()
+            ? new ModifyButtonBarEvent($buttons, $buttonBar, $GLOBALS['TYPO3_REQUEST'])
+            : new ModifyButtonBarEvent($buttons, $buttonBar);
     }
 }

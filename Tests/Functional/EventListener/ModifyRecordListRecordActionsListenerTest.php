@@ -22,6 +22,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Domain\RecordFactory;
 use Xima\XimaTypo3ContentPlanner\EventListener\ModifyRecordListRecordActionsListener;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\VersionUtility;
 
 /**
  * ModifyRecordListRecordActionsListenerTest.
@@ -36,6 +37,11 @@ final class ModifyRecordListRecordActionsListenerTest extends AbstractFunctional
     protected function setUp(): void
     {
         parent::setUp();
+
+        if (!VersionUtility::is14OrHigher()) {
+            self::markTestSkipped('ModifyRecordListRecordActionsEvent relies on ComponentGroup, available since TYPO3 v14.');
+        }
+
         $this->importSharedDataSet('status.csv');
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
         $this->loginBackendUser();
