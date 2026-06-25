@@ -3,10 +3,6 @@
 	<file source-language="en" datatype="plaintext" original="messages">
 		<header/>
 		<body>
-			<trans-unit id="extension.title" resname="extension.title">
-				<source>Content Planner</source>
-				<target>Content Planner</target>
-			</trans-unit>
 			<trans-unit id="pages.tx_ximatypo3contentplanner_status">
 				<source>Status</source>
 				<target>Status</target>
@@ -26,14 +22,6 @@
 			<trans-unit id="tx_ximatypo3contentplanner_comment.content">
 				<source>Content</source>
 				<target>Inhalt</target>
-			</trans-unit>
-			<trans-unit id="tx_ximatypo3contentplanner_comment.resolved">
-				<source>Resolved</source>
-				<target>Erledigt</target>
-			</trans-unit>
-			<trans-unit id="tx_ximatypo3contentplanner_comment.author">
-				<source>Author</source>
-				<target>Autor</target>
 			</trans-unit>
 			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide">
 				<source>Hide content planner</source>

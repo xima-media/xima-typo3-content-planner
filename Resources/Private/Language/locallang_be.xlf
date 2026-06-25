@@ -6,18 +6,6 @@
 			<trans-unit id="status">
 				<source>Content Status</source>
 			</trans-unit>
-			<trans-unit id="status.danger">
-				<source>Pending</source>
-			</trans-unit>
-			<trans-unit id="status.info">
-				<source>In progress</source>
-			</trans-unit>
-			<trans-unit id="status.warning">
-				<source>Needs review</source>
-			</trans-unit>
-			<trans-unit id="status.success">
-				<source>Completed</source>
-			</trans-unit>
 			<trans-unit id="reset">
 				<source>Reset Status</source>
 			</trans-unit>
@@ -29,9 +17,6 @@
 			</trans-unit>
 			<trans-unit id="comments.todo">
 				<source>ToDo(s)</source>
-			</trans-unit>
-			<trans-unit id="currentAssignee">
-				<source>Current Assignee</source>
 			</trans-unit>
 			<trans-unit id="header.unassigned">
 				<source>-- Not assigned --</source>

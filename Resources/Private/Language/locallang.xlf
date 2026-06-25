@@ -63,24 +63,6 @@
 			<trans-unit id="widgets.contentPlanner.header.assignee">
 				<source>Assignee</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.author">
-				<source>Author</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.comment">
-				<source>Comment</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.comments">
-				<source>Comments</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.page">
-				<source>Page</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.user">
-				<source>User</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.change">
-				<source>Change note</source>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.assignee">
 				<source><![CDATA[There are currently <span class="badge">0</span> content planner records assigned to you.]]></source>
 			</trans-unit>
@@ -99,9 +81,6 @@
 			</trans-unit>
 			<trans-unit id="button.modal.footer.edit">
 				<source>Edit</source>
-			</trans-unit>
-			<trans-unit id="button.modal.footer.save">
-				<source>Save</source>
 			</trans-unit>
 			<!-- header info -->
 			<trans-unit id="header.status">
@@ -347,6 +326,11 @@
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.recordType.all">
 				<source>All record types</source>
+			</trans-unit>
+
+			<!-- mail -->
+			<trans-unit id="mail.signature">
+				<source></source>
 			</trans-unit>
 		</body>
 	</file>
