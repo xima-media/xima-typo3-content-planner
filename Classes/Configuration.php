@@ -147,7 +147,7 @@ class Configuration
             'table' => 'be_users',
         ];
 
-        $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] .= ','.$showitemAddition;
+        $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] = ($GLOBALS['TYPO3_USER_SETTINGS']['showitem'] ?? '').','.$showitemAddition;
     }
 
     public static function registerPermissions(): void
