@@ -174,6 +174,10 @@
 				<source>Comments</source>
 				<target>Kommentare</target>
 			</trans-unit>
+			<trans-unit id="button.modal.header.assignee">
+				<source>Assignee</source>
+				<target>Zuständigkeit</target>
+			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
 				<source>Cancel</source>
 				<target>Abbrechen</target>
