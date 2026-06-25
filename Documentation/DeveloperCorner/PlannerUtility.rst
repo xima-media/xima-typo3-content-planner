@@ -80,6 +80,13 @@ The :php:`PlannerUtility` can be used to easily interact programmatically with t
         :param string|null $like: Optional string to filter comments by content.
         :returntype: :php:`void`
 
+    ..  php:method:: hasComments($record)
+
+        Simple function to check whether a record has comments.
+
+        :param array $record: Record array containing the content planner comment counter field.
+        :returntype: :php:`bool`
+
 ..  seealso::
 
     View the sources on GitHub:
