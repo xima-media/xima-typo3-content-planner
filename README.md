@@ -47,7 +47,7 @@ This TYPO3 extension adds content planning capabilities to the TYPO3 backend: as
 
 ### Requirements
 
-* TYPO3 13.4 LTS & 14.0+
+* TYPO3 13.4 LTS & 14.3+
 * PHP 8.2+
 
 ### Supports
