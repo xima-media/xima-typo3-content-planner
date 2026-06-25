@@ -73,6 +73,9 @@
 			<trans-unit id="button.modal.header.comments">
 				<source>Comments</source>
 			</trans-unit>
+			<trans-unit id="button.modal.header.assignee">
+				<source>Assignee</source>
+			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
 				<source>Cancel</source>
 			</trans-unit>
