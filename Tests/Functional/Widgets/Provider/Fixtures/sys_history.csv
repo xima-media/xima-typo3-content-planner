@@ -1,0 +1,4 @@
+"sys_history"
+,"uid","tstamp","actiontype","usertype","userid","recuid","tablename","history_data","workspace","correlation_id"
+,1,1000,1,"BE",1,1,"pages","{""oldRecord"":{""tx_ximatypo3contentplanner_status"":""0""},""newRecord"":{""tx_ximatypo3contentplanner_status"":""1""}}",0,""
+,2,2000,1,"BE",1,2,"pages","{""oldRecord"":{""title"":""Old""},""newRecord"":{""title"":""New""}}",0,""

@@ -1,0 +1,4 @@
+"pages"
+,"uid","pid","title","doktype","slug","deleted","hidden","tstamp","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody","tx_ximatypo3contentplanner_status","tx_ximatypo3contentplanner_assignee","tx_ximatypo3contentplanner_comments"
+,1,0,"Home","1","/","0","0","1700000000","1","0","31","31","31","2","1","2"
+,2,0,"No Status Page","1","/no-status","0","0","1700000000","1","0","31","31","31",,,"0"

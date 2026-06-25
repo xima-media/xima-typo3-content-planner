@@ -1,0 +1,5 @@
+"tx_ximatypo3contentplanner_comment"
+,"uid","pid","foreign_uid","foreign_table","content","author","edited","resolved_user","resolved_date","todo_resolved","todo_total","parent_uid","crdate","deleted"
+,1,0,1,"pages","Open comment",1,0,0,0,0,0,0,1000,0
+,2,0,3,"pages","Resolved comment",1,0,1,2000,0,0,0,2000,0
+,3,0,1,"pages","Deleted comment",1,0,0,0,0,0,0,3000,1
