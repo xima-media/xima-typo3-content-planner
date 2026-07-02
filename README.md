@@ -10,6 +10,7 @@
 [![Coverage](https://img.shields.io/coverallsCoverage/github/xima-media/xima-typo3-content-planner?logo=coveralls)](https://coveralls.io/github/xima-media/xima-typo3-content-planner)
 [![CGL](https://img.shields.io/github/actions/workflow/status/xima-media/xima-typo3-content-planner/cgl.yml?label=cgl&logo=github)](https://github.com/xima-media/xima-typo3-content-planner/actions/workflows/cgl.yml)
 [![Tests](https://img.shields.io/github/actions/workflow/status/xima-media/xima-typo3-content-planner/tests.yml?label=tests&logo=github)](https://github.com/xima-media/xima-typo3-content-planner/actions/workflows/tests.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/xima-media/xima-typo3-content-planner/badge)](https://securityscorecards.dev/viewer/?uri=github.com/xima-media/xima-typo3-content-planner)
 [![License](https://poser.pugx.org/xima/xima-typo3-content-planner/license)](LICENSE.md)
 
 </div>
