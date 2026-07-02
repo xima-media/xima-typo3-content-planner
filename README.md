@@ -5,7 +5,7 @@
 # TYPO3 extension `xima_typo3_content_planner`
 
 [![Latest Stable Version](https://typo3-badges.dev/badge/xima_typo3_content_planner/version/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
-[![Supported TYPO3 versions](https://typo3-badges.dev/badge/xima_typo3_content_planner/typo3/shields.svg)](https://extensions.typo3.org/extension/xima_typo3_content_planner)
+![TYPO3](https://img.shields.io/badge/TYPO3-13.4%20%7C%2014.3-orange.svg)
 [![Supported PHP Versions](https://img.shields.io/packagist/dependency-v/xima/xima-typo3-content-planner/php?logo=php)](https://packagist.org/packages/xima/xima-typo3-content-planner)
 [![Coverage](https://img.shields.io/coverallsCoverage/github/xima-media/xima-typo3-content-planner?logo=coveralls)](https://coveralls.io/github/xima-media/xima-typo3-content-planner)
 [![CGL](https://img.shields.io/github/actions/workflow/status/xima-media/xima-typo3-content-planner/cgl.yml?label=cgl&logo=github)](https://github.com/xima-media/xima-typo3-content-planner/actions/workflows/cgl.yml)
