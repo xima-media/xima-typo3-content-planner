@@ -16,10 +16,13 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 use Doctrine\DBAL\Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\{JsonResponse, RedirectResponse};
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\FolderStatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function is_array;
 
@@ -64,11 +67,16 @@ class FolderController extends ActionController
             $status = null;
         }
 
+        if (!$this->isChangeAllowed($status, $assignee)) {
+            return new JsonResponse(['error' => 'Insufficient permissions'], 403);
+        }
+
         try {
             $uid = $this->folderStatusRepository->createOrUpdate($identifier, $status, $assignee);
 
-            // If redirect URL is provided, redirect instead of returning JSON
-            if (null !== $redirect && '' !== $redirect) {
+            // If a valid local redirect URL is provided, redirect instead of returning JSON
+            $redirect = null !== $redirect ? GeneralUtility::sanitizeLocalUrl($redirect) : '';
+            if ('' !== $redirect) {
                 return new RedirectResponse($redirect);
             }
 
@@ -80,5 +88,34 @@ class FolderController extends ActionController
         } catch (InvalidArgumentException $e) {
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
+    }
+
+    /**
+     * Verify the current backend user is allowed to perform the requested status/assignee change.
+     */
+    private function isChangeAllowed(?int $status, ?int $assignee): bool
+    {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return false;
+        }
+
+        $statusAllowed = null === $status
+            ? PermissionUtility::canUnsetStatus()
+            : PermissionUtility::canChangeStatus($status);
+        if (!$statusAllowed) {
+            return false;
+        }
+
+        if (null !== $assignee && $assignee > 0) {
+            /** @var BackendUserAuthentication $backendUser */
+            $backendUser = $GLOBALS['BE_USER'];
+            $currentUserId = (int) ($backendUser->user['uid'] ?? 0);
+
+            return $assignee === $currentUserId
+                ? PermissionUtility::canAssignSelf()
+                : PermissionUtility::canAssignOthers();
+        }
+
+        return true;
     }
 }

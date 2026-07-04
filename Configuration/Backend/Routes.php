@@ -19,7 +19,6 @@ return [
     ],
     'ximatypo3contentplanner_folder_status_update' => [
         'path' => '/content-planner/folder/status/update',
-        'access' => 'public',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\FolderController::class.'::updateStatusAction',
     ],
     'ximatypo3contentplanner_share' => [
