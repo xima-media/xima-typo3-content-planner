@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\{ArrayParameterType, Exception};
 use InvalidArgumentException;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -70,6 +70,57 @@ class FolderStatusRepository
     }
 
     /**
+     * Batch-resolve folder status rows for several combined identifiers.
+     *
+     * @param array<int, string> $combinedIdentifiers
+     *
+     * @return array<string, array<string, mixed>> map keyed by combined identifier
+     *
+     * @throws Exception
+     */
+    public function findByCombinedIdentifiers(array $combinedIdentifiers): array
+    {
+        // Group requested paths per storage so each storage needs a single IN() query.
+        $pathsByStorage = [];
+        foreach ($combinedIdentifiers as $combinedIdentifier) {
+            $parsed = $this->parseCombinedIdentifier($combinedIdentifier);
+            if (null !== $parsed) {
+                $pathsByStorage[$parsed['storageUid']][$parsed['path']] = $combinedIdentifier;
+            }
+        }
+
+        $result = [];
+        foreach ($pathsByStorage as $storageUid => $pathMap) {
+            $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+            $rows = $queryBuilder
+                ->select('*')
+                ->from(self::TABLE)
+                ->where(
+                    $queryBuilder->expr()->eq(
+                        'storage_uid',
+                        $queryBuilder->createNamedParameter($storageUid, Connection::PARAM_INT),
+                    ),
+                    $queryBuilder->expr()->in(
+                        'folder_identifier',
+                        $queryBuilder->createNamedParameter(array_keys($pathMap), ArrayParameterType::STRING),
+                    ),
+                    $queryBuilder->expr()->eq('deleted', 0),
+                )
+                ->executeQuery()
+                ->fetchAllAssociative();
+
+            foreach ($rows as $row) {
+                $combinedIdentifier = $pathMap[$row['folder_identifier']] ?? null;
+                if (null !== $combinedIdentifier) {
+                    $result[$combinedIdentifier] = $row;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Find folder status by its UID.
      *
      * @return array<string, mixed>|false
@@ -111,11 +162,17 @@ class FolderStatusRepository
             return [];
         }
 
+        $identifiers = [];
+        foreach ($subfolders as $subfolder) {
+            $identifiers[] = $subfolder->getStorage()->getUid().':'.$subfolder->getIdentifier();
+        }
+        $statusByIdentifier = $this->findByCombinedIdentifiers($identifiers);
+
         $results = [];
         foreach ($subfolders as $subfolder) {
             $subfolderIdentifier = $subfolder->getStorage()->getUid().':'.$subfolder->getIdentifier();
-            $status = $this->findByCombinedIdentifier($subfolderIdentifier);
-            if ($status && null !== $status[Configuration::FIELD_STATUS] && 0 !== (int) $status[Configuration::FIELD_STATUS]) {
+            $status = $statusByIdentifier[$subfolderIdentifier] ?? null;
+            if (null !== $status && null !== $status[Configuration::FIELD_STATUS] && 0 !== (int) $status[Configuration::FIELD_STATUS]) {
                 $status['combined_identifier'] = $subfolderIdentifier;
                 $status['title'] = $subfolder->getName();
                 $results[] = $status;
@@ -140,14 +197,20 @@ class FolderStatusRepository
             return [];
         }
 
+        $identifiers = [];
+        foreach ($subfolders as $subfolder) {
+            $identifiers[] = $subfolder->getStorage()->getUid().':'.$subfolder->getIdentifier();
+        }
+        $statusByIdentifier = $this->findByCombinedIdentifiers($identifiers);
+
         $results = [];
         foreach ($subfolders as $subfolder) {
             $subfolderIdentifier = $subfolder->getStorage()->getUid().':'.$subfolder->getIdentifier();
-            $status = $this->findByCombinedIdentifier($subfolderIdentifier);
+            $status = $statusByIdentifier[$subfolderIdentifier] ?? null;
             $results[] = [
                 'combined_identifier' => $subfolderIdentifier,
                 'title' => $subfolder->getName(),
-                'status' => $status ?: null,
+                'status' => $status,
             ];
         }
 
