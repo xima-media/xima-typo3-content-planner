@@ -78,6 +78,24 @@ final class StatusRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findByUidReturnsSameInstanceOnSecondCallViaRuntimeCache(): void
+    {
+        $first = $this->subject->findByUid(2);
+        $second = $this->subject->findByUid(2);
+
+        // Without runtime memoization the second call would be served from the (serializing)
+        // cache backend and thus return a different object instance.
+        self::assertSame($first, $second);
+    }
+
+    #[Test]
+    public function findByUidMemoizesUnknownUid(): void
+    {
+        self::assertNull($this->subject->findByUid(999));
+        self::assertNull($this->subject->findByUid(999));
+    }
+
+    #[Test]
     public function findByTitleReturnsMatchingStatus(): void
     {
         $status = $this->subject->findByTitle('Done');
