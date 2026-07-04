@@ -71,6 +71,41 @@ class RecordRepository
     }
 
     /**
+     * Count records that carry a status, grouped by status uid, across all tracked tables.
+     *
+     * @return array<int, int> map of status uid => record count
+     *
+     * @throws Exception
+     */
+    public function countRecordsByStatus(): array
+    {
+        $statusField = Configuration::FIELD_STATUS;
+        $counts = [];
+
+        foreach (ExtensionUtility::getRecordTables() as $table) {
+            $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+            $rows = $queryBuilder
+                ->select($statusField)
+                ->addSelectLiteral(sprintf('COUNT(%s) AS record_count', $queryBuilder->quoteIdentifier('uid')))
+                ->from($table)
+                ->where(
+                    $queryBuilder->expr()->isNotNull($statusField),
+                    $queryBuilder->expr()->neq($statusField, 0),
+                )
+                ->groupBy($statusField)
+                ->executeQuery()
+                ->fetchAllAssociative();
+
+            foreach ($rows as $row) {
+                $statusUid = (int) $row[$statusField];
+                $counts[$statusUid] = ($counts[$statusUid] ?? 0) + (int) $row['record_count'];
+            }
+        }
+
+        return $counts;
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      *
      * @throws Exception

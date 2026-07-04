@@ -71,6 +71,18 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function countRecordsByStatusCountsNonDeletedRecordsPerStatus(): void
+    {
+        $counts = $this->subject->countRecordsByStatus();
+
+        // pages fixture: status 2 (page 1), status 3 (page 2), status 1 (page 3);
+        // page 4 has no status and page 5 (status 2) is deleted, so both are excluded.
+        self::assertSame(1, $counts[1] ?? 0);
+        self::assertSame(1, $counts[2] ?? 0);
+        self::assertSame(1, $counts[3] ?? 0);
+    }
+
+    #[Test]
     public function findByPidReturnsRecordsWithStatusForGivenPid(): void
     {
         $result = $this->subject->findByPid('pages', 1);
