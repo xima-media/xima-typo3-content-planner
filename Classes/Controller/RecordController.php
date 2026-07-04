@@ -105,10 +105,27 @@ class RecordController extends ActionController
 
     public function commentsAction(ServerRequestInterface $request): JsonResponse
     {
-        $recordId = (int) $request->getQueryParams()['uid'];
-        $recordTable = $request->getQueryParams()['table'];
+        $recordId = (int) ($request->getQueryParams()['uid'] ?? 0);
+        $recordTable = $request->getQueryParams()['table'] ?? '';
         $sortComments = $request->getQueryParams()['sortComments'] ?? 'DESC';
         $showResolvedComments = (bool) ($request->getQueryParams()['showResolvedComments'] ?? false);
+
+        if ('' === $recordTable || 0 === $recordId) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $record = $this->recordRepository->findByUid($recordTable, $recordId, ignoreVisibilityRestriction: true);
+        if (!$record) {
+            return new JsonResponse(['error' => 'Record not found'], 404);
+        }
+
+        if (!PermissionUtility::checkAccessForRecord($recordTable, $record)) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
 
         /** @var BackendUserAuthentication $backendUser */
         $backendUser = $GLOBALS['BE_USER'];
