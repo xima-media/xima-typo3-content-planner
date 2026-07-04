@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Repository;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -85,6 +86,19 @@ final class BackendUserRepositoryTest extends AbstractFunctionalTestCase
     public function getUsernameByUidReturnsEmptyStringForNull(): void
     {
         self::assertSame('', $this->subject->getUsernameByUid(null));
+    }
+
+    #[Test]
+    public function getUsernameByUidMemoizesResultForRequest(): void
+    {
+        $first = $this->subject->getUsernameByUid(1);
+        self::assertSame('Administrator (admin)', $first);
+
+        // A non-memoized second lookup would reflect this database change.
+        $this->get(ConnectionPool::class)->getConnectionForTable('be_users')
+            ->update('be_users', ['realName' => 'Changed Name'], ['uid' => 1]);
+
+        self::assertSame($first, $this->subject->getUsernameByUid(1));
     }
 
     #[Test]

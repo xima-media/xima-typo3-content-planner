@@ -17,6 +17,7 @@ use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
+use function array_key_exists;
 use function in_array;
 
 /**
@@ -27,6 +28,15 @@ use function in_array;
  */
 class BackendUserRepository
 {
+    /**
+     * Request-level memoization of resolved display names, keyed by user uid.
+     * The same author/assignee is typically rendered many times per request
+     * (e.g. once per comment or list row).
+     *
+     * @var array<int, string>
+     */
+    private array $usernameCache = [];
+
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     /**
@@ -135,6 +145,11 @@ class BackendUserRepository
         if (!(bool) $uid) {
             return '';
         }
+
+        if (array_key_exists($uid, $this->usernameCache)) {
+            return $this->usernameCache[$uid];
+        }
+
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         $userRecord = $queryBuilder
@@ -145,16 +160,17 @@ class BackendUserRepository
             )
             ->executeQuery()->fetchAssociative();
 
+        $user = '';
         if ($userRecord) {
             $user = $userRecord['username'];
             if ((bool) $userRecord['realName']) {
                 $user = $userRecord['realName'].' ('.$user.')';
             }
 
-            return htmlspecialchars((string) $user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+            $user = htmlspecialchars((string) $user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         }
 
-        return '';
+        return $this->usernameCache[$uid] = $user;
     }
 
     /**
