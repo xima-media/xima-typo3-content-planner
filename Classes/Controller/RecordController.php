@@ -145,14 +145,26 @@ class RecordController extends ActionController
      */
     public function assigneeSelectionAction(ServerRequestInterface $request): ResponseInterface
     {
-        $recordId = (int) $request->getQueryParams()['uid'];
-        $recordTable = $request->getQueryParams()['table'];
+        $recordId = (int) ($request->getQueryParams()['uid'] ?? 0);
+        $recordTable = $request->getQueryParams()['table'] ?? '';
         $currentAssignee = (int) ($request->getQueryParams()['currentAssignee'] ?? 0);
+
+        if ('' === $recordTable || 0 === $recordId) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
 
         $record = $this->recordRepository->findByUid($recordTable, $recordId, ignoreVisibilityRestriction: true);
 
         if (!$record) {
             return new JsonResponse(['error' => 'Record not found'], 404);
+        }
+
+        if (!PermissionUtility::checkAccessForRecord($recordTable, $record)) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
         $permissions = $this->getAssignmentPermissions();
