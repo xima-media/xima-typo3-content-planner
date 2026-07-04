@@ -29,7 +29,6 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
-use function in_array;
 
 /**
  * DataHandlerHook.
@@ -168,7 +167,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     {
         $rawTags = $params['tags'] ?? [];
         $tags = array_is_list($rawTags) ? $rawTags : array_keys($rawTags);
-        if (in_array('uid_page', $params, true) && in_array('table', $params, true)) {
+        if (array_key_exists('uid_page', $params) && array_key_exists('table', $params)) {
             $tags[] = $params['table'].'__pageId__'.$params['uid_page'];
         }
         $this->cache->flushByTags($tags);

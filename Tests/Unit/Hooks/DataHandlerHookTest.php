@@ -57,10 +57,34 @@ final class DataHandlerHookTest extends TestCase
         );
     }
 
-    private function createHook(): DataHandlerHook
+    public function testClearCachePostProcAddsPageIdTagWhenTableAndUidPagePresent(): void
+    {
+        $cache = $this->createMock(FrontendInterface::class);
+        $cache->expects(self::once())
+            ->method('flushByTags')
+            ->with(self::identicalTo(['existing', 'pages__pageId__5']));
+
+        $this->createHook($cache)->clearCachePostProc([
+            'tags' => ['existing'],
+            'table' => 'pages',
+            'uid_page' => 5,
+        ]);
+    }
+
+    public function testClearCachePostProcForwardsOnlyCoreTagsWhenPageInfoAbsent(): void
+    {
+        $cache = $this->createMock(FrontendInterface::class);
+        $cache->expects(self::once())
+            ->method('flushByTags')
+            ->with(self::identicalTo(['existing']));
+
+        $this->createHook($cache)->clearCachePostProc(['tags' => ['existing']]);
+    }
+
+    private function createHook(?FrontendInterface $cache = null): DataHandlerHook
     {
         return new DataHandlerHook(
-            $this->createMock(FrontendInterface::class),
+            $cache ?? $this->createMock(FrontendInterface::class),
             $this->createMock(StatusChangeManager::class),
             $this->createMock(RecordRepository::class),
             $this->createMock(CommentRepository::class),
