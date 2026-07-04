@@ -13,12 +13,13 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Widgets\Provider;
 
-use Doctrine\DBAL\Exception;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use Doctrine\DBAL\{ArrayParameterType, Exception};
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Dashboard\Widgets\ListDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\HistoryItem;
 
+use function array_merge;
 use function array_slice;
 
 /**
@@ -52,9 +53,12 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('sys_history');
 
-        $tablesArray = array_merge(['pages'], $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
-        // surround every table with quotes
-        $tables = implode(',', array_map(static fn ($table) => '"'.$table.'"', $tablesArray));
+        $recordTables = array_merge(
+            ['pages'],
+            (array) ($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] ?? []),
+        );
+        $trackedTables = array_merge($recordTables, [Configuration::TABLE_COMMENT]);
+
         $query = $queryBuilder
             ->select(
                 'h.uid',
@@ -68,9 +72,25 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
                 'b.realName as realName',
             )
             ->from('sys_history', 'h')
-            ->leftJoin('h', 'pages', 'p', 'h.recuid = p.uid')
             ->leftJoin('h', 'be_users', 'b', 'h.userid = b.uid')
-            ->andWhere('(h.history_data LIKE "%tx_ximatypo3contentplanner%" AND h.tablename IN ('.$tables.')) OR (h.tablename = "tx_ximatypo3contentplanner_comment")')
+            ->where(
+                // Leading, index-friendly restriction on the indexed tablename column.
+                $queryBuilder->expr()->in(
+                    'h.tablename',
+                    $queryBuilder->createNamedParameter($trackedTables, ArrayParameterType::STRING),
+                ),
+                // Comment history always qualifies; record history only when a content planner field changed.
+                $queryBuilder->expr()->or(
+                    $queryBuilder->expr()->eq(
+                        'h.tablename',
+                        $queryBuilder->createNamedParameter(Configuration::TABLE_COMMENT),
+                    ),
+                    $queryBuilder->expr()->like(
+                        'h.history_data',
+                        $queryBuilder->createNamedParameter('%tx_ximatypo3contentplanner%'),
+                    ),
+                ),
+            )
             ->orderBy('h.tstamp', 'DESC');
 
         if ((bool) $maxItems) {
@@ -78,8 +98,9 @@ class ContentUpdateDataProvider implements ListDataProviderInterface
         }
 
         if ((bool) $tstamp) {
-            $query->andWhere('h.tstamp > :tstamp')
-                ->setParameter('tstamp', $tstamp);
+            $query->andWhere(
+                $queryBuilder->expr()->gt('h.tstamp', $queryBuilder->createNamedParameter($tstamp, Connection::PARAM_INT)),
+            );
         }
 
         $items = [];
