@@ -46,11 +46,13 @@ class AbstractSelectionService
     ) {}
 
     /**
+     * @param array<string, mixed>|bool|null $record pre-loaded record to reuse instead of a fresh lookup
+     *
      * @return array<string, mixed>|bool
      *
      * @throws NotImplementedException|Exception
      */
-    public function generateSelection(string $table, int $uid): array|bool
+    public function generateSelection(string $table, int $uid, array|bool|null $record = null): array|bool
     {
         if (!$this->shouldGenerateSelection($table)) {
             return false;
@@ -61,7 +63,9 @@ class AbstractSelectionService
             return false;
         }
 
-        $record = $this->getCurrentRecord($table, $uid);
+        if (!is_array($record)) {
+            $record = $this->getCurrentRecord($table, $uid);
+        }
         $selectionEntriesToAdd = [];
 
         $this->addHeaderItemToSelection($selectionEntriesToAdd);
