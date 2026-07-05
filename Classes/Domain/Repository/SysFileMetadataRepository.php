@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\{ArrayParameterType, Exception};
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Resource\{File, ResourceFactory};
 use Xima\XimaTypo3ContentPlanner\Configuration;
+
+use function array_map;
 
 /**
  * SysFileMetadataRepository.
@@ -147,6 +149,56 @@ class SysFileMetadataRepository
     }
 
     /**
+     * Batch-resolve metadata records for several file identifiers.
+     *
+     * @param array<int, string> $identifiers
+     *
+     * @return array<string, array<string, mixed>> keyed by file identifier
+     *
+     * @throws Exception
+     */
+    public function findByIdentifiers(array $identifiers): array
+    {
+        if ([] === $identifiers) {
+            return [];
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $rows = $queryBuilder
+            ->select(
+                'sys_file_metadata.uid',
+                'sys_file.name as title',
+                'sys_file.identifier',
+                'sys_file.uid as file_uid',
+                'sys_file_metadata.'.Configuration::FIELD_STATUS,
+                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
+                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
+            )
+            ->from(self::TABLE)
+            ->innerJoin(
+                'sys_file_metadata',
+                'sys_file',
+                'sys_file',
+                'sys_file_metadata.file = sys_file.uid',
+            )
+            ->where(
+                $queryBuilder->expr()->in(
+                    'sys_file.identifier',
+                    $queryBuilder->createNamedParameter($identifiers, ArrayParameterType::STRING),
+                ),
+            )
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $byIdentifier = [];
+        foreach ($rows as $row) {
+            $byIdentifier[(string) $row['identifier']] = $row;
+        }
+
+        return $byIdentifier;
+    }
+
+    /**
      * Get all files in a folder using ResourceFactory.
      *
      * @return File[]
@@ -173,11 +225,13 @@ class SysFileMetadataRepository
     public function findByFolderWithStatus(string $combinedIdentifier): array
     {
         $files = $this->findFilesByFolder($combinedIdentifier);
-        $results = [];
+        $identifiers = array_map(static fn (File $file): string => $file->getIdentifier(), $files);
+        $metadataByIdentifier = $this->findByIdentifiers($identifiers);
 
+        $results = [];
         foreach ($files as $file) {
-            $metadata = $this->findByIdentifier($file->getIdentifier());
-            if ($metadata && null !== $metadata[Configuration::FIELD_STATUS] && 0 !== (int) $metadata[Configuration::FIELD_STATUS]) {
+            $metadata = $metadataByIdentifier[$file->getIdentifier()] ?? null;
+            if (null !== $metadata && null !== $metadata[Configuration::FIELD_STATUS] && 0 !== (int) $metadata[Configuration::FIELD_STATUS]) {
                 $results[] = $metadata;
             }
         }
