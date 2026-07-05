@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Controller;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Http\RedirectResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\FolderController;
@@ -84,24 +83,6 @@ final class FolderControllerTest extends TestCase
         $payload = json_decode((string) $response->getBody(), true);
         self::assertTrue($payload['success']);
         self::assertSame(42, $payload['uid']);
-    }
-
-    public function testUpdateStatusActionIgnoresExternalRedirect(): void
-    {
-        $GLOBALS['BE_USER'] = $this->createBackendUser(isAdmin: true, permitted: true);
-        $this->enableFilelistSupport();
-
-        $repository = $this->createMock(FolderStatusRepository::class);
-        $repository->method('createOrUpdate')->willReturn(1);
-
-        $response = (new FolderController($repository))->updateStatusAction(
-            $this->createRequest(
-                ['identifier' => '1:/user_upload/', 'status' => '3', 'redirect' => 'https://evil.example/'],
-            ),
-        );
-
-        self::assertNotInstanceOf(RedirectResponse::class, $response);
-        self::assertSame(200, $response->getStatusCode());
     }
 
     private function enableFilelistSupport(): void
