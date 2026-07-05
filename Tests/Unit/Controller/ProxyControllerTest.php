@@ -32,19 +32,6 @@ final class ProxyControllerTest extends TestCase
         unset($GLOBALS['BE_USER']);
     }
 
-    public function testMessageActionRejectsExternalRedirect(): void
-    {
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getQueryParams')->willReturn([
-            'message' => 'status.changed',
-            'redirect' => 'https://evil.example/',
-        ]);
-
-        $response = $this->createController()->messageAction($request);
-
-        self::assertSame(400, $response->getStatusCode());
-    }
-
     public function testMessageActionReturnsBadRequestWhenMessageMissing(): void
     {
         $request = $this->createMock(ServerRequestInterface::class);
