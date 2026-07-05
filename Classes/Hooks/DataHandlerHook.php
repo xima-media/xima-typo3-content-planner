@@ -58,7 +58,9 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     public function processDatamap_preProcessFieldArray(array &$incomingFieldArray, $table, $id, DataHandler $dataHandler): void
     {
-        if (array_key_exists(Configuration::TABLE_COMMENT, $dataHandler->datamap)) {
+        // Only process comments while the comment record itself is being handled — the hook fires
+        // once per datamap record, so guarding on the datamap alone re-ran this for every record.
+        if (Configuration::TABLE_COMMENT === $table) {
             $this->updateCommentTodo($dataHandler);
             $this->checkCommentResolved($dataHandler);
             $this->checkCommentEdited($dataHandler);
@@ -72,7 +74,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, (int) $id);
         }
 
-        if (array_key_exists(Configuration::TABLE_COMMENT, $dataHandler->datamap)) {
+        if (Configuration::TABLE_COMMENT === $table) {
             $this->fixNewCommentEntry($dataHandler);
         }
     }
