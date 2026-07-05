@@ -143,6 +143,15 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function countTodosByRecordReturnsTotalAndResolvedInOneCall(): void
+    {
+        self::assertSame(
+            ['total' => 3, 'resolved' => 1],
+            $this->subject->countTodosByRecord(10, 'pages'),
+        );
+    }
+
+    #[Test]
     public function countTodoAllByRecordThrowsForInvalidField(): void
     {
         $this->expectException(InvalidArgumentException::class);

@@ -186,11 +186,9 @@ final class StatusItem
             return 0;
         }
 
-        if (null === $this->cachedToDoResolved) {
-            $this->cachedToDoResolved = PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename']) : 0;
-        }
+        $this->loadTodoCounts();
 
-        return $this->cachedToDoResolved;
+        return $this->cachedToDoResolved ?? 0;
     }
 
     public function getToDoTotal(): int
@@ -199,11 +197,9 @@ final class StatusItem
             return 0;
         }
 
-        if (null === $this->cachedToDoTotal) {
-            $this->cachedToDoTotal = PlannerUtility::hasComments($this->data) ? $this->getCommentRepository()->countTodoAllByRecord((int) $this->data['uid'], $this->data['tablename'], 'todo_total') : 0;
-        }
+        $this->loadTodoCounts();
 
-        return $this->cachedToDoTotal;
+        return $this->cachedToDoTotal ?? 0;
     }
 
     /**
@@ -229,6 +225,27 @@ final class StatusItem
             'todoShareUrl' => $this->getToDoShareUrl(),
             'site' => $this->getSite(),
         ];
+    }
+
+    /**
+     * Load total and resolved to-do sums in a single query (memoized per item).
+     */
+    private function loadTodoCounts(): void
+    {
+        if (null !== $this->cachedToDoTotal) {
+            return;
+        }
+
+        if (!PlannerUtility::hasComments($this->data)) {
+            $this->cachedToDoTotal = 0;
+            $this->cachedToDoResolved = 0;
+
+            return;
+        }
+
+        $counts = $this->getCommentRepository()->countTodosByRecord((int) $this->data['uid'], $this->data['tablename']);
+        $this->cachedToDoTotal = $counts['total'];
+        $this->cachedToDoResolved = $counts['resolved'];
     }
 
     /**

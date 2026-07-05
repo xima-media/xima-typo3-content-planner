@@ -166,6 +166,37 @@ class CommentRepository
     }
 
     /**
+     * Sum total and resolved to-dos of a record's open comments in a single query.
+     *
+     * @return array{total: int, resolved: int}
+     *
+     * @throws Exception
+     */
+    public function countTodosByRecord(int $id, string $table): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $row = $queryBuilder
+            ->selectLiteral(
+                'COALESCE(SUM(`todo_total`), 0) AS `total`',
+                'COALESCE(SUM(`todo_resolved`), 0) AS `resolved`',
+            )
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->executeQuery()
+            ->fetchAssociative();
+
+        return [
+            'total' => (int) ($row['total'] ?? 0),
+            'resolved' => (int) ($row['resolved'] ?? 0),
+        ];
+    }
+
+    /**
      * Find the UID of the comment with todos for a record - only if exactly one such comment exists.
      * Returns null when multiple comments have todos (caller should fall back to the comments modal).
      */
