@@ -93,7 +93,8 @@ final readonly class ModifyRecordListRecordActionsListener
             ->setTitle($title)
             ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
 
-        $actionsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
+        // Reuse the record already loaded above instead of a second lookup inside generateSelection().
+        $actionsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid, $record);
         if (!is_array($actionsToAdd)) {
             return;
         }

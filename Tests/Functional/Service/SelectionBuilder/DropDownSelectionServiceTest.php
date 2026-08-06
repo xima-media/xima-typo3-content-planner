@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Service\SelectionBuilder
 
 use PHPUnit\Framework\Attributes\Test;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -50,6 +51,19 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
         self::assertArrayHasKey('reset', $result);
         self::assertArrayHasKey('assignee', $result);
         self::assertArrayHasKey('comments', $result);
+    }
+
+    #[Test]
+    public function generateSelectionReusesPreloadedRecord(): void
+    {
+        $record = $this->get(RecordRepository::class)->findByUid('pages', 1, true);
+
+        $withPreloadedRecord = $this->subject->generateSelection('pages', 1, $record);
+        $withInternalLookup = $this->subject->generateSelection('pages', 1);
+
+        self::assertIsArray($withPreloadedRecord);
+        self::assertIsArray($withInternalLookup);
+        self::assertSame(array_keys($withInternalLookup), array_keys($withPreloadedRecord));
     }
 
     #[Test]
