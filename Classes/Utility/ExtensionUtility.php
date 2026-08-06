@@ -142,6 +142,16 @@ class ExtensionUtility
         return self::isFeatureEnabled('enableContentElementSupport');
     }
 
+    public static function isFrontendApiEnabled(): bool
+    {
+        return self::isFeatureEnabled(Configuration::FEATURE_FRONTEND_API);
+    }
+
+    public static function isEmbeddableCommentsViewEnabled(): bool
+    {
+        return self::isFeatureEnabled(Configuration::FEATURE_EMBEDDABLE_COMMENTS_VIEW);
+    }
+
     public static function isFeatureEnabled(string $feature): bool
     {
         $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)

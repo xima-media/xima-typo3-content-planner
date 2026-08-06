@@ -32,6 +32,17 @@ final class ExtensionUtilityTest extends AbstractFunctionalTestCase
         $this->loginBackendUser();
     }
 
+    protected function tearDown(): void
+    {
+        // ExtensionConfiguration reads TYPO3_CONF_VARS live, so flags flipped by a
+        // single test would otherwise leak into the following ones.
+        unset(
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_FRONTEND_API],
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_EMBEDDABLE_COMMENTS_VIEW],
+        );
+        parent::tearDown();
+    }
+
     #[Test]
     public function getRecordTablesAlwaysContainsPages(): void
     {
@@ -76,6 +87,43 @@ final class ExtensionUtilityTest extends AbstractFunctionalTestCase
     public function isFeatureEnabledReturnsFalseForUnknownFeature(): void
     {
         self::assertFalse(ExtensionUtility::isFeatureEnabled('thisFeatureDoesNotExist'));
+    }
+
+    #[Test]
+    public function frontendApiIsDisabledByDefault(): void
+    {
+        self::assertFalse(ExtensionUtility::isFrontendApiEnabled());
+    }
+
+    #[Test]
+    public function embeddableCommentsViewIsDisabledByDefault(): void
+    {
+        self::assertFalse(ExtensionUtility::isEmbeddableCommentsViewEnabled());
+    }
+
+    #[Test]
+    public function frontendApiIsEnabledWhenFlagIsSet(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_FRONTEND_API] = 1;
+
+        self::assertTrue(ExtensionUtility::isFrontendApiEnabled());
+    }
+
+    #[Test]
+    public function embeddableCommentsViewIsEnabledWhenFlagIsSet(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_EMBEDDABLE_COMMENTS_VIEW] = 1;
+
+        self::assertTrue(ExtensionUtility::isEmbeddableCommentsViewEnabled());
+    }
+
+    #[Test]
+    public function frontendApiFlagsAreIndependent(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_FRONTEND_API] = 1;
+
+        self::assertTrue(ExtensionUtility::isFrontendApiEnabled());
+        self::assertFalse(ExtensionUtility::isEmbeddableCommentsViewEnabled());
     }
 
     #[Test]

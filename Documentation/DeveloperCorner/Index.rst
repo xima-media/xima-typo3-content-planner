@@ -17,4 +17,5 @@ into the status process.
     AdditionalRecords
     Events
     ExtensionUtility
+    FrontendApi
     PlannerUtility

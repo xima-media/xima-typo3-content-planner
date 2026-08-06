@@ -121,3 +121,28 @@ Comments
         :alt: Todos from comments
 
         Todos from comments
+
+API
+=======
+
+..  _extconf-enableFrontendApi:
+
+..  confval:: enableFrontendApi
+    :type: boolean
+    :Default: 0
+
+    Enable the JSON endpoints for frontend consumers.
+
+    ..  note::
+        See :ref:`Frontend API <frontend-api>` for the security model. The flag
+        controls availability only — the endpoints remain backend routes and
+        still require a backend session and a CSRF route token.
+
+..  _extconf-enableEmbeddableCommentsView:
+
+..  confval:: enableEmbeddableCommentsView
+    :type: boolean
+    :Default: 0
+
+    Enable the embeddable standalone comments view, a backend route rendering a
+    comment thread as a complete HTML document suitable for an ``<iframe>``.
