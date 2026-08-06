@@ -232,6 +232,21 @@ class RecordRepository
         return $records;
     }
 
+    /**
+     * Drops every cached findByPid() result that carries this record.
+     *
+     * findByPid() tags its entries with one `<table>_<uid>` per contained row, so flushing
+     * that tag reaches whichever page listing happens to hold the record — the caller does
+     * not need to know its pid.
+     *
+     * Public because mutations live outside this class as well: raw writes that bypass the
+     * DataHandler get no invalidation from DataHandlerHook::clearCachePostProc().
+     */
+    public function flushCacheForRecord(string $table, int $uid): void
+    {
+        $this->cache->flushByTags([$table.'_'.$uid]);
+    }
+
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -246,6 +261,9 @@ class RecordRepository
             $queryBuilder->set(Configuration::FIELD_ASSIGNEE, $assignee);
         }
         $queryBuilder->executeStatement();
+
+        // A raw UPDATE, so the DataHandler hook never sees it and nothing else invalidates.
+        $this->flushCacheForRecord($table, $uid);
     }
 
     /**
@@ -266,6 +284,10 @@ class RecordRepository
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
                 )
                 ->executeStatement();
+
+            // The surrounding DataHandler flush only carries comment-table tags, so a
+            // cached page listing would keep serving the previous count.
+            $this->flushCacheForRecord($table, $uid);
         }
     }
 
