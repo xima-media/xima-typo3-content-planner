@@ -18,8 +18,6 @@ use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 
-use function count;
-
 /**
  * StatusOverviewDataProvider.
  *
@@ -36,6 +34,9 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
 
     /** @var string[] */
     protected array $colors = [];
+
+    /** @var array<int, int>|null */
+    private ?array $statusCounts = null;
 
     public function __construct(private readonly StatusRepository $statusRepository, private readonly RecordRepository $recordRepository) {}
 
@@ -60,7 +61,9 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
 
     public function countPageStatus(?int $status = null): int
     {
-        return count($this->recordRepository->findAllByFilter(status: $status));
+        $this->statusCounts ??= $this->recordRepository->countRecordsByStatus();
+
+        return $this->statusCounts[$status] ?? 0;
     }
 
     protected function calculateStatusCounts(): void
