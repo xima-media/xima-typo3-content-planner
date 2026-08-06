@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Messaging\{FlashMessageQueue, FlashMessageService};
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Controller\ProxyController;
 use Xima\XimaTypo3ContentPlanner\Service\ResultMessageService;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -71,20 +72,18 @@ final class ProxyControllerTest extends AbstractFunctionalTestCase
     {
         $this->loginBackendUser();
         $flashMessageService = $this->get(FlashMessageService::class);
+        $redirect = $this->localRedirectTarget();
         $request = $this->createMock(ServerRequestInterface::class);
         $request->method('getQueryParams')->willReturn([
             'message' => 'status.reset',
-            // Relative on purpose: under phpunit the CLI script name makes
-            // TYPO3_SITE_PATH "vendor/bin/", so sanitizeLocalUrl() rejects the absolute
-            // "/typo3/…" paths that production actually passes here.
-            'redirect' => 'typo3/module/web/layout',
+            'redirect' => $redirect,
         ]);
 
         $response = (new ProxyController($flashMessageService, $this->get(ResultMessageService::class)))
             ->messageAction($request);
 
         self::assertSame(302, $response->getStatusCode());
-        self::assertSame('typo3/module/web/layout', $response->getHeaderLine('location'));
+        self::assertSame($redirect, $response->getHeaderLine('location'));
 
         $messages = $flashMessageService
             ->getMessageQueueByIdentifier(FlashMessageQueue::NOTIFICATION_QUEUE)
@@ -112,6 +111,25 @@ final class ProxyControllerTest extends AbstractFunctionalTestCase
         ]);
 
         self::assertSame(400, $this->createController()->messageAction($request)->getStatusCode());
+    }
+
+    /**
+     * sanitizeLocalUrl() judges a target against TYPO3_SITE_PATH, which under phpunit is
+     * derived from the CLI script name. That differs between a local DDEV run and the CI
+     * dependency permutations — one accepts only relative targets, another only absolute
+     * ones — so no literal is portable. Probing keeps this test about the enqueue and
+     * redirect behaviour; rejection of foreign targets is covered separately by
+     * messageActionRejectsExternalRedirect().
+     */
+    private function localRedirectTarget(): string
+    {
+        foreach (['index.php', 'typo3/index.php', '/typo3/index.php', '/index.php'] as $candidate) {
+            if ('' !== GeneralUtility::sanitizeLocalUrl($candidate)) {
+                return $candidate;
+            }
+        }
+
+        self::markTestSkipped('No redirect target passes sanitizeLocalUrl() in this environment.');
     }
 
     private function createController(): ProxyController
