@@ -52,13 +52,8 @@ class FileListStatusService
      */
     private function addFileStatusStyles(array &$css, string $folderIdentifier, bool $isTilesView): void
     {
-        $files = $this->sysFileMetadataRepository->findFilesByFolder($folderIdentifier);
-        foreach ($files as $file) {
-            $metadata = $this->sysFileMetadataRepository->findByIdentifier($file->getIdentifier());
-            if (!$this->hasValidStatus($metadata)) {
-                continue;
-            }
-
+        // findByFolderWithStatus() already batches the metadata lookup and filters to files with a status.
+        foreach ($this->sysFileMetadataRepository->findByFolderWithStatus($folderIdentifier) as $metadata) {
             $status = $this->statusRepository->findByUid((int) $metadata[Configuration::FIELD_STATUS]);
             if (!$status instanceof Status) {
                 continue;
@@ -84,16 +79,6 @@ class FileListStatusService
 
             $css[] = $this->buildFolderCssRule($subfolder['combined_identifier'], $status, $isTilesView);
         }
-    }
-
-    /**
-     * @param array<string, mixed>|false $metadata
-     */
-    private function hasValidStatus(array|false $metadata): bool
-    {
-        return $metadata
-            && null !== $metadata[Configuration::FIELD_STATUS]
-            && 0 !== (int) $metadata[Configuration::FIELD_STATUS];
     }
 
     private function buildFileCssRule(int $metaUid, Status $status, bool $isTilesView): string

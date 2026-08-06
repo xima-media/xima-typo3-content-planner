@@ -84,6 +84,28 @@ final class SysFileMetadataRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findByIdentifiersBatchResolvesMultipleFiles(): void
+    {
+        $result = $this->subject->findByIdentifiers([
+            '/user_upload/example.pdf',
+            '/user_upload/image.jpg',
+            '/user_upload/ghost.txt',
+        ]);
+
+        self::assertArrayHasKey('/user_upload/example.pdf', $result);
+        self::assertArrayHasKey('/user_upload/image.jpg', $result);
+        self::assertArrayNotHasKey('/user_upload/ghost.txt', $result);
+        self::assertSame(1, (int) $result['/user_upload/example.pdf']['uid']);
+        self::assertSame(2, (int) $result['/user_upload/example.pdf']['tx_ximatypo3contentplanner_status']);
+    }
+
+    #[Test]
+    public function findByIdentifiersReturnsEmptyArrayForNoInput(): void
+    {
+        self::assertSame([], $this->subject->findByIdentifiers([]));
+    }
+
+    #[Test]
     public function updateStatusChangesStatusOnly(): void
     {
         $this->subject->updateStatus(2, 3);
