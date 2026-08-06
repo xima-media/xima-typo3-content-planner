@@ -47,6 +47,26 @@ final class BackendUserRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findAllExcludesDeletedUsers(): void
+    {
+        $usernames = array_map(
+            static fn (array $row): string => $row['username'],
+            $this->subject->findAll(),
+        );
+
+        self::assertNotContains('deleted', $usernames);
+    }
+
+    #[Test]
+    public function findAllSelectsOnlyDisplayFields(): void
+    {
+        $result = $this->subject->findAll();
+
+        self::assertNotEmpty($result);
+        self::assertSame(['uid', 'username', 'realName'], array_keys($result[0]));
+    }
+
+    #[Test]
     public function findByUidReturnsMatchingUser(): void
     {
         $result = $this->subject->findByUid(1);

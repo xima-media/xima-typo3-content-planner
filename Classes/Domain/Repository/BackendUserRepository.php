@@ -49,8 +49,9 @@ class BackendUserRepository
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
         return $queryBuilder
-            ->select('*')
+            ->select('uid', 'username', 'realName')
             ->from('be_users')
+            ->where($queryBuilder->expr()->eq('deleted', 0))
             ->executeQuery()->fetchAllAssociative();
     }
 
