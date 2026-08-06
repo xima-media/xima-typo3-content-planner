@@ -64,6 +64,30 @@ final class FolderStatusRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findByCombinedIdentifiersBatchResolvesMultipleFolders(): void
+    {
+        $result = $this->subject->findByCombinedIdentifiers([
+            '1:/user_upload/',
+            '1:/user_upload/sub/',
+            '1:/deleted_folder/',
+            '1:/nonexistent/',
+        ]);
+
+        self::assertArrayHasKey('1:/user_upload/', $result);
+        self::assertArrayHasKey('1:/user_upload/sub/', $result);
+        self::assertArrayNotHasKey('1:/deleted_folder/', $result);
+        self::assertArrayNotHasKey('1:/nonexistent/', $result);
+        self::assertSame(2, (int) $result['1:/user_upload/']['tx_ximatypo3contentplanner_status']);
+        self::assertSame(3, (int) $result['1:/user_upload/sub/']['tx_ximatypo3contentplanner_status']);
+    }
+
+    #[Test]
+    public function findByCombinedIdentifiersReturnsEmptyArrayForNoInput(): void
+    {
+        self::assertSame([], $this->subject->findByCombinedIdentifiers([]));
+    }
+
+    #[Test]
     public function findByUidReturnsMatchingRecord(): void
     {
         $result = $this->subject->findByUid(2);
