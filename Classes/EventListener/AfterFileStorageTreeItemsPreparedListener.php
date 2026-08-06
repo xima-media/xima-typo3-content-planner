@@ -93,6 +93,7 @@ final readonly class AfterFileStorageTreeItemsPreparedListener
         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
             label: $status->getTitle(),
             color: Configuration\Colors::get($status->getColor()),
+            priority: Configuration::TREE_LABEL_PRIORITY_STATUS,
         );
     }
 
@@ -106,6 +107,7 @@ final readonly class AfterFileStorageTreeItemsPreparedListener
         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
             label: '',
             color: 'inherit',
+            priority: Configuration::TREE_LABEL_PRIORITY_EMPTY,
         );
     }
 }

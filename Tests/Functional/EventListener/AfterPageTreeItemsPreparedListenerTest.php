@@ -72,6 +72,46 @@ final class AfterPageTreeItemsPreparedListenerTest extends AbstractFunctionalTes
     }
 
     #[Test]
+    public function statusLabelOutranksLabelsFromOtherSources(): void
+    {
+        // The tree renders only the highest-priority label per node. Core appends the
+        // TSconfig label (priority 0) and the background color label (priority -1)
+        // before this event is dispatched, so both already sit in front of ours.
+        $event = $this->createEvent([
+            [
+                '_page' => ['uid' => 1, Configuration::FIELD_STATUS => 1, Configuration::FIELD_COMMENTS => 0],
+                'labels' => [
+                    new Label(label: 'Color: #00ff00', color: '#00ff00', priority: -1),
+                    new Label(label: 'TSconfig', color: '#ff0000'),
+                ],
+            ],
+        ]);
+
+        $this->subject->__invoke($event);
+
+        $items = $event->getItems();
+        self::assertSame('Draft', $this->winningLabel($items[0]['labels'])->label);
+    }
+
+    #[Test]
+    public function emptyLabelWorkaroundDoesNotOutrankLabelsFromOtherSources(): void
+    {
+        $event = $this->createEvent([
+            [
+                '_page' => ['uid' => 2, Configuration::FIELD_STATUS => 0],
+                'labels' => [
+                    new Label(label: 'Color: #00ff00', color: '#00ff00', priority: -1),
+                ],
+            ],
+        ]);
+
+        $this->subject->__invoke($event);
+
+        $items = $event->getItems();
+        self::assertSame('Color: #00ff00', $this->winningLabel($items[0]['labels'])->label);
+    }
+
+    #[Test]
     public function ignoresUnknownStatusUid(): void
     {
         $event = $this->createEvent([
@@ -109,6 +149,21 @@ final class AfterPageTreeItemsPreparedListenerTest extends AbstractFunctionalTes
 
         $items = $event->getItems();
         self::assertSame('', $items[0]['labels'][0]->label);
+    }
+
+    /**
+     * Mirrors the core tree rendering, which sorts labels by priority descending
+     * (stable) and paints only the first one.
+     *
+     * @see typo3/cms-backend/Resources/Public/JavaScript/tree/tree.js getNodeLabels()
+     *
+     * @param array<int, Label> $labels
+     */
+    private function winningLabel(array $labels): Label
+    {
+        usort($labels, static fn (Label $a, Label $b): int => $b->priority - $a->priority);
+
+        return $labels[0];
     }
 
     /**
