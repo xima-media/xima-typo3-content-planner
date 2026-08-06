@@ -24,9 +24,6 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 /**
  * FolderControllerTest.
  *
- * Redirect handling relies on GeneralUtility::sanitizeLocalUrl(), which needs an initialized
- * Environment — only available in the functional bootstrap, hence these cases live here.
- *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */

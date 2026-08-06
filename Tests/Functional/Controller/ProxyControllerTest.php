@@ -22,9 +22,6 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 /**
  * ProxyControllerTest.
  *
- * The redirect validation uses GeneralUtility::sanitizeLocalUrl(), which needs an initialized
- * Environment — only available in the functional bootstrap, hence this case lives here.
- *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
