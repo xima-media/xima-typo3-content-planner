@@ -83,7 +83,7 @@ final class RecordSummaryServiceBatchingTest extends TestCase
              */
             protected function capabilitiesFor(array $record): CapabilitySummary
             {
-                return new CapabilitySummary(true, true, true, true);
+                return new CapabilitySummary(true, true, true);
             }
         };
 

@@ -142,8 +142,7 @@ Response:
           "capabilities": {
             "canChangeStatus": true,
             "canUnsetStatus": true,
-            "canComment": true,
-            "canViewComments": true
+            "canComment": true
           }
         }
       ]
@@ -180,6 +179,12 @@ Batch limit
 Capabilities
     Advisory, for hiding controls a user cannot use. They are never the
     enforcement — every write endpoint re-checks permissions itself.
+
+    There is no "may view comments" flag on purpose: the extension has no such
+    permission, so it could only ever be ``true``, and a field that never varies
+    suggests a check that does not exist. Being able to read a record's comments
+    follows from the visibility check applied to the whole request — if a record
+    appears in ``items`` at all, its comments are readable.
 
 Checking a flag
 ===============

@@ -113,9 +113,6 @@ class RecordSummaryService
             canChangeStatus: PermissionUtility::canChangeStatus(0 !== $statusUid ? $statusUid : null),
             canUnsetStatus: PermissionUtility::canUnsetStatus(),
             canComment: PermissionUtility::canCreateComment(),
-            // There is no dedicated view permission; seeing comments follows from the
-            // visibility check already applied to the whole request.
-            canViewComments: true,
         );
     }
 

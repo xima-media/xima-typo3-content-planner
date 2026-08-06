@@ -40,7 +40,7 @@ final readonly class RecordSummary
      *     status: array{uid: int, title: string, colorName: string, colorHex: string|null, iconIdentifier: string}|null,
      *     assignee: array{uid: int, displayName: string}|null,
      *     comments: array{total: int, todoTotal: int, todoResolved: int},
-     *     capabilities: array{canChangeStatus: bool, canUnsetStatus: bool, canComment: bool, canViewComments: bool}
+     *     capabilities: array{canChangeStatus: bool, canUnsetStatus: bool, canComment: bool}
      * }
      */
     public function toArray(): array

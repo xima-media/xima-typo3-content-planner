@@ -25,16 +25,20 @@ final readonly class CapabilitySummary
      * What the current backend user may do with this record. Advisory only — a consumer
      * hiding a button is a convenience, never the enforcement, which happens again in
      * every write endpoint.
+     *
+     * There is deliberately no "may view comments" flag: the extension has no such
+     * permission, so it could only ever be true, and a field that never varies suggests
+     * a check that does not exist. Being able to read a record's comments follows from
+     * the visibility check already applied to the whole request.
      */
     public function __construct(
         public bool $canChangeStatus,
         public bool $canUnsetStatus,
         public bool $canComment,
-        public bool $canViewComments,
     ) {}
 
     /**
-     * @return array{canChangeStatus: bool, canUnsetStatus: bool, canComment: bool, canViewComments: bool}
+     * @return array{canChangeStatus: bool, canUnsetStatus: bool, canComment: bool}
      */
     public function toArray(): array
     {
@@ -42,7 +46,6 @@ final readonly class CapabilitySummary
             'canChangeStatus' => $this->canChangeStatus,
             'canUnsetStatus' => $this->canUnsetStatus,
             'canComment' => $this->canComment,
-            'canViewComments' => $this->canViewComments,
         ];
     }
 }

@@ -132,7 +132,12 @@ final class RecordSummaryServiceTest extends AbstractFunctionalTestCase
         self::assertIsBool($capabilities->canChangeStatus);
         self::assertIsBool($capabilities->canUnsetStatus);
         self::assertIsBool($capabilities->canComment);
-        self::assertTrue($capabilities->canViewComments);
+        // No "may view comments" flag — the extension has no such permission, so it could
+        // only ever be true and would imply a check that does not exist.
+        self::assertSame(
+            ['canChangeStatus', 'canUnsetStatus', 'canComment'],
+            array_keys($capabilities->toArray()),
+        );
     }
 
     private function summaryFor(int $uid): RecordSummary
