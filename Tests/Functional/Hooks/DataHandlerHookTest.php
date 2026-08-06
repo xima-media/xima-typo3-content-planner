@@ -60,6 +60,29 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
         self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW123']['todo_resolved']);
     }
 
+    #[Test]
+    public function preProcessResolvesNewCommentEntryEvenWhenCommentIsNotTheFirstDatamapTable(): void
+    {
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        // A mixed save (e.g. page + comment created together) where the comment table is
+        // not the first key — processDatamap_beforeStart() would skip it in this case.
+        $dataHandler->datamap = [
+            'pages' => [1 => ['title' => 'Test']],
+            Configuration::TABLE_COMMENT => [
+                'NEW456' => ['content' => 'a new comment'],
+            ],
+        ];
+        $hook = $this->createHook();
+        $fields = [];
+
+        $hook->processDatamap_preProcessFieldArray($fields, 'pages', 1, $dataHandler);
+        // fixNewCommentEntry() must still run once the comment record itself is handled,
+        // resolving its "NEW..." id despite the non-integer id early return further down.
+        $hook->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW456', $dataHandler);
+
+        self::assertArrayHasKey('author', $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW456']);
+    }
+
     private function createHook(): DataHandlerHook
     {
         return new DataHandlerHook(

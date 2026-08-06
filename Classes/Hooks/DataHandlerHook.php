@@ -60,10 +60,13 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     {
         // Only process comments while the comment record itself is being handled — the hook fires
         // once per datamap record, so guarding on the datamap alone re-ran this for every record.
+        // Must run before the integer-id early return below: a newly created comment has a "NEW..."
+        // id, which fixNewCommentEntry() specifically needs to resolve.
         if (Configuration::TABLE_COMMENT === $table) {
             $this->updateCommentTodo($dataHandler);
             $this->checkCommentResolved($dataHandler);
             $this->checkCommentEdited($dataHandler);
+            $this->fixNewCommentEntry($dataHandler);
         }
 
         if (!MathUtility::canBeInterpretedAsInteger($id)) {
@@ -72,10 +75,6 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
 
         if (ExtensionUtility::isRegisteredRecordTable($table)) {
             $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, (int) $id);
-        }
-
-        if (Configuration::TABLE_COMMENT === $table) {
-            $this->fixNewCommentEntry($dataHandler);
         }
     }
 
