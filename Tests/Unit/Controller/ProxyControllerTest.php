@@ -18,6 +18,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\ProxyController;
+use Xima\XimaTypo3ContentPlanner\Service\ResultMessageService;
 
 /**
  * ProxyControllerTest.
@@ -101,7 +102,10 @@ final class ProxyControllerTest extends TestCase
 
     private function createController(): ProxyController
     {
-        return new ProxyController($this->createMock(FlashMessageService::class));
+        return new ProxyController(
+            $this->createMock(FlashMessageService::class),
+            new ResultMessageService(),
+        );
     }
 
     private function createRequest(): ServerRequestInterface
