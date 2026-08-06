@@ -113,7 +113,7 @@ class StatusChangeManager
             );
         }
 
-        $queryBuilder->executeQuery();
+        $queryBuilder->executeStatement();
     }
 
     /**
