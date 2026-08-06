@@ -20,6 +20,7 @@ use TYPO3\CMS\Extbase\Persistence\{QueryInterface, Repository};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
+use function array_key_exists;
 use function is_array;
 use function sprintf;
 
@@ -36,6 +37,18 @@ class StatusRepository extends Repository
     protected $defaultOrderings = [
         'sorting' => QueryInterface::ORDER_ASCENDING,
     ];
+
+    /**
+     * Request-level memoization: the repository is a singleton, so this avoids repeated
+     * cache backend reads (each a database query with the default backend) when the same
+     * status is resolved many times per request, e.g. once per page tree item.
+     *
+     * @var array<int, Status|null>
+     */
+    private array $runtimeStatusCache = [];
+
+    /** @var array<int, Status>|null */
+    private ?array $runtimeAllCache = null;
 
     public function __construct(private readonly FrontendInterface $cache)
     {
@@ -56,25 +69,33 @@ class StatusRepository extends Repository
      */
     public function findAll(): array
     {
+        if (null !== $this->runtimeAllCache) {
+            return $this->runtimeAllCache;
+        }
+
         $cacheIdentifier = sprintf('%s--status--all', Configuration::CACHE_IDENTIFIER);
         $cachedResult = $this->cache->get($cacheIdentifier);
         if (is_array($cachedResult)) {
-            return $cachedResult;
+            return $this->runtimeAllCache = $cachedResult;
         }
 
         $query = $this->createQuery();
         $result = $query->execute()->toArray();
         $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($result));
 
-        return $result;
+        return $this->runtimeAllCache = $result;
     }
 
     public function findByUid($uid): ?Status
     {
+        if (array_key_exists($uid, $this->runtimeStatusCache)) {
+            return $this->runtimeStatusCache[$uid];
+        }
+
         $cacheIdentifier = sprintf('%s--status--%s', Configuration::CACHE_IDENTIFIER, $uid);
         $cachedResult = $this->cache->get($cacheIdentifier);
         if ($cachedResult instanceof Status) {
-            return $cachedResult;
+            return $this->runtimeStatusCache[$uid] = $cachedResult;
         }
 
         $query = $this->createQuery();
@@ -83,11 +104,11 @@ class StatusRepository extends Repository
         $result = $query->execute()->getFirst();
 
         if (null === $result) {
-            return null;
+            return $this->runtimeStatusCache[$uid] = null;
         }
         $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags([$result]));
 
-        return $result;
+        return $this->runtimeStatusCache[$uid] = $result;
     }
 
     public function findByTitle(string $title): ?Status
