@@ -54,6 +54,14 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findByUidReturnsNullForUnregisteredTable(): void
+    {
+        // be_users is not a registered content planner record table and must be rejected
+        // by the whitelist regardless of whether a matching row exists.
+        self::assertNull($this->subject->findByUid('be_users', 1));
+    }
+
+    #[Test]
     public function findByUidExcludesDeletedRecordByDefault(): void
     {
         self::assertFalse($this->subject->findByUid('pages', 5));

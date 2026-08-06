@@ -24,6 +24,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
+use function in_array;
 use function is_array;
 use function sprintf;
 
@@ -133,6 +134,13 @@ class RecordRepository
         if (!(bool) $table && !(bool) $uid) {
             return null;
         }
+
+        // Only registered content planner record tables may be queried through this method
+        // (the table name flows into getQueryBuilderForTable()/getTitleField() from request input).
+        if (null === $table || !in_array($table, ExtensionUtility::getRecordTables(), true)) {
+            return null;
+        }
+
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
 
         if ($ignoreVisibilityRestriction) {
