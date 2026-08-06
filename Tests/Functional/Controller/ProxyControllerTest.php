@@ -95,6 +95,31 @@ final class ProxyControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function messageActionHonoursTheResultStatusOnTheRedirectPath(): void
+    {
+        $this->loginBackendUser();
+        $flashMessageService = $this->get(FlashMessageService::class);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getQueryParams')->willReturn([
+            'message' => 'status.changed',
+            'resultStatus' => 'failure',
+            'redirect' => $this->localRedirectTarget(),
+        ]);
+
+        $response = (new ProxyController($flashMessageService, $this->get(ResultMessageService::class)))
+            ->messageAction($request);
+
+        self::assertSame(302, $response->getStatusCode());
+        $messages = $flashMessageService
+            ->getMessageQueueByIdentifier(FlashMessageQueue::NOTIFICATION_QUEUE)
+            ->getAllMessagesAndFlush();
+        self::assertCount(1, $messages);
+        // Before, the redirect branch always resolved the success variant, so a failed
+        // action queued a success toast.
+        self::assertSame(ContextualFeedbackSeverity::ERROR, $messages[0]->getSeverity());
+    }
+
+    #[Test]
     public function messageActionRejectsAnUnknownMessagePath(): void
     {
         $request = $this->createMock(ServerRequestInterface::class);

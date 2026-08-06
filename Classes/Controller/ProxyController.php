@@ -53,6 +53,8 @@ class ProxyController extends ActionController
             return new JsonResponse(['error' => 'Missing message parameter'], 400);
         }
 
+        $resultStatus = $request->getQueryParams()['resultStatus'] ?? 'success';
+
         $redirect = $request->getQueryParams()['redirect'] ?? null;
         if (null !== $redirect) {
             $redirect = GeneralUtility::sanitizeLocalUrl($redirect);
@@ -60,9 +62,9 @@ class ProxyController extends ActionController
                 return new JsonResponse(['error' => 'Invalid redirect target'], 400);
             }
 
-            $result = $this->resultMessageService->resolve($messagePath);
+            $result = $this->resultMessageService->resolve($messagePath, $resultStatus);
             if (null === $result) {
-                return new JsonResponse(['error' => 'Invalid message path'], 400);
+                return new JsonResponse(['error' => 'Invalid message path or result status'], 400);
             }
 
             $this->enqueueNotification($result);
@@ -70,7 +72,6 @@ class ProxyController extends ActionController
             return new RedirectResponse($redirect);
         }
 
-        $resultStatus = $request->getQueryParams()['resultStatus'] ?? 'success';
         $result = $this->resultMessageService->resolve($messagePath, $resultStatus);
         if (null === $result) {
             return new JsonResponse(['error' => 'Invalid message path or result status'], 400);

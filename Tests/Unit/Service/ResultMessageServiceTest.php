@@ -56,13 +56,40 @@ final class ResultMessageServiceTest extends TestCase
             'status reset success' => ['status.reset', 'success', ContextualFeedbackSeverity::NOTICE],
             'status reset failure' => ['status.reset', 'failure', ContextualFeedbackSeverity::ERROR],
             'assignee changed success' => ['assignee.changed', 'success', ContextualFeedbackSeverity::OK],
+            'assignee changed failure' => ['assignee.changed', 'failure', ContextualFeedbackSeverity::ERROR],
             'assignee reset success' => ['assignee.reset', 'success', ContextualFeedbackSeverity::NOTICE],
+            'assignee reset failure' => ['assignee.reset', 'failure', ContextualFeedbackSeverity::ERROR],
             'comment create success' => ['comment.create', 'success', ContextualFeedbackSeverity::OK],
+            'comment create failure' => ['comment.create', 'failure', ContextualFeedbackSeverity::ERROR],
             'comment edit success' => ['comment.edit', 'success', ContextualFeedbackSeverity::OK],
+            'comment edit failure' => ['comment.edit', 'failure', ContextualFeedbackSeverity::ERROR],
             'comment resolve success' => ['comment.resolve', 'success', ContextualFeedbackSeverity::OK],
+            'comment resolve failure' => ['comment.resolve', 'failure', ContextualFeedbackSeverity::ERROR],
             'comment delete success' => ['comment.delete', 'success', ContextualFeedbackSeverity::WARNING],
             'comment delete failure' => ['comment.delete', 'failure', ContextualFeedbackSeverity::ERROR],
         ];
+    }
+
+    #[Test]
+    public function theSeverityProviderReallyCoversEveryCatalogueEntry(): void
+    {
+        // Keeps the promise in resolveKeepsTheSeverityOfEveryCatalogueEntry()'s name
+        // enforceable: a catalogue entry added without a provider case fails here.
+        $leaves = [];
+        foreach (ResultMessageService::MESSAGES as $group => $actions) {
+            foreach ($actions as $action => $variants) {
+                foreach (array_keys($variants) as $resultStatus) {
+                    $leaves[] = "$group.$action|$resultStatus";
+                }
+            }
+        }
+
+        $covered = array_map(
+            static fn (array $case): string => $case[0].'|'.$case[1],
+            array_values(self::severityProvider()),
+        );
+
+        self::assertSame([], array_values(array_diff($leaves, $covered)));
     }
 
     #[Test]
