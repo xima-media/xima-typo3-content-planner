@@ -186,6 +186,69 @@ Capabilities
     follows from the visibility check applied to the whole request — if a record
     appears in ``items`` at all, its comments are readable.
 
+..  _frontend-api-status-selection:
+
+Status selection
+----------------
+
+..  code-block:: none
+
+    GET /content-planner/api/status-selection?table=pages&uid=12
+
+Returns the statuses selectable for one record, so a frontend dropdown offers
+exactly what the backend offers.
+
+..  code-block:: json
+
+    {
+      "table": "pages",
+      "uid": 12,
+      "items": [
+        {
+          "uid": 1,
+          "title": "Draft",
+          "colorName": "blue",
+          "colorHex": "#64bbc8",
+          "iconIdentifier": "flag-blue",
+          "current": false
+        }
+      ],
+      "canUnset": true
+    }
+
+Responds 400 without both parameters, 403 when the content planner is not
+visible for the user, and 404 for a record that does not exist or that the user
+may not read.
+
+Contract notes:
+
+The selection event runs
+    The list is passed through
+    :ref:`PrepareStatusSelectionEvent <events>` just like every backend menu, so a
+    project listener that restricts statuses restricts this response identically.
+
+    The selection handed to the event is **keyed by status uid** — the convention
+    all backend selection builders already follow. A listener unsetting a status
+    by key therefore works unchanged. A listener that rewrites entry *values* has
+    to branch on ``$event->getContext()``, which it must do anyway, since the
+    value shape already differs between the list, dropdown and context-menu
+    builders. Entries a listener *adds* under keys that were not offered as
+    statuses are ignored.
+
+Group restrictions apply
+    Candidates are collected the same way as
+    ``AbstractSelectionService::addAllStatusItems()``, so ``allowed_statuses``
+    from :ref:`be_groups <permissions>` is honoured.
+
+The current status is included
+    Unlike the backend menus, which omit the active status because picking it
+    again is a no-op, the response reports it with ``current: true`` — a consumer
+    needs it to render the selected entry.
+
+``canUnset``
+    True only when the record actually has a status *and* the user holds the
+    unset permission. It is independent of the selection listener.
+
 Checking a flag
 ===============
 
