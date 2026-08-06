@@ -48,6 +48,9 @@ class CommentRepository
      */
     public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false): array
     {
+        // Whitelist the sort direction: QueryBuilder::orderBy() does not quote the direction argument.
+        $sortDirection = 'ASC' === strtoupper($sortDirection) ? 'ASC' : 'DESC';
+
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
         $replyTable = self::TABLE.'_replies';

@@ -99,6 +99,26 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findAllByRecordNormalizesLowercaseSortDirection(): void
+    {
+        $result = $this->subject->findAllByRecord(10, 'pages', false, 'asc');
+
+        self::assertSame(1, (int) $result[0]->data['uid']);
+        self::assertSame(2, (int) $result[1]->data['uid']);
+    }
+
+    #[Test]
+    public function findAllByRecordNeutralizesMaliciousSortDirection(): void
+    {
+        // An SQL injection attempt in the (unquoted) ORDER BY direction must be rejected
+        // and fall back to the default DESC ordering instead of reaching the database.
+        $result = $this->subject->findAllByRecord(10, 'pages', false, 'DESC; SELECT SLEEP(5)');
+
+        self::assertSame(2, (int) $result[0]->data['uid']);
+        self::assertSame(1, (int) $result[1]->data['uid']);
+    }
+
+    #[Test]
     public function findAllByRecordReturnsEmptyArrayForUnknownRecord(): void
     {
         self::assertSame([], $this->subject->findAllByRecord(999, 'pages'));
