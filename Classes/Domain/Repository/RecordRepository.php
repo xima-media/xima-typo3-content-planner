@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\{ArrayParameterType, Exception};
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestriction, StartTimeRestriction};
@@ -23,6 +23,9 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function array_map;
+use function array_unique;
+use function array_values;
 use function count;
 use function in_array;
 use function is_array;
@@ -168,14 +171,38 @@ class RecordRepository
      */
     public function findByUid(?string $table, ?int $uid, bool $ignoreVisibilityRestriction = false): array|bool|null
     {
-        if (!(bool) $table && !(bool) $uid) {
+        // Only registered content planner record tables may be queried through this method
+        // (the table name flows into getQueryBuilderForTable()/getTitleField() from request input).
+        // A null or empty table name never passes this, which also covers the "no arguments
+        // at all" case.
+        if (null === $table || !in_array($table, ExtensionUtility::getRecordTables(), true)) {
             return null;
         }
 
-        // Only registered content planner record tables may be queried through this method
-        // (the table name flows into getQueryBuilderForTable()/getTitleField() from request input).
-        if (null === $table || !in_array($table, ExtensionUtility::getRecordTables(), true)) {
-            return null;
+        // Delegates to the batched variant so both paths share one query definition;
+        // returns false for a missing record, matching fetchAssociative().
+        return $this->findAllByUids($table, [(int) $uid], $ignoreVisibilityRestriction)[(int) $uid] ?? false;
+    }
+
+    /**
+     * Batched counterpart of findByUid() for a set of records of one table, so a whole
+     * page worth of elements costs a single query instead of one per element.
+     *
+     * @param int[] $uids
+     *
+     * @return array<int, array<string, mixed>> found records keyed by uid; uids that do
+     *                                          not exist are simply absent
+     *
+     * @throws Exception
+     */
+    public function findAllByUids(string $table, array $uids, bool $ignoreVisibilityRestriction = false): array
+    {
+        $uids = array_values(array_unique(array_map('intval', $uids)));
+
+        // Same whitelist as findByUid(): the table name reaches getQueryBuilderForTable()
+        // and getTitleField() straight from request input.
+        if ([] === $uids || !in_array($table, ExtensionUtility::getRecordTables(), true)) {
+            return [];
         }
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -190,15 +217,19 @@ class RecordRepository
             ->select('uid', 'pid', $this->getTitleField($table).' as "title"', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
             ->from($table)
             ->andWhere(
-                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, ArrayParameterType::INTEGER)),
             );
 
         if ($this->hasDeletedRestriction($table)) {
             $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
         }
 
-        return $query->executeQuery()
-            ->fetchAssociative();
+        $records = [];
+        foreach ($query->executeQuery()->fetchAllAssociative() as $record) {
+            $records[(int) $record['uid']] = $record;
+        }
+
+        return $records;
     }
 
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void

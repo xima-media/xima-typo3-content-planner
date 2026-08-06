@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-return [
+$routes = [
     'ximatypo3contentplanner_filterrecords' => [
         'path' => '/content-planner/records',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::filterAction',
@@ -37,3 +37,17 @@ return [
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::closeDocumentAction',
     ],
 ];
+
+// The frontend API endpoints are not registered at all while the feature flag is off, so
+// core answers them with a plain 404 and no guard is needed in the actions themselves.
+// The flag only governs availability: these stay backend routes requiring a backend
+// session and a CSRF route token.
+if (Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility::isFrontendApiEnabled()) {
+    $routes['ximatypo3contentplanner_api_summary'] = [
+        'path' => '/content-planner/api/summary',
+        'methods' => ['POST'],
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\ApiController::class.'::summaryAction',
+    ];
+}
+
+return $routes;

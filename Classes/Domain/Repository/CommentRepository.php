@@ -13,13 +13,15 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
-use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\{ArrayParameterType, Exception};
 use InvalidArgumentException;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 
+use function array_fill_keys;
+use function array_keys;
 use function array_map;
 use function count;
 use function in_array;
@@ -139,6 +141,90 @@ class CommentRepository
         }
 
         return $query->executeQuery()->fetchOne();
+    }
+
+    /**
+     * Batched counterpart of countAllByRecord() for a set of records of one table, so a
+     * whole page worth of elements costs a single query instead of one per element.
+     *
+     * @param int[] $uids
+     *
+     * @return array<int, int> open comment count keyed by record uid, zero-filled for
+     *                         records without comments
+     *
+     * @throws Exception
+     */
+    public function countAllByRecords(string $table, array $uids): array
+    {
+        $counts = array_fill_keys(array_map('intval', $uids), 0);
+        if ([] === $counts) {
+            return [];
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $rows = $queryBuilder
+            ->selectLiteral('`foreign_uid`', 'COUNT(`uid`) AS `count`')
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->in('foreign_uid', $queryBuilder->createNamedParameter(array_keys($counts), ArrayParameterType::INTEGER)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->groupBy('foreign_uid')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        foreach ($rows as $row) {
+            $counts[(int) $row['foreign_uid']] = (int) $row['count'];
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Batched counterpart of countTodosByRecord().
+     *
+     * @param int[] $uids
+     *
+     * @return array<int, array{total: int, resolved: int}> keyed by record uid,
+     *                                                      zero-filled for records without to-dos
+     *
+     * @throws Exception
+     */
+    public function countTodosByRecords(string $table, array $uids): array
+    {
+        $sums = array_fill_keys(array_map('intval', $uids), ['total' => 0, 'resolved' => 0]);
+        if ([] === $sums) {
+            return [];
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $rows = $queryBuilder
+            ->selectLiteral(
+                '`foreign_uid`',
+                'COALESCE(SUM(`todo_total`), 0) AS `total`',
+                'COALESCE(SUM(`todo_resolved`), 0) AS `resolved`',
+            )
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->in('foreign_uid', $queryBuilder->createNamedParameter(array_keys($sums), ArrayParameterType::INTEGER)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->groupBy('foreign_uid')
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        foreach ($rows as $row) {
+            $sums[(int) $row['foreign_uid']] = [
+                'total' => (int) $row['total'],
+                'resolved' => (int) $row['resolved'],
+            ];
+        }
+
+        return $sums;
     }
 
     public function countTodoAllByRecord(?int $id = null, ?string $table = null, string $todoField = 'todo_resolved', bool $allRecords = false): int

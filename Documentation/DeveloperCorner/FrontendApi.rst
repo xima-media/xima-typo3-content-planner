@@ -78,6 +78,93 @@ Endpoints
     Endpoint contracts are documented alongside their implementation. This
     section grows as the individual endpoints land.
 
+Routes are registered only while their flag is on, so a disabled endpoint does
+not exist in the route collection at all and TYPO3 answers it with a plain 404.
+
+..  _frontend-api-summary:
+
+Annotation summary
+------------------
+
+..  code-block:: none
+
+    POST /content-planner/api/summary
+
+Returns status, assignee and comment counters for many records in **one**
+request — the call a consumer needs to render badges for a whole page: the
+``pages`` record plus all of its content elements.
+
+Request body:
+
+..  code-block:: json
+
+    {
+      "items": [
+        { "table": "pages", "uid": 12 },
+        { "table": "tt_content", "uid": 34 }
+      ]
+    }
+
+Response:
+
+..  code-block:: json
+
+    {
+      "items": [
+        {
+          "table": "pages",
+          "uid": 12,
+          "status": {
+            "uid": 2,
+            "title": "In Progress",
+            "colorName": "yellow",
+            "colorHex": "#ffcd75",
+            "iconIdentifier": "flag-yellow"
+          },
+          "assignee": { "uid": 3, "displayName": "Jane Doe (jane)" },
+          "comments": { "total": 2, "todoTotal": 3, "todoResolved": 1 },
+          "capabilities": {
+            "canChangeStatus": true,
+            "canUnsetStatus": true,
+            "canComment": true,
+            "canViewComments": true
+          }
+        }
+      ]
+    }
+
+``status`` and ``assignee`` are ``null`` when the record carries none, which is
+cheap for a consumer to skip.
+
+Contract notes:
+
+No markup
+    The response never contains rendered HTML or pre-escaped entities. Icons are
+    reported as **identifiers** and colours as hex values; rendering and escaping
+    are the consumer's job. The backend keeps its own HTML-bearing DTO
+    (``StatusItem``), which is deliberately left untouched.
+
+Silent omission
+    Records the current user may not see — a table they lack access to, a page
+    outside their mounts, a uid that does not exist — are **left out** of
+    ``items`` rather than reported as an error, so one forbidden element cannot
+    spoil a whole page's request. Consumers must not assume the response has the
+    same length or order as the request; match on ``table`` plus ``uid``.
+
+Counter semantics
+    ``comments.total`` counts *open* comments including replies, exactly like the
+    backend badge. To-do counters are zero while
+    :ref:`commentTodos <extconf-commentTodos>` is off, again matching the
+    backend.
+
+Batch limit
+    At most 500 items per request; a larger batch is rejected with 400. A page's
+    worth of content elements stays far below that.
+
+Capabilities
+    Advisory, for hiding controls a user cannot use. They are never the
+    enforcement — every write endpoint re-checks permissions itself.
+
 Checking a flag
 ===============
 
