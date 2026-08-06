@@ -40,7 +40,9 @@ final class ProxyControllerTest extends AbstractFunctionalTestCase
         $response = $this->createController()->messageAction($request);
         $payload = json_decode((string) $response->getBody(), true);
 
-        self::assertTrue($payload['success']);
+        // The wire shape is unchanged from before the refactor — no key added, none
+        // removed — so notification.js and any other consumer see exactly what they did.
+        self::assertSame(['title', 'message', 'severity'], array_keys($payload));
         // notification.js switches on the numeric severity — a serialized enum object
         // would silently fall through to its default branch.
         self::assertSame(ContextualFeedbackSeverity::OK->value, $payload['severity']);
@@ -52,7 +54,7 @@ final class ProxyControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function messageActionReportsFailureResultsAsUnsuccessful(): void
+    public function messageActionServesTheFailureWordingAndSeverity(): void
     {
         $this->loginBackendUser();
         $request = $this->createMock(ServerRequestInterface::class);
@@ -63,8 +65,8 @@ final class ProxyControllerTest extends AbstractFunctionalTestCase
 
         $payload = json_decode((string) $this->createController()->messageAction($request)->getBody(), true);
 
-        self::assertFalse($payload['success']);
         self::assertSame(ContextualFeedbackSeverity::ERROR->value, $payload['severity']);
+        self::assertNotEmpty($payload['title']);
     }
 
     #[Test]

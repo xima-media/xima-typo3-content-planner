@@ -24,23 +24,26 @@ use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 final readonly class MessageResult
 {
     public function __construct(
-        public bool $success,
         public string $title,
         public string $message,
         public ContextualFeedbackSeverity $severity,
     ) {}
 
     /**
-     * The JSON envelope shared by the message route and the status endpoints. Title and
-     * message are already localized; no queue, request or rendering concern is involved,
-     * so the same result can just as well be enqueued as a flash message.
+     * The localized message as it goes over the wire. Deliberately carries no success
+     * flag: whether an action worked is known by whoever performed it, not by the message
+     * catalogue, so an endpoint that writes prepends its own outcome. Deriving it from the
+     * severity would be wrong too — a successful comment deletion is a WARNING and a
+     * status reset is a NOTICE.
      *
-     * @return array{success: bool, title: string, message: string, severity: int}
+     * No queue, request or rendering concern is involved, so the same result can just as
+     * well be enqueued as a flash message.
+     *
+     * @return array{title: string, message: string, severity: int}
      */
     public function toArray(): array
     {
         return [
-            'success' => $this->success,
             'title' => $this->title,
             'message' => $this->message,
             // Consumers switch on the numeric severity, so the enum is unwrapped here

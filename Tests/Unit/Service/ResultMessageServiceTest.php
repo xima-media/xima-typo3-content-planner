@@ -79,21 +79,15 @@ final class ResultMessageServiceTest extends TestCase
     }
 
     #[Test]
-    public function resolveMarksSuccessResultsAsSuccessful(): void
+    public function resolvePicksTheWordingVariantForTheResultStatus(): void
     {
-        $result = $this->subject->resolve('status.changed');
+        $success = $this->subject->resolve('status.changed');
+        $failure = $this->subject->resolve('status.changed', 'failure');
 
-        self::assertNotNull($result);
-        self::assertTrue($result->success);
-    }
-
-    #[Test]
-    public function resolveMarksFailureResultsAsUnsuccessful(): void
-    {
-        $result = $this->subject->resolve('status.changed', 'failure');
-
-        self::assertNotNull($result);
-        self::assertFalse($result->success);
+        self::assertNotNull($success);
+        self::assertNotNull($failure);
+        self::assertStringEndsWith('.success.title', $success->title);
+        self::assertStringEndsWith('.failure.title', $failure->title);
     }
 
     #[Test]
@@ -149,13 +143,15 @@ final class ResultMessageServiceTest extends TestCase
     }
 
     #[Test]
-    public function toArrayCarriesTheFullEnvelope(): void
+    public function toArrayCarriesOnlyTheMessageItself(): void
     {
         $result = $this->subject->resolve('comment.delete');
 
         self::assertNotNull($result);
+        // No success flag: whether an action worked is known by whoever performed it, and
+        // the severity cannot stand in for it — a successful deletion is a WARNING.
         self::assertSame(
-            ['success', 'title', 'message', 'severity'],
+            ['title', 'message', 'severity'],
             array_keys($result->toArray()),
         );
     }

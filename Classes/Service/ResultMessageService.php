@@ -146,6 +146,9 @@ class ResultMessageService
      *
      * Needs neither a request nor a redirect, so the JSON endpoints and the redirect
      * chain can share the exact same wording and severity.
+     *
+     * $resultStatus selects the wording variant. It is not echoed back into the result —
+     * an endpoint that determines an outcome reports that itself.
      */
     public function resolve(string $messagePath, string $resultStatus = 'success'): ?MessageResult
     {
@@ -155,7 +158,6 @@ class ResultMessageService
         }
 
         return new MessageResult(
-            success: 'success' === $resultStatus,
             title: $this->getLanguageService()->sL($message['title']),
             message: $this->getLanguageService()->sL($message['message']),
             severity: $message['severity'],
