@@ -223,6 +223,16 @@ class FilterStatus {
     });
   }
 
+  static escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    })[char]);
+  }
+
   static search(widget, queryArguments = {}, callback) {
     widget.querySelector('thead')?.classList.remove('content-planner-hide');
     widget.querySelector('.content-planner-widget__empty')?.classList.add('content-planner-hide');
@@ -254,8 +264,8 @@ class FilterStatus {
           }
 
           html += '<tr ' + (item.assignedToCurrentUser ? 'class="content-planner-row--current"' : '') + '>' +
-            '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + item.title + '</strong></a></td>' +
-            '<td>' + (item.site ?? '') + '</td>' +
+            '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + FilterStatus.escapeHtml(item.title) + '</strong></a></td>' +
+            '<td>' + FilterStatus.escapeHtml(item.site ?? '') + '</td>' +
             '<td><small title="' + item.updatedRaw + '">' + item.updated + '</small></td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
             '<td>' + comments + '</td>' +
