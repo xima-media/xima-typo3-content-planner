@@ -74,10 +74,6 @@ configuration keeps the endpoints disabled.
 Endpoints
 =========
 
-..  note::
-    Endpoint contracts are documented alongside their implementation. This
-    section grows as the individual endpoints land.
-
 Routes are registered only while their flag is on, so a disabled endpoint does
 not exist in the route collection at all.
 
@@ -248,6 +244,76 @@ The current status is included
 ``canUnset``
     True only when the record actually has a status *and* the user holds the
     unset permission. It is independent of the selection listener.
+
+..  _frontend-api-comments-view:
+
+Embeddable comments view
+------------------------
+
+..  code-block:: none
+
+    GET /content-planner/comments/view?table=pages&uid=12
+
+Renders the comment thread of one record as a **complete HTML document**, suitable as the
+``src`` of an ``<iframe>``. Unlike the endpoints above this is gated by
+:ref:`enableEmbeddableCommentsView <extconf-enableEmbeddableCommentsView>`, and it answers
+with a document rather than JSON — including when it refuses, since the response is going
+to be displayed in somebody else's frame. Refusals mirror the backend's own comment
+endpoint: ``400`` without both parameters, ``403`` when the content planner is not visible
+for the user, ``404`` for a record that does not exist or is not tracked.
+
+Optional query parameters ``sortComments`` (``ASC``/``DESC``) and ``showResolvedComments``
+(``0``/``1``) carry the filter state; the view's own filter controls are links that reload
+it with the flipped value.
+
+Contract notes:
+
+Self-contained, and carrying no JavaScript
+    The document brings its own stylesheets — the backend's ``backend.css`` plus the
+    content planner's comment styles — so the embedding page needs no backend assets. It
+    ships **no JavaScript at all**, which is a deliberate constraint rather than an
+    omission: an embedded frame's ``top`` window belongs to the consumer, so nothing may
+    depend on ``top.TYPO3``, on ``TYPO3.settings`` or on the backend's modal machinery.
+
+    ..  important::
+        For the same reason the view does not use ``PageRenderer``. Rendering a backend
+        document through it inlines ``TYPO3.settings``, which contains a URL *including its
+        CSRF token* for every registered backend AJAX route. In a document meant to be
+        embedded that is a token-disclosure risk — a same-origin embedder can read
+        ``frame.contentWindow.TYPO3.settings`` directly. The view therefore assembles its
+        own document and mirrors only the ``<html>`` attributes (language, direction, theme,
+        colour scheme) that the backend styling depends on.
+
+Dark and light follow the backend user
+    The colour scheme is taken from the backend user's own preference, the same way the
+    backend resolves it. With the preference left on *auto* no attribute is emitted and the
+    document follows ``prefers-color-scheme``.
+
+Actions are link round-trips
+    Creating, editing and replying keep using ``record_edit`` — so the RTE and every TCA
+    field behave exactly as in the backend — and navigate **inside the frame**, returning to
+    the view through ``returnUrl``. Resolving works the same way through ``tce_db``.
+
+Links that leave the thread open outside the frame
+    The share link and the record link would replace the frame with a full backend page, so
+    both carry ``target="_top"``.
+
+Deleting is not offered here
+    A delete link cannot ask for confirmation without JavaScript, and a single click that
+    irreversibly removes a comment is worse than not offering it. Use the record link to
+    reach the backend, where deletion keeps its confirmation step.
+
+..  warning::
+    **Embedding works same-origin out of the box; cross-origin does not.** The view is a
+    backend route and needs the backend session cookie, which TYPO3 issues with
+    ``SameSite=strict`` by default — a browser does not send it to an ``<iframe>`` on a
+    different origin, so the frame ends up at the login screen instead.
+
+    Embedding a frontend on the same host as the backend — the motivating case — is
+    unaffected. Embedding from a different origin requires
+    :php:`$GLOBALS['TYPO3_CONF_VARS']['BE']['cookieSameSite'] = 'none'` (which also demands
+    ``Secure``). Weigh that against its CSRF implications before changing it; it is a
+    site-wide decision, not one this view can make.
 
 Checking a flag
 ===============

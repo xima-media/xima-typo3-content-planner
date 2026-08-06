@@ -1,0 +1,84 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<f:comment>
+    Standalone counterpart to Default/Comments.html. That template is injected into a
+    backend modal and driven by JavaScript; this one is the body of a complete document
+    rendered for embedding, so every control here is a link. Keeping them separate means
+    the modal path cannot regress when this view changes.
+</f:comment>
+
+<div class="content-planner-comments-view">
+    <div class="content-planner-comments-view__toolbar">
+        <f:if condition="{newCommentUri}">
+            <a class="btn btn-primary btn-sm" href="{newCommentUri}">
+                <core:icon identifier="actions-plus" size="small"/>
+                <f:translate key="comment.view.new" extensionName="XimaTypo3ContentPlanner"/>
+            </a>
+        </f:if>
+
+        <span class="content-planner-comments-view__toolbar-spacer"></span>
+
+        <f:if condition="{comments -> f:count()} || {filter.resolvedCount}">
+            <a class="btn btn-default btn-sm" href="{filter.sortUri}">
+                <f:if condition="{filter.sortComments} == 'DESC'">
+                    <f:then>
+                        <core:icon identifier="actions-sort-amount-down" size="small"/>
+                        <f:translate key="comment.view.sort.newest" extensionName="XimaTypo3ContentPlanner"/>
+                    </f:then>
+                    <f:else>
+                        <core:icon identifier="actions-sort-amount-up" size="small"/>
+                        <f:translate key="comment.view.sort.oldest" extensionName="XimaTypo3ContentPlanner"/>
+                    </f:else>
+                </f:if>
+            </a>
+        </f:if>
+
+        <f:if condition="{filter.resolvedCount}">
+            <a class="btn btn-default btn-sm {f:if(condition: '{filter.showResolvedComments}', then: 'active', else: '')}"
+               href="{filter.toggleResolvedUri}"
+               aria-pressed="{f:if(condition: '{filter.showResolvedComments}', then: 'true', else: 'false')}">
+                <core:icon identifier="actions-check-circle" size="small"/>
+                <f:translate key="comment.view.resolved.toggle" extensionName="XimaTypo3ContentPlanner"/>
+                <span class="badge badge-secondary">{filter.resolvedCount}</span>
+            </a>
+        </f:if>
+
+        <f:comment>
+            Both of these leave the comment thread behind, so they must not replace the
+            embedded frame with a backend page — they open in the top-level window.
+        </f:comment>
+        <f:if condition="{recordUri}">
+            <a class="btn btn-default btn-sm" href="{recordUri}" target="_top">
+                <core:icon identifier="actions-open" size="small"/>
+                <f:translate key="comment.view.record" extensionName="XimaTypo3ContentPlanner"/>
+            </a>
+        </f:if>
+        <f:if condition="{shareUrl}">
+            <a class="btn btn-default btn-sm" href="{shareUrl}" target="_top">
+                <core:icon identifier="actions-link" size="small"/>
+                <f:translate key="comment.actions.share" extensionName="XimaTypo3ContentPlanner"/>
+            </a>
+        </f:if>
+    </div>
+
+    <div class="content-planner-comment-list">
+        <f:if condition="{comments -> f:count()}">
+            <f:then>
+                <f:for each="{comments}" as="record">
+                    <f:render partial="Comment"
+                              arguments="{comment: record, id: id, table: table, isReply: 0, showRecordInfo: 0, repliesExpanded: 1, embedded: 1}"/>
+                </f:for>
+            </f:then>
+            <f:else>
+                <div class="content-planner-widget__empty content-planner-comment-empty">
+                    <f:render partial="Empty"/>
+                    <div class="text-center content-planner-comment-empty__text">
+                        <f:translate key="comment.view.empty" extensionName="XimaTypo3ContentPlanner"/>
+                    </div>
+                </div>
+            </f:else>
+        </f:if>
+    </div>
+</div>
+</html>

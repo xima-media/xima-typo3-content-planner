@@ -24,11 +24,46 @@
             <f:if condition="{showRecordInfo} && !{isReply}">
                 <small>
                     <core:icon identifier="{comment.statusIcon}" size="small" title="{comment.status}"/>
-                    <a href="{comment.recordLink}">
+                    <a href="{comment.recordLink}" target="{f:if(condition: '{embedded}', then: '_top', else: '_self')}">
                         {comment.title}
                     </a>
                 </small>
             </f:if>
+            <f:comment>
+                Embedded mode has no JavaScript: no dropdown to open, no modal to raise, no
+                confirmation to show. Its actions are therefore plain links that navigate
+                the frame and come back via their returnUrl. Delete is deliberately absent
+                here — a one-click irreversible delete without a confirmation step is worse
+                than sending the user to the record itself for it.
+            </f:comment>
+            <f:if condition="{embedded}">
+            <div class="btn-group content-planner-comment__actions content-planner-comment__actions--static">
+                <f:if condition="{comment.canCurrentUserEdit}">
+                    <a class="btn btn-default btn-sm" href="{comment.editUri}"
+                       title="{f:translate(key: 'comment.actions.edit', extensionName: 'XimaTypo3ContentPlanner')}">
+                        <core:icon identifier="actions-open" size="small"/>
+                    </a>
+                </f:if>
+                <f:if condition="{comment.canCurrentUserResolve}">
+                    <f:variable name="status" value="{f:if(condition: '{comment.resolved}', then: 'unresolve', else: 'resolve')}"/>
+                    <a class="btn btn-default btn-sm" href="{comment.resolvedUri}"
+                       title="{f:translate(key: 'comment.actions.{status}', extensionName: 'XimaTypo3ContentPlanner')}">
+                        <core:icon identifier="actions-check-circle" size="small"/>
+                    </a>
+                </f:if>
+                <f:if condition="!{isReply}">
+                    <a class="btn btn-default btn-sm" href="{comment.replyUri}"
+                       title="{f:translate(key: 'comment.actions.reply', extensionName: 'XimaTypo3ContentPlanner')}">
+                        <core:icon identifier="actions-arrow-down-right-alt" size="small"/>
+                    </a>
+                </f:if>
+                <a class="btn btn-default btn-sm" href="{comment.shareUri}" target="_top"
+                   title="{f:translate(key: 'comment.actions.share', extensionName: 'XimaTypo3ContentPlanner')}">
+                    <core:icon identifier="actions-link" size="small"/>
+                </a>
+            </div>
+            </f:if>
+            <f:if condition="!{embedded}">
             <div class="btn-group content-planner-comment__actions">
                 <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-no-chevron" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -95,6 +130,7 @@
                     </f:if>
                 </ul>
             </div>
+            </f:if>
         </div>
         <div class="content-planner-comment__text">{comment.data.content -> f:format.raw()}</div>
         <f:if condition="{comment.resolved}">
@@ -109,23 +145,43 @@
             </div>
         </f:if>
         <f:if condition="{comment.replies}">
-            <a class="content-planner-comment-replies-toggle"
-               data-bs-toggle="collapse" href="#replies-{comment.data.uid}"
-               role="button" aria-expanded="{f:if(condition: '{repliesExpanded}', then: 'true', else: 'false')}" aria-controls="replies-{comment.data.uid}">
-                <core:icon identifier="actions-chevron-right" size="small"/>
-                <span><f:if condition="{comment.replyCount} == 1"><f:then><f:translate key="comment.reply.toggle" extensionName="XimaTypo3ContentPlanner"
-                            arguments="{0: '{comment.lastReplyTimeAgo}'}"/></f:then><f:else><f:translate key="comment.replies.toggle" extensionName="XimaTypo3ContentPlanner"
-                            arguments="{0: '{comment.replyCount}', 1: '{comment.lastReplyTimeAgo}'}"/></f:else></f:if></span>
-            </a>
-            <div class="{f:if(condition: '{repliesExpanded}', then: 'collapse show', else: 'collapse')} content-planner-comment-replies" id="replies-{comment.data.uid}">
+            <f:comment>
+                The collapse is Bootstrap-driven, so embedded mode shows replies outright
+                instead of offering a toggle that could not open.
+            </f:comment>
+            <f:if condition="!{embedded}">
+                <a class="content-planner-comment-replies-toggle"
+                   data-bs-toggle="collapse" href="#replies-{comment.data.uid}"
+                   role="button" aria-expanded="{f:if(condition: '{repliesExpanded}', then: 'true', else: 'false')}" aria-controls="replies-{comment.data.uid}">
+                    <core:icon identifier="actions-chevron-right" size="small"/>
+                    <span><f:if condition="{comment.replyCount} == 1"><f:then><f:translate key="comment.reply.toggle" extensionName="XimaTypo3ContentPlanner"
+                                arguments="{0: '{comment.lastReplyTimeAgo}'}"/></f:then><f:else><f:translate key="comment.replies.toggle" extensionName="XimaTypo3ContentPlanner"
+                                arguments="{0: '{comment.replyCount}', 1: '{comment.lastReplyTimeAgo}'}"/></f:else></f:if></span>
+                </a>
+            </f:if>
+            <f:if condition="{embedded}">
+                <f:then><f:variable name="repliesClass" value=""/></f:then>
+                <f:else><f:variable name="repliesClass" value="{f:if(condition: '{repliesExpanded}', then: 'collapse show', else: 'collapse')}"/></f:else>
+            </f:if>
+            <div class="{repliesClass} content-planner-comment-replies" id="replies-{comment.data.uid}">
                 <f:for each="{comment.replies}" as="reply">
-                    <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1, repliesExpanded: repliesExpanded}" />
+                    <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1, repliesExpanded: repliesExpanded, embedded: embedded}" />
                 </f:for>
-                <button type="button" class="btn btn-default btn-sm content-planner-comment-reply-inline"
-                        data-id="{id}" data-table="{table}" data-reply-comment-uri="{comment.replyUri}">
-                    <core:icon identifier="actions-arrow-down-right-alt" size="small"/>
-                    <f:translate key="comment.actions.reply" extensionName="XimaTypo3ContentPlanner"/>
-                </button>
+                <f:if condition="{embedded}">
+                    <f:then>
+                        <a class="btn btn-default btn-sm content-planner-comment-reply-inline" href="{comment.replyUri}">
+                            <core:icon identifier="actions-arrow-down-right-alt" size="small"/>
+                            <f:translate key="comment.actions.reply" extensionName="XimaTypo3ContentPlanner"/>
+                        </a>
+                    </f:then>
+                    <f:else>
+                        <button type="button" class="btn btn-default btn-sm content-planner-comment-reply-inline"
+                                data-id="{id}" data-table="{table}" data-reply-comment-uri="{comment.replyUri}">
+                            <core:icon identifier="actions-arrow-down-right-alt" size="small"/>
+                            <f:translate key="comment.actions.reply" extensionName="XimaTypo3ContentPlanner"/>
+                        </button>
+                    </f:else>
+                </f:if>
             </div>
         </f:if>
     </div>
