@@ -41,6 +41,14 @@ class Configuration
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
 
+    /*
+     * Both default to off, so a stock installation exposes no additional surface. They
+     * only control availability — every gated route stays a backend route and still
+     * requires a backend session and a CSRF route token.
+     */
+    final public const FEATURE_FRONTEND_API = 'enableFrontendApi';
+    final public const FEATURE_EMBEDDABLE_COMMENTS_VIEW = 'enableEmbeddableCommentsView';
+
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
     /*

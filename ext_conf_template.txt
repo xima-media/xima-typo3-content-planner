@@ -20,3 +20,7 @@ currentAssigneeHighlight = 1
 clearCommentsOnStatusReset = 1
 # cat=comments/enable; type=boolean; label=Parse the todos from comments and show them as separate hint
 commentTodos = 1
+# cat=api/enable; type=boolean; label=Enable the JSON API endpoints for frontend consumers (status change, status selection, annotation summary). They remain backend routes requiring a backend session and a CSRF route token.
+enableFrontendApi = 0
+# cat=api/enable; type=boolean; label=Enable the embeddable standalone comments view, a backend route rendering a comment thread as a complete HTML document suitable for an iframe
+enableEmbeddableCommentsView = 0
