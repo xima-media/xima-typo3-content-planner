@@ -39,7 +39,10 @@ $routes = [
 ];
 
 // The frontend API endpoints are not registered at all while the feature flag is off, so
-// core answers them with a plain 404 and no guard is needed in the actions themselves.
+// no guard is needed in the actions themselves. Verified in a 13.4 backend: an
+// unregistered backend route is answered with a redirect to the backend shell, i.e. a
+// consumer sees a 200 with an HTML document rather than a JSON error — the same shape it
+// already gets when a session expires, so it has to check the content type either way.
 // The flag only governs availability: these stay backend routes requiring a backend
 // session and a CSRF route token.
 if (Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility::isFrontendApiEnabled()) {

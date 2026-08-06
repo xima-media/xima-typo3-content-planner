@@ -79,7 +79,23 @@ Endpoints
     section grows as the individual endpoints land.
 
 Routes are registered only while their flag is on, so a disabled endpoint does
-not exist in the route collection at all and TYPO3 answers it with a plain 404.
+not exist in the route collection at all.
+
+..  warning::
+    A request to an unregistered backend route is **not** answered with a 404.
+    TYPO3 redirects it to the backend shell, so a consumer receives a ``200``
+    carrying an HTML document instead of JSON.
+
+    This is the same response shape a consumer already gets when the backend
+    session has expired, so it has to verify the response content type rather
+    than trust the status code:
+
+    ..  code-block:: js
+
+        const response = await fetch(url, { … });
+        if (!response.headers.get('content-type')?.includes('application/json')) {
+            // endpoint disabled, or the backend session is gone
+        }
 
 ..  _frontend-api-summary:
 
