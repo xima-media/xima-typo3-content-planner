@@ -159,7 +159,7 @@ class BackendUserRepository
      */
     public function getDisplayNamesByUids(array $uids): array
     {
-        $uids = array_values(array_filter(array_map('intval', $uids), static fn (int $uid): bool => $uid > 0));
+        $uids = array_values(array_filter(array_map(intval(...), $uids), static fn (int $uid): bool => $uid > 0));
         if ([] === $uids) {
             return [];
         }

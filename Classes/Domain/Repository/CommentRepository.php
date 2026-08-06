@@ -156,7 +156,7 @@ class CommentRepository
      */
     public function countAllByRecords(string $table, array $uids): array
     {
-        $counts = array_fill_keys(array_map('intval', $uids), 0);
+        $counts = array_fill_keys(array_map(intval(...), $uids), 0);
         if ([] === $counts) {
             return [];
         }
@@ -194,7 +194,7 @@ class CommentRepository
      */
     public function countTodosByRecords(string $table, array $uids): array
     {
-        $sums = array_fill_keys(array_map('intval', $uids), ['total' => 0, 'resolved' => 0]);
+        $sums = array_fill_keys(array_map(intval(...), $uids), ['total' => 0, 'resolved' => 0]);
         if ([] === $sums) {
             return [];
         }

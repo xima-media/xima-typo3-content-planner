@@ -197,7 +197,7 @@ class RecordRepository
      */
     public function findAllByUids(string $table, array $uids, bool $ignoreVisibilityRestriction = false): array
     {
-        $uids = array_values(array_unique(array_map('intval', $uids)));
+        $uids = array_values(array_unique(array_map(intval(...), $uids)));
 
         // Same whitelist as findByUid(): the table name reaches getQueryBuilderForTable()
         // and getTitleField() straight from request input.

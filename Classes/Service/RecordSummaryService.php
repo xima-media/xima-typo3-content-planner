@@ -262,6 +262,6 @@ class RecordSummaryService
             $grouped[$table][$uid] = $uid;
         }
 
-        return array_map('array_values', $grouped);
+        return array_map(array_values(...), $grouped);
     }
 }
