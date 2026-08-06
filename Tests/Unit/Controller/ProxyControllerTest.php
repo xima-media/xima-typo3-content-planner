@@ -32,6 +32,16 @@ final class ProxyControllerTest extends TestCase
         unset($GLOBALS['BE_USER']);
     }
 
+    public function testMessageActionReturnsBadRequestWhenMessageMissing(): void
+    {
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getQueryParams')->willReturn([]);
+
+        $response = $this->createController()->messageAction($request);
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
     public function testCloseDocumentActionRemovesCommentEntriesAndKeepsForeignTables(): void
     {
         $backendUser = $this->createMockBackendUser([

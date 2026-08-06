@@ -150,6 +150,11 @@ class ProxyController extends ActionController
 
         $redirect = $request->getQueryParams()['redirect'] ?? null;
         if (null !== $redirect) {
+            $redirect = GeneralUtility::sanitizeLocalUrl($redirect);
+            if ('' === $redirect) {
+                return new JsonResponse(['error' => 'Invalid redirect target'], 400);
+            }
+
             $message = $this->getMessageByDotNotation($messagePath);
             if (null === $message) {
                 return new JsonResponse(['error' => 'Invalid message path'], 400);
