@@ -164,6 +164,48 @@ final class ApiControllerTest extends AbstractFunctionalTestCase
         self::assertCount(1, $payload['items']);
     }
 
+    #[Test]
+    public function theStatusSelectionRouteIsAlsoGatedByTheFlag(): void
+    {
+        self::assertArrayNotHasKey('ximatypo3contentplanner_api_statusselection', $this->loadAjaxRoutes());
+
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_FRONTEND_API] = 1;
+        $routes = $this->loadAjaxRoutes();
+
+        self::assertSame('/content-planner/api/status-selection', $routes['ximatypo3contentplanner_api_statusselection']['path']);
+        self::assertSame(['GET'], $routes['ximatypo3contentplanner_api_statusselection']['methods']);
+    }
+
+    #[Test]
+    public function statusSelectionReturnsDataOnlyItems(): void
+    {
+        $response = $this->subject->statusSelectionAction($this->getRequestWith(['table' => 'pages', 'uid' => '1']));
+
+        self::assertSame(200, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(['table', 'uid', 'items', 'canUnset'], array_keys($payload));
+        self::assertSame(
+            ['uid', 'title', 'colorName', 'colorHex', 'iconIdentifier', 'current'],
+            array_keys($payload['items'][0]),
+        );
+        self::assertStringNotContainsString('<', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function statusSelectionRequiresBothTableAndUid(): void
+    {
+        self::assertSame(400, $this->subject->statusSelectionAction($this->getRequestWith(['uid' => '1']))->getStatusCode());
+        self::assertSame(400, $this->subject->statusSelectionAction($this->getRequestWith(['table' => 'pages']))->getStatusCode());
+        self::assertSame(400, $this->subject->statusSelectionAction($this->getRequestWith(['table' => 'pages', 'uid' => '0']))->getStatusCode());
+    }
+
+    #[Test]
+    public function statusSelectionReturnsNotFoundForAnInaccessibleRecord(): void
+    {
+        self::assertSame(404, $this->subject->statusSelectionAction($this->getRequestWith(['table' => 'pages', 'uid' => '9999']))->getStatusCode());
+        self::assertSame(404, $this->subject->statusSelectionAction($this->getRequestWith(['table' => 'be_users', 'uid' => '1']))->getStatusCode());
+    }
+
     /**
      * @param array<string, mixed> $body
      */
@@ -180,5 +222,14 @@ final class ApiControllerTest extends AbstractFunctionalTestCase
     private function loadAjaxRoutes(): array
     {
         return require dirname(__DIR__, 3).'/Configuration/Backend/AjaxRoutes.php';
+    }
+
+    /**
+     * @param array<string, string> $queryParams
+     */
+    private function getRequestWith(array $queryParams): ServerRequest
+    {
+        return (new ServerRequest('https://example.com/typo3/ajax/content-planner/api/status-selection', 'GET'))
+            ->withQueryParams($queryParams);
     }
 }

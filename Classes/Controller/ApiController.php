@@ -16,7 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use TYPO3\CMS\Core\Http\JsonResponse;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\Summary\RecordSummary;
-use Xima\XimaTypo3ContentPlanner\Service\RecordSummaryService;
+use Xima\XimaTypo3ContentPlanner\Service\{RecordSummaryService, StatusSelectionApiService};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_map;
@@ -38,7 +38,35 @@ class ApiController
      */
     private const MAX_ITEMS = 500;
 
-    public function __construct(private readonly RecordSummaryService $recordSummaryService) {}
+    public function __construct(
+        private readonly RecordSummaryService $recordSummaryService,
+        private readonly StatusSelectionApiService $statusSelectionApiService,
+    ) {}
+
+    /**
+     * Returns the statuses selectable for one record, filtered exactly as the backend
+     * menus are, because the same PrepareStatusSelectionEvent runs.
+     */
+    public function statusSelectionAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $table = (string) ($request->getQueryParams()['table'] ?? '');
+        $uid = (int) ($request->getQueryParams()['uid'] ?? 0);
+
+        if ('' === $table || $uid <= 0) {
+            return new JsonResponse(['error' => 'Both a table and a uid are required'], 400);
+        }
+
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Content planner is not visible for this user'], 403);
+        }
+
+        $selection = $this->statusSelectionApiService->buildForRecord($table, $uid);
+        if (null === $selection) {
+            return new JsonResponse(['error' => 'Record not found or not accessible'], 404);
+        }
+
+        return new JsonResponse($selection->toArray());
+    }
 
     /**
      * Returns status, assignee and comment counters for many records in one request.
