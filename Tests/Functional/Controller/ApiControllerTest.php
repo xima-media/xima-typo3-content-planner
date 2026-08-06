@@ -136,6 +136,19 @@ final class ApiControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function rejectsAnOversizedBatchOfMalformedItems(): void
+    {
+        // The limit is counted on the raw list. Counting after normalization would drop
+        // these entries first and answer 200 with an empty list.
+        $items = array_fill(0, 501, 'not-an-item');
+
+        $response = $this->subject->summaryAction($this->requestWithBody(['items' => $items]));
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertStringContainsString('Too many items', (string) $response->getBody());
+    }
+
+    #[Test]
     public function skipsMalformedItemEntries(): void
     {
         $response = $this->subject->summaryAction($this->requestWithBody([

@@ -52,16 +52,19 @@ class ApiController
             return new JsonResponse(['error' => 'Content planner is not visible for this user'], 403);
         }
 
-        $items = $this->parseItems($request);
-        if (null === $items) {
+        $rawItems = $this->readItemList($request);
+        if (null === $rawItems) {
             return new JsonResponse(['error' => 'Expected a JSON body of shape {"items":[{"table":"…","uid":1}]}'], 400);
         }
 
-        if (count($items) > self::MAX_ITEMS) {
+        // Counted before normalizing: malformed entries are dropped there, so counting
+        // afterwards would let an oversized batch of them slip through and answer 200
+        // with an empty list instead of rejecting the request.
+        if (count($rawItems) > self::MAX_ITEMS) {
             return new JsonResponse(['error' => 'Too many items, at most '.self::MAX_ITEMS.' per request'], 400);
         }
 
-        $summaries = $this->recordSummaryService->buildForItems($items);
+        $summaries = $this->recordSummaryService->buildForItems($this->normalizeItems($rawItems));
 
         return new JsonResponse([
             'items' => array_map(static fn (RecordSummary $summary): array => $summary->toArray(), $summaries),
@@ -69,9 +72,9 @@ class ApiController
     }
 
     /**
-     * @return array<int, array{table: string, uid: int}>|null null when the payload is unusable
+     * @return array<int, mixed>|null the raw item list, or null when the payload is unusable
      */
-    private function parseItems(ServerRequestInterface $request): ?array
+    private function readItemList(ServerRequestInterface $request): ?array
     {
         $body = $request->getParsedBody();
 
@@ -86,8 +89,21 @@ class ApiController
             return null;
         }
 
+        return array_values($body['items']);
+    }
+
+    /**
+     * Drops entries that cannot address a record. Silent, because a consumer batching a
+     * page's elements should not lose the whole response over one bad entry.
+     *
+     * @param array<int, mixed> $rawItems
+     *
+     * @return array<int, array{table: string, uid: int}>
+     */
+    private function normalizeItems(array $rawItems): array
+    {
         $items = [];
-        foreach ($body['items'] as $item) {
+        foreach ($rawItems as $item) {
             if (!is_array($item) || !isset($item['table'], $item['uid']) || !is_string($item['table'])) {
                 continue;
             }

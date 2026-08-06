@@ -92,7 +92,7 @@ not exist in the route collection at all.
 
     ..  code-block:: js
 
-        const response = await fetch(url, { … });
+        const response = await fetch(url);
         if (!response.headers.get('content-type')?.includes('application/json')) {
             // endpoint disabled, or the backend session is gone
         }

@@ -197,7 +197,10 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     {
         $batched = $this->subject->findAllByUids('pages', [2, 1]);
 
-        self::assertSame([1, 2], array_keys($batched));
+        // Asserted as a set, not a sequence: the query has no ORDER BY, so key order is
+        // whatever the database returns — and the functional suite runs on SQLite while
+        // production runs MySQL/MariaDB.
+        self::assertEqualsCanonicalizing([1, 2], array_keys($batched));
         self::assertSame(1, (int) $batched[1]['uid']);
         self::assertSame(2, (int) $batched[2]['uid']);
     }
