@@ -15,15 +15,27 @@ straight to the database, and only two repositories cache anything at all.
 What is cached
 ==============
 
-..  confval:: <ext>--<table>--p<pid>
+..  confval:: <ext>--<table>--p<pid>--o<0|1>--v<0|1>
     :name: cache-key-record-listing
 
     Written by ``RecordRepository::findByPid()``. Holds the content planner records
     of one page, and is the **only** cached record read.
 
-    Tagged with one ``<table>_<uid>`` per contained row, plus
-    ``<table>__pageId__<pid>``. The per-row tags are what make invalidation
-    possible without knowing which listing a record ended up in.
+    ``o`` is ``orderByTstamp`` and ``v`` is ``ignoreVisibilityRestriction``. Both
+    belong in the key because they change which rows the query returns — without
+    them a caller passing ``ignoreVisibilityRestriction=true`` would warm an entry
+    that later callers read hidden records out of.
+
+    With ``pid = null`` the entry holds every matching row of the table and carries
+    no page-specific tag.
+
+    Tagged with ``<table>``, one ``<table>_<uid>`` per contained row, and — only for
+    a concrete pid — ``<table>__pageId__<pid>``.
+
+    The **table-wide tag matters more than it looks**: ``findByPid()`` excludes
+    records without a status, so a record *gaining* one appears in no warmed entry
+    and has no per-row tag. Only the table tag can drop those entries, which is why
+    invalidation for a record write flushes it too.
 
 ..  confval:: <ext>--status--all
     :name: cache-key-status-all
@@ -74,11 +86,13 @@ Covered raw-write paths
 -----------------------
 
 ``RecordRepository::updateStatusByUid()``
-    Flushes the record's tag. Reached from the bulk update command and
-    ``PlannerUtility::updateStatusOfRecord()``.
+    Flushes the table tag and the record's tag. Reached from the bulk update command
+    and ``PlannerUtility::updateStatusOfRecord()``. The table tag is required here:
+    a status change is exactly the write that can add a row to a listing that never
+    contained it.
 
 ``RecordRepository::updateCommentsRelationByRecord()``
-    Flushes the record's tag. This one matters even though it runs *inside* a
+    Flushes the same tags. This one matters even though it runs *inside* a
     DataHandler request: the surrounding flush only carries comment-table tags, so
     without it a cached listing keeps serving the previous comment count.
 

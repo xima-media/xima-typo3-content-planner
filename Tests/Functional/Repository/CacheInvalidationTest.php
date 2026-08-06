@@ -72,27 +72,45 @@ final class CacheInvalidationTest extends AbstractFunctionalTestCase
     #[Test]
     public function deletingAllCommentsOfARecordIsVisibleToTheNextCachedRead(): void
     {
-        $commentRepository = $this->get(CommentRepository::class);
+        // Page 10 owns the comment rows in the fixture, so give them to page 2 first —
+        // otherwise the count is 0 before and after and the test proves nothing.
+        $this->getConnectionPool()->getConnectionForTable(Configuration::TABLE_COMMENT)->update(
+            Configuration::TABLE_COMMENT,
+            ['foreign_uid' => 2],
+            ['foreign_uid' => 10, 'foreign_table' => 'pages'],
+        );
         $this->subject->updateCommentsRelationByRecord('pages', 2);
-        $this->warmCache();
+        self::assertGreaterThan(0, $this->commentCountOfPage(2), 'fixture must give page 2 comments to begin with');
 
-        $commentRepository->deleteAllCommentsByRecord(2, 'pages');
+        $this->get(CommentRepository::class)->deleteAllCommentsByRecord(2, 'pages');
         $this->subject->updateCommentsRelationByRecord('pages', 2);
 
-        self::assertSame(0, $this->commentCountOfPage(2));
+        self::assertSame(0, $this->commentCountOfPage(2), 'findByPid() served a stale comment count');
     }
 
-    private function warmCache(): void
+    #[Test]
+    public function gainingAStatusIsVisibleToTheNextCachedRead(): void
     {
-        $this->subject->findByPid('pages', 1);
+        // findByPid() excludes records without a status, so page 4 is in no warmed entry
+        // and has no per-row tag. Only the table-wide tag can reach the entry.
+        self::assertNull($this->statusOfPage(4, allowMissing: true));
+
+        $this->subject->updateStatusByUid('pages', 4, 3);
+
+        self::assertSame(3, $this->statusOfPage(4), 'findByPid() omitted a newly active record');
     }
 
-    private function statusOfPage(int $uid): ?int
+    private function statusOfPage(int $uid, bool $allowMissing = false): ?int
     {
         foreach ($this->subject->findByPid('pages', 1) as $row) {
             if ((int) $row['uid'] === $uid) {
                 return null === $row[Configuration::FIELD_STATUS] ? null : (int) $row[Configuration::FIELD_STATUS];
             }
+        }
+
+        // A record without a status is legitimately absent — findByPid() filters those out.
+        if ($allowMissing) {
+            return null;
         }
 
         self::fail("page $uid not returned by findByPid()");

@@ -118,7 +118,17 @@ class RecordRepository
      */
     public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreVisibilityRestriction = false): array
     {
-        $cacheIdentifier = sprintf('%s--%s--p%s', Configuration::CACHE_IDENTIFIER, $table, $pid);
+        // Both flags change which rows the query returns, so they belong in the key.
+        // Without them a caller passing ignoreVisibilityRestriction=true warms an entry
+        // that later callers would read hidden records out of.
+        $cacheIdentifier = sprintf(
+            '%s--%s--p%s--o%d--v%d',
+            Configuration::CACHE_IDENTIFIER,
+            $table,
+            $pid,
+            (int) $orderByTstamp,
+            (int) $ignoreVisibilityRestriction,
+        );
         $cachedResult = $this->cache->get($cacheIdentifier);
         if (is_array($cachedResult)) {
             return $cachedResult;
@@ -235,16 +245,18 @@ class RecordRepository
     /**
      * Drops every cached findByPid() result that carries this record.
      *
-     * findByPid() tags its entries with one `<table>_<uid>` per contained row, so flushing
-     * that tag reaches whichever page listing happens to hold the record — the caller does
-     * not need to know its pid.
+     * Deliberately flushes the whole table, not just `<table>_<uid>`: findByPid() excludes
+     * records without a status, so a record *gaining* one sits in no warmed entry and
+     * carries no per-row tag. Only the table-wide tag reaches those entries, and a status
+     * change is exactly the write that adds a row to a listing. The uid tag stays so the
+     * intent reads alongside core's own `<table>_<uid>` convention.
      *
      * Public because mutations live outside this class as well: raw writes that bypass the
      * DataHandler get no invalidation from DataHandlerHook::clearCachePostProc().
      */
     public function flushCacheForRecord(string $table, int $uid): void
     {
-        $this->cache->flushByTags([$table.'_'.$uid]);
+        $this->cache->flushByTags([$table, $table.'_'.$uid]);
     }
 
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
@@ -511,7 +523,11 @@ class RecordRepository
      */
     private function collectCacheTags(string $table, array $data, ?int $pid): array
     {
-        $tags = [];
+        // findByPid() only returns records that already carry a status, so a record gaining
+        // one is absent from every warmed entry and has no per-row tag to flush. The
+        // table-wide tag is the only handle that reaches those entries.
+        $tags = [$table];
+
         /* @var $item AbstractEntity */
         foreach ($data as $item) {
             if (null !== $item['uid']) {
