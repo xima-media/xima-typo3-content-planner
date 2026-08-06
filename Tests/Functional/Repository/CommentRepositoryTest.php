@@ -236,4 +236,73 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
         self::assertFalse($this->subject->findByUid(1));
         self::assertIsArray($this->subject->findByUid(2));
     }
+
+    #[Test]
+    public function countAllByRecordsMatchesThePerRecordCountForEveryUid(): void
+    {
+        // The batched variant feeds API badges; drifting from countAllByRecord() would make
+        // frontend counters disagree with the backend ones.
+        $uids = [10, 20, 999];
+
+        $batched = $this->subject->countAllByRecords('pages', $uids);
+
+        foreach ($uids as $uid) {
+            self::assertSame(
+                $this->subject->countAllByRecord($uid, 'pages'),
+                $batched[$uid],
+                "count mismatch for uid $uid",
+            );
+        }
+    }
+
+    #[Test]
+    public function countAllByRecordsReturnsZeroForRecordsWithoutComments(): void
+    {
+        $batched = $this->subject->countAllByRecords('pages', [999]);
+
+        self::assertSame([999 => 0], $batched);
+    }
+
+    #[Test]
+    public function countAllByRecordsIsScopedToTheGivenTable(): void
+    {
+        self::assertSame([10 => 0], $this->subject->countAllByRecords('tt_content', [10]));
+    }
+
+    #[Test]
+    public function countAllByRecordsReturnsAnEmptyArrayForNoUids(): void
+    {
+        self::assertSame([], $this->subject->countAllByRecords('pages', []));
+    }
+
+    #[Test]
+    public function countTodosByRecordsMatchesThePerRecordSumsForEveryUid(): void
+    {
+        $uids = [10, 20, 999];
+
+        $batched = $this->subject->countTodosByRecords('pages', $uids);
+
+        foreach ($uids as $uid) {
+            self::assertSame(
+                $this->subject->countTodosByRecord($uid, 'pages'),
+                $batched[$uid],
+                "todo mismatch for uid $uid",
+            );
+        }
+    }
+
+    #[Test]
+    public function countTodosByRecordsReturnsZeroedSumsForRecordsWithoutTodos(): void
+    {
+        self::assertSame(
+            [999 => ['total' => 0, 'resolved' => 0]],
+            $this->subject->countTodosByRecords('pages', [999]),
+        );
+    }
+
+    #[Test]
+    public function countTodosByRecordsReturnsAnEmptyArrayForNoUids(): void
+    {
+        self::assertSame([], $this->subject->countTodosByRecords('pages', []));
+    }
 }
