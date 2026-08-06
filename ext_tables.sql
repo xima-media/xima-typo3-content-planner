@@ -3,6 +3,8 @@ CREATE TABLE pages
 	tx_ximatypo3contentplanner_status   int(11) DEFAULT NULL,
 	tx_ximatypo3contentplanner_assignee int(11) DEFAULT NULL,
 	tx_ximatypo3contentplanner_comments int(11) unsigned default '0' not null,
+	KEY contentplanner_status (tx_ximatypo3contentplanner_status),
+	KEY contentplanner_assignee (tx_ximatypo3contentplanner_assignee)
 );
 
 CREATE TABLE be_users
@@ -32,7 +34,9 @@ CREATE TABLE tx_ximatypo3contentplanner_comment
 	todo_resolved int(11) unsigned NOT NULL DEFAULT 0,
 	todo_total    int(11) unsigned NOT NULL DEFAULT 0,
 	parent_uid    int(11) DEFAULT '0' NOT NULL,
-	PRIMARY KEY (uid)
+	PRIMARY KEY (uid),
+	KEY foreign_record (foreign_table(64), foreign_uid),
+	KEY parent (parent_uid)
 );
 
 CREATE TABLE tx_ximatypo3contentplanner_domain_model_status
@@ -53,14 +57,18 @@ CREATE TABLE tt_content
 (
     tx_ximatypo3contentplanner_status   int(11) DEFAULT NULL,
     tx_ximatypo3contentplanner_assignee int(11) DEFAULT NULL,
-    tx_ximatypo3contentplanner_comments int(11) unsigned DEFAULT '0' NOT NULL
+    tx_ximatypo3contentplanner_comments int(11) unsigned DEFAULT '0' NOT NULL,
+    KEY contentplanner_status (tx_ximatypo3contentplanner_status),
+    KEY contentplanner_assignee (tx_ximatypo3contentplanner_assignee)
 );
 
 CREATE TABLE sys_file_metadata
 (
 	tx_ximatypo3contentplanner_status   int(11) DEFAULT NULL,
 	tx_ximatypo3contentplanner_assignee int(11) DEFAULT NULL,
-	tx_ximatypo3contentplanner_comments int(11) unsigned DEFAULT '0' NOT NULL
+	tx_ximatypo3contentplanner_comments int(11) unsigned DEFAULT '0' NOT NULL,
+	KEY contentplanner_status (tx_ximatypo3contentplanner_status),
+	KEY contentplanner_assignee (tx_ximatypo3contentplanner_assignee)
 );
 
 CREATE TABLE tx_ximatypo3contentplanner_folder
