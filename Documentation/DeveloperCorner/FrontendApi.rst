@@ -186,6 +186,63 @@ Capabilities
     follows from the visibility check applied to the whole request — if a record
     appears in ``items`` at all, its comments are readable.
 
+..  _frontend-api-status:
+
+Status change
+-------------
+
+..  code-block:: none
+
+    POST /content-planner/api/status
+
+..  code-block:: json
+
+    { "table": "pages", "uid": 12, "status": 2 }
+
+``status: null`` unsets it. The key must be present — omitting it is a 400, not a
+reset.
+
+Response on success:
+
+..  code-block:: json
+
+    {
+      "success": true,
+      "title": "Status changed",
+      "message": "The status of the record has been changed successfully.",
+      "severity": 0,
+      "record": { "table": "pages", "uid": 12, "status": { "…": "…" } }
+    }
+
+``record`` is the same shape as one item of the
+:ref:`annotation summary <frontend-api-summary>`, so a consumer can re-render a
+badge without a second request.
+
+Contract notes:
+
+It goes through the DataHandler
+    The change is applied with a data map, not by writing the field. That is what
+    makes it indistinguishable from a change made in the backend UI: permission
+    stripping, the status reset handling, auto assignment, the comment relation
+    sync and :ref:`StatusChangeEvent <events>` all run. A direct write would skip
+    every one of them.
+
+403 means the change was stripped
+    ``StatusChangeManager`` does not raise an error when a permission check fails
+    — it silently removes the fields. The endpoint therefore decides the outcome
+    by **re-reading the record** rather than by re-implementing the checks. When
+    the stored status does not match the requested one, the response is a 403
+    carrying the failure message and **no** ``record`` key.
+
+Wording follows the action
+    A change resolves ``status.changed``, a reset ``status.reset`` — the same
+    catalogue entries the backend flash messages use, so the frontend cannot drift
+    from the backend wording.
+
+404 hides existence
+    An unknown uid, an unregistered table and a record the user may not access all
+    answer 404, so the endpoint does not reveal which of the three applied.
+
 ..  _frontend-api-status-selection:
 
 Status selection
