@@ -63,7 +63,9 @@ class RecordRepository
         $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
         $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments);
-        $sql = implode(' UNION ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
+        // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
+        // tablename literal, so cross-table duplicates cannot occur.
+        $sql = implode(' UNION ALL ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
 
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
         $results = $statement->fetchAllAssociative();
