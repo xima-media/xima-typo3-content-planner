@@ -43,6 +43,16 @@ class Configuration
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
+    /*
+     * The page and file tree paint only the highest-priority label per node. The status
+     * label therefore has to outrank the labels core appends before our event listeners
+     * run: the TSconfig label (priority 0) and the background color label (priority -1).
+     * The empty label, which only exists to stop labels from being inherited by child
+     * nodes, has to stay below both so it never suppresses them.
+     */
+    final public const TREE_LABEL_PRIORITY_STATUS = 100;
+    final public const TREE_LABEL_PRIORITY_EMPTY = -2;
+
     final public const TABLE_FOLDER = 'tx_ximatypo3contentplanner_folder';
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
     final public const TABLE_STATUS = 'tx_ximatypo3contentplanner_status';
