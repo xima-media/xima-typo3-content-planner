@@ -34,7 +34,7 @@ $routes = [
 // expired" by status code alone.
 if (Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility::isEmbeddableCommentsViewEnabled()) {
     $routes['ximatypo3contentplanner_comments_view'] = [
-        'path' => '/content-planner/comments/view',
+        'path' => Xima\XimaTypo3ContentPlanner\Configuration::ROUTE_PATH_COMMENTS_VIEW,
         'target' => Xima\XimaTypo3ContentPlanner\Controller\CommentsViewController::class.'::indexAction',
     ];
 }

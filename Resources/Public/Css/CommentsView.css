@@ -11,13 +11,20 @@
  */
 
 /* The document is somebody else's iframe, so it owns no margin of its own and inherits
-   the surrounding width. Colours come from backend.css, which resolves them against the
-   data-color-scheme attribute CommentsViewController::htmlTagAttributes() puts on <html>. */
+   the surrounding width.
+
+   The colours have to be stated, and they have to be these two. backend.css styles a bare
+   <body> with `color: var(--bs-body-color)`, which is a static #000 taking no part in the
+   colour scheme — a backend module never shows a bare body, its content sits inside
+   .module, so nothing in core has to care. Left alone, dark mode renders black text on a
+   dark background. These are the same custom properties .module resolves --module-bg and
+   --module-color from, so the view follows the platform's scheme handling instead of
+   hardcoding a second answer to it. */
 body {
     margin: 0;
     padding: 1rem;
-    background: var(--typo3-component-bg, var(--bs-body-bg));
-    color: var(--bs-body-color);
+    background-color: var(--typo3-surface-base);
+    color: var(--typo3-text-color-base);
 }
 
 .content-planner-comments-view__toolbar {

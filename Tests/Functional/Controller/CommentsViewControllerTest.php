@@ -21,8 +21,10 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 use function dirname;
 use function explode;
+use function preg_match_all;
 use function rawurlencode;
 use function str_contains;
+use function urldecode;
 
 /**
  * CommentsViewControllerTest.
@@ -210,6 +212,31 @@ final class CommentsViewControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function theReturnUrlIsRecognisableAsThisViewsOwn(): void
+    {
+        // ModifyButtonBarEventListener tells this flow apart from the backend modal by
+        // matching the returnUrl against Configuration::ROUTE_PATH_COMMENTS_VIEW, and it has
+        // to: without that, the comment form keeps only a save button and a user who
+        // followed one of these links has no way back here. Asserting the signal keeps the
+        // two sides from drifting apart.
+        // The shared helper registers /typo3/index.php as the request URI, and returnUrl is
+        // derived from it — so without a request that actually is this route, the assertion
+        // below would only be testing the test harness.
+        $this->registerRequestOnTheCommentsViewRoute();
+
+        preg_match_all('/returnUrl=([^"&]+)/', $this->render(), $matches);
+
+        self::assertNotEmpty($matches[1], 'the action links must carry a returnUrl');
+        foreach ($matches[1] as $returnUrl) {
+            self::assertStringContainsString(
+                Configuration::ROUTE_PATH_COMMENTS_VIEW,
+                urldecode($returnUrl),
+                'every returnUrl must point back at the comments view',
+            );
+        }
+    }
+
+    #[Test]
     public function linksLeavingTheThreadOpenOutsideTheFrame(): void
     {
         $body = $this->render();
@@ -261,6 +288,25 @@ final class CommentsViewControllerTest extends AbstractFunctionalTestCase
     {
         return (new ServerRequest('https://example.com/typo3/content-planner/comments/view', 'GET'))
             ->withQueryParams($queryParams);
+    }
+
+    /**
+     * Mirrors what the real route looks like: a backend request whose own URI is the
+     * comments view, which is what makes returnUrl point back here in production.
+     */
+    private function registerRequestOnTheCommentsViewRoute(): void
+    {
+        $requestUri = '/typo3'.Configuration::ROUTE_PATH_COMMENTS_VIEW.'?table=pages&uid=1';
+
+        $GLOBALS['TYPO3_REQUEST'] = $GLOBALS['TYPO3_REQUEST']->withAttribute(
+            'normalizedParams',
+            new NormalizedParams(
+                ['HTTP_HOST' => 'example.com', 'REQUEST_URI' => $requestUri],
+                [],
+                '',
+                '',
+            ),
+        );
     }
 
     private function headOf(string $body): string

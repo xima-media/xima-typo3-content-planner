@@ -303,7 +303,14 @@ Dark and light follow the backend user
 Actions are link round-trips
     Creating, editing and replying keep using ``record_edit`` — so the RTE and every TCA
     field behave exactly as in the backend — and navigate **inside the frame**, returning to
-    the view through ``returnUrl``. Resolving works the same way through ``tce_db``.
+    the view through ``returnUrl``. Resolving goes through ``tce_db``, which redirects back
+    on its own.
+
+    In the edit form the user saves and then closes, which is the plain backend flow: the
+    core :guilabel:`Close` button is what follows the ``returnUrl``. The backend modal
+    normally has that button removed, because it closes the form itself — the extension
+    detects this flow by the ``returnUrl`` and keeps the button, since here nothing else
+    would bring the user back.
 
 Links that leave the thread open outside the frame
     The share link and the record link would replace the frame with a full backend page, so
