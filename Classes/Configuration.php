@@ -61,6 +61,13 @@ class Configuration
     final public const TREE_LABEL_PRIORITY_STATUS = 100;
     final public const TREE_LABEL_PRIORITY_EMPTY = -2;
 
+    /**
+     * Path of the embeddable comments view route. Registered in Configuration/Backend/Routes.php
+     * and recognised again in ModifyButtonBarEventListener, which has to tell the view's
+     * link-based edit flow apart from the JavaScript-driven backend modal.
+     */
+    final public const ROUTE_PATH_COMMENTS_VIEW = '/content-planner/comments/view';
+
     final public const TABLE_FOLDER = 'tx_ximatypo3contentplanner_folder';
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
     final public const TABLE_STATUS = 'tx_ximatypo3contentplanner_status';

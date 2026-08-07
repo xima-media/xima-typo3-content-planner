@@ -46,6 +46,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Controller\ApiController:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Controller\CommentsViewController:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator:
     public: true
 
