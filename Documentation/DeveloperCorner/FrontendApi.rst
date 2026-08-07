@@ -202,6 +202,12 @@ Status change
 ``status: null`` unsets it. The key must be present — omitting it is a 400, not a
 reset.
 
+``table``, ``uid`` and ``status`` are **validated, not cast**. Anything that is not
+a positive integer — ``0``, ``"abc"``, ``"2abc"``, ``true``, ``2.5`` — is answered
+with 400 and changes nothing. A cast would make ``"abc"`` an implicit reset and
+``"2abc"`` a real status change. Digit strings such as ``"2"`` stay acceptable, so
+a form-encoded body keeps working.
+
 Response on success:
 
 ..  code-block:: json

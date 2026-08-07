@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Controller;
 
-use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\{DataProvider, Test};
 use TYPO3\CMS\Core\EventDispatcher\ListenerProvider;
 use TYPO3\CMS\Core\Http\{ServerRequest, StreamFactory};
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -179,6 +179,65 @@ final class StatusChangeApiTest extends AbstractFunctionalTestCase
         self::assertSame(400, $this->subject->statusAction($this->bodyRequest(['table' => 'pages', 'status' => 2]))->getStatusCode());
         // A missing "status" key is not the same as an explicit null.
         self::assertSame(400, $this->subject->statusAction($this->bodyRequest(['table' => 'pages', 'uid' => 3]))->getStatusCode());
+    }
+
+    /**
+     * @param mixed $status the value sent as "status"
+     */
+    #[Test]
+    #[DataProvider('unusableStatusValues')]
+    public function rejectsAStatusThatIsNotAPositiveIntegerWithoutWriting(mixed $status): void
+    {
+        $before = $this->statusInDatabase(3);
+
+        $response = $this->subject->statusAction($this->bodyRequest(['table' => 'pages', 'uid' => 3, 'status' => $status]));
+
+        self::assertSame(400, $response->getStatusCode());
+        // The status code alone would not prove much: casting turns "abc" into 0, which the
+        // DataHandler applies as a reset before the endpoint reports a failure. What matters
+        // is that no write happened at all.
+        self::assertSame($before, $this->statusInDatabase(3), 'a rejected payload must not change the record');
+    }
+
+    /**
+     * @return array<string, array{mixed}>
+     */
+    public static function unusableStatusValues(): array
+    {
+        return [
+            // Cast to 0, i.e. an implicit reset the caller never asked for.
+            'zero' => [0],
+            'non-numeric string' => ['abc'],
+            'false' => [false],
+            // Cast to a valid status uid, i.e. a silent change from a malformed payload.
+            'numeric prefix' => ['2abc'],
+            'true' => [true],
+            'negative' => [-1],
+            'float' => [2.5],
+            'array' => [[2]],
+        ];
+    }
+
+    #[Test]
+    public function stillAcceptsADigitStringSoFormEncodedBodiesKeepWorking(): void
+    {
+        // readBody() also serves form-encoded bodies, where every value is a string.
+        $response = $this->subject->statusAction($this->bodyRequest(['table' => 'pages', 'uid' => '3', 'status' => '2']));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(2, $this->statusInDatabase(3));
+    }
+
+    #[Test]
+    public function rejectsAUidThatIsNotAPositiveIntegerWithoutWriting(): void
+    {
+        // Same defect class as the status above: a cast would target record 3 here.
+        $before = $this->statusInDatabase(3);
+
+        $response = $this->subject->statusAction($this->bodyRequest(['table' => 'pages', 'uid' => '3abc', 'status' => 2]));
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame($before, $this->statusInDatabase(3));
     }
 
     #[Test]

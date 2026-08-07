@@ -22,7 +22,9 @@ use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 use function array_key_exists;
 use function array_map;
 use function count;
+use function ctype_digit;
 use function is_array;
+use function is_int;
 use function is_string;
 
 /**
@@ -64,12 +66,18 @@ class ApiController
         }
 
         $table = $body['table'];
-        $uid = (int) ($body['uid'] ?? 0);
-        if ('' === $table || $uid <= 0) {
+        $uid = $this->readPositiveInt($body['uid'] ?? null);
+        if ('' === $table || null === $uid) {
             return new JsonResponse(['error' => 'Expected a JSON body of shape {"table":"…","uid":1,"status":2|null}'], 400);
         }
 
-        $requestedStatus = null === $body['status'] ? null : (int) $body['status'];
+        $requestedStatus = null;
+        if (null !== $body['status']) {
+            $requestedStatus = $this->readPositiveInt($body['status']);
+            if (null === $requestedStatus) {
+                return new JsonResponse(['error' => 'Expected "status" to be a positive integer or null'], 400);
+            }
+        }
         $result = $this->statusChangeApiService->apply($table, $uid, $requestedStatus);
 
         return match ($result['outcome']) {
@@ -191,6 +199,32 @@ class ApiController
         }
 
         return $body;
+    }
+
+    /**
+     * Validates rather than casts, and returns null for anything that is not a positive
+     * integer reference.
+     *
+     * A cast is wrong here in both directions: `(int) "abc"` is 0, which the DataHandler
+     * reads as "unset the status" — a write the endpoint would then report as a failure,
+     * because normalizeStatus() maps 0 back to null and the outcome comparison fails. And
+     * `(int) "2abc"` is 2, so a malformed payload would silently change a record.
+     *
+     * Digit strings stay acceptable because readBody() also serves form-encoded bodies,
+     * where every value arrives as a string.
+     */
+    private function readPositiveInt(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            return $value > 0 ? $value : null;
+        }
+
+        // ctype_digit() rejects "", "-1", "2abc" and " 2" — and, unlike is_numeric(), "2.0".
+        if (is_string($value) && ctype_digit($value)) {
+            return (int) $value > 0 ? (int) $value : null;
+        }
+
+        return null;
     }
 
     /**
