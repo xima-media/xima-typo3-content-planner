@@ -12,7 +12,7 @@
         <div class="d-flex flex-row justify-content-between gap-2">
             <div class="flex-grow-1">
                 <strong>{comment.authorName}</strong>
-                <small title="{comment.data.crdate -> f:format.date(format:'d.m.Y H:i')}">{comment.timeAgo}</small>
+                <small class="content-planner-comment__time" title="{comment.data.crdate -> f:format.date(format:'d.m.Y H:i')}">{comment.timeAgo}</small>
                 <f:if condition="{comment.edited}">
                     <small class="px-2">
                         <code>

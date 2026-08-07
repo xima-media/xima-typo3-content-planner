@@ -165,6 +165,11 @@ class CommentsViewController
             // Embedded or not, this is backend content and has no business in an index.
             '<meta name="robots" content="noindex, nofollow">',
             '<title>'.htmlspecialchars($title, \ENT_QUOTES).'</title>',
+            // Without this the browser requests /favicon.ico on every load and gets a 404.
+            '<link rel="icon" href="'.htmlspecialchars(
+                AssetUtility::getPublicResourcePath('EXT:backend/Resources/Public/Icons/favicon.ico'),
+                \ENT_QUOTES,
+            ).'">',
             $this->cssTags($request),
             '</head>',
             '<body>',
