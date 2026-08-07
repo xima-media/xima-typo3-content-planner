@@ -34,12 +34,18 @@
             </a>
         </f:if>
 
+        <f:comment>
+            A link, not a toggle button — it navigates. aria-pressed would be ignored on
+            it, so the state lives in the label instead of in an attribute.
+        </f:comment>
         <f:if condition="{filter.resolvedCount}">
             <a class="btn btn-default btn-sm {f:if(condition: '{filter.showResolvedComments}', then: 'active', else: '')}"
-               href="{filter.toggleResolvedUri}"
-               aria-pressed="{f:if(condition: '{filter.showResolvedComments}', then: 'true', else: 'false')}">
+               href="{filter.toggleResolvedUri}">
                 <core:icon identifier="actions-check-circle" size="small"/>
-                <f:translate key="comment.view.resolved.toggle" extensionName="XimaTypo3ContentPlanner"/>
+                <f:if condition="{filter.showResolvedComments}">
+                    <f:then><f:translate key="comment.view.resolved.hide" extensionName="XimaTypo3ContentPlanner"/></f:then>
+                    <f:else><f:translate key="comment.view.resolved.show" extensionName="XimaTypo3ContentPlanner"/></f:else>
+                </f:if>
                 <span class="badge badge-secondary">{filter.resolvedCount}</span>
             </a>
         </f:if>

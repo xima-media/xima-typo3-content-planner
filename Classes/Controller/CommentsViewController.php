@@ -134,10 +134,17 @@ class CommentsViewController
      *
      * PageRenderer::render() unconditionally inlines TYPO3.settings for backend requests,
      * and that object holds a URL *including its CSRF token* for every registered backend
-     * AJAX route. Handing that to a document whose whole purpose is to be embedded by
-     * another page is not acceptable: where the embedder is same-origin — a frontend on the
-     * same host, which is the motivating case for this view — it can simply read
-     * frame.contentWindow.TYPO3.settings and walk away with every backend token.
+     * AJAX route. This view needs none of them, and a response built to be handed to other
+     * contexts should carry as little as it can — it may end up in a cache, a proxy log or
+     * a screenshot in a bug report.
+     *
+     * This is blast radius, not an exploit: a cross-origin embedder can read neither the
+     * frame's DOM nor its globals, and a same-origin embedder already holds the backend
+     * session and could fetch any token it wanted. What it buys is that the document stops
+     * carrying the whole backend surface when it only ever needed a handful of routes.
+     *
+     * Those remaining routes are still token-bearing — the action links would not work
+     * otherwise — so the document is smaller in exposure, not free of it.
      *
      * What we give up is PageRenderer's <html> attribute handling, so the theme and colour
      * scheme resolution below deliberately mirrors PageRenderer::setDefaultHtmlTag().

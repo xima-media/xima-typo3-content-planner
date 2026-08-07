@@ -12,7 +12,7 @@
 
 /* The document is somebody else's iframe, so it owns no margin of its own and inherits
    the surrounding width. Colours come from backend.css, which resolves them against the
-   data-color-scheme attribute the PageRenderer put on <html>. */
+   data-color-scheme attribute CommentsViewController::htmlTagAttributes() puts on <html>. */
 body {
     margin: 0;
     padding: 1rem;

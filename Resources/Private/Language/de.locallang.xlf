@@ -428,9 +428,13 @@
 				<source>Oldest first</source>
 				<target>Älteste zuerst</target>
 			</trans-unit>
-			<trans-unit id="comment.view.resolved.toggle">
-				<source>Resolved</source>
-				<target>Erledigte</target>
+			<trans-unit id="comment.view.resolved.show">
+				<source>Show resolved</source>
+				<target>Erledigte anzeigen</target>
+			</trans-unit>
+			<trans-unit id="comment.view.resolved.hide">
+				<source>Hide resolved</source>
+				<target>Erledigte ausblenden</target>
 			</trans-unit>
 			<trans-unit id="comment.view.record">
 				<source>Open record</source>

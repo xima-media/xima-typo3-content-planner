@@ -278,11 +278,22 @@ Self-contained, and carrying no JavaScript
     ..  important::
         For the same reason the view does not use ``PageRenderer``. Rendering a backend
         document through it inlines ``TYPO3.settings``, which contains a URL *including its
-        CSRF token* for every registered backend AJAX route. In a document meant to be
-        embedded that is a token-disclosure risk — a same-origin embedder can read
-        ``frame.contentWindow.TYPO3.settings`` directly. The view therefore assembles its
-        own document and mirrors only the ``<html>`` attributes (language, direction, theme,
-        colour scheme) that the backend styling depends on.
+        CSRF token* for every registered backend AJAX route. This view needs none of them,
+        so it assembles its own document and mirrors only the ``<html>`` attributes
+        (language, direction, theme, colour scheme) that the backend styling depends on.
+
+..  note::
+    **The document is not token-free, and it is not meant to be.** The comment actions
+    are ``record_edit`` and ``tce_db`` links, and a backend route link carries a route
+    token by construction — removing it would remove the action. Avoiding ``PageRenderer``
+    narrows what the document exposes from *every* backend AJAX route to the handful this
+    view actually offers; it does not eliminate exposure.
+
+    Treat that as reducing blast radius rather than closing a hole. A cross-origin
+    embedder can read neither the frame's DOM nor its globals, and a same-origin embedder
+    already holds the backend session and could fetch any token it wanted — so neither
+    case is an escalation. The reason to keep the surface small is everything else a
+    response passes through: caches, proxy logs, browser history, screenshots.
 
 Dark and light follow the backend user
     The colour scheme is taken from the backend user's own preference, the same way the

@@ -115,7 +115,7 @@ final class CommentsViewControllerTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('<head>', $body);
         self::assertStringContainsString('</body>', $body);
         self::assertStringContainsString('</html>', $body);
-        self::assertStringContainsString('<html lang=', $body, 'PageRenderer must supply the language attributes');
+        self::assertStringContainsString('<html lang=', $body, 'htmlTagAttributes() must supply the language attributes');
     }
 
     #[Test]

@@ -264,8 +264,11 @@
 			<trans-unit id="comment.view.sort.oldest">
 				<source>Oldest first</source>
 			</trans-unit>
-			<trans-unit id="comment.view.resolved.toggle">
-				<source>Resolved</source>
+			<trans-unit id="comment.view.resolved.show">
+				<source>Show resolved</source>
+			</trans-unit>
+			<trans-unit id="comment.view.resolved.hide">
+				<source>Hide resolved</source>
 			</trans-unit>
 			<trans-unit id="comment.view.record">
 				<source>Open record</source>
