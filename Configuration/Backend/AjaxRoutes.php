@@ -51,6 +51,11 @@ if (Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility::isFrontendApiEnabled(
         'methods' => ['POST'],
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ApiController::class.'::summaryAction',
     ];
+    $routes['ximatypo3contentplanner_api_status'] = [
+        'path' => '/content-planner/api/status',
+        'methods' => ['POST'],
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\ApiController::class.'::statusAction',
+    ];
     $routes['ximatypo3contentplanner_api_statusselection'] = [
         'path' => '/content-planner/api/status-selection',
         'methods' => ['GET'],

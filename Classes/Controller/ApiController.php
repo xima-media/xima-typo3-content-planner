@@ -16,12 +16,14 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use TYPO3\CMS\Core\Http\JsonResponse;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\Summary\RecordSummary;
-use Xima\XimaTypo3ContentPlanner\Service\{RecordSummaryService, StatusSelectionApiService};
+use Xima\XimaTypo3ContentPlanner\Service\{RecordSummaryService, ResultMessageService, StatusChangeApiService, StatusSelectionApiService};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function array_key_exists;
 use function array_map;
 use function count;
 use function is_array;
+use function is_int;
 use function is_string;
 
 /**
@@ -41,7 +43,52 @@ class ApiController
     public function __construct(
         private readonly RecordSummaryService $recordSummaryService,
         private readonly StatusSelectionApiService $statusSelectionApiService,
+        private readonly StatusChangeApiService $statusChangeApiService,
+        private readonly ResultMessageService $resultMessageService,
     ) {}
+
+    /**
+     * Applies a status change through the DataHandler, so the result is indistinguishable
+     * from one made in the backend UI, and answers with the message the backend would
+     * show plus the record's fresh summary.
+     */
+    public function statusAction(ServerRequestInterface $request): ResponseInterface
+    {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Content planner is not visible for this user'], 403);
+        }
+
+        $body = $this->readBody($request);
+        // "status" has to be present: a missing key is a malformed request, not a reset.
+        if (null === $body || !is_string($body['table'] ?? null) || !array_key_exists('status', $body)) {
+            return new JsonResponse(['error' => 'Expected a JSON body of shape {"table":"…","uid":1,"status":2|null}'], 400);
+        }
+
+        $table = $body['table'];
+        $uid = $this->readPositiveInt($body['uid'] ?? null);
+        if ('' === $table || null === $uid) {
+            return new JsonResponse(['error' => 'Expected a JSON body of shape {"table":"…","uid":1,"status":2|null}'], 400);
+        }
+
+        $requestedStatus = null;
+        if (null !== $body['status']) {
+            $requestedStatus = $this->readPositiveInt($body['status']);
+            if (null === $requestedStatus) {
+                return new JsonResponse(['error' => 'Expected "status" to be a positive integer or null'], 400);
+            }
+        }
+        $result = $this->statusChangeApiService->apply($table, $uid, $requestedStatus);
+
+        return match ($result['outcome']) {
+            StatusChangeApiService::OUTCOME_UNKNOWN_RECORD,
+            StatusChangeApiService::OUTCOME_TABLE_NOT_ALLOWED => new JsonResponse(
+                ['error' => 'Record not found or not accessible'],
+                404,
+            ),
+            StatusChangeApiService::OUTCOME_STRIPPED => $this->envelope($requestedStatus, 'failure', null, 403),
+            default => $this->envelope($requestedStatus, 'success', $this->summaryFor($table, $uid), 200),
+        };
+    }
 
     /**
      * Returns the statuses selectable for one record, filtered exactly as the backend
@@ -100,9 +147,46 @@ class ApiController
     }
 
     /**
-     * @return array<int, mixed>|null the raw item list, or null when the payload is unusable
+     * Builds the response for a status change: the message the backend would show, and on
+     * success the record's fresh summary so a consumer can re-render without a second call.
+     *
+     * `success` is supplied here rather than by MessageResult, because this is the layer
+     * that performed the write and therefore knows the outcome.
+     *
+     * @param array<string, mixed>|null $summary
      */
-    private function readItemList(ServerRequestInterface $request): ?array
+    private function envelope(?int $requestedStatus, string $resultStatus, ?array $summary, int $httpStatus): JsonResponse
+    {
+        $result = $this->resultMessageService->resolve(
+            null === $requestedStatus ? 'status.reset' : 'status.changed',
+            $resultStatus,
+        );
+
+        $payload = ['success' => 'success' === $resultStatus];
+        if (null !== $result) {
+            $payload += $result->toArray();
+        }
+        if (null !== $summary) {
+            $payload['record'] = $summary;
+        }
+
+        return new JsonResponse($payload, $httpStatus);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function summaryFor(string $table, int $uid): ?array
+    {
+        $summaries = $this->recordSummaryService->buildForItems([['table' => $table, 'uid' => $uid]]);
+
+        return [] === $summaries ? null : $summaries[0]->toArray();
+    }
+
+    /**
+     * @return array<string, mixed>|null the decoded JSON body, or null when unusable
+     */
+    private function readBody(ServerRequestInterface $request): ?array
     {
         $body = $request->getParsedBody();
 
@@ -112,6 +196,44 @@ class ApiController
             $decoded = json_decode((string) $request->getBody(), true);
             $body = is_array($decoded) ? $decoded : null;
         }
+
+        return $body;
+    }
+
+    /**
+     * Validates rather than casts, and returns null for anything that is not a positive
+     * integer reference.
+     *
+     * A cast is wrong here in both directions: `(int) "abc"` is 0, which the DataHandler
+     * reads as "unset the status" — a write the endpoint would then report as a failure,
+     * because normalizeStatus() maps 0 back to null and the outcome comparison fails. And
+     * `(int) "2abc"` is 2, so a malformed payload would silently change a record.
+     *
+     * Digit strings stay acceptable because readBody() also serves form-encoded bodies,
+     * where every value arrives as a string.
+     */
+    private function readPositiveInt(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            return $value > 0 ? $value : null;
+        }
+
+        // Anchored, so "", "-1", "2abc", " 2" and "2.0" are all rejected. A regex rather
+        // than ctype_digit(), which would add ext-ctype to the extension's requirements
+        // for one check.
+        if (is_string($value) && 1 === preg_match('/^\d+$/', $value)) {
+            return (int) $value > 0 ? (int) $value : null;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<int, mixed>|null the raw item list, or null when the payload is unusable
+     */
+    private function readItemList(ServerRequestInterface $request): ?array
+    {
+        $body = $this->readBody($request);
 
         if (null === $body || !isset($body['items']) || !is_array($body['items'])) {
             return null;
