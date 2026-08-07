@@ -101,6 +101,13 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             foreach (ExtensionUtility::getRecordTables() as $recordTable) {
                 $this->statusChangeManager->clearStatusOfExtensionRecords($recordTable, (int) $id);
             }
+
+            // Those are raw writes, so clearCachePostProc() never hears about them: the tags
+            // the DataHandler reports describe the status record, while the cached listings
+            // are tagged by the record tables just emptied. Deleting a status is a rare
+            // administrative action, so flushing the extension's own cache wholesale is
+            // cheaper than working out which rows were touched.
+            $this->cache->flush();
         }
 
         if (Configuration::TABLE_COMMENT === $table) {
