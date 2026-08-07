@@ -22,7 +22,6 @@ use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 use function array_key_exists;
 use function array_map;
 use function count;
-use function ctype_digit;
 use function is_array;
 use function is_int;
 use function is_string;
@@ -219,8 +218,10 @@ class ApiController
             return $value > 0 ? $value : null;
         }
 
-        // ctype_digit() rejects "", "-1", "2abc" and " 2" — and, unlike is_numeric(), "2.0".
-        if (is_string($value) && ctype_digit($value)) {
+        // Anchored, so "", "-1", "2abc", " 2" and "2.0" are all rejected. A regex rather
+        // than ctype_digit(), which would add ext-ctype to the extension's requirements
+        // for one check.
+        if (is_string($value) && 1 === preg_match('/^\d+$/', $value)) {
             return (int) $value > 0 ? (int) $value : null;
         }
 
