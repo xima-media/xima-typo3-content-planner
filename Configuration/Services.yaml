@@ -42,13 +42,6 @@ services:
       $cache: '@cache.ximatypo3contentplanner_cache'
       $statusChangeManager: '@Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager'
 
-  # Resolved by the backend route dispatcher, not through constructor injection
-  Xima\XimaTypo3ContentPlanner\Controller\ApiController:
-    public: true
-
-  Xima\XimaTypo3ContentPlanner\Controller\CommentsViewController:
-    public: true
-
   Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator:
     public: true
 

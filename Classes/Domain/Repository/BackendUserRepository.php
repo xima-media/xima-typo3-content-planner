@@ -13,14 +13,11 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
-use Doctrine\DBAL\{ArrayParameterType, Exception};
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
-use function array_filter;
 use function array_key_exists;
-use function array_map;
-use function array_values;
 use function in_array;
 
 /**
@@ -144,48 +141,6 @@ class BackendUserRepository
      *
      * @throws Exception
      */
-    /**
-     * Batched display names for a set of backend users, in a single query.
-     *
-     * Unlike getUsernameByUid() the result is deliberately **not** HTML-escaped: this
-     * feeds JSON responses, where escaping is the consumer's job at render time and
-     * pre-escaping would leak entities such as "&amp;" into the payload.
-     *
-     * @param int[] $uids
-     *
-     * @return array<int, string> display name keyed by user uid; unknown uids are absent
-     *
-     * @throws Exception
-     */
-    public function getDisplayNamesByUids(array $uids): array
-    {
-        $uids = array_values(array_filter(array_map(intval(...), $uids), static fn (int $uid): bool => $uid > 0));
-        if ([] === $uids) {
-            return [];
-        }
-
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
-        $rows = $queryBuilder
-            ->select('uid', 'username', 'realName')
-            ->from('be_users')
-            ->where(
-                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, ArrayParameterType::INTEGER)),
-            )
-            ->executeQuery()
-            ->fetchAllAssociative();
-
-        $names = [];
-        foreach ($rows as $row) {
-            $name = (string) $row['username'];
-            if ((bool) $row['realName']) {
-                $name = $row['realName'].' ('.$name.')';
-            }
-            $names[(int) $row['uid']] = $name;
-        }
-
-        return $names;
-    }
-
     public function getUsernameByUid(?int $uid): string
     {
         if (!(bool) $uid) {

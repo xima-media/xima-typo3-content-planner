@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Module\ModuleInterface;
+use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -22,14 +23,12 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\ButtonBar\CommentFormButtonPolicy;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\{ComponentFactoryUtility, RouteUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function is_array;
-use function str_contains;
 
 /**
  * ModifyButtonBarEventListener.
@@ -46,7 +45,6 @@ final readonly class ModifyButtonBarEventListener
         private RecordRepository $recordRepository,
         private DropDownSelectionService $dropDownSelectionService,
         private FolderStatusRepository $folderStatusRepository,
-        private CommentFormButtonPolicy $commentFormButtonPolicy,
     ) {}
 
     public function __invoke(ModifyButtonBarEvent $event): void
@@ -75,7 +73,7 @@ final readonly class ModifyButtonBarEventListener
         }
 
         if (Configuration::TABLE_COMMENT === $table) {
-            $this->removeButtonsExceptSave($event, $this->isEmbeddedCommentsViewFlow($request));
+            $this->removeButtonsExceptSave($event);
 
             return;
         }
@@ -169,31 +167,23 @@ final readonly class ModifyButtonBarEventListener
         return $this->statusRepository->findByUid($record[Configuration::FIELD_STATUS]);
     }
 
-    /**
-     * Strips the comment edit form down to its save button, because the backend modal
-     * supplies its own close control.
-     *
-     * The embeddable comments view is the exception. It reaches the same form through a
-     * plain link with a returnUrl, so nothing is going to close the form for it: keeping
-     * only the save button would leave the user stranded in the form with no way back.
-     * There the core close button stays, and the save button keeps its own label — calling
-     * it "Save and Close" is only true while the modal is the one doing the closing.
-     */
-    private function removeButtonsExceptSave(ModifyButtonBarEvent $event, bool $keepCloseButton = false): void
+    private function removeButtonsExceptSave(ModifyButtonBarEvent $event): void
     {
-        $event->setButtons($this->commentFormButtonPolicy->apply($event->getButtons(), $keepCloseButton));
-    }
+        $buttons = [];
 
-    /**
-     * True when the comment form was opened from the embeddable comments view, which is
-     * recognisable by the returnUrl it sends along. Present on the GET that renders the form
-     * and, through the form action, on the save that follows.
-     */
-    private function isEmbeddedCommentsViewFlow(ServerRequestInterface $request): bool
-    {
-        $returnUrl = (string) ($request->getQueryParams()['returnUrl'] ?? '');
+        foreach ($event->getButtons() as $position => $buttonGroup) {
+            if ('right' === $position) {
+                continue;
+            }
+            foreach ($buttonGroup as $button) {
+                if ($button[0] instanceof InputButton && str_contains($button[0]->getName(), '_save')) {
+                    $button[0]->setTitle($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:save_and_close'));
 
-        return str_contains($returnUrl, Configuration::ROUTE_PATH_COMMENTS_VIEW);
+                    $buttons[$position][] = $button;
+                }
+            }
+        }
+        $event->setButtons($buttons);
     }
 
     private function isFileListModule(ServerRequestInterface $request): bool

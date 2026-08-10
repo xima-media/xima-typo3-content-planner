@@ -15,8 +15,6 @@ into the status process.
     :maxdepth: 3
 
     AdditionalRecords
-    Caching
     Events
     ExtensionUtility
-    FrontendApi
     PlannerUtility

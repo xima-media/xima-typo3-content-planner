@@ -39,11 +39,6 @@ final class FolderControllerTest extends TestCase
 
     public function testFolderStatusUpdateRouteIsNotPublic(): void
     {
-        // The route file asks the extension configuration whether the embeddable comments
-        // view is enabled, which would otherwise reach for a PackageManager this unit
-        // context has not booted.
-        $this->stubExtensionConfiguration([]);
-
         $routes = require __DIR__.'/../../../Configuration/Backend/Routes.php';
 
         self::assertArrayHasKey('ximatypo3contentplanner_folder_status_update', $routes);
@@ -92,18 +87,10 @@ final class FolderControllerTest extends TestCase
 
     private function enableFilelistSupport(): void
     {
-        $this->stubExtensionConfiguration(['enableFilelistSupport' => true]);
-    }
-
-    /**
-     * @param array<string, mixed> $configuration
-     */
-    private function stubExtensionConfiguration(array $configuration): void
-    {
         $extensionConfiguration = $this->createMock(ExtensionConfiguration::class);
         $extensionConfiguration->method('get')
             ->with(Configuration::EXT_KEY)
-            ->willReturn($configuration);
+            ->willReturn(['enableFilelistSupport' => true]);
         GeneralUtility::addInstance(ExtensionConfiguration::class, $extensionConfiguration);
     }
 

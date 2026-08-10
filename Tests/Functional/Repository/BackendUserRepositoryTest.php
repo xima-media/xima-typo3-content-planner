@@ -149,40 +149,4 @@ final class BackendUserRepositoryTest extends AbstractFunctionalTestCase
         self::assertNotContains('disabled', $usernames);
         self::assertNotContains('deleted', $usernames);
     }
-
-    #[Test]
-    public function getDisplayNamesByUidsCombinesRealNameAndUsername(): void
-    {
-        $names = $this->subject->getDisplayNamesByUids([1]);
-
-        self::assertSame('Administrator (admin)', $names[1]);
-    }
-
-    #[Test]
-    public function getDisplayNamesByUidsOmitsUnknownUids(): void
-    {
-        self::assertSame([], $this->subject->getDisplayNamesByUids([9999]));
-    }
-
-    #[Test]
-    public function getDisplayNamesByUidsIgnoresZeroAndReturnsEmptyForNoUids(): void
-    {
-        self::assertSame([], $this->subject->getDisplayNamesByUids([0]));
-        self::assertSame([], $this->subject->getDisplayNamesByUids([]));
-    }
-
-    #[Test]
-    public function getDisplayNamesByUidsDoesNotHtmlEscape(): void
-    {
-        // getUsernameByUid() escapes for backend HTML output; this variant feeds JSON,
-        // where pre-escaping would leak entities into the payload.
-        $this->getConnectionPool()->getConnectionForTable('be_users')->update(
-            'be_users',
-            ['realName' => 'Ann & Bob'],
-            ['uid' => 1],
-        );
-
-        self::assertSame('Ann & Bob (admin)', $this->subject->getDisplayNamesByUids([1])[1]);
-        self::assertStringContainsString('&amp;', $this->subject->getUsernameByUid(1));
-    }
 }

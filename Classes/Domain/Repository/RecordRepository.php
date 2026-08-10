@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
-use Doctrine\DBAL\{ArrayParameterType, Exception};
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestriction, StartTimeRestriction};
@@ -23,9 +23,6 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
-use function array_map;
-use function array_unique;
-use function array_values;
 use function count;
 use function in_array;
 use function is_array;
@@ -118,17 +115,7 @@ class RecordRepository
      */
     public function findByPid(string $table, ?int $pid = null, bool $orderByTstamp = true, bool $ignoreVisibilityRestriction = false): array
     {
-        // Both flags change which rows the query returns, so they belong in the key.
-        // Without them a caller passing ignoreVisibilityRestriction=true warms an entry
-        // that later callers would read hidden records out of.
-        $cacheIdentifier = sprintf(
-            '%s--%s--p%s--o%d--v%d',
-            Configuration::CACHE_IDENTIFIER,
-            $table,
-            $pid,
-            (int) $orderByTstamp,
-            (int) $ignoreVisibilityRestriction,
-        );
+        $cacheIdentifier = sprintf('%s--%s--p%s', Configuration::CACHE_IDENTIFIER, $table, $pid);
         $cachedResult = $this->cache->get($cacheIdentifier);
         if (is_array($cachedResult)) {
             return $cachedResult;
@@ -181,38 +168,14 @@ class RecordRepository
      */
     public function findByUid(?string $table, ?int $uid, bool $ignoreVisibilityRestriction = false): array|bool|null
     {
-        // Only registered content planner record tables may be queried through this method
-        // (the table name flows into getQueryBuilderForTable()/getTitleField() from request input).
-        // A null or empty table name never passes this, which also covers the "no arguments
-        // at all" case.
-        if (null === $table || !in_array($table, ExtensionUtility::getRecordTables(), true)) {
+        if (!(bool) $table && !(bool) $uid) {
             return null;
         }
 
-        // Delegates to the batched variant so both paths share one query definition;
-        // returns false for a missing record, matching fetchAssociative().
-        return $this->findAllByUids($table, [(int) $uid], $ignoreVisibilityRestriction)[(int) $uid] ?? false;
-    }
-
-    /**
-     * Batched counterpart of findByUid() for a set of records of one table, so a whole
-     * page worth of elements costs a single query instead of one per element.
-     *
-     * @param int[] $uids
-     *
-     * @return array<int, array<string, mixed>> found records keyed by uid; uids that do
-     *                                          not exist are simply absent
-     *
-     * @throws Exception
-     */
-    public function findAllByUids(string $table, array $uids, bool $ignoreVisibilityRestriction = false): array
-    {
-        $uids = array_values(array_unique(array_map(intval(...), $uids)));
-
-        // Same whitelist as findByUid(): the table name reaches getQueryBuilderForTable()
-        // and getTitleField() straight from request input.
-        if ([] === $uids || !in_array($table, ExtensionUtility::getRecordTables(), true)) {
-            return [];
+        // Only registered content planner record tables may be queried through this method
+        // (the table name flows into getQueryBuilderForTable()/getTitleField() from request input).
+        if (null === $table || !in_array($table, ExtensionUtility::getRecordTables(), true)) {
+            return null;
         }
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -227,36 +190,15 @@ class RecordRepository
             ->select('uid', 'pid', $this->getTitleField($table).' as "title"', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
             ->from($table)
             ->andWhere(
-                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, ArrayParameterType::INTEGER)),
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             );
 
         if ($this->hasDeletedRestriction($table)) {
             $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
         }
 
-        $records = [];
-        foreach ($query->executeQuery()->fetchAllAssociative() as $record) {
-            $records[(int) $record['uid']] = $record;
-        }
-
-        return $records;
-    }
-
-    /**
-     * Drops every cached findByPid() result that carries this record.
-     *
-     * Deliberately flushes the whole table, not just `<table>_<uid>`: findByPid() excludes
-     * records without a status, so a record *gaining* one sits in no warmed entry and
-     * carries no per-row tag. Only the table-wide tag reaches those entries, and a status
-     * change is exactly the write that adds a row to a listing. The uid tag stays so the
-     * intent reads alongside core's own `<table>_<uid>` convention.
-     *
-     * Public because mutations live outside this class as well: raw writes that bypass the
-     * DataHandler get no invalidation from DataHandlerHook::clearCachePostProc().
-     */
-    public function flushCacheForRecord(string $table, int $uid): void
-    {
-        $this->cache->flushByTags([$table, $table.'_'.$uid]);
+        return $query->executeQuery()
+            ->fetchAssociative();
     }
 
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
@@ -273,9 +215,6 @@ class RecordRepository
             $queryBuilder->set(Configuration::FIELD_ASSIGNEE, $assignee);
         }
         $queryBuilder->executeStatement();
-
-        // A raw UPDATE, so the DataHandler hook never sees it and nothing else invalidates.
-        $this->flushCacheForRecord($table, $uid);
     }
 
     /**
@@ -296,10 +235,6 @@ class RecordRepository
                     $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
                 )
                 ->executeStatement();
-
-            // The surrounding DataHandler flush only carries comment-table tags, so a
-            // cached page listing would keep serving the previous count.
-            $this->flushCacheForRecord($table, $uid);
         }
     }
 
@@ -523,11 +458,7 @@ class RecordRepository
      */
     private function collectCacheTags(string $table, array $data, ?int $pid): array
     {
-        // findByPid() only returns records that already carry a status, so a record gaining
-        // one is absent from every warmed entry and has no per-row tag to flush. The
-        // table-wide tag is the only handle that reaches those entries.
-        $tags = [$table];
-
+        $tags = [];
         /* @var $item AbstractEntity */
         foreach ($data as $item) {
             if (null !== $item['uid']) {
