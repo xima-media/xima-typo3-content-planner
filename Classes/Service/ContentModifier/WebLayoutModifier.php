@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Service\ContentModifier;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
-use TYPO3\CMS\Core\Http\Response;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
@@ -49,10 +48,7 @@ class WebLayoutModifier extends AbstractModifier implements ModifierInterface
             return $response;
         }
 
-        $newResponse = new Response();
-        $newResponse->getBody()->write($content.$this->addStatusHintToContentElement((int) $pid));
-
-        return $newResponse;
+        return $this->replaceBody($response, $content.$this->addStatusHintToContentElement((int) $pid));
     }
 
     private function addStatusHintToContentElement(int $pid): string

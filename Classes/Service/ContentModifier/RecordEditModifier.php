@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Service\ContentModifier;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
-use TYPO3\CMS\Core\Http\Response;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\{HeaderMode, InfoGenerator};
@@ -80,9 +79,6 @@ class RecordEditModifier extends AbstractModifier implements ModifierInterface
             $content,
         );
 
-        $newResponse = new Response();
-        $newResponse->getBody()->write($newContent);
-
-        return $newResponse;
+        return $this->replaceBody($response, $newContent);
     }
 }

@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Service\ContentModifier;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
-use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -96,10 +95,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         $pageRenderer = $this->pageRenderer;
         $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/record-list-status.js');
 
-        $newResponse = new Response();
-        $newResponse->getBody()->write($newContent);
-
-        return $newResponse;
+        return $this->replaceBody($response, $newContent);
     }
 
     private function addFolderStatusHeader(string $content, string $folderIdentifier): string
