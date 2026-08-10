@@ -70,4 +70,30 @@ final class ContentPlannerFacetQueryTest extends AbstractFunctionalTestCase
     {
         self::assertSame([], $this->subject->resolveByStatus([], includeContentElements: false));
     }
+
+    #[Test]
+    public function resolveByAssigneeMatchesDirectUid(): void
+    {
+        self::assertSame([1], $this->subject->resolveByAssignee(['1'], currentUserUid: 0, includeContentElements: false));
+    }
+
+    #[Test]
+    public function resolveByAssigneeResolvesMeToCurrentUser(): void
+    {
+        self::assertSame([2], $this->subject->resolveByAssignee(['me'], currentUserUid: 2, includeContentElements: false));
+    }
+
+    #[Test]
+    public function resolveByAssigneeNoneMatchesUnassignedPages(): void
+    {
+        self::assertSame([3], $this->subject->resolveByAssignee(['none'], currentUserUid: 0, includeContentElements: false));
+    }
+
+    #[Test]
+    public function resolveByAssigneeUnionsContentElementLevelWhenIncluded(): void
+    {
+        // Assignee 3 has no page-level match, only content element uid 10 on page 3.
+        self::assertSame([], $this->subject->resolveByAssignee(['3'], currentUserUid: 0, includeContentElements: false));
+        self::assertSame([3], $this->subject->resolveByAssignee(['3'], currentUserUid: 0, includeContentElements: true));
+    }
 }

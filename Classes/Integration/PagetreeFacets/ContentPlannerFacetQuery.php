@@ -79,6 +79,26 @@ final class ContentPlannerFacetQuery
     }
 
     /**
+     * @param list<string> $values "me", numeric BE user uid strings, and/or "none"
+     *
+     * @return list<int> page uids
+     */
+    public function resolveByAssignee(array $values, int $currentUserUid, bool $includeContentElements): array
+    {
+        $matchNone = in_array('none', $values, true);
+        $uids = [];
+        foreach ($values as $value) {
+            if ('me' === $value) {
+                $uids[] = $currentUserUid;
+            } elseif (ctype_digit($value)) {
+                $uids[] = (int) $value;
+            }
+        }
+
+        return $this->resolveFieldMatch(Configuration::FIELD_ASSIGNEE, array_values(array_unique($uids)), $matchNone, $includeContentElements);
+    }
+
+    /**
      * @param list<int> $intValues
      *
      * @return list<int> page uids
