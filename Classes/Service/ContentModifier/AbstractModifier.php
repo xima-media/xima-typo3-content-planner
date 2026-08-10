@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\ContentModifier;
 
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Http\Stream;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 
 /**
@@ -27,4 +29,17 @@ abstract class AbstractModifier
         protected readonly StatusRepository $statusRepository,
         protected readonly RecordRepository $recordRepository,
     ) {}
+
+    /**
+     * Swaps in the modified body while keeping the inner response's status code,
+     * reason phrase and headers (e.g. CSP nonces, cache directives) intact.
+     */
+    protected function replaceBody(ResponseInterface $response, string $content): ResponseInterface
+    {
+        $body = new Stream('php://temp', 'r+');
+        $body->write($content);
+        $body->rewind();
+
+        return $response->withBody($body);
+    }
 }
