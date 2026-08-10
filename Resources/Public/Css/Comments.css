@@ -3,7 +3,7 @@
  *
  * BEM Structure:
  * - content-planner-comment (Block)
- * - content-planner-comment__avatar, __text, __actions, __time (Elements)
+ * - content-planner-comment__avatar, __text, __actions (Elements)
  * - content-planner-comment--resolved (Modifiers)
  */
 
@@ -28,14 +28,6 @@
 
 .content-planner-comment--resolved {
     opacity: 0.6;
-}
-
-/* The relative time sits right after the author name and is short enough to keep on one
-   line. Left to wrap, a narrow container splits it mid-phrase — "1" beside the name and
-   "month ago" on the next line — which reads as a stray number. It may still move to its
-   own line as a whole. */
-.content-planner-comment__time {
-    white-space: nowrap;
 }
 
 .content-planner-comment--highlight {

@@ -412,38 +412,6 @@
 				<source><![CDATA[Currently there are no comments available yet. You may want to create a <a data-new-comment-uri="%s" data-table="%s" data-id="%s">new comment</a>?]]></source>
 				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s">neuen Kommentar</a> erstellen?]]></target>
 			</trans-unit>
-			<trans-unit id="comment.view.title">
-				<source>Comments</source>
-				<target>Kommentare</target>
-			</trans-unit>
-			<trans-unit id="comment.view.new">
-				<source>New comment</source>
-				<target>Neuer Kommentar</target>
-			</trans-unit>
-			<trans-unit id="comment.view.sort.newest">
-				<source>Newest first</source>
-				<target>Neueste zuerst</target>
-			</trans-unit>
-			<trans-unit id="comment.view.sort.oldest">
-				<source>Oldest first</source>
-				<target>Älteste zuerst</target>
-			</trans-unit>
-			<trans-unit id="comment.view.resolved.show">
-				<source>Show resolved</source>
-				<target>Erledigte anzeigen</target>
-			</trans-unit>
-			<trans-unit id="comment.view.resolved.hide">
-				<source>Hide resolved</source>
-				<target>Erledigte ausblenden</target>
-			</trans-unit>
-			<trans-unit id="comment.view.record">
-				<source>Open record</source>
-				<target>Datensatz öffnen</target>
-			</trans-unit>
-			<trans-unit id="comment.view.empty">
-				<source>Currently there are no comments available yet.</source>
-				<target>Aktuell gibt es keine Kommentare.</target>
-			</trans-unit>
 
 			<trans-unit id="assignee.selection.label">
 				<source>Select an assignee</source>

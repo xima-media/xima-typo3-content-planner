@@ -96,7 +96,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
     public function deletingAStatusClearsItFromEveryTrackedRecord(): void
     {
         $this->importSharedDataSet('status.csv');
-        $this->importCSVDataSet(__DIR__.'/../Service/Fixtures/summary_pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status_pages.csv');
         self::assertSame(1, $this->statusOfPage(1), 'fixture must start with page 1 on status 1');
 
         $this->deleteStatus(1);
@@ -110,7 +110,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
     public function deletingAStatusIsVisibleToTheNextCachedRead(): void
     {
         $this->importSharedDataSet('status.csv');
-        $this->importCSVDataSet(__DIR__.'/../Service/Fixtures/summary_pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status_pages.csv');
         $recordRepository = $this->get(RecordRepository::class);
 
         // Warm the listing cache while page 1 still reports status 1.
@@ -127,7 +127,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
     public function deletingAStatusLeavesOtherStatusesAlone(): void
     {
         $this->importSharedDataSet('status.csv');
-        $this->importCSVDataSet(__DIR__.'/../Service/Fixtures/summary_pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status_pages.csv');
         self::assertSame(3, $this->statusOfPage(2), 'fixture must start with page 2 on status 3');
 
         $this->deleteStatus(1);

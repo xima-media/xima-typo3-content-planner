@@ -41,14 +41,6 @@ class Configuration
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
 
-    /*
-     * Both default to off, so a stock installation exposes no additional surface. They
-     * only control availability — every gated route stays a backend route and still
-     * requires a backend session and a CSRF route token.
-     */
-    final public const FEATURE_FRONTEND_API = 'enableFrontendApi';
-    final public const FEATURE_EMBEDDABLE_COMMENTS_VIEW = 'enableEmbeddableCommentsView';
-
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
     /*
@@ -60,13 +52,6 @@ class Configuration
      */
     final public const TREE_LABEL_PRIORITY_STATUS = 100;
     final public const TREE_LABEL_PRIORITY_EMPTY = -2;
-
-    /**
-     * Path of the embeddable comments view route. Registered in Configuration/Backend/Routes.php
-     * and recognised again in ModifyButtonBarEventListener, which has to tell the view's
-     * link-based edit flow apart from the JavaScript-driven backend modal.
-     */
-    final public const ROUTE_PATH_COMMENTS_VIEW = '/content-planner/comments/view';
 
     final public const TABLE_FOLDER = 'tx_ximatypo3contentplanner_folder';
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';

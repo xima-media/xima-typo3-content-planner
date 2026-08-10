@@ -177,23 +177,6 @@ class UrlUtility
     }
 
     /**
-     * URL of the embeddable comments view. Also the target a consumer embeds, so it is
-     * built here rather than in the controller.
-     *
-     * The view renders no JavaScript, so its filter is a set of links rather than a
-     * submitting form — hence $extraParams, which carries the filter state.
-     *
-     * @param array<string, mixed> $extraParams
-     *
-     * @throws RouteNotFoundException
-     */
-    public static function getCommentsViewUrl(string $table, int $uid, array $extraParams = []): string
-    {
-        return (string) GeneralUtility::makeInstance(UriBuilder::class)
-            ->buildUriFromRoute('ximatypo3contentplanner_comments_view', ['table' => $table, 'uid' => $uid, ...$extraParams]);
-    }
-
-    /**
      * @throws RouteNotFoundException
      */
     public static function getShareUrl(string $table, int $uid, ?int $commentUid = null): string
