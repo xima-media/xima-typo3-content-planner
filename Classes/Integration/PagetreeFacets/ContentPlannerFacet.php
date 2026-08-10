@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets;
 
 use KonradMichalik\PagetreeFacets\Api\{FacetInterface, FilterContext};
 use KonradMichalik\PagetreeFacets\Token\Token;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -57,7 +58,7 @@ final readonly class ContentPlannerFacet implements FacetInterface
 
     public function getLabel(): string
     {
-        return 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:pagetreeFacets.status';
+        return 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:pagetreeFacets.label';
     }
 
     public function getGroup(): ?string
@@ -134,7 +135,13 @@ final readonly class ContentPlannerFacet implements FacetInterface
                         'username' => (string) ($currentUser['username'] ?? ''),
                     ],
                     'pinned' => [
-                        ['value' => 'none', 'label' => $lll.'assignee.none'],
+                        // Resolved eagerly, not left as an LLL reference: unlike
+                        // "options"/"label", the modal controller's translation
+                        // pass never touches "pinned" entries (checked against
+                        // typo3-pagetree-facets 0.2.0's FacetsModalController -
+                        // translateField() only iterates $field['options']), so
+                        // an LLL string here would render raw in the UI.
+                        ['value' => 'none', 'label' => $this->getLanguageService()->sL($lll.'assignee.none')],
                     ],
                 ],
                 [
@@ -148,7 +155,15 @@ final readonly class ContentPlannerFacet implements FacetInterface
                     'name' => 'includeContentElements',
                     'label' => $lll.'includeContentElements',
                     'options' => [
-                        ['value' => '1', 'label' => $lll.'includeContentElements.label'],
+                        // "label" ends up in the filter chip, "description" stays
+                        // in help text only - the long explanation belongs in
+                        // description, not label (see typo3-pagetree-facets'
+                        // ExampleTab docblock).
+                        [
+                            'value' => '1',
+                            'label' => $lll.'includeContentElements.enabled',
+                            'description' => $lll.'includeContentElements.label',
+                        ],
                     ],
                 ],
             ],
@@ -218,5 +233,10 @@ final readonly class ContentPlannerFacet implements FacetInterface
         }
 
         return $filteredValues;
+    }
+
+    private function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }

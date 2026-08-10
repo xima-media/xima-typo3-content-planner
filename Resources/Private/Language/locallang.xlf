@@ -332,6 +332,9 @@
 			</trans-unit>
 
 			<!-- pagetree facets -->
+			<trans-unit id="pagetreeFacets.label">
+				<source>Content Planner</source>
+			</trans-unit>
 			<trans-unit id="pagetreeFacets.status">
 				<source>Status</source>
 			</trans-unit>
@@ -365,8 +368,11 @@
 			<trans-unit id="pagetreeFacets.includeContentElements">
 				<source>Include content elements</source>
 			</trans-unit>
+			<trans-unit id="pagetreeFacets.includeContentElements.enabled">
+				<source>Enabled</source>
+			</trans-unit>
 			<trans-unit id="pagetreeFacets.includeContentElements.label">
-				<source>Also match a page whose content elements (not the page itself) meet the criteria above</source>
+				<source>Also match a page whose other registered records (e.g. content elements) meet the criteria above</source>
 			</trans-unit>
 
 			<!-- mail -->
