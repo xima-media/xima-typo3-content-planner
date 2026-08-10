@@ -34,6 +34,7 @@ final class ContentPlannerFacetQueryTest extends AbstractFunctionalTestCase
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['enableContentElementSupport'] = 1;
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
         $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
         $this->subject = $this->get(ContentPlannerFacetQuery::class);
     }
 
@@ -95,5 +96,52 @@ final class ContentPlannerFacetQueryTest extends AbstractFunctionalTestCase
         // Assignee 3 has no page-level match, only content element uid 10 on page 3.
         self::assertSame([], $this->subject->resolveByAssignee(['3'], currentUserUid: 0, includeContentElements: false));
         self::assertSame([3], $this->subject->resolveByAssignee(['3'], currentUserUid: 0, includeContentElements: true));
+    }
+
+    #[Test]
+    public function resolveByCommentsOpenMatchesUnresolvedComment(): void
+    {
+        self::assertSame([2], $this->subject->resolveByComments(['open'], currentUserUid: 0, todoEnabled: false, includeContentElements: false));
+    }
+
+    #[Test]
+    public function resolveByCommentsResolvedMatchesResolvedComment(): void
+    {
+        self::assertSame([1], $this->subject->resolveByComments(['resolved'], currentUserUid: 0, todoEnabled: false, includeContentElements: false));
+    }
+
+    #[Test]
+    public function resolveByCommentsMineMatchesCurrentUsersComments(): void
+    {
+        $result = $this->subject->resolveByComments(['mine'], currentUserUid: 5, todoEnabled: false, includeContentElements: false);
+        sort($result);
+        self::assertSame([1, 2], $result);
+    }
+
+    #[Test]
+    public function resolveByCommentsNoneMatchesPagesWithZeroCommentCounter(): void
+    {
+        self::assertSame([3], $this->subject->resolveByComments(['none'], currentUserUid: 0, todoEnabled: false, includeContentElements: false));
+    }
+
+    #[Test]
+    public function resolveByCommentsOpenUnionsContentElementLevelWhenIncluded(): void
+    {
+        $result = $this->subject->resolveByComments(['open'], currentUserUid: 0, todoEnabled: false, includeContentElements: true);
+        sort($result);
+        // Page 2 (direct open comment) union page 3 (open comment on its content element uid 10).
+        self::assertSame([2, 3], $result);
+    }
+
+    #[Test]
+    public function resolveByCommentsTodoIsIgnoredWhenTodoFeatureDisabled(): void
+    {
+        self::assertSame([], $this->subject->resolveByComments(['todo'], currentUserUid: 0, todoEnabled: false, includeContentElements: true));
+    }
+
+    #[Test]
+    public function resolveByCommentsTodoMatchesOpenTodoWhenFeatureEnabled(): void
+    {
+        self::assertSame([3], $this->subject->resolveByComments(['todo'], currentUserUid: 0, todoEnabled: true, includeContentElements: true));
     }
 }

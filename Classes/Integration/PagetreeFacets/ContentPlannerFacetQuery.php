@@ -14,12 +14,13 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets;
 
 use Doctrine\DBAL\ArrayParameterType;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
+use function array_diff;
 use function array_filter;
 use function array_intersect;
 use function array_map;
@@ -96,6 +97,117 @@ final class ContentPlannerFacetQuery
         }
 
         return $this->resolveFieldMatch(Configuration::FIELD_ASSIGNEE, array_values(array_unique($uids)), $matchNone, $includeContentElements);
+    }
+
+    /**
+     * @param list<string> $values subset of "open", "resolved", "todo", "mine", "none"
+     *
+     * @return list<int> page uids
+     */
+    public function resolveByComments(array $values, int $currentUserUid, bool $todoEnabled, bool $includeContentElements): array
+    {
+        $recognized = ['open', 'resolved', 'mine', 'none'];
+        if ($todoEnabled) {
+            $recognized[] = 'todo';
+        }
+        $values = array_values(array_intersect($values, $recognized));
+        if ([] === $values) {
+            return [];
+        }
+
+        $pageUidSets = [];
+
+        if (in_array('none', $values, true)) {
+            $pageUidSets[] = $this->resolveFieldMatch(Configuration::FIELD_COMMENTS, [0], false, $includeContentElements);
+        }
+
+        $commentStates = array_values(array_diff($values, ['none']));
+        if ([] !== $commentStates) {
+            $pageUidSets[] = $this->resolveCommentStates($commentStates, $currentUserUid, $includeContentElements);
+        }
+
+        return [] === $pageUidSets ? [] : array_values(array_unique(array_merge(...$pageUidSets)));
+    }
+
+    /**
+     * @param list<string> $states subset of "open", "resolved", "todo", "mine"
+     *
+     * @return list<int> page uids
+     */
+    private function resolveCommentStates(array $states, int $currentUserUid, bool $includeContentElements): array
+    {
+        $tables = $includeContentElements ? ExtensionUtility::getRecordTables() : ['pages'];
+        $pageUidSets = [];
+        foreach ($tables as $table) {
+            $foreignUids = $this->fetchCommentForeignUids($table, $states, $currentUserUid);
+            if ([] === $foreignUids) {
+                continue;
+            }
+            $pageUidSets[] = 'pages' === $table ? $foreignUids : $this->mapRecordUidsToPageUids($table, $foreignUids);
+        }
+
+        return [] === $pageUidSets ? [] : array_values(array_unique(array_merge(...$pageUidSets)));
+    }
+
+    /**
+     * @param list<string> $states
+     *
+     * @return list<int> tx_ximatypo3contentplanner_comment.foreign_uid values
+     */
+    private function fetchCommentForeignUids(string $table, array $states, int $currentUserUid): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_COMMENT);
+        $queryBuilder->getRestrictions()->removeAll()->add(new DeletedRestriction());
+
+        $conditions = [];
+        foreach ($states as $state) {
+            $condition = match ($state) {
+                'open' => $queryBuilder->expr()->eq('resolved_date', 0),
+                'resolved' => $queryBuilder->expr()->gt('resolved_date', 0),
+                'mine' => $queryBuilder->expr()->eq('author', $queryBuilder->createNamedParameter($currentUserUid, Connection::PARAM_INT)),
+                'todo' => (string) $queryBuilder->expr()->and(
+                    $queryBuilder->expr()->gt('todo_total', 0),
+                    $queryBuilder->expr()->lt('todo_resolved', $queryBuilder->quoteIdentifier('todo_total')),
+                ),
+                default => null,
+            };
+            if (null !== $condition) {
+                $conditions[] = $condition;
+            }
+        }
+        if ([] === $conditions) {
+            return [];
+        }
+
+        return array_map(intval(...), $queryBuilder
+            ->select('foreign_uid')
+            ->distinct()
+            ->from(Configuration::TABLE_COMMENT)
+            ->where(
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table)),
+                $queryBuilder->expr()->or(...$conditions),
+            )
+            ->executeQuery()
+            ->fetchFirstColumn());
+    }
+
+    /**
+     * @param list<int> $uids
+     *
+     * @return list<int>
+     */
+    private function mapRecordUidsToPageUids(string $table, array $uids): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+        $queryBuilder->getRestrictions()->removeAll()->add(new DeletedRestriction());
+
+        return array_map(intval(...), $queryBuilder
+            ->select('pid')
+            ->distinct()
+            ->from($table)
+            ->where($queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, ArrayParameterType::INTEGER)))
+            ->executeQuery()
+            ->fetchFirstColumn());
     }
 
     /**
