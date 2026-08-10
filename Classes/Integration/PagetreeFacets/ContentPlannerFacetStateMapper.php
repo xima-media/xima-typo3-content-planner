@@ -53,7 +53,16 @@ final class ContentPlannerFacetStateMapper
      */
     public function serialize(array $modalState): array
     {
-        $includeContentElements = in_array('1', $this->listValue($modalState, 'includeContentElements', ['1']), true);
+        // Default here is [] (unchecked), NOT ['1'] - the modal's own client-side
+        // state builder drops a checkbox-group key entirely once nothing in it is
+        // checked (the same convention this method already applies to status/
+        // assignee/comments below), so "key absent" at serialize() time means "the
+        // user unchecked it", not "never touched". The checked-by-default behavior
+        // lives in hydrate() below, which runs once when the modal opens and seeds
+        // the field's initial value before the user can interact with it at all.
+        // Defaulting to ['1'] here instead previously meant every uncheck silently
+        // reverted to checked on the very next serialize() call.
+        $includeContentElements = in_array('1', $this->listValue($modalState, 'includeContentElements', []), true);
 
         $tokens = [];
         foreach (self::TOKEN_KEYS as $key) {

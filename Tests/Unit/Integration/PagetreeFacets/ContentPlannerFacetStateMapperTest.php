@@ -33,7 +33,16 @@ final class ContentPlannerFacetStateMapperTest extends TestCase
 
     public function testSerializeOmitsTokensForEmptyFields(): void
     {
-        $tokens = $this->subject->serialize(['status' => ['2'], 'assignee' => [], 'comments' => []]);
+        // 'includeContentElements' is set explicitly here so this test verifies only
+        // what its name says (empty-field omission), independent of that field's own
+        // default - see testSerializeTreatsAMissingIncludeContentElementsKeyAsExcluded
+        // for the missing-key case.
+        $tokens = $this->subject->serialize([
+            'status' => ['2'],
+            'assignee' => [],
+            'comments' => [],
+            'includeContentElements' => ['1'],
+        ]);
 
         self::assertSame([['key' => 'status', 'values' => ['2']]], $tokens);
     }
@@ -45,6 +54,25 @@ final class ContentPlannerFacetStateMapperTest extends TestCase
             'assignee' => [],
             'comments' => [],
             'includeContentElements' => [],
+        ]);
+
+        self::assertSame([['key' => 'status', 'values' => ['2', '_pages-only']]], $tokens);
+    }
+
+    public function testSerializeTreatsAMissingIncludeContentElementsKeyAsExcluded(): void
+    {
+        // Regression test: a checkbox-group the modal's own client-side state
+        // builder drops entirely once nothing in it is checked (the key is
+        // absent from $modalState, not present as []) - this must resolve the
+        // same way as an explicitly-empty key, i.e. "unchecked". Defaulting the
+        // missing-key case to ['1'] here previously meant unchecking the toggle
+        // silently reverted to checked on every serialize() call, since the
+        // modal never actually sends an empty array for it.
+        $tokens = $this->subject->serialize([
+            'status' => ['2'],
+            'assignee' => [],
+            'comments' => [],
+            // 'includeContentElements' deliberately absent, not [].
         ]);
 
         self::assertSame([['key' => 'status', 'values' => ['2', '_pages-only']]], $tokens);
