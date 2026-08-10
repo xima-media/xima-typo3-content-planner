@@ -9,6 +9,8 @@ services:
     exclude:
       - '../Classes/Domain/Model/*'
       - '../Classes/Widgets/ConfigurableContentStatusWidget.php'
+      - '../Classes/Integration/PagetreeFacets/ContentPlannerFacet.php'
+      - '../Classes/Integration/PagetreeFacets/RegisterContentPlannerFacetListener.php'
 
   cache.ximatypo3contentplanner_cache:
     class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
