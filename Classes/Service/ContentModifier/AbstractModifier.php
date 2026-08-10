@@ -36,8 +36,9 @@ abstract class AbstractModifier
      */
     protected function replaceBody(ResponseInterface $response, string $content): ResponseInterface
     {
-        $body = new Stream('php://temp', 'rw');
+        $body = new Stream('php://temp', 'r+');
         $body->write($content);
+        $body->rewind();
 
         return $response->withBody($body);
     }

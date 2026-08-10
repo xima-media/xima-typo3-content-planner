@@ -31,6 +31,9 @@ final class WebLayoutModifierTest extends AbstractFunctionalTestCase
     #[Test]
     public function modifyKeepsTheInnerResponseStatusReasonPhraseAndHeaders(): void
     {
+        $this->importSharedDataSet('status.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+
         $modifier = $this->get(WebLayoutModifier::class);
         $request = (new ServerRequest('https://example.com/typo3/index.php', 'GET'))
             ->withQueryParams(['id' => '1']);
@@ -46,10 +49,14 @@ final class WebLayoutModifierTest extends AbstractFunctionalTestCase
         };
 
         $response = $modifier->modify($request, $handler);
+        $body = (string) $response->getBody();
 
         self::assertSame(201, $response->getStatusCode());
         self::assertSame('Created', $response->getReasonPhrase());
         self::assertSame(['kept'], $response->getHeader('X-Custom-Header'));
-        self::assertStringContainsString('<html></html>', (string) $response->getBody());
+        self::assertStringContainsString('<html></html>', $body);
+        // The status hint for the fixture's tt_content record (pid 1, status 1) proves the
+        // body was actually rebuilt, not just passed through unchanged.
+        self::assertStringContainsString('data-uid="1"', $body);
     }
 }
