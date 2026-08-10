@@ -438,6 +438,56 @@
 				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
 			</trans-unit>
 
+			<!-- pagetree facets -->
+			<trans-unit id="pagetreeFacets.status">
+				<source>Status</source>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.status.none">
+				<source>No status assigned</source>
+				<target>Kein Status zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.assignee">
+				<source>Assignee</source>
+				<target>Zuständig</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.assignee.none">
+				<source>Unassigned</source>
+				<target>Nicht zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments">
+				<source>Comments</source>
+				<target>Kommentare</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.open">
+				<source>Open</source>
+				<target>Offen</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.resolved">
+				<source>Resolved</source>
+				<target>Erledigt</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.mine">
+				<source>Mine</source>
+				<target>Meine</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.todo">
+				<source>Open todos</source>
+				<target>Offene Todos</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.none">
+				<source>No comments</source>
+				<target>Keine Kommentare</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.includeContentElements">
+				<source>Include content elements</source>
+				<target>Inhaltselemente einbeziehen</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.includeContentElements.label">
+				<source>Also match a page whose content elements (not the page itself) meet the criteria above</source>
+				<target>Auch eine Seite berücksichtigen, deren Inhaltselemente (nicht die Seite selbst) die obigen Kriterien erfüllen</target>
+			</trans-unit>
+
 			<!-- mail -->
 			<trans-unit id="mail.signature">
 				<source></source>

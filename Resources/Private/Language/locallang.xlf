@@ -331,6 +331,44 @@
 				<source>All record types</source>
 			</trans-unit>
 
+			<!-- pagetree facets -->
+			<trans-unit id="pagetreeFacets.status">
+				<source>Status</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.status.none">
+				<source>No status assigned</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.assignee">
+				<source>Assignee</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.assignee.none">
+				<source>Unassigned</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments">
+				<source>Comments</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.open">
+				<source>Open</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.resolved">
+				<source>Resolved</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.mine">
+				<source>Mine</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.todo">
+				<source>Open todos</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.none">
+				<source>No comments</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.includeContentElements">
+				<source>Include content elements</source>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.includeContentElements.label">
+				<source>Also match a page whose content elements (not the page itself) meet the criteria above</source>
+			</trans-unit>
+
 			<!-- mail -->
 			<trans-unit id="mail.signature">
 				<source></source>
