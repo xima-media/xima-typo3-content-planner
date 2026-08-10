@@ -110,4 +110,29 @@ final class ContentPlannerFacetStateMapperTest extends TestCase
         self::assertTrue($includeContentElements);
         self::assertSame(['2'], $values);
     }
+
+    public function testHydrateDoesNotPreserveContentElementsFlagWhenNoCriteriaAreSelected(): void
+    {
+        // Intentional behavior: When all three criteria (status, assignee, comments) are
+        // empty, serialize() returns [] because no tokens are emitted for empty-values keys.
+        // Then hydrate([]) defaults includeContentElements back to ['1'] (included), even
+        // though the original state had it as [] (excluded). This is an accepted trade-off:
+        // emitting a token just to preserve the toggle state would cause that empty-values
+        // token to resolve to zero page uids and zero out the entire AND-intersection in
+        // the page tree filter engine, hiding the tree entirely. Since no token is active
+        // when all criteria are empty, filtering never happens regardless — the cosmetic
+        // reset is preferable to the functional regression of hiding the tree.
+        $originalState = [
+            'status' => [],
+            'assignee' => [],
+            'comments' => [],
+            'includeContentElements' => [],
+        ];
+
+        $serialized = $this->subject->serialize($originalState);
+        self::assertSame([], $serialized, 'No tokens should be emitted when all criteria are empty');
+
+        $hydrated = $this->subject->hydrate($serialized);
+        self::assertSame(['1'], $hydrated['includeContentElements'], 'Toggle defaults back to included when no criteria are selected');
+    }
 }

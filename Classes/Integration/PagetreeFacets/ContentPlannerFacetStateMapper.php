@@ -59,6 +59,14 @@ final class ContentPlannerFacetStateMapper
         foreach (self::TOKEN_KEYS as $key) {
             $values = $this->listValue($modalState, $key, []);
             if ([] === $values) {
+                // Intentional: Skipping empty-values keys (not emitting a token for them) is correct.
+                // When all three criteria are empty, emitting a token just to preserve the
+                // includeContentElements toggle state would cause that token to resolve to zero
+                // page uids and zero out the entire AND-intersection in the page tree filter engine,
+                // hiding the tree entirely. That is worse than the toggle cosmetically resetting
+                // on modal reopen. Since no token is active when all criteria are empty, filtering
+                // never happens regardless of what the toggle reads as — the cosmetic reset is
+                // an acceptable trade-off.
                 continue;
             }
             $tokens[] = ['key' => $key, 'values' => $this->withContentElementsMarker($values, $includeContentElements)];
