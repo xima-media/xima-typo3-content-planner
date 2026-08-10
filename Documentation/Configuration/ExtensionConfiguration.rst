@@ -77,6 +77,24 @@ Features
     ..  note::
         Requires :ref:`enableContentElementSupport <extconf-enableContentElementSupport>` to be enabled (default).
 
+..  _extconf-enablePagetreeFacetsIntegration:
+
+..  confval:: enablePagetreeFacetsIntegration
+    :type: boolean
+    :Default: 0
+
+    Enable a Content Planner facet in the TYPO3 v14 page tree filter modal
+    provided by the optional `konradmichalik/typo3-pagetree-facets
+    <https://github.com/konradmichalik/typo3-pagetree-facets>`__ extension.
+    Has no effect on TYPO3 v13 or when that extension is not installed.
+
+    ..  note::
+        This setting only stays effective after an administrator opens
+        :guilabel:`Admin Tools > Settings > Extension Configuration` for this
+        extension and saves the form once, even if you set it via
+        ``$GLOBALS['TYPO3_CONF_VARS']`` directly - see
+        :ref:`extension-configuration`.
+
 Assignee
 =======
 
