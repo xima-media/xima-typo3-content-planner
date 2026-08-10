@@ -136,7 +136,7 @@ final class ContentPlannerFacetQuery
      */
     private function resolveCommentStates(array $states, int $currentUserUid, bool $includeContentElements): array
     {
-        $tables = $includeContentElements ? ExtensionUtility::getRecordTables() : ['pages'];
+        $tables = $this->pageHostedTables($includeContentElements);
         $pageUidSets = [];
         foreach ($tables as $table) {
             $foreignUids = $this->fetchCommentForeignUids($table, $states, $currentUserUid);
@@ -221,7 +221,7 @@ final class ContentPlannerFacetQuery
             return [];
         }
 
-        $tables = $includeContentElements ? ExtensionUtility::getRecordTables() : ['pages'];
+        $tables = $this->pageHostedTables($includeContentElements);
         $pageUidSets = [];
         foreach ($tables as $table) {
             $pageUidSets[] = $this->fetchPageUidsForTable(
@@ -235,7 +235,10 @@ final class ContentPlannerFacetQuery
                         );
                     }
                     if ($matchNull) {
-                        $conditions[] = $queryBuilder->expr()->isNull($field);
+                        $conditions[] = $queryBuilder->expr()->or(
+                            $queryBuilder->expr()->isNull($field),
+                            $queryBuilder->expr()->eq($field, 0),
+                        );
                     }
                     $queryBuilder->where($queryBuilder->expr()->or(...$conditions));
                 },
@@ -243,6 +246,29 @@ final class ContentPlannerFacetQuery
         }
 
         return array_values(array_unique(array_merge(...$pageUidSets)));
+    }
+
+    /**
+     * Tables whose "pid" (or, for pages itself, "uid") meaningfully identifies
+     * a page. sys_file_metadata and the folder status table are deliberately
+     * excluded: their pid does not point at a page at all - folder status rows
+     * are created with pid=0 (see FolderStatusRepository::create()) - so
+     * including them here would resolve to a bogus "page 0" match instead of no
+     * match. tt_content and any registerAdditionalRecordTables entry are
+     * page-child records with a real pid, so they stay in.
+     *
+     * @return list<string>
+     */
+    private function pageHostedTables(bool $includeContentElements): array
+    {
+        if (!$includeContentElements) {
+            return ['pages'];
+        }
+
+        return array_values(array_diff(
+            ExtensionUtility::getRecordTables(),
+            ['sys_file_metadata', Configuration::TABLE_FOLDER],
+        ));
     }
 
     /**

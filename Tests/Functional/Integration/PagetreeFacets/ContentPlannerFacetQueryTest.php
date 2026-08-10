@@ -73,6 +73,24 @@ final class ContentPlannerFacetQueryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function resolveByStatusNoneWithContentElementsExcludesFolderTableAndMatchesLiteralZero(): void
+    {
+        // enableFilelistSupport pulls sys_file_metadata and the folder table into
+        // ExtensionUtility::getRecordTables(); their pid is not a page uid (folder
+        // status rows are created with pid=0), so they must not contribute a bogus
+        // "page 0" match. tt_content uid 11 (pid 2) has a literal 0 status - "none"
+        // must match it the same way it matches NULL.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['enableFilelistSupport'] = 1;
+        $this->importCSVDataSet(__DIR__.'/Fixtures/folders.csv');
+
+        $result = $this->subject->resolveByStatus(['none'], includeContentElements: true);
+        sort($result);
+
+        self::assertSame([2, 3], $result);
+        self::assertNotContains(0, $result);
+    }
+
+    #[Test]
     public function resolveByAssigneeMatchesDirectUid(): void
     {
         self::assertSame([1], $this->subject->resolveByAssignee(['1'], currentUserUid: 0, includeContentElements: false));
@@ -96,6 +114,21 @@ final class ContentPlannerFacetQueryTest extends AbstractFunctionalTestCase
         // Assignee 3 has no page-level match, only content element uid 10 on page 3.
         self::assertSame([], $this->subject->resolveByAssignee(['3'], currentUserUid: 0, includeContentElements: false));
         self::assertSame([3], $this->subject->resolveByAssignee(['3'], currentUserUid: 0, includeContentElements: true));
+    }
+
+    #[Test]
+    public function resolveByAssigneeNoneWithContentElementsExcludesFolderTableAndMatchesLiteralZero(): void
+    {
+        // Same union-safety and 0-means-unset guarantees as the equivalent status
+        // test, exercised through resolveByAssignee/FIELD_ASSIGNEE instead.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['enableFilelistSupport'] = 1;
+        $this->importCSVDataSet(__DIR__.'/Fixtures/folders.csv');
+
+        $result = $this->subject->resolveByAssignee(['none'], currentUserUid: 0, includeContentElements: true);
+        sort($result);
+
+        self::assertSame([2, 3], $result);
+        self::assertNotContains(0, $result);
     }
 
     #[Test]
