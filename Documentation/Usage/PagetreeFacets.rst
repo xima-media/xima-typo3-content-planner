@@ -30,13 +30,22 @@ is enabled, a **Content Planner** facet appears in the page tree filter modal.
 Tokens
 ======
 
-======================  ==============================================  ====
-Token                    Values                                          Notes
-======================  ==============================================  ====
-``status:``              status uid(s), comma-separated for OR, ``none``  Only statuses allowed for the current user (see :ref:`permissions`) are offered or matched; a disallowed uid resolves to no match, silently.
-``assignee:``             ``me``, a backend user uid, ``none``            ``none`` means unassigned.
-``comments:``             ``open``, ``resolved``, ``todo``, ``mine``, ``none``  ``todo`` only appears when :ref:`commentTodos <extconf-commentTodos>` is enabled.
-======================  ==============================================  ====
+..  list-table::
+    :header-rows: 1
+    :widths: 20 45 35
+
+    * - Token
+      - Values
+      - Notes
+    * - ``status:``
+      - status uid(s), comma-separated for OR, ``none``
+      - Only statuses allowed for the current user (see :ref:`permissions`) are offered or matched; a disallowed uid resolves to no match, silently.
+    * - ``assignee:``
+      - ``me``, a backend user uid, ``none``
+      - ``none`` means unassigned.
+    * - ``comments:``
+      - ``open``, ``resolved``, ``todo``, ``mine``, ``none``
+      - ``todo`` only appears when :ref:`commentTodos <extconf-commentTodos>` is enabled.
 
 Values within one token combine with OR (``status:2,3``); separate tokens
 combine with AND (``status:2 assignee:me``), same as every other facet in
@@ -47,13 +56,13 @@ Other Registered Records
 
 Other registered records (such as content elements if enabled via
 :ref:`enableContentElementSupport <extconf-enableContentElementSupport>`,
-plus files/folders, and any additional records registered via
-``ExtensionUtility::getRecordTables()``) can carry their own status, assignee
-and comments. However, the page tree filter only ever returns pages. All three
-tokens therefore match a page whose other registered records meet the criteria
-as well as pages that match directly — controlled by the modal's
-**"Include content elements"** checkbox, checked by default. Unticking it
-restricts every token to page-level matches only.
+plus files/folders if :ref:`enableFilelistSupport <extconf-enableFilelistSupport>` is enabled,
+and any additional records registered via ``ExtensionUtility::getRecordTables()``)
+can carry their own status, assignee and comments. However, the page tree filter
+only ever returns pages. All three tokens therefore match a page whose other
+registered records meet the criteria as well as pages that match directly —
+controlled by the modal's **"Include content elements"** checkbox, checked by
+default. Unticking it restricts every token to page-level matches only.
 
 Out of scope
 ============
