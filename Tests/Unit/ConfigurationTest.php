@@ -41,6 +41,11 @@ final class ConfigurationTest extends TestCase
         self::assertSame('ximatypo3contentplanner', Configuration::CACHE_IDENTIFIER);
     }
 
+    public function testFeaturePagetreeFacetsIntegrationConstant(): void
+    {
+        self::assertSame('enablePagetreeFacetsIntegration', Configuration::FEATURE_PAGETREE_FACETS_INTEGRATION);
+    }
+
     public function testFeatureConstants(): void
     {
         // Test all feature constants exist and have expected values

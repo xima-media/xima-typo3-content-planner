@@ -142,6 +142,11 @@ class ExtensionUtility
         return self::isFeatureEnabled('enableContentElementSupport');
     }
 
+    public static function isPagetreeFacetsIntegrationEnabled(): bool
+    {
+        return self::isFeatureEnabled(Configuration::FEATURE_PAGETREE_FACETS_INTEGRATION);
+    }
+
     public static function isFeatureEnabled(string $feature): bool
     {
         $configuration = GeneralUtility::makeInstance(ExtensionConfiguration::class)
