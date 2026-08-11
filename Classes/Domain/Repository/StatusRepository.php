@@ -86,8 +86,15 @@ class StatusRepository extends Repository
         return $this->runtimeAllCache = $result;
     }
 
-    public function findByUid($uid): ?Status
+    /**
+     * @param int|string|null $uid
+     */
+    public function findByUid(mixed $uid): ?Status
     {
+        if (null === $uid) {
+            return null;
+        }
+
         if (array_key_exists($uid, $this->runtimeStatusCache)) {
             return $this->runtimeStatusCache[$uid];
         }
