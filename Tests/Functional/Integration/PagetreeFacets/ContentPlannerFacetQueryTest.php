@@ -67,6 +67,16 @@ final class ContentPlannerFacetQueryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function resolveByStatusNeverReturnsPagesThatAreDeletedEvenViaContentElement(): void
+    {
+        // Content element uid 12 (pid 4, status 2) sits under page 4, which is
+        // itself deleted - a surviving content element under a deleted page
+        // must not resurrect that page as a match.
+        $result = $this->subject->resolveByStatus(['2'], includeContentElements: true);
+        self::assertNotContains(4, $result);
+    }
+
+    #[Test]
     public function resolveByStatusReturnsEmptyForNoValues(): void
     {
         self::assertSame([], $this->subject->resolveByStatus([], includeContentElements: false));
@@ -164,6 +174,16 @@ final class ContentPlannerFacetQueryTest extends AbstractFunctionalTestCase
         sort($result);
         // Page 2 (direct open comment) union page 3 (open comment on its content element uid 10).
         self::assertSame([2, 3], $result);
+    }
+
+    #[Test]
+    public function resolveByCommentsNeverReturnsDeletedPagesViaDirectOrChildComment(): void
+    {
+        // Comment uid 4 sits directly on deleted page 4 (foreign_table=pages);
+        // comment uid 5 sits on content element uid 12 (pid 4), also under the
+        // deleted page. Neither must resolve to page 4.
+        $result = $this->subject->resolveByComments(['open'], currentUserUid: 0, todoEnabled: false, includeContentElements: true);
+        self::assertNotContains(4, $result);
     }
 
     #[Test]

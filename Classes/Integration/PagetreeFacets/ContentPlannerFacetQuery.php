@@ -143,7 +143,7 @@ final readonly class ContentPlannerFacetQuery
             if ([] === $foreignUids) {
                 continue;
             }
-            $pageUidSets[] = 'pages' === $table ? $foreignUids : $this->mapRecordUidsToPageUids($table, $foreignUids);
+            $pageUidSets[] = 'pages' === $table ? $this->nonDeletedPageUids($foreignUids) : $this->mapRecordUidsToPageUids($table, $foreignUids);
         }
 
         return [] === $pageUidSets ? [] : array_values(array_unique(array_merge(...$pageUidSets)));
@@ -201,13 +201,15 @@ final readonly class ContentPlannerFacetQuery
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()->removeAll()->add(new DeletedRestriction());
 
-        return array_map(intval(...), $queryBuilder
+        $pids = array_map(intval(...), $queryBuilder
             ->select('pid')
             ->distinct()
             ->from($table)
             ->where($queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, ArrayParameterType::INTEGER)))
             ->executeQuery()
             ->fetchFirstColumn());
+
+        return $this->nonDeletedPageUids($pids);
     }
 
     /**
@@ -289,6 +291,34 @@ final readonly class ContentPlannerFacetQuery
         $queryBuilder->select($pageUidColumn)->distinct()->from($table);
         $applyWhere($queryBuilder);
 
-        return array_map(intval(...), $queryBuilder->executeQuery()->fetchFirstColumn());
+        $uids = array_map(intval(...), $queryBuilder->executeQuery()->fetchFirstColumn());
+
+        // For "pages" the DeletedRestriction above already excludes deleted rows.
+        // For every other table (tt_content, ...) it only excludes deleted CHILD
+        // rows - a page that is itself deleted, but whose child row survived
+        // without a cascading delete, would otherwise still resolve as a match.
+        return 'pages' === $table ? $uids : $this->nonDeletedPageUids($uids);
+    }
+
+    /**
+     * @param list<int> $pageUids
+     *
+     * @return list<int>
+     */
+    private function nonDeletedPageUids(array $pageUids): array
+    {
+        if ([] === $pageUids) {
+            return [];
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
+        $queryBuilder->getRestrictions()->removeAll()->add(new DeletedRestriction());
+
+        return array_map(intval(...), $queryBuilder
+            ->select('uid')
+            ->from('pages')
+            ->where($queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($pageUids, ArrayParameterType::INTEGER)))
+            ->executeQuery()
+            ->fetchFirstColumn());
     }
 }
