@@ -18,6 +18,13 @@ extension is installed on TYPO3 v14 and
 :ref:`enablePagetreeFacetsIntegration <extconf-enablePagetreeFacetsIntegration>`
 is enabled, a **Content Planner** facet appears in the page tree filter modal.
 
+..  figure:: /Images/pagetree-facets-filter-modal.png
+    :alt: Filter page tree modal with the Content Planner facet selected
+    :class: with-shadow
+
+    The Content Planner facet in the page tree filter modal, with a
+    ``status:`` criterion selected and "Pages only" left at its default
+
 ..  note::
     ``typo3-pagetree-facets`` itself requires PHP 8.3+, stricter than this
     extension's PHP 8.2+ floor - installing it on a PHP 8.2 environment is
