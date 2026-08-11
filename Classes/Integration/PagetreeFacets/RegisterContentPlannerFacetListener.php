@@ -27,8 +27,6 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
  * handles - an attribute referencing an unloadable class would break
  * container compilation regardless of TYPO3 version.
  *
- * @phpstan-ignore class.notFound
- *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */

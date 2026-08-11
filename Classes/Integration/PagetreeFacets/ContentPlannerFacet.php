@@ -38,8 +38,6 @@ use function in_array;
  * design spec and Global Constraints in this plan for why this class has no
  * direct unit test and is excluded from PHPStan.
  *
- * @phpstan-ignore class.notFound
- *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
