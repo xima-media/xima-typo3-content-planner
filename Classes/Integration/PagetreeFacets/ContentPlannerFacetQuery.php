@@ -44,9 +44,9 @@ use function intval;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class ContentPlannerFacetQuery
+final readonly class ContentPlannerFacetQuery
 {
-    public function __construct(private readonly ConnectionPool $connectionPool) {}
+    public function __construct(private ConnectionPool $connectionPool) {}
 
     /**
      * @param list<int> $requestedUids
