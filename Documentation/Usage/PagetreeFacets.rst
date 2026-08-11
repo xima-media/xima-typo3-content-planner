@@ -64,6 +64,14 @@ registered records meet the criteria as well as pages that match directly —
 controlled by the modal's **"Include content elements"** checkbox, checked by
 default. Unticking it restricts every token to page-level matches only.
 
+..  note::
+    This checkbox only has an effect once at least one status, assignee or
+    comment criterion is also selected in this facet — it modifies how those
+    tokens match, rather than being a filter criterion of its own. With
+    nothing else selected, the filter modal's underlying framework never
+    calls this facet at all, so toggling the checkbox alone has nothing to
+    persist and appears to reset the next time the modal opens.
+
 Out of scope
 ============
 

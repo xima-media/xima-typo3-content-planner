@@ -372,7 +372,7 @@
 				<source>Enabled</source>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.includeContentElements.label">
-				<source>Also match a page whose other registered records (e.g. content elements) meet the criteria above</source>
+				<source>Also match a page whose other registered records (e.g. content elements) meet the criteria above. Only takes effect once at least one status, assignee or comment criterion is selected.</source>
 			</trans-unit>
 
 			<!-- mail -->

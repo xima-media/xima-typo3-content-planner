@@ -492,8 +492,8 @@
 				<target>Aktiviert</target>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.includeContentElements.label">
-				<source>Also match a page whose other registered records (e.g. content elements) meet the criteria above</source>
-				<target>Auch eine Seite berücksichtigen, deren andere registrierte Datensätze (z. B. Inhaltselemente) die obigen Kriterien erfüllen</target>
+				<source>Also match a page whose other registered records (e.g. content elements) meet the criteria above. Only takes effect once at least one status, assignee or comment criterion is selected.</source>
+				<target>Auch eine Seite berücksichtigen, deren andere registrierte Datensätze (z. B. Inhaltselemente) die obigen Kriterien erfüllen. Wirkt sich erst aus, sobald mindestens ein Status-, Zuständigkeits- oder Kommentar-Kriterium ausgewählt ist.</target>
 			</trans-unit>
 
 			<!-- mail -->
