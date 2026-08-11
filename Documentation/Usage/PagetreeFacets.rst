@@ -60,16 +60,25 @@ plus files/folders if :ref:`enableFilelistSupport <extconf-enableFilelistSupport
 and any additional records registered via ``ExtensionUtility::getRecordTables()``)
 can carry their own status, assignee and comments. However, the page tree filter
 only ever returns pages. All three tokens therefore match a page whose other
-registered records meet the criteria as well as pages that match directly —
-controlled by the modal's **"Include content elements"** checkbox, checked by
-default. Unticking it restricts every token to page-level matches only.
+registered records meet the criteria as well as pages that match directly,
+unless the modal's **"Pages only"** checkbox is ticked, which restricts every
+token to page-level matches only. Unticked (the default) is the broader match.
+
+..  note::
+    This checkbox defaults to unticked deliberately, not ticked: the filter
+    modal treats any ticked checkbox across every facet as an active filter
+    criterion for its chip bar and "N active filters" indicator, with no way
+    to express "only matters together with another field in this facet" - a
+    ticked-by-default checkbox would therefore show as a permanent, always-
+    active chip on every use of the filter modal, regardless of whether any
+    status, assignee or comment criterion is selected at all.
 
 ..  note::
     This checkbox only has an effect once at least one status, assignee or
     comment criterion is also selected in this facet — it modifies how those
     tokens match, rather than being a filter criterion of its own. With
     nothing else selected, the filter modal's underlying framework never
-    calls this facet at all, so toggling the checkbox alone has nothing to
+    calls this facet at all, so ticking the checkbox alone has nothing to
     persist and appears to reset the next time the modal opens.
 
 Out of scope

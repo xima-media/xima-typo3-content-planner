@@ -483,17 +483,17 @@
 				<source>No comments</source>
 				<target>Keine Kommentare</target>
 			</trans-unit>
-			<trans-unit id="pagetreeFacets.includeContentElements">
-				<source>Include content elements</source>
-				<target>Inhaltselemente einbeziehen</target>
+			<trans-unit id="pagetreeFacets.pagesOnly">
+				<source>Pages only</source>
+				<target>Nur Seiten</target>
 			</trans-unit>
-			<trans-unit id="pagetreeFacets.includeContentElements.enabled">
+			<trans-unit id="pagetreeFacets.pagesOnly.enabled">
 				<source>Enabled</source>
 				<target>Aktiviert</target>
 			</trans-unit>
-			<trans-unit id="pagetreeFacets.includeContentElements.label">
-				<source>Also match a page whose other registered records (e.g. content elements) meet the criteria above. Only takes effect once at least one status, assignee or comment criterion is selected.</source>
-				<target>Auch eine Seite berücksichtigen, deren andere registrierte Datensätze (z. B. Inhaltselemente) die obigen Kriterien erfüllen. Wirkt sich erst aus, sobald mindestens ein Status-, Zuständigkeits- oder Kommentar-Kriterium ausgewählt ist.</target>
+			<trans-unit id="pagetreeFacets.pagesOnly.description">
+				<source>Restrict matches to the page itself. By default, a page also matches when one of its other registered records (e.g. content elements) meets the criteria above. Only takes effect once at least one status, assignee or comment criterion is selected.</source>
+				<target>Treffer auf die Seite selbst beschränken. Standardmäßig zählt eine Seite auch dann als Treffer, wenn eines ihrer anderen registrierten Datensätze (z. B. Inhaltselemente) die obigen Kriterien erfüllt. Wirkt sich erst aus, sobald mindestens ein Status-, Zuständigkeits- oder Kommentar-Kriterium ausgewählt ist.</target>
 			</trans-unit>
 
 			<!-- mail -->

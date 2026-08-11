@@ -29,12 +29,28 @@ use function is_array;
  * without that suggest-only package installed. ContentPlannerFacet converts
  * to/from the real Token type at the boundary.
  *
- * The shared "includeContentElements" modal toggle has no token key of its
- * own - each of the status/assignee/comments tokens is resolved independently
- * by the engine, so the only way for one modal field to influence all three is
- * to bake a sentinel value into every token's own values when content elements
+ * The shared "pages only" modal toggle has no token key of its own - each of
+ * the status/assignee/comments tokens is resolved independently by the
+ * engine, so the only way for one modal field to influence all three is to
+ * bake a sentinel value into every token's own values when content elements
  * are excluded (mirrors Token::FREETEXT's leading-underscore convention for
  * non-criterion values).
+ *
+ * The modal field is named "pagesOnly" and defaults to UNCHECKED, not
+ * "includeContentElements" defaulting to checked as an earlier version of
+ * this class had it. Both encode the identical default filtering behavior
+ * (content elements included unless restricted), but the checkbox's own
+ * default state matters independently: typo3-pagetree-facets' modal treats
+ * ANY checked/non-empty field across ALL tabs as an active filter criterion
+ * for its chip bar and "N active filters" toolbar badge - regardless of
+ * whether the user ever opens this facet's tab, and regardless of whether any
+ * other field in this same tab is set. A checked-by-default checkbox therefore
+ * showed up as a permanent, always-active "Include content elements: Enabled"
+ * chip on every use of the filter modal, for every facet - confirmed live.
+ * Defaulting to unchecked ("pagesOnly" false) means the field contributes
+ * nothing until a user deliberately restricts the scope, which is also the
+ * one case where the modal's OWN "active criterion" model is correct: the
+ * checkbox truly does become one at that point.
  *
  * The marker deliberately contains a space, not a hyphen: TokenSerializer
  * quotes a token's comma-joined value string only when it contains whitespace
@@ -62,29 +78,26 @@ final class ContentPlannerFacetStateMapper
      */
     public function serialize(array $modalState): array
     {
-        // Default here is [] (unchecked), NOT ['1'] - the modal's own client-side
-        // state builder drops a checkbox-group key entirely once nothing in it is
-        // checked (the same convention this method already applies to status/
-        // assignee/comments below), so "key absent" at serialize() time means "the
-        // user unchecked it", not "never touched". The checked-by-default behavior
-        // lives in hydrate() below, which runs once when the modal opens and seeds
-        // the field's initial value before the user can interact with it at all.
-        // Defaulting to ['1'] here instead previously meant every uncheck silently
-        // reverted to checked on the very next serialize() call.
-        $includeContentElements = in_array('1', $this->listValue($modalState, 'includeContentElements', []), true);
+        // "pagesOnly" absent or empty (unchecked - the modal's own client-side
+        // state builder drops a checkbox-group key entirely once nothing in it
+        // is checked, same as status/assignee/comments below) means "do not
+        // restrict", i.e. content elements stay included - which is both the
+        // native HTML-checkbox default AND the desired filtering default, so no
+        // special-casing is needed here the way the old, inverted field needed.
+        $pagesOnly = in_array('1', $this->listValue($modalState, 'pagesOnly', []), true);
+        $includeContentElements = !$pagesOnly;
 
         $tokens = [];
         foreach (self::TOKEN_KEYS as $key) {
             $values = $this->listValue($modalState, $key, []);
             if ([] === $values) {
                 // Intentional: Skipping empty-values keys (not emitting a token for them) is correct.
-                // When all three criteria are empty, emitting a token just to preserve the
-                // includeContentElements toggle state would cause that token to resolve to zero
-                // page uids and zero out the entire AND-intersection in the page tree filter engine,
-                // hiding the tree entirely. That is worse than the toggle cosmetically resetting
-                // on modal reopen. Since no token is active when all criteria are empty, filtering
-                // never happens regardless of what the toggle reads as — the cosmetic reset is
-                // an acceptable trade-off.
+                // When all three criteria are empty, emitting a token just to preserve the pagesOnly
+                // toggle state would cause that token to resolve to zero page uids and zero out the
+                // entire AND-intersection in the page tree filter engine, hiding the tree entirely.
+                // That is worse than the toggle cosmetically resetting on modal reopen. Since no token
+                // is active when all criteria are empty, filtering never happens regardless of what
+                // the toggle reads as — the cosmetic reset is an acceptable trade-off.
                 continue;
             }
             $tokens[] = ['key' => $key, 'values' => $this->withContentElementsMarker($values, $includeContentElements)];
@@ -96,16 +109,16 @@ final class ContentPlannerFacetStateMapper
     /**
      * @param list<array{key: string, values: list<string>}> $tokens
      *
-     * @return array{status: list<string>, assignee: list<string>, comments: list<string>, includeContentElements: list<string>}
+     * @return array{status: list<string>, assignee: list<string>, comments: list<string>, pagesOnly: list<string>}
      */
     public function hydrate(array $tokens): array
     {
-        $state = ['status' => [], 'assignee' => [], 'comments' => [], 'includeContentElements' => ['1']];
+        $state = ['status' => [], 'assignee' => [], 'comments' => [], 'pagesOnly' => []];
 
         foreach ($tokens as $token) {
             [$includeContentElements, $values] = $this->extractContentElementsFlag($token['values']);
             if (!$includeContentElements) {
-                $state['includeContentElements'] = [];
+                $state['pagesOnly'] = ['1'];
             }
             if (in_array($token['key'], self::TOKEN_KEYS, true)) {
                 $state[$token['key']] = $values;

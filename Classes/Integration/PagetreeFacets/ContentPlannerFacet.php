@@ -152,8 +152,18 @@ final readonly class ContentPlannerFacet implements FacetInterface
                 ],
                 [
                     'type' => 'checkbox-group',
-                    'name' => 'includeContentElements',
-                    'label' => $lll.'includeContentElements',
+                    'name' => 'pagesOnly',
+                    // Deliberately defaults to unchecked (see
+                    // ContentPlannerFacetStateMapper's class docblock for why
+                    // this field is the inverse of "include content elements"
+                    // rather than defaulting to checked): the modal's own
+                    // "active criteria" chip bar and toolbar badge treat ANY
+                    // checked field across every tab as an active filter,
+                    // regardless of whether this tab's real criteria (status/
+                    // assignee/comments) are set - a checked-by-default box
+                    // showed up as a permanent, always-active chip on every use
+                    // of the filter modal, confirmed live.
+                    'label' => $lll.'pagesOnly',
                     'options' => [
                         // "label" ends up in the filter chip, "description" stays
                         // in help text only - the long explanation belongs in
@@ -161,8 +171,8 @@ final readonly class ContentPlannerFacet implements FacetInterface
                         // ExampleTab docblock).
                         [
                             'value' => '1',
-                            'label' => $lll.'includeContentElements.enabled',
-                            'description' => $lll.'includeContentElements.label',
+                            'label' => $lll.'pagesOnly.enabled',
+                            'description' => $lll.'pagesOnly.description',
                         ],
                     ],
                 ],
