@@ -62,7 +62,7 @@ final class ContentPlannerFacetStateMapperTest extends TestCase
             'pagesOnly' => ['1'],
         ]);
 
-        self::assertSame([['key' => 'status', 'values' => ['2', '_pages only']]], $tokens);
+        self::assertSame([['key' => 'status', 'values' => ['2', '_pages-only']]], $tokens);
     }
 
     public function testHydrateReversesSerializeForMultipleTokens(): void
@@ -102,7 +102,7 @@ final class ContentPlannerFacetStateMapperTest extends TestCase
 
     public function testWithContentElementsMarkerAppendsMarkerWhenExcluded(): void
     {
-        self::assertSame(['2', '_pages only'], $this->subject->withContentElementsMarker(['2'], includeContentElements: false));
+        self::assertSame(['2', '_pages-only'], $this->subject->withContentElementsMarker(['2'], includeContentElements: false));
     }
 
     public function testWithContentElementsMarkerLeavesValuesUnchangedWhenIncluded(): void
@@ -110,24 +110,27 @@ final class ContentPlannerFacetStateMapperTest extends TestCase
         self::assertSame(['2'], $this->subject->withContentElementsMarker(['2'], includeContentElements: true));
     }
 
-    public function testPagesOnlyMarkerContainsWhitespace(): void
+    public function testPagesOnlyMarkerContainsNoWhitespace(): void
     {
-        // Regression guard: typo3-pagetree-facets' TokenSerializer only quotes a
-        // token's comma-joined value string when it contains whitespace (or a
-        // literal quote); its own toolbar badge then counts a quoted value as one
-        // active criterion instead of splitting it on comma. A marker without
-        // whitespace (e.g. a hyphen) would NOT get quoted and would inflate that
-        // count by one whenever this marker is present - confirmed live, see the
-        // class docblock. This test exists so a future edit cannot silently swap
-        // the marker back to something unquoted without a test failing.
+        // Regression guard, inverse of an earlier version of this test: the marker
+        // must NOT get automatically quoted by typo3-pagetree-facets'
+        // TokenSerializer (which only quotes a token's comma-joined value string
+        // when it contains whitespace or a literal quote). Now that "pagesOnly"
+        // defaults to unchecked, the marker is only ever present when the user
+        // deliberately ticks it alongside another real criterion - a genuine
+        // second selection that SHOULD count towards the toolbar's "N active
+        // filters" badge, matching the modal's own live indicator. Quoting it
+        // away (as an earlier, checked-by-default version of this field needed)
+        // would make the toolbar under-count a deliberate double selection as "1"
+        // instead of "2" - confirmed live, see the class docblock.
         $marker = $this->subject->withContentElementsMarker([], includeContentElements: false)[0];
 
-        self::assertMatchesRegularExpression('/\s/', $marker);
+        self::assertDoesNotMatchRegularExpression('/[\s"]/', $marker);
     }
 
     public function testExtractContentElementsFlagSplitsMarkerFromValues(): void
     {
-        [$includeContentElements, $values] = $this->subject->extractContentElementsFlag(['2', '_pages only']);
+        [$includeContentElements, $values] = $this->subject->extractContentElementsFlag(['2', '_pages-only']);
 
         self::assertFalse($includeContentElements);
         self::assertSame(['2'], $values);

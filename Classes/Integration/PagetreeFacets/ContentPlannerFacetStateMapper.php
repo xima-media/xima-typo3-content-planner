@@ -52,21 +52,29 @@ use function is_array;
  * one case where the modal's OWN "active criterion" model is correct: the
  * checkbox truly does become one at that point.
  *
- * The marker deliberately contains a space, not a hyphen: TokenSerializer
- * quotes a token's comma-joined value string only when it contains whitespace
- * (or a literal quote) - typo3-pagetree-facets' own toolbar badge then counts
- * a quoted value as a single active criterion instead of comma-splitting it,
- * so the marker does not inflate the "N active filters" count shown outside
- * this facet's own modal (found via a live count mismatch between the tree's
- * toolbar badge and the modal's nav count for this exact reason). A hyphen
- * does not trigger that quoting and was tried first; it produced the mismatch.
+ * The marker deliberately contains NO whitespace (a hyphen, not a space) -
+ * an earlier version of this class used a space specifically so
+ * TokenSerializer's automatic quoting (it quotes a token's comma-joined value
+ * string only when it contains whitespace or a literal quote) would make
+ * typo3-pagetree-facets' toolbar badge count the whole token as one active
+ * criterion instead of splitting it on comma. That was the right fix while
+ * "pagesOnly" defaulted to checked (see the note above): the marker was
+ * present even when the user never touched it, so it had to be invisible to
+ * that count. Now that "pagesOnly" defaults to unchecked, the marker is
+ * present ONLY when the user deliberately ticks it - a second, genuine
+ * criterion on top of whatever status/assignee/comments value they also
+ * picked - so it should count, matching the modal's own live indicator
+ * (which counts "Status" and "Pages only" as two separate selections).
+ * Quoting it away made the toolbar badge under-count a deliberate double
+ * selection as "1" instead of "2" - confirmed live, the opposite problem
+ * from before.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
 final class ContentPlannerFacetStateMapper
 {
-    private const PAGES_ONLY_MARKER = '_pages only';
+    private const PAGES_ONLY_MARKER = '_pages-only';
 
     /** @var list<string> */
     private const TOKEN_KEYS = ['status', 'assignee', 'comments'];
