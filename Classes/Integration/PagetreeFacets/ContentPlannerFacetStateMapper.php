@@ -36,12 +36,21 @@ use function is_array;
  * are excluded (mirrors Token::FREETEXT's leading-underscore convention for
  * non-criterion values).
  *
+ * The marker deliberately contains a space, not a hyphen: TokenSerializer
+ * quotes a token's comma-joined value string only when it contains whitespace
+ * (or a literal quote) - typo3-pagetree-facets' own toolbar badge then counts
+ * a quoted value as a single active criterion instead of comma-splitting it,
+ * so the marker does not inflate the "N active filters" count shown outside
+ * this facet's own modal (found via a live count mismatch between the tree's
+ * toolbar badge and the modal's nav count for this exact reason). A hyphen
+ * does not trigger that quoting and was tried first; it produced the mismatch.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
 final class ContentPlannerFacetStateMapper
 {
-    private const PAGES_ONLY_MARKER = '_pages-only';
+    private const PAGES_ONLY_MARKER = '_pages only';
 
     /** @var list<string> */
     private const TOKEN_KEYS = ['status', 'assignee', 'comments'];
