@@ -62,14 +62,19 @@ Other Registered Records
 ========================
 
 Other registered records (such as content elements if enabled via
-:ref:`enableContentElementSupport <extconf-enableContentElementSupport>`,
-plus files/folders if :ref:`enableFilelistSupport <extconf-enableFilelistSupport>` is enabled,
-and any additional records registered via ``ExtensionUtility::getRecordTables()``)
-can carry their own status, assignee and comments. However, the page tree filter
-only ever returns pages. All three tokens therefore match a page whose other
-registered records meet the criteria as well as pages that match directly,
-unless the modal's **"Pages only"** checkbox is ticked, which restricts every
-token to page-level matches only. Unticked (the default) is the broader match.
+:ref:`enableContentElementSupport <extconf-enableContentElementSupport>`, and
+any additional records registered via ``ExtensionUtility::getRecordTables()``)
+can carry their own status, assignee and comments. However, the page tree
+filter only ever returns pages. All three tokens therefore match a page whose
+other registered records meet the criteria as well as pages that match
+directly, unless the modal's **"Pages only"** checkbox is ticked, which
+restricts every token to page-level matches only. Unticked (the default) is
+the broader match.
+
+Files and folders (:ref:`enableFilelistSupport <extconf-enableFilelistSupport>`)
+are excluded from this matching, even though they can also carry a status,
+assignee and comments: they live in the file storage tree, not the page tree,
+and have no page they could resolve to (see "Out of scope" below).
 
 ..  note::
     This checkbox defaults to unticked deliberately, not ticked: the filter

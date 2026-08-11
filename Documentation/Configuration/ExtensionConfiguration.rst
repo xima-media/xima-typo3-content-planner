@@ -89,11 +89,10 @@ Features
     Has no effect on TYPO3 v13 or when that extension is not installed.
 
     ..  note::
-        This setting only stays effective after an administrator opens
-        :guilabel:`Admin Tools > Settings > Extension Configuration` for this
-        extension and saves the form once, even if you set it via
-        ``$GLOBALS['TYPO3_CONF_VARS']`` directly - see
-        :ref:`extension-configuration`.
+        Set this option in :guilabel:`Admin Tools > Settings > Extension
+        Configuration` and save the form once. A value set directly in
+        ``$GLOBALS['TYPO3_CONF_VARS']`` is not persisted until the form is
+        saved. See :ref:`pagetree-facets` for the available filter tokens.
 
 Assignee
 =======
