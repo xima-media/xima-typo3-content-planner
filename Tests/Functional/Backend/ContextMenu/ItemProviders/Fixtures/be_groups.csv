@@ -1,0 +1,6 @@
+"be_groups"
+,"uid","pid","title","TSconfig","deleted"
+,1,0,"Disabled Status Item","options.contextMenu.table.pages.disableItems = reset",0
+"be_users"
+,"uid","pid","username","admin","realName","usergroup","disable","deleted"
+,21,0,"restricted-context-menu",1,"Restricted Context Menu User","1",0,0

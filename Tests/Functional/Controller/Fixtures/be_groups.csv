@@ -1,0 +1,6 @@
+"be_groups"
+,"uid","pid","title","TSconfig","deleted"
+,1,0,"Doktype Restriction","options.pageTree.excludeDoktypes = 3,4",0
+"be_users"
+,"uid","pid","username","admin","realName","usergroup","disable","deleted"
+,20,0,"restricted",0,"Restricted User","1",0,0

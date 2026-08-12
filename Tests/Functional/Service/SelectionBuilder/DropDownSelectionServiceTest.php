@@ -104,4 +104,45 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
 
         self::assertArrayHasKey('comments', $entries);
     }
+
+    #[Test]
+    public function addCommentsTodoItemToSelectionSkipsWhenNoTodos(): void
+    {
+        $entries = [];
+        $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
+        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+
+        self::assertArrayNotHasKey('commentsTodo', $entries);
+    }
+
+    #[Test]
+    public function addCommentsTodoItemToSelectionAddsEntryWithTodoCounts(): void
+    {
+        $entries = [];
+        $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
+        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+
+        self::assertArrayHasKey('commentsTodo', $entries);
+        self::assertStringContainsString('1/3', $entries['commentsTodo']->getLabel());
+    }
+
+    #[Test]
+    public function addFolderAssigneeItemToSelectionAddsAssigneeComponent(): void
+    {
+        $entries = [];
+        $folderRecord = ['uid' => 1, Configuration::FIELD_ASSIGNEE => 1];
+        $this->subject->addFolderAssigneeItemToSelection($entries, $folderRecord, '1:/user_upload/');
+
+        self::assertArrayHasKey('assignee', $entries);
+    }
+
+    #[Test]
+    public function addFolderCommentsItemToSelectionAddsCommentsComponent(): void
+    {
+        $entries = [];
+        $folderRecord = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
+        $this->subject->addFolderCommentsItemToSelection($entries, $folderRecord, '1:/user_upload/');
+
+        self::assertArrayHasKey('comments', $entries);
+    }
 }

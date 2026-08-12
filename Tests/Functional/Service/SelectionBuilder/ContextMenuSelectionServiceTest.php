@@ -110,4 +110,67 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
 
         self::assertSame('reset', $entries['reset']['callbackAction']);
     }
+
+    #[Test]
+    public function addCommentsTodoItemToSelectionSkipsWhenNoTodos(): void
+    {
+        $entries = [];
+        $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
+        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+
+        self::assertArrayNotHasKey('commentsTodo', $entries);
+    }
+
+    #[Test]
+    public function addCommentsTodoItemToSelectionAddsEntryWithTodoCounts(): void
+    {
+        $entries = [];
+        $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
+        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+
+        self::assertSame('comments', $entries['commentsTodo']['callbackAction']);
+        self::assertStringContainsString('1/3', $entries['commentsTodo']['label']);
+    }
+
+    #[Test]
+    public function generateFolderSelectionReturnsContextMenuArrayForFolderWithStatus(): void
+    {
+        $result = $this->subject->generateFolderSelection('1:/user_upload/');
+
+        self::assertIsArray($result);
+        self::assertArrayNotHasKey('header', $result);
+        self::assertArrayHasKey('reset', $result);
+        self::assertArrayHasKey('assignee', $result);
+        self::assertArrayHasKey('comments', $result);
+        // Current status is uid 2, so it is excluded from the change options.
+        self::assertArrayHasKey('1', $result);
+        self::assertArrayHasKey('3', $result);
+        self::assertArrayNotHasKey('2', $result);
+    }
+
+    #[Test]
+    public function generateFolderSelectionOmitsAdditionalActionsForFolderWithoutStatus(): void
+    {
+        $result = $this->subject->generateFolderSelection('1:/no_status/');
+
+        self::assertIsArray($result);
+        self::assertArrayNotHasKey('reset', $result);
+        self::assertArrayNotHasKey('assignee', $result);
+        self::assertArrayNotHasKey('comments', $result);
+        self::assertArrayHasKey('1', $result);
+        self::assertArrayHasKey('2', $result);
+        self::assertArrayHasKey('3', $result);
+    }
+
+    #[Test]
+    public function generateFolderSelectionHandlesUnknownFolderGracefully(): void
+    {
+        $result = $this->subject->generateFolderSelection('1:/does-not-exist/');
+
+        self::assertIsArray($result);
+        self::assertArrayNotHasKey('reset', $result);
+        self::assertArrayNotHasKey('assignee', $result);
+        self::assertArrayNotHasKey('comments', $result);
+        self::assertArrayHasKey('1', $result);
+    }
 }

@@ -1,0 +1,6 @@
+"be_groups"
+,"uid","pid","title","custom_options","deleted"
+,1,0,"View Only","tx_ximatypo3contentplanner:view-only",0
+"be_users"
+,"uid","pid","username","admin","realName","usergroup","disable","deleted"
+,20,0,"vieweronly",0,"Viewer Only","1",0,0
