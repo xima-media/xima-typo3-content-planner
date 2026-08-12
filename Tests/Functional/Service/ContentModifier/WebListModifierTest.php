@@ -46,7 +46,10 @@ final class WebListModifierTest extends AbstractFunctionalTestCase
 
     protected function tearDown(): void
     {
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_WEB_LIST_HEADER_INFO]);
+        unset(
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_WEB_LIST_HEADER_INFO],
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_RECORD_EDIT_HEADER_INFO],
+        );
         parent::tearDown();
     }
 
@@ -79,6 +82,13 @@ final class WebListModifierTest extends AbstractFunctionalTestCase
 
         self::assertNotSame(self::ORIGINAL_BODY, $body);
         self::assertStringContainsString('<typo3-backend-editable-page-title>Home</typo3-backend-editable-page-title>', $body);
+        // Page uid 1's status is "Draft" (see Fixtures/pages.csv + shared status.csv) - assert
+        // the injected header actually carries it, positioned after the closing title tag.
+        self::assertStringContainsString('Draft', $body);
+        self::assertGreaterThan(
+            strpos($body, '</typo3-backend-editable-page-title>'),
+            strpos($body, 'Draft'),
+        );
     }
 
     private function buildRequest(string $moduleIdentifier, int $pageId): ServerRequest
