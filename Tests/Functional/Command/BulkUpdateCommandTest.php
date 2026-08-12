@@ -16,8 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Command;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
@@ -198,20 +196,13 @@ final class BulkUpdateCommandTest extends AbstractFunctionalTestCase
     #[Test]
     public function clearingStatusDeletesCommentsWhenFeatureEnabled(): void
     {
-        $previous = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] ?? [];
-        try {
-            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET] = '1';
-            GeneralUtility::makeInstance(ExtensionConfiguration::class)->set(Configuration::EXT_KEY, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]);
+        $this->enableExtensionFeature(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET);
 
-            $exitCode = $this->tester->execute([
-                'table' => 'pages',
-                'uid' => '1',
-                'status' => '0',
-            ]);
-        } finally {
-            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $previous;
-            GeneralUtility::makeInstance(ExtensionConfiguration::class)->set(Configuration::EXT_KEY, $previous);
-        }
+        $exitCode = $this->tester->execute([
+            'table' => 'pages',
+            'uid' => '1',
+            'status' => '0',
+        ]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertSame(0, $this->get(CommentRepository::class)->countAllByRecord(1, 'pages'));

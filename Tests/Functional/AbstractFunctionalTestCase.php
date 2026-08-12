@@ -13,11 +13,16 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional;
 
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Backend\Routing\{Route, RouteResult};
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
-use TYPO3\CMS\Core\Http\{NormalizedParams, ServerRequest};
+use TYPO3\CMS\Core\Http\{NormalizedParams, Response, ServerRequest};
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 
 /**
  * AbstractFunctionalTestCase.
@@ -32,14 +37,68 @@ abstract class AbstractFunctionalTestCase extends FunctionalTestCase
     ];
 
     /**
+     * Snapshot of the extension configuration taken by the first enableExtensionFeature()
+     * call in a test, restored in tearDown(). Null when no test touched it.
+     *
+     * @var array<string, mixed>|null
+     */
+    private ?array $extensionConfigurationSnapshot = null;
+
+    /**
      * Prevent request/language state set up by individual tests from leaking
      * into the next test (e.g. a stale TYPO3_REQUEST pointing at a fixture page
      * would break Extbase storage-pid/rootline resolution in unrelated tests).
      */
     protected function tearDown(): void
     {
+        if (null !== $this->extensionConfigurationSnapshot) {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $this->extensionConfigurationSnapshot;
+            GeneralUtility::makeInstance(ExtensionConfiguration::class)->set(Configuration::EXT_KEY, $this->extensionConfigurationSnapshot);
+        }
         unset($GLOBALS['TYPO3_REQUEST'], $GLOBALS['LANG']);
         parent::tearDown();
+    }
+
+    /**
+     * Sets an extension configuration key for the rest of the test (both in $GLOBALS and via
+     * ExtensionConfiguration, since collaborators may read either) and restores the full
+     * previous configuration array in tearDown().
+     */
+    protected function enableExtensionFeature(string $key, mixed $value = '1'): void
+    {
+        $this->extensionConfigurationSnapshot ??= $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] ?? [];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][$key] = $value;
+        GeneralUtility::makeInstance(ExtensionConfiguration::class)->set(
+            Configuration::EXT_KEY,
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY],
+        );
+    }
+
+    /**
+     * Builds a RequestHandlerInterface test double whose handle() returns a canned response
+     * with the given body/status/headers/reason phrase, for exercising ModifierInterface
+     * implementations that wrap the "real" handler response.
+     *
+     * @param array<string, list<string>> $headers
+     */
+    protected function buildResponseHandler(string $body, int $status = 200, array $headers = ['X-Custom-Header' => ['kept']], string $reasonPhrase = ''): RequestHandlerInterface
+    {
+        return new class($body, $status, $headers, $reasonPhrase) implements RequestHandlerInterface {
+            public function __construct(
+                private readonly string $body,
+                private readonly int $status,
+                private readonly array $headers,
+                private readonly string $reasonPhrase,
+            ) {}
+
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $response = new Response('php://temp', $this->status, $this->headers, $this->reasonPhrase);
+                $response->getBody()->write($this->body);
+
+                return $response;
+            }
+        };
     }
 
     /**
