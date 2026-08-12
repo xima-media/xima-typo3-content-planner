@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Http\{Response, ServerRequest};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\FileStorageTreeModifier;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\VersionUtility;
 
 /**
  * FileStorageTreeModifierTest.
@@ -85,6 +86,10 @@ final class FileStorageTreeModifierTest extends AbstractFunctionalTestCase
     #[Test]
     public function isRelevantReturnsTrueForTreeDataRoute(): void
     {
+        if (VersionUtility::is14OrHigher()) {
+            self::markTestSkipped('FileStorageTreeModifier is v13-only; v14 uses the native event instead.');
+        }
+
         self::assertTrue($this->subject->isRelevant($this->buildRequest('ajax_filestorage_tree_data')));
     }
 
