@@ -190,6 +190,78 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function addCommentsToRecordWithParentUidCreatesReply(): void
+    {
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Reply comment', 'admin', 1);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages');
+        self::assertCount(1, $comments);
+
+        $replies = $comments[0]->getReplies();
+        self::assertCount(1, $replies);
+        self::assertSame('Reply comment', $replies[0]->data['content']);
+        self::assertSame(1, $replies[0]->getParentUid());
+    }
+
+    #[Test]
+    public function addCommentsToRecordWithParentUidAppliesToAllComments(): void
+    {
+        PlannerUtility::addCommentsToRecord('pages', 1, ['First reply', 'Second reply'], 1, 1);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages');
+        $replies = $comments[0]->getReplies();
+
+        self::assertCount(2, $replies);
+        foreach ($replies as $reply) {
+            self::assertSame(1, $reply->getParentUid());
+        }
+    }
+
+    #[Test]
+    public function addCommentsToRecordWithParentUidPointingToReplyFlattensToRoot(): void
+    {
+        PlannerUtility::addCommentsToRecord('pages', 1, 'First-level reply', 'admin', 1);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages');
+        $replyUid = (int) $comments[0]->getReplies()[0]->data['uid'];
+
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Nested reply', 'admin', $replyUid);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages');
+        $replies = $comments[0]->getReplies();
+        self::assertCount(2, $replies);
+
+        $nestedReply = null;
+        foreach ($replies as $reply) {
+            if ('Nested reply' === $reply->data['content']) {
+                $nestedReply = $reply;
+            }
+        }
+
+        self::assertNotNull($nestedReply);
+        self::assertSame(1, $nestedReply->getParentUid());
+    }
+
+    #[Test]
+    public function addCommentsToRecordThrowsOnNonExistentParentUid(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(4723563572);
+
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Reply', 'admin', 9999);
+    }
+
+    #[Test]
+    public function addCommentsToRecordThrowsOnParentUidFromDifferentRecord(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(4723563572);
+
+        // Comment uid 1 belongs to page 1, not page 2.
+        PlannerUtility::addCommentsToRecord('pages', 2, 'Reply', 'admin', 1);
+    }
+
+    #[Test]
     public function clearCommentsOfRecordRemovesAllComments(): void
     {
         PlannerUtility::clearCommentsOfRecord('pages', 1);
