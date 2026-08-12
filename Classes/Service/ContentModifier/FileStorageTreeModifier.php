@@ -17,7 +17,7 @@ use Doctrine\DBAL\Exception;
 use JsonException;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Http\Stream;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Configuration\Colors;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -99,7 +99,21 @@ class FileStorageTreeModifier implements ModifierInterface
         // Process tree items
         $this->processTreeItems($data);
 
-        return new JsonResponse($data);
+        return $this->replaceBody($response, json_encode($data, \JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * Swaps in the re-encoded tree data while keeping the inner response's status code,
+     * reason phrase and headers intact (mirrors AbstractModifier::replaceBody(), which this
+     * class can't extend since its dependencies don't match AbstractModifier's constructor).
+     */
+    private function replaceBody(ResponseInterface $response, string $content): ResponseInterface
+    {
+        $body = new Stream('php://temp', 'r+');
+        $body->write($content);
+        $body->rewind();
+
+        return $response->withBody($body);
     }
 
     /**
