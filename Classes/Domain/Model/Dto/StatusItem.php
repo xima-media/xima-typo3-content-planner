@@ -136,18 +136,24 @@ final class StatusItem
         ) : '';
     }
 
-    public function getSite(): ?string
+    public function getSiteIcon(): ?string
     {
-        $siteFinder = $this->siteFinder;
-        if (count($siteFinder->getAllSites()) <= 1) {
+        if (!$this->hasMultipleSites()) {
             return null;
         }
-        $site = $siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
-        $iconFactory = $this->iconFactory;
-        $icon = $iconFactory->getIcon('apps-pagetree-folder-root', IconUtility::getDefaultIconSize());
+
+        return $this->iconFactory->getIcon('apps-pagetree-folder-root', IconUtility::getDefaultIconSize())->render();
+    }
+
+    public function getSiteName(): ?string
+    {
+        if (!$this->hasMultipleSites()) {
+            return null;
+        }
+        $site = $this->siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
 
         /* @phpstan-ignore-next-line */
-        return $icon->render().' '.($site->getAttribute('websiteTitle') ?? $site->getIdentifier());
+        return $site->getAttribute('websiteTitle') ?? $site->getIdentifier();
     }
 
     public function getToDoHtml(): string
@@ -223,8 +229,14 @@ final class StatusItem
             'comments' => $this->getCommentsHtml(),
             'todo' => $this->getToDoHtml(),
             'todoShareUrl' => $this->getToDoShareUrl(),
-            'site' => $this->getSite(),
+            'site' => $this->getSiteName(),
+            'siteIcon' => $this->getSiteIcon(),
         ];
+    }
+
+    private function hasMultipleSites(): bool
+    {
+        return count($this->siteFinder->getAllSites()) > 1;
     }
 
     /**

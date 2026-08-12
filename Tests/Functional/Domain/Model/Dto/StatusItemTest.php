@@ -16,6 +16,9 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Domain\Model\Dto;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\{NormalizedParams, ServerRequest};
+use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -174,11 +177,39 @@ final class StatusItemTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function getSiteReturnsNullWithoutMultipleSites(): void
+    public function getSiteNameReturnsNullWithoutMultipleSites(): void
     {
         $item = StatusItem::create($this->pageRow());
 
-        self::assertNull($item->getSite());
+        self::assertNull($item->getSiteName());
+    }
+
+    #[Test]
+    public function getSiteIconReturnsNullWithoutMultipleSites(): void
+    {
+        $item = StatusItem::create($this->pageRow());
+
+        self::assertNull($item->getSiteIcon());
+    }
+
+    #[Test]
+    public function getSiteNameReturnsUnescapedWebsiteTitleForSeparateEscapingInTemplate(): void
+    {
+        $maliciousTitle = '<script>alert(1)</script>';
+        $siteFinder = $this->createMock(SiteFinder::class);
+        $siteFinder->method('getAllSites')->willReturn([
+            'first' => new Site('first', 1, ['base' => 'https://one.example/']),
+            'second' => new Site('second', 2, ['base' => 'https://two.example/']),
+        ]);
+        $siteFinder->method('getSiteByPageId')->willReturn(
+            new Site('second', 1, ['base' => 'https://two.example/', 'websiteTitle' => $maliciousTitle]),
+        );
+        GeneralUtility::addInstance(SiteFinder::class, $siteFinder);
+
+        $item = StatusItem::create($this->pageRow());
+
+        self::assertSame($maliciousTitle, $item->getSiteName());
+        self::assertStringNotContainsString('<script>', (string) $item->getSiteIcon());
     }
 
     #[Test]
@@ -204,6 +235,7 @@ final class StatusItemTest extends AbstractFunctionalTestCase
         self::assertArrayHasKey('todo', $result);
         self::assertArrayHasKey('todoShareUrl', $result);
         self::assertArrayHasKey('site', $result);
+        self::assertArrayHasKey('siteIcon', $result);
 
         self::assertSame('Home', $result['title']);
         self::assertSame('In Progress', $result['status']);
