@@ -177,6 +177,38 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
         self::assertSame($expectedCount, (int) $record['tx_ximatypo3contentplanner_comments']);
     }
 
+    #[Test]
+    public function findByPidExcludesHiddenRecordsByDefault(): void
+    {
+        $result = $this->subject->findByPid('pages', 1);
+
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $result);
+        self::assertNotContains(6, $uids, 'hidden page 6 must be excluded without ignoreVisibilityRestriction');
+    }
+
+    #[Test]
+    public function findByPidIncludesHiddenRecordsWhenVisibilityRestrictionIgnored(): void
+    {
+        $result = $this->subject->findByPid('pages', 1, ignoreVisibilityRestriction: true);
+
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $result);
+        self::assertContains(6, $uids, 'hidden page 6 must be included when the restriction is ignored');
+    }
+
+    #[Test]
+    public function updateStatusByUidClearsAssigneeWhenExplicitlyNull(): void
+    {
+        $this->subject->updateStatusByUid('pages', 3, 2, 9);
+        $this->subject->updateStatusByUid('pages', 3, 2, null);
+
+        $record = $this->subject->findByUid('pages', 3);
+        self::assertIsArray($record);
+        self::assertNull($record['tx_ximatypo3contentplanner_assignee']);
+    }
+
     // NOTE: findAllByFilter() builds raw "(SELECT ...) UNION (SELECT ...)" SQL which is invalid
-    // under SQLite (the functional test driver). It is therefore not covered here.
+    // under SQLite (the functional test driver). It is therefore not covered here, together with
+    // the private helpers it exclusively calls (applyFilterConditions, buildSearchCondition,
+    // getTitleFieldForSearch, buildUnionQueriesForTables, buildWhereClauseForTable,
+    // filterResultsByPermission, getSqlByTable, getSqlForFileMetadata, getSqlForFolders).
 }

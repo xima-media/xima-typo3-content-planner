@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Event\{CommentCreatedEvent, CommentResolvedEvent};
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -136,6 +137,324 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
         self::assertSame(3, $this->statusOfPage(2));
     }
 
+    #[Test]
+    public function processDatamapBeforeStartProcessesCommentTodosWhenCommentTableIsFirst(): void
+    {
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                'NEW789' => ['content' => '<input type="checkbox" checked><input type="checkbox">'],
+            ],
+        ];
+
+        $this->createHook()->processDatamap_beforeStart($dataHandler);
+
+        self::assertSame(2, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW789']['todo_total']);
+        self::assertArrayHasKey('author', $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW789']);
+    }
+
+    #[Test]
+    public function processDatamapBeforeStartDoesNothingWhenCommentIsNotTheFirstDatamapTable(): void
+    {
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            'pages' => [1 => ['title' => 'Test']],
+            Configuration::TABLE_COMMENT => [
+                'NEW999' => ['content' => 'irrelevant'],
+            ],
+        ];
+
+        $this->createHook()->processDatamap_beforeStart($dataHandler);
+
+        self::assertArrayNotHasKey('author', $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW999']);
+    }
+
+    #[Test]
+    public function checkCommentResolvedSetsServerSideValuesWhenPermitted(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                1 => ['resolved_date' => 999999],
+            ],
+        ];
+        $fields = [];
+
+        // Admin (uid 1, logged in via setUp()) is always permitted to resolve comments.
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 1, $dataHandler);
+
+        self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT][1]['resolved_user']);
+        self::assertGreaterThan(0, $dataHandler->datamap[Configuration::TABLE_COMMENT][1]['resolved_date']);
+    }
+
+    #[Test]
+    public function checkCommentResolvedRemovesFieldsWhenNotPermitted(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $this->setUpBackendUser(2);
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                1 => ['resolved_date' => 999999],
+            ],
+        ];
+        $fields = [];
+
+        // Editor (uid 2) has no group permissions at all, so resolving must be blocked.
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 1, $dataHandler);
+
+        self::assertArrayNotHasKey('resolved_date', $dataHandler->datamap[Configuration::TABLE_COMMENT][1]);
+        self::assertArrayNotHasKey('resolved_user', $dataHandler->datamap[Configuration::TABLE_COMMENT][1]);
+    }
+
+    #[Test]
+    public function checkCommentResolvedUnresolvesWhenResolvedDateIsZero(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                1 => ['resolved_date' => 0, 'resolved_user' => 0],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 1, $dataHandler);
+
+        self::assertSame(0, $dataHandler->datamap[Configuration::TABLE_COMMENT][1]['resolved_date']);
+        self::assertSame(0, $dataHandler->datamap[Configuration::TABLE_COMMENT][1]['resolved_user']);
+    }
+
+    #[Test]
+    public function checkCommentEditedMarksEditedWhenContentChangedAndPermitted(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                1 => ['content' => 'Edited content'],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 1, $dataHandler);
+
+        self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT][1]['edited']);
+    }
+
+    #[Test]
+    public function checkCommentEditedSkipsWhenContentUnchanged(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                1 => ['content' => 'Root comment'],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 1, $dataHandler);
+
+        self::assertArrayNotHasKey('edited', $dataHandler->datamap[Configuration::TABLE_COMMENT][1]);
+    }
+
+    #[Test]
+    public function checkCommentEditedRemovesContentWhenEditingForeignCommentWithoutPermission(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $this->setUpBackendUser(2);
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            // Comment uid 1 is authored by user 1; editor (uid 2) has no comment-edit-foreign permission.
+            Configuration::TABLE_COMMENT => [
+                1 => ['content' => 'Hijacked content'],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 1, $dataHandler);
+
+        self::assertArrayNotHasKey('content', $dataHandler->datamap[Configuration::TABLE_COMMENT][1]);
+    }
+
+    #[Test]
+    public function flattenNestedReplyRedirectsToRootWhenParentIsAlreadyAReply(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            // Comment uid 2 is itself a reply to root comment uid 1.
+            Configuration::TABLE_COMMENT => [
+                'NEW1' => ['content' => 'reply to a reply', 'parent_uid' => 2],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW1', $dataHandler);
+
+        self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW1']['parent_uid']);
+    }
+
+    #[Test]
+    public function flattenNestedReplyDemotesToRootWhenParentWasDeleted(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            // Comment uid 3 is deleted, so findByUid() cannot resolve it.
+            Configuration::TABLE_COMMENT => [
+                'NEW2' => ['content' => 'orphaned reply', 'parent_uid' => 3],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW2', $dataHandler);
+
+        self::assertSame(0, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW2']['parent_uid']);
+    }
+
+    #[Test]
+    public function flattenNestedReplyLeavesRootParentUnchanged(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            // Comment uid 1 is a root comment (parent_uid 0), so no redirection is needed.
+            Configuration::TABLE_COMMENT => [
+                'NEW3' => ['content' => 'reply to root', 'parent_uid' => 1],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW3', $dataHandler);
+
+        self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW3']['parent_uid']);
+    }
+
+    #[Test]
+    public function dispatchCommentCreatedEventDispatchesWhenNewCommentIsSaved(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::callback(static function (CommentCreatedEvent $event): bool {
+                return 'pages' === $event->getTable()
+                    && 10 === $event->getRecordUid()
+                    && 42 === $event->getCommentUid()
+                    && 1 === $event->getAuthorUid();
+            }));
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->substNEWwithIDs = ['NEW1' => 42];
+        $fieldArray = ['foreign_table' => 'pages', 'foreign_uid' => 10];
+
+        $this->createHookWithDispatcher($dispatcher)->processDatamap_afterDatabaseOperations('new', Configuration::TABLE_COMMENT, 'NEW1', $fieldArray, $dataHandler);
+    }
+
+    #[Test]
+    public function dispatchCommentCreatedEventSkipsWhenForeignFieldsAreMissing(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(self::never())->method('dispatch');
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->substNEWwithIDs = ['NEW1' => 42];
+        $fieldArray = [];
+
+        $this->createHookWithDispatcher($dispatcher)->processDatamap_afterDatabaseOperations('new', Configuration::TABLE_COMMENT, 'NEW1', $fieldArray, $dataHandler);
+    }
+
+    #[Test]
+    public function dispatchCommentResolvedEventDispatchesWhenResolvedDateIsSet(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf(CommentResolvedEvent::class));
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $fieldArray = ['resolved_date' => time()];
+
+        $this->createHookWithDispatcher($dispatcher)->processDatamap_afterDatabaseOperations('update', Configuration::TABLE_COMMENT, 1, $fieldArray, $dataHandler);
+    }
+
+    #[Test]
+    public function dispatchCommentResolvedEventSkipsWhenResolvedDateIsZero(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(self::never())->method('dispatch');
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $fieldArray = ['resolved_date' => 0];
+
+        $this->createHookWithDispatcher($dispatcher)->processDatamap_afterDatabaseOperations('update', Configuration::TABLE_COMMENT, 1, $fieldArray, $dataHandler);
+    }
+
+    #[Test]
+    public function updateCommentCountRelationUpdatesCountUsingDirectForeignFields(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $fieldArray = ['foreign_table' => 'pages', 'foreign_uid' => 10];
+
+        $this->createHook()->processDatamap_afterDatabaseOperations('update', Configuration::TABLE_COMMENT, 5, $fieldArray, $dataHandler);
+
+        $record = $this->get(RecordRepository::class)->findByUid('pages', 10);
+        self::assertIsArray($record);
+        // Comments uid 1 and 2 target page 10 and are open/non-deleted; uid 3 is deleted and excluded.
+        self::assertSame(2, (int) $record['tx_ximatypo3contentplanner_comments']);
+    }
+
+    #[Test]
+    public function updateCommentCountRelationFallsBackToSavedCommentForNewReplies(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->substNEWwithIDs = ['NEW5' => 1];
+        $fieldArray = [];
+
+        $this->createHook()->processDatamap_afterDatabaseOperations('new', Configuration::TABLE_COMMENT, 'NEW5', $fieldArray, $dataHandler);
+
+        $record = $this->get(RecordRepository::class)->findByUid('pages', 10);
+        self::assertIsArray($record);
+        self::assertSame(2, (int) $record['tx_ximatypo3contentplanner_comments']);
+    }
+
+    #[Test]
+    public function updateCommentCountRelationUpdatesCountOnResolveWithoutDirectForeignFields(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $fieldArray = ['resolved_date' => time()];
+
+        $this->createHook()->processDatamap_afterDatabaseOperations('update', Configuration::TABLE_COMMENT, 1, $fieldArray, $dataHandler);
+
+        $record = $this->get(RecordRepository::class)->findByUid('pages', 10);
+        self::assertIsArray($record);
+        self::assertSame(2, (int) $record['tx_ximatypo3contentplanner_comments']);
+    }
+
+    #[Test]
+    public function afterDatabaseOperationsRefreshesPageTreeWhenPageStatusChanges(): void
+    {
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $fieldArray = [Configuration::FIELD_STATUS => 2];
+
+        // BackendUtility::setUpdateSignal() requires a real backend user session, present via
+        // setUp()'s loginBackendUser(). Exercising this line is the point of the test.
+        $this->createHook()->processDatamap_afterDatabaseOperations('update', 'pages', 1, $fieldArray, $dataHandler);
+
+        self::expectNotToPerformAssertions();
+    }
+
     private function deleteStatus(int $uid): void
     {
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
@@ -197,6 +516,17 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(EventDispatcherInterface::class),
+        );
+    }
+
+    private function createHookWithDispatcher(EventDispatcherInterface $dispatcher): DataHandlerHook
+    {
+        return new DataHandlerHook(
+            $this->createMock(FrontendInterface::class),
+            $this->get(StatusChangeManager::class),
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $dispatcher,
         );
     }
 }

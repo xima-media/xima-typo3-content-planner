@@ -13,7 +13,12 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Utility\Security;
 
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Expression\ExpressionBuilder;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 /**
@@ -33,6 +38,7 @@ final class PermissionUtilityTest extends TestCase
     protected function tearDown(): void
     {
         PermissionUtility::resetCache();
+        GeneralUtility::purgeInstances();
         unset($GLOBALS['BE_USER']);
     }
 
@@ -396,6 +402,144 @@ final class PermissionUtilityTest extends TestCase
         ]);
 
         self::assertFalse(PermissionUtility::canAssignOthers());
+    }
+
+    // ==================== checkAccessForRecord Tests ====================
+
+    public function testCheckAccessForRecordReturnsFalseWhenRecordIsNotArray(): void
+    {
+        self::assertFalse(PermissionUtility::checkAccessForRecord('pages', false));
+        self::assertFalse(PermissionUtility::checkAccessForRecord('pages', true));
+    }
+
+    public function testCheckAccessForRecordReturnsTrueForCliUser(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['username' => '_cli_']);
+
+        self::assertTrue(PermissionUtility::checkAccessForRecord('tx_news_domain_model_news', ['uid' => 1]));
+    }
+
+    public function testCheckAccessForRecordReturnsFalseWithoutTablesSelectPermission(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'tables_select:tx_news_domain_model_news' => false,
+        ]);
+
+        self::assertFalse(PermissionUtility::checkAccessForRecord('tx_news_domain_model_news', ['uid' => 1]));
+    }
+
+    public function testCheckAccessForRecordReturnsTrueWithTablesSelectPermissionAndNoPidOrPagesTable(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, [], [
+            'tables_select:tx_news_domain_model_news' => true,
+        ]);
+
+        self::assertTrue(PermissionUtility::checkAccessForRecord('tx_news_domain_model_news', ['uid' => 1]));
+    }
+
+    // ==================== isStatusAllowedForUser Tests ====================
+
+    public function testIsStatusAllowedForUserReturnsTrueWhenAllowedListEmpty(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['usergroup' => '1,2']);
+        $this->mockConnectionPoolReturningGroupColumnValues('tx_ximatypo3contentplanner_allowed_statuses', []);
+
+        self::assertTrue(PermissionUtility::isStatusAllowedForUser(5));
+    }
+
+    public function testIsStatusAllowedForUserReturnsTrueWhenStatusInAllowedList(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['usergroup' => '1,2']);
+        $this->mockConnectionPoolReturningGroupColumnValues('tx_ximatypo3contentplanner_allowed_statuses', ['1,3']);
+
+        self::assertTrue(PermissionUtility::isStatusAllowedForUser(3));
+    }
+
+    public function testIsStatusAllowedForUserReturnsFalseWhenStatusNotInAllowedList(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['usergroup' => '1,2']);
+        $this->mockConnectionPoolReturningGroupColumnValues('tx_ximatypo3contentplanner_allowed_statuses', ['1,3']);
+
+        self::assertFalse(PermissionUtility::isStatusAllowedForUser(9));
+    }
+
+    // ==================== isTableAllowedForUser Tests ====================
+
+    public function testIsTableAllowedForUserReturnsTrueWhenAllowedListEmpty(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['usergroup' => '1,2']);
+        $this->mockConnectionPoolReturningGroupColumnValues('tx_ximatypo3contentplanner_allowed_tables', []);
+
+        self::assertTrue(PermissionUtility::isTableAllowedForUser('pages'));
+    }
+
+    public function testIsTableAllowedForUserReturnsTrueWhenTableInAllowedList(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['usergroup' => '1,2']);
+        $this->mockConnectionPoolReturningGroupColumnValues('tx_ximatypo3contentplanner_allowed_tables', ['pages,tt_content']);
+
+        self::assertTrue(PermissionUtility::isTableAllowedForUser('tt_content'));
+    }
+
+    public function testIsTableAllowedForUserReturnsFalseWhenTableNotInAllowedList(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['usergroup' => '1,2']);
+        $this->mockConnectionPoolReturningGroupColumnValues('tx_ximatypo3contentplanner_allowed_tables', ['pages,tt_content']);
+
+        self::assertFalse(PermissionUtility::isTableAllowedForUser('tx_news_domain_model_news'));
+    }
+
+    // ==================== canChangeStatus with specific status Tests ====================
+
+    public function testCanChangeStatusReturnsTrueWhenSpecificStatusAllowed(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['usergroup' => '1,2'], [
+            'custom_options:tx_ximatypo3contentplanner:status-change' => true,
+        ]);
+        $this->mockConnectionPoolReturningGroupColumnValues('tx_ximatypo3contentplanner_allowed_statuses', ['1,3']);
+
+        self::assertTrue(PermissionUtility::canChangeStatus(3));
+    }
+
+    public function testCanChangeStatusReturnsFalseWhenSpecificStatusNotAllowed(): void
+    {
+        $GLOBALS['BE_USER'] = $this->createMockBackendUser(false, ['usergroup' => '1,2'], [
+            'custom_options:tx_ximatypo3contentplanner:status-change' => true,
+        ]);
+        $this->mockConnectionPoolReturningGroupColumnValues('tx_ximatypo3contentplanner_allowed_statuses', ['1,3']);
+
+        self::assertFalse(PermissionUtility::canChangeStatus(9));
+    }
+
+    /**
+     * Register a fake ConnectionPool via GeneralUtility::addInstance() so that
+     * getAllowedValuesFromUserGroups()'s hardcoded GeneralUtility::makeInstance(ConnectionPool::class)
+     * call returns rows from be_groups without needing a real database/DI container.
+     *
+     * @param string[] $rowValues one row per value in the given column
+     */
+    private function mockConnectionPoolReturningGroupColumnValues(string $column, array $rowValues): void
+    {
+        $rows = array_map(static fn (string $value): array => [$column => $value], $rowValues);
+
+        $result = $this->createMock(Result::class);
+        $result->method('fetchAssociative')->willReturnOnConsecutiveCalls(...[...$rows, false]);
+
+        $expressionBuilder = $this->createMock(ExpressionBuilder::class);
+        $expressionBuilder->method('in')->willReturn('uid IN (:groups)');
+
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('from')->willReturnSelf();
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('expr')->willReturn($expressionBuilder);
+        $queryBuilder->method('createNamedParameter')->willReturn('placeholder');
+        $queryBuilder->method('executeQuery')->willReturn($result);
+
+        $connectionPool = $this->createMock(ConnectionPool::class);
+        $connectionPool->method('getQueryBuilderForTable')->willReturn($queryBuilder);
+
+        GeneralUtility::addInstance(ConnectionPool::class, $connectionPool);
     }
 
     /**
