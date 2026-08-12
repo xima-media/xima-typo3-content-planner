@@ -54,7 +54,7 @@ The :php:`PlannerUtility` can be used to easily interact programmatically with t
         :param bool $raw: Get raw comment records instead of optimized DTOs.
         :returntype: :php:`array`
 
-    ..  php:method:: addCommentsToRecord($table, $uid, $comments, $author = null)
+    ..  php:method:: addCommentsToRecord($table, $uid, $comments, $author = null, $parentUid = 0)
 
         Simple function to fetch all comments of a record.
 
@@ -62,6 +62,7 @@ The :php:`PlannerUtility` can be used to easily interact programmatically with t
         :param int $uid: UID of the record.
         :param array|string $comments: Single comment string or array of multiple comments in a row.
         :param \Xima\XimaTypo3ContentPlanner\Domain\Model\BackendUser|int|string|null $author: Optional user object, UID or username of the author.
+        :param int $parentUid: UID of the parent comment to reply to. Must belong to the same record, otherwise an :php:`\InvalidArgumentException` is thrown. `0` creates a top-level comment.
         :returntype: :php:`void`
 
     ..  php:method:: generateTodoForComment($todos)
