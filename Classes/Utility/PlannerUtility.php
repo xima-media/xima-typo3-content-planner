@@ -127,10 +127,10 @@ class PlannerUtility
      * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::addCommentsToRecord('pages', 1, 'New Comment', 'admin');.
      *
      * @param array<int,string>|string $comments
-     * @param BackendUser|int|string   $author
      * @param int                      $parentUid UID of the parent comment to reply to. Must belong to the same record. 0 creates a top-level comment.
      *
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     public static function addCommentsToRecord(string $table, int $uid, array|string $comments, BackendUser|int|string|null $author = null, int $parentUid = 0): void
     {
