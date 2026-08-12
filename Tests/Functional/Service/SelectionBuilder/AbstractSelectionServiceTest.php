@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Service\SelectionBuilder;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
@@ -137,6 +138,18 @@ final class AbstractSelectionServiceTest extends AbstractFunctionalTestCase
     public function shouldGenerateSelectionReturnsFalseForUnregisteredTable(): void
     {
         self::assertFalse($this->subject->shouldGenerateSelection('be_users'));
+    }
+
+    #[Test]
+    public function shouldGenerateSelectionReturnsFalseForUserWithoutVisibilityPermission(): void
+    {
+        // Editor (uid 2) is non-admin and has no usergroup, so none of the
+        // view-only/content-status/full-access custom permissions apply and
+        // checkContentStatusVisibility() denies access before the table check.
+        $backendUser = $this->setUpBackendUser(2);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
+
+        self::assertFalse($this->subject->shouldGenerateSelection('pages'));
     }
 
     private function makeStatus(): Status

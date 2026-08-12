@@ -14,7 +14,10 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Service\SelectionBuilder;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -138,5 +141,136 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
 
         self::assertArrayHasKey('comments', $entries);
         self::assertStringContainsString('data-content-planner-comments', $entries['comments']);
+    }
+
+    #[Test]
+    public function addCommentsTodoItemToSelectionSkipsWhenNoTodos(): void
+    {
+        $entries = [];
+        $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
+        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+
+        self::assertArrayNotHasKey('commentsTodo', $entries);
+    }
+
+    #[Test]
+    public function addCommentsTodoItemRendersTodoCounts(): void
+    {
+        $entries = [];
+        $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
+        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+
+        self::assertArrayHasKey('commentsTodo', $entries);
+        self::assertStringContainsString('1/3', $entries['commentsTodo']);
+        self::assertStringContainsString('data-content-planner-comments', $entries['commentsTodo']);
+    }
+
+    #[Test]
+    public function generateSelectionIncludesCommentsTodoWhenFeatureEnabled(): void
+    {
+        $extensionConfiguration = $this->get(ExtensionConfiguration::class);
+        $previous = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] ?? [];
+        try {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_COMMENT_TODOS] = '1';
+            $extensionConfiguration->set(Configuration::EXT_KEY, $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]);
+
+            $result = $this->subject->generateSelection('pages', 1);
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $previous;
+            $extensionConfiguration->set(Configuration::EXT_KEY, $previous);
+        }
+
+        self::assertIsArray($result);
+        self::assertArrayHasKey('commentsTodo', $result);
+    }
+
+    #[Test]
+    public function addStatusItemToSelectionTreatsStatusInstanceAsCurrentStatus(): void
+    {
+        $status = $this->makeStatus(1);
+        $currentStatus = $this->makeStatus(1);
+        $entries = [];
+        $this->subject->addStatusItemToSelection($entries, $status, $currentStatus, 'pages', 1);
+
+        self::assertArrayNotHasKey('1', $entries);
+    }
+
+    #[Test]
+    public function addStatusItemToSelectionAddsEntryForDifferentStatusInstance(): void
+    {
+        $status = $this->makeStatus(1);
+        $currentStatus = $this->makeStatus(3);
+        $entries = [];
+        $this->subject->addStatusItemToSelection($entries, $status, $currentStatus, 'pages', 1);
+
+        self::assertArrayHasKey('1', $entries);
+    }
+
+    #[Test]
+    public function generateSelectionForNonexistentRecordReturnsResetOnly(): void
+    {
+        $result = $this->subject->generateSelection('pages', 9999);
+
+        self::assertIsArray($result);
+        self::assertArrayHasKey('1', $result);
+        self::assertArrayHasKey('2', $result);
+        self::assertArrayHasKey('3', $result);
+        self::assertArrayHasKey('reset', $result);
+        self::assertArrayNotHasKey('assignee', $result);
+        self::assertArrayNotHasKey('comments', $result);
+    }
+
+    #[Test]
+    public function generateSelectionOmitsStatusChangesForViewOnlyUser(): void
+    {
+        // A view-only permission grants content status visibility but neither
+        // status-change nor status-unset, so status entries and the reset
+        // entry must both be omitted while assignee/comments remain visible.
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_view_only.csv');
+        $backendUser = $this->setUpBackendUser(20);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
+
+        $result = $this->subject->generateSelection('pages', 1);
+
+        self::assertIsArray($result);
+        self::assertArrayHasKey('header', $result);
+        self::assertArrayNotHasKey('1', $result);
+        self::assertArrayNotHasKey('3', $result);
+        self::assertArrayNotHasKey('reset', $result);
+        self::assertArrayHasKey('assignee', $result);
+        self::assertArrayHasKey('comments', $result);
+    }
+
+    #[Test]
+    public function addFolderAssigneeItemToSelectionRendersAssigneeEntry(): void
+    {
+        $entries = [];
+        $folderRecord = ['uid' => 1, Configuration::FIELD_ASSIGNEE => 1];
+        $this->subject->addFolderAssigneeItemToSelection($entries, $folderRecord, '1:/user_upload/');
+
+        self::assertArrayHasKey('assignee', $entries);
+        self::assertStringContainsString('data-content-planner-assignees', $entries['assignee']);
+    }
+
+    #[Test]
+    public function addFolderCommentsItemToSelectionRendersCommentsEntry(): void
+    {
+        $entries = [];
+        $folderRecord = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
+        $this->subject->addFolderCommentsItemToSelection($entries, $folderRecord, '1:/user_upload/');
+
+        self::assertArrayHasKey('comments', $entries);
+        self::assertStringContainsString('data-content-planner-comments', $entries['comments']);
+    }
+
+    private function makeStatus(int $uid): Status
+    {
+        $status = new Status();
+        $status->setTitle('Status '.$uid);
+        $status->setIcon('flag');
+        $status->setColor('blue');
+        $status->_setProperty('uid', $uid);
+
+        return $status;
     }
 }
