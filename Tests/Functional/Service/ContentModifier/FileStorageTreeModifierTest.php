@@ -99,6 +99,23 @@ final class FileStorageTreeModifierTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function modifyPreservesTheInnerResponseStatusReasonPhraseAndHeaders(): void
+    {
+        $items = [
+            ['resourceType' => 'folder', 'storage' => 1, 'pathIdentifier' => '/user_upload/'],
+        ];
+
+        $response = $this->subject->modify(
+            $this->buildRequest('ajax_filestorage_tree_data'),
+            $this->buildResponseHandler(json_encode($items, \JSON_THROW_ON_ERROR), status: 201, reasonPhrase: 'Created'),
+        );
+
+        self::assertSame(201, $response->getStatusCode());
+        self::assertSame('Created', $response->getReasonPhrase());
+        self::assertSame(['kept'], $response->getHeader('X-Custom-Header'));
+    }
+
+    #[Test]
     public function modifySkipsNonFolderAndIncompleteItems(): void
     {
         $items = [

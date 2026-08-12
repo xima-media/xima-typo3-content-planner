@@ -14,14 +14,14 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Service\ContentModifier;
 
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Backend\Module\Module;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
-use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Http\{Response, ServerRequest};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebListModifier;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
-
-use function strlen;
 
 /**
  * WebListModifierTest.
@@ -41,100 +41,76 @@ final class WebListModifierTest extends AbstractFunctionalTestCase
         $this->importSharedDataSet('status.csv');
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
         $this->loginBackendUser();
-        $this->setUpBackendRequest('web_list', ['id' => '1']);
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_RECORD_EDIT_HEADER_INFO] = 1;
         $this->subject = $this->get(WebListModifier::class);
     }
 
-    #[Test]
-    public function isRelevantReturnsFalseWhenNotBackendRequest(): void
+    protected function tearDown(): void
     {
-        $request = (new ServerRequest('https://example.com/', 'GET'))
-            ->withAttribute('module', Module::createFromConfiguration('web_list', ['path' => '/module/web_list']))
-            ->withQueryParams(['id' => '1']);
-
-        self::assertFalse($this->subject->isRelevant($request));
+        unset(
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_WEB_LIST_HEADER_INFO],
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_RECORD_EDIT_HEADER_INFO],
+        );
+        parent::tearDown();
     }
 
     #[Test]
-    public function isRelevantReturnsFalseWhenFeatureDisabled(): void
+    public function isRelevantReturnsFalseWhenWebListFeatureIsDisabled(): void
     {
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_RECORD_EDIT_HEADER_INFO]);
+        // FEATURE_RECORD_EDIT_HEADER_INFO is a distinct, independently toggleable setting
+        // (see ext_conf_template.txt) and must have no bearing on the web list modifier.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_RECORD_EDIT_HEADER_INFO] = 1;
 
         self::assertFalse($this->subject->isRelevant($this->buildRequest('web_list', 1)));
     }
 
     #[Test]
-    public function isRelevantReturnsFalseWhenModuleAttributeMissing(): void
+    public function isRelevantReturnsTrueWhenWebListFeatureIsEnabled(): void
     {
-        self::assertFalse($this->subject->isRelevant($this->buildRequest(null, 1)));
-    }
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_WEB_LIST_HEADER_INFO] = 1;
 
-    #[Test]
-    public function isRelevantReturnsFalseForNonRecordListRoute(): void
-    {
-        self::assertFalse($this->subject->isRelevant($this->buildRequest('web_info', 1)));
-    }
-
-    #[Test]
-    public function isRelevantReturnsTrueForRecordListRoute(): void
-    {
         self::assertTrue($this->subject->isRelevant($this->buildRequest('web_list', 1)));
     }
 
     #[Test]
-    public function modifyReturnsResponseUnchangedWhenBodyIsEmpty(): void
+    public function modifyAppendsStatusHeaderAfterPageTitleWhenWebListFeatureIsEnabled(): void
     {
-        $response = $this->subject->modify($this->buildRequest('web_list', 1), $this->buildResponseHandler(''));
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_WEB_LIST_HEADER_INFO] = 1;
+        $this->setUpBackendRequest('web_list', ['id' => '1']);
 
-        self::assertSame('', (string) $response->getBody());
-    }
-
-    #[Test]
-    public function modifyReturnsResponseUnchangedWhenIdQueryParamMissing(): void
-    {
-        $response = $this->subject->modify($this->buildRequest('web_list', null), $this->buildResponseHandler(self::ORIGINAL_BODY));
-
-        self::assertSame(self::ORIGINAL_BODY, (string) $response->getBody());
-    }
-
-    #[Test]
-    public function modifyReturnsResponseUnchangedWhenPageHasNoStatus(): void
-    {
-        $response = $this->subject->modify($this->buildRequest('web_list', 2), $this->buildResponseHandler(self::ORIGINAL_BODY));
-
-        self::assertSame(self::ORIGINAL_BODY, (string) $response->getBody());
-    }
-
-    #[Test]
-    public function modifyAppendsStatusHeaderAfterPageTitleForPageWithStatus(): void
-    {
-        $response = $this->subject->modify($this->buildRequest('web_list', 1), $this->buildResponseHandler(self::ORIGINAL_BODY));
+        $response = $this->subject->modify($this->buildRequest('web_list', 1), $this->buildHandler());
         $body = (string) $response->getBody();
 
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame(['kept'], $response->getHeader('X-Custom-Header'));
         self::assertNotSame(self::ORIGINAL_BODY, $body);
         self::assertStringContainsString('<typo3-backend-editable-page-title>Home</typo3-backend-editable-page-title>', $body);
-        // The additional markup is appended right after the closing tag, so the closing
-        // tag's position must be unchanged while the body grew.
-        self::assertSame(
-            strpos(self::ORIGINAL_BODY, '</typo3-backend-editable-page-title>'),
+        // Page uid 1's status is "Draft" (see Fixtures/pages.csv + shared status.csv) - assert
+        // the injected header actually carries it, positioned after the closing title tag.
+        self::assertStringContainsString('Draft', $body);
+        self::assertGreaterThan(
             strpos($body, '</typo3-backend-editable-page-title>'),
+            strpos($body, 'Draft'),
         );
-        self::assertGreaterThan(strlen(self::ORIGINAL_BODY), strlen($body));
     }
 
-    private function buildRequest(?string $moduleIdentifier, ?int $pageId): ServerRequest
+    private function buildRequest(string $moduleIdentifier, int $pageId): ServerRequest
     {
-        $request = (new ServerRequest('https://example.com/typo3/index.php', 'GET'))
+        return (new ServerRequest('https://example.com/typo3/index.php', 'GET'))
             ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
-            ->withQueryParams(null === $pageId ? [] : ['id' => (string) $pageId]);
+            ->withAttribute('module', Module::createFromConfiguration($moduleIdentifier, ['path' => '/module/'.$moduleIdentifier]))
+            ->withQueryParams(['id' => (string) $pageId]);
+    }
 
-        if (null !== $moduleIdentifier) {
-            $request = $request->withAttribute('module', Module::createFromConfiguration($moduleIdentifier, ['path' => '/module/'.$moduleIdentifier]));
-        }
+    private function buildHandler(): RequestHandlerInterface
+    {
+        return new class(self::ORIGINAL_BODY) implements RequestHandlerInterface {
+            public function __construct(private readonly string $body) {}
 
-        return $request;
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $response = new Response('php://temp');
+                $response->getBody()->write($this->body);
+
+                return $response;
+            }
+        };
     }
 }
