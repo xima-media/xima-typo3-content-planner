@@ -14,14 +14,10 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Controller;
 
 use PHPUnit\Framework\Attributes\Test;
-use Psr\EventDispatcher\EventDispatcherInterface;
+use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Tree\Repository\PageTreeRepository;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -61,12 +57,12 @@ final class TreeControllerTest extends AbstractFunctionalTestCase
 
     private function invokeInitializePageTreeRepository(): PageTreeRepository
     {
-        $controller = new TreeController(
-            GeneralUtility::makeInstance(IconFactory::class),
-            GeneralUtility::makeInstance(UriBuilder::class),
-            GeneralUtility::makeInstance(EventDispatcherInterface::class),
-            GeneralUtility::makeInstance(SiteFinder::class),
-        );
+        // Skip the constructor entirely: the parent TYPO3\CMS\Backend\Controller\Page\
+        // TreeController constructor signature differs between v13 and v14, and
+        // initializePageTreeRepository() only touches getBackendUser() (which reads
+        // $GLOBALS['BE_USER'], not a constructor-injected property), so none of those
+        // dependencies are actually needed here.
+        $controller = (new ReflectionClass(TreeController::class))->newInstanceWithoutConstructor();
 
         $method = new ReflectionMethod($controller, 'initializePageTreeRepository');
         $method->setAccessible(true);
