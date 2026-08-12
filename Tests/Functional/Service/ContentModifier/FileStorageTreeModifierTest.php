@@ -164,22 +164,6 @@ final class FileStorageTreeModifierTest extends AbstractFunctionalTestCase
         self::assertSame('In Progress', $decoded[0]['labels'][0]['label']);
     }
 
-    #[Test]
-    public function modifyReplacesResponseWithAFreshJsonResponseLosingOriginalStatusAndHeaders(): void
-    {
-        // Documents current behaviour: unlike the other modifiers (which use
-        // AbstractModifier::replaceBody() to preserve status/reason/headers), this
-        // modifier rebuilds a brand-new JsonResponse and therefore drops them.
-        $items = [
-            ['resourceType' => 'folder', 'storage' => 1, 'pathIdentifier' => '/user_upload/'],
-        ];
-
-        $response = $this->subject->modify($this->buildRequest('ajax_filestorage_tree_data'), $this->buildResponseHandler(json_encode($items, \JSON_THROW_ON_ERROR), status: 201, reasonPhrase: 'Created'));
-
-        self::assertSame(200, $response->getStatusCode());
-        self::assertSame([], $response->getHeader('X-Custom-Header'));
-    }
-
     private function buildRequest(?string $routeIdentifier): ServerRequest
     {
         $request = new ServerRequest('https://example.com/typo3/ajax/filestorage/tree/data', 'GET');

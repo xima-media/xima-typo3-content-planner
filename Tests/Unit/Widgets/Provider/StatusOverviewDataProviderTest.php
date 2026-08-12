@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Widgets\Provider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
-use ReflectionProperty;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
@@ -129,9 +128,7 @@ final class StatusOverviewDataProviderTest extends TestCase
         $status = new Status();
         $status->setTitle($title);
         $status->setColor($color);
-
-        $uidProperty = new ReflectionProperty($status, 'uid');
-        $uidProperty->setValue($status, $uid);
+        $status->_setProperty('uid', $uid);
 
         return $status;
     }
