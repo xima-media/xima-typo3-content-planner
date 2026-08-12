@@ -20,3 +20,5 @@ currentAssigneeHighlight = 1
 clearCommentsOnStatusReset = 1
 # cat=comments/enable; type=boolean; label=Parse the todos from comments and show them as separate hint
 commentTodos = 1
+# cat=integration/enable; type=boolean; label=Enable the Content Planner facet in EXT:typo3_pagetree_facets (TYPO3 v14+, requires the optional konradmichalik/typo3-pagetree-facets package)
+enablePagetreeFacetsIntegration = 1

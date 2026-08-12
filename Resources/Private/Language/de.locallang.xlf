@@ -438,6 +438,64 @@
 				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
 			</trans-unit>
 
+			<!-- pagetree facets -->
+			<trans-unit id="pagetreeFacets.label">
+				<source>Content Planner</source>
+				<target>Content Planner</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.status">
+				<source>Status</source>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.status.none">
+				<source>No status assigned</source>
+				<target>Kein Status zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.assignee">
+				<source>Assignee</source>
+				<target>Zuständig</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.assignee.none">
+				<source>Unassigned</source>
+				<target>Nicht zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments">
+				<source>Comments</source>
+				<target>Kommentare</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.open">
+				<source>Open</source>
+				<target>Offen</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.resolved">
+				<source>Resolved</source>
+				<target>Erledigt</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.mine">
+				<source>Mine</source>
+				<target>Meine</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.todo">
+				<source>Open todos</source>
+				<target>Offene Todos</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.comments.none">
+				<source>No comments</source>
+				<target>Keine Kommentare</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.pagesOnly">
+				<source>Pages only</source>
+				<target>Nur Seiten</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.pagesOnly.enabled">
+				<source>Enabled</source>
+				<target>Aktiviert</target>
+			</trans-unit>
+			<trans-unit id="pagetreeFacets.pagesOnly.description">
+				<source>Restrict matches to the page itself. By default, a page also matches when one of its other registered records (e.g. content elements) meets the criteria above. Only takes effect once at least one status, assignee or comment criterion is selected.</source>
+				<target>Treffer auf die Seite selbst beschränken. Standardmäßig zählt eine Seite auch dann als Treffer, wenn eines ihrer anderen registrierten Datensätze (z. B. Inhaltselemente) die obigen Kriterien erfüllt. Wirkt sich erst aus, sobald mindestens ein Status-, Zuständigkeits- oder Kommentar-Kriterium ausgewählt ist.</target>
+			</trans-unit>
+
 			<!-- mail -->
 			<trans-unit id="mail.signature">
 				<source></source>

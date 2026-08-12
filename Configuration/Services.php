@@ -50,4 +50,28 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $c
                 'width' => 'medium',
             ]);
     }
+
+    /*
+     * Register the Content Planner facet in EXT:typo3_pagetree_facets only when
+     * that suggest-only package is installed (RegisterFacetsEvent autoloadable)
+     * and the feature flag is on. No #[AsEventListener] here: the event class
+     * may not exist at all when the package isn't installed, which an attribute
+     * cannot tolerate regardless of TYPO3 version - see the class docblock.
+     */
+    if (class_exists(KonradMichalik\PagetreeFacets\Event\RegisterFacetsEvent::class)) {
+        // @phpstan-ignore class.notFound
+        $services->set(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\ContentPlannerFacet::class)
+            ->arg('$query', new Reference(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\ContentPlannerFacetQuery::class))
+            ->arg('$stateMapper', new Reference(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\ContentPlannerFacetStateMapper::class))
+            ->arg('$statusRepository', new Reference(StatusRepository::class));
+
+        // @phpstan-ignore class.notFound
+        $services->set(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\RegisterContentPlannerFacetListener::class)
+            // @phpstan-ignore class.notFound
+            ->arg('$facet', new Reference(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\ContentPlannerFacet::class))
+            ->tag('event.listener', [
+                'identifier' => 'xima-typo3-content-planner/pagetree-facets/register-facet',
+                'event' => KonradMichalik\PagetreeFacets\Event\RegisterFacetsEvent::class,
+            ]);
+    }
 };
