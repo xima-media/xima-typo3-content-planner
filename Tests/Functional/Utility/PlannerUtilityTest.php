@@ -163,6 +163,49 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getCommentsOfRecordExcludesResolvedCommentsByDefault(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1);
+
+        self::assertCount(1, $comments);
+        self::assertSame('Existing comment', $comments[0]->data['content']);
+        self::assertFalse($comments[0]->isResolved());
+        self::assertSame([], $comments[0]->getReplies());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordWithShowResolvedIncludesResolvedComments(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, false, true);
+
+        // Ordered by last activity descending: the unresolved comment (1000) before the resolved one (900).
+        self::assertCount(2, $comments);
+        self::assertSame('Resolved comment', $comments[1]->data['content']);
+        self::assertTrue($comments[1]->isResolved());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordWithShowResolvedIncludesResolvedReplies(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, false, true);
+
+        $replies = $comments[0]->getReplies();
+        self::assertCount(1, $replies);
+        self::assertSame('Resolved reply', $replies[0]->data['content']);
+        self::assertTrue($replies[0]->isResolved());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordRawWithShowResolvedReturnsResolvedArrays(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, true, true);
+
+        self::assertCount(2, $comments);
+        self::assertIsArray($comments[0]);
+        self::assertSame('Resolved comment', $comments[1]['content']);
+    }
+
+    #[Test]
     public function addCommentsToRecordWithStringAndUsernameAuthor(): void
     {
         PlannerUtility::addCommentsToRecord('pages', 1, 'A brand new comment', 'admin');

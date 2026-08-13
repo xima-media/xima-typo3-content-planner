@@ -111,15 +111,17 @@ class PlannerUtility
      * Simple function to fetch all comments of a record.
      * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getCommentsOfRecord('pages', 1);.
      *
+     * @param bool $showResolved include resolved comments and replies in the result
+     *
      * @return array<int, array<string, mixed>>|array<int, \Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem>
      *
      * @throws Exception
      */
-    public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false): array
+    public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false, bool $showResolved = false): array
     {
         self::preCheckRecordTable($table, $uid);
 
-        return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw);
+        return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw, showResolved: $showResolved);
     }
 
     /**

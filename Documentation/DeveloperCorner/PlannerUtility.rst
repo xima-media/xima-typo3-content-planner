@@ -45,13 +45,14 @@ The :php:`PlannerUtility` can be used to easily interact programmatically with t
         :param int|string $identifier: UID or title of the status record.
         :returntype: :php:`\Xima\XimaTypo3ContentPlanner\Domain\Model\Status|null`
 
-    ..  php:method:: getCommentsOfRecord($table, $uid, $raw = false)
+    ..  php:method:: getCommentsOfRecord($table, $uid, $raw = false, $showResolved = false)
 
         Simple function to fetch all comments of a record.
 
         :param string $table: Table name of the record.
         :param int $uid: UID of the record.
         :param bool $raw: Get raw comment records instead of optimized DTOs.
+        :param bool $showResolved: Include resolved comments and replies. By default they are omitted.
         :returntype: :php:`array`
 
     ..  php:method:: addCommentsToRecord($table, $uid, $comments, $author = null, $parentUid = 0)
