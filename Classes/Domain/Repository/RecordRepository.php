@@ -130,7 +130,7 @@ class RecordRepository
         }
 
         $query = $queryBuilder
-            ->select('uid', $this->getTitleField($table).' as title', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
+            ->select('uid', ExtensionUtility::getTitleField($table).' as title', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->isNotNull(Configuration::FIELD_STATUS),
@@ -187,7 +187,7 @@ class RecordRepository
         }
 
         $query = $queryBuilder
-            ->select('uid', 'pid', $this->getTitleField($table).' as "title"', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
+            ->select('uid', 'pid', ExtensionUtility::getTitleField($table).' as "title"', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
             ->from($table)
             ->andWhere(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
@@ -288,7 +288,7 @@ class RecordRepository
             return 'folder_identifier';
         }
 
-        return $this->getTitleField($table);
+        return ExtensionUtility::getTitleField($table);
     }
 
     /**
@@ -365,7 +365,7 @@ class RecordRepository
             return;
         }
 
-        $titleField = $this->getTitleField($table);
+        $titleField = ExtensionUtility::getTitleField($table);
 
         if ('pages' === $table) {
             $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody', 'NULL as storage_uid', 'NULL as folder_identifier']);
@@ -435,11 +435,6 @@ class RecordRepository
         ];
 
         $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0 AND deleted = 0'.$additionalWhere.')';
-    }
-
-    private function getTitleField(string $table): string
-    {
-        return $GLOBALS['TCA'][$table]['ctrl']['label'];
     }
 
     /**
