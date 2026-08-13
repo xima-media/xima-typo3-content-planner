@@ -181,6 +181,22 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function addCommentsToRecordKeepsExplicitAuthorDifferentFromCurrentUser(): void
+    {
+        // Backend user 2 ("editor") is not the logged in user, so an overwritten author shows up.
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Comment by the editor', 2);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages', true);
+        $new = array_values(array_filter(
+            $comments,
+            static fn (array $comment): bool => 'Comment by the editor' === $comment['content'],
+        ));
+
+        self::assertCount(1, $new);
+        self::assertSame(2, (int) $new[0]['author']);
+    }
+
+    #[Test]
     public function addCommentsToRecordThrowsOnInvalidAuthor(): void
     {
         $this->expectException(InvalidArgumentException::class);

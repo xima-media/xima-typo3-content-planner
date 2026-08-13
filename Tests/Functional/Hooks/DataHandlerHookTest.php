@@ -26,6 +26,8 @@ use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
+use function sprintf;
+
 /**
  * DataHandlerHookTest.
  *
@@ -331,6 +333,90 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
         $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW3', $dataHandler);
 
         self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW3']['parent_uid']);
+    }
+
+    #[Test]
+    public function fixNewCommentEntrySetsCurrentUserAsAuthorWhenNoneIsGiven(): void
+    {
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                'NEW4' => ['content' => 'comment from the form', 'parent_uid' => 0],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW4', $dataHandler);
+
+        self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW4']['author']);
+    }
+
+    #[Test]
+    public function fixNewCommentEntryKeepsAuthorProvidedByProgrammaticWrite(): void
+    {
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                'NEW5' => ['content' => 'comment from the API', 'parent_uid' => 0, 'author' => 2],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW5', $dataHandler);
+
+        self::assertSame(2, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW5']['author']);
+    }
+
+    #[Test]
+    public function fixNewCommentEntryTreatsAnEmptyAuthorAsNoAttribution(): void
+    {
+        // isset() would accept these as "an author was provided" and leave the comment authorless.
+        foreach ([0, '0', ''] as $index => $emptyAuthor) {
+            $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+            $newId = 'NEW6'.$index;
+            $dataHandler->datamap = [
+                Configuration::TABLE_COMMENT => [
+                    $newId => ['content' => 'comment', 'parent_uid' => 0, 'author' => $emptyAuthor],
+                ],
+            ];
+            $fields = [];
+
+            $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, $newId, $dataHandler);
+
+            self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT][$newId]['author'], sprintf('author %s must fall back to the current user', var_export($emptyAuthor, true)));
+        }
+    }
+
+    #[Test]
+    public function dispatchCommentCreatedEventFallsBackToCurrentUserForEmptyAuthor(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::callback(static fn (CommentCreatedEvent $event): bool => 1 === $event->getAuthorUid()));
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->substNEWwithIDs = ['NEW1' => 42];
+        $fieldArray = ['foreign_table' => 'pages', 'foreign_uid' => 10, 'author' => 0];
+
+        $this->createHookWithDispatcher($dispatcher)->processDatamap_afterDatabaseOperations('new', Configuration::TABLE_COMMENT, 'NEW1', $fieldArray, $dataHandler);
+    }
+
+    #[Test]
+    public function dispatchCommentCreatedEventReportsAuthorFromFieldArray(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::callback(static fn (CommentCreatedEvent $event): bool => 2 === $event->getAuthorUid()));
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->substNEWwithIDs = ['NEW1' => 42];
+        $fieldArray = ['foreign_table' => 'pages', 'foreign_uid' => 10, 'author' => 2];
+
+        $this->createHookWithDispatcher($dispatcher)->processDatamap_afterDatabaseOperations('new', Configuration::TABLE_COMMENT, 'NEW1', $fieldArray, $dataHandler);
     }
 
     #[Test]

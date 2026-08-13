@@ -231,9 +231,15 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         if (null === $id) {
             return;
         }
-        /** @var BackendUserAuthentication $backendUser */
-        $backendUser = $GLOBALS['BE_USER'];
-        $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['author'] = $backendUser->getUserId();
+        // The comment form never submits an author (the field is passthrough), so the current user
+        // is the author there. Programmatic writes like PlannerUtility::addCommentsToRecord() do
+        // provide one, and that attribution must survive. An empty or zero value is no attribution
+        // and must not leave the comment authorless.
+        if (0 === (int) ($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['author'] ?? 0)) {
+            /** @var BackendUserAuthentication $backendUser */
+            $backendUser = $GLOBALS['BE_USER'];
+            $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['author'] = $backendUser->getUserId();
+        }
 
         $this->flattenNestedReply($dataHandler, $id);
 
@@ -298,13 +304,18 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             return;
         }
 
-        /** @var BackendUserAuthentication $backendUser */
-        $backendUser = $GLOBALS['BE_USER'];
+        $authorUid = (int) ($fieldArray['author'] ?? 0);
+        if ($authorUid <= 0) {
+            /** @var BackendUserAuthentication $backendUser */
+            $backendUser = $GLOBALS['BE_USER'];
+            $authorUid = (int) $backendUser->getUserId();
+        }
+
         $this->eventDispatcher->dispatch(new CommentCreatedEvent(
             table: $fieldArray['foreign_table'],
             recordUid: (int) $fieldArray['foreign_uid'],
             commentUid: (int) $resolvedId,
-            authorUid: (int) $backendUser->getUserId(),
+            authorUid: $authorUid,
         ));
     }
 
