@@ -120,9 +120,14 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     {
         // TCA does not force a ctrl.label; without a fallback the select list would read
         // "SELECT uid,  as title" and the query would not even parse.
+        $label = $GLOBALS['TCA']['pages']['ctrl']['label'];
         unset($GLOBALS['TCA']['pages']['ctrl']['label']);
 
-        $result = $this->subject->findByPid('pages', 1);
+        try {
+            $result = $this->subject->findByPid('pages', 1);
+        } finally {
+            $GLOBALS['TCA']['pages']['ctrl']['label'] = $label;
+        }
 
         $uids = array_map(static fn (array $row): int => (int) $row['uid'], $result);
         self::assertContains(2, $uids);
