@@ -20,6 +20,9 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function array_key_exists;
+use function is_array;
+use function is_int;
+use function is_string;
 use function sprintf;
 
 /**
@@ -72,18 +75,29 @@ class DiffUtility
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param array<string, mixed>|null $data
      */
-    public static function checkRecordDiff(array $data, int $actiontype): string|bool
+    public static function checkRecordDiff(?array $data, int $actiontype): string|bool
     {
+        // History rows can carry empty, truncated or partial payloads — without both sides
+        // of the change there is nothing to diff.
+        if (!is_array($data['oldRecord'] ?? null) || !is_array($data['newRecord'] ?? null)) {
+            return false;
+        }
+
         $diff = [];
+        $isRenderable = static fn (mixed $value): bool => null === $value || is_string($value) || is_int($value);
 
         foreach ($data['oldRecord'] as $key => $oldValue) {
             if ('l10n_diffsource' === $key) {
                 continue;
             }
 
-            $newValue = $data['newRecord'][$key];
+            $newValue = $data['newRecord'][$key] ?? null;
+            if (!$isRenderable($oldValue) || !$isRenderable($newValue)) {
+                continue;
+            }
+
             if ($oldValue !== $newValue) {
                 $diffValue = self::makeRecordDiffReadable($key, $actiontype, $oldValue, $newValue);
                 if ($diffValue) {

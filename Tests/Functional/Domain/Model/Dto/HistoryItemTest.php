@@ -208,6 +208,64 @@ final class HistoryItemTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getHistoryDataReturnsFalseForEmptyHistoryData(): void
+    {
+        $row = $this->pageHistoryRow();
+        $row['history_data'] = '';
+
+        $item = HistoryItem::create($row);
+
+        self::assertFalse($item->getHistoryData());
+    }
+
+    #[Test]
+    public function getHistoryDataReturnsFalseForMalformedHistoryData(): void
+    {
+        $row = $this->pageHistoryRow();
+        $row['history_data'] = '{"oldRecord":{"title":"tru';
+
+        $item = HistoryItem::create($row);
+
+        self::assertFalse($item->getHistoryData());
+    }
+
+    #[Test]
+    public function getHistoryDataReturnsFalseWhenOldRecordIsMissing(): void
+    {
+        $row = $this->pageHistoryRow();
+        $row['history_data'] = json_encode(['newRecord' => [Configuration::FIELD_STATUS => 2]]);
+
+        $item = HistoryItem::create($row);
+
+        self::assertFalse($item->getHistoryData());
+    }
+
+    #[Test]
+    public function getHistoryDataReturnsFalseWhenNewRecordIsMissing(): void
+    {
+        $row = $this->pageHistoryRow();
+        $row['history_data'] = json_encode(['oldRecord' => [Configuration::FIELD_STATUS => 1]]);
+
+        $item = HistoryItem::create($row);
+
+        self::assertFalse($item->getHistoryData());
+    }
+
+    #[Test]
+    public function getHistoryDataSkipsFieldsWithNonScalarValues(): void
+    {
+        $row = $this->pageHistoryRow();
+        $row['history_data'] = json_encode([
+            'oldRecord' => ['some_field' => ['nested' => 1]],
+            'newRecord' => ['some_field' => ['nested' => 2]],
+        ]);
+
+        $item = HistoryItem::create($row);
+
+        self::assertFalse($item->getHistoryData());
+    }
+
+    #[Test]
     public function getHistoryDataForUnregisteredTableReturnsFalse(): void
     {
         $row = $this->pageHistoryRow();
