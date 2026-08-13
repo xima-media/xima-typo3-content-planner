@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Utility;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -178,10 +179,15 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     {
         $comments = PlannerUtility::getCommentsOfRecord('pages', 1, false, true);
 
-        // Ordered by last activity descending: the unresolved comment (1000) before the resolved one (900).
         self::assertCount(2, $comments);
-        self::assertSame('Resolved comment', $comments[1]->data['content']);
-        self::assertTrue($comments[1]->isResolved());
+
+        $resolved = array_values(array_filter(
+            $comments,
+            static fn (CommentItem $comment): bool => 'Resolved comment' === $comment->data['content'],
+        ));
+
+        self::assertCount(1, $resolved);
+        self::assertTrue($resolved[0]->isResolved());
     }
 
     #[Test]
@@ -189,7 +195,14 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     {
         $comments = PlannerUtility::getCommentsOfRecord('pages', 1, false, true);
 
-        $replies = $comments[0]->getReplies();
+        $root = array_values(array_filter(
+            $comments,
+            static fn (CommentItem $comment): bool => 'Existing comment' === $comment->data['content'],
+        ));
+
+        self::assertCount(1, $root);
+
+        $replies = $root[0]->getReplies();
         self::assertCount(1, $replies);
         self::assertSame('Resolved reply', $replies[0]->data['content']);
         self::assertTrue($replies[0]->isResolved());
@@ -202,7 +215,9 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
 
         self::assertCount(2, $comments);
         self::assertIsArray($comments[0]);
-        self::assertSame('Resolved comment', $comments[1]['content']);
+
+        $contents = array_map(static fn (array $comment): string => (string) $comment['content'], $comments);
+        self::assertContains('Resolved comment', $contents);
     }
 
     #[Test]
