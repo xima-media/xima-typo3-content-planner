@@ -85,12 +85,17 @@ class FileStorageTreeModifier implements ModifierInterface
         $body = $response->getBody();
         $body->rewind();
         $content = $body->getContents();
+        // Reading moved the cursor of a stream this class does not own — hand it back as found,
+        // since the response may be passed on unmodified below.
+        $body->rewind();
 
         if ('' === $content) {
             return $response;
         }
 
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        // Not every response on this route carries tree data — an error page rendered further up
+        // the stack must pass through untouched instead of being masked by a decoding error.
+        $data = json_decode($content, true);
 
         if (!is_array($data)) {
             return $response;

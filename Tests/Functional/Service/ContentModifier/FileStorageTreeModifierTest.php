@@ -99,6 +99,30 @@ final class FileStorageTreeModifierTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function modifyPassesThroughABodyThatIsNoJsonAtAll(): void
+    {
+        // An error page rendered further up the stack must reach the client as it is, instead of
+        // being replaced by a JsonException from this modifier.
+        $html = '<html lang="en"><body>Something went wrong</body></html>';
+
+        $response = $this->subject->modify($this->buildRequest('ajax_filestorage_tree_data'), $this->buildResponseHandler($html, status: 500, reasonPhrase: 'Internal Server Error'));
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame($html, (string) $response->getBody());
+    }
+
+    #[Test]
+    public function modifyHandsBackAPassedThroughBodyWithTheCursorAtTheStart(): void
+    {
+        $html = '<html lang="en"><body>Something went wrong</body></html>';
+
+        $response = $this->subject->modify($this->buildRequest('ajax_filestorage_tree_data'), $this->buildResponseHandler($html, status: 500, reasonPhrase: 'Internal Server Error'));
+
+        // getContents() deliberately, not (string): casting rewinds and would hide an exhausted stream.
+        self::assertSame($html, $response->getBody()->getContents());
+    }
+
+    #[Test]
     public function modifyPreservesTheInnerResponseStatusReasonPhraseAndHeaders(): void
     {
         $items = [
