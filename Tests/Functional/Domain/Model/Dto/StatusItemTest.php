@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Domain\Model\Dto;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Configuration\SiteWriter;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\{NormalizedParams, ServerRequest};
 use TYPO3\CMS\Core\Site\Entity\Site;
@@ -213,6 +214,37 @@ final class StatusItemTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getSiteNameReturnsWebsiteTitleForRecordWithinSite(): void
+    {
+        $this->writeTwoSiteConfigurations();
+
+        $item = StatusItem::create($this->pageRow());
+
+        self::assertSame('Site One', $item->getSiteName());
+        self::assertNotNull($item->getSiteIcon());
+    }
+
+    #[Test]
+    public function getSiteNameReturnsNullForRecordOutsideAnySite(): void
+    {
+        $this->writeTwoSiteConfigurations();
+
+        $item = StatusItem::create($this->fileMetadataRow());
+
+        self::assertNull($item->getSiteName());
+    }
+
+    #[Test]
+    public function getSiteIconReturnsNullForRecordOutsideAnySite(): void
+    {
+        $this->writeTwoSiteConfigurations();
+
+        $item = StatusItem::create($this->fileMetadataRow());
+
+        self::assertNull($item->getSiteIcon());
+    }
+
+    #[Test]
     public function toArrayContainsAllExpectedKeys(): void
     {
         $item = StatusItem::create($this->pageRow());
@@ -261,6 +293,32 @@ final class StatusItemTest extends AbstractFunctionalTestCase
             NormalizedParams::createFromServerParams($request->getServerParams()),
         );
         $GLOBALS['TYPO3_REQUEST'] = $request;
+    }
+
+    private function writeTwoSiteConfigurations(): void
+    {
+        $siteWriter = GeneralUtility::makeInstance(SiteWriter::class);
+        $siteWriter->write('one', ['rootPageId' => 1, 'base' => 'https://one.example/', 'websiteTitle' => 'Site One']);
+        $siteWriter->write('two', ['rootPageId' => 2, 'base' => 'https://two.example/']);
+    }
+
+    /**
+     * File metadata records live on pid 0, outside of any site root line.
+     *
+     * @return array<string, mixed>
+     */
+    private function fileMetadataRow(): array
+    {
+        return [
+            'uid' => 1,
+            'pid' => 0,
+            'tablename' => 'sys_file_metadata',
+            'title' => 'example.pdf',
+            'tstamp' => 1700000000,
+            'tx_ximatypo3contentplanner_status' => 2,
+            'tx_ximatypo3contentplanner_assignee' => 1,
+            'tx_ximatypo3contentplanner_comments' => 0,
+        ];
     }
 
     /**

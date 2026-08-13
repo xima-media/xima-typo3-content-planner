@@ -15,7 +15,9 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use DateTime;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -138,7 +140,7 @@ final class StatusItem
 
     public function getSiteIcon(): ?string
     {
-        if (!$this->hasMultipleSites()) {
+        if (null === $this->resolveSite()) {
             return null;
         }
 
@@ -147,10 +149,11 @@ final class StatusItem
 
     public function getSiteName(): ?string
     {
-        if (!$this->hasMultipleSites()) {
+        $site = $this->resolveSite();
+
+        if (null === $site) {
             return null;
         }
-        $site = $this->siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
 
         /* @phpstan-ignore-next-line */
         return $site->getAttribute('websiteTitle') ?? $site->getIdentifier();
@@ -237,6 +240,22 @@ final class StatusItem
     private function hasMultipleSites(): bool
     {
         return count($this->siteFinder->getAllSites()) > 1;
+    }
+
+    /**
+     * Records outside of any site root line (e.g. file metadata on pid 0) have no site.
+     */
+    private function resolveSite(): ?Site
+    {
+        if (!$this->hasMultipleSites()) {
+            return null;
+        }
+
+        try {
+            return $this->siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
+        } catch (SiteNotFoundException) {
+            return null;
+        }
     }
 
     /**
