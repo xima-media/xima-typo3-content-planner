@@ -90,7 +90,9 @@ class FileStorageTreeModifier implements ModifierInterface
             return $response;
         }
 
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        // Not every response on this route carries tree data — an error page rendered further up
+        // the stack must pass through untouched instead of being masked by a decoding error.
+        $data = json_decode($content, true);
 
         if (!is_array($data)) {
             return $response;
