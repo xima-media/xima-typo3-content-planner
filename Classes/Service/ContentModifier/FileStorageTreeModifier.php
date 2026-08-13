@@ -85,6 +85,9 @@ class FileStorageTreeModifier implements ModifierInterface
         $body = $response->getBody();
         $body->rewind();
         $content = $body->getContents();
+        // Reading moved the cursor of a stream this class does not own — hand it back as found,
+        // since the response may be passed on unmodified below.
+        $body->rewind();
 
         if ('' === $content) {
             return $response;

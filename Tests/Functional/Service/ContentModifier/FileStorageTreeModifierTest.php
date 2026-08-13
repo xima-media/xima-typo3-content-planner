@@ -112,6 +112,17 @@ final class FileStorageTreeModifierTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function modifyHandsBackAPassedThroughBodyWithTheCursorAtTheStart(): void
+    {
+        $html = '<html lang="en"><body>Something went wrong</body></html>';
+
+        $response = $this->subject->modify($this->buildRequest('ajax_filestorage_tree_data'), $this->buildResponseHandler($html, status: 500, reasonPhrase: 'Internal Server Error'));
+
+        // getContents() deliberately, not (string): casting rewinds and would hide an exhausted stream.
+        self::assertSame($html, $response->getBody()->getContents());
+    }
+
+    #[Test]
     public function modifyPreservesTheInnerResponseStatusReasonPhraseAndHeaders(): void
     {
         $items = [
