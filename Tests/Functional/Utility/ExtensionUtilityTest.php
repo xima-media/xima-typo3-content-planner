@@ -41,9 +41,32 @@ final class ExtensionUtilityTest extends AbstractFunctionalTestCase
     #[Test]
     public function getRecordTablesMergesAdditionalTables(): void
     {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['sys_category'];
+
+        self::assertContains('sys_category', ExtensionUtility::getRecordTables());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
+    }
+
+    #[Test]
+    public function getRecordTablesIgnoresRegisteredTablesWithoutTca(): void
+    {
+        // A registration left behind after its extension was removed: every consumer would
+        // otherwise build queries against a table that neither TCA nor the database knows.
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tx_news_domain_model_news'];
 
-        self::assertContains('tx_news_domain_model_news', ExtensionUtility::getRecordTables());
+        self::assertNotContains('tx_news_domain_model_news', ExtensionUtility::getRecordTables());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
+    }
+
+    #[Test]
+    public function getRecordTablesIgnoresNonStringRegistrations(): void
+    {
+        // e.g. a table list accidentally written as a map instead of a list of names.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['sys_category' => true];
+
+        self::assertContainsOnlyString(ExtensionUtility::getRecordTables());
 
         unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
     }
@@ -88,6 +111,12 @@ final class ExtensionUtilityTest extends AbstractFunctionalTestCase
     public function getTitleFieldReturnsTcaLabelForPages(): void
     {
         self::assertSame('title', ExtensionUtility::getTitleField('pages'));
+    }
+
+    #[Test]
+    public function getTitleFieldFallsBackToUidForTableWithoutTca(): void
+    {
+        self::assertSame('uid', ExtensionUtility::getTitleField('tx_this_table_does_not_exist'));
     }
 
     #[Test]

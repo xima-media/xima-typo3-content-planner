@@ -116,6 +116,19 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findByPidStillQueriesTableWithoutTcaLabel(): void
+    {
+        // TCA does not force a ctrl.label; without a fallback the select list would read
+        // "SELECT uid,  as title" and the query would not even parse.
+        unset($GLOBALS['TCA']['pages']['ctrl']['label']);
+
+        $result = $this->subject->findByPid('pages', 1);
+
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $result);
+        self::assertContains(2, $uids);
+    }
+
+    #[Test]
     public function findByPidReturnsCachedResultOnSecondCall(): void
     {
         $first = $this->subject->findByPid('pages', 1);
