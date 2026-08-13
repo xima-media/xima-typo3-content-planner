@@ -334,6 +334,54 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function fixNewCommentEntrySetsCurrentUserAsAuthorWhenNoneIsGiven(): void
+    {
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                'NEW4' => ['content' => 'comment from the form', 'parent_uid' => 0],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW4', $dataHandler);
+
+        self::assertSame(1, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW4']['author']);
+    }
+
+    #[Test]
+    public function fixNewCommentEntryKeepsAuthorProvidedByProgrammaticWrite(): void
+    {
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                'NEW5' => ['content' => 'comment from the API', 'parent_uid' => 0, 'author' => 2],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 'NEW5', $dataHandler);
+
+        self::assertSame(2, $dataHandler->datamap[Configuration::TABLE_COMMENT]['NEW5']['author']);
+    }
+
+    #[Test]
+    public function dispatchCommentCreatedEventReportsAuthorFromFieldArray(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::callback(static fn (CommentCreatedEvent $event): bool => 2 === $event->getAuthorUid()));
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->substNEWwithIDs = ['NEW1' => 42];
+        $fieldArray = ['foreign_table' => 'pages', 'foreign_uid' => 10, 'author' => 2];
+
+        $this->createHookWithDispatcher($dispatcher)->processDatamap_afterDatabaseOperations('new', Configuration::TABLE_COMMENT, 'NEW1', $fieldArray, $dataHandler);
+    }
+
+    #[Test]
     public function dispatchCommentCreatedEventDispatchesWhenNewCommentIsSaved(): void
     {
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
