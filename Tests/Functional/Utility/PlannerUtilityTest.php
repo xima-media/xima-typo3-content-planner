@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Utility;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -160,6 +161,63 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
 
         self::assertCount(1, $comments);
         self::assertIsArray($comments[0]);
+    }
+
+    #[Test]
+    public function getCommentsOfRecordExcludesResolvedCommentsByDefault(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1);
+
+        self::assertCount(1, $comments);
+        self::assertSame('Existing comment', $comments[0]->data['content']);
+        self::assertFalse($comments[0]->isResolved());
+        self::assertSame([], $comments[0]->getReplies());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordWithShowResolvedIncludesResolvedComments(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, false, true);
+
+        self::assertCount(2, $comments);
+
+        $resolved = array_values(array_filter(
+            $comments,
+            static fn (CommentItem $comment): bool => 'Resolved comment' === $comment->data['content'],
+        ));
+
+        self::assertCount(1, $resolved);
+        self::assertTrue($resolved[0]->isResolved());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordWithShowResolvedIncludesResolvedReplies(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, false, true);
+
+        $root = array_values(array_filter(
+            $comments,
+            static fn (CommentItem $comment): bool => 'Existing comment' === $comment->data['content'],
+        ));
+
+        self::assertCount(1, $root);
+
+        $replies = $root[0]->getReplies();
+        self::assertCount(1, $replies);
+        self::assertSame('Resolved reply', $replies[0]->data['content']);
+        self::assertTrue($replies[0]->isResolved());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordRawWithShowResolvedReturnsResolvedArrays(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, true, true);
+
+        self::assertCount(2, $comments);
+        self::assertIsArray($comments[0]);
+
+        $contents = array_map(static fn (array $comment): string => (string) $comment['content'], $comments);
+        self::assertContains('Resolved comment', $contents);
     }
 
     #[Test]
