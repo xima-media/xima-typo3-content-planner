@@ -76,6 +76,17 @@ class NotificationPayloadFactory
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function forMention(string $table, int $uid, int $commentUid): array
+    {
+        return [
+            ...$this->buildBasePayload($table, $uid),
+            'commentExcerpt' => $this->buildCommentExcerpt($commentUid),
+        ];
+    }
+
+    /**
      * Seed payload for a single content-change occurrence (issue #309): `changeCount` and
      * `actorUids` start at "one change by this actor" and are merged/summed in place by
      * {@see ContentChangePayloadMerger} as further changes to the same record accumulate on the

@@ -16,8 +16,8 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Service\Notification;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason, WatchSource};
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Notification\{NotificationChannelInterface, NotificationDispatcher, NotificationSuppressionState};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 
 /**
@@ -143,6 +143,93 @@ final class NotificationDispatcherTest extends TestCase
         $subject->dispatch(NotificationEventType::StatusChanged, 'pages', 5, 1, []);
 
         self::assertSame([2], $delivered);
+    }
+
+    // ==================== dispatchMention() ====================
+
+    #[Test]
+    public function dispatchMentionDeliversToTheRecipientEvenWhenTheyAreNotAnActiveWatcher(): void
+    {
+        // The whole point of dispatchMention(): it must never even ask whether the recipient is
+        // a watcher - a mention has to reach someone regardless of their current watch state.
+        $watcherService = $this->createMock(WatcherService::class);
+        $watcherService->method('isWatchable')->willReturn(true);
+        $watcherService->expects(self::never())->method('getActiveWatchersWithSource');
+        $watcherService->expects(self::never())->method('isWatching');
+        $watcherService->expects(self::never())->method('getActiveWatchers');
+
+        $delivered = [];
+        $channel = $this->createMock(NotificationChannelInterface::class);
+        $channel->method('supports')->willReturn(true);
+        $channel->method('deliver')->willReturnCallback(static function (Notification $notification) use (&$delivered): void {
+            $delivered[] = $notification;
+        });
+
+        $subject = new NotificationDispatcher($watcherService, new NotificationSuppressionState(), $this->createBackendUserRepository(), [$channel]);
+        $subject->dispatchMention('pages', 5, 1, 2, ['title' => 'Home']);
+
+        self::assertCount(1, $delivered);
+        self::assertSame(2, $delivered[0]->getRecipientUid());
+        self::assertSame(1, $delivered[0]->getActorUid());
+        self::assertSame(NotificationEventType::Mentioned, $delivered[0]->getEventType());
+        self::assertSame(NotificationReason::Mentioned, $delivered[0]->getReason());
+        self::assertSame(['title' => 'Home'], $delivered[0]->getPayload());
+    }
+
+    #[Test]
+    public function dispatchMentionNeverNotifiesTheActorAboutTheirOwnMention(): void
+    {
+        $watcherService = $this->createMock(WatcherService::class);
+        $watcherService->method('isWatchable')->willReturn(true);
+
+        $channel = $this->createMock(NotificationChannelInterface::class);
+        $channel->expects(self::never())->method('deliver');
+
+        $subject = new NotificationDispatcher($watcherService, new NotificationSuppressionState(), $this->createBackendUserRepository(), [$channel]);
+        $subject->dispatchMention('pages', 5, 1, 1, []);
+    }
+
+    #[Test]
+    public function dispatchMentionDoesNothingWhenSuppressionStateIsPaused(): void
+    {
+        $watcherService = $this->createMock(WatcherService::class);
+        $watcherService->expects(self::never())->method('isWatchable');
+
+        $channel = $this->createMock(NotificationChannelInterface::class);
+        $channel->expects(self::never())->method('deliver');
+
+        $suppressionState = new NotificationSuppressionState();
+        $suppressionState->pause();
+
+        $subject = new NotificationDispatcher($watcherService, $suppressionState, $this->createBackendUserRepository(), [$channel]);
+        $subject->dispatchMention('pages', 5, 1, 2, []);
+    }
+
+    #[Test]
+    public function dispatchMentionDoesNothingWhenTheTableIsNotWatchable(): void
+    {
+        $watcherService = $this->createMock(WatcherService::class);
+        $watcherService->method('isWatchable')->willReturn(false);
+
+        $channel = $this->createMock(NotificationChannelInterface::class);
+        $channel->expects(self::never())->method('deliver');
+
+        $subject = new NotificationDispatcher($watcherService, new NotificationSuppressionState(), $this->createBackendUserRepository(), [$channel]);
+        $subject->dispatchMention('sys_file_metadata', 5, 1, 2, []);
+    }
+
+    #[Test]
+    public function dispatchMentionSkipsChannelsThatDoNotSupportTheNotification(): void
+    {
+        $watcherService = $this->createMock(WatcherService::class);
+        $watcherService->method('isWatchable')->willReturn(true);
+
+        $channel = $this->createMock(NotificationChannelInterface::class);
+        $channel->method('supports')->willReturn(false);
+        $channel->expects(self::never())->method('deliver');
+
+        $subject = new NotificationDispatcher($watcherService, new NotificationSuppressionState(), $this->createBackendUserRepository(), [$channel]);
+        $subject->dispatchMention('pages', 5, 1, 2, []);
     }
 
     /**
