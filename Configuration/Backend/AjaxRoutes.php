@@ -24,6 +24,10 @@ return [
         'path' => '/content-planner/assignees',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::assigneeSelectionAction',
     ],
+    'ximatypo3contentplanner_mentions_suggest' => [
+        'path' => '/content-planner/mentions/suggest',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\MentionController::class.'::suggestAction',
+    ],
     'ximatypo3contentplanner_message' => [
         'path' => '/content-planner/message',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::messageAction',
