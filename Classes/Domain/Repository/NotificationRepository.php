@@ -45,7 +45,7 @@ class NotificationRepository
      * touches (issue #304's "safe on large tables" requirement). Chosen to keep each statement
      * fast and short-lived rather than for any particular platform limit.
      */
-    private const int DELETE_CHUNK_SIZE = 500;
+    private const DELETE_CHUNK_SIZE = 500;
 
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 

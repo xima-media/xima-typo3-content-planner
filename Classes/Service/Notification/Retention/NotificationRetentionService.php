@@ -41,7 +41,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, Notif
  */
 final readonly class NotificationRetentionService
 {
-    private const int SECONDS_PER_DAY = 86400;
+    private const SECONDS_PER_DAY = 86400;
 
     public function __construct(
         private NotificationRepository $notificationRepository,
