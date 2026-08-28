@@ -43,6 +43,8 @@ final readonly class DigestRecordGroup
         private int $commentCount,
         private int $eventCount,
         private int $latestCrdate,
+        private int $contentChangeCount = 0,
+        private int $contentChangeActorCount = 0,
     ) {}
 
     public function getTable(): string
@@ -111,5 +113,23 @@ final readonly class DigestRecordGroup
     public function getLatestCrdate(): int
     {
         return $this->latestCrdate;
+    }
+
+    /**
+     * Total changes across every {@see \Xima\XimaTypo3ContentPlanner\Domain\Model\NotificationEventType::ContentChanged}
+     * row collapsed into this group (issue #309) - zero when the record had none.
+     */
+    public function getContentChangeCount(): int
+    {
+        return $this->contentChangeCount;
+    }
+
+    /**
+     * Distinct actors across every content-change row collapsed into this group - zero when the
+     * record had none.
+     */
+    public function getContentChangeActorCount(): int
+    {
+        return $this->contentChangeActorCount;
     }
 }

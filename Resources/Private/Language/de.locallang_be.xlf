@@ -281,6 +281,14 @@
 				<source>You were mentioned</source>
 				<target>Du wurdest erwähnt</target>
 			</trans-unit>
+			<trans-unit id="notification.contentChanged.summary.singular">
+				<source>Content edited by %d user, %d changes</source>
+				<target>Inhalt von %d Benutzer bearbeitet, %d Änderungen</target>
+			</trans-unit>
+			<trans-unit id="notification.contentChanged.summary.plural">
+				<source>Content edited by %d users, %d changes</source>
+				<target>Inhalt von %d Benutzern bearbeitet, %d Änderungen</target>
+			</trans-unit>
 			<!-- email digest -->
 			<trans-unit id="digest.mail.greeting">
 				<source>Hi %s,</source>

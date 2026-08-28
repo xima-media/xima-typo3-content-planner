@@ -213,6 +213,12 @@
 			<trans-unit id="notification.reason.mentioned">
 				<source>You were mentioned</source>
 			</trans-unit>
+			<trans-unit id="notification.contentChanged.summary.singular">
+				<source>Content edited by %d user, %d changes</source>
+			</trans-unit>
+			<trans-unit id="notification.contentChanged.summary.plural">
+				<source>Content edited by %d users, %d changes</source>
+			</trans-unit>
 			<!-- email digest -->
 			<trans-unit id="digest.mail.subject">
 				<source>Content Planner: %d update(s) to review</source>
