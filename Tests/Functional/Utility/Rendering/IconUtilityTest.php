@@ -45,9 +45,7 @@ final class IconUtilityTest extends AbstractFunctionalTestCase
     #[Test]
     public function getIconByStatusReturnsIdentifierByDefault(): void
     {
-        $status = new Status();
-        $status->setIcon('flag');
-        $status->setColor('blue');
+        $status = new Status(icon: 'flag', color: 'blue');
 
         self::assertSame('flag-blue', IconUtility::getIconByStatus($status));
     }
@@ -55,9 +53,7 @@ final class IconUtilityTest extends AbstractFunctionalTestCase
     #[Test]
     public function getIconByStatusRendersMarkupWhenRenderTrue(): void
     {
-        $status = new Status();
-        $status->setIcon('flag');
-        $status->setColor('blue');
+        $status = new Status(icon: 'flag', color: 'blue');
 
         self::assertStringContainsString('<span', IconUtility::getIconByStatus($status, true));
     }

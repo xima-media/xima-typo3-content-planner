@@ -37,8 +37,7 @@ final class PrepareStatusSelectionEventTest extends TestCase
     public function gettersReturnConstructorValues(): void
     {
         $context = new stdClass();
-        $status = new Status();
-        $status->setTitle('Draft');
+        $status = new Status(title: 'Draft');
         $selection = ['a' => 1];
 
         $event = new PrepareStatusSelectionEvent('pages', 7, $context, $selection, $status);
