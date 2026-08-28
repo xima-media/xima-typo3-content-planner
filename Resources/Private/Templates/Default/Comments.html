@@ -2,7 +2,7 @@
     data-namespace-typo3-fluid="true">
 
 <div id="content-planner-comment-list" class="content-planner-comment-list" data-replies-expanded="{f:if(condition: '{repliesExpanded}', then: '1', else: '0')}">
-    <f:if condition="{comments -> f:count()} || {filter.resolvedCount}">
+    <f:if condition="{comments -> f:count()} || {filter.resolvedCount} || {filter.isPage}">
         <form id="content-planner-comment-filter" class="content-planner-comment-filter" data-table="{table}" data-id="{id}">
             <div class="form-sort">
                 <label for="content-planner-comment-filter-sort">Sort</label>
@@ -65,6 +65,18 @@
                             class="badge badge-secondary">{filter.resolvedCount}</span></label>
                 </div>
             </f:if>
+            <f:if condition="{filter.isPage}">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" value="1"
+                           id="content-planner-comment-filter-include-child-comments"
+                           name="includeChildComments"
+                           {f:if(condition: '{filter.includeChildComments}', then: 'checked', else: '')}
+                    />
+                    <label for="content-planner-comment-filter-include-child-comments">
+                        <f:translate key="comment.filter.includeChildComments" extensionName="XimaTypo3ContentPlanner"/>
+                    </label>
+                </div>
+            </f:if>
         </form>
     </f:if>
 
@@ -85,6 +97,30 @@
                 </div>
             </div>
         </f:else>
+    </f:if>
+
+    <f:if condition="{childComments.active}">
+        <div class="content-planner-comment-child-comments">
+            <h4 class="content-planner-comment-child-comments__heading">
+                <f:translate key="comment.childComments.heading" extensionName="XimaTypo3ContentPlanner"/>
+            </h4>
+            <f:for each="{childComments.groups}" as="group">
+                <div class="content-planner-comment-group">
+                    <div class="content-planner-comment-group__header">
+                        <core:icon identifier="{group.icon}" size="small"/>
+                        <a href="{group.recordLink}">{group.title}</a>
+                    </div>
+                    <f:for each="{group.comments}" as="record">
+                        <f:render partial="Comment" arguments="{comment: record, id: id, table: table, isReply: 0, showRecordInfo: 0, repliesExpanded: repliesExpanded}" />
+                    </f:for>
+                </div>
+            </f:for>
+            <f:if condition="{childComments.hasMore}">
+                <div class="content-planner-widget__more-results" role="status">
+                    <f:translate key="comment.childComments.moreResults" extensionName="XimaTypo3ContentPlanner"/>
+                </div>
+            </f:if>
+        </div>
     </f:if>
 
     <f:if condition="{commentComposerHtml}">
