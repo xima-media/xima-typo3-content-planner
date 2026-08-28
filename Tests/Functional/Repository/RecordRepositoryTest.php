@@ -227,6 +227,13 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     // NOTE: findAllByFilter() builds raw "(SELECT ...) UNION (SELECT ...)" SQL which is invalid
     // under SQLite (the functional test driver). It is therefore not covered here, together with
     // the private helpers it exclusively calls (applyFilterConditions, buildSearchCondition,
-    // getTitleFieldForSearch, buildUnionQueriesForTables, buildWhereClauseForTable,
-    // filterResultsByPermission, getSqlByTable, getSqlForFileMetadata, getSqlForFolders).
+    // getTitleFieldForSearch, buildUnionQueriesForTables, buildWhereClauseForTable, getSqlByTable,
+    // getSqlForFileMetadata, getSqlForFolders). This also means the CP-16 fix (over-fetch beyond
+    // $maxResults, then apply permission filtering, then truncate to a page + hasMore) cannot be
+    // exercised end-to-end against a real DB connection with a restricted backend user here.
+    // What *is* unit-testable without a DB or TYPO3 bootstrap is the pagination algorithm itself:
+    // Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator::paginate(), covered by
+    // Tests/Unit/Utility/Data/OverfetchPaginatorTest.php, proves that permission filtering applied
+    // before the final page-size truncation yields the correct items + hasMore for a restricted
+    // set of visible rows, independent of how the rows were fetched.
 }

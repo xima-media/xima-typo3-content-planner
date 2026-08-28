@@ -20,6 +20,8 @@ use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestric
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -36,6 +38,16 @@ use function sprintf;
  */
 class RecordRepository
 {
+    /**
+     * Permission filtering happens in PHP after the query (see findAllByFilter()), so the SQL
+     * LIMIT alone cannot guarantee $maxResults *visible* rows. This factor over-fetches beyond
+     * the requested page size to leave enough headroom for rows the current backend user cannot
+     * see. Bounded by FILTER_OVERFETCH_CAP so a large $maxResults cannot blow up the query.
+     */
+    private const FILTER_OVERFETCH_FACTOR = 3;
+
+    private const FILTER_OVERFETCH_CAP = 100;
+
     /** @var string[] */
     private array $defaultSelects = [
         'uid',
@@ -49,16 +61,17 @@ class RecordRepository
     public function __construct(private readonly FrontendInterface $cache, private readonly ConnectionPool $connectionPool) {}
 
     /**
-     * @return array<int, array<string, mixed>>|bool
+     * @return PaginatedResult<array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): array|bool
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
         $baseWhere = '';
-        $additionalParams = ['limit' => $maxResults];
+        $fetchLimit = min($maxResults * self::FILTER_OVERFETCH_FACTOR, self::FILTER_OVERFETCH_CAP);
+        $additionalParams = ['limit' => $fetchLimit];
 
         $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
@@ -70,7 +83,11 @@ class RecordRepository
         $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
         $results = $statement->fetchAllAssociative();
 
-        return $this->filterResultsByPermission($results);
+        return OverfetchPaginator::paginate(
+            $results,
+            $maxResults,
+            static fn (array $record): bool => PermissionUtility::checkAccessForRecord((string) $record['tablename'], $record),
+        );
     }
 
     /**
@@ -328,22 +345,6 @@ class RecordRepository
         }
 
         return $where;
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $results
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function filterResultsByPermission(array $results): array
-    {
-        foreach ($results as $key => $record) {
-            if (!PermissionUtility::checkAccessForRecord($record['tablename'], $record)) {
-                unset($results[$key]);
-            }
-        }
-
-        return $results;
     }
 
     /**
