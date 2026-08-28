@@ -170,6 +170,18 @@
 			<trans-unit id="message.comment.delete.failure.message">
 			 	<source>The comment could not be deleted.</source>
 			</trans-unit>
+			<trans-unit id="message.watch.toggle.success.title">
+			 	<source>Watch state updated</source>
+			</trans-unit>
+			<trans-unit id="message.watch.toggle.success.message">
+			 	<source>Your watch state for this record has been updated.</source>
+			</trans-unit>
+			<trans-unit id="message.watch.toggle.failure.title">
+			 	<source>Watch state update failed</source>
+			</trans-unit>
+			<trans-unit id="message.watch.toggle.failure.message">
+			 	<source>Your watch state could not be updated.</source>
+			</trans-unit>
 			<!-- notification toolbar -->
 			<trans-unit id="notification.toolbar.title">
 				<source>Notifications</source>

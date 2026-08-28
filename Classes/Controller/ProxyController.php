@@ -137,6 +137,20 @@ class ProxyController extends ActionController
                 ],
             ],
         ],
+        'watch' => [
+            'toggle' => [
+                'success' => [
+                    'title' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.watch.toggle.success.title',
+                    'message' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.watch.toggle.success.message',
+                    'severity' => ContextualFeedbackSeverity::OK,
+                ],
+                'failure' => [
+                    'title' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.watch.toggle.failure.title',
+                    'message' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.watch.toggle.failure.message',
+                    'severity' => ContextualFeedbackSeverity::ERROR,
+                ],
+            ],
+        ],
     ];
 
     public function __construct(private readonly FlashMessageService $flashMessageService) {}
