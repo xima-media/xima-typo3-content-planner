@@ -179,6 +179,38 @@ class WatcherRepository
     }
 
     /**
+     * Every record this backend user actively watches, keyed by table name with a list of record
+     * UIDs, i.e. every relation that is not {@see WatchMode::ManualUnwatch}. Backs the "Watched by
+     * me" widget filter (issue #308): a single query across the whole watcher table, independent
+     * of any specific (table, uid) pair, unlike {@see self::findActiveWatcherUserIds()}.
+     *
+     * @return array<string, list<int>>
+     *
+     * @throws Exception
+     */
+    public function findActiveWatchedRecordsByUser(int $beUser): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
+
+        $rows = $queryBuilder
+            ->select('tablename', 'record_uid')
+            ->from(Configuration::TABLE_WATCHER)
+            ->where(
+                $queryBuilder->expr()->eq('backend_user', $queryBuilder->createNamedParameter($beUser, Connection::PARAM_INT)),
+                $queryBuilder->expr()->neq('mode', $queryBuilder->createNamedParameter(WatchMode::ManualUnwatch->value)),
+            )
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $watchedRecords = [];
+        foreach ($rows as $row) {
+            $watchedRecords[(string) $row['tablename']][] = (int) $row['record_uid'];
+        }
+
+        return $watchedRecords;
+    }
+
+    /**
      * Insert-or-update the watcher relation for (table, uid, beUser): a single row always exists
      * per unique triple once any trigger has fired for it (see the `watcher_lookup` unique key in
      * ext_tables.sql). Not implemented as a native DB-level upsert (not portable across the
