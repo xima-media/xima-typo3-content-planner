@@ -150,7 +150,7 @@ class StatusItemProvider extends AbstractProvider
             // Status-change entries carry color/icon so the JS callback can apply the new
             // status optimistically, see getAdditionalAttributes().
             if (isset($itemToAdd['color'], $itemToAdd['icon'])) {
-                $this->statusMetadataByItemKey[(string) $itemKey] = [
+                $this->statusMetadataByItemKey[$itemKey] = [
                     'title' => (string) ($itemToAdd['label'] ?? ''),
                     'color' => (string) $itemToAdd['color'],
                     'icon' => (string) $itemToAdd['icon'],
@@ -216,14 +216,7 @@ class StatusItemProvider extends AbstractProvider
             $attributes['data-current-assignee'] = $this->currentAssignee;
         }
 
-        // Status-change entries: expose title/color/icon so context-menu-actions.js can
-        // apply the new status to the DOM optimistically, before the request resolves.
-        if (isset($this->statusMetadataByItemKey[(string) $itemName])) {
-            $metadata = $this->statusMetadataByItemKey[(string) $itemName];
-            $attributes['data-status-title'] = $metadata['title'];
-            $attributes['data-status-color'] = $metadata['color'];
-            $attributes['data-status-icon'] = $metadata['icon'];
-        }
+        $this->addStatusMetadataAttributes($attributes, $itemName);
 
         return $attributes;
     }
@@ -240,6 +233,24 @@ class StatusItemProvider extends AbstractProvider
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    /**
+     * Status-change entries: expose title/color/icon so context-menu-actions.js can apply the
+     * new status to the DOM optimistically, before the request resolves.
+     *
+     * @param array<string, mixed> $attributes
+     */
+    private function addStatusMetadataAttributes(array &$attributes, string|int $itemName): void
+    {
+        $metadata = $this->statusMetadataByItemKey[(string) $itemName] ?? null;
+        if (null === $metadata) {
+            return;
+        }
+
+        $attributes['data-status-title'] = $metadata['title'];
+        $attributes['data-status-color'] = $metadata['color'];
+        $attributes['data-status-icon'] = $metadata['icon'];
     }
 
     /**
