@@ -15,11 +15,15 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\{ArrayParameterType, Exception};
 use InvalidArgumentException;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function count;
+use function hash;
+use function is_array;
+use function sprintf;
 
 /**
  * FolderStatusRepository.
@@ -32,11 +36,18 @@ class FolderStatusRepository
     private const TABLE = Configuration::TABLE_FOLDER;
 
     public function __construct(
-        private readonly ConnectionPool $connectionPool, private readonly ResourceFactory $resourceFactory,
+        private readonly ConnectionPool $connectionPool,
+        private readonly ResourceFactory $resourceFactory,
+        private readonly FrontendInterface $cache,
     ) {}
 
     /**
      * Find folder status by combined identifier (e.g., "1:/user_upload/").
+     *
+     * Mirrors RecordRepository's cache scheme: identifier "<CACHE_IDENTIFIER>--<table>--<hash>"
+     * (hashed because a combined identifier contains ':' and '/', which the cache frontend's
+     * identifier pattern rejects), tagged per row plus "<table>__storage__<storageUid>" so a
+     * write only needs to know the affected storage to invalidate every folder cached under it.
      *
      * @return array<string, mixed>|false
      *
@@ -49,9 +60,15 @@ class FolderStatusRepository
             return false;
         }
 
+        $cacheIdentifier = $this->cacheIdentifierFor($combinedIdentifier);
+        $cachedResult = $this->cache->get($cacheIdentifier);
+        if (is_array($cachedResult)) {
+            return $cachedResult;
+        }
+
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
-        return $queryBuilder
+        $result = $queryBuilder
             ->select('*')
             ->from(self::TABLE)
             ->andWhere(
@@ -67,10 +84,20 @@ class FolderStatusRepository
             )
             ->executeQuery()
             ->fetchAssociative();
+
+        if (is_array($result)) {
+            $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($result));
+        }
+
+        return $result;
     }
 
     /**
      * Batch-resolve folder status rows for several combined identifiers.
+     *
+     * Cache misses are queried per storage in a single IN() query, but every identifier is
+     * first served from (and afterwards written back to) the same per-identifier cache entries
+     * that findByCombinedIdentifier() uses, so the two methods never diverge on freshness.
      *
      * @param array<int, string> $combinedIdentifiers
      *
@@ -80,16 +107,26 @@ class FolderStatusRepository
      */
     public function findByCombinedIdentifiers(array $combinedIdentifiers): array
     {
-        // Group requested paths per storage so each storage needs a single IN() query.
+        $result = [];
+
+        // Group requested paths per storage so each storage needs a single IN() query,
+        // skipping everything already served from cache.
         $pathsByStorage = [];
         foreach ($combinedIdentifiers as $combinedIdentifier) {
             $parsed = $this->parseCombinedIdentifier($combinedIdentifier);
-            if (null !== $parsed) {
-                $pathsByStorage[$parsed['storageUid']][$parsed['path']] = $combinedIdentifier;
+            if (null === $parsed) {
+                continue;
             }
+
+            $cached = $this->cache->get($this->cacheIdentifierFor($combinedIdentifier));
+            if (is_array($cached)) {
+                $result[$combinedIdentifier] = $cached;
+                continue;
+            }
+
+            $pathsByStorage[$parsed['storageUid']][$parsed['path']] = $combinedIdentifier;
         }
 
-        $result = [];
         foreach ($pathsByStorage as $storageUid => $pathMap) {
             $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
             $rows = $queryBuilder
@@ -113,6 +150,7 @@ class FolderStatusRepository
                 $combinedIdentifier = $pathMap[$row['folder_identifier']] ?? null;
                 if (null !== $combinedIdentifier) {
                     $result[$combinedIdentifier] = $row;
+                    $this->cache->set($this->cacheIdentifierFor($combinedIdentifier), $row, $this->collectCacheTags($row));
                 }
             }
         }
@@ -263,6 +301,8 @@ class FolderStatusRepository
             ])
             ->executeStatement();
 
+        $this->invalidateCacheForStorage($parsed['storageUid']);
+
         return (int) $queryBuilder->getConnection()->lastInsertId();
     }
 
@@ -273,6 +313,8 @@ class FolderStatusRepository
      */
     public function updateStatus(int $uid, ?int $status, int|bool|null $assignee = false): void
     {
+        $storageUid = $this->getStorageUidByUid($uid);
+
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder
             ->update(self::TABLE)
@@ -287,6 +329,10 @@ class FolderStatusRepository
         }
 
         $queryBuilder->executeStatement();
+
+        if (null !== $storageUid) {
+            $this->invalidateCacheForStorage($storageUid);
+        }
     }
 
     /**
@@ -296,6 +342,8 @@ class FolderStatusRepository
      */
     public function updateCommentsCount(int $uid, int $count): void
     {
+        $storageUid = $this->getStorageUidByUid($uid);
+
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder
             ->update(self::TABLE)
@@ -304,6 +352,10 @@ class FolderStatusRepository
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             )
             ->executeStatement();
+
+        if (null !== $storageUid) {
+            $this->invalidateCacheForStorage($storageUid);
+        }
     }
 
     /**
@@ -312,6 +364,57 @@ class FolderStatusRepository
     public function getCombinedIdentifier(int $storageUid, string $folderIdentifier): string
     {
         return $storageUid.':'.$folderIdentifier;
+    }
+
+    /**
+     * Build the cache identifier for a combined identifier. The combined identifier itself
+     * contains ':' and '/', which the cache frontend's entry identifier pattern rejects, so
+     * it is hashed rather than used verbatim.
+     */
+    private function cacheIdentifierFor(string $combinedIdentifier): string
+    {
+        return sprintf('%s--%s--%s', Configuration::CACHE_IDENTIFIER, self::TABLE, hash('sha256', $combinedIdentifier));
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return string[]
+     */
+    private function collectCacheTags(array $row): array
+    {
+        return [
+            self::TABLE.'_'.$row['uid'],
+            self::TABLE.'__storage__'.$row['storage_uid'],
+        ];
+    }
+
+    /**
+     * Flush every cached folder status belonging to one storage. Write methods only ever know
+     * the affected storage (not which combined identifiers are currently cached for it), so
+     * invalidation is scoped to the storage tag rather than the individual cache entry.
+     */
+    private function invalidateCacheForStorage(int $storageUid): void
+    {
+        $this->cache->flushByTags([self::TABLE.'__storage__'.$storageUid]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getStorageUidByUid(int $uid): ?int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $row = $queryBuilder
+            ->select('storage_uid')
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+            )
+            ->executeQuery()
+            ->fetchAssociative();
+
+        return $row ? (int) $row['storage_uid'] : null;
     }
 
     /**

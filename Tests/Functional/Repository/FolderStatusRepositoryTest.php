@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Repository;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\FolderStatusRepository;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -197,5 +198,85 @@ final class FolderStatusRepositoryTest extends AbstractFunctionalTestCase
     public function getAllSubfoldersReturnsEmptyForUnknownStorage(): void
     {
         self::assertSame([], $this->subject->getAllSubfolders('99:/missing/'));
+    }
+
+    #[Test]
+    public function findByCombinedIdentifierReturnsCachedResultOnSecondCall(): void
+    {
+        $first = $this->subject->findByCombinedIdentifier('1:/user_upload/');
+        $second = $this->subject->findByCombinedIdentifier('1:/user_upload/');
+
+        self::assertSame($first, $second);
+    }
+
+    #[Test]
+    public function findByCombinedIdentifiersReturnsCachedResultOnSecondCall(): void
+    {
+        $identifiers = ['1:/user_upload/', '1:/user_upload/sub/'];
+
+        $first = $this->subject->findByCombinedIdentifiers($identifiers);
+        $second = $this->subject->findByCombinedIdentifiers($identifiers);
+
+        self::assertSame($first, $second);
+    }
+
+    #[Test]
+    public function updateStatusInvalidatesCacheForCombinedIdentifier(): void
+    {
+        $cached = $this->subject->findByCombinedIdentifier('1:/user_upload/');
+        self::assertSame(2, (int) $cached['tx_ximatypo3contentplanner_status']);
+
+        $this->subject->updateStatus(1, 4);
+
+        $fresh = $this->subject->findByCombinedIdentifier('1:/user_upload/');
+        self::assertSame(4, (int) $fresh['tx_ximatypo3contentplanner_status']);
+    }
+
+    #[Test]
+    public function updateCommentsCountInvalidatesCacheForCombinedIdentifier(): void
+    {
+        $this->subject->findByCombinedIdentifier('1:/user_upload/');
+
+        $this->subject->updateCommentsCount(1, 42);
+
+        $fresh = $this->subject->findByCombinedIdentifier('1:/user_upload/');
+        self::assertSame(42, (int) $fresh['tx_ximatypo3contentplanner_comments']);
+    }
+
+    #[Test]
+    public function createOrUpdateInvalidatesCacheForCombinedIdentifier(): void
+    {
+        $this->subject->findByCombinedIdentifier('1:/user_upload/');
+
+        $this->subject->createOrUpdate('1:/user_upload/', 4, 9);
+
+        $fresh = $this->subject->findByCombinedIdentifier('1:/user_upload/');
+        self::assertSame(4, (int) $fresh['tx_ximatypo3contentplanner_status']);
+        self::assertSame(9, (int) $fresh['tx_ximatypo3contentplanner_assignee']);
+    }
+
+    #[Test]
+    public function writingFolderStatusDoesNotInvalidateCacheOfOtherStorage(): void
+    {
+        // Folder in storage 2 is cached first...
+        $this->subject->create('2:/other_storage/', 1);
+        $cachedOther = $this->subject->findByCombinedIdentifier('2:/other_storage/');
+        self::assertIsArray($cachedOther);
+
+        // ...then a write happens against storage 1 only.
+        $this->subject->updateStatus(1, 4);
+
+        // Bypass the repository and mutate storage 2 directly, so a stale cache read is
+        // detectable: if the storage-1 write had (incorrectly) flushed storage 2 as well,
+        // the next call below would observe this raw change instead of the cached value.
+        $connection = $this->get(ConnectionPool::class)->getConnectionForTable('tx_ximatypo3contentplanner_folder');
+        $connection->update(
+            'tx_ximatypo3contentplanner_folder',
+            ['tx_ximatypo3contentplanner_status' => 99],
+            ['storage_uid' => 2, 'folder_identifier' => '/other_storage/'],
+        );
+
+        $stillCached = $this->subject->findByCombinedIdentifier('2:/other_storage/');
+        self::assertSame($cachedOther, $stillCached);
     }
 }
