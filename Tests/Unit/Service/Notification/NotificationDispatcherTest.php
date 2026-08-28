@@ -41,7 +41,7 @@ final class NotificationDispatcherTest extends TestCase
         $delivered = [];
         $channel = $this->createMock(NotificationChannelInterface::class);
         $channel->method('supports')->willReturn(true);
-        $channel->method('deliver')->willReturnCallback(function (Notification $notification) use (&$delivered): void {
+        $channel->method('deliver')->willReturnCallback(static function (Notification $notification) use (&$delivered): void {
             $delivered[] = $notification;
         });
 
