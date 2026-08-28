@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
 
 use function count;
 
@@ -26,6 +28,26 @@ use function count;
  */
 final class ConfigurationTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class]);
+
+        parent::tearDown();
+    }
+
+    public function testOverrideClassesRegistersTreeControllerXclass(): void
+    {
+        // Regression guard for #323: FIELD_STATUS/FIELD_COMMENTS only reach the
+        // page tree via Controller/TreeController::initializePageTreeRepository(),
+        // which core only calls on the class registered here.
+        Configuration::overrideClasses();
+
+        self::assertSame(
+            TreeController::class,
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class]['className'] ?? null,
+        );
+    }
+
     public function testExtensionKeyConstant(): void
     {
         self::assertSame('xima_typo3_content_planner', Configuration::EXT_KEY);
