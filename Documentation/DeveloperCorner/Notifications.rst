@@ -17,8 +17,9 @@ Notifications
     toolbar notification center built for issue `#301
     <https://github.com/xima-media/xima-typo3-content-planner/issues/301>`__, the email
     digest built for issue `#302 <https://github.com/xima-media/xima-typo3-content-planner/issues/302>`__,
-    and the retention/cleanup command built for issue `#304
-    <https://github.com/xima-media/xima-typo3-content-planner/issues/304>`__.
+    the retention/cleanup command built for issue `#304
+    <https://github.com/xima-media/xima-typo3-content-planner/issues/304>`__, and the immediate
+    email channel built for issue `#306 <https://github.com/xima-media/xima-typo3-content-planner/issues/306>`__.
 
 Overview
 ========
@@ -262,6 +263,60 @@ same way by any extension depending on this one is appended at a numerically hig
 it first. See `Configuration::registerMailTemplates()
 <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Configuration.php>`__.
 
+Immediate email channel
+=======================
+
+`ImmediateEmailChannel <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Channel/ImmediateEmailChannel.php>`__
+(issue #306) is the notification feature's second and final user-facing email setting: a
+recipient's per-event alternative to the daily digest above. Both settings live in the same
+"Content Planner" User Settings tab:
+
+-   `tx_ximatypo3contentplanner_digest` (#302) - receive content planner email at all
+-   `tx_ximatypo3contentplanner_immediate_email` (#306) - when the above is on, deliver
+    per-event and throttled instead of batched once a day
+
+A recipient with the second toggle on is skipped by `DigestService` (see
+`DigestService::prefersImmediateEmail()`) so they are never notified twice for the same event -
+the two channels are mutually exclusive per recipient, not additive.
+
+Throttle
+--------
+
+`ImmediateEmailService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Immediate/ImmediateEmailService.php>`__
+enforces "at most one mail per `(recipient, record)` pair every 15 minutes, batching whatever
+arrived in between" using its own `tx_ximatypo3contentplanner_immediate_queue` table (deliberately
+separate from the digest's `tx_ximatypo3contentplanner_notification` table, so the two channels
+never share bookkeeping):
+
+#.  every incoming event is enqueued unconditionally
+#.  if no batch was ever sent for that `(recipient, record)` pair, or the last one was sent 15
+    minutes ago or longer, every not-yet-sent row for that pair (the new event plus anything still
+    queued) is rendered into one mail and marked sent
+#.  otherwise the event simply stays queued - the next event to arrive once the window has passed
+    flushes it together with whatever else has accumulated since
+
+The window is a fixed 15 minutes (`ImmediateEmailService::THROTTLE_WINDOW_SECONDS`), not
+configurable, per the issue's "simple throttle" scope.
+
+Template reuse
+---------------
+
+Deliberately reuses `DigestGroupBuilder` and `DigestMailFactory` unchanged rather than a second
+copy of either: since the immediate channel only ever flushes rows for one single `(tablename,
+record_uid)` at a time, `DigestGroupBuilder::build()` always returns exactly one
+`DigestRecordGroup`, rendered through the very same `NotificationDigest` Fluid template the daily
+digest uses - a batched immediate mail therefore looks identical in structure to a one-record
+digest mail, just delivered per event instead of once a day.
+
+Gating
+------
+
+Gated behind its own `notificationImmediateEmail` extension configuration toggle (mirroring
+`notificationDigestEmail`), independent of the digest channel - an admin can disable either
+channel without affecting the other. `ImmediateEmailChannel::supports()` additionally requires the
+recipient to still exist (not deleted/disabled), have a valid email address, and have opted into
+both User Settings toggles above.
+
 Cleanup
 =======
 
@@ -354,3 +409,6 @@ issue needs it (see issue #309), rather than speculatively built here.
     -   `DigestMailFactory <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Digest/DigestMailFactory.php>`__
     -   `NotificationCleanupCommand <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Command/NotificationCleanupCommand.php>`__
     -   `NotificationRetentionService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Retention/NotificationRetentionService.php>`__
+    -   `ImmediateEmailChannel <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Channel/ImmediateEmailChannel.php>`__
+    -   `ImmediateEmailService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Immediate/ImmediateEmailService.php>`__
+    -   `ImmediateEmailQueueRepository <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Domain/Repository/ImmediateEmailQueueRepository.php>`__
