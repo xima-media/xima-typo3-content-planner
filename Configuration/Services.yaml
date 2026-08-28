@@ -67,6 +67,14 @@ services:
     tags:
       - name: xima_typo3_content_planner.notification_channel
 
+  Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\ImmediateEmailService:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\Notification\Channel\ImmediateEmailChannel:
+    public: true
+    tags:
+      - name: xima_typo3_content_planner.notification_channel
+
   Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook:
     public: true
     arguments:

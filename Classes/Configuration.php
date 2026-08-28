@@ -43,6 +43,7 @@ class Configuration
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
     final public const FEATURE_NOTIFICATION_CHANNEL_DATABASE = 'notificationChannelDatabase';
     final public const FEATURE_NOTIFICATION_DIGEST_EMAIL = 'notificationDigestEmail';
+    final public const FEATURE_NOTIFICATION_IMMEDIATE_EMAIL = 'notificationImmediateEmail';
     final public const CONF_NOTIFICATION_POLL_INTERVAL = 'notificationPollInterval';
     final public const CONF_NOTIFICATION_DIGEST_BACKEND_BASE_URL = 'notificationDigestBackendBaseUrl';
     final public const CONF_NOTIFICATION_RETENTION_READ_DAYS = 'notificationRetentionReadDays';
