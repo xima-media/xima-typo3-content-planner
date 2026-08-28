@@ -243,6 +243,27 @@ final class WatcherServiceTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getActiveWatchersWithSourceExcludesManuallyUnwatchedUsersAndKeepsSourcePerUser(): void
+    {
+        $this->subject->watch('pages', 1, 1, WatchSource::Assignment);
+        $this->subject->watch('pages', 1, 2, WatchSource::Manual);
+        $this->subject->watch('pages', 1, 3, WatchSource::Manual);
+        $this->subject->unwatch('pages', 1, 3);
+
+        self::assertEquals(
+            [1 => WatchSource::Assignment, 2 => WatchSource::Manual],
+            $this->subject->getActiveWatchersWithSource('pages', 1),
+        );
+    }
+
+    #[Test]
+    public function getActiveWatchersWithSourceRejectsAnUnwatchableTable(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->subject->getActiveWatchersWithSource('be_users', 1);
+    }
+
+    #[Test]
     public function watchRejectsFolderStatusTable(): void
     {
         $this->expectException(InvalidArgumentException::class);
