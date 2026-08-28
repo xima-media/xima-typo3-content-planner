@@ -76,6 +76,23 @@ class NotificationPayloadFactory
     }
 
     /**
+     * Seed payload for a single content-change occurrence (issue #309): `changeCount` and
+     * `actorUids` start at "one change by this actor" and are merged/summed in place by
+     * {@see ContentChangePayloadMerger} as further changes to the same record accumulate on the
+     * same day - see {@see \Xima\XimaTypo3ContentPlanner\Domain\Repository\NotificationRepository::upsertContentChange()}.
+     *
+     * @return array<string, mixed>
+     */
+    public function forContentChanged(string $table, int $uid, ?int $actorUid): array
+    {
+        return [
+            ...$this->buildBasePayload($table, $uid),
+            'changeCount' => 1,
+            'actorUids' => null !== $actorUid ? [$actorUid] : [],
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function buildBasePayload(string $table, int $uid): array

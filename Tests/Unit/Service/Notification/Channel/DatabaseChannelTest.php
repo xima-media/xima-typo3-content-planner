@@ -37,4 +37,16 @@ final class DatabaseChannelTest extends TestCase
 
         (new DatabaseChannel($notificationRepository))->deliver($notification);
     }
+
+    #[Test]
+    public function deliverRoutesContentChangedNotificationsThroughTheAggregatingUpsertInstead(): void
+    {
+        $notification = new Notification(2, NotificationEventType::ContentChanged, 'pages', 1, 1, NotificationReason::WatchingManually, [], 1000);
+
+        $notificationRepository = $this->createMock(NotificationRepository::class);
+        $notificationRepository->expects(self::once())->method('upsertContentChange')->with($notification);
+        $notificationRepository->expects(self::never())->method('create');
+
+        (new DatabaseChannel($notificationRepository))->deliver($notification);
+    }
 }
