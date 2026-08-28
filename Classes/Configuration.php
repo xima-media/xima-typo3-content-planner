@@ -42,7 +42,12 @@ class Configuration
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
     final public const FEATURE_NOTIFICATION_CHANNEL_DATABASE = 'notificationChannelDatabase';
+    final public const FEATURE_NOTIFICATION_DIGEST_EMAIL = 'notificationDigestEmail';
     final public const CONF_NOTIFICATION_POLL_INTERVAL = 'notificationPollInterval';
+    final public const CONF_NOTIFICATION_DIGEST_BACKEND_BASE_URL = 'notificationDigestBackendBaseUrl';
+
+    // be_users column: per-user opt-out toggle for the email digest (issue #302), default on.
+    final public const FIELD_USER_DIGEST = 'tx_ximatypo3contentplanner_digest';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
@@ -160,12 +165,27 @@ class Configuration
         $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['comments'] = 'EXT:'.self::EXT_KEY.'/Configuration/RTE/Comments.yaml';
     }
 
+    /**
+     * Registers this extension's Fluid mail templates (issue #302's email digest) as an
+     * *additional* root path, appended after any already registered - e.g. by a site package -
+     * so a site can override `NotificationDigest.html`/`.txt` by adding its own path with a
+     * higher-priority (numerically larger) array key, per the standard TYPO3
+     * `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths']` override mechanism documented in
+     * `TYPO3\CMS\Core\Mail\FluidEmail`.
+     */
+    public static function registerMailTemplates(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths'][] = 'EXT:'.self::EXT_KEY.'/Resources/Private/Templates/Mail/';
+    }
+
     public static function registerUserSettings(): void
     {
-        $label = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide';
-        $description = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide.description';
         $tabLabel = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:content_planner';
-        $showitemAddition = '--div--;'.$tabLabel.',tx_ximatypo3contentplanner_hide';
+        $fields = [
+            'tx_ximatypo3contentplanner_hide' => 'be_users.tx_ximatypo3contentplanner_hide',
+            self::FIELD_USER_DIGEST => 'be_users.tx_ximatypo3contentplanner_digest',
+        ];
+        $showitemAddition = '--div--;'.$tabLabel.','.implode(',', array_keys($fields));
 
         // TYPO3 v14.2+ migrated user settings to TCA. The legacy
         // $GLOBALS['TYPO3_USER_SETTINGS'] format without a 'config' key
@@ -173,15 +193,17 @@ class Configuration
         // on v14.3. See https://docs.typo3.org/permalink/t3coreapi:user-settings-extending-migration
         // @phpstan-ignore-next-line function.alreadyNarrowedType (kept for TYPO3 v13 backward compatibility)
         if (method_exists(ExtensionManagementUtility::class, 'addUserSetting')) {
-            $GLOBALS['TCA']['be_users']['columns']['user_settings']['columns']['tx_ximatypo3contentplanner_hide'] = [
-                'label' => $label,
-                'description' => $description,
-                'config' => [
-                    'type' => 'check',
-                    'renderType' => 'checkboxToggle',
-                ],
-                'table' => 'be_users',
-            ];
+            foreach ($fields as $field => $labelKey) {
+                $GLOBALS['TCA']['be_users']['columns']['user_settings']['columns'][$field] = [
+                    'label' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:'.$labelKey,
+                    'description' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:'.$labelKey.'.description',
+                    'config' => [
+                        'type' => 'check',
+                        'renderType' => 'checkboxToggle',
+                    ],
+                    'table' => 'be_users',
+                ];
+            }
 
             $GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem']
                 = ($GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem'] ?? '').','.$showitemAddition;
@@ -189,12 +211,14 @@ class Configuration
             return;
         }
 
-        $GLOBALS['TYPO3_USER_SETTINGS']['columns']['tx_ximatypo3contentplanner_hide'] = [
-            'label' => $label,
-            'description' => $description,
-            'type' => 'check',
-            'table' => 'be_users',
-        ];
+        foreach ($fields as $field => $labelKey) {
+            $GLOBALS['TYPO3_USER_SETTINGS']['columns'][$field] = [
+                'label' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:'.$labelKey,
+                'description' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:'.$labelKey.'.description',
+                'type' => 'check',
+                'table' => 'be_users',
+            ];
+        }
 
         $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] = ($GLOBALS['TYPO3_USER_SETTINGS']['showitem'] ?? '').','.$showitemAddition;
     }

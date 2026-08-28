@@ -32,13 +32,22 @@ call_user_func(static function (): void {
                 ],
             ],
         ],
+        Configuration::FIELD_USER_DIGEST => [
+            'exclude' => 1,
+            'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_digest',
+            'description' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_digest.description',
+            'config' => [
+                'type' => 'check',
+                'renderType' => 'checkboxToggle',
+            ],
+        ],
     ];
     $GLOBALS['TCA']['pages']['palettes']['tx_ximatypo3contentplanner'] = [
         'showitem' => 'tx_ximatypo3contentplanner_hide',
     ];
 
     ExtensionManagementUtility::addTCAcolumns('be_users', $temporaryColumns);
-    ExtensionManagementUtility::addToAllTCAtypes('be_users', '--div--;Content  Planner,--palette--;;tx_ximatypo3contentplanner');
+    ExtensionManagementUtility::addToAllTCAtypes('be_users', '--div--;Content  Planner,--palette--;;tx_ximatypo3contentplanner,'.Configuration::FIELD_USER_DIGEST);
 });
 
 Configuration::registerUserSettings();
