@@ -24,6 +24,9 @@
             <f:if condition="{showRecordInfo} && !{isReply}">
                 <small>
                     <core:icon identifier="{comment.statusIcon}" size="small" title="{comment.status}"/>
+                    <f:if condition="{comment.status}">
+                        <span class="visually-hidden">{comment.status}</span>
+                    </f:if>
                     <a href="{comment.recordLink}">
                         {comment.title}
                     </a>
@@ -31,8 +34,10 @@
             </f:if>
             <div class="btn-group content-planner-comment__actions">
                 <button type="button" class="btn btn-default dropdown-toggle dropdown-toggle-no-chevron" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    <core:icon identifier="actions-menu-alternative" size="small" title="Actions"/>
+                        aria-expanded="false"
+                        aria-label="{f:translate(key: 'comment.actions.menu', extensionName: 'XimaTypo3ContentPlanner')}"
+                        title="{f:translate(key: 'comment.actions.menu', extensionName: 'XimaTypo3ContentPlanner')}">
+                    <core:icon identifier="actions-menu-alternative" size="small"/>
                 </button>
                 <ul class="dropdown-menu">
                     <f:if condition="{comment.canCurrentUserEdit}">
