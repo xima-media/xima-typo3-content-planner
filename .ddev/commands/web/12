@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+## #ddev-generated
+## Description: Exec command for TYPO3 instance 12.
+## Usage: 12
+## Example: "ddev 12 composer du -o" or "ddev 12 typo3 cache:flush"
+
+. .ddev/.setup/scripts/utils.sh
+
+command=$@
+version=12
+TYPO3_PATH=".Build/${version}"
+
+if [ ! -d "$TYPO3_PATH" ]; then
+    message red "TYPO3 instance not found for version ${version}"
+    exit 1
+fi
+
+# Read the mode marker written at install time to pick the right binary and
+# working directory. A missing marker means a Composer instance.
+mode=$(cat "${TYPO3_PATH}/.install-mode" 2>/dev/null || echo composer)
+
+if [ "$mode" = "classic" ]; then
+    exec_dir="${TYPO3_PATH}/public"
+    if [[ $command == composer* ]]; then
+        message red "Version ${version} is installed in classic (non-Composer) mode."
+        message yellow "Run 'ddev install ${version}' to switch it back to a Composer instance."
+        exit 1
+    fi
+    if [[ $command == typo3* ]]; then
+        command="/usr/bin/php typo3/sysext/core/bin/${command}"
+    fi
+else
+    exec_dir="${TYPO3_PATH}"
+    if [[ $command == typo3* ]]; then
+        command="/usr/bin/php vendor/bin/${command}"
+    fi
+fi
+
+message magenta "[TYPO3 v${version} (${mode})] ${command}"
+cd "$exec_dir"
+$command

@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
+## #ddev-generated
 ## Description: Open a browser with the launch site or a specific TYPO3 version.
 ## Usage: launch
 ## Example: "ddev launch" or "ddev launch 13" or "ddev launch 13 /typo3"
