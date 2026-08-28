@@ -15,8 +15,10 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Controller;
 
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\CommentEditorController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Manager\CommentFirstFlowManager;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -160,6 +162,76 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
         self::assertSame(1, (int) $comment['author']);
     }
 
+    // ==================== commentSaveAction: comment-first flow (CP-27, #326) ====================
+
+    #[Test]
+    public function commentSaveActionSetsStatusAndSavesCommentAtomicallyOnAStatusLessRecord(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->enableExtensionFeature(Configuration::FEATURE_AUTO_ASSIGN);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_status_less.csv');
+        $this->importSharedDataSet('status.csv');
+
+        $response = $this->createController()->commentSaveAction(
+            $this->createPostRequest(['table' => 'pages', 'uid' => 20, 'content' => 'Starts the planning', 'statusUid' => 2]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+
+        $comment = $this->get(CommentRepository::class)->findByUid((int) $payload['commentUid']);
+        self::assertIsArray($comment);
+        self::assertSame(20, (int) $comment['foreign_uid']);
+
+        $page = $this->get(RecordRepository::class)->findByUid('pages', 20, ignoreVisibilityRestriction: true);
+        self::assertIsArray($page);
+        self::assertSame(2, (int) $page[Configuration::FIELD_STATUS]);
+        // Auto-assignment only ever runs inside StatusChangeManager::handleAutoAssignment(),
+        // reached exclusively through the same processContentPlannerFields() call a normal
+        // FormEngine status change goes through - this is concrete evidence the comment-first
+        // write used that identical path rather than a bypass.
+        self::assertSame(1, (int) $page[Configuration::FIELD_ASSIGNEE]);
+    }
+
+    #[Test]
+    public function commentSaveActionRejectsAStatusUidTheUserIsNotAllowedToSet(): void
+    {
+        // Editor (uid 2) is a non-admin without any content planner permission, so
+        // canChangeStatus() is false for every status - a statusUid in the request is
+        // therefore something the UI would never send, and is rejected outright.
+        $this->loginBackendUser(2);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_status_less.csv');
+        $this->importSharedDataSet('status.csv');
+
+        $response = $this->createController()->commentSaveAction(
+            $this->createPostRequest(['table' => 'pages', 'uid' => 20, 'content' => 'Hello', 'statusUid' => 2]),
+        );
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function commentSaveActionIgnoresAStatusUidWhenTheRecordAlreadyHasAStatus(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importSharedDataSet('status.csv');
+
+        // Page 1 already has status 2 (see pages.csv) - a comment-first statusUid must be
+        // ignored rather than overwriting it.
+        $response = $this->createController()->commentSaveAction(
+            $this->createPostRequest(['table' => 'pages', 'uid' => 1, 'content' => 'Just a comment', 'statusUid' => 1]),
+        );
+
+        self::assertSame(200, $response->getStatusCode());
+
+        $page = $this->get(RecordRepository::class)->findByUid('pages', 1, ignoreVisibilityRestriction: true);
+        self::assertIsArray($page);
+        self::assertSame(2, (int) $page[Configuration::FIELD_STATUS]);
+    }
+
     #[Test]
     public function commentSaveActionCreatesReplyLinkedToItsParent(): void
     {
@@ -268,6 +340,7 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(CommentEditorConfigurationFactory::class),
+            $this->get(CommentFirstFlowManager::class),
         );
     }
 

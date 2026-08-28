@@ -43,6 +43,19 @@
     margin-top: 0.5rem;
 }
 
+/* CP-27 (#326): inline status picker fallback shown above the editor when a comment starts
+   the planning for a status-less record and no default status is configured. */
+.content-planner-comment-composer__status-picker {
+    margin-bottom: 0.75rem;
+}
+
+.content-planner-comment-composer__status-picker label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
 .content-planner-comment__reply-slot:not(:empty) {
     margin-top: 0.5rem;
 }
