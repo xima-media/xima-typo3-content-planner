@@ -165,3 +165,63 @@
     margin: calc(var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) * -1) var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) calc(var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) * -1) calc(var(--bs-btn-padding-x, var(--typo3-btn-padding-x)) * -1);
     padding: var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) var(--bs-btn-padding-x, var(--typo3-btn-padding-x));
 }
+
+/* ==========================================================================
+   Watch Toggle (issue #303)
+
+   Four visual states, each distinguishable by more than color alone: icon
+   shape (plain eye vs. the muted state's ban icon) plus a short text badge
+   naming the state, not just a color. Themed via TYPO3 core's --typo3-*
+   custom properties so both light and dark backend themes stay readable
+   without any hardcoded hex values.
+   ========================================================================== */
+
+.content-planner-watch-toggle-group {
+    align-items: center;
+    display: flex;
+}
+
+.content-planner-watch-toggle {
+    align-items: center;
+    display: flex;
+    gap: 0.35em;
+}
+
+.content-planner-watch-toggle__badge {
+    font-size: 0.7em;
+    font-weight: bold;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+/* Not watching: neutral/muted, same tone as other inactive header controls. */
+.content-planner-watch-toggle--inactive,
+.content-planner-watch-toggle--inactive:hover,
+.content-planner-watch-toggle--inactive:focus-visible {
+    color: var(--typo3-text-color-variant, rgba(127, 127, 127, 0.9));
+}
+
+/* Watching (auto): the record picked the user up automatically. */
+.content-planner-watch-toggle--auto,
+.content-planner-watch-toggle--auto:hover,
+.content-planner-watch-toggle--auto:focus-visible {
+    color: var(--typo3-text-color-info, #158097);
+}
+
+/* Watching (manual): the user explicitly opted in. */
+.content-planner-watch-toggle--manual,
+.content-planner-watch-toggle--manual:hover,
+.content-planner-watch-toggle--manual:focus-visible {
+    color: var(--typo3-text-color-success, #4b8f29);
+}
+
+/* Muted: sticky manual_unwatch - a distinct icon (ban), not just a color change. */
+.content-planner-watch-toggle--muted,
+.content-planner-watch-toggle--muted:hover,
+.content-planner-watch-toggle--muted:focus-visible {
+    color: var(--typo3-text-color-warning, #a36e00);
+}
+
+.content-planner-watch-toggle__count {
+    font-variant-numeric: tabular-nums;
+}
