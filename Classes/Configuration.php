@@ -96,6 +96,29 @@ class Configuration
     final public const PERMISSION_ASSIGN_SELF = 'assign-self';
     final public const PERMISSION_ASSIGN_OTHERS = 'assign-others';
 
+    /*
+     * XCLASSes core's page tree TreeController to append FIELD_STATUS and
+     * FIELD_COMMENTS to the fields fetched per page tree node (see
+     * Controller/TreeController::initializePageTreeRepository()). Without it,
+     * AfterPageTreeItemsPreparedListener would have no status/comment data to
+     * read off `$item['_page']`, and the only alternative is an additional
+     * lookup query per tree node (N+1) since AfterPageTreeItemsPreparedEvent
+     * fires after the tree's own SQL query already ran with a fixed field list,
+     * and AfterRawPageRowPreparedEvent fires per already-fetched row, too late
+     * to widen that SELECT.
+     *
+     * Verified against installed core sources: TreeController::
+     * initializePageTreeRepository() and PageTreeRepository::__construct() are
+     * byte-identical between TYPO3 v13.4.33 and v14.3.6, neither version added
+     * a supported way to pass additional fields into the page tree query.
+     * TYPO3 Forge #97259 tracks a core patch to make the fetched fields
+     * extensible; once that lands, this XCLASS can be dropped. Until then it
+     * has to stay for both v13 and v14, since $GLOBALS['TYPO3_CONF_VARS']
+     * ['SYS']['Objects'][BackendTreeController::class] only accepts one
+     * registrant, this is a hard conflict with any other extension that also
+     * needs to override the page tree's TreeController (see the Developer
+     * Corner "Page tree TreeController override" documentation for details).
+     */
     public static function overrideClasses(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = [
