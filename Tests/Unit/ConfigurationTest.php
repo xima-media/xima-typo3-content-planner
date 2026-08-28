@@ -41,6 +41,19 @@ final class ConfigurationTest extends TestCase
         self::assertSame('ximatypo3contentplanner', Configuration::CACHE_IDENTIFIER);
     }
 
+    public function testJavaScriptModulePrefixConstant(): void
+    {
+        self::assertSame('@content-planner/', Configuration::JAVASCRIPT_MODULE_PREFIX);
+    }
+
+    public function testJavaScriptModulePrefixIsNeutral(): void
+    {
+        // CP-20 (#322): the JS module specifier is intentionally neutral and
+        // no longer carries the "xima" vendor branding, unlike EXT_KEY and
+        // CACHE_IDENTIFIER which stay unchanged per the CP-17 decision (#321).
+        self::assertStringNotContainsString('xima', Configuration::JAVASCRIPT_MODULE_PREFIX);
+    }
+
     public function testFeatureConstants(): void
     {
         // Test all feature constants exist and have expected values
