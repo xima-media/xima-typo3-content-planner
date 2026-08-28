@@ -384,6 +384,18 @@
 				<source>Reply</source>
 				<target>Antworten</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.submit">
+				<source>Comment</source>
+				<target>Kommentieren</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.save">
+				<source>Save</source>
+				<target>Speichern</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.cancel">
+				<source>Cancel</source>
+				<target>Abbrechen</target>
+			</trans-unit>
 			<trans-unit id="comment.actions.replies.expand">
 				<source>Expand replies</source>
 				<target>Antworten ausklappen</target>
