@@ -1,0 +1,134 @@
+/**
+ * Content Planner - Assignee Selection Styles
+ *
+ * BEM Structure:
+ * - content-planner-assignee (Block)
+ * - content-planner-assignee__search, __list, __item, __avatar, __name,
+ *   __current-badge, __empty, __actions, __docs-link (Elements)
+ * - content-planner-assignee--pending (Modifier)
+ * - content-planner-assignee__item--current, --active, --disabled (Element Modifiers)
+ *
+ * CP-26 (#325): replaces the former native <select> assignee picker with a searchable,
+ * keyboard-navigable listbox (avatar + name entries).
+ */
+
+@import '_variables.css';
+
+/* ==========================================================================
+   Assignee Block
+   ========================================================================== */
+
+.content-planner-assignee {
+    display: flex;
+    flex-direction: column;
+}
+
+.content-planner-assignee--pending {
+    cursor: progress;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   Assignee Elements
+   ========================================================================== */
+
+.content-planner-assignee__search {
+    margin-bottom: 0.5em;
+}
+
+.content-planner-assignee__list {
+    max-height: 260px;
+    margin: 0 0 0.5em;
+    padding: 0.25em;
+    list-style: none;
+    overflow-y: auto;
+    border: 1px solid var(--typo3-input-border-color, #ccc);
+    border-radius: 4px;
+}
+
+.content-planner-assignee__list:focus-visible {
+    outline: 2px solid var(--typo3-state-primary-border, #007bff);
+    outline-offset: 2px;
+}
+
+.content-planner-assignee__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.4em 0.5em;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .content-planner-assignee__item {
+        transition: background-color 0.15s ease-in-out;
+    }
+}
+
+.content-planner-assignee__item:hover {
+    background-color: var(--typo3-surface-container, rgba(125, 125, 125, 0.1));
+}
+
+.content-planner-assignee__item--active {
+    background-color: var(--typo3-surface-container-high, rgba(125, 125, 125, 0.18));
+}
+
+.content-planner-assignee__item--current {
+    font-weight: 700;
+}
+
+/* Ring around the avatar plus a check badge (see __current-badge below): the current
+   assignee is never marked by colour alone, per CP-14 (#318). */
+.content-planner-assignee__item--current .content-planner-assignee__avatar {
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--typo3-state-primary-border, #007bff);
+}
+
+.content-planner-assignee__item--disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.content-planner-assignee__avatar {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.content-planner-assignee__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.content-planner-assignee__current-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    color: var(--typo3-state-success-border, #6a9e71);
+}
+
+.content-planner-assignee__empty {
+    color: var(--typo3-text-color-base, inherit);
+    opacity: 0.75;
+}
+
+.content-planner-assignee__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.content-planner-assignee__confirm {
+    margin-left: auto;
+}
+
+.content-planner-assignee__docs-link {
+    margin-bottom: 0;
+    font-size: 0.85em;
+    opacity: 0.75;
+}

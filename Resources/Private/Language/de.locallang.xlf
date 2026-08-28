@@ -429,21 +429,33 @@
 				<source>For every content planner record, a dedicated assignee can be set. The assignee is the backend user responsible for the current record.</source>
 				<target>Für jeden Content Planner-Datensatz kann ein eigener zuständige Nutzer festgelegt werden. Der Zuständige ist der Backend-Benutzer, der für den aktuellen Datensatz verantwortlich ist.</target>
 			</trans-unit>
-			<trans-unit id="assignee.further">
-				<source>Further information</source>
-				<target>Weitere Informationen</target>
+			<trans-unit id="assignee.search.label">
+				<source>Search assignees</source>
+				<target>Zuständige durchsuchen</target>
 			</trans-unit>
-			<trans-unit id="assignee.shortcut">
-				<source>Use the shortcut buttons to easily assign the record to yourself (%s) or unassign it (%s).</source>
-				<target>Nutze die Shortcut Buttons, um den Datensatz einfach dir selbst (%s) zuzuweisen oder die Zuweisung aufzuheben (%s).</target>
+			<trans-unit id="assignee.search.placeholder">
+				<source>Search by name…</source>
+				<target>Nach Namen suchen…</target>
 			</trans-unit>
-			<trans-unit id="assignee.permission">
-				<source>Only admins and backend users with the necessary permission are shown in the assignee selection.</source>
-				<target>Nur Admins und Backend-Benutzer mit entsprechender Berechtigung werden in der Zuständigen-Auswahl angezeigt.</target>
+			<trans-unit id="assignee.list.label">
+				<source>Assignees</source>
+				<target>Zuständige</target>
+			</trans-unit>
+			<trans-unit id="assignee.list.empty">
+				<source>No matching assignees found.</source>
+				<target>Keine passenden Zuständigen gefunden.</target>
+			</trans-unit>
+			<trans-unit id="assignee.list.current">
+				<source>Currently assigned</source>
+				<target>Aktuell zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="assignee.confirm">
+				<source>Assign</source>
+				<target>Zuweisen</target>
 			</trans-unit>
 			<trans-unit id="assignee.documentation">
-				<source><![CDATA[You can find more information about the assignee feature in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
-				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
+				<source><![CDATA[You can find more information about the assignee feature, including permissions and keyboard shortcuts, in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
+				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion, einschließlich Berechtigungen und Tastaturkürzeln, findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
 			</trans-unit>
 
 			<!-- mail -->
