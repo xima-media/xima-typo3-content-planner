@@ -4,7 +4,12 @@
     data-namespace-typo3-fluid="true"
 >
 
-<div class="content-planner-header content-planner-header--color-{status.color}">
+<div
+    class="content-planner-header content-planner-header--color-{status.color}"
+    data-table="{table}"
+    data-uid="{data.uid}"
+    aria-label="{f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}: {status.title}"
+>
     <div class="content-planner-header__left d-flex align-items-center justify-content-center">
         <core:icon
             identifier="{status.icon}"
