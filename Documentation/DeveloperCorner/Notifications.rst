@@ -21,8 +21,10 @@ Notifications
     <https://github.com/xima-media/xima-typo3-content-planner/issues/304>`__, the immediate
     email channel built for issue `#306 <https://github.com/xima-media/xima-typo3-content-planner/issues/306>`__,
     content change notifications built for issue `#309
-    <https://github.com/xima-media/xima-typo3-content-planner/issues/309>`__, and @-mentions
-    built for issue `#305 <https://github.com/xima-media/xima-typo3-content-planner/issues/305>`__.
+    <https://github.com/xima-media/xima-typo3-content-planner/issues/309>`__, @-mentions
+    built for issue `#305 <https://github.com/xima-media/xima-typo3-content-planner/issues/305>`__,
+    and the watch/unwatch toggle UI built for issue `#303
+    <https://github.com/xima-media/xima-typo3-content-planner/issues/303>`__.
 
 Overview
 ========
@@ -569,6 +571,48 @@ Run both commands daily, digest before cleanup, e.g. as a crontab entry:
 or as two entries in the TYPO3 scheduler backend module (**Execute console commands** task),
 using the same two command identifiers.
 
+..  _watch-unwatch-ui:
+
+Watch/unwatch UI
+=================
+
+`WatcherController <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Controller/WatcherController.php>`__
+(issue #303) is the manual escape hatch for the auto-watch model: an eye-icon toggle rendered
+into the same record-header status banner the assignee/comments controls already live in
+(`InfoGenerator <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Header/InfoGenerator.php>`__ +
+`Partials/WatchToggle.html <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Resources/Private/Partials/WatchToggle.html>`__),
+never next to TYPO3's own generic page/record actions - keeping it out of that context avoids
+implying the toggle covers general change monitoring, when it only ever covers planner events
+(status/assignee/comment, per issue #309's "content_changed" being a deliberately separate,
+off-by-default concern).
+
+Single toggle endpoint
+-----------------------
+
+Unlike a pair of `watch`/`unwatch` actions, `WatcherController::toggleAction()` derives its
+direction from `WatcherService::isWatching()`: a currently active watcher - whether
+`WatchMode::Auto` or `WatchMode::ManualWatch` - always mutes on click, and anyone not currently
+watching (never watched, or already muted) always starts an explicit `WatchMode::ManualWatch`.
+The client never has to track or send the mode it last saw.
+
+Four visual states, one read model
+------------------------------------
+
+`WatcherPresentationService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/WatcherPresentationService.php>`__
+maps a `WatchMode` (or its absence) to the toggle's four visual states - not watching, watching
+(auto), watching (manual), muted - plus the active-watcher count and a permission-filtered list
+of watcher display names. It is the single source both the initial banner render (`InfoGenerator`)
+and the AJAX toggle response (`WatcherController`) build from, so both surfaces always agree.
+Watcher names are filtered against the same content-planner-permitted pool
+`BackendUserRepository::findAllWithPermission()` already provides for the assignee picker and the
+@-mention suggestion feed (issue #305) - a watcher who has since lost that permission, or been
+disabled/deleted, is still counted but never named.
+
+The AJAX response also carries a server-rendered replacement fragment for the toggle button group
+(the same `Partials/WatchToggle.html` the initial render uses), so
+`Resources/Public/JavaScript/watch-toggle.js` only ever swaps markup - the icon/color/badge-per-mode
+mapping lives in exactly one Fluid partial, never duplicated in JavaScript.
+
 Workspaces
 ==========
 
@@ -602,3 +646,5 @@ that event type.
     -   `MentionNotificationService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/MentionNotificationService.php>`__
     -   `MentionController <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Controller/MentionController.php>`__
     -   `NotifyOnMentionListener <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/EventListener/Notification/NotifyOnMentionListener.php>`__
+    -   `WatcherController <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Controller/WatcherController.php>`__
+    -   `WatcherPresentationService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/WatcherPresentationService.php>`__
