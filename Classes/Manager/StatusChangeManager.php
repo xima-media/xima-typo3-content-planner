@@ -19,7 +19,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
-use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
+use Xima\XimaTypo3ContentPlanner\Event\{AssigneeChangedEvent, StatusChangeEvent};
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
@@ -89,9 +89,18 @@ class StatusChangeManager
         }
 
         $this->handleAutoAssignment($incomingFieldArray, $preRecord);
+        $this->handleAssigneeChange($incomingFieldArray, $preRecord, $table, $id);
         $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
     }
 
+    /**
+     * Mass-clear cascade (e.g. clearing all content elements under a page on page-status-reset,
+     * or clearing every record referencing a deleted status). Deliberately dispatches no events
+     * and creates no watcher relations: this is an administrative cascade over an arbitrary
+     * number of records with no single meaningful "actor" or "previous/new status" pair per row,
+     * so emitting one StatusChangeEvent per affected record would be both misleading and a
+     * potential event storm. See Documentation/DeveloperCorner/Events.rst.
+     */
     /** @phpstan-ignore typePerfect.narrowPublicClassMethodParamType */
     public function clearStatusOfExtensionRecords(string $table, ?int $status = null, ?int $pid = null): void
     {
@@ -164,6 +173,26 @@ class StatusChangeManager
     /**
      * @param array<string, mixed> $incomingFieldArray
      * @param array<string, mixed> $preRecord
+     */
+    private function handleAssigneeChange(array $incomingFieldArray, array $preRecord, string $table, int $id): void
+    {
+        if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray)) {
+            return;
+        }
+
+        $previousAssignee = isset($preRecord[Configuration::FIELD_ASSIGNEE]) && is_numeric($preRecord[Configuration::FIELD_ASSIGNEE]) && $preRecord[Configuration::FIELD_ASSIGNEE] > 0 ? (int) $preRecord[Configuration::FIELD_ASSIGNEE] : null;
+        $newAssignee = null !== $incomingFieldArray[Configuration::FIELD_ASSIGNEE] ? (int) $incomingFieldArray[Configuration::FIELD_ASSIGNEE] : null;
+
+        if ($previousAssignee === $newAssignee) {
+            return;
+        }
+
+        $this->eventDispatcher->dispatch(new AssigneeChangedEvent($table, $id, $previousAssignee, $newAssignee, PermissionUtility::getCurrentUserId()));
+    }
+
+    /**
+     * @param array<string, mixed> $incomingFieldArray
+     * @param array<string, mixed> $preRecord
      *
      * @throws Exception
      */
@@ -175,7 +204,7 @@ class StatusChangeManager
 
         $previousStatus = isset($preRecord[Configuration::FIELD_STATUS]) && is_numeric($preRecord[Configuration::FIELD_STATUS]) && $preRecord[Configuration::FIELD_STATUS] > 0 ? ContentUtility::getStatus((int) $preRecord[Configuration::FIELD_STATUS]) : null;
         $newStatus = isset($incomingFieldArray[Configuration::FIELD_STATUS]) && is_numeric($incomingFieldArray[Configuration::FIELD_STATUS]) && $incomingFieldArray[Configuration::FIELD_STATUS] > 0 ? ContentUtility::getStatus((int) $incomingFieldArray[Configuration::FIELD_STATUS]) : null;
-        $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus));
+        $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus, PermissionUtility::getCurrentUserId()));
 
         if (null === $incomingFieldArray[Configuration::FIELD_STATUS] && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET)) {
             $this->clearStatusOfExtensionRecords('tt_content', pid: $id);

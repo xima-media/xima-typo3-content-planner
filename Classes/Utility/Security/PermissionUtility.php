@@ -323,6 +323,23 @@ class PermissionUtility
         self::$allowedValuesCache = [];
     }
 
+    /**
+     * CLI-safe accessor for the current backend user's UID, for code that dispatches events
+     * carrying an actor (e.g. StatusChangeEvent, AssigneeChangedEvent) and may run without an
+     * authenticated backend user (Scheduler tasks, console commands). Never assume
+     * $GLOBALS['BE_USER'] is set outside a regular backend request.
+     */
+    public static function getCurrentUserId(): ?int
+    {
+        if (!isset($GLOBALS['BE_USER']) || !$GLOBALS['BE_USER'] instanceof BackendUserAuthentication) {
+            return null;
+        }
+
+        $userId = $GLOBALS['BE_USER']->getUserId();
+
+        return $userId > 0 ? $userId : null;
+    }
+
     // ==================== Helper Methods ====================
 
     /**

@@ -18,7 +18,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
-use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
+use Xima\XimaTypo3ContentPlanner\Event\{AssigneeChangedEvent, StatusChangeEvent};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -240,6 +240,125 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
         // Page 2 already has status 1.
         $fields = [Configuration::FIELD_STATUS => 1];
         $manager->processContentPlannerFields($fields, 'pages', 2);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDispatchesAssigneeChangedEventWhenAssigneeChanges(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf(AssigneeChangedEvent::class));
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+        );
+
+        // Page 2 already has status 1 (left unchanged here, so the status-change path itself
+        // dispatches nothing) and assignee 5; changing the assignee to 9 isolates the
+        // assignee-changed dispatch.
+        $fields = [Configuration::FIELD_STATUS => 1, Configuration::FIELD_ASSIGNEE => 9];
+        $manager->processContentPlannerFields($fields, 'pages', 2);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDoesNotDispatchAssigneeChangedEventWhenAssigneeUnchanged(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::never())->method('dispatch');
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+        );
+
+        // Page 2 already has assignee 5 and status 1; neither field actually changes.
+        $fields = [Configuration::FIELD_STATUS => 1, Configuration::FIELD_ASSIGNEE => 5];
+        $manager->processContentPlannerFields($fields, 'pages', 2);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDoesNotDispatchAssigneeChangedEventWhenAssigneeKeyAbsent(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::never())->method('dispatch');
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+        );
+
+        // Status unchanged and the assignee field was never part of the incoming payload.
+        $fields = [Configuration::FIELD_STATUS => 1];
+        $manager->processContentPlannerFields($fields, 'pages', 2);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDispatchesAssigneeChangedEventCoveringAutoAssignment(): void
+    {
+        $this->enableFeature('autoAssignment');
+
+        /** @var array<int, object> $dispatched */
+        $dispatched = [];
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::exactly(2))
+            ->method('dispatch')
+            ->willReturnCallback(static function (object $event) use (&$dispatched) {
+                $dispatched[] = $event;
+
+                return $event;
+            });
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+        );
+
+        // Page 1 has no status/assignee before. Auto-assign only ever fires together with a real
+        // status change (from "no status" to a status), so this exercises both events at once:
+        // the acceptance criterion is that auto-assignment is also reflected as an
+        // AssigneeChangedEvent, not only implicitly via StatusChangeEvent's field array.
+        $fields = [Configuration::FIELD_STATUS => 2];
+        $manager->processContentPlannerFields($fields, 'pages', 1);
+
+        $assigneeEvents = array_values(array_filter($dispatched, static fn (object $event): bool => $event instanceof AssigneeChangedEvent));
+        self::assertCount(1, $assigneeEvents);
+        /** @var AssigneeChangedEvent $assigneeEvent */
+        $assigneeEvent = $assigneeEvents[0];
+        self::assertSame('pages', $assigneeEvent->getTable());
+        self::assertSame(1, $assigneeEvent->getUid());
+        self::assertNull($assigneeEvent->getPreviousAssignee());
+        self::assertSame(1, $assigneeEvent->getNewAssignee());
+
+        self::assertCount(1, array_filter($dispatched, static fn (object $event): bool => $event instanceof StatusChangeEvent));
+    }
+
+    #[Test]
+    public function statusChangeEventCarriesTheActingBackendUser(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::callback(static function (StatusChangeEvent $event): bool {
+                self::assertSame(1, $event->getActorUid());
+
+                return true;
+            }));
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+        );
+
+        // loginBackendUser() (called in setUp) authenticates as be_users uid 1.
+        $fields = [Configuration::FIELD_STATUS => 2];
+        $manager->processContentPlannerFields($fields, 'pages', 1);
     }
 
     #[Test]

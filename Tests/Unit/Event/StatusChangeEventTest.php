@@ -57,6 +57,22 @@ final class StatusChangeEventTest extends TestCase
     }
 
     #[Test]
+    public function actorUidDefaultsToNull(): void
+    {
+        $event = new StatusChangeEvent('pages', 1, [], null, null);
+
+        self::assertNull($event->getActorUid());
+    }
+
+    #[Test]
+    public function actorUidReturnsConstructorValue(): void
+    {
+        $event = new StatusChangeEvent('pages', 1, [], null, null, 7);
+
+        self::assertSame(7, $event->getActorUid());
+    }
+
+    #[Test]
     public function fieldArrayCanBeUpdated(): void
     {
         $event = new StatusChangeEvent('pages', 1, [], null, null);
