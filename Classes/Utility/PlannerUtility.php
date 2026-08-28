@@ -121,7 +121,7 @@ class PlannerUtility
     {
         self::preCheckRecordTable($table, $uid);
 
-        return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw, showResolved: $showResolved);
+        return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw, 'DESC', $showResolved);
     }
 
     /**

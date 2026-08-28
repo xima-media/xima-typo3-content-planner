@@ -91,12 +91,12 @@ final readonly class RenderAdditionalContentToRecordListListener
                 return [];
             }
 
-            return [$table => $this->recordRepository->findByPid($table, $pid, ignoreVisibilityRestriction: true)];
+            return [$table => $this->recordRepository->findByPid($table, $pid, true, true)];
         }
 
         $records = [];
         foreach (ExtensionUtility::getRecordTables() as $recordTable) {
-            $records[$recordTable] = $this->recordRepository->findByPid($recordTable, $pid, ignoreVisibilityRestriction: true);
+            $records[$recordTable] = $this->recordRepository->findByPid($recordTable, $pid, true, true);
         }
 
         return $records;

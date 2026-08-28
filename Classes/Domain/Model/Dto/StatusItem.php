@@ -155,7 +155,6 @@ final class StatusItem
             return null;
         }
 
-        /* @phpstan-ignore-next-line */
         return $site->getAttribute('websiteTitle') ?? $site->getIdentifier();
     }
 
