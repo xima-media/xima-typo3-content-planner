@@ -152,6 +152,13 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
             $body,
         );
 
+        // CP-14 (#318): the icon-only dropdown toggle also carries an explicit aria-label,
+        // not just a `title` attribute.
+        self::assertMatchesRegularExpression(
+            '/data-filelist-meta-uid="'.$this->exampleMetaUid.'".*?<div class="btn-group dropdown">.*?aria-label="In Progress"/s',
+            $body,
+        );
+
         // CSS for the statused file and subfolder was injected as a <style> block before the table.
         self::assertStringContainsString('<style>', $body);
         self::assertStringContainsString('tr[data-filelist-meta-uid="'.$this->exampleMetaUid.'"] > td', $body);
