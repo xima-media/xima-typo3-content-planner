@@ -96,7 +96,7 @@ final readonly class CommentEditorConfigurationFactory
         ], true);
 
         return '<typo3-rte-ckeditor-ckeditor5 '.$ckeditorAttributes.'>'
-            .'<textarea '.$textareaAttributes.'>'.htmlspecialchars($content, ENT_QUOTES).'</textarea>'
+            .'<textarea '.$textareaAttributes.'>'.htmlspecialchars($content, \ENT_QUOTES).'</textarea>'
             .'</typo3-rte-ckeditor-ckeditor5>';
     }
 
