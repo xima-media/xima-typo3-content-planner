@@ -41,6 +41,19 @@ class Configuration
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
 
+    /*
+     * CP-25 (#324): banner|chip toggle for how status/assignee/comment information is
+     * displayed across the backend. "chip" (default from v3.0, breaking) shows a compact
+     * doc header trio (status dropdown, assignee button, comment button) built from
+     * ModifyButtonBarEventListener and retires the injected banner/overlay markup from
+     * RecordEditModifier and WebLayoutModifier. "banner" keeps the pre-3.0 full-width
+     * banner/overlay behaviour for installations that want the added prominence (e.g.
+     * migration projects).
+     */
+    final public const FEATURE_HEADER_DISPLAY_MODE = 'headerDisplayMode';
+    final public const HEADER_DISPLAY_MODE_BANNER = 'banner';
+    final public const HEADER_DISPLAY_MODE_CHIP = 'chip';
+
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
     /*
