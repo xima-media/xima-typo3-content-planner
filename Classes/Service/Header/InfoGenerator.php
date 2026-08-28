@@ -181,6 +181,32 @@ class InfoGenerator
     }
 
     /**
+     * Loads the JS modules and CSS shared by every place that renders the status/assignee/
+     * comment trio via PageRenderer: the "banner" HeaderInfo partial (see addFrontendAssets()
+     * above) and, since CP-25 (#324), the doc header chip trio added by
+     * ModifyButtonBarEventListener in "chip" headerDisplayMode.
+     */
+    public static function loadHeaderAssets(PageRenderer $pageRenderer): void
+    {
+        $pageRenderer->loadJavaScriptModule(
+            Configuration::JAVASCRIPT_MODULE_PREFIX.'create-and-edit-comment-modal.js',
+        );
+        $pageRenderer->loadJavaScriptModule(
+            Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js',
+        );
+        $pageRenderer->loadJavaScriptModule(
+            Configuration::JAVASCRIPT_MODULE_PREFIX.'assignee-selection-modal.js',
+        );
+        $pageRenderer->addCssFile(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
+        );
+        $pageRenderer->addInlineLanguageLabelFile(
+            'EXT:'.Configuration::EXT_KEY.
+            '/Resources/Private/Language/locallang.xlf',
+        );
+    }
+
+    /**
      * @param array<string, mixed> $record
      *
      * @throws RouteNotFoundException
@@ -419,24 +445,7 @@ class InfoGenerator
     private function addFrontendAssets(bool $usePageRenderer = true): string
     {
         if ($usePageRenderer) {
-            /** @var PageRenderer $pageRenderer */
-            $pageRenderer = $this->pageRenderer;
-            $pageRenderer->loadJavaScriptModule(
-                Configuration::JAVASCRIPT_MODULE_PREFIX.'create-and-edit-comment-modal.js',
-            );
-            $pageRenderer->loadJavaScriptModule(
-                Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js',
-            );
-            $pageRenderer->loadJavaScriptModule(
-                Configuration::JAVASCRIPT_MODULE_PREFIX.'assignee-selection-modal.js',
-            );
-            $pageRenderer->addCssFile(
-                'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
-            );
-            $pageRenderer->addInlineLanguageLabelFile(
-                'EXT:'.Configuration::EXT_KEY.
-                '/Resources/Private/Language/locallang.xlf',
-            );
+            self::loadHeaderAssets($this->pageRenderer);
 
             return '';
         }

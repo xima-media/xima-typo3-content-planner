@@ -15,23 +15,32 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Module\ModuleInterface;
-use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
+use TYPO3\CMS\Backend\Template\Components\Buttons\{InputButton, LinkButton};
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\{ComponentFactoryUtility, RouteUtility};
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function is_array;
 
 /**
  * ModifyButtonBarEventListener.
+ *
+ * CP-25 (#324): in the default "chip" headerDisplayMode, this listener is also responsible
+ * for the doc header trio (status dropdown, assignee button, comment button) that replaces
+ * the retired RecordEditModifier banner. In the legacy "banner" mode it only adds the status
+ * dropdown, as before.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -45,6 +54,9 @@ final readonly class ModifyButtonBarEventListener
         private RecordRepository $recordRepository,
         private DropDownSelectionService $dropDownSelectionService,
         private FolderStatusRepository $folderStatusRepository,
+        private BackendUserRepository $backendUserRepository,
+        private CommentRepository $commentRepository,
+        private PageRenderer $pageRenderer,
     ) {}
 
     public function __invoke(ModifyButtonBarEvent $event): void
@@ -150,6 +162,7 @@ final readonly class ModifyButtonBarEventListener
         $buttonsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
 
         $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
+        $this->addChipTrioButtons($event, $table, $uid, $record);
     }
 
     /**
@@ -214,14 +227,21 @@ final readonly class ModifyButtonBarEventListener
             $status = $this->statusRepository->findByUid((int) $folderRecord[Configuration::FIELD_STATUS]);
         }
 
-        $this->addFolderStatusDropdownButton($event, $folderIdentifier, $status);
+        $this->addFolderStatusDropdownButton($event, $folderIdentifier, $status, is_array($folderRecord) ? $folderRecord : []);
     }
 
-    private function addFolderStatusDropdownButton(ModifyButtonBarEvent $event, string $folderIdentifier, ?Status $status): void
+    /**
+     * @param array<string, mixed> $folderRecord
+     */
+    private function addFolderStatusDropdownButton(ModifyButtonBarEvent $event, string $folderIdentifier, ?Status $status, array $folderRecord): void
     {
         $buttonsToAdd = $this->dropDownSelectionService->generateFolderSelection($folderIdentifier);
 
         $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
+
+        if ([] !== $folderRecord && isset($folderRecord['uid'])) {
+            $this->addChipTrioButtons($event, Configuration::TABLE_FOLDER, (int) $folderRecord['uid'], $folderRecord);
+        }
     }
 
     /**
@@ -233,9 +253,15 @@ final readonly class ModifyButtonBarEventListener
             return;
         }
 
+        $isChipMode = !ExtensionUtility::isBannerDisplayModeEnabled();
+        $statusLabel = $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status');
+
         $dropDownButton = ComponentFactoryUtility::createDropDownButton()
-            ->setLabel('Dropdown')
-            ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
+            // CP-25 (#324): in chip mode, the status name is shown as visible label text
+            // next to the icon (the "chip" visual) instead of just an icon-only dropdown.
+            ->setLabel($isChipMode && $status instanceof Status ? $status->getTitle() : 'Dropdown')
+            ->setShowLabelText($isChipMode)
+            ->setTitle($isChipMode && $status instanceof Status ? $statusLabel.': '.$status->getTitle() : $statusLabel)
             ->setIcon($this->iconFactory->getIcon(
                 $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
             ));
@@ -250,6 +276,101 @@ final readonly class ModifyButtonBarEventListener
         $buttons = $event->getButtons();
         $buttons['right'] ??= [];
         $buttons['right'][] = [$dropDownButton];
+        $event->setButtons($buttons);
+    }
+
+    /**
+     * CP-25 (#324): Level 1 doc header trio. Adds an assignee button and a comment button
+     * next to the status dropdown (see attachDropdownToButtonBar()) whenever the "chip"
+     * headerDisplayMode is active. No-op in "banner" mode, where the equivalent controls
+     * still live in the RecordEditModifier banner.
+     *
+     * @param array<string, mixed> $record
+     */
+    private function addChipTrioButtons(ModifyButtonBarEvent $event, string $table, int $uid, array $record): void
+    {
+        if (ExtensionUtility::isBannerDisplayModeEnabled()) {
+            return;
+        }
+
+        InfoGenerator::loadHeaderAssets($this->pageRenderer);
+
+        $this->addAssigneeButton($event, $table, $uid, $record);
+        $this->addCommentsButton($event, $table, $uid, $record);
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     */
+    private function addAssigneeButton(ModifyButtonBarEvent $event, string $table, int $uid, array $record): void
+    {
+        $currentAssignee = (int) ($record[Configuration::FIELD_ASSIGNEE] ?? 0);
+        $username = $currentAssignee > 0 ? $this->backendUserRepository->getUsernameByUid($currentAssignee) : '';
+        $label = '' !== $username
+            ? $username
+            : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
+
+        $backendUser = $GLOBALS['BE_USER'];
+        $currentUserId = (int) ($backendUser->user['uid'] ?? 0);
+        $assignedToCurrentUser = $currentAssignee > 0
+            && $currentAssignee === $currentUserId
+            && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT);
+
+        $assigneeButton = GeneralUtility::makeInstance(LinkButton::class)
+            ->setIcon($this->iconFactory->getIcon('actions-user'))
+            ->setShowLabelText(true)
+            ->setTitle($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.assignee').': '.$label)
+            ->setClasses('content-planner-link--assignee'.($assignedToCurrentUser ? ' content-planner-link--assignee-current' : ''))
+            ->setDataAttributes([
+                'id' => (string) $uid,
+                'table' => $table,
+                'current-assignee' => (string) $currentAssignee,
+                'content-planner-assignees' => '1',
+                'force-ajax-url' => '1',
+            ])
+            ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
+
+        $this->addButtonToRightGroup($event, $assigneeButton);
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     */
+    private function addCommentsButton(ModifyButtonBarEvent $event, string $table, int $uid, array $record): void
+    {
+        $commentsCount = PlannerUtility::hasComments($record)
+            ? $this->commentRepository->countAllByRecord($uid, $table)
+            : 0;
+        $commentsLabel = $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
+        $title = $commentsCount > 0 ? $commentsCount.' '.$commentsLabel : $commentsLabel;
+
+        $commentsButton = GeneralUtility::makeInstance(LinkButton::class)
+            ->setIcon($this->iconFactory->getIcon('actions-message'))
+            ->setShowLabelText(true)
+            ->setTitle($title)
+            ->setClasses('content-planner-link--comments')
+            ->setDataAttributes([
+                'id' => (string) $uid,
+                'table' => $table,
+                'new-comment-uri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($table, $uid) : '',
+                'edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
+                'content-planner-comments' => '1',
+                'force-ajax-url' => '1',
+            ])
+            ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
+
+        $this->addButtonToRightGroup($event, $commentsButton);
+    }
+
+    private function addButtonToRightGroup(ModifyButtonBarEvent $event, LinkButton $button): void
+    {
+        if (!$button->isValid()) {
+            return;
+        }
+
+        $buttons = $event->getButtons();
+        $buttons['right'] ??= [];
+        $buttons['right'][] = [$button];
         $event->setButtons($buttons);
     }
 }
