@@ -80,13 +80,15 @@ final readonly class CommentFirstFlowManager
     /**
      * Validates a statusUid submitted alongside a new comment on a status-less record. Only
      * ever returns a uid the user is actually allowed to set; the caller (CommentEditorController)
-     * still owns rejecting the request outright when the client sent one it should not have.
+     * still owns rejecting the request outright when the client sent one it should not have, and
+     * resolving "no statusUid submitted at all" to null before calling this - the only thing
+     * left to decide here is whether the record is still eligible for the comment-first flow.
      *
      * @param array<string, mixed> $record
      */
-    public function resolveStatusUidForCommentFirst(array $record, ?int $requestedStatusUid): ?int
+    public function resolveStatusUidForCommentFirst(array $record, int $requestedStatusUid): ?int
     {
-        if (null === $requestedStatusUid || $requestedStatusUid <= 0 || PlannerUtility::hasStatus($record)) {
+        if ($requestedStatusUid <= 0 || PlannerUtility::hasStatus($record)) {
             return null;
         }
 

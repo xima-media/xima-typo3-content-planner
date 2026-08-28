@@ -102,7 +102,9 @@ final class CommentFirstFlowManagerTest extends AbstractFunctionalTestCase
     #[Test]
     public function resolveStatusUidForCommentFirstReturnsNullWhenNoStatusWasRequested(): void
     {
-        self::assertNull($this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 0], null));
+        // "no statusUid submitted at all" is already resolved to null by the caller
+        // (CommentEditorController) before this method is reached - only the value-level
+        // guard against a non-positive uid is this method's own concern.
         self::assertNull($this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 0], 0));
     }
 
