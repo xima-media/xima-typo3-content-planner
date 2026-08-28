@@ -27,6 +27,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
 use function in_array;
+use function intval;
 use function is_array;
 use function sprintf;
 
@@ -232,6 +233,47 @@ class RecordRepository
 
         return $query->executeQuery()
             ->fetchAssociative();
+    }
+
+    /**
+     * Which of the given uids in $table currently exist and are not soft-deleted. Used by
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Retention\NotificationRetentionService}
+     * (issue #304) to detect orphaned watcher/notification rows for records that have since been
+     * hard-deleted or (for tables with a TCA `deleted` column) soft-deleted.
+     *
+     * Deliberately not gated by {@see ExtensionUtility::getRecordTables()}
+     * like {@see self::findByUid()}: a table can be de-registered from content planner tracking
+     * (or an extension providing it removed) while old watcher/notification rows for it still
+     * need cleaning up, and hidden/time-restricted records must still count as "existing" - only
+     * `deleted` rows (or a genuinely absent table) are orphaned.
+     *
+     * @param list<int> $uids
+     *
+     * @return list<int>
+     *
+     * @throws Exception
+     */
+    public function existingUids(string $table, array $uids): array
+    {
+        if ([] === $uids || !is_array($GLOBALS['TCA'][$table] ?? null)) {
+            return [];
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+        $queryBuilder->getRestrictions()->removeAll();
+
+        $query = $queryBuilder
+            ->select('uid')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)),
+            );
+
+        if ($this->hasDeletedRestriction($table)) {
+            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
+        }
+
+        return array_map(intval(...), $query->executeQuery()->fetchFirstColumn());
     }
 
     /**
