@@ -15,9 +15,11 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Notification;
 
+use function count;
 use function intval;
 
 /**
@@ -28,13 +30,23 @@ use function intval;
  * convention as {@see WatcherRepository}.
  *
  * Read access ({@see self::findLatestByRecipient()}, {@see self::countUnreadByRecipient()}) and the
- * mark-as-read mutations back the backend toolbar notification center (issue #301).
+ * mark-as-read mutations back the backend toolbar notification center (issue #301). The
+ * age-based and orphan cleanup methods back
+ * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Retention\NotificationRetentionService}
+ * (issue #304).
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
 class NotificationRepository
 {
+    /**
+     * Upper bound on how many rows a single DELETE (or its preceding candidate-uid SELECT)
+     * touches (issue #304's "safe on large tables" requirement). Chosen to keep each statement
+     * fast and short-lived rather than for any particular platform limit.
+     */
+    private const int DELETE_CHUNK_SIZE = 500;
+
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     /**
@@ -242,5 +254,154 @@ class NotificationRepository
                 $queryBuilder->expr()->isNull('read_at'),
             )
             ->executeStatement();
+    }
+
+    /**
+     * Deletes (or, with `$dryRun`, only counts) notifications in the given read state created
+     * before `$timestamp` - the read/unread retention rules from issue #304's
+     * `content-planner:notification:cleanup` command.
+     *
+     * @throws Exception
+     */
+    public function deleteOlderThan(bool $read, int $timestamp, bool $dryRun): int
+    {
+        return $this->deleteMatchingInChunks(static function (QueryBuilder $queryBuilder) use ($read, $timestamp): void {
+            $queryBuilder->andWhere($read ? $queryBuilder->expr()->isNotNull('read_at') : $queryBuilder->expr()->isNull('read_at'));
+            $queryBuilder->andWhere($queryBuilder->expr()->lt('crdate', $queryBuilder->createNamedParameter($timestamp, Connection::PARAM_INT)));
+        }, $dryRun);
+    }
+
+    /**
+     * Distinct `(tablename, record_uid)` pairs referenced by any notification, for the orphaned-record
+     * cleanup rule (issue #304): the caller checks which of these still have a live record and
+     * deletes the rest via {@see self::deleteForTableAndRecordUids()}.
+     *
+     * @return list<array{tablename: string, record_uid: int}>
+     *
+     * @throws Exception
+     */
+    public function findDistinctTableRecordPairs(): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        $rows = $queryBuilder
+            ->select('tablename', 'record_uid')
+            ->distinct()
+            ->from(Configuration::TABLE_NOTIFICATION)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return array_map(
+            static fn (array $row): array => ['tablename' => (string) $row['tablename'], 'record_uid' => (int) $row['record_uid']],
+            $rows,
+        );
+    }
+
+    /**
+     * Distinct recipient uids referenced by any notification, for the orphaned-backend-user
+     * cleanup rule (issue #304).
+     *
+     * @return list<int>
+     *
+     * @throws Exception
+     */
+    public function findDistinctBackendUsers(): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        $rows = $queryBuilder
+            ->select('backend_user')
+            ->distinct()
+            ->from(Configuration::TABLE_NOTIFICATION)
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return array_map(intval(...), $rows);
+    }
+
+    /**
+     * Deletes (or, with `$dryRun`, only counts) every notification for the given orphaned record.
+     *
+     * @param list<int> $recordUids
+     *
+     * @throws Exception
+     */
+    public function deleteForTableAndRecordUids(string $table, array $recordUids, bool $dryRun): int
+    {
+        if ([] === $recordUids) {
+            return 0;
+        }
+
+        return $this->deleteMatchingInChunks(static function (QueryBuilder $queryBuilder) use ($table, $recordUids): void {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq('tablename', $queryBuilder->createNamedParameter($table)));
+            $queryBuilder->andWhere($queryBuilder->expr()->in('record_uid', $queryBuilder->createNamedParameter($recordUids, Connection::PARAM_INT_ARRAY)));
+        }, $dryRun);
+    }
+
+    /**
+     * Deletes (or, with `$dryRun`, only counts) every notification recipient-owned by one of the
+     * given (deleted/disabled) backend users.
+     *
+     * @param list<int> $backendUserUids
+     *
+     * @throws Exception
+     */
+    public function deleteForBackendUsers(array $backendUserUids, bool $dryRun): int
+    {
+        if ([] === $backendUserUids) {
+            return 0;
+        }
+
+        return $this->deleteMatchingInChunks(static function (QueryBuilder $queryBuilder) use ($backendUserUids): void {
+            $queryBuilder->andWhere($queryBuilder->expr()->in('backend_user', $queryBuilder->createNamedParameter($backendUserUids, Connection::PARAM_INT_ARRAY)));
+        }, $dryRun);
+    }
+
+    /**
+     * Shared engine for every retention/orphan rule above: `$configureWhere` narrows a
+     * `SELECT uid` query builder to the rows a rule targets, and this method either counts them
+     * (`$dryRun`) or repeatedly selects up to {@see self::DELETE_CHUNK_SIZE} matching uids and
+     * deletes exactly those, until nothing more matches. Bounding both the SELECT and the DELETE
+     * to a fixed-size batch keeps either statement's cost independent of total table size - safe
+     * to run against a notification table with millions of historic rows, unlike one unbounded
+     * `DELETE ... WHERE ...` holding a single long-running lock.
+     *
+     * @throws Exception
+     */
+    private function deleteMatchingInChunks(callable $configureWhere, bool $dryRun): int
+    {
+        if ($dryRun) {
+            $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+            $queryBuilder->count('uid')->from(Configuration::TABLE_NOTIFICATION);
+            $configureWhere($queryBuilder);
+
+            return (int) $queryBuilder->executeQuery()->fetchOne();
+        }
+
+        $deleted = 0;
+        do {
+            $selectQueryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+            $selectQueryBuilder->select('uid')->from(Configuration::TABLE_NOTIFICATION);
+            $configureWhere($selectQueryBuilder);
+            $uids = array_map(intval(...), $selectQueryBuilder
+                ->orderBy('uid')
+                ->setMaxResults(self::DELETE_CHUNK_SIZE)
+                ->executeQuery()
+                ->fetchFirstColumn());
+
+            if ([] === $uids) {
+                break;
+            }
+
+            $deleteQueryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+            $deleteQueryBuilder
+                ->delete(Configuration::TABLE_NOTIFICATION)
+                ->where($deleteQueryBuilder->expr()->in('uid', $deleteQueryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)))
+                ->executeStatement();
+
+            $deleted += count($uids);
+        } while (self::DELETE_CHUNK_SIZE === count($uids));
+
+        return $deleted;
     }
 }
