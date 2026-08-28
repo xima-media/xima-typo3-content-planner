@@ -47,3 +47,42 @@ What changed in practice:
 
 If your listener only reads status data via the getters above, no changes
 are required.
+
+``RecordRepository::findAllByFilter()`` now returns a ``PaginatedResult``
+------------------------------------------------------------------------
+
+``Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository::findAllByFilter()``
+no longer returns a bare array of records. It returns
+``Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult``, a small
+readonly envelope with two public properties:
+
+-   ``items``: the same list of records as before, already permission-filtered
+    and truncated to ``$maxResults``.
+-   ``hasMore``: ``true`` when more records the current backend user is
+    allowed to see exist beyond the returned page.
+
+This closes a bug where the SQL ``LIMIT`` was applied *before* permission
+filtering, so a restricted backend user could see far fewer than
+``$maxResults`` records (or none) even though matches existed further down the
+result set. The fix over-fetches beyond the page size (bounded, see
+``RecordRepository::FILTER_OVERFETCH_FACTOR``/``FILTER_OVERFETCH_CAP``) and
+applies the permission check before truncating to the final page.
+
+If you call ``findAllByFilter()`` directly, replace:
+
+..  code-block:: php
+
+    $records = $recordRepository->findAllByFilter(...);
+    foreach ($records as $record) { ... }
+
+with:
+
+..  code-block:: php
+
+    $result = $recordRepository->findAllByFilter(...);
+    foreach ($result->items as $record) { ... }
+    // $result->hasMore tells you whether to show a "more results" indicator.
+
+The JSON payload of the ``ximatypo3contentplanner_filterrecords`` AJAX route
+(``RecordController::filterAction()``) changed accordingly, from a bare array
+to ``{"items": [...], "hasMore": false}``.
