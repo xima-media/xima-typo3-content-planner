@@ -36,11 +36,11 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
  */
 final class NotificationCleanupCommandTest extends AbstractFunctionalTestCase
 {
-    private const int SECONDS_PER_DAY = 86400;
+    private const SECONDS_PER_DAY = 86400;
 
-    private const int READ_RETENTION_DAYS = 5;
+    private const READ_RETENTION_DAYS = 5;
 
-    private const int UNREAD_RETENTION_DAYS = 10;
+    private const UNREAD_RETENTION_DAYS = 10;
 
     private CommandTester $tester;
 

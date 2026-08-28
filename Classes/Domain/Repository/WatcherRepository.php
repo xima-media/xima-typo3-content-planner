@@ -52,7 +52,7 @@ class WatcherRepository
      * Upper bound on how many rows a single DELETE (or its preceding candidate-uid SELECT)
      * touches (issue #304's "safe on large tables" requirement).
      */
-    private const int DELETE_CHUNK_SIZE = 500;
+    private const DELETE_CHUNK_SIZE = 500;
 
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
