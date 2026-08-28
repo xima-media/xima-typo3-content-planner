@@ -146,6 +146,48 @@
 }
 
 /* ==========================================================================
+   Content Element Status Accent (CP-25 / #324, Level 2, "chip" mode)
+   Replaces the injected full-surface `::before` overlay from WebLayoutModifier
+   with a 3px left accent border (the visual language core uses for hidden /
+   workspace content elements) plus a status dot and mini comment badge.
+   ========================================================================== */
+
+.content-planner-ce-accent {
+    border-left: 3px solid var(--content-planner-color-black);
+    padding-left: 0.5em;
+}
+
+.content-planner-ce-accent--color-black { border-left-color: var(--content-planner-color-black); }
+.content-planner-ce-accent--color-red { border-left-color: var(--content-planner-color-red); }
+.content-planner-ce-accent--color-yellow { border-left-color: var(--content-planner-color-yellow); }
+.content-planner-ce-accent--color-green { border-left-color: var(--content-planner-color-green); }
+.content-planner-ce-accent--color-blue { border-left-color: var(--content-planner-color-blue); }
+.content-planner-ce-accent--color-purple { border-left-color: var(--content-planner-color-purple); }
+.content-planner-ce-accent--color-orange { border-left-color: var(--content-planner-color-orange); }
+
+.content-planner-ce-accent__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 0.25em;
+    font-size: 0.85em;
+}
+
+.content-planner-ce-accent__dot,
+.content-planner-ce-accent__comments {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+/* Icon + visible text always co-occur (see CP-14 / #318): the status name is
+   visually de-emphasised, not removed, so colour is never the only carrier. */
+.content-planner-ce-accent__dot-label {
+    color: var(--typo3-text-color-base, inherit);
+    opacity: 0.75;
+}
+
+/* ==========================================================================
    Shared Components
    ========================================================================== */
 
