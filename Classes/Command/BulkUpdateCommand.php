@@ -22,6 +22,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationSuppressionState;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 use function is_int;
@@ -44,6 +45,7 @@ final class BulkUpdateCommand extends Command
         private readonly RecordRepository $recordRepository,
         private readonly CommentRepository $commentRepository,
         private readonly FolderStatusRepository $folderStatusRepository,
+        private readonly NotificationSuppressionState $notificationSuppressionState,
     ) {
         parent::__construct();
     }
@@ -56,6 +58,16 @@ final class BulkUpdateCommand extends Command
             ->addArgument('status', InputArgument::OPTIONAL, 'The status uid to set. If empty, the status will be cleared.', null)
             ->addOption('recursive', 'r', InputOption::VALUE_OPTIONAL, 'Whether to update pages recursively.', false)
             ->addOption('assignee', 'a', InputOption::VALUE_REQUIRED, 'The backend user uid to set an assignee for this record.', null)
+            ->addOption(
+                'no-notify',
+                null,
+                InputOption::VALUE_NONE,
+                'Suppress notification dispatch for the duration of this command. This command updates '
+                .'status via raw SQL and therefore never dispatches StatusChangeEvent/AssigneeChangedEvent '
+                .'in the first place (see RecordRepository::updateStatusByUid()), so this is a defensive '
+                .'no-op today - kept for operators migrating records through other means in the same run '
+                .'and for forward compatibility, see Documentation/DeveloperCorner/Notifications.rst.',
+            )
             ->addUsage('pages 1 4')
             ->addUsage('sys_file_metadata 123 4')
             ->addUsage('folder "1:/user_upload/myfolder/" 4')
@@ -75,6 +87,20 @@ final class BulkUpdateCommand extends Command
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        if (!(bool) $input->getOption('no-notify')) {
+            return $this->executeBulkUpdate($input, $output);
+        }
+
+        $this->notificationSuppressionState->pause();
+        try {
+            return $this->executeBulkUpdate($input, $output);
+        } finally {
+            $this->notificationSuppressionState->resume();
+        }
+    }
+
+    private function executeBulkUpdate(InputInterface $input, OutputInterface $output): int
     {
         $table = $input->getArgument('table');
         $uidArgument = $input->getArgument('uid');
