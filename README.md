@@ -42,6 +42,7 @@ This TYPO3 extension adds content planning capabilities to the TYPO3 backend: as
 **[Notifications](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/Notifications.html)** — Stay informed about records you watch
 * Backend toolbar badge with an unread count and a dropdown of recent updates
 * Periodic email digest via the schedulable `content-planner:notification:digest` console command, opt-out per backend user in the user settings; override the default `Resources/Private/Templates/Mail/NotificationDigest.html`/`.txt` templates by registering your own path (at a higher array key) in `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths']`
+* Retention and orphan cleanup via the schedulable `content-planner:notification:cleanup` console command (configurable read/unread thresholds, `--dry-run`); see the recommended scheduler setup below
 
 **Extensibility** — Works beyond pages
 * Extend [additional database records](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/AdditionalRecords.html) with status behavior
@@ -86,6 +87,22 @@ After the installation, update the database schema and setup the extension:
 vendor/bin/typo3 database:updateschema
 vendor/bin/typo3 extension:setup --extension=xima_typo3_content_planner
 ```
+
+### Recommended scheduler setup
+
+If notifications are enabled, schedule both the email digest and the retention cleanup command —
+digest first, cleanup afterwards — via TYPO3 scheduler ("Execute console commands" task) or an
+external cron, e.g. daily:
+
+``` bash
+0 6 * * *  vendor/bin/typo3 content-planner:notification:digest
+15 6 * * * vendor/bin/typo3 content-planner:notification:cleanup
+```
+
+`content-planner:notification:cleanup` deletes read notifications older than 30 days and unread
+ones older than 90 days by default (both configurable in the extension configuration), plus
+watcher/notification rows for deleted records or deleted/disabled backend users. Add `--dry-run`
+to either command to preview its effect without changing anything.
 
 ## 📙 Documentation
 
