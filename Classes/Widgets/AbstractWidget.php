@@ -77,8 +77,8 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
     public function getJavaScriptModuleInstructions(): array
     {
         return [
-            JavaScriptModuleInstruction::create('@xima/ximatypo3contentplanner/filter-status.js'),
-            JavaScriptModuleInstruction::create('@xima/ximatypo3contentplanner/comments-list-modal.js'),
+            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'filter-status.js'),
+            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js'),
         ];
     }
 }

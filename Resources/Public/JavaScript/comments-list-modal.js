@@ -1,9 +1,9 @@
 /**
-* Module: @xima/ximatypo3contentplanner/comments-list-modal
+* Module: @content-planner/comments-list-modal
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
-import CreateAndEditCommentModal from "@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js"
+import CreateAndEditCommentModal from "@content-planner/create-and-edit-comment-modal.js"
 
 class CommentsListModal {
 

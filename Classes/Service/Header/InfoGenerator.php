@@ -422,13 +422,13 @@ class InfoGenerator
             /** @var PageRenderer $pageRenderer */
             $pageRenderer = $this->pageRenderer;
             $pageRenderer->loadJavaScriptModule(
-                '@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js',
+                Configuration::JAVASCRIPT_MODULE_PREFIX.'create-and-edit-comment-modal.js',
             );
             $pageRenderer->loadJavaScriptModule(
-                '@xima/ximatypo3contentplanner/comments-list-modal.js',
+                Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js',
             );
             $pageRenderer->loadJavaScriptModule(
-                '@xima/ximatypo3contentplanner/assignee-selection-modal.js',
+                Configuration::JAVASCRIPT_MODULE_PREFIX.'assignee-selection-modal.js',
             );
             $pageRenderer->addCssFile(
                 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',

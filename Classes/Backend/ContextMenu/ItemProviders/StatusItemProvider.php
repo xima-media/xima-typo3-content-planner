@@ -113,8 +113,8 @@ class StatusItemProvider extends AbstractProvider
 
         /** @var PageRenderer $pageRenderer */
         $pageRenderer = $this->pageRenderer;
-        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js');
-        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/comments-list-modal.js');
+        $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'create-and-edit-comment-modal.js');
+        $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js');
         $pageRenderer->addInlineLanguageLabelFile('EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf');
 
         $this->initDisabledItems();
@@ -161,7 +161,7 @@ class StatusItemProvider extends AbstractProvider
     protected function getAdditionalAttributes(string|int $itemName): array
     {
         $attributes = [
-            'data-callback-module' => '@xima/ximatypo3contentplanner/context-menu-actions',
+            'data-callback-module' => Configuration::JAVASCRIPT_MODULE_PREFIX.'context-menu-actions',
             'data-status' => $itemName,
             'data-effective-table' => $this->effectiveTable,
             'data-effective-uid' => $this->effectiveIdentifier,
