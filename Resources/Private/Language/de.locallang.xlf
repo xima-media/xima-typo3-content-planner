@@ -236,6 +236,50 @@
 				<source>Shows the count of the pending todos within the comments</source>
 				<target>Zeigt die Anzahl der offenen ToDos aus den Kommentaren</target>
 			</trans-unit>
+			<trans-unit id="header.watch.groupLabel">
+				<source>Watch</source>
+				<target>Beobachten</target>
+			</trans-unit>
+			<trans-unit id="header.watch.badge.auto">
+				<source>auto</source>
+				<target>auto</target>
+			</trans-unit>
+			<trans-unit id="header.watch.badge.manual">
+				<source>watching</source>
+				<target>beobachtet</target>
+			</trans-unit>
+			<trans-unit id="header.watch.badge.muted">
+				<source>muted</source>
+				<target>stummgeschaltet</target>
+			</trans-unit>
+			<trans-unit id="header.watch.badge.inactive">
+				<source>watch</source>
+				<target>beobachten</target>
+			</trans-unit>
+			<trans-unit id="header.watch.tooltip.inactive">
+				<source>Get notified about status changes, assignments and comments. Click to watch.</source>
+				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Klicken zum Beobachten.</target>
+			</trans-unit>
+			<trans-unit id="header.watch.tooltip.auto">
+				<source>Get notified about status changes, assignments and comments. You're automatically watching this record because of an assignment, comment or status change. Click to stop watching.</source>
+				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du beobachtest diesen Datensatz automatisch aufgrund einer Zuweisung, eines Kommentars oder einer Status-Änderung. Klicken zum Beenden.</target>
+			</trans-unit>
+			<trans-unit id="header.watch.tooltip.manual">
+				<source>Get notified about status changes, assignments and comments. You are watching this record. Click to stop watching.</source>
+				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du beobachtest diesen Datensatz. Klicken zum Beenden.</target>
+			</trans-unit>
+			<trans-unit id="header.watch.tooltip.muted">
+				<source>Get notified about status changes, assignments and comments. You won't be re-added automatically. Click to watch again.</source>
+				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du wirst nicht automatisch wieder hinzugefügt. Klicken, um erneut zu beobachten.</target>
+			</trans-unit>
+			<trans-unit id="header.watch.watchers">
+				<source>Watching: %s</source>
+				<target>Beobachtet von: %s</target>
+			</trans-unit>
+			<trans-unit id="header.watch.watchersCount">
+				<source>%s watching</source>
+				<target>%s Beobachter</target>
+			</trans-unit>
 
 			<!-- time ago -->
 			<trans-unit id="timeAgo.years">
