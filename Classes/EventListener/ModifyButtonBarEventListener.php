@@ -18,14 +18,13 @@ use TYPO3\CMS\Backend\Module\ModuleInterface;
 use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\ChipTrioButtonBuilder;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\{ComponentFactoryUtility, RouteUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -46,7 +45,6 @@ use function is_array;
 final readonly class ModifyButtonBarEventListener
 {
     public function __construct(
-        private IconFactory $iconFactory,
         private StatusRepository $statusRepository,
         private RecordRepository $recordRepository,
         private DropDownSelectionService $dropDownSelectionService,
@@ -156,7 +154,7 @@ final readonly class ModifyButtonBarEventListener
         $status = $this->resolveStatusFromRecord($record);
         $buttonsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
 
-        $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
+        $this->chipTrioButtonBuilder->attachStatusDropdown($event, $status, $buttonsToAdd);
 
         // generateSelection() returns false when the user is not allowed to see status info
         // for this table (PermissionUtility::isTableAllowedForUser()) or none is configured;
@@ -238,7 +236,7 @@ final readonly class ModifyButtonBarEventListener
     {
         $buttonsToAdd = $this->dropDownSelectionService->generateFolderSelection($folderIdentifier);
 
-        $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
+        $this->chipTrioButtonBuilder->attachStatusDropdown($event, $status, $buttonsToAdd);
 
         if (false !== $buttonsToAdd && [] !== $folderRecord && isset($folderRecord['uid'])) {
             $this->addChipTrioButtons($event, Configuration::TABLE_FOLDER, (int) $folderRecord['uid'], $folderRecord);
@@ -246,43 +244,8 @@ final readonly class ModifyButtonBarEventListener
     }
 
     /**
-     * @param array<string, \TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItemInterface>|false $buttonsToAdd
-     */
-    private function attachDropdownToButtonBar(ModifyButtonBarEvent $event, ?Status $status, array|false $buttonsToAdd): void
-    {
-        if (false === $buttonsToAdd) {
-            return;
-        }
-
-        $isChipMode = !ExtensionUtility::isBannerDisplayModeEnabled();
-        $statusLabel = $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status');
-
-        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
-            // CP-25 (#324): in chip mode, the status name is shown as visible label text
-            // next to the icon (the "chip" visual) instead of just an icon-only dropdown.
-            ->setLabel($isChipMode && $status instanceof Status ? $status->getTitle() : 'Dropdown')
-            ->setShowLabelText($isChipMode)
-            ->setTitle($isChipMode && $status instanceof Status ? $statusLabel.': '.$status->getTitle() : $statusLabel)
-            ->setIcon($this->iconFactory->getIcon(
-                $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
-            ));
-
-        foreach ($buttonsToAdd as $buttonToAdd) {
-            if (!$buttonToAdd->isValid()) {
-                continue;
-            }
-            $dropDownButton->addItem($buttonToAdd);
-        }
-
-        $buttons = $event->getButtons();
-        $buttons['right'] ??= [];
-        $buttons['right'][] = [$dropDownButton];
-        $event->setButtons($buttons);
-    }
-
-    /**
      * CP-25 (#324): Level 1 doc header trio. Adds an assignee button and a comment button
-     * next to the status dropdown (see attachDropdownToButtonBar()) whenever the "chip"
+     * next to the status dropdown (see ChipTrioButtonBuilder::attachStatusDropdown()) whenever the "chip"
      * headerDisplayMode is active. No-op in "banner" mode, where the equivalent controls
      * still live in the RecordEditModifier banner. Building the buttons themselves is
      * delegated to ChipTrioButtonBuilder to keep this listener's complexity manageable.

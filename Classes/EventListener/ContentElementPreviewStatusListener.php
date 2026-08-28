@@ -143,10 +143,14 @@ final readonly class ContentElementPreviewStatusListener
 
         $resolver = GeneralUtility::makeInstance(StandardPreviewRendererResolver::class);
 
-        // @phpstan-ignore instanceof.alwaysTrue, instanceof.alwaysFalse, method.notFound, arguments.count, argument.type
-        $previewRenderer = $rawRecord instanceof RecordInterface
-            ? $resolver->resolveRendererFor($rawRecord)
-            : $resolver->resolveRendererFor($table, $rawRecord, $context->getPageId());
+        // @phpstan-ignore instanceof.alwaysTrue, instanceof.alwaysFalse
+        if ($rawRecord instanceof RecordInterface) {
+            // @phpstan-ignore arguments.count, argument.type
+            $previewRenderer = $resolver->resolveRendererFor($rawRecord);
+        } else {
+            // @phpstan-ignore arguments.count, argument.type
+            $previewRenderer = $resolver->resolveRendererFor($table, $rawRecord, $context->getPageId());
+        }
 
         return $previewRenderer->renderPageModulePreviewContent($item);
     }
