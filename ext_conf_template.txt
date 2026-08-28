@@ -28,3 +28,7 @@ notificationPollInterval = 60
 notificationDigestEmail = 1
 # cat=notifications/config; type=string; label=Backend base URL used to build absolute deep links in the email digest, e.g. "https://example.com" (TYPO3 cannot reliably determine its own base URL from a CLI context; leave empty to fall back to relative links)
 notificationDigestBackendBaseUrl =
+# cat=notifications/config; type=int+; label=Delete read notifications older than this many days (content-planner:notification:cleanup command)
+notificationRetentionReadDays = 30
+# cat=notifications/config; type=int+; label=Delete unread notifications older than this many days (content-planner:notification:cleanup command)
+notificationRetentionUnreadDays = 90
