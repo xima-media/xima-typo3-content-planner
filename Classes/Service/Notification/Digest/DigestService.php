@@ -15,7 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Service\Notification\Digest;
 
 use Doctrine\DBAL\Exception;
 use Psr\Log\{LoggerAwareInterface, LoggerAwareTrait};
-use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+use TYPO3\CMS\Core\Localization\{LanguageService, LanguageServiceFactory};
 use TYPO3\CMS\Core\Mail\MailerInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\DigestRunResult;
@@ -169,6 +169,15 @@ final class DigestService implements LoggerAwareInterface
 
     private function getUnassignedLabel(): string
     {
-        return $GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:digest.mail.unassigned');
+        return $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:digest.mail.unassigned');
+    }
+
+    /**
+     * Typed accessor for `$GLOBALS['LANG']` (an untyped superglobal entry), set to the
+     * recipient's own language for the duration of {@see self::digestInRecipientLanguage()}.
+     */
+    private function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }
