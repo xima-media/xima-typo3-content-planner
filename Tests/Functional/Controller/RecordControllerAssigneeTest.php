@@ -93,8 +93,49 @@ final class RecordControllerAssigneeTest extends AbstractFunctionalTestCase
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
-        self::assertStringContainsString('assignee-selection', $payload['result']);
+        self::assertStringContainsString('assignee-listbox', $payload['result']);
         self::assertStringContainsString('admin', $payload['result']);
+    }
+
+    #[Test]
+    public function assigneeSelectionActionRendersListboxWithoutActionUrlsAsOptionValues(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'currentAssignee' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $result = $payload['result'];
+
+        // CP-26 (#325): the assignee picker is a role="option"/role="listbox" markup, never a
+        // native <select>/<option> whose value is an action URL.
+        self::assertStringNotContainsString('<select', $result);
+        self::assertStringNotContainsString('<option', $result);
+        self::assertStringContainsString('role="listbox"', $result);
+        self::assertStringContainsString('role="option"', $result);
+    }
+
+    #[Test]
+    public function assigneeSelectionActionMarksCurrentAssigneeStructurally(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'currentAssignee' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $result = $payload['result'];
+
+        // The current assignee is marked via aria-current, not by label text (e.g. "--").
+        self::assertStringContainsString('data-assignee-uid="1"', $result);
+        self::assertMatchesRegularExpression('/data-assignee-uid="1"[^>]*aria-current="true"/', $result);
     }
 
     #[Test]
@@ -116,7 +157,7 @@ final class RecordControllerAssigneeTest extends AbstractFunctionalTestCase
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
-        self::assertStringContainsString('assignee-selection', $payload['result']);
+        self::assertStringContainsString('assignee-listbox', $payload['result']);
     }
 
     private function createController(): RecordController
