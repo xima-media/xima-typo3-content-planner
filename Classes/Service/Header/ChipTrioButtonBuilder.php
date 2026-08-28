@@ -20,17 +20,19 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository};
-use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\ComponentFactoryUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 /**
  * ChipTrioButtonBuilder.
  *
- * CP-25 (#324): Level 1 doc header trio. Adds an assignee button and a comment button to the
- * doc header button bar next to the status dropdown (see ModifyButtonBarEventListener),
- * extracted into its own class to keep that listener's cognitive complexity manageable.
+ * CP-25 (#324): builds the doc header trio (status dropdown, assignee button, comment
+ * button), extracted out of ModifyButtonBarEventListener to keep that listener's cognitive
+ * complexity manageable.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -43,6 +45,41 @@ final readonly class ChipTrioButtonBuilder
         private CommentRepository $commentRepository,
         private PageRenderer $pageRenderer,
     ) {}
+
+    /**
+     * @param array<string, \TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItemInterface>|false $buttonsToAdd
+     */
+    public function attachStatusDropdown(ModifyButtonBarEvent $event, ?Status $status, array|false $buttonsToAdd): void
+    {
+        if (false === $buttonsToAdd) {
+            return;
+        }
+
+        $isChipMode = !ExtensionUtility::isBannerDisplayModeEnabled();
+        $statusLabel = $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status');
+
+        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
+            // CP-25 (#324): in chip mode, the status name is shown as visible label text
+            // next to the icon (the "chip" visual) instead of just an icon-only dropdown.
+            ->setLabel($isChipMode && $status instanceof Status ? $status->getTitle() : 'Dropdown')
+            ->setShowLabelText($isChipMode)
+            ->setTitle($isChipMode && $status instanceof Status ? $statusLabel.': '.$status->getTitle() : $statusLabel)
+            ->setIcon($this->iconFactory->getIcon(
+                $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
+            ));
+
+        foreach ($buttonsToAdd as $buttonToAdd) {
+            if (!$buttonToAdd->isValid()) {
+                continue;
+            }
+            $dropDownButton->addItem($buttonToAdd);
+        }
+
+        $buttons = $event->getButtons();
+        $buttons['right'] ??= [];
+        $buttons['right'][] = [$dropDownButton];
+        $event->setButtons($buttons);
+    }
 
     /**
      * @param array<string, mixed> $record
