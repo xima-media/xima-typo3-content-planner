@@ -134,10 +134,28 @@ class StatusRepository
         return false === $row ? null : $this->hydrate($row);
     }
 
+    /**
+     * CP-27 (#326): the status marked as "initial status" for the comment-first one-click
+     * flow, or null when none is configured. Reuses the already-cached findAll() result
+     * rather than a dedicated query/cache entry.
+     *
+     * @throws Exception
+     */
+    public function findDefault(): ?Status
+    {
+        foreach ($this->findAll() as $status) {
+            if ($status->isDefault()) {
+                return $status;
+            }
+        }
+
+        return null;
+    }
+
     private function createQueryBuilder(): QueryBuilder
     {
         return $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_STATUS)
-            ->select('uid', 'title', 'icon', 'color')
+            ->select('uid', 'title', 'icon', 'color', Configuration::FIELD_STATUS_IS_DEFAULT)
             ->from(Configuration::TABLE_STATUS)
         ;
     }
@@ -152,6 +170,7 @@ class StatusRepository
             title: (string) $row['title'],
             icon: (string) $row['icon'],
             color: (string) $row['color'],
+            isDefault: (bool) ($row[Configuration::FIELD_STATUS_IS_DEFAULT] ?? false),
         );
     }
 

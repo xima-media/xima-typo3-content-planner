@@ -35,17 +35,19 @@ final class StatusTest extends TestCase
         self::assertSame('', $status->getTitle());
         self::assertSame('', $status->getIcon());
         self::assertSame('', $status->getColor());
+        self::assertFalse($status->isDefault());
     }
 
     #[Test]
     public function constructorHydratesAllProperties(): void
     {
-        $status = new Status(uid: 5, title: 'In Progress', icon: 'heart', color: 'yellow');
+        $status = new Status(uid: 5, title: 'In Progress', icon: 'heart', color: 'yellow', isDefault: true);
 
         self::assertSame(5, $status->getUid());
         self::assertSame('In Progress', $status->getTitle());
         self::assertSame('heart', $status->getIcon());
         self::assertSame('yellow', $status->getColor());
+        self::assertTrue($status->isDefault());
     }
 
     #[Test]

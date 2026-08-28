@@ -87,6 +87,13 @@ class Configuration
     final public const FIELD_ASSIGNEE = 'tx_ximatypo3contentplanner_assignee';
     final public const FIELD_COMMENTS = 'tx_ximatypo3contentplanner_comments';
 
+    /*
+     * CP-27 (#326): marks a status record as the "initial status" - the one applied
+     * automatically by the comment-first one-click flow. DataHandlerHook enforces that at
+     * most one status carries this flag (see StatusDefaultManager).
+     */
+    final public const FIELD_STATUS_IS_DEFAULT = 'is_default';
+
     // Permission identifiers
     final public const PERMISSION_GROUP = 'tx_ximatypo3contentplanner';
     final public const PERMISSION_VIEW_ONLY = 'view-only';

@@ -109,4 +109,29 @@ final class StatusRepositoryTest extends AbstractFunctionalTestCase
     {
         self::assertNull($this->subject->findByTitle('Nonexistent'));
     }
+
+    #[Test]
+    public function findAllHydratesIsDefaultAsFalseWhenFlagIsNotSet(): void
+    {
+        self::assertFalse($this->subject->findAll()[0]->isDefault());
+    }
+
+    #[Test]
+    public function findDefaultReturnsNullWhenNoStatusIsMarkedAsDefault(): void
+    {
+        self::assertNull($this->subject->findDefault());
+    }
+
+    #[Test]
+    public function findDefaultReturnsTheStatusMarkedAsDefault(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status_with_default.csv');
+        $subject = $this->get(StatusRepository::class);
+
+        $default = $subject->findDefault();
+
+        self::assertInstanceOf(Status::class, $default);
+        self::assertSame(12, $default->getUid());
+        self::assertTrue($default->isDefault());
+    }
 }

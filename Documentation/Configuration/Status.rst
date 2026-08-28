@@ -74,6 +74,17 @@ You can add a new status, edit an existing status, change the status order or de
         :Description:
             Select one of the existing colors for this status.
 
+    -
+        :Field:
+            Use as initial status
+
+        :Description:
+            Marks this status as the one applied by the comment-first one-click flow (see :ref:`Comment-first flow <comments-comment-first>`). At most one status can carry this flag - marking a second one automatically clears it from the previous one.
+
+..  versionadded:: 3.0.0
+
+    `Feature: #326 - Comment-first flow: comment on records without a status (CP-27) <https://github.com/xima-media/xima-typo3-content-planner/issues/326>`__
+
 ..  _status-accessibility:
 
 Accessibility: Colour Is Never the Only Signal
