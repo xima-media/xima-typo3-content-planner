@@ -1,0 +1,14 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<span class="content-planner-notification-entry__icon" aria-hidden="true">
+    <core:icon identifier="{item.iconIdentifier}" size="small"/>
+</span>
+<span class="content-planner-notification-entry__body">
+    <span class="content-planner-notification-entry__title">{item.title}</span>
+    <span class="content-planner-notification-entry__meta">
+        {item.actorLabel} &middot; {item.timeAgo}
+    </span>
+    <f:if condition="{item.reasonLabel}">
+        <span class="content-planner-notification-entry__reason">{item.reasonLabel}</span>
+    </f:if>
+</span>
+</html>
