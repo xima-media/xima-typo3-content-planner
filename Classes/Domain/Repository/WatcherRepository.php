@@ -16,9 +16,12 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{WatchMode, WatchSource};
 
+use function count;
+use function intval;
 use function is_array;
 use function is_string;
 
@@ -27,7 +30,9 @@ use function is_string;
  *
  * Persistence for `tx_ximatypo3contentplanner_watcher`. Writes go through raw QueryBuilder
  * operations (this table is never edited via FormEngine/DataHandler), following the same
- * convention as {@see RecordRepository::updateStatusByUid()}.
+ * convention as {@see RecordRepository::updateStatusByUid()}. The orphan cleanup methods back
+ * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Retention\NotificationRetentionService}
+ * (issue #304).
  *
  * Known gaps, both deliberate at this point in the notifications epic:
  *
@@ -43,6 +48,12 @@ use function is_string;
  */
 class WatcherRepository
 {
+    /**
+     * Upper bound on how many rows a single DELETE (or its preceding candidate-uid SELECT)
+     * touches (issue #304's "safe on large tables" requirement).
+     */
+    private const int DELETE_CHUNK_SIZE = 500;
+
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     /**
@@ -247,6 +258,92 @@ class WatcherRepository
     }
 
     /**
+     * Distinct `(tablename, record_uid)` pairs referenced by any watcher relation, for the
+     * orphaned-record cleanup rule (issue #304).
+     *
+     * @return list<array{tablename: string, record_uid: int}>
+     *
+     * @throws Exception
+     */
+    public function findDistinctTableRecordPairs(): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
+
+        $rows = $queryBuilder
+            ->select('tablename', 'record_uid')
+            ->distinct()
+            ->from(Configuration::TABLE_WATCHER)
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        return array_map(
+            static fn (array $row): array => ['tablename' => (string) $row['tablename'], 'record_uid' => (int) $row['record_uid']],
+            $rows,
+        );
+    }
+
+    /**
+     * Distinct backend user uids holding a watcher relation, for the orphaned-backend-user
+     * cleanup rule (issue #304).
+     *
+     * @return list<int>
+     *
+     * @throws Exception
+     */
+    public function findDistinctBackendUsers(): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
+
+        $rows = $queryBuilder
+            ->select('backend_user')
+            ->distinct()
+            ->from(Configuration::TABLE_WATCHER)
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return array_map(intval(...), $rows);
+    }
+
+    /**
+     * Deletes (or, with `$dryRun`, only counts) every watcher relation for the given orphaned
+     * record.
+     *
+     * @param list<int> $recordUids
+     *
+     * @throws Exception
+     */
+    public function deleteForTableAndRecordUids(string $table, array $recordUids, bool $dryRun): int
+    {
+        if ([] === $recordUids) {
+            return 0;
+        }
+
+        return $this->deleteMatchingInChunks(static function (QueryBuilder $queryBuilder) use ($table, $recordUids): void {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq('tablename', $queryBuilder->createNamedParameter($table)));
+            $queryBuilder->andWhere($queryBuilder->expr()->in('record_uid', $queryBuilder->createNamedParameter($recordUids, Connection::PARAM_INT_ARRAY)));
+        }, $dryRun);
+    }
+
+    /**
+     * Deletes (or, with `$dryRun`, only counts) every watcher relation held by one of the given
+     * (deleted/disabled) backend users.
+     *
+     * @param list<int> $backendUserUids
+     *
+     * @throws Exception
+     */
+    public function deleteForBackendUsers(array $backendUserUids, bool $dryRun): int
+    {
+        if ([] === $backendUserUids) {
+            return 0;
+        }
+
+        return $this->deleteMatchingInChunks(static function (QueryBuilder $queryBuilder) use ($backendUserUids): void {
+            $queryBuilder->andWhere($queryBuilder->expr()->in('backend_user', $queryBuilder->createNamedParameter($backendUserUids, Connection::PARAM_INT_ARRAY)));
+        }, $dryRun);
+    }
+
+    /**
      * @throws Exception
      */
     private function updateRow(int $watcherUid, WatchMode $mode, WatchSource $source): void
@@ -282,5 +379,49 @@ class WatcherRepository
                 'tstamp' => $now,
             ])
             ->executeStatement();
+    }
+
+    /**
+     * Shared engine for the two orphan cleanup rules above - see
+     * {@see NotificationRepository::deleteMatchingInChunks()} for the full "why chunked" reasoning
+     * (same pattern, applied here to `tx_ximatypo3contentplanner_watcher`).
+     *
+     * @throws Exception
+     */
+    private function deleteMatchingInChunks(callable $configureWhere, bool $dryRun): int
+    {
+        if ($dryRun) {
+            $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
+            $queryBuilder->count('uid')->from(Configuration::TABLE_WATCHER);
+            $configureWhere($queryBuilder);
+
+            return (int) $queryBuilder->executeQuery()->fetchOne();
+        }
+
+        $deleted = 0;
+        do {
+            $selectQueryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
+            $selectQueryBuilder->select('uid')->from(Configuration::TABLE_WATCHER);
+            $configureWhere($selectQueryBuilder);
+            $uids = array_map(intval(...), $selectQueryBuilder
+                ->orderBy('uid')
+                ->setMaxResults(self::DELETE_CHUNK_SIZE)
+                ->executeQuery()
+                ->fetchFirstColumn());
+
+            if ([] === $uids) {
+                break;
+            }
+
+            $deleteQueryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
+            $deleteQueryBuilder
+                ->delete(Configuration::TABLE_WATCHER)
+                ->where($deleteQueryBuilder->expr()->in('uid', $deleteQueryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)))
+                ->executeStatement();
+
+            $deleted += count($uids);
+        } while (self::DELETE_CHUNK_SIZE === count($uids));
+
+        return $deleted;
     }
 }
