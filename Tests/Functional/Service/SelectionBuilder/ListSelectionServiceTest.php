@@ -105,7 +105,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
     public function addHeaderItemToSelectionAddsHeaderAndDivider(): void
     {
         $entries = [];
-        $this->subject->addHeaderItemToSelection($entries);
+        $entries = $this->subject->addHeaderItemToSelection($entries);
 
         self::assertArrayHasKey('header', $entries);
         self::assertArrayHasKey('headerDivider', $entries);
@@ -116,7 +116,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
     public function addDividerItemToSelectionUsesPostIdentifier(): void
     {
         $entries = [];
-        $this->subject->addDividerItemToSelection($entries, '2');
+        $entries = $this->subject->addDividerItemToSelection($entries, '2');
 
         self::assertArrayHasKey('divider2', $entries);
     }
@@ -126,7 +126,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_ASSIGNEE => 1];
-        $this->subject->addAssigneeItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addAssigneeItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayHasKey('assignee', $entries);
         self::assertStringContainsString('data-content-planner-assignees', $entries['assignee']);
@@ -137,7 +137,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
-        $this->subject->addCommentsItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayHasKey('comments', $entries);
         self::assertStringContainsString('data-content-planner-comments', $entries['comments']);
@@ -148,7 +148,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
-        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayNotHasKey('commentsTodo', $entries);
     }
@@ -158,7 +158,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
-        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayHasKey('commentsTodo', $entries);
         self::assertStringContainsString('1/3', $entries['commentsTodo']);
@@ -190,7 +190,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
         $status = $this->makeStatus(1);
         $currentStatus = $this->makeStatus(1);
         $entries = [];
-        $this->subject->addStatusItemToSelection($entries, $status, $currentStatus, 'pages', 1);
+        $entries = $this->subject->addStatusItemToSelection($entries, $status, $currentStatus, 'pages', 1);
 
         self::assertArrayNotHasKey('1', $entries);
     }
@@ -201,7 +201,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
         $status = $this->makeStatus(1);
         $currentStatus = $this->makeStatus(3);
         $entries = [];
-        $this->subject->addStatusItemToSelection($entries, $status, $currentStatus, 'pages', 1);
+        $entries = $this->subject->addStatusItemToSelection($entries, $status, $currentStatus, 'pages', 1);
 
         self::assertArrayHasKey('1', $entries);
     }
@@ -246,7 +246,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $folderRecord = ['uid' => 1, Configuration::FIELD_ASSIGNEE => 1];
-        $this->subject->addFolderAssigneeItemToSelection($entries, $folderRecord, '1:/user_upload/');
+        $entries = $this->subject->addFolderAssigneeItemToSelection($entries, $folderRecord, '1:/user_upload/');
 
         self::assertArrayHasKey('assignee', $entries);
         self::assertStringContainsString('data-content-planner-assignees', $entries['assignee']);
@@ -257,7 +257,7 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $folderRecord = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
-        $this->subject->addFolderCommentsItemToSelection($entries, $folderRecord, '1:/user_upload/');
+        $entries = $this->subject->addFolderCommentsItemToSelection($entries, $folderRecord, '1:/user_upload/');
 
         self::assertArrayHasKey('comments', $entries);
         self::assertStringContainsString('data-content-planner-comments', $entries['comments']);

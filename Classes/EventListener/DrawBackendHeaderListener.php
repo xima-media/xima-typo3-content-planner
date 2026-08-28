@@ -48,7 +48,7 @@ final readonly class DrawBackendHeaderListener
             return;
         }
 
-        $content = $this->headerInfoGenerator->generateStatusHeader(HeaderMode::WEB_LAYOUT, record: $pageInfo, table: 'pages');
+        $content = $this->headerInfoGenerator->generateStatusHeader(HeaderMode::WEB_LAYOUT, $pageInfo, 'pages');
         if (!$content) {
             return;
         }

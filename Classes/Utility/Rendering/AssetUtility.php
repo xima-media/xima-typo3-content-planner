@@ -79,26 +79,20 @@ class AssetUtility
             $publisherClass = 'TYPO3\\CMS\\Core\\SystemResource\\Publishing\\SystemResourcePublisherInterface';
             $optionsClass = 'TYPO3\\CMS\\Core\\SystemResource\\Publishing\\UriGenerationOptions';
 
-            // @phpstan-ignore argument.type
             $resourceFactory = GeneralUtility::makeInstance($factoryClass);
-            // @phpstan-ignore argument.type
             $resourcePublisher = GeneralUtility::makeInstance($publisherClass);
-            // @phpstan-ignore class.notFound, method.notFound
             $resource = $resourceFactory->createPublicResource($resourcePath);
             /** @var ServerRequestInterface|null $request */
             $request = $GLOBALS['TYPO3_REQUEST'] ?? null;
 
-            // @phpstan-ignore class.notFound, method.notFound
             return (string) $resourcePublisher->generateUri(
                 $resource,
                 $request,
-                // @phpstan-ignore class.notFound
-                new $optionsClass(absoluteUri: false),
+                new $optionsClass(false),
             );
         }
 
         // TYPO3 13 fallback - deprecated in v14, will be removed in v15
-        // @phpstan-ignore staticMethod.deprecated
         return PathUtility::getPublicResourceWebPath($resourcePath);
     }
 }
