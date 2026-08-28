@@ -250,6 +250,20 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
         self::assertSame([], $this->subject->existingUids('pages', []));
     }
 
+    #[Test]
+    public function findPidByUidReturnsThePageAContentElementLivesOn(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+
+        self::assertSame(1, $this->subject->findPidByUid('tt_content', 1));
+    }
+
+    #[Test]
+    public function findPidByUidReturnsNullForAMissingRecord(): void
+    {
+        self::assertNull($this->subject->findPidByUid('tt_content', 99999));
+    }
+
     // NOTE: findAllByFilter() builds raw "(SELECT ...) UNION (SELECT ...)" SQL which is invalid
     // under SQLite (the functional test driver). It is therefore not covered here, together with
     // the private helpers it exclusively calls (applyFilterConditions, buildSearchCondition,
