@@ -84,6 +84,13 @@ final readonly class ModifyRecordListRecordActionsListener
         $title = $status instanceof Status ? $status->getTitle() : 'Status';
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
 
+        // CP-14 (#318): this icon-only dropdown toggle only gets `setTitle()`, not an
+        // aria-label - TYPO3 core's DropDownButton/AbstractControl API (both v13 and the
+        // v14 ComponentFactory-based variant) only exposes title/classes/data-attributes,
+        // no generic HTML attribute setter. `title` still resolves as the accessible name
+        // per the HTML AccName algorithm (no aria-label/aria-labelledby present, and the
+        // icon itself is aria-hidden so it never blocks the name from reaching the button),
+        // so this is a documented, accepted limitation rather than a silent gap.
         $dropDownButton = ComponentFactoryUtility::createDropDownButton()
             ->setLabel($title)
             ->setTitle($title)
