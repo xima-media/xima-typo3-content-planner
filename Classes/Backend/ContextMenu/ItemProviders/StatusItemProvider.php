@@ -62,6 +62,16 @@ class StatusItemProvider extends AbstractProvider
 
     private int $currentAssignee = 0;
 
+    /**
+     * Per-item status metadata (title/color/icon), keyed by item key. Populated from the
+     * selection entries in {@see addItems()} and read back in {@see getAdditionalAttributes()}
+     * so the JS callback receives enough data to apply a status change optimistically,
+     * without an extra round trip.
+     *
+     * @var array<string, array{title: string, color: string, icon: string}>
+     */
+    private array $statusMetadataByItemKey = [];
+
     public function __construct(
         private readonly ContextMenuSelectionService $contextMenuSelectionService,
         private readonly SysFileMetadataRepository $sysFileMetadataRepository,
@@ -136,6 +146,16 @@ class StatusItemProvider extends AbstractProvider
             if ('assignee' === $itemKey && isset($itemToAdd['currentAssignee'])) {
                 $this->currentAssignee = (int) $itemToAdd['currentAssignee'];
             }
+
+            // Status-change entries carry color/icon so the JS callback can apply the new
+            // status optimistically, see getAdditionalAttributes().
+            if (isset($itemToAdd['color'], $itemToAdd['icon'])) {
+                $this->statusMetadataByItemKey[(string) $itemKey] = [
+                    'title' => (string) ($itemToAdd['label'] ?? ''),
+                    'color' => (string) $itemToAdd['color'],
+                    'icon' => (string) $itemToAdd['icon'],
+                ];
+            }
         }
 
         $localItems = $this->prepareItems($this->itemsConfiguration);
@@ -194,6 +214,15 @@ class StatusItemProvider extends AbstractProvider
         // Add current assignee for assignee modal
         if ('assignee' === $itemName) {
             $attributes['data-current-assignee'] = $this->currentAssignee;
+        }
+
+        // Status-change entries: expose title/color/icon so context-menu-actions.js can
+        // apply the new status to the DOM optimistically, before the request resolves.
+        if (isset($this->statusMetadataByItemKey[(string) $itemName])) {
+            $metadata = $this->statusMetadataByItemKey[(string) $itemName];
+            $attributes['data-status-title'] = $metadata['title'];
+            $attributes['data-status-color'] = $metadata['color'];
+            $attributes['data-status-icon'] = $metadata['icon'];
         }
 
         return $attributes;
