@@ -46,6 +46,24 @@ Features
 
     Enable record edit header info
 
+..  _extconf-headerDisplayMode:
+
+..  confval:: headerDisplayMode
+    :type: options
+    :Default: chip
+
+    Choose how status/assignee/comment information is displayed across the backend:
+
+    - **Chip** (chip): compact doc header trio (status dropdown, assignee button, comment
+      button) plus a status accent border on content elements in the page module. Default
+      since 3.0.
+    - **Banner** (banner): the pre-3.0 full-width banner above the module content and the
+      injected content element overlay in the page module.
+
+    ..  note::
+        Breaking change in 3.0: the default changed from the banner to the chip. Set this to
+        ``banner`` to keep the pre-3.0 look. See :ref:`upgrade-guide`.
+
 ..  _extconf-webListHeaderInfo:
 
 ..  confval:: webListHeaderInfo
