@@ -15,7 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Service\Notification;
 
 use PHPUnit\Framework\Attributes\Test;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\{WatchMode};
+use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchMode;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\WatcherRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Notification\MentionNotificationService;
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
