@@ -132,6 +132,34 @@ final class ExtensionUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function isBannerDisplayModeEnabledReturnsFalseByDefault(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+
+        self::assertFalse(ExtensionUtility::isBannerDisplayModeEnabled());
+    }
+
+    #[Test]
+    public function isBannerDisplayModeEnabledReturnsFalseForChip(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_CHIP;
+
+        self::assertFalse(ExtensionUtility::isBannerDisplayModeEnabled());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    #[Test]
+    public function isBannerDisplayModeEnabledReturnsTrueForBanner(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
+
+        self::assertTrue(ExtensionUtility::isBannerDisplayModeEnabled());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    #[Test]
     public function addContentPlannerTabToTcaAddsColumnsAndPalette(): void
     {
         $GLOBALS['TCA']['tt_content']['palettes']['tx_ximatypo3contentplanner'] = null;
