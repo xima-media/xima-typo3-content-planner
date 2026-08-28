@@ -189,10 +189,10 @@ class InfoGenerator
     public static function loadHeaderAssets(PageRenderer $pageRenderer): void
     {
         $pageRenderer->loadJavaScriptModule(
-            Configuration::JAVASCRIPT_MODULE_PREFIX.'create-and-edit-comment-modal.js',
+            Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js',
         );
         $pageRenderer->loadJavaScriptModule(
-            Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js',
+            Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-reload-content.js',
         );
         $pageRenderer->loadJavaScriptModule(
             Configuration::JAVASCRIPT_MODULE_PREFIX.'assignee-selection-modal.js',

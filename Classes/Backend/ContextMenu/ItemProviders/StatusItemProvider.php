@@ -123,8 +123,8 @@ class StatusItemProvider extends AbstractProvider
 
         /** @var PageRenderer $pageRenderer */
         $pageRenderer = $this->pageRenderer;
-        $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'create-and-edit-comment-modal.js');
         $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js');
+        $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-reload-content.js');
         $pageRenderer->addInlineLanguageLabelFile('EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf');
 
         $this->initDisabledItems();
