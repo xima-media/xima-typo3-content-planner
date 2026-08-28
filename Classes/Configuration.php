@@ -74,6 +74,7 @@ class Configuration
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
     final public const TABLE_WATCHER = 'tx_ximatypo3contentplanner_watcher';
     final public const TABLE_NOTIFICATION = 'tx_ximatypo3contentplanner_notification';
+    final public const TABLE_IMMEDIATE_QUEUE = 'tx_ximatypo3contentplanner_immediate_queue';
 
     /*
      * Up to and including v3, this held 'tx_ximatypo3contentplanner_status' — the name of

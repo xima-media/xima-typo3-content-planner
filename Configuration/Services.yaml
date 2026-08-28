@@ -45,6 +45,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Domain\Repository\NotificationRepository:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\ImmediateEmailQueueRepository:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\PlannerService:
     public: true
 
