@@ -64,6 +64,33 @@ final class IconUtilityTest extends AbstractFunctionalTestCase
         self::assertSame('flag-gray', IconUtility::getIconByStatus(null));
     }
 
+    /**
+     * CP-14 (#318): status must never be conveyed by colour alone. The status icon is
+     * aria-hidden (see TYPO3\CMS\Core\Imaging\Icon), so the status title must additionally
+     * be present as real text for screen readers/keyboard users, not only as a `title`
+     * attribute nested inside the aria-hidden icon markup.
+     */
+    #[Test]
+    public function getIconByStatusRenderedMarkupCarriesStatusTitleAsText(): void
+    {
+        $status = new Status(icon: 'flag', color: 'blue', title: 'In Review');
+
+        $markup = IconUtility::getIconByStatus($status, true);
+
+        self::assertStringContainsString('visually-hidden', $markup);
+        self::assertStringContainsString('In Review', $markup);
+    }
+
+    #[Test]
+    public function getIconByStatusRenderedMarkupHasNoLabelWhenStatusHasNoTitle(): void
+    {
+        $status = new Status(icon: 'flag', color: 'blue');
+
+        $markup = IconUtility::getIconByStatus($status, true);
+
+        self::assertStringNotContainsString('visually-hidden', $markup);
+    }
+
     #[Test]
     public function getIconByStatusUidResolvesStatus(): void
     {
