@@ -17,9 +17,11 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent;
 use TYPO3\CMS\Backend\View\PageLayoutContext;
+use TYPO3\CMS\Core\Domain\RecordFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\EventListener\ContentElementPreviewStatusListener;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\VersionUtility;
 
 /**
  * ContentElementPreviewStatusListenerTest.
@@ -97,6 +99,12 @@ final class ContentElementPreviewStatusListenerTest extends AbstractFunctionalTe
         $context = $this->createMock(PageLayoutContext::class);
         $context->method('getPageId')->willReturn(1);
 
-        return new PageContentPreviewRenderingEvent('tt_content', 'header', $record, $context);
+        // TYPO3 v13/v14 compatibility: the event's constructor takes a plain array in v13,
+        // but requires a TYPO3\CMS\Core\Domain\RecordInterface in v14.
+        $eventRecord = VersionUtility::is14OrHigher()
+            ? $this->get(RecordFactory::class)->createResolvedRecordFromDatabaseRow('tt_content', $record)
+            : $record;
+
+        return new PageContentPreviewRenderingEvent('tt_content', 'header', $eventRecord, $context);
     }
 }
