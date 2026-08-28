@@ -207,6 +207,27 @@ class InfoGenerator
     }
 
     /**
+     * Shared with ModifyButtonBarEventListener's doc header chip trio (CP-25 / #324), so the
+     * "assigned to me" check cannot drift out of sync between the banner and the chip.
+     *
+     * @param array<string, mixed> $record
+     */
+    public static function getAssignedToCurrentUser(array $record): bool
+    {
+        if (
+            !array_key_exists(Configuration::FIELD_ASSIGNEE, $record)
+            || !ExtensionUtility::isFeatureEnabled(
+                Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT,
+            )
+        ) {
+            return false;
+        }
+
+        return (int) $record[Configuration::FIELD_ASSIGNEE] ===
+            self::getBackendUserId();
+    }
+
+    /**
      * @param array<string, mixed> $record
      *
      * @throws RouteNotFoundException
@@ -229,7 +250,7 @@ class InfoGenerator
             ],
             'assignee' => [
                 'username' => $this->getAssigneeUsername($record),
-                'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
+                'assignedToCurrentUser' => self::getAssignedToCurrentUser($record),
                 'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($record)
                     ? UrlUtility::assignToUser($table, $record['uid'])
                     : false,
@@ -255,7 +276,7 @@ class InfoGenerator
                 ) ? $this->getCommentsTodoTotal($record, $table) : 0,
             ],
             'contentElements' => $this->getContentElements($record, $table),
-            'userid' => $this->getBackendUserId(),
+            'userid' => self::getBackendUserId(),
         ]);
 
         $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode);
@@ -291,7 +312,7 @@ class InfoGenerator
             ],
             'assignee' => [
                 'username' => $this->getAssigneeUsername($folderRecord),
-                'assignedToCurrentUser' => $this->getAssignedToCurrentUser($folderRecord),
+                'assignedToCurrentUser' => self::getAssignedToCurrentUser($folderRecord),
                 'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($folderRecord)
                     ? UrlUtility::assignToUser($table, $uid)
                     : false,
@@ -314,7 +335,7 @@ class InfoGenerator
                 ) ? $this->getCommentsTodoTotal($folderRecord, $table) : 0,
             ],
             'contentElements' => null,
-            'userid' => $this->getBackendUserId(),
+            'userid' => self::getBackendUserId(),
         ]);
 
         $content .= $this->addFrontendAssets(false);
@@ -336,24 +357,6 @@ class InfoGenerator
         return $this->backendUserRepository->getUsernameByUid(
             (int) $record[Configuration::FIELD_ASSIGNEE],
         );
-    }
-
-    /**
-     * @param array<string, mixed> $record
-     */
-    private function getAssignedToCurrentUser(array $record): bool
-    {
-        if (
-            !array_key_exists(Configuration::FIELD_ASSIGNEE, $record)
-            || !ExtensionUtility::isFeatureEnabled(
-                Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT,
-            )
-        ) {
-            return false;
-        }
-
-        return (int) $record[Configuration::FIELD_ASSIGNEE] ===
-            $this->getBackendUserId();
     }
 
     /**
@@ -434,7 +437,7 @@ class InfoGenerator
         return null;
     }
 
-    private function getBackendUserId(): int
+    private static function getBackendUserId(): int
     {
         /** @var BackendUserAuthentication $backendUser */
         $backendUser = $GLOBALS['BE_USER'];

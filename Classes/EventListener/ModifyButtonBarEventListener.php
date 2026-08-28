@@ -310,11 +310,9 @@ final readonly class ModifyButtonBarEventListener
             ? $username
             : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
 
-        $backendUser = $GLOBALS['BE_USER'];
-        $currentUserId = (int) ($backendUser->user['uid'] ?? 0);
-        $assignedToCurrentUser = $currentAssignee > 0
-            && $currentAssignee === $currentUserId
-            && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT);
+        // Shared with the banner (InfoGenerator/HeaderInfo.html) so "assigned to me" cannot
+        // drift out of sync between the two headerDisplayMode variants.
+        $assignedToCurrentUser = InfoGenerator::getAssignedToCurrentUser($record);
 
         $assigneeButton = GeneralUtility::makeInstance(LinkButton::class)
             ->setIcon($this->iconFactory->getIcon('actions-user'))
