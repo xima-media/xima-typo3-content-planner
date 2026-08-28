@@ -17,7 +17,8 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Model\{WatchMode, WatchSource};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, WatcherRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{AssigneeChangedEvent, StatusChangeEvent};
 use Xima\XimaTypo3ContentPlanner\Manager\{ContentPlannerFieldAuthorizer, StatusChangeManager};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -204,6 +205,42 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
         $this->subject->processContentPlannerFields($fields, 'pages', 1);
 
         self::assertArrayNotHasKey(Configuration::FIELD_ASSIGNEE, $fields);
+    }
+
+    /**
+     * The sticky-unwatch guarantee (issue #303's acceptance criteria), exercised through the real
+     * user-facing flow rather than directly against {@see WatcherService}: auto-assignment
+     * (feature-flagged, {@see StatusChangeManager::processContentPlannerFields()}) dispatches a
+     * real {@see AssigneeChangedEvent} through the container's actual event dispatcher, which
+     * {@see \Xima\XimaTypo3ContentPlanner\EventListener\Watcher\AutoWatchOnAssigneeChangedListener}
+     * turns into a {@see WatcherService::watch()} call for the new assignee. A backend user who
+     * had previously muted the record (issue #299's `manual_unwatch`) must not be silently
+     * re-subscribed just because they happen to become the new auto-assignee.
+     *
+     * No Playwright coverage for this guarantee in this PR - the e2e/Playwright infrastructure
+     * lives in an independent, unmerged branch stack (see the PR description); this functional
+     * test is the full substitute the issue asks for.
+     */
+    #[Test]
+    public function autoAssignmentNeverReactivatesAManuallyMutedWatcher(): void
+    {
+        $this->enableFeature('autoAssignment');
+        $watcherRepository = $this->get(WatcherRepository::class);
+        // Backend user 1 (the current session user, see setUp()) had previously muted page 1.
+        $watcherRepository->upsert('pages', 1, 1, WatchMode::ManualUnwatch, WatchSource::Manual);
+
+        // Page 1 has no status/assignee before this change, so auto-assignment fires and makes
+        // backend user 1 the new assignee (same fixture assumption as
+        // processContentPlannerFieldsAutoAssignsCurrentUserWhenFeatureEnabledAndNoPriorStatus).
+        $fields = [Configuration::FIELD_STATUS => 2];
+        $this->subject->processContentPlannerFields($fields, 'pages', 1);
+
+        self::assertSame(1, $fields[Configuration::FIELD_ASSIGNEE], 'sanity check: auto-assignment must fire for this test to be meaningful');
+        self::assertSame(
+            WatchMode::ManualUnwatch,
+            $watcherRepository->findMode('pages', 1, 1),
+            'auto-assignment must never reactivate a manually muted watcher',
+        );
     }
 
     #[Test]
