@@ -55,12 +55,14 @@
     <div class="content-planner-header__actions">
         <div class="content-planner-header__ce-hint">
             <f:for each="{contentElements}" as="contentElement">
+                <f:variable name="ceStatusTitle" value="{xcp:statusTitle(statusId: contentElement.tx_ximatypo3contentplanner_status)}"/>
+                <f:variable name="ceHintLabel"><f:translate key="header.editContentElement" extensionName="xima_typo3_content_planner" arguments="{0: contentElement.title}"/><f:if condition="{ceStatusTitle}"> (<f:translate key="header.status" extensionName="xima_typo3_content_planner"/>: {ceStatusTitle})</f:if></f:variable>
                 <be:link.editRecord
                     uid="{contentElement.uid}"
                     table="tt_content"
                     returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-                    title="{f:translate(key: 'header.editContentElement', extensionName: 'xima_typo3_content_planner', arguments: {0: contentElement.title})}"
-                    additionalAttributes="{data-color: '{xcp:statusColor(statusId: contentElement.tx_ximatypo3contentplanner_status)}'}"
+                    title="{ceHintLabel}"
+                    additionalAttributes="{data-color: '{xcp:statusColor(statusId: contentElement.tx_ximatypo3contentplanner_status)}', aria-label: '{ceHintLabel}'}"
                 >
                     &#9679;
                 </be:link.editRecord>
@@ -108,6 +110,7 @@
                     data-pid="{pid}"
                     data-userid="{userid}"
                     title="{f:translate(key: 'header.newComment', extensionName: 'xima_typo3_content_planner')}"
+                    aria-label="{f:translate(key: 'header.newComment', extensionName: 'xima_typo3_content_planner')}"
                 >
                     <core:icon
                         identifier="actions-message-add"
@@ -116,11 +119,13 @@
                 </a>
             </f:if>
             <f:if condition="{comments}">
+                <f:variable name="commentsLabel"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/><f:if condition="{comments.count}"> ({comments.count})</f:if></f:variable>
                 <button
                     class="btn btn-default content-planner-link--comments"
                     data-content-planner-comments
                     type="button"
-                    title="{f:translate(key: 'header.comments', extensionName: 'xima_typo3_content_planner')}"
+                    title="{commentsLabel}"
+                    aria-label="{commentsLabel}"
                     data-table="{table}"
                     data-id="{data.uid}"
                     data-new-comment-uri="{comments.newCommentUri}"
@@ -132,11 +137,13 @@
                     </f:if>
                 </button>
                 <f:if condition="{comments.todoTotal}">
+                    <f:variable name="todoLabel"><f:translate key="header.comments.todo" extensionName="xima_typo3_content_planner"/> ({comments.todoResolved}/{comments.todoTotal})</f:variable>
                     <button
                         class="btn btn-default content-planner-header__todo-badge"
                         data-content-planner-comments
                         type="button"
-                        title="{f:translate(key: 'header.comments.todo', extensionName: 'xima_typo3_content_planner')}"
+                        title="{todoLabel}"
+                        aria-label="{todoLabel}"
                         data-table="{table}"
                         data-id="{data.uid}"
                         data-new-comment-uri="{comments.newCommentUri}"
@@ -157,6 +164,7 @@
                 fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
                 returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
                 title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
+                additionalAttributes="{aria-label: '{f:translate(key: \'header.editStatus\', extensionName: \'xima_typo3_content_planner\')}'}"
                 class="btn btn-default"
             >
                 <core:icon

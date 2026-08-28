@@ -66,6 +66,18 @@ final class ViewHelpersTest extends AbstractFunctionalTestCase
         self::assertSame('', $this->render('StatusColorName.html', ['statusId' => 999]));
     }
 
+    #[Test]
+    public function statusTitleReturnsStatusTitle(): void
+    {
+        self::assertSame('Draft', $this->render('StatusTitle.html', ['statusId' => 1]));
+    }
+
+    #[Test]
+    public function statusTitleReturnsEmptyStringForUnknownStatus(): void
+    {
+        self::assertSame('', $this->render('StatusTitle.html', ['statusId' => 999]));
+    }
+
     /**
      * @param array<string, mixed> $variables
      */
