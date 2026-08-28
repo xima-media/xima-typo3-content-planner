@@ -15,7 +15,9 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\EventListener;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Template\Components\{ButtonBar, ModifyButtonBarEvent};
+use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\EventListener\ModifyButtonBarEventListener;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\VersionUtility;
@@ -94,6 +96,58 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
         $this->subject->__invoke($event);
 
         self::assertArrayNotHasKey('right', $event->getButtons());
+    }
+
+    #[Test]
+    public function chipModeAddsAssigneeAndCommentButtonsForPageEdit(): void
+    {
+        // Default headerDisplayMode ("chip") is unset in the fixture setup.
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        $linkButtons = $this->getLinkButtons($event);
+        self::assertCount(2, $linkButtons);
+
+        $assigneeButton = $linkButtons[0];
+        self::assertStringContainsString('content-planner-link--assignee', $assigneeButton->getClasses());
+        self::assertSame('1', $assigneeButton->getDataAttributes()['id']);
+        self::assertSame('pages', $assigneeButton->getDataAttributes()['table']);
+
+        $commentsButton = $linkButtons[1];
+        self::assertStringContainsString('content-planner-link--comments', $commentsButton->getClasses());
+        self::assertSame('pages', $commentsButton->getDataAttributes()['table']);
+    }
+
+    #[Test]
+    public function bannerModeDoesNotAddAssigneeOrCommentButtons(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
+
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        self::assertCount(0, $this->getLinkButtons($event));
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    /**
+     * @return LinkButton[]
+     */
+    private function getLinkButtons(ModifyButtonBarEvent $event): array
+    {
+        $buttons = [];
+        foreach ($event->getButtons()['right'] ?? [] as $buttonGroup) {
+            if ($buttonGroup[0] instanceof LinkButton) {
+                $buttons[] = $buttonGroup[0];
+            }
+        }
+
+        return $buttons;
     }
 
     /**
