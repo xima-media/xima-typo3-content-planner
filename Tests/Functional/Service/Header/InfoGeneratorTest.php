@@ -73,6 +73,31 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('aria-label="', $result);
     }
 
+    /**
+     * CP-14 (#318): the content element hint dots in the banner-mode header previously
+     * carried their status only via a `data-color` attribute (colour alone) and a
+     * `title`/aria-label limited to the content element's own title. Both must now also
+     * expose the content element's status as text.
+     */
+    #[Test]
+    public function generateStatusHeaderContentElementHintCarriesStatusAsTextNotColourAlone(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+
+        $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('data-color="', $result);
+        self::assertStringContainsString('Teaser', $result);
+        // Status 1 = "Draft" (see status.csv), distinct from page 1's own status
+        // (status 2 = "In Progress"), so this proves the CE's own status is exposed.
+        self::assertStringContainsString('Draft', $result);
+        self::assertMatchesRegularExpression('/aria-label="[^"]*Draft[^"]*"/', $result);
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
+    }
+
     #[Test]
     public function generateStatusHeaderRendersHtmlWhenRecordIsPassedDirectly(): void
     {
