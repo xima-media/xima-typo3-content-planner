@@ -45,6 +45,8 @@ final readonly class DigestRecordGroup
         private int $latestCrdate,
         private int $contentChangeCount = 0,
         private int $contentChangeActorCount = 0,
+        private ?string $latestMentionExcerpt = null,
+        private int $mentionCount = 0,
     ) {}
 
     public function getTable(): string
@@ -131,5 +133,24 @@ final readonly class DigestRecordGroup
     public function getContentChangeActorCount(): int
     {
         return $this->contentChangeActorCount;
+    }
+
+    /**
+     * The comment excerpt of the latest {@see \Xima\XimaTypo3ContentPlanner\Domain\Model\NotificationEventType::Mentioned}
+     * row collapsed into this group (issue #305) - `null` when the record had none. Shares its
+     * payload key (`commentExcerpt`) with {@see self::getLatestCommentExcerpt()}, since a mention
+     * always happens inside a comment.
+     */
+    public function getLatestMentionExcerpt(): ?string
+    {
+        return $this->latestMentionExcerpt;
+    }
+
+    /**
+     * Number of mention notifications collapsed into this group - zero when the record had none.
+     */
+    public function getMentionCount(): int
+    {
+        return $this->mentionCount;
     }
 }
