@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
-use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{OverfetchPaginator, WatchedRecordsFilter};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -69,11 +69,15 @@ class RecordRepository
     public function __construct(private readonly FrontendInterface $cache, private readonly ConnectionPool $connectionPool) {}
 
     /**
+     * @param array<string, list<int>>|null $watchedRecords table => watched record UIDs, as returned by
+     *                                                      {@see \Xima\XimaTypo3ContentPlanner\Service\WatcherService::getWatchedRecords()};
+     *                                                      null leaves the result unfiltered by watcher state (see {@see WatchedRecordsFilter})
+     *
      * @return PaginatedResult<array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): PaginatedResult
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false, ?array $watchedRecords = null): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 

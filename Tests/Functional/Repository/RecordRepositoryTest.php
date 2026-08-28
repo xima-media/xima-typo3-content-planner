@@ -236,4 +236,13 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     // Tests/Unit/Utility/Data/OverfetchPaginatorTest.php, proves that permission filtering applied
     // before the final page-size truncation yields the correct items + hasMore for a restricted
     // set of visible rows, independent of how the rows were fetched.
+    //
+    // Same reasoning applies to the $watchedRecords parameter added for issue #308 ("Watched by
+    // me" widget filter): the predicate that decides whether a fetched record is watched lives in
+    // Xima\XimaTypo3ContentPlanner\Utility\Data\WatchedRecordsFilter, covered in isolation by
+    // Tests/Unit/Utility/Data/WatchedRecordsFilterTest.php, and combines with the permission
+    // predicate exactly like OverfetchPaginator's example above. The query that produces the map
+    // passed in as $watchedRecords - WatcherRepository::findActiveWatchedRecordsByUser() - is a
+    // plain single-table query (no UNION), so it *is* covered end-to-end against a real DB in
+    // Tests/Functional/Domain/Repository/WatcherRepositoryTest.php.
 }
