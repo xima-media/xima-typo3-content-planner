@@ -88,7 +88,10 @@ class AssetUtility
             return (string) $resourcePublisher->generateUri(
                 $resource,
                 $request,
-                new $optionsClass(false),
+                // No arguments: relative URI with cache busting are already the
+                // constructor's defaults, avoiding both a positional-argument
+                // mismatch and the named-argument PHPStan rule.
+                new $optionsClass(),
             );
         }
 
