@@ -116,6 +116,28 @@ CREATE TABLE tx_ximatypo3contentplanner_notification
 	KEY record (tablename(64), record_uid)
 );
 
+CREATE TABLE tx_ximatypo3contentplanner_notification
+(
+	uid           int(11) NOT NULL auto_increment,
+	pid           int(11) DEFAULT '0' NOT NULL,
+
+	backend_user  int(11) DEFAULT '0' NOT NULL,
+	event_type    varchar(32) DEFAULT '' NOT NULL,
+	tablename     varchar(255) DEFAULT '' NOT NULL,
+	record_uid    int(11) DEFAULT '0' NOT NULL,
+	actor         int(11) DEFAULT NULL,
+	reason        varchar(64) DEFAULT '' NOT NULL,
+	payload       text,
+
+	read_at       int(11) DEFAULT NULL,
+	digested_at   int(11) DEFAULT NULL,
+	crdate        int(11) DEFAULT '0' NOT NULL,
+
+	PRIMARY KEY (uid),
+	KEY recipient (backend_user),
+	KEY record (tablename(64), record_uid)
+);
+
 CREATE TABLE tx_ximatypo3contentplanner_folder
 (
 	uid               int(11) NOT NULL auto_increment,
