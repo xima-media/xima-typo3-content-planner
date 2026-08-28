@@ -51,6 +51,13 @@ class Configuration
     // be_users column: per-user opt-out toggle for the email digest (issue #302), default on.
     final public const FIELD_USER_DIGEST = 'tx_ximatypo3contentplanner_digest';
 
+    /*
+     * be_users column: per-user email frequency toggle (issue #306), default off (daily digest).
+     * Only relevant when FIELD_USER_DIGEST is on: switches that recipient from the daily digest
+     * (#302) to the throttled per-event immediate channel - see ImmediateEmailChannel.
+     */
+    final public const FIELD_USER_IMMEDIATE_EMAIL = 'tx_ximatypo3contentplanner_immediate_email';
+
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
     /*
@@ -187,6 +194,7 @@ class Configuration
         $fields = [
             'tx_ximatypo3contentplanner_hide' => 'be_users.tx_ximatypo3contentplanner_hide',
             self::FIELD_USER_DIGEST => 'be_users.tx_ximatypo3contentplanner_digest',
+            self::FIELD_USER_IMMEDIATE_EMAIL => 'be_users.tx_ximatypo3contentplanner_immediate_email',
         ];
         $showitemAddition = '--div--;'.$tabLabel.','.implode(',', array_keys($fields));
 
