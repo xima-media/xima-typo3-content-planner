@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\EventListener;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Template\Components\{ButtonBar, ModifyButtonBarEvent};
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\EventListener\ModifyButtonBarEventListener;
@@ -133,6 +134,24 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
         self::assertCount(0, $this->getLinkButtons($event));
 
         unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    #[Test]
+    public function chipModeDoesNotAddAssigneeOrCommentButtonsWhenStatusDropdownIsSuppressed(): void
+    {
+        // generateSelection() returns false (no dropdown at all) when no status is
+        // configured; the new assignee/comment buttons must respect that same gate,
+        // not just the dropdown, since it also covers table-level access restrictions.
+        GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable('tx_ximatypo3contentplanner_domain_model_status')
+            ->truncate('tx_ximatypo3contentplanner_domain_model_status');
+
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        self::assertArrayNotHasKey('right', $event->getButtons());
     }
 
     /**

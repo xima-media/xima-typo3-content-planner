@@ -162,7 +162,13 @@ final readonly class ModifyButtonBarEventListener
         $buttonsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
 
         $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
-        $this->addChipTrioButtons($event, $table, $uid, $record);
+
+        // generateSelection() returns false when the user is not allowed to see status info
+        // for this table (PermissionUtility::isTableAllowedForUser()) or none is configured;
+        // the assignee/comment buttons must respect that same gate, not just the dropdown.
+        if (false !== $buttonsToAdd) {
+            $this->addChipTrioButtons($event, $table, $uid, $record);
+        }
     }
 
     /**
@@ -239,7 +245,7 @@ final readonly class ModifyButtonBarEventListener
 
         $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
 
-        if ([] !== $folderRecord && isset($folderRecord['uid'])) {
+        if (false !== $buttonsToAdd && [] !== $folderRecord && isset($folderRecord['uid'])) {
             $this->addChipTrioButtons($event, Configuration::TABLE_FOLDER, (int) $folderRecord['uid'], $folderRecord);
         }
     }
