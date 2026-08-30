@@ -19,7 +19,7 @@ use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{AssigneeChangedEvent, StatusChangeEvent};
-use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
+use Xima\XimaTypo3ContentPlanner\Manager\{ContentPlannerFieldAuthorizer, StatusChangeManager};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -218,6 +218,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Page 1 has no status before, so setting it to 2 is a real change.
@@ -235,6 +236,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Page 2 already has status 1.
@@ -254,6 +256,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Page 2 already has status 1 (left unchanged here, so the status-change path itself
@@ -279,6 +282,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Page 2 has assignee 5; no status key in the payload at all.
@@ -298,6 +302,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Page 2 already has assignee 5 and status 1; neither field actually changes.
@@ -315,6 +320,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Status unchanged and the assignee field was never part of the incoming payload.
@@ -342,6 +348,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Page 1 has no status/assignee before. Auto-assign only ever fires together with a real
@@ -379,6 +386,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // loginBackendUser() (called in setUp) authenticates as be_users uid 1.

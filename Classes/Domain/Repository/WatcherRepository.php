@@ -121,7 +121,7 @@ class WatcherRepository
     public function upsertAutomatic(string $table, int $uid, int $beUser, WatchSource $source): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
-        $updated = (int) $queryBuilder
+        $updated = $queryBuilder
             ->update(Configuration::TABLE_WATCHER)
             ->set('source', $source->value)
             ->set('tstamp', time())
