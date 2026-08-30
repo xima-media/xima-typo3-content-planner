@@ -60,10 +60,11 @@ class NotificationToolbarItem implements ToolbarItemInterface
         $this->loadAssets();
 
         $backendUserUid = PermissionUtility::getCurrentUserId();
+        $unreadCount = null !== $backendUserUid ? $this->dataProvider->getUnreadCount($backendUserUid) : 0;
 
         return ViewUtility::render('Toolbar/NotificationToolbarItem.html', [
-            'unreadCount' => null !== $backendUserUid ? $this->dataProvider->getUnreadCount($backendUserUid) : 0,
-            'badgeLabel' => null !== $backendUserUid ? $this->dataProvider->getUnreadBadgeLabel($backendUserUid) : '0',
+            'unreadCount' => $unreadCount,
+            'badgeLabel' => null !== $backendUserUid ? $this->dataProvider->getUnreadBadgeLabel($backendUserUid, $unreadCount) : '0',
             'pollInterval' => ExtensionUtility::getNotificationPollInterval(),
         ]);
     }
@@ -73,13 +74,17 @@ class NotificationToolbarItem implements ToolbarItemInterface
         return true;
     }
 
+    /**
+     * Rendered as part of the backend chrome on every full page load, whether or not anyone
+     * opens it. Building the list here meant a SELECT plus, per entry, a record lookup and a
+     * permission check on every one of those loads. The list is therefore left empty and
+     * fetched by toolbar-notification-center.js the first time the dropdown is opened, which
+     * is the same endpoint the poll already uses. Only the unread badge in getItem() still
+     * costs a query, and that one has to be current without opening anything.
+     */
     public function getDropDown(): string
     {
-        $backendUserUid = PermissionUtility::getCurrentUserId();
-
-        return ViewUtility::render('Toolbar/NotificationDropDown.html', [
-            'items' => null !== $backendUserUid ? $this->dataProvider->getLatestForDropdown($backendUserUid) : [],
-        ]);
+        return ViewUtility::render('Toolbar/NotificationDropDown.html', ['items' => []]);
     }
 
     /**

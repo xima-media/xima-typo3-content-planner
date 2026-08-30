@@ -72,9 +72,13 @@ class NotificationCenterDataProvider
      *
      * @throws Exception
      */
-    public function getUnreadBadgeLabel(int $backendUserUid): string
+    /**
+     * Callers that already resolved the count should pass it in; every caller so far needs
+     * both values, and looking it up again here doubled the COUNT query per request.
+     */
+    public function getUnreadBadgeLabel(int $backendUserUid, ?int $count = null): string
     {
-        $count = $this->getUnreadCount($backendUserUid);
+        $count ??= $this->getUnreadCount($backendUserUid);
 
         return $count > self::BADGE_CAP ? self::BADGE_CAP.'+' : (string) $count;
     }

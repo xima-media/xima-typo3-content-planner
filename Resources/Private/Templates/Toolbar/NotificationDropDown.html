@@ -4,13 +4,14 @@
         <p class="dropdown-headline content-planner-notification-dropdown__headline">
             {f:translate(key: 'notification.dropdown.headline', extensionName: 'xima_typo3_content_planner')}
         </p>
-        <f:if condition="{items}">
-            <button type="button"
-                    class="content-planner-notification-dropdown__mark-all-read"
-                    data-notification-mark-all-read="1">
-                {f:translate(key: 'notification.dropdown.markAllRead', extensionName: 'xima_typo3_content_planner')}
-            </button>
-        </f:if>
+        <!-- The list is loaded on first open, so this header is rendered before the entries
+             are known; toolbar-notification-center.js unhides this once there are any. -->
+        <button type="button"
+                class="content-planner-notification-dropdown__mark-all-read"
+                data-notification-mark-all-read="1"
+                {f:if(condition: items, else: 'hidden')}>
+            {f:translate(key: 'notification.dropdown.markAllRead', extensionName: 'xima_typo3_content_planner')}
+        </button>
     </div>
     <f:render partial="Toolbar/NotificationList" arguments="{items: items}"/>
 </div>
