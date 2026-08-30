@@ -74,7 +74,7 @@ final readonly class ContentElementPreviewStatusListener
             return;
         }
 
-        $record = $this->recordRepository->findByUid('tt_content', $this->extractUid($event), ignoreVisibilityRestriction: true);
+        $record = $this->findRecordOnPage($event);
         if (!is_array($record)) {
             return;
         }
@@ -93,6 +93,28 @@ final readonly class ContentElementPreviewStatusListener
             && PermissionUtility::checkContentStatusVisibility()
             && 'tt_content' === $event->getTable()
             && ExtensionUtility::isRegisteredRecordTable('tt_content');
+    }
+
+    /**
+     * This listener fires once per content element on the page. Resolving each element with its
+     * own findByUid() call meant one uncached query per element; findByPid() is cached per page,
+     * so the whole page costs a single query no matter how many elements it holds. It is also the
+     * same call the legacy banner mode uses, which keeps the two display modes consistent about
+     * which elements get a status accent.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function findRecordOnPage(PageContentPreviewRenderingEvent $event): ?array
+    {
+        $uid = $this->extractUid($event);
+
+        foreach ($this->recordRepository->findByPid('tt_content', $event->getPageLayoutContext()->getPageId()) as $record) {
+            if ((int) $record['uid'] === $uid) {
+                return $record;
+            }
+        }
+
+        return null;
     }
 
     private function extractUid(PageContentPreviewRenderingEvent $event): int
