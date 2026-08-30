@@ -265,6 +265,20 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         return array_diff_key($fieldArray, array_flip($ignored));
     }
 
+    /**
+     * Live (non-workspace) save trigger for issue #309's content-change notifications. A save
+     * into a workspace is deliberately *not* notified here - see {@see self::processCmdmap_postProcess()}
+     * for the publish-time trigger that covers that case instead. A save that touches no
+     * content field means there is nothing to notify about.
+     *
+     * Reads the acting user's workspace off `$GLOBALS['BE_USER']` rather than `$dataHandler->BE_USER`:
+     * the latter is only populated once `DataHandler::start()` has run, which every other actor
+     * lookup in this class already sidesteps the same way (see {@see self::checkCommentResolved()}).
+     *
+     * @param array<string, mixed> $fieldArray
+     *
+     * @throws Exception
+     */
     private function notifyContentChangeOnLiveSave(string $status, string $table, string|int $id, array $fieldArray, DataHandler $dataHandler): void
     {
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED)) {

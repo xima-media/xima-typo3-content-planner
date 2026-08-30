@@ -443,7 +443,7 @@ class NotificationRepository
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
 
-        return (int) $queryBuilder
+        return $queryBuilder
             ->update(Configuration::TABLE_NOTIFICATION)
             ->set('payload', json_encode($merged, \JSON_THROW_ON_ERROR))
             ->set('crdate', $notification->getCrdate())
