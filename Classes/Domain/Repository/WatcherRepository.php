@@ -199,6 +199,10 @@ class WatcherRepository
                 $queryBuilder->expr()->eq('backend_user', $queryBuilder->createNamedParameter($beUser, Connection::PARAM_INT)),
                 $queryBuilder->expr()->neq('mode', $queryBuilder->createNamedParameter(WatchMode::ManualUnwatch->value)),
             )
+            // Without this the database is free to vary the row order, which would make both
+            // the grouped result and the IN() list it ends up in unstable between calls.
+            ->orderBy('tablename', 'ASC')
+            ->addOrderBy('record_uid', 'ASC')
             ->executeQuery()
             ->fetchAllAssociative();
 

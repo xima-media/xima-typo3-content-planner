@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
-use Xima\XimaTypo3ContentPlanner\Utility\Data\{OverfetchPaginator, WatchedRecordsFilter};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -71,7 +71,7 @@ class RecordRepository
     /**
      * @param array<string, list<int>>|null $watchedRecords table => watched record UIDs, as returned by
      *                                                      {@see \Xima\XimaTypo3ContentPlanner\Service\WatcherService::getWatchedRecords()};
-     *                                                      null leaves the result unfiltered by watcher state (see {@see WatchedRecordsFilter})
+     *                                                      null leaves the result unfiltered by watcher state
      *
      * @return PaginatedResult<array<string, mixed>>
      *
@@ -87,7 +87,13 @@ class RecordRepository
 
         $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
-        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments);
+        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments, $watchedRecords);
+
+        // Every tracked table can drop out of the UNION when filtering by watched records,
+        // which leaves nothing to query at all.
+        if ([] === $sqlArray) {
+            return new PaginatedResult([], false);
+        }
         // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
         // tablename literal, so cross-table duplicates cannot occur.
         //
@@ -340,7 +346,7 @@ class RecordRepository
     /**
      * @return string[]
      */
-    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo, ?string $search = null, bool $openComments = false): array
+    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo, ?string $search = null, bool $openComments = false, ?array $watchedRecords = null): array
     {
         $sqlArray = [];
 
@@ -349,8 +355,25 @@ class RecordRepository
                 continue;
             }
 
+            // "Watched by me" is a very selective filter, so applying it in PHP after the
+            // query would leave the batching loop scanning past page after page of unwatched
+            // records before it found anything. Restricting each branch here means the
+            // database only ever returns candidates, and a table with no watched records at
+            // all drops out of the UNION entirely.
+            $watchedCondition = '';
+            if (null !== $watchedRecords) {
+                if ([] === ($watchedRecords[$table] ?? [])) {
+                    continue;
+                }
+
+                // These UIDs come from the watcher table, never from request input; cast so
+                // they cannot carry anything but integers into the raw SQL.
+                $watchedCondition = ' AND uid IN ('.implode(',', array_map(intval(...), $watchedRecords[$table])).')';
+            }
+
             $whereClause = $this->buildWhereClauseForTable($baseWhere, $table, $todo, $openComments);
             $whereClause .= $this->buildSearchCondition($table, $search);
+            $whereClause .= $watchedCondition;
             $this->getSqlByTable($table, $sqlArray, $whereClause);
         }
 
