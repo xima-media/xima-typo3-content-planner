@@ -77,6 +77,13 @@ class WatcherService
     }
 
     /**
+     * Note that $beUser is taken at face value: this service does not check that it is the
+     * currently logged-in user, nor that the user may read $table/$uid. Every caller here is
+     * an internal event listener acting on uids the event itself supplied. A caller reached
+     * from an HTTP request must therefore resolve the user from the session, never from a
+     * request parameter, and check read access on the record first - otherwise a watch turns
+     * into a channel for record titles the user is not allowed to see.
+     *
      * @throws Exception
      */
     public function watch(string $table, int $uid, int $beUser, WatchSource $source): void
@@ -103,6 +110,8 @@ class WatcherService
     /**
      * Sticky unwatch: always wins, regardless of the prior mode, and only an explicit
      * {@see self::watch()} call with {@see WatchSource::Manual} reactivates it.
+     *
+     * $beUser carries the same caller obligation as {@see self::watch()}.
      *
      * @throws Exception
      */

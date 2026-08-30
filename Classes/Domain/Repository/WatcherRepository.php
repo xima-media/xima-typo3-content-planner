@@ -29,6 +29,15 @@ use function is_string;
  * operations (this table is never edited via FormEngine/DataHandler), following the same
  * convention as {@see RecordRepository::updateStatusByUid()}.
  *
+ * Known gaps, both deliberate at this point in the notifications epic:
+ *
+ * - Nothing deletes rows. "Unwatching" flips `mode` to `manual_unwatch` rather than removing
+ *   the row, so the table only ever grows. Retention is introduced with the cleanup command
+ *   (#304).
+ * - Deleting the watched record or the backend user leaves the row behind; there is no
+ *   foreign key and no delete listener. Orphan cleanup arrives with the same command, so
+ *   until then a resolved watcher list can contain rows pointing at records that are gone.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */

@@ -87,7 +87,11 @@ CREATE TABLE tx_ximatypo3contentplanner_watcher
 	tstamp        int(11) DEFAULT '0' NOT NULL,
 
 	PRIMARY KEY (uid),
-	UNIQUE KEY watcher_lookup (tablename(64), record_uid, backend_user)
+	UNIQUE KEY watcher_lookup (tablename(64), record_uid, backend_user),
+	-- backend_user is the third column of watcher_lookup, so that key cannot serve
+	-- "everything user X watches". That is the lookup behind the "watched by me" filter
+	-- and the retention cleanup, both of which would otherwise scan the whole table.
+	KEY watcher_by_user (backend_user, mode)
 );
 
 CREATE TABLE tx_ximatypo3contentplanner_folder
