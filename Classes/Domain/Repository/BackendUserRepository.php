@@ -119,6 +119,39 @@ class BackendUserRepository
     }
 
     /**
+     * Narrows a list of backend user UIDs to those that can still log in, i.e. neither
+     * deleted nor disabled. Used to keep notifications from being addressed to accounts that
+     * no longer exist; a single query regardless of how many UIDs are passed.
+     *
+     * @param array<int, int> $uids
+     *
+     * @return array<int, int>
+     *
+     * @throws Exception
+     */
+    public function filterActiveUids(array $uids): array
+    {
+        if ([] === $uids) {
+            return [];
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
+
+        $rows = $queryBuilder
+            ->select('uid')
+            ->from('be_users')
+            ->where(
+                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('disable', 0),
+            )
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return array_map(intval(...), $rows);
+    }
+
+    /**
      * @return array<string, mixed>|bool
      *
      * @throws Exception

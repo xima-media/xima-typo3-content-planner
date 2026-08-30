@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Service\Notification;
 
 use Doctrine\DBAL\Exception;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 
 /**
@@ -41,6 +42,7 @@ class NotificationDispatcher
     public function __construct(
         private readonly WatcherService $watcherService,
         private readonly NotificationSuppressionState $suppressionState,
+        private readonly BackendUserRepository $backendUserRepository,
         private readonly iterable $channels,
     ) {}
 
@@ -60,9 +62,19 @@ class NotificationDispatcher
             return;
         }
 
+        $watchers = $this->watcherService->getActiveWatchersWithSource($table, $uid);
+        if ([] === $watchers) {
+            return;
+        }
+
+        // A watcher row outlives the account that created it, so without this a deleted or
+        // disabled user keeps accumulating notifications - and, once the e-mail channels
+        // land, keeps being written to.
+        $activeRecipients = array_flip($this->backendUserRepository->filterActiveUids(array_keys($watchers)));
+
         $crdate = time();
-        foreach ($this->watcherService->getActiveWatchersWithSource($table, $uid) as $recipientUid => $source) {
-            if ($recipientUid === $actorUid) {
+        foreach ($watchers as $recipientUid => $source) {
+            if ($recipientUid === $actorUid || !isset($activeRecipients[$recipientUid])) {
                 continue;
             }
 

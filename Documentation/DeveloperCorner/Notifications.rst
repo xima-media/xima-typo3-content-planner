@@ -115,6 +115,26 @@ The built-in `DatabaseChannel` follows the same contract: it persists the notifi
 is gated behind the `notificationChannelDatabase` extension configuration toggle (see the
 "notifications" category in the extension configuration).
 
+..  warning::
+    **A watcher relation is not a read permission.** The dispatcher only drops recipients
+    whose account is deleted or disabled; it deliberately does not check per-recipient record
+    access, because it runs inside the save request and resolving another user's permissions
+    per watcher would put that cost on every save.
+
+    A channel therefore has to decide for itself whether the recipient may see what it is
+    about to expose, and *when*. Permissions can change between dispatch and delivery, and a
+    title snapshot in the payload does not expire.
+
+    -   Channels that render inside the backend for the logged-in recipient (the notification
+        centre, dashboard widgets) can check at render time, where the current backend user
+        *is* the recipient - see
+        :php:`NotificationCenterDataProvider`, which falls back to a generic label without a
+        link when access is denied.
+    -   Channels that deliver outside the backend (e-mail, chat) have no such context. They
+        must resolve the recipient's own permissions explicitly. Note that
+        :php:`PermissionUtility::checkAccessForRecord()` returns `true` unconditionally for
+        the `_cli_` user, so calling it from a scheduler command checks nothing.
+
 Bulk and CLI semantics
 =======================
 
