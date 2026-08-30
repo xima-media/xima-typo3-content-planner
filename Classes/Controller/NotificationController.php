@@ -54,10 +54,12 @@ class NotificationController extends ActionController
         $items = $this->dataProvider->getLatestForDropdown($backendUserUid);
         $result = ViewUtility::render('Toolbar/NotificationListFragment.html', ['items' => $items]);
 
+        $unreadCount = $this->dataProvider->getUnreadCount($backendUserUid);
+
         return new JsonResponse([
             'result' => $result,
-            'unreadCount' => $this->dataProvider->getUnreadCount($backendUserUid),
-            'badgeLabel' => $this->dataProvider->getUnreadBadgeLabel($backendUserUid),
+            'unreadCount' => $unreadCount,
+            'badgeLabel' => $this->dataProvider->getUnreadBadgeLabel($backendUserUid, $unreadCount),
             'pollInterval' => ExtensionUtility::getNotificationPollInterval(),
         ]);
     }
@@ -79,9 +81,11 @@ class NotificationController extends ActionController
 
         $this->notificationRepository->markAsRead($uid, $backendUserUid);
 
+        $unreadCount = $this->dataProvider->getUnreadCount($backendUserUid);
+
         return new JsonResponse([
-            'unreadCount' => $this->dataProvider->getUnreadCount($backendUserUid),
-            'badgeLabel' => $this->dataProvider->getUnreadBadgeLabel($backendUserUid),
+            'unreadCount' => $unreadCount,
+            'badgeLabel' => $this->dataProvider->getUnreadBadgeLabel($backendUserUid, $unreadCount),
         ]);
     }
 

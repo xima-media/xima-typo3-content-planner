@@ -26,6 +26,15 @@ class NotificationCenter {
 
     this.toolbarItem.addEventListener('click', (event) => this.handleClick(event));
 
+    // The dropdown ships empty so the backend chrome does not pay for a list nobody may
+    // open (see NotificationToolbarItem::getDropDown()); fill it on first open.
+    this.toolbarItem.addEventListener('show.bs.dropdown', () => {
+      if (!this.listLoaded) {
+        this.listLoaded = true;
+        this.refresh();
+      }
+    });
+
     const pollIntervalHolder = this.toolbarItem.querySelector('[data-poll-interval]');
     const pollInterval = parseInt(pollIntervalHolder?.dataset.pollInterval || '0', 10);
     if (pollInterval > 0) {
@@ -113,6 +122,16 @@ class NotificationCenter {
 
     list.outerHTML = html;
     this.dropdown = document.getElementById('content-planner-notification-dropdown');
+
+    // The header is rendered before the entries are known, so the "mark all read" button
+    // only becomes meaningful once a list has actually arrived.
+    const markAllButton = this.toolbarItem?.querySelector('[data-notification-mark-all-read]');
+    if (markAllButton) {
+      const hasEntries = null !== document
+        .getElementById('content-planner-notification-list')
+        ?.querySelector('[data-notification-uid]');
+      markAllButton.hidden = !hasEntries;
+    }
   }
 
   updateBadge(unreadCount, badgeLabel) {
