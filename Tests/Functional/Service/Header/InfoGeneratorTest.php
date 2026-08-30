@@ -28,6 +28,9 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
 {
     private InfoGenerator $subject;
 
+    /** @var array<string, mixed>|null */
+    private ?array $extensionConfigurationBackup = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,6 +41,20 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         $this->loginBackendUser();
         $this->setUpBackendRequest('web_layout', ['id' => 1]);
         $this->subject = $this->get(InfoGenerator::class);
+        $this->extensionConfigurationBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] ?? null;
+    }
+
+    protected function tearDown(): void
+    {
+        // Restored here rather than at the end of the test body, so a failing assertion
+        // cannot leak the registered record tables into the next test in this process.
+        if (null === $this->extensionConfigurationBackup) {
+            unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]);
+        } else {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $this->extensionConfigurationBackup;
+        }
+
+        parent::tearDown();
     }
 
     #[Test]
@@ -94,8 +111,11 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         // (status 2 = "In Progress"), so this proves the CE's own status is exposed.
         self::assertStringContainsString('Draft', $result);
         self::assertMatchesRegularExpression('/aria-label="[^"]*Draft[^"]*"/', $result);
-
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables']);
+        // The hint used to be a bare bullet whose only status signal was its colour, which
+        // sighted users cannot decode. It now renders the status icon, so the status is
+        // carried by a distinguishable shape as well.
+        self::assertStringNotContainsString('&#9679;', $result);
+        self::assertMatchesRegularExpression('/<svg|<span class="[^"]*t3js-icon/', $result);
     }
 
     #[Test]

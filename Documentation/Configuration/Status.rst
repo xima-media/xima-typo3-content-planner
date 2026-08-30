@@ -198,8 +198,9 @@ frontend rendering), apply the same rule the extension follows internally:
     <status-aria-icon-controls>` below).
 -   For any text rendered on top of one of these colors (e.g. a badge), keep at least a
     4.5:1 contrast ratio for normal-size text (3:1 for large/bold text), per `WCAG SC 1.4.3
-    <https://www.w3.org/TR/WCAG21/#contrast-minimum>`__. Dark text (close to black) on all
-    seven built-in colors comfortably clears 4.5:1.
+    <https://www.w3.org/TR/WCAG21/#contrast-minimum>`__. Dark text (close to black) clears
+    4.5:1 on six of the seven built-in colors. Purple is the exception: black on purple
+    reaches only 4.32:1, so use white text there instead, which reaches 4.86:1.
 -   For a non-text element such as an icon or a status dot, keep at least a 3:1 contrast
     ratio against its immediate background, per `WCAG SC 1.4.11
     <https://www.w3.org/TR/WCAG21/#non-text-contrast>`__.
