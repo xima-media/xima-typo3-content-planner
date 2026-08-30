@@ -107,15 +107,25 @@ class ImmediateEmailQueueRepository
      *
      * @throws Exception
      */
-    public function markSentByUids(array $uids, int $sentAt): void
+    /**
+     * Claims the given queue rows by stamping sent_at, and reports how many were actually
+     * claimed. The "sent_at IS NULL" guard makes this the single point of arbitration: two
+     * concurrent saves for the same record both see a pending queue, but only one of them
+     * gets a non-zero count back and is allowed to send.
+     *
+     * @param list<int> $uids
+     *
+     * @throws Exception
+     */
+    public function markSentByUids(array $uids, int $sentAt): int
     {
         if ([] === $uids) {
-            return;
+            return 0;
         }
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_IMMEDIATE_QUEUE);
 
-        $queryBuilder
+        return (int) $queryBuilder
             ->update(Configuration::TABLE_IMMEDIATE_QUEUE)
             ->set('sent_at', $sentAt)
             ->where(
@@ -123,6 +133,59 @@ class ImmediateEmailQueueRepository
                 $queryBuilder->expr()->isNull('sent_at'),
             )
             ->executeStatement();
+    }
+
+    /**
+     * Removes queue rows that were already sent before $threshold. They are transport
+     * bookkeeping only - the notification itself lives in the notification table and has its
+     * own retention - so without this the queue is the one table in the feature that grows
+     * without bound.
+     *
+     * @throws Exception
+     */
+    public function deleteSentOlderThan(int $threshold, bool $dryRun): int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_IMMEDIATE_QUEUE);
+        $constraints = [
+            $queryBuilder->expr()->isNotNull('sent_at'),
+            $queryBuilder->expr()->lt('sent_at', $queryBuilder->createNamedParameter($threshold, Connection::PARAM_INT)),
+        ];
+
+        if ($dryRun) {
+            return (int) $queryBuilder
+                ->count('uid')
+                ->from(Configuration::TABLE_IMMEDIATE_QUEUE)
+                ->where(...$constraints)
+                ->executeQuery()
+                ->fetchOne();
+        }
+
+        return (int) $queryBuilder
+            ->delete(Configuration::TABLE_IMMEDIATE_QUEUE)
+            ->where(...$constraints)
+            ->executeStatement();
+    }
+
+    /**
+     * How many mails this recipient has already been sent since $since, across all records.
+     * The per-record throttle alone does not bound the total: changing many different watched
+     * records in quick succession produces one mail each.
+     *
+     * @throws Exception
+     */
+    public function countSentSince(int $backendUserUid, int $since): int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_IMMEDIATE_QUEUE);
+
+        return (int) $queryBuilder
+            ->count('uid')
+            ->from(Configuration::TABLE_IMMEDIATE_QUEUE)
+            ->where(
+                $queryBuilder->expr()->eq('backend_user', $queryBuilder->createNamedParameter($backendUserUid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->gte('sent_at', $queryBuilder->createNamedParameter($since, Connection::PARAM_INT)),
+            )
+            ->executeQuery()
+            ->fetchOne();
     }
 
     private function queryBuilderScopedTo(int $backendUserUid, string $table, int $recordUid): QueryBuilder

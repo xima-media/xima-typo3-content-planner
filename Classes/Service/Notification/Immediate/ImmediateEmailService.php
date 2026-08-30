@@ -55,6 +55,17 @@ class ImmediateEmailService
      */
     private const THROTTLE_WINDOW_SECONDS = 900;
 
+    /**
+     * The per-record throttle above does not bound the total: touching many different watched
+     * records in quick succession produces one mail each. This caps what a single recipient
+     * can receive per hour no matter how many records are involved, so a bulk edit cannot turn
+     * into a mailbox flood. Anything beyond the cap stays queued and goes out with the next
+     * flush once the hour has passed.
+     */
+    private const GLOBAL_LIMIT_PER_WINDOW = 12;
+
+    private const GLOBAL_LIMIT_WINDOW_SECONDS = 3600;
+
     public function __construct(
         private readonly ImmediateEmailQueueRepository $queueRepository,
         private readonly DigestGroupBuilder $groupBuilder,
@@ -86,6 +97,15 @@ class ImmediateEmailService
             return;
         }
 
+        $sentInWindow = $this->queueRepository->countSentSince(
+            $notification->getRecipientUid(),
+            time() - self::GLOBAL_LIMIT_WINDOW_SECONDS,
+        );
+
+        if ($sentInWindow >= self::GLOBAL_LIMIT_PER_WINDOW) {
+            return;
+        }
+
         $this->flush($notification, $recipient);
     }
 
@@ -106,10 +126,18 @@ class ImmediateEmailService
             return;
         }
 
-        $this->sendInRecipientLanguage($recipient, $rows);
-
+        // Claim before sending, not after: two concurrent saves can both find the same
+        // pending rows, and only the one whose UPDATE actually stamped them may send. The
+        // cost of this ordering is that a transport failure drops the mail rather than
+        // resending it, which is the better trade for a notification that also exists in the
+        // notification centre.
         $uids = array_map(static fn (array $row): int => (int) $row['uid'], $rows);
-        $this->queueRepository->markSentByUids($uids, time());
+
+        if (0 === $this->queueRepository->markSentByUids($uids, time())) {
+            return;
+        }
+
+        $this->sendInRecipientLanguage($recipient, $rows);
     }
 
     /**
