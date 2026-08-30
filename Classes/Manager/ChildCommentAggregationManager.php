@@ -40,12 +40,6 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRep
  */
 final readonly class ChildCommentAggregationManager
 {
-    /**
-     * Number of child *records* (not comments) grouped per page - mirrors
-     * RecordRepository::findAllByFilter()'s default page size.
-     */
-    private const PAGE_SIZE = 20;
-
     public function __construct(
         private RecordRepository $recordRepository,
         private CommentRepository $commentRepository,
@@ -62,7 +56,7 @@ final readonly class ChildCommentAggregationManager
             return ['active' => false];
         }
 
-        $refsResult = $this->recordRepository->findChildRecordRefsWithComments($pageId, self::PAGE_SIZE);
+        $refsResult = $this->recordRepository->findChildRecordRefsWithComments($pageId, RecordRepository::DEFAULT_PAGE_SIZE);
         if ([] === $refsResult->items) {
             return ['active' => false];
         }

@@ -45,6 +45,12 @@ class RecordRepository
      * the requested page size to leave enough headroom for rows the current backend user cannot
      * see. Bounded by FILTER_OVERFETCH_CAP so a large $maxResults cannot blow up the query.
      */
+    /**
+     * Default number of records per page, shared by every paged read here and by callers
+     * that need to mirror it (see ChildCommentAggregationManager).
+     */
+    public const DEFAULT_PAGE_SIZE = 20;
+
     private const FILTER_OVERFETCH_FACTOR = 3;
 
     private const FILTER_OVERFETCH_CAP = 100;
@@ -74,7 +80,7 @@ class RecordRepository
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): PaginatedResult
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = self::DEFAULT_PAGE_SIZE, bool $openComments = false): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
@@ -249,7 +255,7 @@ class RecordRepository
      *
      * @throws Exception
      */
-    public function findChildRecordRefsWithComments(int $pageId, int $maxResults = 20): PaginatedResult
+    public function findChildRecordRefsWithComments(int $pageId, int $maxResults = self::DEFAULT_PAGE_SIZE): PaginatedResult
     {
         $fetchLimit = min($maxResults * self::FILTER_OVERFETCH_FACTOR, self::FILTER_OVERFETCH_CAP);
 
