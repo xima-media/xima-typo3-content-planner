@@ -52,6 +52,11 @@ export class WebLayoutPage {
     return this.commentsButton().locator('.badge');
   }
 
+  /**
+   * CP-28 (#327) drops this id and folds the trigger into the shared
+   * `[data-content-planner-comments]` button (with `data-focus-composer`), so this needs
+   * updating when the CP epic and this e2e chain are merged. See `CommentsModalPage`.
+   */
   newCommentLink(): Locator {
     return this.header().locator('#create-and-edit-comment-modal');
   }

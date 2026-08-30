@@ -5,6 +5,15 @@ import type { FrameLocator, Locator, Page } from '@playwright/test';
  * (`create-and-edit-comment-modal.js` / `comments-list-modal.js`). Both are TYPO3
  * `Modal.advanced()` instances, which always attach to the TOP document - never inside
  * the content iframe that triggered them - so locators here use `page`, not a content frame.
+ *
+ * NOTE: this describes the comment UI as it exists on this branch. CP-28 (#327) replaces the
+ * iframe/FormEngine flow with an inline CKEditor5 composer: no iframe, a
+ * `form[data-comment-composer]` holding a `typo3-rte-ckeditor-ckeditor5` element, submitted
+ * through `[data-comment-composer-submit]` via AJAX instead of `_savedok`. When the CP epic
+ * and this e2e chain are merged, `createComment()` below and
+ * `WebLayoutPage.newCommentLink()` have to be rewritten against that markup - a rewrite, not
+ * a selector swap. The status and assignee parts of `web-layout.spec.ts` are unaffected;
+ * their markup is unchanged by the CP epic.
  */
 export class CommentsModalPage {
   constructor(private readonly page: Page) {}
