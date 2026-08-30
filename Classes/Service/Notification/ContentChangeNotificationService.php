@@ -66,7 +66,10 @@ readonly class ContentChangeNotificationService
     {
         $targets = [[$table, $uid]];
 
-        if ('tt_content' === $table) {
+        // Resolving the parent page costs a query, and it is only worth paying when pages can
+        // carry watchers at all. Without this guard every single tt_content save paid for it,
+        // including on installations that do not track pages.
+        if ('tt_content' === $table && $this->watcherService->isWatchable('pages')) {
             $pageUid = $this->recordRepository->findPidByUid($table, $uid);
             if (null !== $pageUid) {
                 $targets[] = ['pages', $pageUid];

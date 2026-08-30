@@ -214,10 +214,10 @@
 				<source>You were mentioned</source>
 			</trans-unit>
 			<trans-unit id="notification.contentChanged.summary.singular">
-				<source>Content edited by %d user, %d changes</source>
+				<source>Content edited by %d user, %d change(s)</source>
 			</trans-unit>
 			<trans-unit id="notification.contentChanged.summary.plural">
-				<source>Content edited by %d users, %d changes</source>
+				<source>Content edited by %d users, %d change(s)</source>
 			</trans-unit>
 			<!-- email digest -->
 			<trans-unit id="digest.mail.subject">

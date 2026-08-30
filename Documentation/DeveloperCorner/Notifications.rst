@@ -346,13 +346,19 @@ which runs on *every* record save - so the "no overhead for unwatched records" a
 criterion is a real performance concern here, not just a nice-to-have. The hook's own feature-flag
 check is a plain in-memory read (no query), and `ContentChangeNotificationService` then checks
 `WatcherService::getActiveWatchers()` - a single indexed query - *before* building any payload or
-calling `NotificationDispatcher`. A record with zero watchers therefore costs exactly one indexed
-`SELECT` and nothing more: no title resolution, no dispatch, no write.
+calling `NotificationDispatcher`. An unwatched record therefore costs one indexed `SELECT` and
+nothing more: no title resolution, no dispatch, no write.
 
 For a `tt_content` change, the parent page's watchers are notified too (per the issue's "edits to
-content elements on the page count as a change to the watched page" rule) - this needs one
-additional `RecordRepository::findPidByUid()` lookup, paid only for `tt_content` changes, never
-for any other table.
+content elements on the page count as a change to the watched page" rule). That needs the
+element's page, so such a save costs up to three queries rather than one: the
+`RecordRepository::findPidByUid()` lookup plus a watcher lookup for the element and for its page.
+The page lookup is skipped entirely when `pages` is not a tracked table, and no other table pays
+for it.
+
+Changes to the content planner's own fields (status, assignee, comment count) and pure
+housekeeping writes such as re-sorting are not treated as content changes. They already have
+their own notifications, so counting them here would notify twice for one action.
 
 Aggregation
 -----------

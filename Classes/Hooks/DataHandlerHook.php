@@ -239,6 +239,32 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      *
      * @throws Exception
      */
+
+    /**
+     * Fields that count as an actual content change.
+     *
+     * Two kinds of write reach this hook without an editor having changed any content:
+     * the content planner's own status/assignee/comment bookkeeping, which already has
+     * dedicated notifications and would otherwise produce a second one for the same action,
+     * and pure housekeeping such as a drag in the page module, which only moves a record.
+     *
+     * @param array<string, mixed> $fieldArray
+     *
+     * @return array<string, mixed>
+     */
+    private function contentFieldsOf(array $fieldArray): array
+    {
+        $ignored = [
+            Configuration::FIELD_STATUS,
+            Configuration::FIELD_ASSIGNEE,
+            Configuration::FIELD_COMMENTS,
+            'sorting',
+            'tstamp',
+        ];
+
+        return array_diff_key($fieldArray, array_flip($ignored));
+    }
+
     private function notifyContentChangeOnLiveSave(string $status, string $table, string|int $id, array $fieldArray, DataHandler $dataHandler): void
     {
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED)) {
@@ -247,7 +273,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
 
         /** @var BackendUserAuthentication $backendUser */
         $backendUser = $GLOBALS['BE_USER'];
-        if (0 !== $backendUser->workspace || [] === $fieldArray) {
+        if (0 !== $backendUser->workspace || [] === $this->contentFieldsOf($fieldArray)) {
             return;
         }
 

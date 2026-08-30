@@ -110,8 +110,8 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertCount(1, $this->mailerSpy->sentMessages);
         $mail = $this->mailerSpy->sentMessages[0];
-        self::assertStringContainsString('Content edited by 2 users, 14 changes', (string) $mail->getHtmlBody());
-        self::assertStringContainsString('Content edited by 2 users, 14 changes', (string) $mail->getTextBody());
+        self::assertStringContainsString('Content edited by 2 users, 14 change(s)', (string) $mail->getHtmlBody());
+        self::assertStringContainsString('Content edited by 2 users, 14 change(s)', (string) $mail->getTextBody());
     }
 
     #[Test]
