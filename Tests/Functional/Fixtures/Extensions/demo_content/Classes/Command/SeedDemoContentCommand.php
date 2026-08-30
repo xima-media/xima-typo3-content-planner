@@ -19,14 +19,15 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use TYPO3\CMS\Core\Core\Bootstrap;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Core\{Bootstrap, Environment};
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, StatusRepository};
 
 use function array_map;
+use function array_merge;
 use function implode;
 use function sprintf;
 
@@ -85,6 +86,15 @@ final class SeedDemoContentCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        // This command deletes and recreates pages. It ships in a fixture extension that is
+        // never part of the distributed package, so it should be unreachable in production
+        // anyway - this is the second line of defence in case that ever stops being true.
+        if (Environment::getContext()->isProduction()) {
+            $output->writeln('<error>Refusing to seed demo content in the Production context.</error>');
+
+            return Command::FAILURE;
+        }
+
         // CommandApplication only instantiates the CLI backend user (see
         // TYPO3\CMS\Core\Core\Bootstrap::initializeBackendUser()), it does not
         // log it in. Without this, $GLOBALS['BE_USER']->isAdmin() is false and
@@ -133,25 +143,34 @@ final class SeedDemoContentCommand extends Command
      * preserving, and a plain delete keeps re-seeding from ever accumulating
      * soft-deleted rows under the same titles.
      */
+    /**
+     * Removes a previously seeded demo tree so the command stays idempotent.
+     *
+     * Scoped to the seeded tree itself - the root page at pid 0 carrying the demo title,
+     * plus whatever sits directly beneath it - rather than to every page whose title happens
+     * to match. Matching on title alone across the whole page tree, with all restrictions
+     * removed, would delete a real editor's page (and its comments) on a title collision.
+     */
     private function removeExistingDemoContent(): void
     {
-        $pagesQueryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
-        $pagesQueryBuilder->getRestrictions()->removeAll();
-        $existingUids = $pagesQueryBuilder
+        $rootUid = $this->findDemoRootPageUid();
+        if (null === $rootUid) {
+            return;
+        }
+
+        $childQueryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
+        $childQueryBuilder->getRestrictions()->removeAll();
+        $childUids = $childQueryBuilder
             ->select('uid')
             ->from('pages')
-            ->where($pagesQueryBuilder->expr()->in(
-                'title',
-                $pagesQueryBuilder->createNamedParameter(self::DEMO_PAGE_TITLES, ArrayParameterType::STRING),
+            ->where($childQueryBuilder->expr()->eq(
+                'pid',
+                $childQueryBuilder->createNamedParameter($rootUid, Connection::PARAM_INT),
             ))
             ->executeQuery()
             ->fetchFirstColumn();
 
-        if ([] === $existingUids) {
-            return;
-        }
-
-        $existingUids = array_map(intval(...), $existingUids);
+        $existingUids = array_merge([$rootUid], array_map(intval(...), $childUids));
 
         $commentsQueryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_COMMENT);
         $commentsQueryBuilder
@@ -176,6 +195,30 @@ final class SeedDemoContentCommand extends Command
                 $pagesDeleteQueryBuilder->createNamedParameter($existingUids, ArrayParameterType::INTEGER),
             ))
             ->executeStatement();
+    }
+
+    private function findDemoRootPageUid(): ?int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
+        $queryBuilder->getRestrictions()->removeAll();
+        $uid = $queryBuilder
+            ->select('uid')
+            ->from('pages')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'title',
+                    $queryBuilder->createNamedParameter(self::ROOT_PAGE_TITLE),
+                ),
+                $queryBuilder->expr()->eq(
+                    'pid',
+                    $queryBuilder->createNamedParameter(0, Connection::PARAM_INT),
+                ),
+            )
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchOne();
+
+        return false === $uid ? null : (int) $uid;
     }
 
     /**
