@@ -236,13 +236,18 @@ class ExtensionUtility
         return BackendUtility::getNoRecordTitle();
     }
 
+    /**
+     * Retention settings are day counts that end up in a "delete everything older than now
+     * minus N days" condition, so zero would mean "delete everything", including rows written
+     * seconds ago. The extension configuration lets an administrator enter 0, so the floor is
+     * enforced here rather than trusted: anything below a day falls back to the documented
+     * default instead of silently emptying the table.
+     */
     private static function getPositiveIntSettingOrDefault(string $key, int $default): int
     {
         $value = self::getExtensionSetting($key);
-        if ('' === $value) {
-            return $default;
-        }
+        $days = '' === $value ? $default : (int) $value;
 
-        return max(0, (int) $value);
+        return $days >= 1 ? $days : $default;
     }
 }

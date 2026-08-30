@@ -131,7 +131,7 @@ final readonly class NotificationRetentionService
             return [0, 0];
         }
 
-        $orphanedUids = array_values(array_diff($referencedUids, $this->backendUserRepository->activeUids($referencedUids)));
+        $orphanedUids = array_values(array_diff($referencedUids, $this->backendUserRepository->filterActiveUids($referencedUids)));
         if ([] === $orphanedUids) {
             return [0, 0];
         }
