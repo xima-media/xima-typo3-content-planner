@@ -10,7 +10,21 @@
 */
 class OptimisticUpdate {
   /**
+   * Tracks the most recent run per scope, so a slow request that has since been
+   * superseded cannot write a stale snapshot back over a newer result. Entries
+   * only exist while a request is in flight and are removed on completion.
+   *
+   * @type {Map<string, number>}
+   */
+  static #latestRun = new Map();
+
+  /**
    * @param {Object} options
+   * @param {string} [options.scope]
+   *   Identifies what is being updated (e.g. `"pages:12"`). When two runs share
+   *   a scope, only the newest one is allowed to reconcile or roll back the DOM;
+   *   superseded runs still reject, but leave the DOM to the newer run. Omit for
+   *   updates that cannot overlap.
    * @param {() => *} options.apply
    *   Applies the optimistic DOM change immediately and returns a snapshot
    *   value that `rollback` needs to undo it. Return value is opaque to
@@ -27,25 +41,64 @@ class OptimisticUpdate {
    *   Called after rollback, e.g. to surface a user-visible error message.
    * @returns {Promise<*>} resolves with the request result, rejects with the error (after rollback ran)
    */
-  static async run({apply, request, reconcile, rollback, onError}) {
+  static async run({apply, request, reconcile, rollback, onError, scope}) {
     const snapshot = apply();
+    const generation = OptimisticUpdate.#startRun(scope);
 
     try {
       const result = await request();
 
-      if (reconcile) {
+      if (reconcile && OptimisticUpdate.#isCurrent(scope, generation)) {
         reconcile(result, snapshot);
       }
 
       return result;
     } catch (error) {
-      rollback(snapshot, error);
+      if (OptimisticUpdate.#isCurrent(scope, generation)) {
+        rollback(snapshot, error);
 
-      if (onError) {
-        onError(error);
+        if (onError) {
+          onError(error);
+        }
       }
 
       throw error;
+    } finally {
+      OptimisticUpdate.#finishRun(scope, generation);
+    }
+  }
+
+  /**
+   * @param {string|undefined} scope
+   * @returns {number} the generation assigned to this run
+   */
+  static #startRun(scope) {
+    if (!scope) {
+      return 0;
+    }
+
+    const generation = (OptimisticUpdate.#latestRun.get(scope) ?? 0) + 1;
+    OptimisticUpdate.#latestRun.set(scope, generation);
+
+    return generation;
+  }
+
+  /**
+   * @param {string|undefined} scope
+   * @param {number} generation
+   * @returns {boolean} false when a newer run for the same scope has started
+   */
+  static #isCurrent(scope, generation) {
+    return !scope || OptimisticUpdate.#latestRun.get(scope) === generation;
+  }
+
+  /**
+   * @param {string|undefined} scope
+   * @param {number} generation
+   */
+  static #finishRun(scope, generation) {
+    if (scope && OptimisticUpdate.#latestRun.get(scope) === generation) {
+      OptimisticUpdate.#latestRun.delete(scope);
     }
   }
 }

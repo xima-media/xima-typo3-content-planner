@@ -66,6 +66,9 @@ class ContextMenuActions {
     const messageKey = isReset ? "status.reset" : "status.changed";
 
     OptimisticUpdate.run({
+      // Rapid successive changes to the same record must not let a slow, failing
+      // request roll back over the result of a newer one.
+      scope: table + ":" + uid,
       apply: () => ContextMenuActions.applyStatusOptimistically(table, uid, isReset, statusMeta),
       request: () => new AjaxRequest(url).get().then(result => {
         if (!result.response.ok) {
@@ -107,15 +110,15 @@ class ContextMenuActions {
    * these internals), this falls back to the previous full `typo3:pagetree:refresh` event so
    * the tree never goes stale.
    */
-  static refreshPageTreeNode(pageId) {
-    if (ContextMenuActions.tryRefreshPageTreeNodeOnly(pageId)) {
+  static async refreshPageTreeNode(pageId) {
+    if (await ContextMenuActions.tryRefreshPageTreeNodeOnly(pageId)) {
       return;
     }
 
     top.document.dispatchEvent(new CustomEvent("typo3:pagetree:refresh"));
   }
 
-  static tryRefreshPageTreeNodeOnly(pageId) {
+  static async tryRefreshPageTreeNodeOnly(pageId) {
     try {
       const treeElement = top.document.querySelector("typo3-backend-navigation-component-pagetree");
       const tree = treeElement && treeElement.tree;
@@ -133,7 +136,9 @@ class ContextMenuActions {
 
       // Force a refetch: loadChildren() only recurses into already-loaded children otherwise.
       parentNode.loaded = false;
-      tree.loadChildren(parentNode);
+      // Awaited so a rejection lands in the catch below and the caller can still fall back to
+      // the full-tree refresh; without it the node could silently stay stale.
+      await tree.loadChildren(parentNode);
 
       return true;
     } catch (error) {
