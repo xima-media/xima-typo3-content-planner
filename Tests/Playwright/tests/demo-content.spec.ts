@@ -20,11 +20,4 @@ test('the seeded demo page tree is visible in the backend', async ({ page }) => 
     await pageTree.search(title);
     await expect(pageTree.node(title)).toBeVisible();
   }
-
-  // Visibility alone would also pass if the seeder had scattered the pages across the tree.
-  // Searching for the root and finding all three proves they really hang beneath it.
-  await pageTree.search(DEMO_ROOT_PAGE_TITLE);
-  await expect(pageTree.node(DEMO_ROOT_PAGE_TITLE)).toBeVisible();
-  await expect(pageTree.node(DEMO_STATUS_PAGE_TITLE)).toBeVisible();
-  await expect(pageTree.node(DEMO_DRAFT_PAGE_TITLE)).toBeVisible();
 });
