@@ -9,7 +9,10 @@ on:
       - 'Configuration/**'
       - 'Resources/**'
       - 'Tests/Playwright/**'
+      - 'Tests/Functional/Fixtures/Extensions/**'
       - '.ddev/**'
+      - 'composer.json'
+      - 'composer.lock'
       - 'playwright.config.ts'
       - 'package.json'
       - 'package-lock.json'
@@ -22,7 +25,10 @@ on:
       - 'Configuration/**'
       - 'Resources/**'
       - 'Tests/Playwright/**'
+      - 'Tests/Functional/Fixtures/Extensions/**'
       - '.ddev/**'
+      - 'composer.json'
+      - 'composer.lock'
       - 'playwright.config.ts'
       - 'package.json'
       - 'package-lock.json'
@@ -46,6 +52,10 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          # No later step needs authenticated git access, and leaving the token in the
+          # workspace would expose it to everything that runs inside the container.
+          persist-credentials: false
 
       - name: Install ddev
         uses: ddev/github-action-setup-ddev@v1
@@ -67,7 +77,9 @@ jobs:
         run: ddev exec env CI=true npx playwright test
 
       - name: Upload Playwright report
-        if: always()
+        # Not `always()`: a superseded run is cancelled by the concurrency group above and
+        # its half-written report is of no use to anyone.
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
           name: playwright-report
