@@ -1,6 +1,9 @@
+"be_groups"
+,"uid","pid","title","tables_select","custom_options","deleted"
+,10,0,"Digest Recipients","pages","tx_ximatypo3contentplanner:view-only",0
 "be_users"
-,"uid","pid","username","admin","realName","disable","deleted","email","lang","tx_ximatypo3contentplanner_digest"
-,1,0,"admin",1,"Administrator",0,0,"admin@example.com","default",1
-,2,0,"editor",0,"Editor User",0,0,"editor@example.com","default",1
-,3,0,"no-email",0,"No Email",0,0,"","default",1
-,4,0,"opted-out",0,"Opted Out",0,0,"optout@example.com","default",0
+,"uid","pid","username","admin","realName","usergroup","db_mountpoints","disable","deleted","email","lang","tx_ximatypo3contentplanner_digest"
+,1,0,"admin",1,"Administrator","","",0,0,"admin@example.com","default",1
+,2,0,"editor",0,"Editor User","10","1",0,0,"editor@example.com","default",1
+,3,0,"no-email",0,"No Email","10","1",0,0,"","default",1
+,4,0,"opted-out",0,"Opted Out","10","1",0,0,"optout@example.com","default",0

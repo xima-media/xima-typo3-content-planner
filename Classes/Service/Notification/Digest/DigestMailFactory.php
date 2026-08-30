@@ -23,6 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
+use function array_key_exists;
 use function count;
 use function is_array;
 use function sprintf;
@@ -50,6 +51,15 @@ use function sprintf;
  */
 final class DigestMailFactory
 {
+    /**
+     * Records resolved during this run, keyed "table:uid". A digest run asks for the same
+     * record once per recipient watching it, and findByUid() is not cached, so without this
+     * a popular page costs one query per recipient.
+     *
+     * @var array<string, array<string, mixed>|null>
+     */
+    private array $resolvedRecords = [];
+
     public function __construct(private readonly RecordRepository $recordRepository) {}
 
     /**
@@ -113,8 +123,7 @@ final class DigestMailFactory
             return null;
         }
 
-        $record = $this->recordRepository->findByUid($group->getTable(), $group->getRecordUid(), true);
-        if (!is_array($record)) {
+        if (!is_array($this->resolveRecord($group->getTable(), $group->getRecordUid()))) {
             return null;
         }
 
@@ -132,6 +141,21 @@ final class DigestMailFactory
     private static function languageLabel(string $key): string
     {
         return 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:'.$key;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function resolveRecord(string $table, int $uid): ?array
+    {
+        $key = $table.':'.$uid;
+
+        if (!array_key_exists($key, $this->resolvedRecords)) {
+            $record = $this->recordRepository->findByUid($table, $uid, true);
+            $this->resolvedRecords[$key] = is_array($record) ? $record : null;
+        }
+
+        return $this->resolvedRecords[$key];
     }
 
     private function getLanguageService(): LanguageService

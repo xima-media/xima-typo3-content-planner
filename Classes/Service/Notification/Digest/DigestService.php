@@ -19,7 +19,8 @@ use TYPO3\CMS\Core\Localization\{LanguageService, LanguageServiceFactory};
 use TYPO3\CMS\Core\Mail\MailerInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\DigestRunResult;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Service\Notification\RecipientAccessChecker;
 
 use function array_key_exists;
 use function count;
@@ -53,6 +54,8 @@ final class DigestService implements LoggerAwareInterface
         private readonly DigestMailFactory $mailFactory,
         private readonly MailerInterface $mailer,
         private readonly LanguageServiceFactory $languageServiceFactory,
+        private readonly RecordRepository $recordRepository,
+        private readonly RecipientAccessChecker $accessChecker,
     ) {}
 
     /**
@@ -78,7 +81,7 @@ final class DigestService implements LoggerAwareInterface
             return DigestRunResult::skipped($backendUserUid, 'no valid email address');
         }
 
-        $rows = $this->notificationRepository->findPendingByRecipient($backendUserUid);
+        $rows = $this->filterReadableRows($backendUserUid, $this->notificationRepository->findPendingByRecipient($backendUserUid));
         if ([] === $rows) {
             return DigestRunResult::skipped($backendUserUid, 'nothing to digest');
         }
@@ -123,6 +126,44 @@ final class DigestService implements LoggerAwareInterface
         $this->notificationRepository->markDigestedByUids($uids, $backendUserUid);
 
         return DigestRunResult::sent($backendUserUid, count($rows), count($groups));
+    }
+
+    /**
+     * Drops notifications about records the recipient may no longer read.
+     *
+     * The digest aggregates up to a day of activity, so access can be withdrawn between the
+     * notification being written and the mail going out. The payload carries a title
+     * snapshot, so without this the record title would leave the backend anyway - and unlike
+     * the notification centre, a mail cannot re-check anything at the moment it is read.
+     *
+     * @param list<array<string, mixed>> $rows
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function filterReadableRows(int $backendUserUid, array $rows): array
+    {
+        $readable = [];
+
+        foreach ($rows as $row) {
+            $table = (string) $row['tablename'];
+
+            // Folder status rows are not TCA records and carry no page to check against.
+            if (Configuration::TABLE_FOLDER === $table) {
+                $readable[] = $row;
+
+                continue;
+            }
+
+            $record = $this->recordRepository->findByUid($table, (int) $row['record_uid'], true);
+
+            if (is_array($record) && $this->accessChecker->canAccess($backendUserUid, $table, $record)) {
+                $readable[] = $row;
+            }
+        }
+
+        return $readable;
     }
 
     /**

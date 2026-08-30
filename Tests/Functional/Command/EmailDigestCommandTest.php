@@ -22,6 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\Digest\{DigestGroupBuilder, DigestMailFactory, DigestService};
+use Xima\XimaTypo3ContentPlanner\Service\Notification\RecipientAccessChecker;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\Command\Fixtures\DigestMailerSpy;
 
@@ -63,6 +64,8 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
             new DigestMailFactory($this->get(RecordRepository::class)),
             $this->mailerSpy,
             $this->get(LanguageServiceFactory::class),
+            $this->get(RecordRepository::class),
+            $this->get(RecipientAccessChecker::class),
         );
 
         $command = new EmailDigestCommand($this->notificationRepository, $digestService);
@@ -189,6 +192,21 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
         $this->tester->execute([]);
 
         self::assertCount(1, $this->mailerSpy->sentMessages);
+    }
+
+    #[Test]
+    public function notificationsAboutRecordsTheRecipientMayNoLongerReadAreNotMailedOut(): void
+    {
+        // Page 4 is deliberately unreadable for the editor group (no show permission for
+        // anyone but its owner). The digest aggregates up to a day, so access can be
+        // withdrawn between writing the notification and sending the mail - and the payload
+        // carries a title snapshot, so without the check the title would leave the backend.
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_restricted.csv');
+        $this->createStatusChange(recipientUid: self::RECIPIENT_EDITOR, crdate: 1000, previous: null, new: 'Draft', recordUid: 4);
+
+        $this->tester->execute([]);
+
+        self::assertSame([], $this->mailerSpy->sentMessages);
     }
 
     private function createStatusChange(int $recipientUid, int $crdate, ?string $previous, string $new, int $recordUid = 1): void
