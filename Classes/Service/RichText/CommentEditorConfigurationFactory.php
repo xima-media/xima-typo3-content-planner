@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\RichText;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Localization\{LanguageService, Locales};
 use TYPO3\CMS\Core\Utility\{GeneralUtility, PathUtility};
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Event\ModifyCommentEditorConfigurationEvent;
 
 use function is_array;
 use function is_string;
@@ -50,6 +52,7 @@ final readonly class CommentEditorConfigurationFactory
     public function __construct(
         private Richtext $richtext,
         private Locales $locales,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     /**
@@ -70,7 +73,11 @@ final readonly class CommentEditorConfigurationFactory
         $ckeditorConfiguration = $this->replaceLanguageFileReferences($ckeditorConfiguration);
         $ckeditorConfiguration = $this->replaceAbsolutePathsToRelativeResourcesPath($ckeditorConfiguration);
 
-        return $ckeditorConfiguration;
+        // Extension point for features that need their own CKEditor5 plugins in the comment
+        // composer (e.g. @-mentions), so they do not have to replace this factory.
+        $event = $this->eventDispatcher->dispatch(new ModifyCommentEditorConfigurationEvent($ckeditorConfiguration, $pid));
+
+        return $event->getConfiguration();
     }
 
     /**
@@ -93,6 +100,9 @@ final readonly class CommentEditorConfigurationFactory
             'name' => $fieldId,
             'rows' => '4',
             'class' => 'form-control',
+            // The composer has no visible <label>, so without this the editor reaches screen
+            // readers as an unnamed text field.
+            'aria-label' => $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comment.editor.label'),
         ], true);
 
         return '<typo3-rte-ckeditor-ckeditor5 '.$ckeditorAttributes.'>'

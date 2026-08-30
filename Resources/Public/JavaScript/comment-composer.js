@@ -7,10 +7,34 @@
 * and its #238 open-documents cleanup - there is no iframe and nothing gets registered as an
 * open document anymore, so there is nothing left to clean up.
 */
-import "@typo3/rte-ckeditor/ckeditor5.js"
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Notification from "@content-planner/notification.js"
 import OptimisticUpdate from "@content-planner/optimistic-update.js"
+
+let richTextEditorModule = null
+
+/**
+ * The CKEditor5 bundle is large and only needed once a composer is actually on screen. This
+ * module is pulled in by the content planner header assets, which load on every backend page
+ * showing a status header, so importing the bundle statically would make all of those pages
+ * pay for it even when nobody opens a composer.
+ *
+ * Fire-and-forget is enough: `<typo3-rte-ckeditor-ckeditor5>` is a custom element, so an
+ * instance already sitting in the DOM upgrades itself as soon as the module defines it.
+ *
+ * @returns {Promise<*>}
+ */
+function loadRichTextEditor() {
+  if (!richTextEditorModule) {
+    richTextEditorModule = import("@typo3/rte-ckeditor/ckeditor5.js")
+      .catch(error => {
+        richTextEditorModule = null
+        throw error
+      })
+  }
+
+  return richTextEditorModule
+}
 
 class CommentComposer {
   constructor() {
@@ -22,7 +46,11 @@ class CommentComposer {
   initEventListeners(modal = null) {
     const root = modal || document
 
-    root.querySelectorAll('[data-comment-composer]').forEach(form => this.bindForm(form))
+    const forms = root.querySelectorAll('[data-comment-composer]')
+    if (forms.length) {
+      loadRichTextEditor()
+    }
+    forms.forEach(form => this.bindForm(form))
 
     root.querySelectorAll('[data-edit-comment-uri]').forEach(item => {
       if ('true' === item.dataset.commentComposerBound) {
@@ -61,6 +89,8 @@ class CommentComposer {
       return // already open
     }
 
+    loadRichTextEditor()
+
     new AjaxRequest(trigger.getAttribute('data-edit-comment-uri'))
       .get()
       .then(async response => {
@@ -75,6 +105,9 @@ class CommentComposer {
             textEl.hidden = false
           },
         })
+        // Keyboard users activated this deliberately; without moving focus they would have
+        // to tab back to the editor that just appeared.
+        form.querySelector('textarea')?.focus()
       })
       .catch(error => {
         console.error('Content Planner: failed to load the comment editor:', error)
@@ -94,6 +127,8 @@ class CommentComposer {
       return // already open
     }
 
+    loadRichTextEditor()
+
     new AjaxRequest(trigger.getAttribute('data-reply-comment-uri'))
       .get()
       .then(async response => {
@@ -104,6 +139,7 @@ class CommentComposer {
         this.bindForm(form, {
           onCancel: () => form.remove(),
         })
+        form.querySelector('textarea')?.focus()
       })
       .catch(error => {
         console.error('Content Planner: failed to load the reply editor:', error)

@@ -15,9 +15,11 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Service\RichText;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Localization\{LanguageService, Locales};
+use Xima\XimaTypo3ContentPlanner\Event\ModifyCommentEditorConfigurationEvent;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 
 /**
@@ -112,6 +114,33 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
         self::assertStringNotContainsString('<script>alert(1)</script>', $html);
     }
 
+    #[Test]
+    public function buildLetsListenersAddTheirOwnEditorPlugins(): void
+    {
+        $richtext = $this->createMock(Richtext::class);
+        $richtext->method('getConfiguration')->willReturn(['editor' => ['config' => ['toolbar' => ['bold']]]]);
+        $locales = $this->createMock(Locales::class);
+        $locales->method('isValidLanguageKey')->willReturn(true);
+
+        // CP-28 (#327): @-mentions (#305) needs to register a CKEditor5 plugin without
+        // replacing this factory, so the assembled configuration must be dispatched.
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnCallback(
+            static function (ModifyCommentEditorConfigurationEvent $event): ModifyCommentEditorConfigurationEvent {
+                $configuration = $event->getConfiguration();
+                $configuration['importModules'] = ['@acme/mention-plugin.js'];
+                $event->setConfiguration($configuration);
+
+                return $event;
+            },
+        );
+
+        $result = (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher))->build(12);
+
+        self::assertSame(['@acme/mention-plugin.js'], $result['importModules']);
+        self::assertSame(['bold'], $result['toolbar']);
+    }
+
     /**
      * @param array<string, mixed> $editorConfig
      */
@@ -127,6 +156,11 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
         $locales = $this->createMock(Locales::class);
         $locales->method('isValidLanguageKey')->willReturnCallback(static fn (string $key): bool => 'en-us' !== $key);
 
-        return new CommentEditorConfigurationFactory($richtext, $locales);
+        // Pass the configuration through untouched, so these tests keep asserting the
+        // factory's own output rather than a listener's.
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        return new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher);
     }
 }
