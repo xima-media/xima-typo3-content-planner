@@ -66,11 +66,14 @@ This extension targets TYPO3 13.4+ and 14.0+, so a version-gated
 event-based path (the same pattern used for
 ``AfterFileStorageTreeItemsPreparedListener``, which only takes effect on
 v14+) was considered. It does not apply here: ``TreeController::
-initializePageTreeRepository()`` and ``PageTreeRepository::__construct()``
-were compared directly between the installed TYPO3 v13.4.33 and v14.3.6
-sources and are byte-identical. Neither version introduced a supported way
-to widen the fetched field list, nor a new event that runs before the query
-is built. The file storage tree case is different: the folder tree already
+initializePageTreeRepository()`` was compared directly between the installed
+TYPO3 v13.4.33 and v14.3.6 sources and is byte-identical, so a single
+override serves both versions. ``PageTreeRepository::__construct()`` does
+differ between the two (v14 renames the ``url`` field to ``link`` and
+initialises a runtime cache), but its signature is unchanged, which is all
+the override relies on. Neither version introduced a supported way to widen
+the fetched field list, nor a new event that runs before the query is built.
+The file storage tree case is different: the folder tree already
 identifies each node by its combined storage/folder identifier, so status
 data can be attached from a per-node lookup without needing extra columns in
 core's own query.

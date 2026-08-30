@@ -107,17 +107,15 @@ class Configuration
      * and AfterRawPageRowPreparedEvent fires per already-fetched row, too late
      * to widen that SELECT.
      *
-     * Verified against installed core sources: TreeController::
-     * initializePageTreeRepository() and PageTreeRepository::__construct() are
-     * byte-identical between TYPO3 v13.4.33 and v14.3.6, neither version added
-     * a supported way to pass additional fields into the page tree query.
-     * TYPO3 Forge #97259 tracks a core patch to make the fetched fields
-     * extensible; once that lands, this XCLASS can be dropped. Until then it
-     * has to stay for both v13 and v14, since $GLOBALS['TYPO3_CONF_VARS']
-     * ['SYS']['Objects'][BackendTreeController::class] only accepts one
-     * registrant, this is a hard conflict with any other extension that also
-     * needs to override the page tree's TreeController (see the Developer
-     * Corner "Page tree TreeController override" documentation for details).
+     * One override serves both v13 and v14: core's
+     * initializePageTreeRepository() is byte-identical between them.
+     *
+     * Note that $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']
+     * [BackendTreeController::class] only accepts one registrant, so this is a
+     * hard conflict with any other extension overriding the page tree's
+     * TreeController. See the Developer Corner "Page tree integration"
+     * documentation for the full rationale, the version comparison and the
+     * conflict-resolution options.
      */
     public static function overrideClasses(): void
     {
