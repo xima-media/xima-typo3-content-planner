@@ -64,7 +64,13 @@
                     title="{ceHintLabel}"
                     additionalAttributes="{data-color: '{xcp:statusColor(statusId: contentElement.tx_ximatypo3contentplanner_status)}', aria-label: '{ceHintLabel}'}"
                 >
-                    &#9679;
+                    <!-- CP-14 (#318): the status icon differs in shape per status, so the hint
+                         does not rely on colour alone for sighted users. -->
+                    <core:icon
+                        identifier="{xcp:statusIcon(statusId: contentElement.tx_ximatypo3contentplanner_status)}"
+                        size="small"
+                        alternativeMarkupIdentifier="inline"
+                    />
                 </be:link.editRecord>
             </f:for>
         </div>

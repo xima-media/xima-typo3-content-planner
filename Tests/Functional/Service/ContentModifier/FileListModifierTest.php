@@ -143,7 +143,7 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
         );
         // File without a status falls back to the generic "Status" title.
         self::assertMatchesRegularExpression(
-            '/data-filelist-meta-uid="'.$this->imageMetaUid.'".*?<div class="btn-group dropdown">.*?title="Status"/s',
+            '/data-filelist-meta-uid="'.$this->imageMetaUid.'".*?<div class="btn-group dropdown">.*?title="Content Status"/s',
             $body,
         );
         // Subfolder with a status (status 3 = "Done") gets a titled dropdown.
@@ -237,8 +237,9 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
         // (the "sub" folder itself does, but that only affects its own header/dropdown, not
         // the CSS generated for its children).
         self::assertStringNotContainsString('<style>', $result);
-        // The dropdown still gets the generic fallback title/icon.
-        self::assertStringContainsString('title="Status"', $result);
+        // The dropdown still gets the generic fallback title/icon. The fallback is the
+        // translated "status" label, the same one the record list actions use.
+        self::assertStringContainsString('title="Content Status"', $result);
     }
 
     private function createLocalStorage(): void
