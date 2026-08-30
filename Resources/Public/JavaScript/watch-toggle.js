@@ -46,9 +46,9 @@ class WatchToggle {
       })
       .catch((error) => {
         toggle.disabled = false
-        if ('AbortError' === error?.name) {
-          // The request was likely aborted by a content frame refresh (e.g. Firefox
-          // NS_BINDING_ABORTED) - same rationale as the other content-planner AJAX modules.
+        if (WatchToggle.isAbortedRequest(error)) {
+          // The request was likely aborted by a content frame refresh - same rationale as the
+          // other content-planner AJAX modules.
           console.debug('Content Planner: watch toggle request did not complete:', error)
           return
         }
@@ -69,6 +69,23 @@ class WatchToggle {
 
     const replaced = nextSibling ? nextSibling.previousSibling : parent?.lastElementChild
     replaced?.querySelector?.('[data-content-planner-watch-toggle]')?.focus()
+  }
+
+  /**
+   * A navigation or content-frame refresh cancels in-flight requests. Chromium reports that
+   * as an AbortError, but Firefox surfaces NS_BINDING_ABORTED as a plain TypeError with a
+   * network message - so matching on the name alone showed the user a failure toast for
+   * something that never actually failed.
+   *
+   * @param {*} error
+   * @returns {boolean}
+   */
+  static isAbortedRequest(error) {
+    if ('AbortError' === error?.name) {
+      return true
+    }
+
+    return error instanceof TypeError && /NetworkError|network error|Failed to fetch/i.test(error?.message ?? '')
   }
 }
 

@@ -61,13 +61,16 @@ class WatcherPresentationService
         }
 
         $mode = $this->watcherService->getMode($table, $uid, $beUser);
-        $activeWatcherUids = $this->backendUserRepository->activeUids($this->watcherService->getActiveWatchers($table, $uid));
+        $activeWatcherUids = $this->backendUserRepository->filterActiveUids($this->watcherService->getActiveWatchers($table, $uid));
         $watcherNames = $this->resolveVisibleNames($activeWatcherUids);
 
         return [
             'watchable' => true,
             'mode' => $mode?->value,
             'watching' => WatchMode::isWatching($mode),
+            // Deliberately every active watcher, not just the named ones: a viewer who may
+            // not see a colleague still sees that the record is watched. The resulting
+            // "3 watchers, 2 names" is intentional and documented; see resolveVisibleNames().
             'count' => count($activeWatcherUids),
             'watcherNames' => $watcherNames,
             'watcherNamesLabel' => implode(', ', $watcherNames),
