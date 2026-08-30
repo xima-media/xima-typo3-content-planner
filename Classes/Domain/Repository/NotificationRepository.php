@@ -133,7 +133,13 @@ class NotificationRepository
             return;
         }
 
-        $this->mergeIntoExistingContentChangeRow((int) $existing['uid'], $existing['payload'] ?? null, $notification);
+        // The row can be digested between the read above and the write below, in which case
+        // merging into it would hide the new change from every future digest. The write
+        // rechecks that and reports whether it landed; if it did not, the change becomes a
+        // fresh pending row instead of disappearing.
+        if (!$this->mergeIntoExistingContentChangeRow((int) $existing['uid'], $existing['payload'] ?? null, $notification)) {
+            $this->create($notification);
+        }
     }
 
     /**
@@ -426,19 +432,27 @@ class NotificationRepository
     /**
      * @throws Exception
      */
-    private function mergeIntoExistingContentChangeRow(int $uid, mixed $existingPayload, Notification $notification): void
+    /**
+     * @return bool false when the row was digested (or removed) in the meantime, so the caller
+     *              has to persist the change separately
+     */
+    private function mergeIntoExistingContentChangeRow(int $uid, mixed $existingPayload, Notification $notification): bool
     {
         $decoded = is_string($existingPayload) && '' !== $existingPayload ? json_decode($existingPayload, true) : [];
         $merged = ContentChangePayloadMerger::merge(is_array($decoded) ? $decoded : [], $notification->getPayload());
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
-        $queryBuilder
+
+        return (int) $queryBuilder
             ->update(Configuration::TABLE_NOTIFICATION)
             ->set('payload', json_encode($merged, \JSON_THROW_ON_ERROR))
             ->set('crdate', $notification->getCrdate())
             ->set('actor', $notification->getActorUid())
-            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)))
-            ->executeStatement();
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->isNull('digested_at'),
+            )
+            ->executeStatement() > 0;
     }
 
     /**
