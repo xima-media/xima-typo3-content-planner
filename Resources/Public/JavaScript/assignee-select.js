@@ -79,9 +79,62 @@ class AssigneeSelect {
     return ctx.options.filter(option => !option.hidden)
   }
 
+
+  /**
+   * Disables (or re-enables) the search field, listbox and action buttons of the open modal.
+   * Returns the elements it touched so the caller can restore exactly those.
+   *
+   * @param {Element|Object|null} scope modal on disable, previously returned list on enable
+   * @param {boolean} disabled
+   * @returns {Element[]}
+   */
+  static setControlsDisabled(scope, disabled) {
+    if (!disabled) {
+      const previous = Array.isArray(scope) ? scope : []
+      previous.forEach(el => {
+        el.disabled = false
+        el.removeAttribute('aria-disabled')
+        if (el.dataset.assigneePrevTabindex === undefined) {
+          el.removeAttribute('tabindex')
+        } else {
+          el.setAttribute('tabindex', el.dataset.assigneePrevTabindex)
+          delete el.dataset.assigneePrevTabindex
+        }
+      })
+
+      return []
+    }
+
+    const root = scope?.element ?? scope ?? document
+    const elements = Array.from(
+      root.querySelectorAll?.('[data-assignee-search], [data-assignee-listbox], [data-action-assignee-confirm], [data-action-assignee]') ?? [],
+    )
+
+    elements.forEach(el => {
+      if ('disabled' in el) {
+        el.disabled = true
+      }
+      el.setAttribute('aria-disabled', 'true')
+      if (el.hasAttribute('tabindex')) {
+        el.dataset.assigneePrevTabindex = el.getAttribute('tabindex')
+      }
+      el.setAttribute('tabindex', '-1')
+    })
+
+    return elements
+  }
+
   updateActiveDescendant(ctx) {
     const active = ctx.options[ctx.state.activeIndex]
-    ctx.listbox.setAttribute('aria-activedescendant', active ? active.id : '')
+
+    // aria-activedescendant is only announced on the element that actually has focus. Arrow
+    // keys are forwarded from the search field, so pointing it at the listbox alone left
+    // screen reader users with no idea which assignee was active while they were typing.
+    const focusTarget = (ctx.search && document.activeElement === ctx.search) ? ctx.search : ctx.listbox
+    const otherTarget = focusTarget === ctx.listbox ? ctx.search : ctx.listbox
+
+    focusTarget.setAttribute('aria-activedescendant', active ? active.id : '')
+    otherTarget?.removeAttribute('aria-activedescendant')
     ctx.options.forEach(option => option.classList.toggle('content-planner-assignee__item--active', option === active))
     if (active) {
       active.scrollIntoView({ block: 'nearest' })
@@ -186,6 +239,15 @@ class AssigneeSelect {
       return
     }
 
+    // The pending CSS only suppresses pointer events, so a keyboard user could still confirm
+    // a second assignment while the first request was in flight. Guard the request itself and
+    // take the interactive controls out of the tab order for the duration.
+    if (AssigneeSelect.requestPending) {
+      return
+    }
+    AssigneeSelect.requestPending = true
+    const controls = AssigneeSelect.setControlsDisabled(modal, true)
+
     OptimisticUpdate.run({
       apply: () => this.applyOptimistically(option, modal),
       request: () => new AjaxRequest(url).get().then(result => {
@@ -195,6 +257,9 @@ class AssigneeSelect {
         return result
       }),
       rollback: snapshot => this.rollback(snapshot),
+    }).finally(() => {
+      AssigneeSelect.requestPending = false
+      AssigneeSelect.setControlsDisabled(controls, false)
     }).then(() => {
       if (modal) {
         modal.hideModal()

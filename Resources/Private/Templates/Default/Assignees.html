@@ -15,6 +15,7 @@
             </label>
             <input type="search" id="assignee-search" class="form-control" data-assignee-search
                 autocomplete="off" aria-controls="assignee-listbox"
+                role="combobox" aria-expanded="true" aria-autocomplete="list"
                 placeholder="{f:translate(key: 'assignee.search.placeholder', extensionName: 'xima_typo3_content_planner')}"
                 <f:if condition="{canChangeAssignee}"><f:else>disabled</f:else></f:if>
             />
