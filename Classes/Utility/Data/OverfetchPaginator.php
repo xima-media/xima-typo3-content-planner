@@ -34,11 +34,13 @@ use function count;
  * caller's responsibility (see `FILTER_OVERFETCH_FACTOR`/`FILTER_OVERFETCH_CAP`
  * on `RecordRepository`).
  *
- * `hasMore` is therefore a pragmatic, bounded signal: it is accurate only
- * within the over-fetched window handed to {@see self::paginate()}. Visible
- * rows that exist beyond that window (because the bound was too small) are
- * not accounted for and `hasMore` would under-report in that case. Widen the
- * caller's over-fetch bound if this proves insufficient in practice.
+ * A single over-fetched window is not enough on its own: if more consecutive
+ * invisible rows precede the first visible one than the window holds, the page
+ * comes back short and `hasMore` under-reports. {@see self::paginateBatched()}
+ * therefore keeps pulling further windows until the page is full or the source
+ * is exhausted, so the result no longer depends on how the invisible rows
+ * happen to be distributed. {@see self::paginate()} remains available for
+ * callers that already hold the complete row set.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -46,6 +48,8 @@ use function count;
 final class OverfetchPaginator
 {
     /**
+     * Paginate a row set that is already complete.
+     *
      * @template T
      *
      * @param list<T>           $rows      over-fetched rows, already ordered
@@ -55,22 +59,68 @@ final class OverfetchPaginator
      */
     public static function paginate(array $rows, int $pageSize, callable $isVisible): PaginatedResult
     {
+        return self::paginateBatched(
+            static fn (int $offset): array => 0 === $offset ? $rows : [],
+            $pageSize,
+            \PHP_INT_MAX,
+            1,
+            $isVisible,
+        );
+    }
+
+    /**
+     * Pull successive windows until $pageSize visible rows are collected, the
+     * source runs out, or $maxBatches windows have been inspected.
+     *
+     * $fetchBatch receives the row offset to start at and must return at most
+     * $batchSize rows in the caller's stable sort order; a shorter result is
+     * taken to mean the source is exhausted. $maxBatches bounds the work so a
+     * pathological ratio of invisible rows cannot turn one request into an
+     * unbounded scan.
+     *
+     * @template T
+     *
+     * @param callable(int): list<T> $fetchBatch
+     * @param callable(T): bool      $isVisible
+     *
+     * @return PaginatedResult<T>
+     */
+    public static function paginateBatched(
+        callable $fetchBatch,
+        int $pageSize,
+        int $batchSize,
+        int $maxBatches,
+        callable $isVisible,
+    ): PaginatedResult {
         $items = [];
-        $hasMore = false;
+        $offset = 0;
 
-        foreach ($rows as $row) {
-            if (!$isVisible($row)) {
-                continue;
-            }
+        for ($batch = 0; $batch < $maxBatches; ++$batch) {
+            $rows = $fetchBatch($offset);
 
-            if (count($items) >= $pageSize) {
-                $hasMore = true;
+            if ([] === $rows) {
                 break;
             }
 
-            $items[] = $row;
+            foreach ($rows as $row) {
+                if (!$isVisible($row)) {
+                    continue;
+                }
+
+                if (count($items) >= $pageSize) {
+                    return new PaginatedResult($items, true);
+                }
+
+                $items[] = $row;
+            }
+
+            if (count($rows) < $batchSize) {
+                break;
+            }
+
+            $offset += $batchSize;
         }
 
-        return new PaginatedResult($items, $hasMore);
+        return new PaginatedResult($items, false);
     }
 }

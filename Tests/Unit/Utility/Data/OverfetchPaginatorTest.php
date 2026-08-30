@@ -15,7 +15,10 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Utility\Data;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
+
+use function array_slice;
 
 /**
  * OverfetchPaginatorTest.
@@ -97,5 +100,96 @@ final class OverfetchPaginatorTest extends TestCase
 
         self::assertSame([], $result->items);
         self::assertTrue($result->hasMore);
+    }
+
+    #[Test]
+    public function pullsFurtherBatchesWhenAWholeWindowIsInvisible(): void
+    {
+        // The regression this guards: 250 consecutive invisible rows precede the first visible
+        // one. A single over-fetched window of 100 would end here with an empty page and
+        // hasMore=false, wrongly reporting "nothing to show" while matches exist further down.
+        $source = array_merge(range(1, 250), [1000, 1001, 1002]);
+        $isVisible = static fn (int $row): bool => $row >= 1000;
+
+        // What a single window produced before batching: an empty page that claims there is
+        // nothing more, even though three visible rows sit just past the window.
+        $singleWindow = OverfetchPaginator::paginate(array_slice($source, 0, 100), 2, $isVisible);
+        self::assertSame([], $singleWindow->items);
+        self::assertFalse($singleWindow->hasMore);
+
+        $result = self::paginateOver($source, 2, 100, 10, $isVisible);
+
+        self::assertSame([1000, 1001], $result->items);
+        self::assertTrue($result->hasMore);
+    }
+
+    #[Test]
+    public function stopsAtMaxBatchesInsteadOfScanningUnbounded(): void
+    {
+        // Nothing is ever visible, so the loop must be stopped by the batch bound rather than
+        // walking the whole source.
+        $batchesFetched = 0;
+        $fetchBatch = static function (int $offset) use (&$batchesFetched): array {
+            ++$batchesFetched;
+
+            return range($offset + 1, $offset + 10);
+        };
+
+        $result = OverfetchPaginator::paginateBatched($fetchBatch, 5, 10, 3, static fn (int $row): bool => false);
+
+        self::assertSame([], $result->items);
+        self::assertFalse($result->hasMore);
+        self::assertSame(3, $batchesFetched);
+    }
+
+    #[Test]
+    public function stopsEarlyWhenTheSourceIsExhausted(): void
+    {
+        // A short batch means there is nothing left; the paginator must not ask for another one.
+        $batchesFetched = 0;
+        $fetchBatch = static function (int $offset) use (&$batchesFetched): array {
+            ++$batchesFetched;
+
+            return 0 === $offset ? [1, 2, 3] : [];
+        };
+
+        $result = OverfetchPaginator::paginateBatched($fetchBatch, 10, 10, 5, static fn (int $row): bool => true);
+
+        self::assertSame([1, 2, 3], $result->items);
+        self::assertFalse($result->hasMore);
+        self::assertSame(1, $batchesFetched);
+    }
+
+    #[Test]
+    public function reportsHasMoreForAVisibleRowFoundInALaterBatch(): void
+    {
+        // The page fills from the first batch, but the row that proves "there is more" only
+        // shows up in the second one.
+        $source = array_merge([1, 2], range(100, 197), [3]);
+        $isVisible = static fn (int $row): bool => $row < 100;
+
+        $result = self::paginateOver($source, 2, 100, 10, $isVisible);
+
+        self::assertSame([1, 2], $result->items);
+        self::assertTrue($result->hasMore);
+    }
+
+    /**
+     * Serve $source through the batched API the way a paged SQL query would.
+     *
+     * @param list<int>           $source
+     * @param callable(int): bool $isVisible
+     *
+     * @return PaginatedResult<int>
+     */
+    private static function paginateOver(array $source, int $pageSize, int $batchSize, int $maxBatches, callable $isVisible): PaginatedResult
+    {
+        return OverfetchPaginator::paginateBatched(
+            static fn (int $offset): array => array_values(array_slice($source, $offset, $batchSize)),
+            $pageSize,
+            $batchSize,
+            $maxBatches,
+            $isVisible,
+        );
     }
 }

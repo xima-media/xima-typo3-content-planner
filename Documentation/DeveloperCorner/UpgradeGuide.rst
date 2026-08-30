@@ -64,9 +64,19 @@ readonly envelope with two public properties:
 This closes a bug where the SQL ``LIMIT`` was applied *before* permission
 filtering, so a restricted backend user could see far fewer than
 ``$maxResults`` records (or none) even though matches existed further down the
-result set. The fix over-fetches beyond the page size (bounded, see
+result set. The fix over-fetches beyond the page size (see
 ``RecordRepository::FILTER_OVERFETCH_FACTOR``/``FILTER_OVERFETCH_CAP``) and
-applies the permission check before truncating to the final page.
+applies the permission check before truncating to the final page. If a whole
+over-fetched window turns out to be invisible to the current user, the next
+window is pulled rather than reporting a short page, up to
+``FILTER_MAX_BATCHES`` windows. That bound keeps a pathological ratio of
+invisible rows from turning one request into an unbounded scan; only beyond it
+can ``hasMore`` still under-report.
+
+Records are now ordered by ``tstamp DESC, tablename ASC, uid ASC`` instead of
+``tstamp DESC`` alone. Paging by offset needs a total order, and records
+sharing a timestamp previously came back in an order the database was free to
+vary between queries.
 
 If you call ``findAllByFilter()`` directly, replace:
 
