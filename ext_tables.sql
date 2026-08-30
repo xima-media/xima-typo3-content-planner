@@ -114,7 +114,10 @@ CREATE TABLE tx_ximatypo3contentplanner_notification
 
 	PRIMARY KEY (uid),
 	KEY recipient (backend_user),
-	KEY record (tablename(64), record_uid)
+	KEY record (tablename(64), record_uid),
+	-- Retention deletes by age and read state; without this every chunk of that delete
+	-- scans the whole table, which is exactly the case the command exists for.
+	KEY retention (read_at, crdate)
 );
 
 CREATE TABLE tx_ximatypo3contentplanner_folder
