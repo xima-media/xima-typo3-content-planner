@@ -125,7 +125,7 @@ class ImmediateEmailQueueRepository
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_IMMEDIATE_QUEUE);
 
-        return (int) $queryBuilder
+        return $queryBuilder
             ->update(Configuration::TABLE_IMMEDIATE_QUEUE)
             ->set('sent_at', $sentAt)
             ->where(
@@ -160,7 +160,7 @@ class ImmediateEmailQueueRepository
                 ->fetchOne();
         }
 
-        return (int) $queryBuilder
+        return $queryBuilder
             ->delete(Configuration::TABLE_IMMEDIATE_QUEUE)
             ->where(...$constraints)
             ->executeStatement();
