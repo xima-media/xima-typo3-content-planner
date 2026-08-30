@@ -108,6 +108,44 @@ class WatcherRepository
     }
 
     /**
+     * Upsert for automatic (non-manual) triggers, which must never overwrite an explicit
+     * decision the user made.
+     *
+     * Doing that as read-mode-then-upsert is not safe: a manual watch or unwatch landing
+     * between the two would be silently replaced by `auto`. The condition therefore lives in
+     * the UPDATE itself, so only an already-automatic row is touched, and the insert for the
+     * "no row yet" case relies on the unique key to lose the race against a manual write.
+     *
+     * @throws Exception
+     */
+    public function upsertAutomatic(string $table, int $uid, int $beUser, WatchSource $source): void
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
+        $updated = (int) $queryBuilder
+            ->update(Configuration::TABLE_WATCHER)
+            ->set('source', $source->value)
+            ->set('tstamp', time())
+            ->where(
+                $queryBuilder->expr()->eq('tablename', $queryBuilder->createNamedParameter($table)),
+                $queryBuilder->expr()->eq('record_uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('backend_user', $queryBuilder->createNamedParameter($beUser, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('mode', $queryBuilder->createNamedParameter(WatchMode::Auto->value)),
+            )
+            ->executeStatement();
+
+        if ($updated > 0) {
+            return;
+        }
+
+        try {
+            $this->insertRow($table, $uid, $beUser, WatchMode::Auto, $source);
+        } catch (UniqueConstraintViolationException) {
+            // A row already exists and the UPDATE above did not match it, so it carries a
+            // manual decision. Leave it exactly as the user set it.
+        }
+    }
+
+    /**
      * Insert-or-update the watcher relation for (table, uid, beUser): a single row always exists
      * per unique triple once any trigger has fired for it (see the `watcher_lookup` unique key in
      * ext_tables.sql). Not implemented as a native DB-level upsert (not portable across the

@@ -91,20 +91,17 @@ class WatcherService
         $this->assertWatchableTable($table);
         $uid = $this->watcherRepository->normalizeToDefaultLanguageUid($table, $uid);
 
-        $isExplicitAction = WatchSource::Manual === $source;
+        if (WatchSource::Manual !== $source) {
+            // Sticky: an auto-watch trigger never touches an existing explicit (manual)
+            // decision, whether the user is already manually watching or has manually
+            // unwatched. Checked inside the write rather than before it, so a manual decision
+            // arriving in between cannot be overwritten.
+            $this->watcherRepository->upsertAutomatic($table, $uid, $beUser, $source);
 
-        if (!$isExplicitAction) {
-            $existingMode = $this->watcherRepository->findMode($table, $uid, $beUser);
-
-            // Sticky: an auto-watch trigger never touches an existing explicit (manual) decision,
-            // whether the user is already manually watching or has manually unwatched.
-            if (WatchMode::ManualWatch === $existingMode || WatchMode::ManualUnwatch === $existingMode) {
-                return;
-            }
+            return;
         }
 
-        $mode = $isExplicitAction ? WatchMode::ManualWatch : WatchMode::Auto;
-        $this->watcherRepository->upsert($table, $uid, $beUser, $mode, $source);
+        $this->watcherRepository->upsert($table, $uid, $beUser, WatchMode::ManualWatch, $source);
     }
 
     /**

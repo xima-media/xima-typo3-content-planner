@@ -49,12 +49,20 @@ class StatusChangeManager
      */
     public function processContentPlannerFields(array &$incomingFieldArray, string $table, int $id): void
     {
-        if (!isset($incomingFieldArray[Configuration::FIELD_STATUS])) {
+        $hasStatusChange = isset($incomingFieldArray[Configuration::FIELD_STATUS]);
+        $hasAssigneeChange = array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray);
+
+        // Reassigning a record does not touch the status field (see UrlUtility::getAssignUri()),
+        // so gating on the status field alone meant a plain reassignment never reached
+        // handleAssigneeChange(): no AssigneeChangedEvent, and therefore no assignment watcher.
+        if (!$hasStatusChange && !$hasAssigneeChange) {
             return;
         }
 
         $this->nullableField($incomingFieldArray, Configuration::FIELD_ASSIGNEE);
-        $this->nullableField($incomingFieldArray, Configuration::FIELD_STATUS);
+        if ($hasStatusChange) {
+            $this->nullableField($incomingFieldArray, Configuration::FIELD_STATUS);
+        }
 
         // Check table permission
         if (!PermissionUtility::isTableAllowedForUser($table)) {
@@ -63,34 +71,47 @@ class StatusChangeManager
             return;
         }
 
-        // Check status change permission
-        $newStatusUid = $incomingFieldArray[Configuration::FIELD_STATUS];
-        if (null === $newStatusUid) {
-            // Unsetting status - check if user can unset
-            if (!PermissionUtility::canUnsetStatus()) {
-                unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
+        if ($hasStatusChange) {
+            // Check status change permission
+            $newStatusUid = $incomingFieldArray[Configuration::FIELD_STATUS];
+            if (null === $newStatusUid) {
+                // Unsetting status - check if user can unset
+                if (!PermissionUtility::canUnsetStatus()) {
+                    unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
 
-                return;
-            }
-        } else {
-            // Setting status - check if user can change to this specific status
-            if (!PermissionUtility::canChangeStatus((int) $newStatusUid)) {
-                unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
+                    return;
+                }
+            } else {
+                // Setting status - check if user can change to this specific status
+                if (!PermissionUtility::canChangeStatus((int) $newStatusUid)) {
+                    unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
 
-                return;
+                    return;
+                }
             }
+
+            $this->handleStatusReset($incomingFieldArray, $table, $id);
         }
-
-        $this->handleStatusReset($incomingFieldArray, $table, $id);
 
         $preRecord = $this->recordRepository->findByUid($table, $id);
         if (false === $preRecord) {
             return;
         }
 
-        $this->handleAutoAssignment($incomingFieldArray, $preRecord);
+        // Only relevant when a status is being written; it derives the assignee from it.
+        if ($hasStatusChange) {
+            $this->handleAutoAssignment($incomingFieldArray, $preRecord);
+        }
+
+        if (!$this->assertAssigneePermission($incomingFieldArray, $preRecord)) {
+            return;
+        }
+
         $this->handleAssigneeChange($incomingFieldArray, $preRecord, $table, $id);
-        $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
+
+        if ($hasStatusChange) {
+            $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
+        }
     }
 
     /**
@@ -174,6 +195,47 @@ class StatusChangeManager
      * @param array<string, mixed> $incomingFieldArray
      * @param array<string, mixed> $preRecord
      */
+
+    /**
+     * Now that a reassignment reaches this method without a status change, the assignee value
+     * has to be authorised here too. Previously the only gate was that the backend simply did
+     * not render an action URL for a target the user may not pick, which does not survive a
+     * hand-built request.
+     *
+     * @param array<string, mixed> $incomingFieldArray
+     * @param array<string, mixed> $preRecord
+     */
+    private function assertAssigneePermission(array &$incomingFieldArray, array $preRecord): bool
+    {
+        if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray)) {
+            return true;
+        }
+
+        $newAssignee = null !== $incomingFieldArray[Configuration::FIELD_ASSIGNEE]
+            ? (int) $incomingFieldArray[Configuration::FIELD_ASSIGNEE]
+            : null;
+        $currentUserId = PermissionUtility::getCurrentUserId();
+        $previousAssignee = isset($preRecord[Configuration::FIELD_ASSIGNEE]) && $preRecord[Configuration::FIELD_ASSIGNEE] > 0
+            ? (int) $preRecord[Configuration::FIELD_ASSIGNEE]
+            : null;
+
+        // Clearing an assignment counts as assigning "self" when it is the user's own.
+        $touchesOwnAssignmentOnly = ($newAssignee === $currentUserId)
+            || (null === $newAssignee && $previousAssignee === $currentUserId);
+
+        $allowed = $touchesOwnAssignmentOnly
+            ? PermissionUtility::canAssignSelf() || PermissionUtility::canAssignOthers()
+            : PermissionUtility::canAssignOthers();
+
+        if (!$allowed) {
+            unset($incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
+
+            return false;
+        }
+
+        return true;
+    }
+
     private function handleAssigneeChange(array $incomingFieldArray, array $preRecord, string $table, int $id): void
     {
         if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray)) {

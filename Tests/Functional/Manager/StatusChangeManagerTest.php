@@ -264,6 +264,31 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function processContentPlannerFieldsDispatchesAssigneeChangedEventForAnAssigneeOnlyUpdate(): void
+    {
+        // Reassigning a record via the assignee modal writes only the assignee field (see
+        // UrlUtility::getAssignUri()). Gating this method on the status field alone therefore
+        // meant a plain reassignment produced no AssigneeChangedEvent at all - and with it no
+        // assignment watcher and no notification.
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf(AssigneeChangedEvent::class));
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+        );
+
+        // Page 2 has assignee 5; no status key in the payload at all.
+        $fields = [Configuration::FIELD_ASSIGNEE => 9];
+        $manager->processContentPlannerFields($fields, 'pages', 2);
+
+        self::assertSame(9, $fields[Configuration::FIELD_ASSIGNEE]);
+    }
+
+    #[Test]
     public function processContentPlannerFieldsDoesNotDispatchAssigneeChangedEventWhenAssigneeUnchanged(): void
     {
         $dispatcher = $this->createMock(EventDispatcher::class);
