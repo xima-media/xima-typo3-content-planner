@@ -266,7 +266,9 @@ class FolderStatusRepository
         $existing = $this->findByCombinedIdentifier($combinedIdentifier);
 
         if ($existing) {
-            $this->updateStatus((int) $existing['uid'], $status, $assignee ?? false);
+            // The storage UID is already part of the row we just fetched, so pass it on
+            // instead of letting updateStatus() look it up again.
+            $this->updateStatus((int) $existing['uid'], $status, $assignee ?? false, (int) $existing['storage_uid']);
 
             return (int) $existing['uid'];
         }
@@ -309,11 +311,14 @@ class FolderStatusRepository
     /**
      * Update status for a folder status record.
      *
+     * Pass $storageUid when the caller already knows it to save the lookup query;
+     * it is only needed to invalidate the storage's cache entries after the write.
+     *
      * @throws Exception
      */
-    public function updateStatus(int $uid, ?int $status, int|bool|null $assignee = false): void
+    public function updateStatus(int $uid, ?int $status, int|bool|null $assignee = false, ?int $storageUid = null): void
     {
-        $storageUid = $this->getStorageUidByUid($uid);
+        $storageUid ??= $this->getStorageUidByUid($uid);
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
         $queryBuilder
