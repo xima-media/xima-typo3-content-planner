@@ -258,19 +258,19 @@
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.inactive">
 				<source>Get notified about status changes, assignments and comments. Click to watch.</source>
-				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Klicken zum Beobachten.</target>
+				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Klicke, um ihn zu beobachten.</target>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.auto">
 				<source>Get notified about status changes, assignments and comments. You're automatically watching this record because of an assignment, comment or status change. Click to stop watching.</source>
-				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du beobachtest diesen Datensatz automatisch aufgrund einer Zuweisung, eines Kommentars oder einer Status-Änderung. Klicken zum Beenden.</target>
+				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du beobachtest diesen Datensatz automatisch aufgrund einer Zuweisung, eines Kommentars oder einer Status-Änderung. Klicke, um das zu beenden.</target>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.manual">
 				<source>Get notified about status changes, assignments and comments. You are watching this record. Click to stop watching.</source>
-				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du beobachtest diesen Datensatz. Klicken zum Beenden.</target>
+				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du beobachtest diesen Datensatz. Klicke, um das zu beenden.</target>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.muted">
 				<source>Get notified about status changes, assignments and comments. You won't be re-added automatically. Click to watch again.</source>
-				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du wirst nicht automatisch wieder hinzugefügt. Klicken, um erneut zu beobachten.</target>
+				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du wirst nicht automatisch wieder hinzugefügt. Klicke, um ihn erneut zu beobachten.</target>
 			</trans-unit>
 			<trans-unit id="header.watch.watchers">
 				<source>Watching: %s</source>
