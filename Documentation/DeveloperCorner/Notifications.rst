@@ -454,6 +454,23 @@ uid extracted from persisted comment content - a hand-authored (or otherwise API
 marker referencing a uid outside that pool is silently dropped, so the suggestion list is not just
 a UI nicety but the actual authorization boundary.
 
+Being permitted to use the content planner is not the same as being allowed to open the record the
+comment sits on, though. Before notifying, `MentionNotificationService` therefore also asks
+`RecipientAccessChecker` whether the mentioned user can still read that record, so a mention cannot
+be used to hand someone a page title they have no access to. The number of mentions honoured per
+comment is capped as well: a mention is the one path that bypasses the watcher gate, and combined
+with the immediate e-mail channel an unbounded list would turn a single comment into a mail to
+everyone.
+
+..  note::
+    **Not yet wired into the editor.** The backend side described here is complete, but nothing
+    produces the `ctp-mention` markup through the UI: the CKEditor5 Mention plugin that would call
+    `suggestAction()` lives in the comment composer (CP-28, #327), which is developed on a separate
+    branch. Until the two are merged, mention markers can only arrive through the API, and the
+    feature is not reachable for editors. The wiring point exists on that side:
+    `ModifyCommentEditorConfigurationEvent` lets a listener add the plugin and its `feed` callback
+    to the composer's CKEditor5 configuration without replacing the factory.
+
 Dispatch: reaches its target even without a prior watch
 -----------------------------------------------------------
 

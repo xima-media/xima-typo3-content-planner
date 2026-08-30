@@ -16,8 +16,8 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Service\Notification;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason, WatchSource};
-use Xima\XimaTypo3ContentPlanner\Service\Notification\{NotificationChannelInterface, NotificationDispatcher, NotificationSuppressionState};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
+use Xima\XimaTypo3ContentPlanner\Service\Notification\{NotificationChannelInterface, NotificationDispatcher, NotificationSuppressionState};
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 
 /**

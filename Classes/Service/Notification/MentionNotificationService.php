@@ -15,9 +15,12 @@ namespace Xima\XimaTypo3ContentPlanner\Service\Notification;
 
 use Doctrine\DBAL\Exception;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchSource;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\MentionUtility;
+
+use function array_slice;
+use function is_array;
 
 /**
  * MentionNotificationService.
@@ -37,11 +40,21 @@ use Xima\XimaTypo3ContentPlanner\Utility\Data\MentionUtility;
  */
 readonly class MentionNotificationService
 {
+    /**
+     * A mention is the one path that bypasses the watcher gate, so nothing else limits how
+     * many people a single comment can notify. Combined with the immediate e-mail channel,
+     * an unbounded list would turn one comment into a mail to everyone. Mentions beyond this
+     * many are ignored rather than delivered.
+     */
+    private const MAX_MENTIONS_PER_COMMENT = 10;
+
     public function __construct(
         private WatcherService $watcherService,
         private NotificationDispatcher $notificationDispatcher,
         private NotificationPayloadFactory $payloadFactory,
         private BackendUserRepository $backendUserRepository,
+        private RecordRepository $recordRepository,
+        private RecipientAccessChecker $accessChecker,
     ) {}
 
     /**
@@ -58,8 +71,15 @@ readonly class MentionNotificationService
             return;
         }
 
+        $mentionedUids = array_slice($mentionedUids, 0, self::MAX_MENTIONS_PER_COMMENT);
+
         $notifiableUids = $this->resolveNotifiableMentionedUids($mentionedUids);
         if ([] === $notifiableUids) {
+            return;
+        }
+
+        $record = $this->recordRepository->findByUid($table, $recordUid, true);
+        if (!is_array($record)) {
             return;
         }
 
@@ -67,6 +87,13 @@ readonly class MentionNotificationService
 
         foreach ($notifiableUids as $mentionedUid) {
             if ($mentionedUid === $actorUid) {
+                continue;
+            }
+
+            // Being permitted to use the content planner is not the same as being allowed to
+            // see this record. Without this, anyone could mention a colleague on a page that
+            // colleague cannot open and hand them its title - by mail, at that.
+            if (!$this->accessChecker->canAccess($mentionedUid, $table, $record)) {
                 continue;
             }
 
@@ -90,7 +117,7 @@ readonly class MentionNotificationService
      */
     private function resolveNotifiableMentionedUids(array $mentionedUids): array
     {
-        $activeUids = $this->backendUserRepository->activeUids($mentionedUids);
+        $activeUids = $this->backendUserRepository->filterActiveUids($mentionedUids);
         if ([] === $activeUids) {
             return [];
         }

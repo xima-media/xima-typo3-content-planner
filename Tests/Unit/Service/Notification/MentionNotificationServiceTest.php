@@ -16,8 +16,9 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Service\Notification;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchSource;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\{MentionNotificationService, NotificationDispatcher, NotificationPayloadFactory};
+use Xima\XimaTypo3ContentPlanner\Service\Notification\RecipientAccessChecker;
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 
 /**
@@ -70,7 +71,7 @@ final class MentionNotificationServiceTest extends TestCase
             ->with('pages', 1, 7, 42, ['title' => 'Home']);
 
         $backendUserRepository = $this->createMock(BackendUserRepository::class);
-        $backendUserRepository->method('activeUids')->with([42])->willReturn([42]);
+        $backendUserRepository->method('filterActiveUids')->with([42])->willReturn([42]);
         $backendUserRepository->method('findAllWithPermission')->willReturn([
             ['uid' => 42, 'username' => 'jane'],
         ]);
@@ -94,7 +95,7 @@ final class MentionNotificationServiceTest extends TestCase
         $notificationDispatcher->expects(self::once())->method('dispatchMention');
 
         $backendUserRepository = $this->createMock(BackendUserRepository::class);
-        $backendUserRepository->method('activeUids')->willReturn([42]);
+        $backendUserRepository->method('filterActiveUids')->willReturn([42]);
         $backendUserRepository->method('findAllWithPermission')->willReturn([
             ['uid' => 42, 'username' => 'jane'],
         ]);
@@ -114,7 +115,7 @@ final class MentionNotificationServiceTest extends TestCase
         $notificationDispatcher->expects(self::never())->method('dispatchMention');
 
         $backendUserRepository = $this->createMock(BackendUserRepository::class);
-        $backendUserRepository->method('activeUids')->willReturn([42]);
+        $backendUserRepository->method('filterActiveUids')->willReturn([42]);
         $backendUserRepository->method('findAllWithPermission')->willReturn([
             ['uid' => 42, 'username' => 'jane'],
         ]);
@@ -137,7 +138,7 @@ final class MentionNotificationServiceTest extends TestCase
         $notificationDispatcher->expects(self::never())->method('dispatchMention');
 
         $backendUserRepository = $this->createMock(BackendUserRepository::class);
-        $backendUserRepository->method('activeUids')->with([42])->willReturn([42]);
+        $backendUserRepository->method('filterActiveUids')->with([42])->willReturn([42]);
         // uid 42 is active, but not present in the CP-permitted user pool.
         $backendUserRepository->method('findAllWithPermission')->willReturn([
             ['uid' => 99, 'username' => 'someone-else'],
@@ -159,11 +160,100 @@ final class MentionNotificationServiceTest extends TestCase
 
         $backendUserRepository = $this->createMock(BackendUserRepository::class);
         // uid 42 is not among the active uids (deleted/disabled).
-        $backendUserRepository->method('activeUids')->with([42])->willReturn([]);
+        $backendUserRepository->method('filterActiveUids')->with([42])->willReturn([]);
         $backendUserRepository->expects(self::never())->method('findAllWithPermission');
 
         $subject = $this->createSubject($watcherService, $notificationDispatcher, $backendUserRepository);
         $subject->notifyMentions('pages', 1, self::CONTENT_WITH_ONE_MENTION, 7, 5);
+    }
+
+    #[Test]
+    public function doesNotNotifyAMentionedUserWhoCannotReadTheRecord(): void
+    {
+        // Being allowed to use the content planner is not the same as being allowed to open
+        // this record. A mention must not become a way to hand someone a page title they are
+        // not permitted to see - by mail, at that.
+        $watcherService = $this->createMock(WatcherService::class);
+        $watcherService->method('isWatchable')->willReturn(true);
+        $watcherService->expects(self::never())->method('watch');
+
+        $dispatcher = $this->createMock(NotificationDispatcher::class);
+        $dispatcher->expects(self::never())->method('dispatchMention');
+
+        $backendUserRepository = $this->createMock(BackendUserRepository::class);
+        $backendUserRepository->method('filterActiveUids')->willReturnArgument(0);
+        $backendUserRepository->method('findAllWithPermission')->willReturn([['uid' => 7]]);
+
+        $payloadFactory = $this->createMock(NotificationPayloadFactory::class);
+        $payloadFactory->method('forMention')->willReturn([]);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findByUid')->willReturn(['uid' => 5, 'pid' => 1]);
+
+        $accessChecker = $this->createMock(RecipientAccessChecker::class);
+        $accessChecker->method('canAccess')->willReturn(false);
+
+        $subject = new MentionNotificationService(
+            $watcherService,
+            $dispatcher,
+            $payloadFactory,
+            $backendUserRepository,
+            $recordRepository,
+            $accessChecker,
+        );
+
+        $subject->notifyMentions('pages', 5, $this->mentionMarkup(7), 1, 42);
+    }
+
+    #[Test]
+    public function honoursAnUpperBoundOnMentionsPerComment(): void
+    {
+        // Without a cap, one comment mentioning everyone becomes one mail to everyone.
+        $mentionedUids = range(1001, 1030);
+        $content = implode(' ', array_map($this->mentionMarkup(...), $mentionedUids));
+
+        $watcherService = $this->createMock(WatcherService::class);
+        $watcherService->method('isWatchable')->willReturn(true);
+
+        $dispatched = 0;
+        $dispatcher = $this->createMock(NotificationDispatcher::class);
+        $dispatcher->method('dispatchMention')->willReturnCallback(static function () use (&$dispatched): void {
+            ++$dispatched;
+        });
+
+        $backendUserRepository = $this->createMock(BackendUserRepository::class);
+        $backendUserRepository->method('filterActiveUids')->willReturnArgument(0);
+        $backendUserRepository->method('findAllWithPermission')->willReturn(
+            array_map(static fn (int $uid): array => ['uid' => $uid], $mentionedUids),
+        );
+
+        $payloadFactory = $this->createMock(NotificationPayloadFactory::class);
+        $payloadFactory->method('forMention')->willReturn([]);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findByUid')->willReturn(['uid' => 5, 'pid' => 1]);
+
+        $accessChecker = $this->createMock(RecipientAccessChecker::class);
+        $accessChecker->method('canAccess')->willReturn(true);
+
+        $subject = new MentionNotificationService(
+            $watcherService,
+            $dispatcher,
+            $payloadFactory,
+            $backendUserRepository,
+            $recordRepository,
+            $accessChecker,
+        );
+
+        $subject->notifyMentions('pages', 5, $content, 1, 42);
+
+        self::assertLessThanOrEqual(10, $dispatched);
+        self::assertGreaterThan(0, $dispatched);
+    }
+
+    private function mentionMarkup(int $uid): string
+    {
+        return '<a class="ctp-mention" data-mention-uid="'.$uid.'">@user</a>';
     }
 
     private function createSubject(
@@ -174,11 +264,20 @@ final class MentionNotificationServiceTest extends TestCase
         $payloadFactory = $this->createMock(NotificationPayloadFactory::class);
         $payloadFactory->method('forMention')->willReturn(['title' => 'Home']);
 
+        // The record exists and the mentioned user may read it; the access rules themselves
+        // are covered by RecipientAccessChecker's own tests.
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findByUid')->willReturn(['uid' => 5, 'pid' => 1]);
+        $accessChecker = $this->createMock(RecipientAccessChecker::class);
+        $accessChecker->method('canAccess')->willReturn(true);
+
         return new MentionNotificationService(
             $watcherService,
             $notificationDispatcher,
             $payloadFactory,
             $backendUserRepository ?? $this->createMock(BackendUserRepository::class),
+            $recordRepository,
+            $accessChecker,
         );
     }
 }
