@@ -6,7 +6,7 @@ enableFilelistSupport = 1
 enableContentElementSupport = 1
 # cat=basic/enable; type=boolean; label=Enable record edit header info
 recordEditHeaderInfo = 1
-# cat=basic/enable; type=options[Chip (doc header trio, default in v3.0)=chip,Banner (full-width, legacy)=banner]; label=Header display mode: compact doc header chip trio, or the legacy full-width banner/overlay
+# cat=basic/enable; type=options[Chip (doc header trio)=chip,Banner (full-width legacy)=banner]; label=Header display mode: the compact doc header chip trio (default since v3.0) or the legacy full-width banner/overlay
 headerDisplayMode = chip
 # cat=basic/enable; type=boolean; label=Enable web list header info
 webListHeaderInfo = 1

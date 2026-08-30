@@ -28,6 +28,33 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
  */
 final class WebLayoutModifierTest extends AbstractFunctionalTestCase
 {
+    /**
+     * Several tests here switch the display mode and the registered record tables. The
+     * functional test case does not reset superglobals between methods in the same process,
+     * so restore whatever was there instead of leaking into the next test.
+     *
+     * @var array<string, mixed>|null
+     */
+    private ?array $extensionConfigurationBackup = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->extensionConfigurationBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] ?? null;
+    }
+
+    protected function tearDown(): void
+    {
+        if (null === $this->extensionConfigurationBackup) {
+            unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]);
+        } else {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $this->extensionConfigurationBackup;
+        }
+
+        parent::tearDown();
+    }
+
     #[Test]
     public function modifyKeepsTheInnerResponseStatusReasonPhraseAndHeaders(): void
     {

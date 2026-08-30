@@ -61,7 +61,7 @@ final readonly class ChipTrioButtonBuilder
         $dropDownButton = ComponentFactoryUtility::createDropDownButton()
             // CP-25 (#324): in chip mode, the status name is shown as visible label text
             // next to the icon (the "chip" visual) instead of just an icon-only dropdown.
-            ->setLabel($isChipMode && $status instanceof Status ? $status->getTitle() : 'Dropdown')
+            ->setLabel($isChipMode && $status instanceof Status ? $status->getTitle() : $statusLabel)
             ->setShowLabelText($isChipMode)
             ->setTitle($isChipMode && $status instanceof Status ? $statusLabel.': '.$status->getTitle() : $statusLabel)
             ->setIcon($this->iconFactory->getIcon(
