@@ -56,6 +56,16 @@ they would after a normal status change (auto-assignment, the ``StatusChangeEven
     Content Planner status at all, use TYPO3 core's built-in "Notes" (``sys_note``) system
     extension instead.
 
+..  note::
+    The comment-first entry point is part of the doc header chip trio and therefore only
+    available in the default ``chip`` header display mode. In the legacy ``banner`` mode the
+    header is not rendered for records without a status, so there is nothing to comment from
+    (see :ref:`Extension configuration <extension-configuration>`).
+
+    A user who may comment but may not set a status can leave a record without one. Such a
+    record does not appear in the Status overview module, which lists records *by* status;
+    its comments remain visible on the record itself and in the comment dashboard widget.
+
 ..  _comments-show:
 
 Show comments

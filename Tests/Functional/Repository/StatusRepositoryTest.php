@@ -14,9 +14,13 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Repository;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
+
+use function sprintf;
 
 /**
  * StatusRepositoryTest.
@@ -133,5 +137,25 @@ final class StatusRepositoryTest extends AbstractFunctionalTestCase
         self::assertInstanceOf(Status::class, $default);
         self::assertSame(12, $default->getUid());
         self::assertTrue($default->isDefault());
+    }
+
+    #[Test]
+    public function statusCachedUnderThePreviousIdentifierIsIgnored(): void
+    {
+        // The cache stores serialized Status objects, and unserialize() does not run the
+        // constructor. An entry written before Status gained is_default therefore came back
+        // with that property uninitialized, and the first isDefault() call fatalled until
+        // someone flushed the cache by hand. The identifier now carries a shape version, so
+        // entries written under the old one are simply missed.
+        $cache = $this->get(CacheManager::class)->getCache(Configuration::CACHE_IDENTIFIER.'_cache');
+        $cache->set(
+            sprintf('%s--status--1', Configuration::CACHE_IDENTIFIER),
+            new Status(1, 'Stale', 'flag', 'gray'),
+        );
+
+        $result = $this->get(StatusRepository::class)->findByUid(1);
+
+        self::assertInstanceOf(Status::class, $result);
+        self::assertSame('Draft', $result->getTitle(), 'Expected a freshly loaded status, not the entry under the old identifier.');
     }
 }
