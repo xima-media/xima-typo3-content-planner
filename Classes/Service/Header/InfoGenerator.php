@@ -57,13 +57,11 @@ class InfoGenerator
             return false;
         }
 
-        if (null === $record) {
-            $record = $this->recordRepository->findByUid(
-                $table,
-                $uid,
-                true,
-            );
-        }
+        $record ??= $this->recordRepository->findByUid(
+            $table,
+            $uid,
+            true,
+        );
 
         if (!(bool) $record) {
             return false;
