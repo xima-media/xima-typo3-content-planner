@@ -83,7 +83,7 @@ final readonly class ModifyButtonBarEventListener
         }
 
         $uid = $this->extractUidFromRequest($request, $table);
-        $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
+        $record = $this->recordRepository->findByUid($table, $uid, true);
 
         if (!$record) {
             return;

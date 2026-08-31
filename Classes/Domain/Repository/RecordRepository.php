@@ -60,7 +60,7 @@ class RecordRepository
         $baseWhere = '';
         $additionalParams = ['limit' => $maxResults];
 
-        $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
+        [$baseWhere, $additionalParams] = $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
         $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments);
         // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
@@ -240,8 +240,10 @@ class RecordRepository
 
     /**
      * @param array<string, mixed> $additionalParams
+     *
+     * @return array{0: string, 1: array<string, mixed>}
      */
-    private function applyFilterConditions(string &$baseWhere, array &$additionalParams, ?string $search, ?int $status, ?int $assignee): void
+    private function applyFilterConditions(string $baseWhere, array $additionalParams, ?string $search, ?int $status, ?int $assignee): array
     {
         // Note: search filter is applied per table in buildSearchCondition() due to different title fields
 
@@ -259,6 +261,8 @@ class RecordRepository
             $baseWhere .= ' AND x.tx_ximatypo3contentplanner_assignee = :assignee';
             $additionalParams['assignee'] = $assignee;
         }
+
+        return [$baseWhere, $additionalParams];
     }
 
     /**
@@ -305,7 +309,7 @@ class RecordRepository
 
             $whereClause = $this->buildWhereClauseForTable($baseWhere, $table, $todo, $openComments);
             $whereClause .= $this->buildSearchCondition($table, $search);
-            $this->getSqlByTable($table, $sqlArray, $whereClause);
+            $sqlArray[] = $this->getSqlByTable($table, $whereClause);
         }
 
         return $sqlArray;
@@ -346,23 +350,16 @@ class RecordRepository
         return $results;
     }
 
-    /**
-     * @param string[] $sql
-     */
-    private function getSqlByTable(string $table, array &$sql, string $additionalWhere): void
+    private function getSqlByTable(string $table, string $additionalWhere): string
     {
         // Special handling for sys_file_metadata - join with sys_file to get the filename
         if ('sys_file_metadata' === $table) {
-            $this->getSqlForFileMetadata($sql, $additionalWhere);
-
-            return;
+            return $this->getSqlForFileMetadata($additionalWhere);
         }
 
         // Special handling for folder status table
         if (Configuration::TABLE_FOLDER === $table) {
-            $this->getSqlForFolders($sql, $additionalWhere);
-
-            return;
+            return $this->getSqlForFolders($additionalWhere);
         }
 
         $titleField = ExtensionUtility::getTitleField($table);
@@ -376,15 +373,13 @@ class RecordRepository
         // Add deleted restriction only for tables that have it
         $deletedWhere = $this->hasDeletedRestriction($table) ? ' AND deleted = 0' : '';
 
-        $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.$deletedWhere.$additionalWhere.')';
+        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.$deletedWhere.$additionalWhere.')';
     }
 
     /**
      * Build SQL for sys_file_metadata with JOIN to sys_file for filename.
-     *
-     * @param string[] $sql
      */
-    private function getSqlForFileMetadata(array &$sql, string $additionalWhere): void
+    private function getSqlForFileMetadata(string $additionalWhere): string
     {
         $table = 'sys_file_metadata';
         $selects = [
@@ -405,15 +400,13 @@ class RecordRepository
             'NULL as folder_identifier',
         ];
 
-        $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x INNER JOIN sys_file f ON x.file = f.uid WHERE x.tx_ximatypo3contentplanner_status IS NOT NULL AND x.tx_ximatypo3contentplanner_status != 0'.$additionalWhere.')';
+        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x INNER JOIN sys_file f ON x.file = f.uid WHERE x.tx_ximatypo3contentplanner_status IS NOT NULL AND x.tx_ximatypo3contentplanner_status != 0'.$additionalWhere.')';
     }
 
     /**
      * Build SQL for folder status table with readable folder name.
-     *
-     * @param string[] $sql
      */
-    private function getSqlForFolders(array &$sql, string $additionalWhere): void
+    private function getSqlForFolders(string $additionalWhere): string
     {
         $table = Configuration::TABLE_FOLDER;
         $selects = [
@@ -434,7 +427,7 @@ class RecordRepository
             'folder_identifier',
         ];
 
-        $sql[] = '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0 AND deleted = 0'.$additionalWhere.')';
+        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0 AND deleted = 0'.$additionalWhere.')';
     }
 
     /**

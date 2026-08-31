@@ -46,7 +46,7 @@ final class StatusSelectionManagerTest extends TestCase
         $manager = new StatusSelectionManager($eventDispatcher);
 
         $selection = [];
-        $manager->prepareStatusSelection(new stdClass(), 'pages', 5, $selection);
+        $selection = $manager->prepareStatusSelection(new stdClass(), 'pages', 5, $selection);
 
         self::assertSame($modifiedSelection, $selection);
     }
@@ -73,7 +73,7 @@ final class StatusSelectionManagerTest extends TestCase
         $manager = new StatusSelectionManager($eventDispatcher);
 
         $selection = ['initial' => 'value'];
-        $manager->prepareStatusSelection($context, 'tt_content', 42, $selection);
+        $selection = $manager->prepareStatusSelection($context, 'tt_content', 42, $selection);
 
         self::assertSame(['initial' => 'value'], $selection);
     }

@@ -64,8 +64,6 @@ class StatusRepository extends Repository
 
     /**
      * @return array<int, Status>
-     *
-     * @phpstan-ignore-next-line property.phpDocType
      */
     public function findAll(): array
     {

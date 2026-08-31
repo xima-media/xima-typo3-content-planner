@@ -73,7 +73,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
 
         if (ExtensionUtility::isRegisteredRecordTable($table)) {
-            $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, (int) $id);
+            $incomingFieldArray = $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, (int) $id);
         }
     }
 
@@ -219,7 +219,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
     }
 
-    private function fixNewCommentEntry(DataHandler &$dataHandler): void
+    private function fixNewCommentEntry(DataHandler $dataHandler): void
     {
         $id = null;
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $key) {
@@ -254,7 +254,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     /**
      * Flatten nested replies: if parent_uid points to a reply, redirect to the root comment.
      */
-    private function flattenNestedReply(DataHandler &$dataHandler, string $id): void
+    private function flattenNestedReply(DataHandler $dataHandler, string $id): void
     {
         if (!isset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['parent_uid'])) {
             return;
@@ -312,10 +312,10 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
 
         $this->eventDispatcher->dispatch(new CommentCreatedEvent(
-            table: $fieldArray['foreign_table'],
-            recordUid: (int) $fieldArray['foreign_uid'],
-            commentUid: (int) $resolvedId,
-            authorUid: $authorUid,
+            $fieldArray['foreign_table'],
+            (int) $fieldArray['foreign_uid'],
+            (int) $resolvedId,
+            $authorUid,
         ));
     }
 
@@ -336,10 +336,10 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         /** @var BackendUserAuthentication $resolvedBackendUser */
         $resolvedBackendUser = $GLOBALS['BE_USER'];
         $this->eventDispatcher->dispatch(new CommentResolvedEvent(
-            table: $comment['foreign_table'],
-            recordUid: (int) $comment['foreign_uid'],
-            commentUid: (int) $id,
-            resolvedByUid: (int) $resolvedBackendUser->getUserId(),
+            $comment['foreign_table'],
+            (int) $comment['foreign_uid'],
+            (int) $id,
+            (int) $resolvedBackendUser->getUserId(),
         ));
     }
 
