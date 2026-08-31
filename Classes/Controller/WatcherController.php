@@ -69,7 +69,7 @@ class WatcherController extends ActionController
             return new JsonResponse(['error' => 'Table does not support watching'], 400);
         }
 
-        $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
+        $record = $this->recordRepository->findByUid($table, $uid, true);
         if (!$record) {
             return new JsonResponse(['error' => 'Record not found'], 404);
         }
