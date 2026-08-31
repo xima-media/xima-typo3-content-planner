@@ -136,22 +136,7 @@ class StatusItemProvider extends AbstractProvider
             return $items;
         }
         foreach ($itemsToAdd as $itemKey => $itemToAdd) {
-            $this->itemsConfiguration['wrap']['childItems'][$itemKey] = $itemToAdd;
-
-            // Extract currentAssignee from assignee item for getAdditionalAttributes()
-            if ('assignee' === $itemKey && isset($itemToAdd['currentAssignee'])) {
-                $this->currentAssignee = (int) $itemToAdd['currentAssignee'];
-            }
-
-            // Status-change entries carry color/icon so the JS callback can apply the new
-            // status optimistically, see getAdditionalAttributes().
-            if (isset($itemToAdd['color'], $itemToAdd['icon'])) {
-                $this->statusMetadataByItemKey[$itemKey] = [
-                    'title' => (string) ($itemToAdd['label'] ?? ''),
-                    'color' => (string) $itemToAdd['color'],
-                    'icon' => (string) $itemToAdd['icon'],
-                ];
-            }
+            $this->registerItem($itemKey, $itemToAdd);
         }
 
         $localItems = $this->prepareItems($this->itemsConfiguration);
@@ -212,7 +197,7 @@ class StatusItemProvider extends AbstractProvider
             $attributes['data-current-assignee'] = $this->currentAssignee;
         }
 
-        $this->addStatusMetadataAttributes($attributes, $itemName);
+        $attributes = $this->addStatusMetadataAttributes($attributes, $itemName);
 
         return $attributes;
     }
@@ -232,21 +217,51 @@ class StatusItemProvider extends AbstractProvider
     }
 
     /**
+     * Registers a single context menu item and extracts the metadata
+     * {@see getAdditionalAttributes()} needs for it.
+     *
+     * @param array<string, mixed> $itemToAdd
+     */
+    private function registerItem(int|string $itemKey, array $itemToAdd): void
+    {
+        $this->itemsConfiguration['wrap']['childItems'][$itemKey] = $itemToAdd;
+
+        // Extract currentAssignee from assignee item for getAdditionalAttributes()
+        if ('assignee' === $itemKey && isset($itemToAdd['currentAssignee'])) {
+            $this->currentAssignee = (int) $itemToAdd['currentAssignee'];
+        }
+
+        // Status-change entries carry color/icon so the JS callback can apply the new
+        // status optimistically, see getAdditionalAttributes().
+        if (isset($itemToAdd['color'], $itemToAdd['icon'])) {
+            $this->statusMetadataByItemKey[(string) $itemKey] = [
+                'title' => (string) ($itemToAdd['label'] ?? ''),
+                'color' => (string) $itemToAdd['color'],
+                'icon' => (string) $itemToAdd['icon'],
+            ];
+        }
+    }
+
+    /**
      * Status-change entries: expose title/color/icon so context-menu-actions.js can apply the
      * new status to the DOM optimistically, before the request resolves.
      *
      * @param array<string, mixed> $attributes
+     *
+     * @return array<string, mixed>
      */
-    private function addStatusMetadataAttributes(array &$attributes, string|int $itemName): void
+    private function addStatusMetadataAttributes(array $attributes, string|int $itemName): array
     {
         $metadata = $this->statusMetadataByItemKey[(string) $itemName] ?? null;
         if (null === $metadata) {
-            return;
+            return $attributes;
         }
 
         $attributes['data-status-title'] = $metadata['title'];
         $attributes['data-status-color'] = $metadata['color'];
         $attributes['data-status-icon'] = $metadata['icon'];
+
+        return $attributes;
     }
 
     /**
