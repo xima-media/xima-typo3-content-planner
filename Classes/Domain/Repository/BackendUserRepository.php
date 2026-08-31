@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function array_key_exists;
+use function count;
 use function in_array;
 use function intval;
 
@@ -273,7 +274,7 @@ class BackendUserRepository
         $allGroups = $this->fetchAllBackendGroups();
         $groupMap = $this->buildGroupMap($allGroups);
         $authorizedGroups = $this->findDirectlyAuthorizedGroupsByAny($groupMap, $permissions);
-        $this->expandAuthorizationToParentGroups($groupMap, $authorizedGroups);
+        $authorizedGroups = $this->expandAuthorizationToParentGroups($groupMap, $authorizedGroups);
 
         return array_keys($authorizedGroups);
     }
@@ -334,32 +335,38 @@ class BackendUserRepository
     /**
      * @param array<int, array{custom_options: string, subgroups: array<int>}> $groupMap
      * @param array<int, true>                                                 $authorizedGroups
+     *
+     * @return array<int, true>
      */
-    private function expandAuthorizationToParentGroups(array $groupMap, array &$authorizedGroups): void
+    private function expandAuthorizationToParentGroups(array $groupMap, array $authorizedGroups): array
     {
         $changed = true;
         while ($changed) {
-            $changed = $this->authorizeGroupsWithAuthorizedSubgroups($groupMap, $authorizedGroups);
+            $previousCount = count($authorizedGroups);
+            $authorizedGroups = $this->authorizeGroupsWithAuthorizedSubgroups($groupMap, $authorizedGroups);
+            $changed = count($authorizedGroups) !== $previousCount;
         }
+
+        return $authorizedGroups;
     }
 
     /**
      * @param array<int, array{custom_options: string, subgroups: array<int>}> $groupMap
      * @param array<int, true>                                                 $authorizedGroups
+     *
+     * @return array<int, true>
      */
-    private function authorizeGroupsWithAuthorizedSubgroups(array $groupMap, array &$authorizedGroups): bool
+    private function authorizeGroupsWithAuthorizedSubgroups(array $groupMap, array $authorizedGroups): array
     {
-        $changed = false;
         foreach ($groupMap as $uid => $data) {
             if (isset($authorizedGroups[$uid]) || !$this->hasAuthorizedSubgroup($data['subgroups'], $authorizedGroups)) {
                 continue;
             }
 
             $authorizedGroups[$uid] = true;
-            $changed = true;
         }
 
-        return $changed;
+        return $authorizedGroups;
     }
 
     /**

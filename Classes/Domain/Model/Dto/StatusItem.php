@@ -155,7 +155,6 @@ final class StatusItem
             return null;
         }
 
-        /* @phpstan-ignore-next-line */
         return $site->getAttribute('websiteTitle') ?? $site->getIdentifier();
     }
 
@@ -309,9 +308,7 @@ final class StatusItem
 
     private function getCommentRepository(): CommentRepository
     {
-        if (null === $this->commentRepository) {
-            $this->commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        }
+        $this->commentRepository ??= GeneralUtility::makeInstance(CommentRepository::class);
 
         return $this->commentRepository;
     }
