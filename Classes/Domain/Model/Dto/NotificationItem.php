@@ -37,7 +37,7 @@ final readonly class NotificationItem
         private string $reasonLabel,
         private string $timeAgo,
         private bool $read,
-        private ?string $changeSummary = null,
+        private ?string $changeSummary,
     ) {}
 
     public function getUid(): int
