@@ -45,24 +45,22 @@ class StatusChangeManager
     /**
      * @param array<string, mixed> $incomingFieldArray
      *
-     * @return array<string, mixed>
-     *
      * @throws Exception
      */
-    public function processContentPlannerFields(array $incomingFieldArray, string $table, int $id): array
+    public function processContentPlannerFields(array &$incomingFieldArray, string $table, int $id): void
     {
         if (!isset($incomingFieldArray[Configuration::FIELD_STATUS])) {
-            return $incomingFieldArray;
+            return;
         }
 
-        $incomingFieldArray = $this->nullableField($incomingFieldArray, Configuration::FIELD_ASSIGNEE);
-        $incomingFieldArray = $this->nullableField($incomingFieldArray, Configuration::FIELD_STATUS);
+        $this->nullableField($incomingFieldArray, Configuration::FIELD_ASSIGNEE);
+        $this->nullableField($incomingFieldArray, Configuration::FIELD_STATUS);
 
         // Check table permission
         if (!PermissionUtility::isTableAllowedForUser($table)) {
             unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
 
-            return $incomingFieldArray;
+            return;
         }
 
         // Check status change permission
@@ -72,30 +70,29 @@ class StatusChangeManager
             if (!PermissionUtility::canUnsetStatus()) {
                 unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
 
-                return $incomingFieldArray;
+                return;
             }
         } else {
             // Setting status - check if user can change to this specific status
             if (!PermissionUtility::canChangeStatus((int) $newStatusUid)) {
                 unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
 
-                return $incomingFieldArray;
+                return;
             }
         }
 
-        $incomingFieldArray = $this->handleStatusReset($incomingFieldArray, $table, $id);
+        $this->handleStatusReset($incomingFieldArray, $table, $id);
 
         $preRecord = $this->recordRepository->findByUid($table, $id);
         if (false === $preRecord) {
-            return $incomingFieldArray;
+            return;
         }
 
-        $incomingFieldArray = $this->handleAutoAssignment($incomingFieldArray, $preRecord);
+        $this->handleAutoAssignment($incomingFieldArray, $preRecord);
         $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
-
-        return $incomingFieldArray;
     }
 
+    /** @phpstan-ignore typePerfect.narrowPublicClassMethodParamType */
     public function clearStatusOfExtensionRecords(string $table, ?int $status = null, ?int $pid = null): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -121,13 +118,11 @@ class StatusChangeManager
 
     /**
      * @param array<string, mixed> $incomingFieldArray
-     *
-     * @return array<string, mixed>
      */
-    private function handleStatusReset(array $incomingFieldArray, string $table, int $id): array
+    private function handleStatusReset(array &$incomingFieldArray, string $table, int $id): void
     {
         if (null !== $incomingFieldArray[Configuration::FIELD_STATUS]) {
-            return $incomingFieldArray;
+            return;
         }
 
         $incomingFieldArray[Configuration::FIELD_ASSIGNEE] = null;
@@ -135,29 +130,25 @@ class StatusChangeManager
         if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_CLEAR_COMMENTS_ON_STATUS_RESET)) {
             $this->commentRepository->deleteAllCommentsByRecord($id, $table);
         }
-
-        return $incomingFieldArray;
     }
 
     /**
      * @param array<string, mixed> $incomingFieldArray
      * @param array<string, mixed> $preRecord
-     *
-     * @return array<string, mixed>
      */
-    private function handleAutoAssignment(array $incomingFieldArray, array $preRecord): array
+    private function handleAutoAssignment(array &$incomingFieldArray, array $preRecord): void
     {
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_AUTO_ASSIGN)) {
-            return $incomingFieldArray;
+            return;
         }
 
         if (null === $incomingFieldArray[Configuration::FIELD_STATUS]) {
-            return $incomingFieldArray;
+            return;
         }
 
         if (array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray)
             && null !== $incomingFieldArray[Configuration::FIELD_ASSIGNEE]) {
-            return $incomingFieldArray;
+            return;
         }
 
         $hadNoStatusBefore = null === $preRecord[Configuration::FIELD_STATUS]
@@ -168,8 +159,6 @@ class StatusChangeManager
             $backendUser = $GLOBALS['BE_USER'];
             $incomingFieldArray[Configuration::FIELD_ASSIGNEE] = $backendUser->getUserId();
         }
-
-        return $incomingFieldArray;
     }
 
     /**
@@ -189,22 +178,18 @@ class StatusChangeManager
         $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus));
 
         if (null === $incomingFieldArray[Configuration::FIELD_STATUS] && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET)) {
-            $this->clearStatusOfExtensionRecords('tt_content', null, $id);
+            $this->clearStatusOfExtensionRecords('tt_content', pid: $id);
         }
     }
 
     /**
      * @param array<string, mixed> $incomingFieldArray
-     *
-     * @return array<string, mixed>
      */
-    private function nullableField(array $incomingFieldArray, string $field): array
+    private function nullableField(array &$incomingFieldArray, string $field): void
     {
         if (array_key_exists($field, $incomingFieldArray) && ('' === $incomingFieldArray[$field] || 0 === $incomingFieldArray[$field])) {
             $incomingFieldArray[$field] = null;
         }
-
-        return $incomingFieldArray;
     }
 
     /**

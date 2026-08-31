@@ -54,7 +54,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
     public function processContentPlannerFieldsDoesNothingWithoutStatusField(): void
     {
         $fields = ['title' => 'unchanged'];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 1);
+        $this->subject->processContentPlannerFields($fields, 'pages', 1);
 
         self::assertSame(['title' => 'unchanged'], $fields);
     }
@@ -63,7 +63,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
     public function processContentPlannerFieldsConvertsEmptyStatusToNull(): void
     {
         $fields = [Configuration::FIELD_STATUS => ''];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 1);
+        $this->subject->processContentPlannerFields($fields, 'pages', 1);
 
         self::assertNull($fields[Configuration::FIELD_STATUS]);
     }
@@ -72,7 +72,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
     public function processContentPlannerFieldsKeepsStatusForAdmin(): void
     {
         $fields = [Configuration::FIELD_STATUS => 2];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 1);
+        $this->subject->processContentPlannerFields($fields, 'pages', 1);
 
         self::assertSame(2, $fields[Configuration::FIELD_STATUS]);
     }
@@ -81,7 +81,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
     public function processContentPlannerFieldsResetClearsAssignee(): void
     {
         $fields = [Configuration::FIELD_STATUS => '', Configuration::FIELD_ASSIGNEE => 5];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 2);
+        $this->subject->processContentPlannerFields($fields, 'pages', 2);
 
         self::assertNull($fields[Configuration::FIELD_STATUS]);
         self::assertNull($fields[Configuration::FIELD_ASSIGNEE]);
@@ -91,7 +91,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
     public function processContentPlannerFieldsReturnsEarlyForUnknownRecord(): void
     {
         $fields = [Configuration::FIELD_STATUS => 2];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 999);
+        $this->subject->processContentPlannerFields($fields, 'pages', 999);
 
         // No record found, but the status field is still normalised/kept.
         self::assertSame(2, $fields[Configuration::FIELD_STATUS]);
@@ -144,7 +144,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
         $this->enableFeature('clearCommentsOnStatusReset');
 
         $fields = [Configuration::FIELD_STATUS => ''];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 2);
+        $this->subject->processContentPlannerFields($fields, 'pages', 2);
 
         $comment = $this->get(CommentRepository::class)->findByUid(1);
         self::assertFalse($comment, 'comment must be soft-deleted when the feature is enabled');
@@ -156,7 +156,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
         $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
 
         $fields = [Configuration::FIELD_STATUS => ''];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 2);
+        $this->subject->processContentPlannerFields($fields, 'pages', 2);
 
         $comment = $this->get(CommentRepository::class)->findByUid(1);
         self::assertIsArray($comment, 'comment must survive the reset when the feature is disabled');
@@ -169,7 +169,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
 
         // Page 1 has no status/assignee before this change.
         $fields = [Configuration::FIELD_STATUS => 2];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 1);
+        $this->subject->processContentPlannerFields($fields, 'pages', 1);
 
         self::assertSame(1, $fields[Configuration::FIELD_ASSIGNEE]);
     }
@@ -180,7 +180,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
         $this->enableFeature('autoAssignment');
 
         $fields = [Configuration::FIELD_STATUS => 2, Configuration::FIELD_ASSIGNEE => 9];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 1);
+        $this->subject->processContentPlannerFields($fields, 'pages', 1);
 
         self::assertSame(9, $fields[Configuration::FIELD_ASSIGNEE]);
     }
@@ -192,7 +192,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
 
         // Page 2 already had status 1 before this change.
         $fields = [Configuration::FIELD_STATUS => 2];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 2);
+        $this->subject->processContentPlannerFields($fields, 'pages', 2);
 
         self::assertArrayNotHasKey(Configuration::FIELD_ASSIGNEE, $fields);
     }
@@ -201,7 +201,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
     public function processContentPlannerFieldsDoesNotAutoAssignWhenFeatureDisabled(): void
     {
         $fields = [Configuration::FIELD_STATUS => 2];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 1);
+        $this->subject->processContentPlannerFields($fields, 'pages', 1);
 
         self::assertArrayNotHasKey(Configuration::FIELD_ASSIGNEE, $fields);
     }
@@ -222,7 +222,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
 
         // Page 1 has no status before, so setting it to 2 is a real change.
         $fields = [Configuration::FIELD_STATUS => 2];
-        $fields = $manager->processContentPlannerFields($fields, 'pages', 1);
+        $manager->processContentPlannerFields($fields, 'pages', 1);
     }
 
     #[Test]
@@ -239,7 +239,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
 
         // Page 2 already has status 1.
         $fields = [Configuration::FIELD_STATUS => 1];
-        $fields = $manager->processContentPlannerFields($fields, 'pages', 2);
+        $manager->processContentPlannerFields($fields, 'pages', 2);
     }
 
     #[Test]
@@ -249,7 +249,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
 
         // Page 2 has status 1 before; tt_content uid 1 and 2 (pid 2) carry statuses too.
         $fields = [Configuration::FIELD_STATUS => ''];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 2);
+        $this->subject->processContentPlannerFields($fields, 'pages', 2);
 
         $connection = $this->getConnectionPool()->getConnectionForTable('tt_content');
         self::assertNull($connection->select(['tx_ximatypo3contentplanner_status'], 'tt_content', ['uid' => 1])->fetchOne());
@@ -260,7 +260,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
     public function processContentPlannerFieldsKeepsContentElementStatusOnPageResetWhenFeatureDisabled(): void
     {
         $fields = [Configuration::FIELD_STATUS => ''];
-        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 2);
+        $this->subject->processContentPlannerFields($fields, 'pages', 2);
 
         $connection = $this->getConnectionPool()->getConnectionForTable('tt_content');
         self::assertSame(1, (int) $connection->select(['tx_ximatypo3contentplanner_status'], 'tt_content', ['uid' => 1])->fetchOne());
