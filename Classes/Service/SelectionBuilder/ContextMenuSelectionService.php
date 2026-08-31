@@ -44,58 +44,75 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      * ContextMenu already has a "Status" submenu header, so no additional header needed.
      *
      * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<string, mixed>
      */
-    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    public function addHeaderItemToSelection(array $selectionEntriesToAdd): array
     {
         // No-op: ContextMenu is already wrapped in a "Status" submenu
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string|int, mixed>       $selectionEntriesToAdd
      * @param array<int>|int|null            $uid
      * @param array<string, mixed>|bool|null $record
+     *
+     * @return array<string|int, mixed>
      */
-    public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
+    public function addStatusItemToSelection(array $selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
         if ($this->compareStatus($status, $currentStatus)) {
-            return;
+            return $selectionEntriesToAdd;
         }
         $selectionEntriesToAdd[(string) $status->getUid()] = [
             'label' => $status->getTitle(),
             'iconIdentifier' => $status->getColoredIcon(),
             'callbackAction' => 'change',
         ];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<string, mixed>
      */
-    public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
+    public function addDividerItemToSelection(array $selectionEntriesToAdd, ?string $additionalPostIdentifier = null): array
     {
         $selectionEntriesToAdd['divider'.($additionalPostIdentifier ?? '')] = ['type' => 'divider'];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed>           $selectionEntriesToAdd
      * @param array<int, int>|int|null       $uid
      * @param array<string, mixed>|bool|null $record
+     *
+     * @return array<string, mixed>
      */
-    public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
+    public function addStatusResetItemToSelection(array $selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
         $selectionEntriesToAdd['reset'] = [
             'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset',
             'iconIdentifier' => 'actions-close',
             'callbackAction' => 'reset',
         ];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addAssigneeItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
         $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
@@ -109,15 +126,19 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'callbackAction' => 'assignee',
             'currentAssignee' => $currentAssignee,
         ];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addCommentsItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $commentsLabel = PlannerUtility::hasComments($record)
             ? $this->commentRepository->countAllByRecord($record['uid'], $table).' '
@@ -128,17 +149,21 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'iconIdentifier' => 'actions-message',
             'callbackAction' => 'comments',
         ];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @return array<string, mixed>
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addCommentsTodoItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);
         if (0 === $todoTotal) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         $todoResolved = $this->getCommentsTodoResolved($record, $table);
@@ -148,15 +173,19 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'iconIdentifier' => 'actions-check-square',
             'callbackAction' => 'comments',
         ];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<int|string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<int|string, mixed>
      */
-    public function addFolderStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): void
+    public function addFolderStatusItemToSelection(array $selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): array
     {
         if (null !== $currentStatus && $status->getUid() === $currentStatus) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         $selectionEntriesToAdd[(string) $status->getUid()] = [
@@ -164,27 +193,35 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'iconIdentifier' => $status->getColoredIcon(),
             'callbackAction' => 'change',
         ];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<string, mixed>
      */
-    public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
+    public function addFolderStatusResetItemToSelection(array $selectionEntriesToAdd, string $combinedIdentifier): array
     {
         $selectionEntriesToAdd['reset'] = [
             'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset',
             'iconIdentifier' => 'actions-close',
             'callbackAction' => 'reset',
         ];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
-    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    public function addFolderAssigneeItemToSelection(array $selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): array
     {
         $currentAssignee = (int) ($folderRecord[Configuration::FIELD_ASSIGNEE] ?? 0);
         $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
@@ -198,15 +235,19 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'callbackAction' => 'assignee',
             'currentAssignee' => $currentAssignee,
         ];
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
-    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    public function addFolderCommentsItemToSelection(array $selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): array
     {
         $commentsLabel = PlannerUtility::hasComments($folderRecord)
             ? $this->commentRepository->countAllByRecord((int) $folderRecord['uid'], Configuration::TABLE_FOLDER).' '
@@ -217,5 +258,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'iconIdentifier' => 'actions-message',
             'callbackAction' => 'comments',
         ];
+
+        return $selectionEntriesToAdd;
     }
 }

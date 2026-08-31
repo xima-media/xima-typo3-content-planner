@@ -44,7 +44,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     public function addHeaderItemToSelectionIsNoOp(): void
     {
         $entries = [];
-        $this->subject->addHeaderItemToSelection($entries);
+        $entries = $this->subject->addHeaderItemToSelection($entries);
 
         self::assertSame([], $entries);
     }
@@ -67,7 +67,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     public function addStatusResetItemToSelectionAddsResetEntry(): void
     {
         $entries = [];
-        $this->subject->addStatusResetItemToSelection($entries, 'pages', 1);
+        $entries = $this->subject->addStatusResetItemToSelection($entries, 'pages', 1);
 
         self::assertSame('reset', $entries['reset']['callbackAction']);
     }
@@ -76,7 +76,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     public function addDividerItemToSelectionAddsDividerType(): void
     {
         $entries = [];
-        $this->subject->addDividerItemToSelection($entries);
+        $entries = $this->subject->addDividerItemToSelection($entries);
 
         self::assertSame(['type' => 'divider'], $entries['divider']);
     }
@@ -86,7 +86,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_ASSIGNEE => 1];
-        $this->subject->addAssigneeItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addAssigneeItemToSelection($entries, $record, 'pages', 1);
 
         self::assertSame('assignee', $entries['assignee']['callbackAction']);
         self::assertSame(1, $entries['assignee']['currentAssignee']);
@@ -97,7 +97,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
-        $this->subject->addCommentsItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsItemToSelection($entries, $record, 'pages', 1);
 
         self::assertSame('comments', $entries['comments']['callbackAction']);
     }
@@ -106,7 +106,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     public function addFolderStatusResetItemToSelectionAddsResetEntry(): void
     {
         $entries = [];
-        $this->subject->addFolderStatusResetItemToSelection($entries, '1:/user_upload/');
+        $entries = $this->subject->addFolderStatusResetItemToSelection($entries, '1:/user_upload/');
 
         self::assertSame('reset', $entries['reset']['callbackAction']);
     }
@@ -116,7 +116,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
-        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayNotHasKey('commentsTodo', $entries);
     }
@@ -126,7 +126,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
-        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
 
         self::assertSame('comments', $entries['commentsTodo']['callbackAction']);
         self::assertStringContainsString('1/3', $entries['commentsTodo']['label']);
