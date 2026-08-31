@@ -38,8 +38,10 @@ class ContentPlannerFieldAuthorizer
      * writes nothing rather than a value the user may not set.
      *
      * @param array<string, mixed> $incomingFieldArray
+     *
+     * @return array{0: array<string, mixed>, 1: bool}
      */
-    public function assertStatus(array &$incomingFieldArray): bool
+    public function assertStatus(array $incomingFieldArray): array
     {
         $newStatusUid = $incomingFieldArray[Configuration::FIELD_STATUS];
 
@@ -50,10 +52,10 @@ class ContentPlannerFieldAuthorizer
         if (!$allowed) {
             unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
 
-            return false;
+            return [$incomingFieldArray, false];
         }
 
-        return true;
+        return [$incomingFieldArray, true];
     }
 
     /**
@@ -63,11 +65,13 @@ class ContentPlannerFieldAuthorizer
      *
      * @param array<string, mixed> $incomingFieldArray
      * @param array<string, mixed> $preRecord
+     *
+     * @return array{0: array<string, mixed>, 1: bool}
      */
-    public function assertAssignee(array &$incomingFieldArray, array $preRecord): bool
+    public function assertAssignee(array $incomingFieldArray, array $preRecord): array
     {
         if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray)) {
-            return true;
+            return [$incomingFieldArray, true];
         }
 
         $newAssignee = null !== $incomingFieldArray[Configuration::FIELD_ASSIGNEE]
@@ -89,9 +93,9 @@ class ContentPlannerFieldAuthorizer
         if (!$allowed) {
             unset($incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
 
-            return false;
+            return [$incomingFieldArray, false];
         }
 
-        return true;
+        return [$incomingFieldArray, true];
     }
 }
