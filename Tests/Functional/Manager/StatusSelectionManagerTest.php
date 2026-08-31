@@ -40,7 +40,7 @@ final class StatusSelectionManagerTest extends AbstractFunctionalTestCase
 
         $selection = ['a' => 'first', 'b' => 'second'];
         $context = new stdClass();
-        $subject->prepareStatusSelection($context, 'pages', 1, $selection);
+        $selection = $subject->prepareStatusSelection($context, 'pages', 1, $selection);
 
         self::assertSame(['a' => 'first', 'b' => 'second'], $selection);
     }
@@ -62,7 +62,7 @@ final class StatusSelectionManagerTest extends AbstractFunctionalTestCase
 
         $selection = [];
         $context = new stdClass();
-        $subject->prepareStatusSelection($context, 'tt_content', 42, $selection);
+        $selection = $subject->prepareStatusSelection($context, 'tt_content', 42, $selection);
 
         self::assertInstanceOf(PrepareStatusSelectionEvent::class, $capturedEvent);
         self::assertSame('tt_content', $capturedEvent->getTable());
