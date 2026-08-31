@@ -121,7 +121,6 @@ final readonly class ContentElementPreviewStatusListener
     {
         $record = $event->getRecord();
 
-        // @phpstan-ignore instanceof.alwaysTrue, instanceof.alwaysFalse, method.notFound, offsetAccess.nonOffsetAccessible
         return $record instanceof RecordInterface ? $record->getUid() : (int) $record['uid'];
     }
 
@@ -165,12 +164,9 @@ final readonly class ContentElementPreviewStatusListener
 
         $resolver = GeneralUtility::makeInstance(StandardPreviewRendererResolver::class);
 
-        // @phpstan-ignore instanceof.alwaysTrue, instanceof.alwaysFalse
         if ($rawRecord instanceof RecordInterface) {
-            // @phpstan-ignore arguments.count, argument.type
             $previewRenderer = $resolver->resolveRendererFor($rawRecord);
         } else {
-            // @phpstan-ignore arguments.count, argument.type
             $previewRenderer = $resolver->resolveRendererFor($table, $rawRecord, $context->getPageId());
         }
 

@@ -95,3 +95,19 @@ parameters:
 			identifier: typePerfect.narrowPublicClassMethodParamType
 			count: 1
 			path: ../../Classes/Widgets/Provider/ContentUpdateDataProvider.php
+
+		-
+			# v13/v14 dual-compat: PageContentPreviewRenderingEvent::getRecord() is an array in
+			# v13 and a RecordInterface in v14; this branch is only ever taken under v14.
+			message: '#^Instanceof between array and TYPO3\\CMS\\Core\\Domain\\RecordInterface will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 2
+			path: ../../Classes/EventListener/ContentElementPreviewStatusListener.php
+
+		-
+			# v13/v14 dual-compat: StandardPreviewRendererResolver::resolveRendererFor() takes a
+			# single RecordInterface in v14 instead of the (table, row, pageUid) triple in v13.
+			message: '#^Method TYPO3\\CMS\\Backend\\Preview\\StandardPreviewRendererResolver\:\:resolveRendererFor\(\) invoked with 1 parameter, 3 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: ../../Classes/EventListener/ContentElementPreviewStatusListener.php
