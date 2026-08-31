@@ -233,7 +233,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
         // backend user 1 the new assignee (same fixture assumption as
         // processContentPlannerFieldsAutoAssignsCurrentUserWhenFeatureEnabledAndNoPriorStatus).
         $fields = [Configuration::FIELD_STATUS => 2];
-        $this->subject->processContentPlannerFields($fields, 'pages', 1);
+        $fields = $this->subject->processContentPlannerFields($fields, 'pages', 1);
 
         self::assertSame(1, $fields[Configuration::FIELD_ASSIGNEE], 'sanity check: auto-assignment must fire for this test to be meaningful');
         self::assertSame(
