@@ -30,14 +30,17 @@ class StatusSelectionManager
 
     /**
      * @param array<string, mixed> $selection
+     *
+     * @return array<string, mixed>
      */
-    public function prepareStatusSelection(object $context, string $table, ?int $uid, array &$selection, ?int $statusUid = null, ?Status $status = null): void
+    public function prepareStatusSelection(object $context, string $table, ?int $uid, array $selection, ?int $statusUid = null, ?Status $status = null): array
     {
         if (null !== $statusUid && null === $status) {
             $status = ContentUtility::getStatus($statusUid);
         }
 
         $event = $this->eventDispatcher->dispatch(new PrepareStatusSelectionEvent($table, $uid, $context, $selection, $status));
-        $selection = $event->getSelection();
+
+        return $event->getSelection();
     }
 }
