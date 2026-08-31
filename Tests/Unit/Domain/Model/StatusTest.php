@@ -29,7 +29,7 @@ final class StatusTest extends TestCase
     #[Test]
     public function defaultValuesAreEmptyStrings(): void
     {
-        $status = new Status();
+        $status = new Status(uid: 0, title: '', icon: '', color: '', isDefault: false);
 
         self::assertSame(0, $status->getUid());
         self::assertSame('', $status->getTitle());
@@ -53,7 +53,7 @@ final class StatusTest extends TestCase
     #[Test]
     public function coloredIconCombinesIconAndColor(): void
     {
-        $status = new Status(icon: 'flag', color: 'red');
+        $status = new Status(uid: 0, title: '', icon: 'flag', color: 'red', isDefault: false);
 
         self::assertSame('flag-red', $status->getColoredIcon());
     }
@@ -61,7 +61,7 @@ final class StatusTest extends TestCase
     #[Test]
     public function coloredIconWithEmptyValues(): void
     {
-        $status = new Status();
+        $status = new Status(uid: 0, title: '', icon: '', color: '', isDefault: false);
 
         self::assertSame('-', $status->getColoredIcon());
     }

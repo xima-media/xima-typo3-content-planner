@@ -85,6 +85,6 @@ final class SelectionUriBuilderTest extends AbstractFunctionalTestCase
 
     private function makeStatus(): Status
     {
-        return new Status(uid: 1, title: 'Draft', icon: 'flag', color: 'blue');
+        return new Status(uid: 1, title: 'Draft', icon: 'flag', color: 'blue', isDefault: false);
     }
 }

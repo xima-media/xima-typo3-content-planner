@@ -26,11 +26,11 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model;
 final readonly class Status
 {
     public function __construct(
-        private int $uid = 0,
-        private string $title = '',
-        private string $icon = '',
-        private string $color = '',
-        private bool $isDefault = false,
+        private int $uid,
+        private string $title,
+        private string $icon,
+        private string $color,
+        private bool $isDefault,
     ) {}
 
     public function getUid(): int
