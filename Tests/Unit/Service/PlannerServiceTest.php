@@ -63,7 +63,7 @@ final class PlannerServiceTest extends TestCase
     #[Test]
     public function getListOfStatusDelegatesToStatusRepository(): void
     {
-        $expected = [new Status(uid: 1, title: 'Draft')];
+        $expected = [new Status(uid: 1, title: 'Draft', icon: '', color: '')];
         $this->statusRepository->expects(self::once())->method('findAll')->willReturn($expected);
 
         self::assertSame($expected, $this->subject->getListOfStatus());
@@ -72,7 +72,7 @@ final class PlannerServiceTest extends TestCase
     #[Test]
     public function getStatusWithStringIdentifierDelegatesToFindByTitle(): void
     {
-        $status = new Status(title: 'In Progress');
+        $status = new Status(uid: 0, title: 'In Progress', icon: '', color: '');
         $this->statusRepository->expects(self::once())->method('findByTitle')->with('In Progress')->willReturn($status);
         $this->statusRepository->expects(self::never())->method('findByUid');
 
@@ -82,7 +82,7 @@ final class PlannerServiceTest extends TestCase
     #[Test]
     public function getStatusWithIntIdentifierDelegatesToFindByUid(): void
     {
-        $status = new Status(uid: 3);
+        $status = new Status(uid: 3, title: '', icon: '', color: '');
         $this->statusRepository->expects(self::once())->method('findByUid')->with(3)->willReturn($status);
         $this->statusRepository->expects(self::never())->method('findByTitle');
 
@@ -92,7 +92,7 @@ final class PlannerServiceTest extends TestCase
     #[Test]
     public function getStatusOfRecordReturnsStatusForExistingRecord(): void
     {
-        $status = new Status(uid: 5);
+        $status = new Status(uid: 5, title: '', icon: '', color: '');
         $this->recordRepository->method('findByUid')->with('pages', 1)->willReturn([
             'uid' => 1,
             Configuration::FIELD_STATUS => 5,
@@ -126,7 +126,7 @@ final class PlannerServiceTest extends TestCase
     public function updateStatusForRecordResolvesStatusEntityToUid(): void
     {
         $this->stubExistingPageRecord();
-        $status = new Status(uid: 7);
+        $status = new Status(uid: 7, title: '', icon: '', color: '');
 
         $this->recordRepository->expects(self::once())
             ->method('updateStatusByUid')
@@ -139,7 +139,7 @@ final class PlannerServiceTest extends TestCase
     public function updateStatusForRecordResolvesStatusTitleToUid(): void
     {
         $this->stubExistingPageRecord();
-        $status = new Status(uid: 2);
+        $status = new Status(uid: 2, title: '', icon: '', color: '');
         $this->statusRepository->expects(self::once())->method('findByTitle')->with('Done')->willReturn($status);
 
         $this->recordRepository->expects(self::once())
