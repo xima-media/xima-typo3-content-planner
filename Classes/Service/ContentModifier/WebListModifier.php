@@ -63,7 +63,7 @@ class WebListModifier extends AbstractModifier implements ModifierInterface
 
         $uid = (int) $request->getQueryParams()['id'];
 
-        $additionalContent = $this->infoGenerator->generateStatusHeader(HeaderMode::WEB_LIST, table: 'pages', uid: $uid);
+        $additionalContent = $this->infoGenerator->generateStatusHeader(HeaderMode::WEB_LIST, null, 'pages', $uid);
 
         if (!$additionalContent) {
             return $response;

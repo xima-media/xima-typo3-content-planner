@@ -33,8 +33,6 @@ class ContentPlannerFieldsReadOnly implements FormDataProviderInterface
      * @param array<string, mixed> $result
      *
      * @return array<string, mixed>
-     *
-     * @phpstan-ignore method.childParameterType (Interface uses untyped array)
      */
     public function addData(array $result): array
     {
@@ -42,7 +40,7 @@ class ContentPlannerFieldsReadOnly implements FormDataProviderInterface
             return $result;
         }
 
-        $columns = &$result['processedTca']['columns'];
+        $columns = $result['processedTca']['columns'];
 
         if (array_key_exists(Configuration::FIELD_STATUS, $columns) && !PermissionUtility::canChangeStatus()) {
             $columns[Configuration::FIELD_STATUS]['config']['readOnly'] = true;
@@ -55,6 +53,8 @@ class ContentPlannerFieldsReadOnly implements FormDataProviderInterface
         if (array_key_exists(Configuration::FIELD_COMMENTS, $columns) && !PermissionUtility::canCreateComment()) {
             $columns[Configuration::FIELD_COMMENTS]['config']['readOnly'] = true;
         }
+
+        $result['processedTca']['columns'] = $columns;
 
         return $result;
     }
