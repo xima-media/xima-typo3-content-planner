@@ -109,15 +109,15 @@ class NotificationCenterDataProvider
         [$title, $url] = $this->resolveTitleAndUrl($table, $recordUid, $payload);
 
         return new NotificationItem(
-            uid: (int) $row['uid'],
-            eventType: null !== $eventType ? $eventType->value : (string) $row['event_type'],
-            iconIdentifier: $this->resolveIcon($eventType),
-            title: $title,
-            url: $url,
-            actorLabel: $this->resolveActorLabel($row['actor'] ?? null),
-            reasonLabel: $this->resolveReasonLabel($reason),
-            timeAgo: DiffUtility::timeAgo((int) $row['crdate']),
-            read: null !== ($row['read_at'] ?? null),
+            (int) $row['uid'],
+            null !== $eventType ? $eventType->value : (string) $row['event_type'],
+            $this->resolveIcon($eventType),
+            $title,
+            $url,
+            $this->resolveActorLabel($row['actor'] ?? null),
+            $this->resolveReasonLabel($reason),
+            DiffUtility::timeAgo((int) $row['crdate']),
+            null !== ($row['read_at'] ?? null),
         );
     }
 
@@ -128,7 +128,7 @@ class NotificationCenterDataProvider
      */
     private function resolveTitleAndUrl(string $table, int $recordUid, array $payload): array
     {
-        $record = $this->recordRepository->findByUid($table, $recordUid, ignoreVisibilityRestriction: true);
+        $record = $this->recordRepository->findByUid($table, $recordUid, true);
         if (!is_array($record) || !PermissionUtility::checkAccessForRecord($table, $record)) {
             return [$this->getLanguageService()->sL(self::languageLabel('notification.record.inaccessible')), null];
         }
