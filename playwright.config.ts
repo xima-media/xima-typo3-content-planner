@@ -16,8 +16,17 @@
  */
 import { defineTypo3PlaywrightConfig } from '@konradmichalik/ptu';
 
-export default defineTypo3PlaywrightConfig({
-  hostname: 'xima-typo3-content-planner.ddev.site',
-  defaultVersion: '14',
-  testDir: './Tests/Playwright',
-});
+/*
+ * globalSetup is wired here directly rather than through
+ * defineTypo3PlaywrightConfig(): that factory (@konradmichalik/ptu ^0.1.0) has
+ * no option for it yet, and it is a generic, extension-agnostic package - a
+ * seed command name specific to this extension does not belong there.
+ */
+export default {
+  ...defineTypo3PlaywrightConfig({
+    hostname: 'xima-typo3-content-planner.ddev.site',
+    defaultVersion: '14',
+    testDir: './Tests/Playwright',
+  }),
+  globalSetup: './Tests/Playwright/global-setup.ts',
+};
