@@ -55,7 +55,6 @@ return [
                 'eval' => 'trim',
                 'cols' => 40,
                 'rows' => 5,
-                'max' => 500,
                 'required' => true,
                 'searchable' => false,
             ],
