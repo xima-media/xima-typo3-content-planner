@@ -70,7 +70,7 @@ class RecordController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
+        $record = $this->recordRepository->findByUid($table, $uid, true);
         if (!$record) {
             return new JsonResponse(['error' => 'Record not found'], 404);
         }
@@ -95,7 +95,7 @@ class RecordController extends ActionController
         $type = array_key_exists('type', $request->getQueryParams()) ? $request->getQueryParams()['type'] : null;
         $openComments = array_key_exists('openComments', $request->getQueryParams()) ? (bool) $request->getQueryParams()['openComments'] : false;
 
-        $filterResult = $this->recordRepository->findAllByFilter($search, $status, assignee: $assignee, type: $type, todo: $todo, openComments: $openComments);
+        $filterResult = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type, $todo, 20, $openComments);
         $items = [];
         foreach ($filterResult->items as $record) {
             $items[] = StatusItem::create($record)->toArray();
@@ -119,7 +119,7 @@ class RecordController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $record = $this->recordRepository->findByUid($recordTable, $recordId, ignoreVisibilityRestriction: true);
+        $record = $this->recordRepository->findByUid($recordTable, $recordId, true);
         if (!$record) {
             return new JsonResponse(['error' => 'Record not found'], 404);
         }
@@ -132,7 +132,7 @@ class RecordController extends ActionController
         $backendUser = $GLOBALS['BE_USER'];
         $repliesExpanded = (bool) ($backendUser->uc['contentPlanner']['repliesExpanded'] ?? false);
 
-        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, sortDirection: $sortComments, showResolved: $showResolvedComments);
+        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, false, $sortComments, $showResolvedComments);
 
         $result = ViewUtility::render(
             'Default/Comments.html',
@@ -146,7 +146,7 @@ class RecordController extends ActionController
                 'filter' => [
                     'sortComments' => $sortComments,
                     'showResolvedComments' => $showResolvedComments,
-                    'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, onlyResolved: true),
+                    'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true),
                 ],
             ],
         );
@@ -175,7 +175,7 @@ class RecordController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $record = $this->recordRepository->findByUid($recordTable, $recordId, ignoreVisibilityRestriction: true);
+        $record = $this->recordRepository->findByUid($recordTable, $recordId, true);
 
         if (!$record) {
             return new JsonResponse(['error' => 'Record not found'], 404);
@@ -199,7 +199,7 @@ class RecordController extends ActionController
                         ? UrlUtility::assignToUser($recordTable, $record['uid'])
                         : false,
                     'unassign' => InfoGenerator::canUnassignRecord($record) && InfoGenerator::checkUnassign($record)
-                        ? UrlUtility::assignToUser($recordTable, $record['uid'], unassign: true)
+                        ? UrlUtility::assignToUser($recordTable, $record['uid'], null, true)
                         : null,
                 ],
                 'canChangeAssignee' => $permissions['canChangeAssignee'],

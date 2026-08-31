@@ -148,10 +148,10 @@ class StatusRepository
     private function hydrate(array $row): Status
     {
         return new Status(
-            uid: (int) $row['uid'],
-            title: (string) $row['title'],
-            icon: (string) $row['icon'],
-            color: (string) $row['color'],
+            (int) $row['uid'],
+            (string) $row['title'],
+            (string) $row['icon'],
+            (string) $row['color'],
         );
     }
 
