@@ -34,7 +34,7 @@ abstract class AbstractModifier
      * Swaps in the modified body while keeping the inner response's status code,
      * reason phrase and headers (e.g. CSP nonces, cache directives) intact.
      */
-    protected function replaceBody(ResponseInterface $response, string $content): ResponseInterface
+    final protected function replaceBody(ResponseInterface $response, string $content): ResponseInterface
     {
         $body = new Stream('php://temp', 'r+');
         $body->write($content);

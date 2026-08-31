@@ -1,0 +1,6 @@
+"be_groups"
+,"uid","pid","title","tables_select","custom_options","deleted"
+,5,0,"Assign Self Only","pages","tx_ximatypo3contentplanner:view-only,tx_ximatypo3contentplanner:assign-self",0
+"be_users"
+,"uid","pid","username","admin","realName","usergroup","db_mountpoints","disable","deleted"
+,5,0,"assignself",0,"Assign Self User","5","1",0,0

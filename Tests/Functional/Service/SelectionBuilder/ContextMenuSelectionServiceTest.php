@@ -44,7 +44,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     public function addHeaderItemToSelectionIsNoOp(): void
     {
         $entries = [];
-        $this->subject->addHeaderItemToSelection($entries);
+        $entries = $this->subject->addHeaderItemToSelection($entries);
 
         self::assertSame([], $entries);
     }
@@ -67,7 +67,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     public function addStatusResetItemToSelectionAddsResetEntry(): void
     {
         $entries = [];
-        $this->subject->addStatusResetItemToSelection($entries, 'pages', 1);
+        $entries = $this->subject->addStatusResetItemToSelection($entries, 'pages', 1);
 
         self::assertSame('reset', $entries['reset']['callbackAction']);
     }
@@ -76,7 +76,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     public function addDividerItemToSelectionAddsDividerType(): void
     {
         $entries = [];
-        $this->subject->addDividerItemToSelection($entries);
+        $entries = $this->subject->addDividerItemToSelection($entries);
 
         self::assertSame(['type' => 'divider'], $entries['divider']);
     }
@@ -86,7 +86,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_ASSIGNEE => 1];
-        $this->subject->addAssigneeItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addAssigneeItemToSelection($entries, $record, 'pages', 1);
 
         self::assertSame('assignee', $entries['assignee']['callbackAction']);
         self::assertSame(1, $entries['assignee']['currentAssignee']);
@@ -97,7 +97,7 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
-        $this->subject->addCommentsItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsItemToSelection($entries, $record, 'pages', 1);
 
         self::assertSame('comments', $entries['comments']['callbackAction']);
     }
@@ -106,8 +106,71 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     public function addFolderStatusResetItemToSelectionAddsResetEntry(): void
     {
         $entries = [];
-        $this->subject->addFolderStatusResetItemToSelection($entries, '1:/user_upload/');
+        $entries = $this->subject->addFolderStatusResetItemToSelection($entries, '1:/user_upload/');
 
         self::assertSame('reset', $entries['reset']['callbackAction']);
+    }
+
+    #[Test]
+    public function addCommentsTodoItemToSelectionSkipsWhenNoTodos(): void
+    {
+        $entries = [];
+        $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
+        $entries = $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+
+        self::assertArrayNotHasKey('commentsTodo', $entries);
+    }
+
+    #[Test]
+    public function addCommentsTodoItemToSelectionAddsEntryWithTodoCounts(): void
+    {
+        $entries = [];
+        $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
+        $entries = $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+
+        self::assertSame('comments', $entries['commentsTodo']['callbackAction']);
+        self::assertStringContainsString('1/3', $entries['commentsTodo']['label']);
+    }
+
+    #[Test]
+    public function generateFolderSelectionReturnsContextMenuArrayForFolderWithStatus(): void
+    {
+        $result = $this->subject->generateFolderSelection('1:/user_upload/');
+
+        self::assertIsArray($result);
+        self::assertArrayNotHasKey('header', $result);
+        self::assertArrayHasKey('reset', $result);
+        self::assertArrayHasKey('assignee', $result);
+        self::assertArrayHasKey('comments', $result);
+        // Current status is uid 2, so it is excluded from the change options.
+        self::assertArrayHasKey('1', $result);
+        self::assertArrayHasKey('3', $result);
+        self::assertArrayNotHasKey('2', $result);
+    }
+
+    #[Test]
+    public function generateFolderSelectionOmitsAdditionalActionsForFolderWithoutStatus(): void
+    {
+        $result = $this->subject->generateFolderSelection('1:/no_status/');
+
+        self::assertIsArray($result);
+        self::assertArrayNotHasKey('reset', $result);
+        self::assertArrayNotHasKey('assignee', $result);
+        self::assertArrayNotHasKey('comments', $result);
+        self::assertArrayHasKey('1', $result);
+        self::assertArrayHasKey('2', $result);
+        self::assertArrayHasKey('3', $result);
+    }
+
+    #[Test]
+    public function generateFolderSelectionHandlesUnknownFolderGracefully(): void
+    {
+        $result = $this->subject->generateFolderSelection('1:/does-not-exist/');
+
+        self::assertIsArray($result);
+        self::assertArrayNotHasKey('reset', $result);
+        self::assertArrayNotHasKey('assignee', $result);
+        self::assertArrayNotHasKey('comments', $result);
+        self::assertArrayHasKey('1', $result);
     }
 }

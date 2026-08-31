@@ -111,15 +111,17 @@ class PlannerUtility
      * Simple function to fetch all comments of a record.
      * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::getCommentsOfRecord('pages', 1);.
      *
+     * @param bool $showResolved include resolved comments and replies in the result
+     *
      * @return array<int, array<string, mixed>>|array<int, \Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem>
      *
      * @throws Exception
      */
-    public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false): array
+    public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false, bool $showResolved = false): array
     {
         self::preCheckRecordTable($table, $uid);
 
-        return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw);
+        return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw, 'DESC', $showResolved);
     }
 
     /**
@@ -127,11 +129,12 @@ class PlannerUtility
      * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::addCommentsToRecord('pages', 1, 'New Comment', 'admin');.
      *
      * @param array<int,string>|string $comments
-     * @param BackendUser|int|string   $author
+     * @param int                      $parentUid UID of the parent comment to reply to. Must belong to the same record. 0 creates a top-level comment.
      *
      * @throws Exception
+     * @throws InvalidArgumentException
      */
-    public static function addCommentsToRecord(string $table, int $uid, array|string $comments, BackendUser|int|string|null $author = null): void
+    public static function addCommentsToRecord(string $table, int $uid, array|string $comments, BackendUser|int|string|null $author = null, int $parentUid = 0): void
     {
         $record = self::preCheckRecordTable($table, $uid);
 
@@ -147,6 +150,8 @@ class PlannerUtility
         if (!is_int($authorId) || 0 === $authorId) {
             throw new InvalidArgumentException('Author "'.$authorId.'" is not a valid backend user.', 4723563571);
         }
+
+        self::preCheckParentComment($table, $uid, $parentUid);
 
         if (!is_array($comments)) {
             $comments = [$comments];
@@ -164,6 +169,7 @@ class PlannerUtility
                 'content' => $comment,
                 'pid' => $pid,
                 'author' => $authorId,
+                'parent_uid' => $parentUid,
             ];
             $newIds[] = $newId;
         }
@@ -237,5 +243,17 @@ class PlannerUtility
         }
 
         return $record;
+    }
+
+    private static function preCheckParentComment(string $table, int $uid, int $parentUid): void
+    {
+        if ($parentUid <= 0) {
+            return;
+        }
+
+        $parentComment = GeneralUtility::makeInstance(CommentRepository::class)->findByUid($parentUid);
+        if (!is_array($parentComment) || $parentComment['foreign_table'] !== $table || (int) $parentComment['foreign_uid'] !== $uid) {
+            throw new InvalidArgumentException('Parent comment "'.$parentUid.'" does not exist or does not belong to the given record.', 4723563572);
+        }
     }
 }

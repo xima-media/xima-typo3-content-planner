@@ -43,7 +43,7 @@ class WebListModifier extends AbstractModifier implements ModifierInterface
     public function isRelevant(ServerRequestInterface $request): bool
     {
         return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
-            && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
+            && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_WEB_LIST_HEADER_INFO)
             && null !== $request->getAttribute('module')
             && RouteUtility::isRecordListRoute($request->getAttribute('module')->getIdentifier());
     }
@@ -63,7 +63,7 @@ class WebListModifier extends AbstractModifier implements ModifierInterface
 
         $uid = (int) $request->getQueryParams()['id'];
 
-        $additionalContent = $this->infoGenerator->generateStatusHeader(HeaderMode::WEB_LIST, table: 'pages', uid: $uid);
+        $additionalContent = $this->infoGenerator->generateStatusHeader(HeaderMode::WEB_LIST, null, 'pages', $uid);
 
         if (!$additionalContent) {
             return $response;

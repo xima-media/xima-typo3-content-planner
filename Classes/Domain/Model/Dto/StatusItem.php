@@ -15,7 +15,9 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use DateTime;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -136,18 +138,24 @@ final class StatusItem
         ) : '';
     }
 
-    public function getSite(): ?string
+    public function getSiteIcon(): ?string
     {
-        $siteFinder = $this->siteFinder;
-        if (count($siteFinder->getAllSites()) <= 1) {
+        if (null === $this->resolveSite()) {
             return null;
         }
-        $site = $siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
-        $iconFactory = $this->iconFactory;
-        $icon = $iconFactory->getIcon('apps-pagetree-folder-root', IconUtility::getDefaultIconSize());
 
-        /* @phpstan-ignore-next-line */
-        return $icon->render().' '.($site->getAttribute('websiteTitle') ?? $site->getIdentifier());
+        return $this->iconFactory->getIcon('apps-pagetree-folder-root', IconUtility::getDefaultIconSize())->render();
+    }
+
+    public function getSiteName(): ?string
+    {
+        $site = $this->resolveSite();
+
+        if (null === $site) {
+            return null;
+        }
+
+        return $site->getAttribute('websiteTitle') ?? $site->getIdentifier();
     }
 
     public function getToDoHtml(): string
@@ -223,8 +231,30 @@ final class StatusItem
             'comments' => $this->getCommentsHtml(),
             'todo' => $this->getToDoHtml(),
             'todoShareUrl' => $this->getToDoShareUrl(),
-            'site' => $this->getSite(),
+            'site' => $this->getSiteName(),
+            'siteIcon' => $this->getSiteIcon(),
         ];
+    }
+
+    private function hasMultipleSites(): bool
+    {
+        return count($this->siteFinder->getAllSites()) > 1;
+    }
+
+    /**
+     * Records outside of any site root line (e.g. file metadata on pid 0) have no site.
+     */
+    private function resolveSite(): ?Site
+    {
+        if (!$this->hasMultipleSites()) {
+            return null;
+        }
+
+        try {
+            return $this->siteFinder->getSiteByPageId((int) (('pages' === $this->data['tablename']) ? $this->data['uid'] : $this->data['pid']));
+        } catch (SiteNotFoundException) {
+            return null;
+        }
     }
 
     /**
@@ -278,9 +308,7 @@ final class StatusItem
 
     private function getCommentRepository(): CommentRepository
     {
-        if (null === $this->commentRepository) {
-            $this->commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        }
+        $this->commentRepository ??= GeneralUtility::makeInstance(CommentRepository::class);
 
         return $this->commentRepository;
     }

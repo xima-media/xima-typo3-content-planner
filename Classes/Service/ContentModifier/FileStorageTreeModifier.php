@@ -17,7 +17,7 @@ use Doctrine\DBAL\Exception;
 use JsonException;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Http\Stream;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Configuration\Colors;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -85,21 +85,40 @@ class FileStorageTreeModifier implements ModifierInterface
         $body = $response->getBody();
         $body->rewind();
         $content = $body->getContents();
+        // Reading moved the cursor of a stream this class does not own — hand it back as found,
+        // since the response may be passed on unmodified below.
+        $body->rewind();
 
         if ('' === $content) {
             return $response;
         }
 
-        $data = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        // Not every response on this route carries tree data — an error page rendered further up
+        // the stack must pass through untouched instead of being masked by a decoding error.
+        $data = json_decode($content, true);
 
         if (!is_array($data)) {
             return $response;
         }
 
         // Process tree items
-        $this->processTreeItems($data);
+        $data = $this->processTreeItems($data);
 
-        return new JsonResponse($data);
+        return $this->replaceBody($response, json_encode($data, \JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * Swaps in the re-encoded tree data while keeping the inner response's status code,
+     * reason phrase and headers intact (mirrors AbstractModifier::replaceBody(), which this
+     * class can't extend since its dependencies don't match AbstractModifier's constructor).
+     */
+    private function replaceBody(ResponseInterface $response, string $content): ResponseInterface
+    {
+        $body = new Stream('php://temp', 'r+');
+        $body->write($content);
+        $body->rewind();
+
+        return $response->withBody($body);
     }
 
     /**
@@ -107,20 +126,24 @@ class FileStorageTreeModifier implements ModifierInterface
      *
      * @param array<int|string, mixed> $items
      *
+     * @return array<int|string, mixed>
+     *
      * @throws Exception
      */
-    private function processTreeItems(array &$items): void
+    private function processTreeItems(array $items): array
     {
-        foreach ($items as &$item) {
+        foreach ($items as $key => $item) {
             if (!is_array($item)) {
                 continue;
             }
 
             // Check if this is a folder item
             if (isset($item['resourceType']) && 'folder' === $item['resourceType']) {
-                $this->addStatusLabelToFolder($item);
+                $items[$key] = $this->addStatusLabelToFolder($item);
             }
         }
+
+        return $items;
     }
 
     /**
@@ -128,13 +151,15 @@ class FileStorageTreeModifier implements ModifierInterface
      *
      * @param array<string, mixed> $item
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
-    private function addStatusLabelToFolder(array &$item): void
+    private function addStatusLabelToFolder(array $item): array
     {
         // Build combined identifier from storage and pathIdentifier
         if (!isset($item['storage'], $item['pathIdentifier'])) {
-            return;
+            return $item;
         }
 
         $combinedIdentifier = (int) $item['storage'].':'.urldecode($item['pathIdentifier']);
@@ -153,13 +178,13 @@ class FileStorageTreeModifier implements ModifierInterface
                 'priority' => 0,
             ];
 
-            return;
+            return $item;
         }
 
         $status = $this->statusRepository->findByUid((int) $folderStatus[Configuration::FIELD_STATUS]);
 
         if (!$status instanceof Status) {
-            return;
+            return $item;
         }
 
         $item['labels'][] = [
@@ -167,5 +192,7 @@ class FileStorageTreeModifier implements ModifierInterface
             'color' => Colors::getHex($status->getColor()),
             'priority' => 0,
         ];
+
+        return $item;
     }
 }

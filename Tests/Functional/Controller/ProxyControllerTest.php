@@ -40,4 +40,69 @@ final class ProxyControllerTest extends AbstractFunctionalTestCase
 
         self::assertSame(400, $controller->messageAction($request)->getStatusCode());
     }
+
+    #[Test]
+    public function messageActionReturnsBadRequestForInvalidMessagePath(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->messageAction(
+            $this->createRequest(['message' => 'unknown.path']),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function messageActionReturnsJsonForValidMessageWithoutRedirect(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->messageAction(
+            $this->createRequest(['message' => 'status.changed', 'resultStatus' => 'success']),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertIsString($payload['title']);
+        self::assertIsString($payload['message']);
+        self::assertArrayHasKey('severity', $payload);
+    }
+
+    #[Test]
+    public function messageActionReturnsBadRequestForInvalidResultStatus(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->messageAction(
+            $this->createRequest(['message' => 'status.changed', 'resultStatus' => 'unknown']),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    // Note: the "valid redirect" success path (sanitized redirect -> flash message
+    // queued -> RedirectResponse) and the "valid redirect + invalid message path" 400
+    // branch are intentionally not covered here. GeneralUtility::sanitizeLocalUrl()
+    // relies on HTTP_HOST/SCRIPT_NAME, which are empty in the CLI functional test
+    // environment, so it always sanitizes to '' regardless of input - collapsing every
+    // "redirect" case to the same "Invalid redirect target" 400 already covered by
+    // messageActionRejectsExternalRedirect(). See docs/memory note on
+    // sanitizeLocalUrl being environment dependent.
+
+    private function createController(): ProxyController
+    {
+        return new ProxyController($this->get(FlashMessageService::class));
+    }
+
+    /**
+     * @param array<string, mixed> $queryParams
+     */
+    private function createRequest(array $queryParams): ServerRequestInterface
+    {
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getQueryParams')->willReturn($queryParams);
+
+        return $request;
+    }
 }

@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Controller;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Core\RequestId;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use Xima\XimaTypo3ContentPlanner\Controller\RecordController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -50,6 +51,72 @@ final class RecordControllerAssigneeTest extends AbstractFunctionalTestCase
         );
 
         self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function assigneeSelectionActionReturnsNotFoundForUnknownRecord(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 99999]),
+        );
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function assigneeSelectionActionReturnsForbiddenWhenRecordAccessIsDenied(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        // Page uid 4 has a pid pointing at a non-existent parent page, so
+        // BackendUtility::readPageAccess() cannot resolve it - even for an admin.
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 4]),
+        );
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function assigneeSelectionActionRendersAssigneesForAuthorizedUser(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'currentAssignee' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('assignee-selection', $payload['result']);
+        self::assertStringContainsString('admin', $payload['result']);
+    }
+
+    #[Test]
+    public function assigneeSelectionActionRestrictsAssignSelfOnlyUserToOwnAssignment(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_assign_self.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $backendUser = $this->setUpBackendUser(5);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
+        $this->setUpBackendRequest();
+
+        // Page uid 2 is a child of the mounted page 1 - a non-admin backend user needs an
+        // accessible pid (pid 0 is only ever readable by admins) to pass checkAccessForRecord().
+        // currentAssignee matches the logged-in user (5): the "assign to self" scenario
+        // for a user that only has assign-self permission, not assign-others.
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 2, 'currentAssignee' => 5]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('assignee-selection', $payload['result']);
     }
 
     private function createController(): RecordController

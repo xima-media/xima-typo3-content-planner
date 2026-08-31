@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Utility;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -163,6 +164,63 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getCommentsOfRecordExcludesResolvedCommentsByDefault(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1);
+
+        self::assertCount(1, $comments);
+        self::assertSame('Existing comment', $comments[0]->data['content']);
+        self::assertFalse($comments[0]->isResolved());
+        self::assertSame([], $comments[0]->getReplies());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordWithShowResolvedIncludesResolvedComments(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, false, true);
+
+        self::assertCount(2, $comments);
+
+        $resolved = array_values(array_filter(
+            $comments,
+            static fn (CommentItem $comment): bool => 'Resolved comment' === $comment->data['content'],
+        ));
+
+        self::assertCount(1, $resolved);
+        self::assertTrue($resolved[0]->isResolved());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordWithShowResolvedIncludesResolvedReplies(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, false, true);
+
+        $root = array_values(array_filter(
+            $comments,
+            static fn (CommentItem $comment): bool => 'Existing comment' === $comment->data['content'],
+        ));
+
+        self::assertCount(1, $root);
+
+        $replies = $root[0]->getReplies();
+        self::assertCount(1, $replies);
+        self::assertSame('Resolved reply', $replies[0]->data['content']);
+        self::assertTrue($replies[0]->isResolved());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordRawWithShowResolvedReturnsResolvedArrays(): void
+    {
+        $comments = PlannerUtility::getCommentsOfRecord('pages', 1, true, true);
+
+        self::assertCount(2, $comments);
+        self::assertIsArray($comments[0]);
+
+        $contents = array_map(static fn (array $comment): string => (string) $comment['content'], $comments);
+        self::assertContains('Resolved comment', $contents);
+    }
+
+    #[Test]
     public function addCommentsToRecordWithStringAndUsernameAuthor(): void
     {
         PlannerUtility::addCommentsToRecord('pages', 1, 'A brand new comment', 'admin');
@@ -181,12 +239,100 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function addCommentsToRecordKeepsExplicitAuthorDifferentFromCurrentUser(): void
+    {
+        // Backend user 2 ("editor") is not the logged in user, so an overwritten author shows up.
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Comment by the editor', 2);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages', true);
+        $new = array_values(array_filter(
+            $comments,
+            static fn (array $comment): bool => 'Comment by the editor' === $comment['content'],
+        ));
+
+        self::assertCount(1, $new);
+        self::assertSame(2, (int) $new[0]['author']);
+    }
+
+    #[Test]
     public function addCommentsToRecordThrowsOnInvalidAuthor(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionCode(4723563571);
 
         PlannerUtility::addCommentsToRecord('pages', 1, 'Comment', 0);
+    }
+
+    #[Test]
+    public function addCommentsToRecordWithParentUidCreatesReply(): void
+    {
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Reply comment', 'admin', 1);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages');
+        self::assertCount(1, $comments);
+
+        $replies = $comments[0]->getReplies();
+        self::assertCount(1, $replies);
+        self::assertSame('Reply comment', $replies[0]->data['content']);
+        self::assertSame(1, $replies[0]->getParentUid());
+    }
+
+    #[Test]
+    public function addCommentsToRecordWithParentUidAppliesToAllComments(): void
+    {
+        PlannerUtility::addCommentsToRecord('pages', 1, ['First reply', 'Second reply'], 1, 1);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages');
+        $replies = $comments[0]->getReplies();
+
+        self::assertCount(2, $replies);
+        foreach ($replies as $reply) {
+            self::assertSame(1, $reply->getParentUid());
+        }
+    }
+
+    #[Test]
+    public function addCommentsToRecordWithParentUidPointingToReplyFlattensToRoot(): void
+    {
+        PlannerUtility::addCommentsToRecord('pages', 1, 'First-level reply', 'admin', 1);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages');
+        $replyUid = (int) $comments[0]->getReplies()[0]->data['uid'];
+
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Nested reply', 'admin', $replyUid);
+
+        $comments = $this->get(CommentRepository::class)->findAllByRecord(1, 'pages');
+        $replies = $comments[0]->getReplies();
+        self::assertCount(2, $replies);
+
+        $nestedReply = null;
+        foreach ($replies as $reply) {
+            if ('Nested reply' === $reply->data['content']) {
+                $nestedReply = $reply;
+            }
+        }
+
+        self::assertNotNull($nestedReply);
+        self::assertSame(1, $nestedReply->getParentUid());
+    }
+
+    #[Test]
+    public function addCommentsToRecordThrowsOnNonExistentParentUid(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(4723563572);
+
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Reply', 'admin', 9999);
+    }
+
+    #[Test]
+    public function addCommentsToRecordThrowsOnParentUidFromDifferentRecord(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionCode(4723563572);
+
+        // Comment uid 1 belongs to page 1, not page 2.
+        PlannerUtility::addCommentsToRecord('pages', 2, 'Reply', 'admin', 1);
     }
 
     #[Test]
@@ -207,6 +353,17 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('Plain todo', $html);
         self::assertStringNotContainsString('<script>', $html);
         self::assertSame(2, substr_count($html, '<li>'));
+    }
+
+    #[Test]
+    public function commentContentTcaHasNoMaxConstraint(): void
+    {
+        // Column is unbounded `text` (ext_tables.sql) and generateTodoForComment() output
+        // easily exceeds a fixed max, so no TCA `max` may be declared here (#353).
+        self::assertArrayNotHasKey(
+            'max',
+            $GLOBALS['TCA'][Configuration::TABLE_COMMENT]['columns']['content']['config'],
+        );
     }
 
     #[Test]

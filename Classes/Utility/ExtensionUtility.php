@@ -20,6 +20,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function array_key_exists;
 use function in_array;
+use function is_string;
 
 /**
  * ExtensionUtility.
@@ -113,6 +114,13 @@ class ExtensionUtility
                 ?? []
         );
 
+        // A registration whose extension is gone (or is simply misspelled) would otherwise be
+        // queried like any other record table and take the whole listing down with it.
+        $additionalTables = array_filter(
+            $additionalTables,
+            static fn (mixed $table): bool => is_string($table) && isset($GLOBALS['TCA'][$table]),
+        );
+
         $baseTables = ['pages'];
 
         if (self::isFilelistSupportEnabled()) {
@@ -166,7 +174,8 @@ class ExtensionUtility
 
     public static function getTitleField(string $table): string
     {
-        return $GLOBALS['TCA'][$table]['ctrl']['label'];
+        // Not every table declares a label — and a stale registration has no TCA at all.
+        return $GLOBALS['TCA'][$table]['ctrl']['label'] ?? 'uid';
     }
 
     /**

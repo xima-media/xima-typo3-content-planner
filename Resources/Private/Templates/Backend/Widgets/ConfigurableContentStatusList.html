@@ -49,7 +49,7 @@
                                     <strong>{item.title}</strong>
                                 </a>
                             </td>
-                            <td>{item.site}</td>
+                            <td><f:format.raw>{item.siteIcon}</f:format.raw> {item.site}</td>
                             <td><small title="{item.updatedRaw}">{item.updated}</small></td>
                             <td>
                                 <f:if condition="{item.assignee}">

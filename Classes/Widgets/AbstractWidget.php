@@ -45,7 +45,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
     /**
      * @param array<string, mixed> $templateArguments
      */
-    public function render(string $templateFile, array $templateArguments): string
+    final public function render(string $templateFile, array $templateArguments): string
     {
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addInlineLanguageLabelFile('EXT:ximatypo3contentplanner/Resources/Private/Language/locallang.xlf');
@@ -58,7 +58,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
     /**
      * @return array<string, mixed>
      */
-    public function getOptions(): array
+    final public function getOptions(): array
     {
         return $this->options;
     }
