@@ -1,2 +1,97 @@
 parameters:
-	ignoreErrors: []
+	ignoreErrors:
+		-
+			message: '#^Cognitive complexity for "Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\)" is 11, keep it under 10$#'
+			identifier: complexity.functionLike
+			count: 1
+			path: ../../Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
+
+		-
+			message: '#^PHPDoc type array\<string, mixed\> of property Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:\$itemsConfiguration is not the same as PHPDoc type array of overridden property TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\AbstractProvider\:\:\$itemsConfiguration\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: ../../Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
+
+		-
+			message: '#^Parameter \#1 \$items \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\) should be contravariant with parameter \$items \(array\) of method TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\AbstractProvider\:\:addItems\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: ../../Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
+
+		-
+			message: '#^Parameter \#1 \$items \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\) should be contravariant with parameter \$items \(array\) of method TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\ProviderInterface\:\:addItems\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: ../../Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: ../../Classes/Domain/Model/Dto/StatusItem.php
+
+		-
+			message: '#^Return type \(array\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\) of method Xima\\XimaTypo3ContentPlanner\\Domain\\Repository\\StatusRepository\:\:findAll\(\) should be compatible with return type \(TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\) of method TYPO3\\CMS\\Extbase\\Persistence\\Repository\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\:\:findAll\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: ../../Classes/Domain/Repository/StatusRepository.php
+
+		-
+			message: '#^Cognitive complexity for "Xima\\XimaTypo3ContentPlanner\\EventListener\\ModifyRecordListRecordActionsListener\:\:__invoke\(\)" is 12, keep it under 10$#'
+			identifier: complexity.functionLike
+			count: 1
+			path: ../../Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: '#^Instanceof between array and TYPO3\\CMS\\Core\\Domain\\RecordInterface will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 2
+			path: ../../Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: '#^Parameter \#1 \$result \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Form\\FormDataProvider\\ContentPlannerFieldsReadOnly\:\:addData\(\) should be contravariant with parameter \$result \(array\) of method TYPO3\\CMS\\Backend\\Form\\FormDataProviderInterface\:\:addData\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: ../../Classes/Form/FormDataProvider/ContentPlannerFieldsReadOnly.php
+
+		-
+			message: '#^Parameter \#1 \$className of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\) expects class\-string\<TYPO3\\CMS\\Backend\\Template\\Components\\ComponentFactory\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../../Classes/Utility/Compatibility/ComponentFactoryUtility.php
+
+		-
+			message: '#^Call to method createPublicResource\(\) on an unknown class TYPO3\\CMS\\Core\\SystemResource\\SystemResourceFactory\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ../../Classes/Utility/Rendering/AssetUtility.php
+
+		-
+			message: '#^Call to method generateUri\(\) on an unknown class TYPO3\\CMS\\Core\\SystemResource\\Publishing\\SystemResourcePublisherInterface\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ../../Classes/Utility/Rendering/AssetUtility.php
+
+		-
+			message: '#^Instantiated class TYPO3\\CMS\\Core\\SystemResource\\Publishing\\UriGenerationOptions not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ../../Classes/Utility/Rendering/AssetUtility.php
+
+		-
+			message: '#^Parameter \#1 \$className of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\) expects class\-string\<TYPO3\\CMS\\Core\\SystemResource\\Publishing\\SystemResourcePublisherInterface\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../../Classes/Utility/Rendering/AssetUtility.php
+
+		-
+			message: '#^Parameter \#1 \$className of static method TYPO3\\CMS\\Core\\Utility\\GeneralUtility\:\:makeInstance\(\) expects class\-string\<TYPO3\\CMS\\Core\\SystemResource\\SystemResourceFactory\>, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../../Classes/Utility/Rendering/AssetUtility.php
+
+		-
+			message: '#^Parameters should have "null\|null\|int\|null" types as the only types passed to this method$#'
+			identifier: typePerfect.narrowPublicClassMethodParamType
+			count: 1
+			path: ../../Classes/Widgets/Provider/ContentUpdateDataProvider.php
