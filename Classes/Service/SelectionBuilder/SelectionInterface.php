@@ -27,52 +27,62 @@ interface SelectionInterface
      * @param array<string|int, mixed>       $selectionEntriesToAdd
      * @param array<int>|int|null            $uid
      * @param array<string, mixed>|bool|null $record
+     *
+     * @return array<string|int, mixed>
      */
     public function addStatusItemToSelection(
-        array &$selectionEntriesToAdd,
+        array $selectionEntriesToAdd,
         Status $status,
         Status|int|null $currentStatus = null,
         ?string $table = null,
         array|int|null $uid = null,
         array|bool|null $record = null,
-    ): void;
+    ): array;
 
     /**
      * @param array<string, mixed>           $selectionEntriesToAdd
      * @param array<int,int>|int|null        $uid
      * @param array<string, mixed>|bool|null $record
+     *
+     * @return array<string, mixed>
      */
     public function addStatusResetItemToSelection(
-        array &$selectionEntriesToAdd,
+        array $selectionEntriesToAdd,
         ?string $table = null,
         array|int|null $uid = null,
         array|bool|null $record = null,
-    ): void;
+    ): array;
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<string, mixed>
      */
-    public function addDividerItemToSelection(array &$selectionEntriesToAdd): void;
+    public function addDividerItemToSelection(array $selectionEntriesToAdd): array;
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @return array<string, mixed>
      */
     public function addAssigneeItemToSelection(
-        array &$selectionEntriesToAdd,
+        array $selectionEntriesToAdd,
         array $record,
         string $table,
         int $uid,
-    ): void;
+    ): array;
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
+     *
+     * @return array<string, mixed>
      */
     public function addCommentsItemToSelection(
-        array &$selectionEntriesToAdd,
+        array $selectionEntriesToAdd,
         array $record,
         string $table,
         int $uid,
-    ): void;
+    ): array;
 }
