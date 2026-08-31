@@ -69,11 +69,15 @@ class RecordRepository
     public function __construct(private readonly FrontendInterface $cache, private readonly ConnectionPool $connectionPool) {}
 
     /**
+     * @param array<string, list<int>>|null $watchedRecords table => watched record UIDs, as returned by
+     *                                                      {@see \Xima\XimaTypo3ContentPlanner\Service\WatcherService::getWatchedRecords()};
+     *                                                      null leaves the result unfiltered by watcher state
+     *
      * @return PaginatedResult<array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): PaginatedResult
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false, ?array $watchedRecords = null): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
@@ -83,7 +87,13 @@ class RecordRepository
 
         [$baseWhere, $additionalParams] = $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
-        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments);
+        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments, $watchedRecords);
+
+        // Every tracked table can drop out of the UNION when filtering by watched records,
+        // which leaves nothing to query at all.
+        if ([] === $sqlArray) {
+            return new PaginatedResult([], false);
+        }
         // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
         // tablename literal, so cross-table duplicates cannot occur.
         //
@@ -338,9 +348,11 @@ class RecordRepository
     }
 
     /**
+     * @param array<string, list<int>>|null $watchedRecords table => watched record UIDs
+     *
      * @return string[]
      */
-    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo, ?string $search = null, bool $openComments = false): array
+    private function buildUnionQueriesForTables(string $baseWhere, ?string $type, ?bool $todo, ?string $search = null, bool $openComments = false, ?array $watchedRecords = null): array
     {
         $sqlArray = [];
 
@@ -349,12 +361,43 @@ class RecordRepository
                 continue;
             }
 
+            $watchedCondition = $this->buildWatchedCondition($table, $watchedRecords);
+            if (null === $watchedCondition) {
+                continue;
+            }
+
             $whereClause = $this->buildWhereClauseForTable($baseWhere, $table, $todo, $openComments);
             $whereClause .= $this->buildSearchCondition($table, $search);
+            $whereClause .= $watchedCondition;
             $sqlArray[] = $this->getSqlByTable($table, $whereClause);
         }
 
         return $sqlArray;
+    }
+
+    /**
+     * "Watched by me" is a very selective filter, so applying it in PHP after the query would
+     * leave the batching loop scanning past page after page of unwatched records before it
+     * found anything. Restricting each branch here means the database only ever returns
+     * candidates, and a table with no watched records at all drops out of the UNION entirely.
+     *
+     * @param array<string, list<int>>|null $watchedRecords table => watched record UIDs
+     *
+     * @return string|null the SQL condition to append, or null to skip this table entirely
+     */
+    private function buildWatchedCondition(string $table, ?array $watchedRecords): ?string
+    {
+        if (null === $watchedRecords) {
+            return '';
+        }
+
+        if ([] === ($watchedRecords[$table] ?? [])) {
+            return null;
+        }
+
+        // These UIDs come from the watcher table, never from request input; cast so they
+        // cannot carry anything but integers into the raw SQL.
+        return ' AND uid IN ('.implode(',', array_map(intval(...), $watchedRecords[$table])).')';
     }
 
     private function buildWhereClauseForTable(string $baseWhere, string $table, ?bool $todo, bool $openComments = false): string

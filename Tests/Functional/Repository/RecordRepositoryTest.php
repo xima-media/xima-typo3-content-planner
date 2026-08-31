@@ -236,4 +236,11 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     // Tests/Unit/Utility/Data/OverfetchPaginatorTest.php, proves that permission filtering applied
     // before the final page-size truncation yields the correct items + hasMore for a restricted
     // set of visible rows, independent of how the rows were fetched.
+    //
+    // Same reasoning applies to the $watchedRecords parameter added for issue #308 ("Watched by
+    // me" widget filter): it is applied as a per-table "uid IN (...)" restriction on each UNION
+    // branch, so it is part of the same untestable raw SQL. The query that produces the map
+    // passed in as $watchedRecords - WatcherRepository::findActiveWatchedRecordsByUser() - is a
+    // plain single-table query (no UNION), so it *is* covered end-to-end against a real DB in
+    // Tests/Functional/Domain/Repository/WatcherRepositoryTest.php.
 }
