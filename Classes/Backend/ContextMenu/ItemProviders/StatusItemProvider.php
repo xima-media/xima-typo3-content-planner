@@ -40,8 +40,6 @@ class StatusItemProvider extends AbstractProvider
 {
     /**
      * @var array<string, mixed>
-     *
-     * @phpstan-ignore-next-line property.phpDocType
      */
     protected $itemsConfiguration = [
         'wrap' => [
@@ -108,8 +106,6 @@ class StatusItemProvider extends AbstractProvider
      *
      * @throws NotImplementedException|Exception
      * @throws RouteNotFoundException
-     *
-     * @phpstan-ignore-next-line property.phpDocType
      */
     public function addItems(array $items): array
     {
