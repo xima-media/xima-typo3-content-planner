@@ -171,7 +171,6 @@ class Configuration
         // $GLOBALS['TYPO3_USER_SETTINGS'] format without a 'config' key
         // triggers a null pointer when opening the user settings module
         // on v14.3. See https://docs.typo3.org/permalink/t3coreapi:user-settings-extending-migration
-        // @phpstan-ignore-next-line function.alreadyNarrowedType (kept for TYPO3 v13 backward compatibility)
         if (method_exists(ExtensionManagementUtility::class, 'addUserSetting')) {
             $GLOBALS['TCA']['be_users']['columns']['user_settings']['columns']['tx_ximatypo3contentplanner_hide'] = [
                 'label' => $label,

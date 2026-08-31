@@ -24,6 +24,28 @@ parameters:
 		- ../../Classes/EventListener/AfterFileStorageTreeItemsPreparedListener.php
 		- ../../Classes/Widgets/ConfigurableContentStatusWidget.php
 
+	ignoreErrors:
+		# TYPO3's itemsProcFunc contract calls these with $config by reference; the signature
+		# is dictated by TYPO3 core (FormEngine), not by this extension.
+		-
+			identifier: ergebnis.noParameterPassedByReference
+			path: ../../Classes/Utility/Data/StatusRegistry.php
+		# TYPO3's DataHandler hook contract mandates these exact by-reference signatures
+		# (processDatamap_preProcessFieldArray, processCmdmap_preProcess).
+		-
+			identifier: ergebnis.noParameterPassedByReference
+			path: ../../Classes/Hooks/DataHandlerHook.php
+		# getCssFiles()/getJavaScriptModuleInstructions() are genuinely overridden by
+		# ConfigurableContentStatusWidget; final would break that override.
+		-
+			identifier: ergebnis.finalInAbstractClass
+			path: ../../Classes/Widgets/AbstractWidget.php
+		# $buttonProvider/$buttons/$options default to empty so Symfony DI service
+		# definitions (Configuration/Services.yaml) can omit them when unused.
+		-
+			identifier: ergebnis.noConstructorParameterWithDefaultValue
+			path: ../../Classes/Widgets/AbstractWidget.php
+
 	type_coverage:
 		constant: 0 # TODO: Set to 100, when PHP 8.3 is minimum requirement
 
