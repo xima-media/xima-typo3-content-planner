@@ -43,8 +43,8 @@ final readonly class DigestRecordGroup
         private int $commentCount,
         private int $eventCount,
         private int $latestCrdate,
-        private int $contentChangeCount = 0,
-        private int $contentChangeActorCount = 0,
+        private int $contentChangeCount,
+        private int $contentChangeActorCount,
     ) {}
 
     public function getTable(): string

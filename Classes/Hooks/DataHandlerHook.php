@@ -76,7 +76,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
 
         if (ExtensionUtility::isRegisteredRecordTable($table)) {
-            $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, (int) $id);
+            $incomingFieldArray = $this->statusChangeManager->processContentPlannerFields($incomingFieldArray, $table, (int) $id);
         }
     }
 
@@ -439,10 +439,10 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
 
         $this->eventDispatcher->dispatch(new CommentCreatedEvent(
-            table: $fieldArray['foreign_table'],
-            recordUid: (int) $fieldArray['foreign_uid'],
-            commentUid: (int) $resolvedId,
-            authorUid: $authorUid,
+            $fieldArray['foreign_table'],
+            (int) $fieldArray['foreign_uid'],
+            (int) $resolvedId,
+            $authorUid,
         ));
     }
 
@@ -463,10 +463,10 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         /** @var BackendUserAuthentication $resolvedBackendUser */
         $resolvedBackendUser = $GLOBALS['BE_USER'];
         $this->eventDispatcher->dispatch(new CommentResolvedEvent(
-            table: $comment['foreign_table'],
-            recordUid: (int) $comment['foreign_uid'],
-            commentUid: (int) $id,
-            resolvedByUid: (int) $resolvedBackendUser->getUserId(),
+            $comment['foreign_table'],
+            (int) $comment['foreign_uid'],
+            (int) $id,
+            (int) $resolvedBackendUser->getUserId(),
         ));
     }
 
