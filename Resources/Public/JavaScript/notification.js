@@ -1,5 +1,5 @@
 /**
-* Module: @xima/ximatypo3contentplanner/message
+* Module: @content-planner/message
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 

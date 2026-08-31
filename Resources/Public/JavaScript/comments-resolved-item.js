@@ -1,9 +1,9 @@
 /**
-* Module: @xima/ximatypo3contentplanner/comments-resolved-item
+* Module: @content-planner/comments-resolved-item
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
-import Notification from "@xima/ximatypo3contentplanner/notification.js";
+import Notification from "@content-planner/notification.js";
 
 class CommentsResolvedItem {
 

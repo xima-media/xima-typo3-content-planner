@@ -1,7 +1,7 @@
 /**
-* Module: @xima/ximatypo3contentplanner/comments-edit-item
+* Module: @content-planner/comments-edit-item
 */
-import CreateAndEditCommentModal from "@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js"
+import CreateAndEditCommentModal from "@content-planner/create-and-edit-comment-modal.js"
 
 class CommentsEditItem {
 

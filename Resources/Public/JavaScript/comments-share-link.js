@@ -1,5 +1,5 @@
 /**
-* Module: @xima/ximatypo3contentplanner/comments-share-link
+* Module: @content-planner/comments-share-link
 */
 
 class CommentsShareLink {
