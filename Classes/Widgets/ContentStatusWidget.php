@@ -128,8 +128,8 @@ class ContentStatusWidget extends AbstractWidget
         }
 
         $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        $todoResolved = $commentRepository->countTodoAllByRecord(allRecords: true);
-        $todoTotal = $commentRepository->countTodoAllByRecord(todoField: 'todo_total', allRecords: true);
+        $todoResolved = $commentRepository->countTodoAllByRecord(null, null, 'todo_resolved', true);
+        $todoTotal = $commentRepository->countTodoAllByRecord(null, null, 'todo_total', true);
 
         if ($todoTotal <= 0) {
             return '';

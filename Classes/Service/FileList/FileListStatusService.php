@@ -37,21 +37,23 @@ class FileListStatusService
      */
     public function generateStatusStyles(string $folderIdentifier, bool $isTilesView): string
     {
-        $css = [];
-
-        $this->addFileStatusStyles($css, $folderIdentifier, $isTilesView);
-        $this->addFolderStatusStyles($css, $folderIdentifier, $isTilesView);
+        $css = [
+            ...$this->addFileStatusStyles($folderIdentifier, $isTilesView),
+            ...$this->addFolderStatusStyles($folderIdentifier, $isTilesView),
+        ];
 
         return implode(' ', $css);
     }
 
     /**
-     * @param string[] $css
+     * @return string[]
      *
      * @throws Exception
      */
-    private function addFileStatusStyles(array &$css, string $folderIdentifier, bool $isTilesView): void
+    private function addFileStatusStyles(string $folderIdentifier, bool $isTilesView): array
     {
+        $css = [];
+
         // findByFolderWithStatus() already batches the metadata lookup and filters to files with a status.
         foreach ($this->sysFileMetadataRepository->findByFolderWithStatus($folderIdentifier) as $metadata) {
             $status = $this->statusRepository->findByUid((int) $metadata[Configuration::FIELD_STATUS]);
@@ -61,15 +63,19 @@ class FileListStatusService
 
             $css[] = $this->buildFileCssRule((int) $metadata['uid'], $status, $isTilesView);
         }
+
+        return $css;
     }
 
     /**
-     * @param string[] $css
+     * @return string[]
      *
      * @throws Exception
      */
-    private function addFolderStatusStyles(array &$css, string $folderIdentifier, bool $isTilesView): void
+    private function addFolderStatusStyles(string $folderIdentifier, bool $isTilesView): array
     {
+        $css = [];
+
         $subfolders = $this->folderStatusRepository->findSubfoldersWithStatus($folderIdentifier);
         foreach ($subfolders as $subfolder) {
             $status = $this->statusRepository->findByUid((int) $subfolder[Configuration::FIELD_STATUS]);
@@ -79,6 +85,8 @@ class FileListStatusService
 
             $css[] = $this->buildFolderCssRule($subfolder['combined_identifier'], $status, $isTilesView);
         }
+
+        return $css;
     }
 
     private function buildFileCssRule(int $metaUid, Status $status, bool $isTilesView): string

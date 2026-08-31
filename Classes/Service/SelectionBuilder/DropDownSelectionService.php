@@ -48,8 +48,10 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<string, mixed>
      */
-    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    public function addHeaderItemToSelection(array $selectionEntriesToAdd): array
     {
         $title = $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status');
 
@@ -57,6 +59,8 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setLabel($title);
         $selectionEntriesToAdd['header'] = $headerItem;
         $selectionEntriesToAdd['headerDivider'] = ComponentFactoryUtility::createDropDownDivider();
+
+        return $selectionEntriesToAdd;
     }
 
     /**
@@ -64,12 +68,14 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      * @param array<int>|int|null            $uid
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string|int, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
+    public function addStatusItemToSelection(array $selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
         if ($this->compareStatus($status, $currentStatus)) {
-            return;
+            return $selectionEntriesToAdd;
         }
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($status->getTitle())
@@ -77,14 +83,20 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-content-planner-status-change' => 'true'])
             ->setHref($this->buildUriForStatusChange($table, $uid, $status)->__toString());
         $selectionEntriesToAdd[(string) $status->getUid()] = $statusDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<string, mixed>
      */
-    public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
+    public function addDividerItemToSelection(array $selectionEntriesToAdd, ?string $additionalPostIdentifier = null): array
     {
         $selectionEntriesToAdd['divider'.($additionalPostIdentifier ?? '')] = ComponentFactoryUtility::createDropDownDivider();
+
+        return $selectionEntriesToAdd;
     }
 
     /**
@@ -92,9 +104,11 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
      * @param array<int, int>|int|null       $uid
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
+    public function addStatusResetItemToSelection(array $selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'))
@@ -102,16 +116,20 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-content-planner-status-change' => 'true', 'data-content-planner-status-reset' => 'true'])
             ->setHref($this->buildUriForStatusChange($table, $uid, null)->__toString());
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      * @throws RouteNotFoundException
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addAssigneeItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
         $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
@@ -125,16 +143,20 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-current-assignee' => $currentAssignee, 'data-content-planner-assignees' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      * @throws RouteNotFoundException
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addCommentsItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $commentsLabel = PlannerUtility::hasComments($record)
             ? $this->commentRepository->countAllByRecord($record['uid'], $table).' '
@@ -146,19 +168,23 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($table, $uid) : '', 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['comments'] = $commentsDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addCommentsTodoItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);
         if (0 === $todoTotal) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         $todoResolved = $this->getCommentsTodoResolved($record, $table);
@@ -168,17 +194,21 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($table, $uid) : '', 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['commentsTodo'] = $commentsDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<int|string, mixed> $selectionEntriesToAdd
      *
+     * @return array<int|string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addFolderStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): void
+    public function addFolderStatusItemToSelection(array $selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): array
     {
         if (null !== $currentStatus && $status->getUid() === $currentStatus) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
@@ -187,14 +217,18 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-content-planner-status-change' => 'true'])
             ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, $status)->__toString());
         $selectionEntriesToAdd[(string) $status->getUid()] = $statusDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
+    public function addFolderStatusResetItemToSelection(array $selectionEntriesToAdd, string $combinedIdentifier): array
     {
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'))
@@ -202,15 +236,19 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-content-planner-status-change' => 'true', 'data-content-planner-status-reset' => 'true'])
             ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString());
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException|Exception
      */
-    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    public function addFolderAssigneeItemToSelection(array $selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): array
     {
         $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
@@ -227,15 +265,19 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-current-assignee' => $currentAssignee, 'data-content-planner-assignees' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException|Exception
      */
-    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    public function addFolderCommentsItemToSelection(array $selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): array
     {
         $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
@@ -250,5 +292,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($table, $uid) : '', 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['comments'] = $commentsDropDownItem;
+
+        return $selectionEntriesToAdd;
     }
 }
