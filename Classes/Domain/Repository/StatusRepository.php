@@ -176,11 +176,11 @@ class StatusRepository
     private function hydrate(array $row): Status
     {
         return new Status(
-            uid: (int) $row['uid'],
-            title: (string) $row['title'],
-            icon: (string) $row['icon'],
-            color: (string) $row['color'],
-            isDefault: (bool) ($row[Configuration::FIELD_STATUS_IS_DEFAULT] ?? false),
+            (int) $row['uid'],
+            (string) $row['title'],
+            (string) $row['icon'],
+            (string) $row['color'],
+            (bool) ($row[Configuration::FIELD_STATUS_IS_DEFAULT] ?? false),
         );
     }
 

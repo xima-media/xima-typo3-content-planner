@@ -114,7 +114,7 @@ class PlannerService
     {
         $this->preCheckRecordTable($table, $uid);
 
-        return $this->commentRepository->findAllByRecord($uid, $table, $raw, showResolved: $showResolved);
+        return $this->commentRepository->findAllByRecord($uid, $table, $raw, 'DESC', $showResolved);
     }
 
     /**

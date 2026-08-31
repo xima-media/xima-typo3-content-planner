@@ -150,7 +150,7 @@ final class StatusRepositoryTest extends AbstractFunctionalTestCase
         $cache = $this->get(CacheManager::class)->getCache(Configuration::CACHE_IDENTIFIER.'_cache');
         $cache->set(
             sprintf('%s--status--1', Configuration::CACHE_IDENTIFIER),
-            new Status(1, 'Stale', 'flag', 'gray'),
+            new Status(1, 'Stale', 'flag', 'gray', false),
         );
 
         $result = $this->get(StatusRepository::class)->findByUid(1);
