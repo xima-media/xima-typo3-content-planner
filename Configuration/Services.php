@@ -33,7 +33,6 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $c
         $services->set('dashboard.widget.contentPlanner-configurable')
             // Widget class is excluded from PHPStan analysis (see phpstan.neon)
             // because it implements v14-only interfaces.
-            // @phpstan-ignore class.notFound
             ->class(Xima\XimaTypo3ContentPlanner\Widgets\ConfigurableContentStatusWidget::class)
             ->arg('$configuration', new Reference(WidgetConfigurationInterface::class))
             ->arg('$statusRepository', new Reference(StatusRepository::class))
@@ -59,15 +58,12 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $c
      * cannot tolerate regardless of TYPO3 version - see the class docblock.
      */
     if (class_exists(KonradMichalik\PagetreeFacets\Event\RegisterFacetsEvent::class)) {
-        // @phpstan-ignore class.notFound
         $services->set(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\ContentPlannerFacet::class)
             ->arg('$query', new Reference(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\ContentPlannerFacetQuery::class))
             ->arg('$stateMapper', new Reference(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\ContentPlannerFacetStateMapper::class))
             ->arg('$statusRepository', new Reference(StatusRepository::class));
 
-        // @phpstan-ignore class.notFound
         $services->set(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\RegisterContentPlannerFacetListener::class)
-            // @phpstan-ignore class.notFound
             ->arg('$facet', new Reference(Xima\XimaTypo3ContentPlanner\Integration\PagetreeFacets\ContentPlannerFacet::class))
             ->tag('event.listener', [
                 'identifier' => 'xima-typo3-content-planner/pagetree-facets/register-facet',
