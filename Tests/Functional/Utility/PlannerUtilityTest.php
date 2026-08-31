@@ -356,6 +356,17 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function commentContentTcaHasNoMaxConstraint(): void
+    {
+        // Column is unbounded `text` (ext_tables.sql) and generateTodoForComment() output
+        // easily exceeds a fixed max, so no TCA `max` may be declared here (#353).
+        self::assertArrayNotHasKey(
+            'max',
+            $GLOBALS['TCA'][Configuration::TABLE_COMMENT]['columns']['content']['config'],
+        );
+    }
+
+    #[Test]
     public function hasCommentsReturnsTrueWhenPositiveCount(): void
     {
         self::assertTrue(PlannerUtility::hasComments([Configuration::FIELD_COMMENTS => 3]));
