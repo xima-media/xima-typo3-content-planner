@@ -51,8 +51,6 @@ final readonly class ModifyRecordListRecordActionsListener
      * @throws NotImplementedException
      * @throws Exception
      * @throws \Exception
-     *
-     * @phpstan-ignore complexity.functionLike
      */
     public function __invoke(ModifyRecordListRecordActionsEvent $event): void
     {
@@ -60,7 +58,6 @@ final readonly class ModifyRecordListRecordActionsListener
             return;
         }
         // TYPO3 v13/v14 compatibility: In v14 getRecord() returns RecordInterface, in v13 it returns array
-        // @phpstan-ignore instanceof.alwaysTrue, instanceof.alwaysFalse, method.notFound
         $table = $event->getRecord() instanceof RecordInterface ? $event->getRecord()->getMainType() : $event->getTable();
 
         if (!ExtensionUtility::isRegisteredRecordTable($table) || $event->hasAction('Status')) {
@@ -73,11 +70,10 @@ final readonly class ModifyRecordListRecordActionsListener
         }
 
         // TYPO3 v13/v14 compatibility: In v14 getRecord() returns RecordInterface, in v13 it returns array
-        // @phpstan-ignore instanceof.alwaysTrue, instanceof.alwaysFalse, method.notFound, offsetAccess.nonOffsetAccessible
         $uid = $event->getRecord() instanceof RecordInterface ? $event->getRecord()->getUid() : $event->getRecord()['uid'];
 
         // ToDo: this is necessary cause the status is not in the record, pls check tca for this
-        $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
+        $record = $this->recordRepository->findByUid($table, $uid, true);
         if (!is_array($record)) {
             return;
         }

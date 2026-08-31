@@ -50,8 +50,10 @@ class ListSelectionService extends AbstractSelectionService implements Selection
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<string, mixed>
      */
-    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    public function addHeaderItemToSelection(array $selectionEntriesToAdd): array
     {
         $title = $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status');
 
@@ -60,6 +62,8 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             htmlspecialchars($title, \ENT_QUOTES | \ENT_HTML5, 'UTF-8'),
         );
         $selectionEntriesToAdd['headerDivider'] = '<li><hr class="dropdown-divider"></li>';
+
+        return $selectionEntriesToAdd;
     }
 
     /**
@@ -67,12 +71,14 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      * @param array<int>|int|null            $uid
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string|int, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
+    public function addStatusItemToSelection(array $selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
         if ($this->compareStatus($status, $currentStatus)) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         $icon = $this->iconFactory->getIcon($status->getColoredIcon(), IconUtility::getDefaultIconSize())->render();
@@ -85,14 +91,20 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $title,
         );
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
+     *
+     * @return array<string, mixed>
      */
-    public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
+    public function addDividerItemToSelection(array $selectionEntriesToAdd, ?string $additionalPostIdentifier = null): array
     {
         $selectionEntriesToAdd['divider'.($additionalPostIdentifier ?? '')] = '<li><hr class="dropdown-divider"></li>';
+
+        return $selectionEntriesToAdd;
     }
 
     /**
@@ -100,9 +112,11 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      * @param array<int, int>|int|null       $uid
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
+    public function addStatusResetItemToSelection(array $selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
         $icon = $this->iconFactory->getIcon('actions-close', IconUtility::getDefaultIconSize())->render();
         $href = $this->buildUriForStatusChange($table, $uid, null)->__toString();
@@ -114,15 +128,19 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $title,
         );
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception|RouteNotFoundException
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addAssigneeItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $currentAssignee = (int) $record[Configuration::FIELD_ASSIGNEE];
         $username = $this->backendUserRepository->getUsernameByUid($currentAssignee);
@@ -144,15 +162,19 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $escapedLabel,
         );
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addCommentsItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $commentsCount = PlannerUtility::hasComments($record) ? (int) $record[Configuration::FIELD_COMMENTS] : 0;
 
@@ -175,19 +197,23 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $escapedLabel,
         );
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addCommentsTodoItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         $todoTotal = $this->getCommentsTodoTotal($record, $table);
         if (0 === $todoTotal) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         $todoResolved = $this->getCommentsTodoResolved($record, $table);
@@ -210,17 +236,21 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $escapedLabel,
         );
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<int|string, mixed> $selectionEntriesToAdd
      *
+     * @return array<int|string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addFolderStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): void
+    public function addFolderStatusItemToSelection(array $selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): array
     {
         if (null !== $currentStatus && $status->getUid() === $currentStatus) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         $icon = $this->iconFactory->getIcon($status->getColoredIcon(), IconUtility::getDefaultIconSize())->render();
@@ -233,14 +263,18 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $title,
         );
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException
      */
-    public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
+    public function addFolderStatusResetItemToSelection(array $selectionEntriesToAdd, string $combinedIdentifier): array
     {
         $icon = $this->iconFactory->getIcon('actions-close', IconUtility::getDefaultIconSize())->render();
         $href = $this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString();
@@ -252,16 +286,20 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $title,
         );
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      * @throws RouteNotFoundException
      */
-    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    public function addFolderAssigneeItemToSelection(array $selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): array
     {
         $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
@@ -286,16 +324,20 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $escapedLabel,
         );
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws RouteNotFoundException
      * @throws Exception
      */
-    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    public function addFolderCommentsItemToSelection(array $selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): array
     {
         $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
@@ -321,5 +363,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             $icon,
             $escapedLabel,
         );
+
+        return $selectionEntriesToAdd;
     }
 }
