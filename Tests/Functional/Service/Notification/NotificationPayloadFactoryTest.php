@@ -41,7 +41,7 @@ final class NotificationPayloadFactoryTest extends AbstractFunctionalTestCase
     #[Test]
     public function forStatusChangeCarriesATitleSnapshotAndBothStatusTitles(): void
     {
-        $event = new StatusChangeEvent('pages', 1, [], new Status(1, 'Open'), new Status(2, 'In Progress'), 1);
+        $event = new StatusChangeEvent('pages', 1, [], new Status(1, 'Open', '', ''), new Status(2, 'In Progress', '', ''), 1);
 
         self::assertSame([
             'version' => 1,
