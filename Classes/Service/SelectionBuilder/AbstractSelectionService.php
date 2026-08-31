@@ -68,12 +68,12 @@ class AbstractSelectionService
         }
         $selectionEntriesToAdd = [];
 
-        $this->addHeaderItemToSelection($selectionEntriesToAdd);
-        $this->addAllStatusItems($selectionEntriesToAdd, $allStatus, $record, $table, $uid);
-        $this->addStatusResetSection($selectionEntriesToAdd, $record, $table, $uid);
-        $this->addAdditionalActionsSection($selectionEntriesToAdd, $record, $table, $uid);
+        $selectionEntriesToAdd = $this->addHeaderItemToSelection($selectionEntriesToAdd);
+        $selectionEntriesToAdd = $this->addAllStatusItems($selectionEntriesToAdd, $allStatus, $record, $table, $uid);
+        $selectionEntriesToAdd = $this->addStatusResetSection($selectionEntriesToAdd, $record, $table, $uid);
+        $selectionEntriesToAdd = $this->addAdditionalActionsSection($selectionEntriesToAdd, $record, $table, $uid);
 
-        $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $selectionEntriesToAdd, $this->getCurrentStatus($record));
+        $selectionEntriesToAdd = $this->statusSelectionManager->prepareStatusSelection($this, $table, $uid, $selectionEntriesToAdd, $this->getCurrentStatus($record));
 
         return $selectionEntriesToAdd;
     }
@@ -99,21 +99,25 @@ class AbstractSelectionService
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addHeaderItemToSelection(array &$selectionEntriesToAdd): void
+    public function addHeaderItemToSelection(array $selectionEntriesToAdd): array
     {
         throw new NotImplementedException('Method not implemented', 1741960484);
     }
 
     /**
-     * @param array<string, mixed>           $selectionEntriesToAdd
+     * @param array<string|int, mixed>       $selectionEntriesToAdd
      * @param array<int, int>|int|null       $uid
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string|int, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
+    public function addStatusItemToSelection(array $selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
         throw new NotImplementedException('Method not implemented', 1741960485);
     }
@@ -123,9 +127,11 @@ class AbstractSelectionService
      * @param array<int, int>|int|null       $uid
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addStatusResetItemToSelection(array &$selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): void
+    public function addStatusResetItemToSelection(array $selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
         throw new NotImplementedException('Method not implemented', 1741960486);
     }
@@ -134,9 +140,11 @@ class AbstractSelectionService
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addAssigneeItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addAssigneeItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         throw new NotImplementedException('Method not implemented', 1741960487);
     }
@@ -145,9 +153,11 @@ class AbstractSelectionService
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addCommentsItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addCommentsItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         throw new NotImplementedException('Method not implemented', 1741960488);
     }
@@ -156,9 +166,11 @@ class AbstractSelectionService
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $record
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addCommentsTodoItemToSelection(array &$selectionEntriesToAdd, array $record, string $table, int $uid): void
+    public function addCommentsTodoItemToSelection(array $selectionEntriesToAdd, array $record, string $table, int $uid): array
     {
         throw new NotImplementedException('Method not implemented', 1741960489);
     }
@@ -166,9 +178,11 @@ class AbstractSelectionService
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addDividerItemToSelection(array &$selectionEntriesToAdd, ?string $additionalPostIdentifier = null): void
+    public function addDividerItemToSelection(array $selectionEntriesToAdd, ?string $additionalPostIdentifier = null): array
     {
         throw new NotImplementedException('Method not implemented', 1741960490);
     }
@@ -197,10 +211,10 @@ class AbstractSelectionService
 
         $selectionEntriesToAdd = [];
 
-        $this->addHeaderItemToSelection($selectionEntriesToAdd);
-        $this->addAllFolderStatusItems($selectionEntriesToAdd, $allStatus, $currentStatus, $combinedIdentifier);
-        $this->addFolderStatusResetSection($selectionEntriesToAdd, $currentStatus, $combinedIdentifier);
-        $this->addFolderAdditionalActionsSection($selectionEntriesToAdd, $folderRecord, $currentStatus, $combinedIdentifier);
+        $selectionEntriesToAdd = $this->addHeaderItemToSelection($selectionEntriesToAdd);
+        $selectionEntriesToAdd = $this->addAllFolderStatusItems($selectionEntriesToAdd, $allStatus, $currentStatus, $combinedIdentifier);
+        $selectionEntriesToAdd = $this->addFolderStatusResetSection($selectionEntriesToAdd, $currentStatus, $combinedIdentifier);
+        $selectionEntriesToAdd = $this->addFolderAdditionalActionsSection($selectionEntriesToAdd, $folderRecord, $currentStatus, $combinedIdentifier);
 
         return $selectionEntriesToAdd;
     }
@@ -208,9 +222,11 @@ class AbstractSelectionService
     /**
      * @param array<int|string, mixed> $selectionEntriesToAdd
      *
+     * @return array<int|string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addFolderStatusItemToSelection(array &$selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): void
+    public function addFolderStatusItemToSelection(array $selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): array
     {
         throw new NotImplementedException('Method not implemented', 1741960491);
     }
@@ -218,9 +234,11 @@ class AbstractSelectionService
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addFolderStatusResetItemToSelection(array &$selectionEntriesToAdd, string $combinedIdentifier): void
+    public function addFolderStatusResetItemToSelection(array $selectionEntriesToAdd, string $combinedIdentifier): array
     {
         throw new NotImplementedException('Method not implemented', 1741960492);
     }
@@ -229,9 +247,11 @@ class AbstractSelectionService
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addFolderAssigneeItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    public function addFolderAssigneeItemToSelection(array $selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): array
     {
         throw new NotImplementedException('Method not implemented', 1741960493);
     }
@@ -240,9 +260,11 @@ class AbstractSelectionService
      * @param array<string, mixed> $selectionEntriesToAdd
      * @param array<string, mixed> $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    public function addFolderCommentsItemToSelection(array &$selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): void
+    public function addFolderCommentsItemToSelection(array $selectionEntriesToAdd, array $folderRecord, string $combinedIdentifier): array
     {
         throw new NotImplementedException('Method not implemented', 1741960494);
     }
@@ -334,54 +356,64 @@ class AbstractSelectionService
      * @param array<int|string, mixed> $selectionEntriesToAdd
      * @param array<int, Status>       $allStatus
      *
+     * @return array<int|string, mixed>
+     *
      * @throws NotImplementedException
      */
-    private function addAllFolderStatusItems(array &$selectionEntriesToAdd, array $allStatus, ?int $currentStatus, string $combinedIdentifier): void
+    private function addAllFolderStatusItems(array $selectionEntriesToAdd, array $allStatus, ?int $currentStatus, string $combinedIdentifier): array
     {
         if (!PermissionUtility::canChangeStatus()) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         foreach ($allStatus as $statusItem) {
             if (!PermissionUtility::isStatusAllowedForUser($statusItem->getUid())) {
                 continue;
             }
-            $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
+            $selectionEntriesToAdd = $this->addFolderStatusItemToSelection($selectionEntriesToAdd, $statusItem, $currentStatus, $combinedIdentifier);
         }
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed> $selectionEntriesToAdd
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    private function addFolderStatusResetSection(array &$selectionEntriesToAdd, ?int $currentStatus, string $combinedIdentifier): void
+    private function addFolderStatusResetSection(array $selectionEntriesToAdd, ?int $currentStatus, string $combinedIdentifier): array
     {
         if (null === $currentStatus || !PermissionUtility::canUnsetStatus()) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         if ([] !== $selectionEntriesToAdd) {
-            $this->addDividerItemToSelection($selectionEntriesToAdd);
+            $selectionEntriesToAdd = $this->addDividerItemToSelection($selectionEntriesToAdd);
         }
-        $this->addFolderStatusResetItemToSelection($selectionEntriesToAdd, $combinedIdentifier);
+
+        return $this->addFolderStatusResetItemToSelection($selectionEntriesToAdd, $combinedIdentifier);
     }
 
     /**
      * @param array<string, mixed>       $selectionEntriesToAdd
      * @param array<string, mixed>|false $folderRecord
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    private function addFolderAdditionalActionsSection(array &$selectionEntriesToAdd, array|false $folderRecord, ?int $currentStatus, string $combinedIdentifier): void
+    private function addFolderAdditionalActionsSection(array $selectionEntriesToAdd, array|false $folderRecord, ?int $currentStatus, string $combinedIdentifier): array
     {
         if (!is_array($folderRecord) || null === $currentStatus) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
-        $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
-        $this->addFolderAssigneeItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
-        $this->addFolderCommentsItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
+        $selectionEntriesToAdd = $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
+        $selectionEntriesToAdd = $this->addFolderAssigneeItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
+
+        return $this->addFolderCommentsItemToSelection($selectionEntriesToAdd, $folderRecord, $combinedIdentifier);
     }
 
     /**
@@ -389,13 +421,15 @@ class AbstractSelectionService
      * @param array<int, Status>             $allStatus
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    private function addAllStatusItems(array &$selectionEntriesToAdd, array $allStatus, array|bool|null $record, string $table, int $uid): void
+    private function addAllStatusItems(array $selectionEntriesToAdd, array $allStatus, array|bool|null $record, string $table, int $uid): array
     {
         // Check if user can change status at all
         if (!PermissionUtility::canChangeStatus()) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         foreach ($allStatus as $statusItem) {
@@ -404,49 +438,60 @@ class AbstractSelectionService
                 continue;
             }
 
-            $this->addStatusItemToSelection($selectionEntriesToAdd, $statusItem, $this->getCurrentStatus($record), $table, $uid, $record);
+            $selectionEntriesToAdd = $this->addStatusItemToSelection($selectionEntriesToAdd, $statusItem, $this->getCurrentStatus($record), $table, $uid, $record);
         }
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed>           $selectionEntriesToAdd
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    private function addStatusResetSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
+    private function addStatusResetSection(array $selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): array
     {
         // Check if user can unset status
         if (!PermissionUtility::canUnsetStatus()) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
         if (!is_array($record) || (null !== $record[Configuration::FIELD_STATUS] && 0 !== $record[Configuration::FIELD_STATUS])) {
             if ([] !== $selectionEntriesToAdd) {
-                $this->addDividerItemToSelection($selectionEntriesToAdd);
+                $selectionEntriesToAdd = $this->addDividerItemToSelection($selectionEntriesToAdd);
             }
-            $this->addStatusResetItemToSelection($selectionEntriesToAdd, $table, $uid, $record);
+
+            return $this->addStatusResetItemToSelection($selectionEntriesToAdd, $table, $uid, $record);
         }
+
+        return $selectionEntriesToAdd;
     }
 
     /**
      * @param array<string, mixed>           $selectionEntriesToAdd
      * @param array<string, mixed>|bool|null $record
      *
+     * @return array<string, mixed>
+     *
      * @throws NotImplementedException
      */
-    private function addAdditionalActionsSection(array &$selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): void
+    private function addAdditionalActionsSection(array $selectionEntriesToAdd, array|bool|null $record, string $table, int $uid): array
     {
         if (!is_array($record) || null === $this->getCurrentStatus($record)) {
-            return;
+            return $selectionEntriesToAdd;
         }
 
-        $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
-        $this->addAssigneeItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
-        $this->addCommentsItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+        $selectionEntriesToAdd = $this->addDividerItemToSelection($selectionEntriesToAdd, '2');
+        $selectionEntriesToAdd = $this->addAssigneeItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+        $selectionEntriesToAdd = $this->addCommentsItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
 
         if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
-            $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
+            $selectionEntriesToAdd = $this->addCommentsTodoItemToSelection($selectionEntriesToAdd, $record, $table, $uid);
         }
+
+        return $selectionEntriesToAdd;
     }
 }
