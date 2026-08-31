@@ -117,13 +117,13 @@ class CommentEditorController extends ActionController
         }
 
         return $this->renderCommentEditorFragment(
-            mode: 'edit',
-            table: (string) $comment['foreign_table'],
-            id: (int) $comment['foreign_uid'],
-            parentUid: (int) $comment['parent_uid'],
-            commentUid: $commentUid,
-            content: (string) $comment['content'],
-            pid: (int) $comment['pid'],
+            'edit',
+            (string) $comment['foreign_table'],
+            (int) $comment['foreign_uid'],
+            (int) $comment['parent_uid'],
+            $commentUid,
+            (string) $comment['content'],
+            (int) $comment['pid'],
         );
     }
 
@@ -156,13 +156,13 @@ class CommentEditorController extends ActionController
         }
 
         return $this->renderCommentEditorFragment(
-            mode: 'reply',
-            table: $table,
-            id: $id,
-            parentUid: $parentUid,
-            commentUid: 0,
-            content: '',
-            pid: 'pages' === $table ? $id : (int) $record['pid'],
+            'reply',
+            $table,
+            $id,
+            $parentUid,
+            0,
+            '',
+            'pages' === $table ? $id : (int) $record['pid'],
         );
     }
 
@@ -318,7 +318,7 @@ class CommentEditorController extends ActionController
      */
     private function resolveAccessibleRecord(string $table, int $uid): array|JsonResponse
     {
-        $record = $this->recordRepository->findByUid($table, $uid, ignoreVisibilityRestriction: true);
+        $record = $this->recordRepository->findByUid($table, $uid, true);
         if (!$record) {
             return new JsonResponse(['error' => 'Record not found'], 404);
         }
