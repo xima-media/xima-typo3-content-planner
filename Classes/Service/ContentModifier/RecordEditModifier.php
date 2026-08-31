@@ -74,7 +74,7 @@ class RecordEditModifier extends AbstractModifier implements ModifierInterface
         $uid = $request->getQueryParams()['edit'][$table] ?? 0;
         $uid = is_array($uid) ? (int) array_key_first($uid) : (int) $uid;
 
-        $additionalContent = $this->infoGenerator->generateStatusHeader(HeaderMode::EDIT, table: $table, uid: $uid);
+        $additionalContent = $this->infoGenerator->generateStatusHeader(HeaderMode::EDIT, null, $table, $uid);
         if (!$additionalContent) {
             return $response;
         }

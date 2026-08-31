@@ -57,13 +57,11 @@ class InfoGenerator
             return false;
         }
 
-        if (null === $record) {
-            $record = $this->recordRepository->findByUid(
-                $table,
-                $uid,
-                ignoreVisibilityRestriction: true,
-            );
-        }
+        $record ??= $this->recordRepository->findByUid(
+            $table,
+            $uid,
+            true,
+        );
 
         if (!(bool) $record) {
             return false;
@@ -255,7 +253,7 @@ class InfoGenerator
                     ? UrlUtility::assignToUser($table, $record['uid'])
                     : false,
                 'unassign' => self::canUnassignRecord($record) && self::checkUnassign($record)
-                    ? UrlUtility::assignToUser($table, $record['uid'], unassign: true)
+                    ? UrlUtility::assignToUser($table, $record['uid'], null, true)
                     : null,
             ],
             'comments' => [
@@ -317,7 +315,7 @@ class InfoGenerator
                     ? UrlUtility::assignToUser($table, $uid)
                     : false,
                 'unassign' => self::canUnassignRecord($folderRecord) && self::checkUnassign($folderRecord)
-                    ? UrlUtility::assignToUser($table, $uid, unassign: true)
+                    ? UrlUtility::assignToUser($table, $uid, null, true)
                     : null,
             ],
             'comments' => [

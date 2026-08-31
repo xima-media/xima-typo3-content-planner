@@ -70,7 +70,7 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
     public function addHeaderItemToSelectionAddsHeaderComponent(): void
     {
         $entries = [];
-        $this->subject->addHeaderItemToSelection($entries);
+        $entries = $this->subject->addHeaderItemToSelection($entries);
 
         self::assertArrayHasKey('header', $entries);
         self::assertArrayHasKey('headerDivider', $entries);
@@ -80,7 +80,7 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
     public function addDividerItemToSelectionAddsDivider(): void
     {
         $entries = [];
-        $this->subject->addDividerItemToSelection($entries);
+        $entries = $this->subject->addDividerItemToSelection($entries);
 
         self::assertArrayHasKey('divider', $entries);
     }
@@ -90,7 +90,7 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_ASSIGNEE => 1];
-        $this->subject->addAssigneeItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addAssigneeItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayHasKey('assignee', $entries);
     }
@@ -100,7 +100,7 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
-        $this->subject->addCommentsItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayHasKey('comments', $entries);
     }
@@ -110,7 +110,7 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
-        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayNotHasKey('commentsTodo', $entries);
     }
@@ -120,7 +120,7 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $record = ['uid' => 1, Configuration::FIELD_COMMENTS => 1];
-        $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
+        $entries = $this->subject->addCommentsTodoItemToSelection($entries, $record, 'pages', 1);
 
         self::assertArrayHasKey('commentsTodo', $entries);
         self::assertStringContainsString('1/3', $entries['commentsTodo']->getLabel());
@@ -131,7 +131,7 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $folderRecord = ['uid' => 1, Configuration::FIELD_ASSIGNEE => 1];
-        $this->subject->addFolderAssigneeItemToSelection($entries, $folderRecord, '1:/user_upload/');
+        $entries = $this->subject->addFolderAssigneeItemToSelection($entries, $folderRecord, '1:/user_upload/');
 
         self::assertArrayHasKey('assignee', $entries);
     }
@@ -141,7 +141,7 @@ final class DropDownSelectionServiceTest extends AbstractFunctionalTestCase
     {
         $entries = [];
         $folderRecord = ['uid' => 1, Configuration::FIELD_COMMENTS => 0];
-        $this->subject->addFolderCommentsItemToSelection($entries, $folderRecord, '1:/user_upload/');
+        $entries = $this->subject->addFolderCommentsItemToSelection($entries, $folderRecord, '1:/user_upload/');
 
         self::assertArrayHasKey('comments', $entries);
     }

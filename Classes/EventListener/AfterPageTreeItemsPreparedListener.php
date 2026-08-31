@@ -44,13 +44,13 @@ final readonly class AfterPageTreeItemsPreparedListener
 
         $items = $event->getItems();
 
-        foreach ($items as &$item) {
+        foreach ($items as $key => $item) {
             $statusUid = $item['_page'][Configuration::FIELD_STATUS] ?? null;
 
             if (null !== $statusUid && 0 !== (int) $statusUid) {
-                $this->applyStatusToItem($item, (int) $statusUid);
+                $items[$key] = $this->applyStatusToItem($item, (int) $statusUid);
             } else {
-                $this->applyEmptyLabelWorkaround($item);
+                $items[$key] = $this->applyEmptyLabelWorkaround($item);
             }
         }
 
@@ -59,46 +59,53 @@ final readonly class AfterPageTreeItemsPreparedListener
 
     /**
      * @param array<string, mixed> $item
+     *
+     * @return array<string, mixed>
      */
-    private function applyStatusToItem(array &$item, int $statusUid): void
+    private function applyStatusToItem(array $item, int $statusUid): array
     {
         $status = $this->statusRepository->findByUid($statusUid);
         if (!$status instanceof Status) {
-            return;
+            return $item;
         }
 
         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
-            label: $status->getTitle(),
-            color: Configuration\Colors::get($status->getColor()),
-            priority: Configuration::TREE_LABEL_PRIORITY_STATUS,
+            $status->getTitle(),
+            Configuration\Colors::get($status->getColor()),
+            Configuration::TREE_LABEL_PRIORITY_STATUS,
         );
-        $this->addStatusInformationIfEnabled($item);
+
+        return $this->addStatusInformationIfEnabled($item);
     }
 
     /**
      * @param array<string, mixed> $item
+     *
+     * @return array<string, mixed>
      */
-    private function addStatusInformationIfEnabled(array &$item): void
+    private function addStatusInformationIfEnabled(array $item): array
     {
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_TREE_STATUS_INFORMATION)) {
-            return;
+            return $item;
         }
 
         $commentCount = $item['_page'][Configuration::FIELD_COMMENTS] ?? 0;
         if ($commentCount <= 0) {
-            return;
+            return $item;
         }
 
         $statusInfo = $this->buildStatusInformation($item, $commentCount);
         if (null !== $statusInfo) {
             $item['statusInformation'][] = $statusInfo;
         }
+
+        return $item;
     }
 
     /**
      * @param array<string, mixed> $item
      */
-    private function buildStatusInformation(array &$item, int $commentCount): ?\TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation
+    private function buildStatusInformation(array $item, int $commentCount): ?\TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation
     {
         $setting = ExtensionUtility::getExtensionSetting(Configuration::FEATURE_TREE_STATUS_INFORMATION);
 
@@ -128,25 +135,30 @@ final readonly class AfterPageTreeItemsPreparedListener
         }
 
         return new \TYPO3\CMS\Backend\Dto\Tree\Status\StatusInformation(
-            label: $label,
-            severity: \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::NOTICE,
-            icon: $icon,
+            $label,
+            \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::NOTICE,
+            0,
+            $icon,
         );
     }
 
     /**
      * @param array<string, mixed> $item
+     *
+     * @return array<string, mixed>
      */
-    private function applyEmptyLabelWorkaround(array &$item): void
+    private function applyEmptyLabelWorkaround(array $item): array
     {
         // Workaround for label behavior in TYPO3 13
         // Labels will be inherited from parent pages, if not set explicitly
         // Currently there is no way to suppress this behavior
         // @see https://github.com/TYPO3/typo3/blob/5619d59f00808f7bec7a311106fda6a52854c0bd/Build/Sources/TypeScript/backend/tree/tree.ts#L1224
         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
-            label: '',
-            color: 'inherit',
-            priority: Configuration::TREE_LABEL_PRIORITY_EMPTY,
+            '',
+            'inherit',
+            Configuration::TREE_LABEL_PRIORITY_EMPTY,
         );
+
+        return $item;
     }
 }
