@@ -31,8 +31,6 @@ final class ConfigurationTest extends TestCase
     protected function tearDown(): void
     {
         unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class]);
-
-        parent::tearDown();
     }
 
     public function testOverrideClassesRegistersTreeControllerXclass(): void
