@@ -16,8 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
-use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -42,13 +40,6 @@ final class HistoryItem
 
     /** @var array<string, mixed>|bool|null */
     public array|bool|null $relatedRecord = [];
-
-    private readonly IconFactory $iconFactory;
-
-    public function __construct()
-    {
-        $this->iconFactory = GeneralUtility::makeInstance(IconFactory::class);
-    }
 
     /**
      * @param array<string, mixed> $sysHistoryRow
@@ -158,21 +149,16 @@ final class HistoryItem
 
     public function getChangeTypeIcon(): string
     {
-        $iconFactory = $this->iconFactory;
-        switch ($this->data['tablename']) {
-            case Configuration::TABLE_COMMENT:
-                return IconUtility::getIconByIdentifier('actions-comment');
-            default:
-                if (!ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
-                    break;
-                }
-                switch (array_key_first($this->data['raw_history']['newRecord'])) {
-                    case Configuration::FIELD_STATUS:
-                        return IconUtility::getIconByStatusUid((int) $this->data['raw_history']['newRecord'][Configuration::FIELD_STATUS], true);
-                    case Configuration::FIELD_ASSIGNEE:
-                        return IconUtility::getIconByIdentifier('actions-user');
-                }
-                break;
+        if (Configuration::TABLE_COMMENT === $this->data['tablename']) {
+            return IconUtility::getIconByIdentifier('actions-comment');
+        }
+
+        if (ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
+            return match (array_key_first($this->data['raw_history']['newRecord'])) {
+                Configuration::FIELD_STATUS => IconUtility::getIconByStatusUid((int) $this->data['raw_history']['newRecord'][Configuration::FIELD_STATUS], true),
+                Configuration::FIELD_ASSIGNEE => IconUtility::getIconByIdentifier('actions-user'),
+                default => IconUtility::getIconByIdentifier('actions-open'),
+            };
         }
 
         return IconUtility::getIconByIdentifier('actions-open');
