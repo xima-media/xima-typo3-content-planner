@@ -102,7 +102,7 @@ class FileStorageTreeModifier implements ModifierInterface
         }
 
         // Process tree items
-        $this->processTreeItems($data);
+        $data = $this->processTreeItems($data);
 
         return $this->replaceBody($response, json_encode($data, \JSON_THROW_ON_ERROR));
     }
@@ -126,20 +126,24 @@ class FileStorageTreeModifier implements ModifierInterface
      *
      * @param array<int|string, mixed> $items
      *
+     * @return array<int|string, mixed>
+     *
      * @throws Exception
      */
-    private function processTreeItems(array &$items): void
+    private function processTreeItems(array $items): array
     {
-        foreach ($items as &$item) {
+        foreach ($items as $key => $item) {
             if (!is_array($item)) {
                 continue;
             }
 
             // Check if this is a folder item
             if (isset($item['resourceType']) && 'folder' === $item['resourceType']) {
-                $this->addStatusLabelToFolder($item);
+                $items[$key] = $this->addStatusLabelToFolder($item);
             }
         }
+
+        return $items;
     }
 
     /**
@@ -147,13 +151,15 @@ class FileStorageTreeModifier implements ModifierInterface
      *
      * @param array<string, mixed> $item
      *
+     * @return array<string, mixed>
+     *
      * @throws Exception
      */
-    private function addStatusLabelToFolder(array &$item): void
+    private function addStatusLabelToFolder(array $item): array
     {
         // Build combined identifier from storage and pathIdentifier
         if (!isset($item['storage'], $item['pathIdentifier'])) {
-            return;
+            return $item;
         }
 
         $combinedIdentifier = (int) $item['storage'].':'.urldecode($item['pathIdentifier']);
@@ -172,13 +178,13 @@ class FileStorageTreeModifier implements ModifierInterface
                 'priority' => 0,
             ];
 
-            return;
+            return $item;
         }
 
         $status = $this->statusRepository->findByUid((int) $folderStatus[Configuration::FIELD_STATUS]);
 
         if (!$status instanceof Status) {
-            return;
+            return $item;
         }
 
         $item['labels'][] = [
@@ -186,5 +192,7 @@ class FileStorageTreeModifier implements ModifierInterface
             'color' => Colors::getHex($status->getColor()),
             'priority' => 0,
         ];
+
+        return $item;
     }
 }
