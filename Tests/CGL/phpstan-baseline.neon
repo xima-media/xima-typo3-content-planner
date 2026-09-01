@@ -95,3 +95,21 @@ parameters:
 			identifier: typePerfect.narrowPublicClassMethodParamType
 			count: 1
 			path: ../../Classes/Widgets/Provider/ContentUpdateDataProvider.php
+
+		-
+			message: '#^Class Xima\\XimaTypo3ContentPlanner\\Integration\\PagetreeFacets\\ContentPlannerFacet not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: ../../Configuration/Services.php
+
+		-
+			message: '#^Class Xima\\XimaTypo3ContentPlanner\\Integration\\PagetreeFacets\\RegisterContentPlannerFacetListener not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ../../Configuration/Services.php
+
+		-
+			message: '#^Class Xima\\XimaTypo3ContentPlanner\\Widgets\\ConfigurableContentStatusWidget not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ../../Configuration/Services.php

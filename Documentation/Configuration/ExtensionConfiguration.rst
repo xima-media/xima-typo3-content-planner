@@ -77,6 +77,29 @@ Features
     ..  note::
         Requires :ref:`enableContentElementSupport <extconf-enableContentElementSupport>` to be enabled (default).
 
+..  _extconf-enablePagetreeFacetsIntegration:
+
+..  confval:: enablePagetreeFacetsIntegration
+    :type: boolean
+    :Default: 1
+
+    Enable a Content Planner facet in the TYPO3 v14 page tree filter modal
+    provided by the optional `konradmichalik/typo3-pagetree-facets
+    <https://github.com/konradmichalik/typo3-pagetree-facets>`__ extension.
+    Has no effect on TYPO3 v13 or when that extension is not installed, so
+    the default stays on: the facet only ever registers once that specific
+    package is present.
+
+    ..  note::
+        Although this defaults to on, it stays off until an administrator
+        opens :guilabel:`Admin Tools > Settings > Extension Configuration`
+        for this extension and saves the form once - a new configuration
+        key is absent from the saved configuration until then, regardless
+        of its template default. A value set directly in
+        ``$GLOBALS['TYPO3_CONF_VARS']`` is not persisted until the form is
+        saved either. See :ref:`pagetree-facets` for the available filter
+        tokens.
+
 Assignee
 =======
 

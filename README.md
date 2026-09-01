@@ -42,6 +42,7 @@ This TYPO3 extension adds content planning capabilities to the TYPO3 backend: as
 **Extensibility** — Works beyond pages
 * Extend [additional database records](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/AdditionalRecords.html) with status behavior
 * Built-in support for content elements and [files/folders](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Filelist.html)
+* [Pagetree Facets](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/PagetreeFacets.html) filter facet for the optional `konradmichalik/typo3-pagetree-facets` extension (TYPO3 v14+)
 
 ## 🔥 Installation
 

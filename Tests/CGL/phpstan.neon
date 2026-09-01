@@ -23,6 +23,9 @@ parameters:
 		# TYPO3 v14 only - uses classes that don't exist in v13
 		- ../../Classes/EventListener/AfterFileStorageTreeItemsPreparedListener.php
 		- ../../Classes/Widgets/ConfigurableContentStatusWidget.php
+		# konradmichalik/typo3-pagetree-facets is suggest-only - never installed for PHPStan
+		- ../../Classes/Integration/PagetreeFacets/ContentPlannerFacet.php
+		- ../../Classes/Integration/PagetreeFacets/RegisterContentPlannerFacetListener.php
 
 	ignoreErrors:
 		# TYPO3's itemsProcFunc contract calls these with $config by reference; the signature
