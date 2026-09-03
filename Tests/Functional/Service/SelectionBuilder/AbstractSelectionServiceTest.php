@@ -154,12 +154,6 @@ final class AbstractSelectionServiceTest extends AbstractFunctionalTestCase
 
     private function makeStatus(): Status
     {
-        $status = new Status();
-        $status->setTitle('Draft');
-        $status->setIcon('flag');
-        $status->setColor('blue');
-        $status->_setProperty('uid', 1);
-
-        return $status;
+        return new Status(uid: 1, title: 'Draft', icon: 'flag', color: 'blue');
     }
 }

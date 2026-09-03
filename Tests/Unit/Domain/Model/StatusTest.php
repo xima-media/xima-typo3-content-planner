@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Domain\Model;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
 /**
@@ -28,46 +29,29 @@ final class StatusTest extends TestCase
     #[Test]
     public function defaultValuesAreEmptyStrings(): void
     {
-        $status = new Status();
+        $status = new Status(uid: 0, title: '', icon: '', color: '');
 
+        self::assertSame(0, $status->getUid());
         self::assertSame('', $status->getTitle());
         self::assertSame('', $status->getIcon());
         self::assertSame('', $status->getColor());
     }
 
     #[Test]
-    public function titleCanBeSetAndRetrieved(): void
+    public function constructorHydratesAllProperties(): void
     {
-        $status = new Status();
-        $status->setTitle('In Progress');
+        $status = new Status(uid: 5, title: 'In Progress', icon: 'heart', color: 'yellow');
 
+        self::assertSame(5, $status->getUid());
         self::assertSame('In Progress', $status->getTitle());
-    }
-
-    #[Test]
-    public function iconCanBeSetAndRetrieved(): void
-    {
-        $status = new Status();
-        $status->setIcon('flag');
-
-        self::assertSame('flag', $status->getIcon());
-    }
-
-    #[Test]
-    public function colorCanBeSetAndRetrieved(): void
-    {
-        $status = new Status();
-        $status->setColor('red');
-
-        self::assertSame('red', $status->getColor());
+        self::assertSame('heart', $status->getIcon());
+        self::assertSame('yellow', $status->getColor());
     }
 
     #[Test]
     public function coloredIconCombinesIconAndColor(): void
     {
-        $status = new Status();
-        $status->setIcon('flag');
-        $status->setColor('red');
+        $status = new Status(uid: 0, title: '', icon: 'flag', color: 'red');
 
         self::assertSame('flag-red', $status->getColoredIcon());
     }
@@ -75,8 +59,16 @@ final class StatusTest extends TestCase
     #[Test]
     public function coloredIconWithEmptyValues(): void
     {
-        $status = new Status();
+        $status = new Status(uid: 0, title: '', icon: '', color: '');
 
         self::assertSame('-', $status->getColoredIcon());
+    }
+
+    #[Test]
+    public function statusIsReadonly(): void
+    {
+        $reflection = new ReflectionClass(Status::class);
+
+        self::assertTrue($reflection->isReadOnly());
     }
 }

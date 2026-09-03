@@ -13,6 +13,12 @@ PSR-14 Events
 The extension contains some PSR-14 events which make it possible to extend the extension with own functionality.
 You can for example adjust the status selection or react on status changes for implementing some kind of a workflow.
 
+..  note::
+
+    Since 3.0.0, the ``Status`` objects passed via ``StatusChangeEvent`` and
+    ``PrepareStatusSelectionEvent`` are readonly value objects rather than
+    Extbase entities. See the :ref:`upgrade-guide` for details.
+
 If you are new to PSR-14 events, please refer to the official TYPO3 documentation about
 `PSR-14 events and Event Listeners <https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/Events/EventDispatcher/Index.html>`__.
 

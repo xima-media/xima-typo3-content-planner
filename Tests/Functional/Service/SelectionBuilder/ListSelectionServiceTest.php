@@ -265,12 +265,6 @@ final class ListSelectionServiceTest extends AbstractFunctionalTestCase
 
     private function makeStatus(int $uid): Status
     {
-        $status = new Status();
-        $status->setTitle('Status '.$uid);
-        $status->setIcon('flag');
-        $status->setColor('blue');
-        $status->_setProperty('uid', $uid);
-
-        return $status;
+        return new Status(uid: $uid, title: 'Status '.$uid, icon: 'flag', color: 'blue');
     }
 }

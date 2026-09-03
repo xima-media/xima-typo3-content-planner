@@ -19,3 +19,4 @@ into the status process.
     ExtensionUtility
     PlannerUtility
     PlannerService
+    UpgradeGuide

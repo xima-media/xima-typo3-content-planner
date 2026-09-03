@@ -108,10 +108,7 @@ final class FileListStatusServiceTest extends AbstractFunctionalTestCase
 
     private function createStatus(string $color): Status
     {
-        $status = new Status();
-        $status->setColor($color);
-
-        return $status;
+        return new Status(uid: 0, title: '', icon: '', color: $color);
     }
 
     private function invokeBuildFileCssRule(int $metaUid, Status $status, bool $isTilesView): string
