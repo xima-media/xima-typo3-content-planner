@@ -65,8 +65,8 @@ final readonly class CommentEditorConfigurationFactory
         $editorConfig = is_array($configuration['editor']['config'] ?? null) ? $configuration['editor']['config'] : [];
 
         $ckeditorConfiguration = [
-            'customConfig' => '',
             ...$editorConfig,
+            'customConfig' => '',
         ];
 
         $ckeditorConfiguration['language'] = $this->resolveLanguageConfiguration($ckeditorConfiguration);
