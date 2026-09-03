@@ -20,8 +20,9 @@ Notifications
     the retention/cleanup command built for issue `#304
     <https://github.com/xima-media/xima-typo3-content-planner/issues/304>`__, the immediate
     email channel built for issue `#306 <https://github.com/xima-media/xima-typo3-content-planner/issues/306>`__,
-    and content change notifications built for issue `#309
-    <https://github.com/xima-media/xima-typo3-content-planner/issues/309>`__.
+    content change notifications built for issue `#309
+    <https://github.com/xima-media/xima-typo3-content-planner/issues/309>`__, and @-mentions
+    built for issue `#305 <https://github.com/xima-media/xima-typo3-content-planner/issues/305>`__.
 
 Overview
 ========
@@ -71,7 +72,7 @@ record does not change per event:
 `Comment`                       `watching_since_comment`
 `StatusChange`                  `watching_since_status_change`
 `Manual`                        `watching_manually`
-`Mention` (reserved, see #305)  `mentioned`
+`Mention` (see #305)            `mentioned`
 =============================  ================================================
 
 Payload
@@ -407,6 +408,100 @@ exactly the "noise is the failure mode" concern the issue calls out. `StatusChan
 change is meaningful review-workflow signal the moment it happens, draft or not, so those three
 keep firing on save.
 
+Mentions
+========
+
+..  note::
+
+    Added in 3.2.0 for issue `#305 <https://github.com/xima-media/xima-typo3-content-planner/issues/305>`__.
+    The CKEditor5 comment composer this feeds into (issue #327) landed in a separate branch
+    stack and is not yet merged with the notifications stack this page documents - see the
+    "Integration note" in `PR #305's description
+    <https://github.com/xima-media/xima-typo3-content-planner/pull/305>`__ for the exact wiring
+    step that remains once the two stacks meet.
+
+Storage contract
+-----------------
+
+A mention is persisted **inline, inside the comment's existing `content` HTML field** - no
+separate column or table. `MentionUtility <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Utility/Data/MentionUtility.php>`__
+defines the marker:
+
+..  code-block:: html
+
+    <a class="ctp-mention" data-mention-uid="42">@display-name-at-mention-time</a>
+
+The UID, not the display name, is the source of truth: `MentionUtility::renderContentWithMentionLinks()`
+re-resolves the mentioned user's *current* display name and link target on every render rather
+than trusting the stored text, so a later username/realName change is reflected automatically -
+`CommentItem::getContent()` is what the comment partial now renders instead of the raw `content`
+column directly.
+
+Permission-filtered suggestion list
+-------------------------------------
+
+`MentionController::suggestAction() <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Controller/MentionController.php>`__
+is the AJAX feed a CKEditor5 Mention plugin's async `feed` callback calls into. Per the issue's
+own scope decision, the candidate pool is a *pragmatic approximation* - every content-planner-permitted
+user (`BackendUserRepository::findAllWithPermission()`, the same pool
+`RecordController::assigneeSelectionAction()` already offers for assignment) - rather than exact
+per-record permission resolution (groups/mounts/page permissions), which would be too expensive to
+evaluate on every keystroke of a live suggestion feed.
+
+`MentionNotificationService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/MentionNotificationService.php>`__
+applies the *same* filter again, defensively, before ever notifying or auto-watching a mentioned
+uid extracted from persisted comment content - a hand-authored (or otherwise API-injected) mention
+marker referencing a uid outside that pool is silently dropped, so the suggestion list is not just
+a UI nicety but the actual authorization boundary.
+
+Being permitted to use the content planner is not the same as being allowed to open the record the
+comment sits on, though. Before notifying, `MentionNotificationService` therefore also asks
+`RecipientAccessChecker` whether the mentioned user can still read that record, so a mention cannot
+be used to hand someone a page title they have no access to. The number of mentions honoured per
+comment is capped as well: a mention is the one path that bypasses the watcher gate, and combined
+with the immediate e-mail channel an unbounded list would turn a single comment into a mail to
+everyone.
+
+..  note::
+    **Not yet wired into the editor.** The backend side described here is complete, but nothing
+    produces the `ctp-mention` markup through the UI: the CKEditor5 Mention plugin that would call
+    `suggestAction()` lives in the comment composer (CP-28, #327), which is developed on a separate
+    branch. Until the two are merged, mention markers can only arrive through the API, and the
+    feature is not reachable for editors. The wiring point exists on that side:
+    `ModifyCommentEditorConfigurationEvent` lets a listener add the plugin and its `feed` callback
+    to the composer's CKEditor5 configuration without replacing the factory.
+
+Dispatch: reaches its target even without a prior watch
+-----------------------------------------------------------
+
+Every other event type in this document is delivered exclusively to `WatcherService::getActiveWatchersWithSource()`'s
+result - a mention could never reach anyone who has not already watched the record, which defeats
+the point of a mention. `NotificationDispatcher::dispatchMention()` is a separate, direct-recipient
+entry point that never queries watch state at all: it is handed the mentioned uid directly by
+`MentionNotificationService` and always stamps `NotificationReason::Mentioned` regardless of any
+watch relation that recipient may or may not separately have.
+
+Mute-vs-mention
+----------------
+
+The decision the issue asked for: a mention **bypasses** a recipient's sticky `manual_unwatch` for
+the one notification it produces, but does **not** re-subscribe them - a muted user still sees the
+mention (toolbar dropdown/email, if enabled), just not any *other* future activity on that record
+unless they explicitly re-watch it. Concretely, `MentionNotificationService::notifyMentions()`
+always does both of the following for every notifiable mentioned uid, unconditionally:
+
+#.  `WatcherService::watch($table, $uid, $mentionedUid, WatchSource::Mention)` - subject to the
+    *same* sticky-against-manual rule every other auto-watch source already follows (see
+    `WatcherServiceTest::mentionTriggerNeverReactivatesManualUnwatch()`): a prior `manual_unwatch`
+    is left untouched, exactly as `Assignment`/`Comment`/`StatusChange` already behave.
+#.  `NotificationDispatcher::dispatchMention()` - which, as above, never even asks whether the
+    recipient is watching, muted or otherwise.
+
+The combination is what produces the mute-vs-mention behavior: step 1 guarantees a muted user
+never gets silently re-subscribed, while step 2 guarantees they still see this one, high-signal
+notification. See `MentionNotificationServiceTest::deliversTheNotificationToAMutedUserButDoesNotReSubscribeThem()`
+for the full-stack proof against a real database.
+
 Cleanup
 =======
 
@@ -503,3 +598,7 @@ that event type.
     -   `ImmediateEmailChannel <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Channel/ImmediateEmailChannel.php>`__
     -   `ImmediateEmailService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Immediate/ImmediateEmailService.php>`__
     -   `ImmediateEmailQueueRepository <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Domain/Repository/ImmediateEmailQueueRepository.php>`__
+    -   `MentionUtility <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Utility/Data/MentionUtility.php>`__
+    -   `MentionNotificationService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/MentionNotificationService.php>`__
+    -   `MentionController <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Controller/MentionController.php>`__
+    -   `NotifyOnMentionListener <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/EventListener/Notification/NotifyOnMentionListener.php>`__

@@ -16,7 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility, MentionUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
@@ -108,6 +108,17 @@ final class CommentItem
     public function getAuthorName(): string
     {
         return ContentUtility::getBackendUsernameById((int) $this->data['author']);
+    }
+
+    /**
+     * Rendered comment content (issue #305): every persisted @-mention marker is refreshed to
+     * the mentioned user's *current* display name and link before display - see
+     * {@see MentionUtility} for the storage contract. Safe to call on content with no mentions
+     * at all, returned unchanged.
+     */
+    public function getContent(): string
+    {
+        return MentionUtility::renderContentWithMentionLinks((string) ($this->data['content'] ?? ''));
     }
 
     public function getTimeAgo(): string

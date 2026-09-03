@@ -116,4 +116,51 @@ class NotificationDispatcher implements LoggerAwareInterface
             }
         }
     }
+
+    /**
+     * Direct-recipient dispatch for @-mention notifications (issue #305). Unlike
+     * {@see self::dispatch()}, this deliberately never consults
+     * {@see WatcherService::getActiveWatchersWithSource()} (or any other watch-state query) at
+     * all: a mention must reach its target even if they are not currently watching the record,
+     * and even if they have a sticky {@see \Xima\XimaTypo3ContentPlanner\Domain\Model\WatchMode::ManualUnwatch}
+     * - see the "mute-vs-mention" decision in Documentation/DeveloperCorner/Notifications.rst.
+     * The reason is always {@see NotificationReason::Mentioned}, since it describes *why this
+     * notification exists*, not any watch relation the recipient may or may not separately have.
+     *
+     * Auto-watching the mentioned user (also subject to that same sticky rule) is a *separate*
+     * concern, handled by the caller via {@see WatcherService::watch()} - this method only ever
+     * delivers the one notification.
+     *
+     * @param array<string, mixed> $payload
+     *
+     * @throws Exception
+     */
+    public function dispatchMention(
+        string $table,
+        int $uid,
+        ?int $actorUid,
+        int $recipientUid,
+        array $payload,
+    ): void {
+        if ($this->suppressionState->isPaused() || !$this->watcherService->isWatchable($table) || $recipientUid === $actorUid) {
+            return;
+        }
+
+        $notification = new Notification(
+            $recipientUid,
+            NotificationEventType::Mentioned,
+            $table,
+            $uid,
+            $actorUid,
+            NotificationReason::Mentioned,
+            $payload,
+            time(),
+        );
+
+        foreach ($this->channels as $channel) {
+            if ($channel->supports($notification)) {
+                $channel->deliver($notification);
+            }
+        }
+    }
 }

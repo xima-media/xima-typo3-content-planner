@@ -318,6 +318,10 @@
 				<source>Comment: %s</source>
 				<target>Kommentar: %s</target>
 			</trans-unit>
+			<trans-unit id="digest.mail.line.mention">
+				<source>You were mentioned: %s</source>
+				<target>Du wurdest erwähnt: %s</target>
+			</trans-unit>
 			<trans-unit id="digest.mail.unassigned">
 				<source>Unassigned</source>
 				<target>Nicht zugewiesen</target>

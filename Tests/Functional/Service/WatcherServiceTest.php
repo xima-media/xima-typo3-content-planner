@@ -71,6 +71,14 @@ final class WatcherServiceTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function watchWithMentionSourceCreatesAutoWatcherWhenNoPriorRow(): void
+    {
+        $this->subject->watch('pages', 1, 1, WatchSource::Mention);
+
+        self::assertSame(WatchMode::Auto, $this->watcherRepository->findMode('pages', 1, 1));
+    }
+
+    #[Test]
     public function watchWithManualSourceCreatesManualWatcherWhenNoPriorRow(): void
     {
         $this->subject->watch('pages', 1, 1, WatchSource::Manual);
@@ -98,6 +106,18 @@ final class WatcherServiceTest extends AbstractFunctionalTestCase
         self::assertSame(WatchMode::Auto, $this->watcherRepository->findMode('pages', 1, 1));
         $row = $this->watcherRepository->findByRecordAndUser('pages', 1, 1);
         self::assertSame('comment', $row['source']);
+    }
+
+    #[Test]
+    public function mentionTriggerUpdatesSourceWhenPriorModeIsAuto(): void
+    {
+        $this->watcherRepository->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+
+        $this->subject->watch('pages', 1, 1, WatchSource::Mention);
+
+        self::assertSame(WatchMode::Auto, $this->watcherRepository->findMode('pages', 1, 1));
+        $row = $this->watcherRepository->findByRecordAndUser('pages', 1, 1);
+        self::assertSame('mention', $row['source']);
     }
 
     #[Test]
@@ -182,6 +202,26 @@ final class WatcherServiceTest extends AbstractFunctionalTestCase
         $this->watcherRepository->upsert('pages', 1, 1, WatchMode::ManualUnwatch, WatchSource::Manual);
 
         $this->subject->watch('pages', 1, 1, WatchSource::StatusChange);
+
+        self::assertSame(WatchMode::ManualUnwatch, $this->watcherRepository->findMode('pages', 1, 1));
+    }
+
+    /**
+     * The "mute-vs-mention" decision (issue #305): a mention bypasses `manual_unwatch` for the
+     * one immediate notification it produces (see
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationDispatcher::dispatchMention()}
+     * and {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\MentionNotificationServiceTest}),
+     * but must **not** re-watch the record - {@see WatcherService::watch()} is still called for
+     * every mention (auto-watch is a separate, always-attempted side effect), and it must remain
+     * exactly as sticky against a prior manual_unwatch for `Mention` as it already is for every
+     * other auto-watch source.
+     */
+    #[Test]
+    public function mentionTriggerNeverReactivatesManualUnwatch(): void
+    {
+        $this->watcherRepository->upsert('pages', 1, 1, WatchMode::ManualUnwatch, WatchSource::Manual);
+
+        $this->subject->watch('pages', 1, 1, WatchSource::Mention);
 
         self::assertSame(WatchMode::ManualUnwatch, $this->watcherRepository->findMode('pages', 1, 1));
     }

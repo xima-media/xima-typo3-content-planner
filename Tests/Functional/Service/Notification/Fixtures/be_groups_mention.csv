@@ -1,0 +1,6 @@
+"be_groups"
+,"uid","pid","title","tables_select","custom_options","deleted"
+,1,0,"Authorized","pages","tx_ximatypo3contentplanner:content-status",0
+"be_users"
+,"uid","pid","username","admin","realName","usergroup","db_mountpoints","disable","deleted"
+,10,0,"member",0,"Member User","1","1",0,0
