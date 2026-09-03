@@ -64,7 +64,7 @@ class PlannerService
         if ($status instanceof Status) {
             $statusId = $status->getUid();
         } elseif (is_string($status)) {
-            $statusId = $this->statusRepository->findByTitle($status)->getUid();
+            $statusId = $this->statusRepository->findByTitle($status)?->getUid();
         }
 
         if (!is_int($statusId) || 0 === $statusId) {
