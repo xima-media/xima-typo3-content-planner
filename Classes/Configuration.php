@@ -40,6 +40,7 @@ class Configuration
     final public const FEATURE_TREE_STATUS_INFORMATION = 'treeStatusInformation';
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
+    final public const FEATURE_NOTIFICATION_CHANNEL_DATABASE = 'notificationChannelDatabase';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
@@ -63,6 +64,7 @@ class Configuration
     final public const TABLE_FOLDER = 'tx_ximatypo3contentplanner_folder';
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
     final public const TABLE_WATCHER = 'tx_ximatypo3contentplanner_watcher';
+    final public const TABLE_NOTIFICATION = 'tx_ximatypo3contentplanner_notification';
 
     /*
      * Up to and including v3, this held 'tx_ximatypo3contentplanner_status' — the name of
