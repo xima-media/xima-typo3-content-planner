@@ -111,6 +111,16 @@ final class CommentFirstFlowManagerTest extends AbstractFunctionalTestCase
     #[Test]
     public function resolveStatusUidForCommentFirstReturnsTheRequestedUidOnAStatusLessRecord(): void
     {
-        self::assertSame(3, $this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 0], 3));
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status.csv');
+
+        self::assertSame(2, $this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 0], 2));
+    }
+
+    #[Test]
+    public function resolveStatusUidForCommentFirstReturnsNullForANonexistentStatusUid(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status.csv');
+
+        self::assertNull($this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 0], 999));
     }
 }
