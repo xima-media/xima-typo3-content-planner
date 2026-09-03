@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Service\Notification\Channel;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Notification\Channel\ImmediateEmailChannel;
@@ -37,7 +38,14 @@ final class ImmediateEmailChannelTest extends TestCase
     public function deliverHandsTheNotificationAndTheFreshlyFetchedRecipientToTheService(): void
     {
         $notification = $this->buildNotification();
-        $recipient = ['uid' => 2, 'email' => 'editor@example.com'];
+        $recipient = [
+            'uid' => 2,
+            'email' => 'editor@example.com',
+            'deleted' => 0,
+            'disable' => 0,
+            Configuration::FIELD_USER_DIGEST => 1,
+            Configuration::FIELD_USER_IMMEDIATE_EMAIL => 1,
+        ];
 
         $backendUserRepository = $this->createMock(BackendUserRepository::class);
         $backendUserRepository->expects(self::once())->method('findByUid')->with(2)->willReturn($recipient);

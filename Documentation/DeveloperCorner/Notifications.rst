@@ -298,6 +298,46 @@ never share bookkeeping):
 The window is a fixed 15 minutes (`ImmediateEmailService::THROTTLE_WINDOW_SECONDS`), not
 configurable, per the issue's "simple throttle" scope.
 
+The per-record throttle alone does not bound how many mails one recipient can receive: touching
+many different watched records in quick succession would otherwise produce one mail each. A
+second, recipient-wide cap (`ImmediateEmailService::GLOBAL_LIMIT_PER_WINDOW`, 12 mails per rolling
+hour) applies on top of it; anything beyond the cap stays queued the same way a still-throttled
+batch does.
+
+Claiming and retry
+-------------------
+
+A batch is claimed (`ImmediateEmailQueueRepository::claimPending()`) before it is sent, not after:
+two concurrent saves for the same record can both observe the same pending rows, and each claim
+call gets back only the exact subset its own `UPDATE` actually touched, via a random per-call
+`claim_token` rather than the `claimed_at` timestamp (two calls in the same second could share a
+timestamp, never a token). Rows are only marked `sent_at` once the mail transport call has
+returned without throwing, so a failure mid-send leaves the claim in place rather than losing the
+mail outright; it becomes reclaimable by a later attempt once its lease
+(`ImmediateEmailService::CLAIM_LEASE_SECONDS`, 5 minutes) has expired.
+
+Because a claimed-but-not-yet-sent batch waits on the mail transport, not on a new event,
+`ImmediateEmailChannel::deliver()` also re-checks the recipient's current record access
+(`RecipientAccessChecker`) immediately before claiming - the same check `DigestService` already
+performs for the daily digest - so access revoked during the throttle window is honoured rather
+than mailing a stale snapshot.
+
+Draining due queues
+--------------------
+
+A batch that is queued because of the throttle or the hourly cap is otherwise only ever
+re-examined by the next live event on that same record - which may never arrive, leaving it
+queued indefinitely. `content-planner:notification:immediate-flush` re-checks every
+`(recipient, record)` pair that still has unsent rows and flushes whichever ones are now due:
+
+..  code-block:: bash
+
+    vendor/bin/typo3 content-planner:notification:immediate-flush
+
+Schedule it every few minutes via TYPO3 scheduler or an external cron, alongside
+`content-planner:notification:digest` and `content-planner:notification:cleanup` (see
+"Recommended scheduler setup" below).
+
 Template reuse
 ---------------
 
@@ -374,15 +414,17 @@ never disagree about which rows match.
 Recommended scheduler setup
 ----------------------------
 
-Run both commands daily, digest before cleanup, e.g. as a crontab entry:
+Run the digest and cleanup commands daily, digest before cleanup, and the immediate-flush command
+every few minutes, e.g. as crontab entries:
 
 ..  code-block:: text
 
+    */5 * * * * vendor/bin/typo3 content-planner:notification:immediate-flush
     0 6 * * * vendor/bin/typo3 content-planner:notification:digest
     15 6 * * * vendor/bin/typo3 content-planner:notification:cleanup
 
-or as two entries in the TYPO3 scheduler backend module (**Execute console commands** task),
-using the same two command identifiers.
+or as three entries in the TYPO3 scheduler backend module (**Execute console commands** task),
+using the same three command identifiers.
 
 Workspaces
 ==========
@@ -412,3 +454,4 @@ issue needs it (see issue #309), rather than speculatively built here.
     -   `ImmediateEmailChannel <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Channel/ImmediateEmailChannel.php>`__
     -   `ImmediateEmailService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Immediate/ImmediateEmailService.php>`__
     -   `ImmediateEmailQueueRepository <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Domain/Repository/ImmediateEmailQueueRepository.php>`__
+    -   `ImmediateEmailFlushCommand <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Command/ImmediateEmailFlushCommand.php>`__

@@ -133,13 +133,16 @@ CREATE TABLE tx_ximatypo3contentplanner_immediate_queue
 	reason        varchar(64) DEFAULT '' NOT NULL,
 	payload       text,
 
+	claimed_at    int(11) DEFAULT NULL,
+	claim_token   varchar(32) DEFAULT NULL,
 	sent_at       int(11) DEFAULT NULL,
 	crdate        int(11) DEFAULT '0' NOT NULL,
 
 	PRIMARY KEY (uid),
 	KEY recipient_record (backend_user, tablename(64), record_uid),
 	KEY sent_at (sent_at),
-	KEY recipient_sent_at (backend_user, sent_at)
+	KEY recipient_sent_at (backend_user, sent_at),
+	KEY claim_token (claim_token)
 );
 
 CREATE TABLE tx_ximatypo3contentplanner_folder

@@ -20,6 +20,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventTy
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, ImmediateEmailQueueRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\Digest\{DigestGroupBuilder, DigestMailFactory};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\ImmediateEmailService;
+use Xima\XimaTypo3ContentPlanner\Service\Notification\RecipientAccessChecker;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\Command\Fixtures\DigestMailerSpy;
 
@@ -47,6 +48,9 @@ final class ImmediateEmailServiceTest extends AbstractFunctionalTestCase
     {
         parent::setUp();
 
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_users.csv');
+
         $this->queueRepository = $this->get(ImmediateEmailQueueRepository::class);
         $this->mailerSpy = new DigestMailerSpy();
 
@@ -57,6 +61,8 @@ final class ImmediateEmailServiceTest extends AbstractFunctionalTestCase
             $this->mailerSpy,
             $this->get(BackendUserRepository::class),
             $this->get(LanguageServiceFactory::class),
+            $this->get(RecordRepository::class),
+            $this->get(RecipientAccessChecker::class),
         );
     }
 
