@@ -36,4 +36,16 @@ return [
         'path' => '/content-planner/close-document',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::closeDocumentAction',
     ],
+    'ximatypo3contentplanner_notifications' => [
+        'path' => '/content-planner/notifications',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\NotificationController::class.'::listAction',
+    ],
+    'ximatypo3contentplanner_notifications_read' => [
+        'path' => '/content-planner/notifications/read',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\NotificationController::class.'::markReadAction',
+    ],
+    'ximatypo3contentplanner_notifications_read_all' => [
+        'path' => '/content-planner/notifications/read-all',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\NotificationController::class.'::markAllReadAction',
+    ],
 ];

@@ -170,6 +170,49 @@
 			<trans-unit id="message.comment.delete.failure.message">
 			 	<source>The comment could not be deleted.</source>
 			</trans-unit>
+			<!-- notification toolbar -->
+			<trans-unit id="notification.toolbar.title">
+				<source>Notifications</source>
+			</trans-unit>
+			<trans-unit id="notification.badge.unreadCount">
+				<source>%d unread notifications</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.headline">
+				<source>Notifications</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.markAllRead">
+				<source>Mark all as read</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.markRead">
+				<source>Mark as read</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.empty">
+				<source>You're all caught up</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.empty.hint">
+				<source>Records you watch will show up here.</source>
+			</trans-unit>
+			<trans-unit id="notification.record.inaccessible">
+				<source>A record you no longer have access to</source>
+			</trans-unit>
+			<trans-unit id="notification.actor.system">
+				<source>System</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.watching_since_assignment">
+				<source>You're watching this since it was assigned to you</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.watching_since_comment">
+				<source>You're watching this since you commented</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.watching_since_status_change">
+				<source>You're watching this since its status changed</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.watching_manually">
+				<source>You chose to watch this</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.mentioned">
+				<source>You were mentioned</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -22,3 +22,5 @@ clearCommentsOnStatusReset = 1
 commentTodos = 1
 # cat=notifications/enable; type=boolean; label=Enable the database notification channel
 notificationChannelDatabase = 1
+# cat=notifications/config; type=int+; label=Backend toolbar notification polling interval in seconds (0 disables polling)
+notificationPollInterval = 60
