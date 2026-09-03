@@ -140,7 +140,7 @@ final readonly class NotificationRetentionService
 
         $activeUids = array_unique(array_merge(
             ...array_map(
-                fn (array $chunk): array => $this->backendUserRepository->filterActiveUids($chunk),
+                $this->backendUserRepository->filterActiveUids(...),
                 array_chunk($referencedUids, self::FILTER_CHUNK_SIZE),
             ),
         ));
