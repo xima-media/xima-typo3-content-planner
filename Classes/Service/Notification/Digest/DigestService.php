@@ -21,6 +21,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\DigestRunResult;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\RecipientAccessChecker;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 use function array_key_exists;
 use function count;
@@ -70,6 +71,10 @@ final class DigestService implements LoggerAwareInterface
 
         if (!$this->hasOptedIn($recipient)) {
             return DigestRunResult::skipped($backendUserUid, 'opted out of the email digest');
+        }
+
+        if ($this->prefersImmediateEmail($recipient)) {
+            return DigestRunResult::skipped($backendUserUid, 'using the immediate email channel instead of the daily digest');
         }
 
         $email = is_string($recipient['email'] ?? null) ? trim($recipient['email']) : '';
@@ -180,6 +185,19 @@ final class DigestService implements LoggerAwareInterface
     private function hasOptedIn(array $recipient): bool
     {
         return !array_key_exists(Configuration::FIELD_USER_DIGEST, $recipient) || (bool) $recipient[Configuration::FIELD_USER_DIGEST];
+    }
+
+    /**
+     * Issue #306's second user toggle: a recipient on the immediate channel already gets a
+     * separate mail per record as it happens, so the daily digest must skip them - otherwise
+     * they would be notified twice for the same event.
+     *
+     * @param array<string, mixed> $recipient
+     */
+    private function prefersImmediateEmail(array $recipient): bool
+    {
+        return ExtensionUtility::isNotificationImmediateEmailEnabled()
+            && (bool) ($recipient[Configuration::FIELD_USER_IMMEDIATE_EMAIL] ?? false);
     }
 
     /**

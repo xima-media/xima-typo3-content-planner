@@ -1,0 +1,6 @@
+"be_groups"
+,"uid","pid","title","tables_select","deleted"
+,10,0,"Editors","pages,tt_content",0
+"be_users"
+,"uid","pid","username","admin","realName","usergroup","db_mountpoints","disable","deleted","email","lang"
+,2,0,"editor",0,"Editor User","10","1,2",0,0,"editor@example.com","default"
