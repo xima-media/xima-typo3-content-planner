@@ -145,6 +145,141 @@ final class NotificationRepositoryTest extends AbstractFunctionalTestCase
         self::assertSame(1, $this->subject->countUnreadByRecipient(2));
     }
 
+    #[Test]
+    public function deleteOlderThanDeletesOnlyReadRowsOlderThanTheThreshold(): void
+    {
+        $this->createNotification(recipientUid: 1, crdate: 1000); // read, old -> deleted
+        $this->createNotification(recipientUid: 1, crdate: 5000); // read, new -> kept
+        $this->createNotification(recipientUid: 1, crdate: 900); // unread, old -> kept (wrong read state)
+        $this->markRowReadByCrdate(1000);
+        $this->markRowReadByCrdate(5000);
+
+        $deleted = $this->subject->deleteOlderThan(true, 2000, false);
+
+        self::assertSame(1, $deleted);
+        self::assertSame([5000, 900], array_map(static fn (array $row): int => (int) $row['crdate'], $this->fetchAllOrderedByCrdateDesc()));
+    }
+
+    #[Test]
+    public function deleteOlderThanDeletesOnlyUnreadRowsOlderThanTheThreshold(): void
+    {
+        $this->createNotification(recipientUid: 1, crdate: 1000); // unread, old -> deleted
+        $this->createNotification(recipientUid: 1, crdate: 5000); // unread, new -> kept
+        $this->createNotification(recipientUid: 1, crdate: 900); // read, old -> kept (wrong read state)
+        $this->markRowReadByCrdate(900);
+
+        $deleted = $this->subject->deleteOlderThan(false, 2000, false);
+
+        self::assertSame(1, $deleted);
+        self::assertSame([5000, 900], array_map(static fn (array $row): int => (int) $row['crdate'], $this->fetchAllOrderedByCrdateDesc()));
+    }
+
+    #[Test]
+    public function deleteOlderThanWithDryRunOnlyCountsAndDeletesNothing(): void
+    {
+        $this->createNotification(recipientUid: 1, crdate: 1000);
+        $this->markRowReadByCrdate(1000);
+
+        $counted = $this->subject->deleteOlderThan(true, 2000, true);
+
+        self::assertSame(1, $counted);
+        self::assertCount(1, $this->fetchAllOrderedByCrdateDesc());
+    }
+
+    #[Test]
+    public function deleteOlderThanDeletesAcrossMultipleChunks(): void
+    {
+        // Exceeds NotificationRepository's DELETE_CHUNK_SIZE (500), forcing a second batch.
+        $count = 501;
+        $connection = $this->getConnectionPool()->getConnectionForTable(Configuration::TABLE_NOTIFICATION);
+        for ($i = 0; $i < $count; ++$i) {
+            $connection->insert(Configuration::TABLE_NOTIFICATION, [
+                'pid' => 0,
+                'backend_user' => 1,
+                'event_type' => 'status_changed',
+                'tablename' => 'pages',
+                'record_uid' => 1,
+                'reason' => 'watching_manually',
+                'payload' => '{}',
+                'crdate' => 1000,
+                'read_at' => time(),
+            ]);
+        }
+
+        $deleted = $this->subject->deleteOlderThan(true, 2000, false);
+
+        self::assertSame($count, $deleted);
+        self::assertSame(0, (int) $connection->count('*', Configuration::TABLE_NOTIFICATION, []));
+    }
+
+    #[Test]
+    public function findDistinctTableRecordPairsReturnsEachPairOnce(): void
+    {
+        $this->createStatusChangeFor('pages', 1);
+        $this->createStatusChangeFor('pages', 1);
+        $this->createStatusChangeFor('pages', 2);
+        $this->createStatusChangeFor('tt_content', 1);
+
+        $pairs = $this->subject->findDistinctTableRecordPairs();
+
+        self::assertCount(3, $pairs);
+        self::assertContains(['tablename' => 'pages', 'record_uid' => 1], $pairs);
+        self::assertContains(['tablename' => 'pages', 'record_uid' => 2], $pairs);
+        self::assertContains(['tablename' => 'tt_content', 'record_uid' => 1], $pairs);
+    }
+
+    #[Test]
+    public function findDistinctBackendUsersReturnsEachRecipientOnce(): void
+    {
+        $this->createNotification(recipientUid: 1, crdate: 1000);
+        $this->createNotification(recipientUid: 1, crdate: 1001);
+        $this->createNotification(recipientUid: 2, crdate: 1002);
+
+        $result = $this->subject->findDistinctBackendUsers();
+        sort($result);
+        self::assertSame([1, 2], $result);
+    }
+
+    #[Test]
+    public function deleteForTableAndRecordUidsOnlyDeletesMatchingRows(): void
+    {
+        $this->createStatusChangeFor('pages', 1);
+        $this->createStatusChangeFor('pages', 2);
+        $this->createStatusChangeFor('tt_content', 1);
+
+        $deleted = $this->subject->deleteForTableAndRecordUids('pages', [1], false);
+
+        self::assertSame(1, $deleted);
+        $remaining = $this->subject->findDistinctTableRecordPairs();
+        self::assertNotContains(['tablename' => 'pages', 'record_uid' => 1], $remaining);
+        self::assertContains(['tablename' => 'pages', 'record_uid' => 2], $remaining);
+        self::assertContains(['tablename' => 'tt_content', 'record_uid' => 1], $remaining);
+    }
+
+    #[Test]
+    public function deleteForTableAndRecordUidsReturnsZeroForAnEmptyList(): void
+    {
+        self::assertSame(0, $this->subject->deleteForTableAndRecordUids('pages', [], false));
+    }
+
+    #[Test]
+    public function deleteForBackendUsersOnlyDeletesMatchingRows(): void
+    {
+        $this->createNotification(recipientUid: 1, crdate: 1000);
+        $this->createNotification(recipientUid: 2, crdate: 1001);
+
+        $deleted = $this->subject->deleteForBackendUsers([1], false);
+
+        self::assertSame(1, $deleted);
+        self::assertSame([2], $this->subject->findDistinctBackendUsers());
+    }
+
+    #[Test]
+    public function deleteForBackendUsersReturnsZeroForAnEmptyList(): void
+    {
+        self::assertSame(0, $this->subject->deleteForBackendUsers([], false));
+    }
+
     private function createNotification(int $recipientUid, int $crdate): void
     {
         $this->subject->create(new Notification(
@@ -157,6 +292,31 @@ final class NotificationRepositoryTest extends AbstractFunctionalTestCase
             ['version' => 1, 'title' => 'Home'],
             $crdate,
         ));
+    }
+
+    private function createStatusChangeFor(string $table, int $recordUid): void
+    {
+        $this->subject->create(new Notification(
+            1,
+            NotificationEventType::StatusChanged,
+            $table,
+            $recordUid,
+            null,
+            NotificationReason::WatchingManually,
+            ['version' => 1, 'title' => 'Home'],
+            time(),
+        ));
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function fetchAllOrderedByCrdateDesc(): array
+    {
+        return $this->getConnectionPool()
+            ->getConnectionForTable(Configuration::TABLE_NOTIFICATION)
+            ->select(['*'], Configuration::TABLE_NOTIFICATION, [], [], ['crdate' => 'DESC'])
+            ->fetchAllAssociative();
     }
 
     private function markRowReadByCrdate(int $crdate): void
