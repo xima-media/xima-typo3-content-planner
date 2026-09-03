@@ -15,7 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Service\Notification\Retention;
 
 use Doctrine\DBAL\Exception;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\RetentionRunResult;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository, RecordRepository, WatcherRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, ImmediateEmailQueueRepository, NotificationRepository, RecordRepository, WatcherRepository};
 
 /**
  * NotificationRetentionService.
@@ -55,6 +55,7 @@ final readonly class NotificationRetentionService
         private WatcherRepository $watcherRepository,
         private RecordRepository $recordRepository,
         private BackendUserRepository $backendUserRepository,
+        private ImmediateEmailQueueRepository $immediateEmailQueueRepository,
     ) {}
 
     /**
@@ -75,6 +76,13 @@ final readonly class NotificationRetentionService
             $dryRun,
         );
 
+        // Sent queue rows are transport bookkeeping for mails that already went out; the
+        // notification they belong to has its own retention above.
+        $sentQueueRowsDeleted = $this->immediateEmailQueueRepository->deleteSentOlderThan(
+            $now - $readRetentionDays * self::SECONDS_PER_DAY,
+            $dryRun,
+        );
+
         [$orphanedNotificationsForRecords, $orphanedWatchersForRecords] = $this->cleanupOrphanedRecords($dryRun);
         [$orphanedNotificationsForUsers, $orphanedWatchersForUsers] = $this->cleanupOrphanedBackendUsers($dryRun);
 
@@ -83,6 +91,7 @@ final readonly class NotificationRetentionService
             $unreadDeleted,
             $orphanedNotificationsForRecords + $orphanedNotificationsForUsers,
             $orphanedWatchersForRecords + $orphanedWatchersForUsers,
+            $sentQueueRowsDeleted,
             $dryRun,
         );
     }

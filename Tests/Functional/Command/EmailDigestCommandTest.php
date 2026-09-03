@@ -42,6 +42,7 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
     private const RECIPIENT_EDITOR = 2;
     private const RECIPIENT_NO_EMAIL = 3;
     private const RECIPIENT_OPTED_OUT = 4;
+    private const RECIPIENT_IMMEDIATE = 5;
 
     private CommandTester $tester;
     private NotificationRepository $notificationRepository;
@@ -128,6 +129,19 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
 
         self::assertCount(0, $this->mailerSpy->sentMessages);
         self::assertCount(1, $this->notificationRepository->findPendingByRecipient(self::RECIPIENT_OPTED_OUT));
+    }
+
+    #[Test]
+    public function recipientOnTheImmediateChannelReceivesNoDigestMailAndItsNotificationsStayPending(): void
+    {
+        // Issue #306: a recipient using the immediate channel already got a separate mail per
+        // event, so the daily digest must not notify them again for the same notifications.
+        $this->createStatusChange(recipientUid: self::RECIPIENT_IMMEDIATE, crdate: 1000, previous: null, new: 'Draft');
+
+        $this->tester->execute([]);
+
+        self::assertCount(0, $this->mailerSpy->sentMessages);
+        self::assertCount(1, $this->notificationRepository->findPendingByRecipient(self::RECIPIENT_IMMEDIATE));
     }
 
     #[Test]

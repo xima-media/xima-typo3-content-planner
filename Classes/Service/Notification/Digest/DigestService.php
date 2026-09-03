@@ -72,6 +72,10 @@ final class DigestService implements LoggerAwareInterface
             return DigestRunResult::skipped($backendUserUid, 'opted out of the email digest');
         }
 
+        if ($this->prefersImmediateEmail($recipient)) {
+            return DigestRunResult::skipped($backendUserUid, 'using the immediate email channel instead of the daily digest');
+        }
+
         $email = is_string($recipient['email'] ?? null) ? trim($recipient['email']) : '';
         if (false === filter_var($email, \FILTER_VALIDATE_EMAIL)) {
             $this->logger?->warning('Skipping content planner email digest: backend user has no valid email address', [
@@ -180,6 +184,18 @@ final class DigestService implements LoggerAwareInterface
     private function hasOptedIn(array $recipient): bool
     {
         return !array_key_exists(Configuration::FIELD_USER_DIGEST, $recipient) || (bool) $recipient[Configuration::FIELD_USER_DIGEST];
+    }
+
+    /**
+     * Issue #306's second user toggle: a recipient on the immediate channel already gets a
+     * separate mail per record as it happens, so the daily digest must skip them - otherwise
+     * they would be notified twice for the same event.
+     *
+     * @param array<string, mixed> $recipient
+     */
+    private function prefersImmediateEmail(array $recipient): bool
+    {
+        return (bool) ($recipient[Configuration::FIELD_USER_IMMEDIATE_EMAIL] ?? false);
     }
 
     /**
