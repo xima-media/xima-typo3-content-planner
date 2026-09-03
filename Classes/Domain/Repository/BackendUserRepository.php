@@ -38,6 +38,11 @@ class BackendUserRepository
      */
     private array $usernameCache = [];
 
+    /**
+     * @var array<int, string>
+     */
+    private array $displayNameCache = [];
+
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     /**
@@ -185,27 +190,67 @@ class BackendUserRepository
             return $this->usernameCache[$uid];
         }
 
+        $user = $this->formatDisplayName($this->fetchUsernameAndRealName($uid));
+        if ('' !== $user) {
+            $user = htmlspecialchars($user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        }
+
+        return $this->usernameCache[$uid] = $user;
+    }
+
+    /**
+     * Raw (non-HTML-escaped) counterpart to {@see self::getUsernameByUid()}, for consumers that
+     * render into a non-HTML context (e.g. the plain-text part of the email digest, issue #302)
+     * and would otherwise double-escape or leak HTML entities into their output.
+     *
+     * @throws Exception
+     */
+    public function getDisplayNameByUid(?int $uid): string
+    {
+        if (!(bool) $uid) {
+            return '';
+        }
+
+        if (array_key_exists($uid, $this->displayNameCache)) {
+            return $this->displayNameCache[$uid];
+        }
+
+        return $this->displayNameCache[$uid] = $this->formatDisplayName($this->fetchUsernameAndRealName($uid));
+    }
+
+    /**
+     * @return array<string, mixed>|false
+     *
+     * @throws Exception
+     */
+    private function fetchUsernameAndRealName(int $uid): array|false
+    {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
-        $userRecord = $queryBuilder
+        return $queryBuilder
             ->select('username', 'realName')
             ->from('be_users')
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             )
             ->executeQuery()->fetchAssociative();
+    }
 
-        $user = '';
-        if ($userRecord) {
-            $user = $userRecord['username'];
-            if ((bool) $userRecord['realName']) {
-                $user = $userRecord['realName'].' ('.$user.')';
-            }
-
-            $user = htmlspecialchars((string) $user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+    /**
+     * @param array<string, mixed>|false $userRecord
+     */
+    private function formatDisplayName(array|false $userRecord): string
+    {
+        if (!$userRecord) {
+            return '';
         }
 
-        return $this->usernameCache[$uid] = $user;
+        $user = $userRecord['username'];
+        if ((bool) $userRecord['realName']) {
+            $user = $userRecord['realName'].' ('.$user.')';
+        }
+
+        return (string) $user;
     }
 
     /**

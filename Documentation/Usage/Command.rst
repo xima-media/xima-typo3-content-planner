@@ -182,3 +182,52 @@ The following command options are available:
 
                 typo3/sysext/core/bin/typo3 content-planner:bulk-update pages 1 1 -a 2
                 typo3/sysext/core/bin/typo3 content-planner:bulk-update pages 1 1 --assignee=2
+
+..  _content-planner-notification-digest:
+
+`content-planner:notification:digest`
+=====================
+
+Sends one email digest per recipient, summarizing every notification of theirs collected since
+the last run. Intended to be scheduled (e.g. daily) via TYPO3 scheduler or an external cron - see
+:ref:`Notifications <notifications>` for the full dedup, opt-out and template override
+documentation.
+
+..  tabs::
+
+    ..  group-tab:: Composer-based installation
+
+        ..  code-block:: bash
+
+            vendor/bin/typo3 content-planner:notification:digest
+
+    ..  group-tab:: Legacy installation
+
+        ..  code-block:: bash
+
+            typo3/sysext/core/bin/typo3 content-planner:notification:digest
+
+..  confval:: --dry-run
+    :Required: false
+    :type: boolean
+    :Default: false
+    :Multiple allowed: false
+
+    Prints a per-recipient summary (notification/record counts) without sending any mail or
+    marking anything as digested.
+
+    Example:
+
+    ..  tabs::
+
+        ..  group-tab:: Composer-based installation
+
+            ..  code-block:: bash
+
+                vendor/bin/typo3 content-planner:notification:digest --dry-run
+
+        ..  group-tab:: Legacy installation
+
+            ..  code-block:: bash
+
+                typo3/sysext/core/bin/typo3 content-planner:notification:digest --dry-run

@@ -10,6 +10,7 @@ CREATE TABLE pages
 CREATE TABLE be_users
 (
 	tx_ximatypo3contentplanner_hide tinyint(4) unsigned DEFAULT 0 NOT NULL,
+	tx_ximatypo3contentplanner_digest tinyint(4) unsigned DEFAULT 1 NOT NULL,
 );
 
 CREATE TABLE be_groups
