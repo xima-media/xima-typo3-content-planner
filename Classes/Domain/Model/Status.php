@@ -30,6 +30,7 @@ final readonly class Status
         private string $title,
         private string $icon,
         private string $color,
+        private bool $isDefault,
     ) {}
 
     public function getUid(): int
@@ -55,5 +56,10 @@ final readonly class Status
     public function getColoredIcon(): string
     {
         return $this->icon.'-'.$this->color;
+    }
+
+    public function isDefault(): bool
+    {
+        return $this->isDefault;
     }
 }

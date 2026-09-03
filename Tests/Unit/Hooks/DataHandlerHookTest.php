@@ -16,10 +16,11 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Hooks;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
-use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
+use Xima\XimaTypo3ContentPlanner\Manager\{StatusChangeManager, StatusDefaultManager};
 
 /**
  * DataHandlerHookTest.
@@ -89,6 +90,7 @@ final class DataHandlerHookTest extends TestCase
             $this->createMock(RecordRepository::class),
             $this->createMock(CommentRepository::class),
             $this->createMock(EventDispatcherInterface::class),
+            new StatusDefaultManager($this->createMock(ConnectionPool::class), $this->createMock(FrontendInterface::class)),
         );
     }
 }

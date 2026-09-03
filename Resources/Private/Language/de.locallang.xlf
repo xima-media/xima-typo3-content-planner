@@ -388,6 +388,18 @@
 				<source>Comment</source>
 				<target>Kommentieren</target>
 			</trans-unit>
+			<trans-unit id="comment.commentFirst.oneClick.submit">
+				<source>Comment: sets status "%s"</source>
+				<target>Kommentieren: setzt Status "%s"</target>
+			</trans-unit>
+			<trans-unit id="comment.commentFirst.picker.label">
+				<source>This comment starts the planning - choose a status</source>
+				<target>Dieser Kommentar startet die Planung - wähle einen Status</target>
+			</trans-unit>
+			<trans-unit id="comment.commentFirst.picker.placeholder">
+				<source>Choose a status...</source>
+				<target>Status wählen...</target>
+			</trans-unit>
 			<trans-unit id="comment.actions.save">
 				<source>Save</source>
 				<target>Speichern</target>

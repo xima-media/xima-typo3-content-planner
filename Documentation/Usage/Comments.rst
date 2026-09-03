@@ -29,6 +29,43 @@ Create new comment
 
     Create new comment modal dialog
 
+..  _comments-comment-first:
+
+Comment-first flow
+===================
+
+..  versionadded:: 3.0.0
+
+    `Feature: #326 - Comment-first flow: comment on records without a status (CP-27) <https://github.com/xima-media/xima-typo3-content-planner/issues/326>`__
+
+Comments themselves stay tied to a status internally, but a record does not need one
+*before* it can be commented on. Commenting on a record that has no status yet sets a
+status as part of the same save, so the assignee and comment history behave exactly as
+they would after a normal status change (auto-assignment, the ``StatusChangeEvent``, etc.).
+
+-   **One-click flow**: if one status is marked "Use as initial status" (see
+    :ref:`Status configuration <status>`), the composer's submit button already shows which
+    status it will set, e.g. "Comment: sets status 'Draft'". No extra step is needed.
+-   **Picker fallback**: if no status is marked as the initial one, the composer shows a
+    compact status picker above the editor instead, asking you to choose a status before the
+    comment can be saved.
+
+..  note::
+    Comments are for planning and status discussion tied to a record, not a general-purpose
+    note feature. If you need to attach a freeform note to a record without touching its
+    Content Planner status at all, use TYPO3 core's built-in "Notes" (``sys_note``) system
+    extension instead.
+
+..  note::
+    The comment-first entry point is part of the doc header chip trio and therefore only
+    available in the default ``chip`` header display mode. In the legacy ``banner`` mode the
+    header is not rendered for records without a status, so there is nothing to comment from
+    (see :ref:`Extension configuration <extension-configuration>`).
+
+    A user who may comment but may not set a status can leave a record without one. Such a
+    record does not appear in the Status overview module, which lists records *by* status;
+    its comments remain visible on the record itself and in the comment dashboard widget.
+
 ..  _comments-show:
 
 Show comments

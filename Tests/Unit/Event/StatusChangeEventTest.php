@@ -35,8 +35,8 @@ final class StatusChangeEventTest extends TestCase
     #[Test]
     public function gettersReturnConstructorValues(): void
     {
-        $previous = new Status(uid: 0, title: 'Draft', icon: '', color: '');
-        $new = new Status(uid: 0, title: 'Published', icon: '', color: '');
+        $previous = new Status(uid: 0, title: 'Draft', icon: '', color: '', isDefault: false);
+        $new = new Status(uid: 0, title: 'Published', icon: '', color: '', isDefault: false);
 
         $event = new StatusChangeEvent('pages', 5, ['title' => 'foo'], $previous, $new);
 
@@ -69,7 +69,7 @@ final class StatusChangeEventTest extends TestCase
     public function newStatusCanBeUpdated(): void
     {
         $event = new StatusChangeEvent('pages', 1, [], null, null);
-        $status = new Status(uid: 0, title: 'Review', icon: '', color: '');
+        $status = new Status(uid: 0, title: 'Review', icon: '', color: '', isDefault: false);
         $event->setNewStatus($status);
 
         self::assertSame($status, $event->getNewStatus());

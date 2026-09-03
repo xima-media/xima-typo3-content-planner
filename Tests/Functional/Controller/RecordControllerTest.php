@@ -22,6 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\RecordController;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Manager\CommentFirstFlowManager;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -116,6 +117,61 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('Resolved comment', $payload['result']);
+    }
+
+    // ==================== commentsAction: comment-first flow (CP-27, #326) ====================
+
+    #[Test]
+    public function commentsActionRendersOneClickButtonWhenADefaultStatusExists(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_status_less.csv');
+        $this->importSharedDataSet('status_default.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 20]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('data-status-uid="1"', $payload['result']);
+        self::assertStringNotContainsString('data-comment-status-picker', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionRendersPickerFallbackWithoutADefaultStatus(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_status_less.csv');
+        $this->importSharedDataSet('status.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 20]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('data-comment-status-picker', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionOmitsCommentFirstMarkupWhenRecordAlreadyHasAStatus(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importSharedDataSet('status_default.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringNotContainsString('data-comment-status-picker', $payload['result']);
+        self::assertStringContainsString('data-status-uid=""', $payload['result']);
     }
 
     #[Test]
@@ -365,6 +421,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
             $this->get(BackendUserRepository::class),
             $this->get(RequestId::class),
             $this->get(CommentEditorConfigurationFactory::class),
+            $this->get(CommentFirstFlowManager::class),
         );
     }
 

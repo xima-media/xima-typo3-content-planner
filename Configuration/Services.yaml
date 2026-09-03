@@ -39,6 +39,14 @@ services:
     arguments:
       $cache: '@cache.ximatypo3contentplanner_cache'
 
+  Xima\XimaTypo3ContentPlanner\Manager\StatusDefaultManager:
+    public: true
+    arguments:
+      $cache: '@cache.ximatypo3contentplanner_cache'
+
+  Xima\XimaTypo3ContentPlanner\Manager\CommentFirstFlowManager:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\PlannerService:
     public: true
 

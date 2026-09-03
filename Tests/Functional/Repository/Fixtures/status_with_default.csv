@@ -1,0 +1,4 @@
+"tx_ximatypo3contentplanner_domain_model_status"
+,"uid","pid","sorting","title","icon","color","is_default"
+,11,0,40,"Backlog","flag","gray",0
+,12,0,50,"Ready for Review","heart","purple",1
