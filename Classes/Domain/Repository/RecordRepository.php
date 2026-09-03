@@ -20,6 +20,8 @@ use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestric
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -36,6 +38,24 @@ use function sprintf;
  */
 class RecordRepository
 {
+    /**
+     * Permission filtering happens in PHP after the query (see findAllByFilter()), so the SQL
+     * LIMIT alone cannot guarantee $maxResults *visible* rows. This factor over-fetches beyond
+     * the requested page size to leave enough headroom for rows the current backend user cannot
+     * see. Bounded by FILTER_OVERFETCH_CAP so a large $maxResults cannot blow up the query.
+     */
+    private const FILTER_OVERFETCH_FACTOR = 3;
+
+    private const FILTER_OVERFETCH_CAP = 100;
+
+    /**
+     * If a whole batch turns out to be invisible, findAllByFilter() pulls the next one rather
+     * than reporting a short page. This bounds that loop: with FILTER_OVERFETCH_CAP rows per
+     * batch it inspects at most 1000 rows before giving up, so a pathological ratio of
+     * invisible rows cannot turn a single request into an unbounded table scan.
+     */
+    private const FILTER_MAX_BATCHES = 10;
+
     /** @var string[] */
     private array $defaultSelects = [
         'uid',
@@ -49,28 +69,41 @@ class RecordRepository
     public function __construct(private readonly FrontendInterface $cache, private readonly ConnectionPool $connectionPool) {}
 
     /**
-     * @return array<int, array<string, mixed>>|bool
+     * @return PaginatedResult<array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): array|bool
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
         $baseWhere = '';
-        $additionalParams = ['limit' => $maxResults];
+        $batchSize = min($maxResults * self::FILTER_OVERFETCH_FACTOR, self::FILTER_OVERFETCH_CAP);
+        $additionalParams = ['limit' => $batchSize];
 
         [$baseWhere, $additionalParams] = $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
         $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments);
         // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
         // tablename literal, so cross-table duplicates cannot occur.
-        $sql = implode(' UNION ALL ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
+        //
+        // tstamp alone is not a total order, so paging by offset could drop or repeat rows on
+        // ties. tablename/uid break those ties and are selected by every union branch.
+        $sql = implode(' UNION ALL ', $sqlArray).' ORDER BY tstamp DESC, tablename ASC, uid ASC LIMIT :limit OFFSET :offset';
 
-        $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
-        $results = $statement->fetchAllAssociative();
+        $connection = $queryBuilder->getConnection();
 
-        return $this->filterResultsByPermission($results);
+        return OverfetchPaginator::paginateBatched(
+            static function (int $offset) use ($connection, $sql, $additionalParams): array {
+                $additionalParams['offset'] = $offset;
+
+                return $connection->executeQuery($sql, $additionalParams)->fetchAllAssociative();
+            },
+            $maxResults,
+            $batchSize,
+            self::FILTER_MAX_BATCHES,
+            static fn (array $record): bool => PermissionUtility::checkAccessForRecord((string) $record['tablename'], $record),
+        );
     }
 
     /**
@@ -332,22 +365,6 @@ class RecordRepository
         }
 
         return $where;
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $results
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function filterResultsByPermission(array $results): array
-    {
-        foreach ($results as $key => $record) {
-            if (!PermissionUtility::checkAccessForRecord($record['tablename'], $record)) {
-                unset($results[$key]);
-            }
-        }
-
-        return $results;
     }
 
     private function getSqlByTable(string $table, string $additionalWhere): string
