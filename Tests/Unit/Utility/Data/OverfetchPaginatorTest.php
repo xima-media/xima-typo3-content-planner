@@ -127,7 +127,8 @@ final class OverfetchPaginatorTest extends TestCase
     public function stopsAtMaxBatchesInsteadOfScanningUnbounded(): void
     {
         // Nothing is ever visible, so the loop must be stopped by the batch bound rather than
-        // walking the whole source.
+        // walking the whole source. Since the scan was capped rather than exhausted (every batch
+        // came back full-size), hasMore must conservatively report true.
         $batchesFetched = 0;
         $fetchBatch = static function (int $offset) use (&$batchesFetched): array {
             ++$batchesFetched;
@@ -138,7 +139,7 @@ final class OverfetchPaginatorTest extends TestCase
         $result = OverfetchPaginator::paginateBatched($fetchBatch, 5, 10, 3, static fn (int $row): bool => false);
 
         self::assertSame([], $result->items);
-        self::assertFalse($result->hasMore);
+        self::assertTrue($result->hasMore);
         self::assertSame(3, $batchesFetched);
     }
 

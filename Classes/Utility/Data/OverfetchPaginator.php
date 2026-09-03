@@ -94,11 +94,13 @@ final class OverfetchPaginator
     ): PaginatedResult {
         $items = [];
         $offset = 0;
+        $exhausted = false;
 
         for ($batch = 0; $batch < $maxBatches; ++$batch) {
             $rows = $fetchBatch($offset);
 
             if ([] === $rows) {
+                $exhausted = true;
                 break;
             }
 
@@ -115,12 +117,13 @@ final class OverfetchPaginator
             }
 
             if (count($rows) < $batchSize) {
+                $exhausted = true;
                 break;
             }
 
             $offset += $batchSize;
         }
 
-        return new PaginatedResult($items, false);
+        return new PaginatedResult($items, !$exhausted);
     }
 }
