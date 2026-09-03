@@ -13,13 +13,10 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Utility\Security;
 
-use Doctrine\DBAL\{ArrayParameterType, Exception};
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Bootstrap;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function in_array;
@@ -33,14 +30,6 @@ use function is_array;
  */
 class PermissionUtility
 {
-    /**
-     * Static cache for allowed values from user groups (per-request memoization).
-     * Key: column name, Value: resolved allowed values array.
-     *
-     * @var array<string, array<int, mixed>>
-     */
-    private static array $allowedValuesCache = [];
-
     /**
      * @param array<string, mixed>|bool $record
      */
@@ -151,7 +140,7 @@ class PermissionUtility
             return true;
         }
 
-        $allowedStatuses = self::getAllowedStatusUidsForUser();
+        $allowedStatuses = AllowedValuesResolver::getAllowedStatusUidsForUser();
 
         // Empty means all statuses are allowed
         if ([] === $allowedStatuses) {
@@ -170,7 +159,7 @@ class PermissionUtility
             return true;
         }
 
-        $allowedTables = self::getAllowedTablesForUser();
+        $allowedTables = AllowedValuesResolver::getAllowedTablesForUser();
 
         // Empty means all tables are allowed
         if ([] === $allowedTables) {
@@ -320,7 +309,24 @@ class PermissionUtility
      */
     public static function resetCache(): void
     {
-        self::$allowedValuesCache = [];
+        AllowedValuesResolver::resetCache();
+    }
+
+    /**
+     * CLI-safe accessor for the current backend user's UID, for code that dispatches events
+     * carrying an actor (e.g. StatusChangeEvent, AssigneeChangedEvent) and may run without an
+     * authenticated backend user (Scheduler tasks, console commands). Never assume
+     * $GLOBALS['BE_USER'] is set outside a regular backend request.
+     */
+    public static function getCurrentUserId(): ?int
+    {
+        if (!isset($GLOBALS['BE_USER']) || !$GLOBALS['BE_USER'] instanceof BackendUserAuthentication) {
+            return null;
+        }
+
+        $userId = $GLOBALS['BE_USER']->getUserId();
+
+        return $userId > 0 ? $userId : null;
     }
 
     // ==================== Helper Methods ====================
@@ -355,84 +361,5 @@ class PermissionUtility
             'custom_options',
             Configuration::PERMISSION_GROUP.':'.$permission,
         );
-    }
-
-    /**
-     * Get the list of allowed status UIDs for the current user.
-     *
-     * @return array<int, int>
-     *
-     * @throws Exception
-     */
-    private static function getAllowedStatusUidsForUser(): array
-    {
-        return self::getAllowedValuesFromUserGroups(
-            'tx_ximatypo3contentplanner_allowed_statuses',
-            static fn (string $value): array => GeneralUtility::intExplode(',', $value, true),
-        );
-    }
-
-    /**
-     * Get the list of allowed tables for the current user.
-     *
-     * @return array<int, string>
-     *
-     * @throws Exception
-     */
-    private static function getAllowedTablesForUser(): array
-    {
-        return self::getAllowedValuesFromUserGroups(
-            'tx_ximatypo3contentplanner_allowed_tables',
-            static fn (string $value): array => GeneralUtility::trimExplode(',', $value, true),
-        );
-    }
-
-    /**
-     * Generic method to get allowed values from user groups.
-     *
-     * @param callable(string): array<int, mixed> $explodeFunc
-     *
-     * @return array<int, mixed>
-     *
-     * @throws Exception
-     */
-    private static function getAllowedValuesFromUserGroups(string $column, callable $explodeFunc): array
-    {
-        if (isset(self::$allowedValuesCache[$column])) {
-            return self::$allowedValuesCache[$column];
-        }
-
-        $userGroupIds = GeneralUtility::intExplode(',', (string) (self::getBackendUser()->user['usergroup'] ?? ''), true);
-
-        if ([] === $userGroupIds) {
-            self::$allowedValuesCache[$column] = [];
-
-            return self::$allowedValuesCache[$column];
-        }
-
-        $allowedValues = [];
-
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable('be_groups');
-
-        $result = $queryBuilder
-            ->select($column)
-            ->from('be_groups')
-            ->where(
-                $queryBuilder->expr()->in(
-                    'uid',
-                    $queryBuilder->createNamedParameter($userGroupIds, ArrayParameterType::INTEGER),
-                ),
-            )
-            ->executeQuery();
-
-        while ($row = $result->fetchAssociative()) {
-            $values = $explodeFunc((string) ($row[$column] ?? ''));
-            $allowedValues = [...$allowedValues, ...$values];
-        }
-
-        self::$allowedValuesCache[$column] = array_unique($allowedValues);
-
-        return self::$allowedValuesCache[$column];
     }
 }

@@ -49,6 +49,11 @@ class PlannerUtility
      * Simple function to update the status of a record.
      * \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility::updateStatusForRecord('pages', 1, 'In Progress', 'admin');.
      *
+     * Note: this bypasses the DataHandler and writes the status directly via
+     * {@see \Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository::updateStatusByUid()}.
+     * No StatusChangeEvent/AssigneeChangedEvent is dispatched and no watcher relation is created -
+     * see that method's docblock for the reasoning.
+     *
      * @throws Exception
      */
     public static function updateStatusForRecord(string $table, int $uid, Status|int|string $status, BackendUser|int|string|null $assignee = null): void
