@@ -45,6 +45,12 @@ parameters:
 		-
 			identifier: ergebnis.noConstructorParameterWithDefaultValue
 			path: ../../Classes/Widgets/AbstractWidget.php
+		# $actorUid defaults to null for backward compatibility: this is a documented public
+		# extension point (see Notifications.rst), and a pre-existing 5-argument caller must
+		# not fatal with an ArgumentCountError after this parameter was added.
+		-
+			identifier: ergebnis.noConstructorParameterWithDefaultValue
+			path: ../../Classes/Event/StatusChangeEvent.php
 
 	type_coverage:
 		constant: 0 # TODO: Set to 100, when PHP 8.3 is minimum requirement
