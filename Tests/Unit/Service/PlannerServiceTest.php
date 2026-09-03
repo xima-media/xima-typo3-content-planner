@@ -209,7 +209,7 @@ final class PlannerServiceTest extends TestCase
         $expected = [['content' => 'A comment']];
         $this->commentRepository->expects(self::once())
             ->method('findAllByRecord')
-            ->with(1, 'pages', true, showResolved: true)
+            ->with(1, 'pages', true, 'DESC', true)
             ->willReturn($expected);
 
         self::assertSame($expected, $this->subject->getCommentsOfRecord('pages', 1, true, true));
