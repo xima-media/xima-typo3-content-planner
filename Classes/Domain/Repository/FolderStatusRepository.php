@@ -306,9 +306,15 @@ class FolderStatusRepository
             ])
             ->executeStatement();
 
+        // Capture the new row's uid before invalidateCacheForStorage() runs: its own cache
+        // writes are themselves database inserts, and lastInsertId() reflects whichever insert
+        // ran most recently on this connection - reading it after that call would return the
+        // cache backend's row, not this method's.
+        $uid = (int) $queryBuilder->getConnection()->lastInsertId();
+
         $this->invalidateCacheForStorage($parsed['storageUid']);
 
-        return (int) $queryBuilder->getConnection()->lastInsertId();
+        return $uid;
     }
 
     /**
