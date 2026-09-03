@@ -228,7 +228,9 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     public function existingUidsExcludesDeletedAndAbsentUids(): void
     {
         // 5 is soft-deleted, 999 doesn't exist at all - both must be excluded the same way.
-        self::assertSame([1, 2], $this->subject->existingUids('pages', [1, 2, 5, 999]));
+        $result = $this->subject->existingUids('pages', [1, 2, 5, 999]);
+        sort($result);
+        self::assertSame([1, 2], $result);
     }
 
     #[Test]

@@ -221,7 +221,9 @@ final class NotificationRepositoryTest extends AbstractFunctionalTestCase
         $this->createNotification(recipientUid: 1, crdate: 1001);
         $this->createNotification(recipientUid: 2, crdate: 1002);
 
-        self::assertSame([1, 2], $this->subject->findDistinctBackendUsers());
+        $result = $this->subject->findDistinctBackendUsers();
+        sort($result);
+        self::assertSame([1, 2], $result);
     }
 
     #[Test]
