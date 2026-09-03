@@ -416,10 +416,9 @@ class WatcherRepository
             $deleteQueryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
             $deleteQueryBuilder
                 ->delete(Configuration::TABLE_WATCHER)
-                ->where($deleteQueryBuilder->expr()->in('uid', $deleteQueryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)))
-                ->executeStatement();
+                ->where($deleteQueryBuilder->expr()->in('uid', $deleteQueryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)));
 
-            $deleted += count($uids);
+            $deleted += $deleteQueryBuilder->executeStatement();
         } while (self::DELETE_CHUNK_SIZE === count($uids));
 
         return $deleted;
