@@ -78,8 +78,11 @@ class NotificationRepository
                     $queryBuilder->createNamedParameter($backendUserUid, Connection::PARAM_INT),
                 ),
             )
-            // read_at IS NULL sorts first in both MySQL/MariaDB and SQLite ascending NULL ordering.
-            ->orderBy('read_at', 'ASC')
+            // Sort by an explicit read-state flag rather than the read_at timestamp itself, so
+            // read rows keep ordering by crdate DESC among themselves instead of by when they
+            // were read. Works on both MySQL/MariaDB and SQLite.
+            ->addSelectLiteral('(CASE WHEN read_at IS NULL THEN 0 ELSE 1 END) AS is_read')
+            ->orderBy('is_read', 'ASC')
             ->addOrderBy('crdate', 'DESC')
             ->setMaxResults($limit)
             ->executeQuery()
