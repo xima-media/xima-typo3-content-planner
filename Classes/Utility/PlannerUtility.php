@@ -15,18 +15,19 @@ namespace Xima\XimaTypo3ContentPlanner\Utility;
 
 use Doctrine\DBAL\Exception;
 use InvalidArgumentException;
-use TYPO3\CMS\Core\DataHandling\DataHandler;
-use TYPO3\CMS\Core\Utility\{GeneralUtility, StringUtility};
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{BackendUser, Status};
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
-
-use function is_array;
-use function is_int;
-use function is_string;
+use Xima\XimaTypo3ContentPlanner\Service\PlannerService;
 
 /**
  * PlannerUtility.
+ *
+ * Thin static facade over the injectable {@see PlannerService}. Wherever constructor
+ * injection is available (controllers, event listeners, services, ...), inject
+ * PlannerService directly instead - it is easier to test and makes the dependency
+ * explicit. This facade exists only so third-party integrations retain a stable,
+ * static entry point.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -41,7 +42,7 @@ class PlannerUtility
      */
     public static function getListOfStatus(): array
     {
-        return GeneralUtility::makeInstance(StatusRepository::class)->findAll();
+        return self::service()->getListOfStatus();
     }
 
     /**
@@ -52,32 +53,7 @@ class PlannerUtility
      */
     public static function updateStatusForRecord(string $table, int $uid, Status|int|string $status, BackendUser|int|string|null $assignee = null): void
     {
-        self::preCheckRecordTable($table, $uid);
-
-        $statusId = $status;
-        if ($status instanceof Status) {
-            $statusId = $status->getUid();
-        } elseif (is_string($status)) {
-            $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
-            $statusId = $statusRepository->findByTitle($status)->getUid();
-        }
-
-        if (!is_int($statusId) || 0 === $statusId) {
-            throw new InvalidArgumentException('Status "'.$statusId.'" is not a valid content planner status.', 9220772840);
-        }
-
-        $assigneeId = $assignee;
-        if ($assignee instanceof BackendUser) {
-            $assigneeId = $assignee->getUid();
-        } elseif (is_string($assignee)) {
-            $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
-            $assigneeId = $backendUserRepository->findByUsername($assignee);
-            if ($assigneeId) {
-                $assigneeId = $assigneeId['uid'];
-            }
-        }
-
-        GeneralUtility::makeInstance(RecordRepository::class)->updateStatusByUid($table, $uid, $statusId, $assigneeId);
+        self::service()->updateStatusForRecord($table, $uid, $status, $assignee);
     }
 
     /**
@@ -88,9 +64,7 @@ class PlannerUtility
      */
     public static function getStatusOfRecord(string $table, int $uid): ?Status
     {
-        $record = self::preCheckRecordTable($table, $uid);
-
-        return GeneralUtility::makeInstance(StatusRepository::class)->findByUid($record[Configuration::FIELD_STATUS]);
+        return self::service()->getStatusOfRecord($table, $uid);
     }
 
     /**
@@ -99,12 +73,7 @@ class PlannerUtility
      */
     public static function getStatus(int|string $identifier): ?Status
     {
-        $statusRepository = GeneralUtility::makeInstance(StatusRepository::class);
-        if (is_string($identifier)) {
-            return $statusRepository->findByTitle($identifier);
-        }
-
-        return $statusRepository->findByUid($identifier);
+        return self::service()->getStatus($identifier);
     }
 
     /**
@@ -119,9 +88,7 @@ class PlannerUtility
      */
     public static function getCommentsOfRecord(string $table, int $uid, bool $raw = false, bool $showResolved = false): array
     {
-        self::preCheckRecordTable($table, $uid);
-
-        return GeneralUtility::makeInstance(CommentRepository::class)->findAllByRecord($uid, $table, $raw, 'DESC', $showResolved);
+        return self::service()->getCommentsOfRecord($table, $uid, $raw, $showResolved);
     }
 
     /**
@@ -136,48 +103,7 @@ class PlannerUtility
      */
     public static function addCommentsToRecord(string $table, int $uid, array|string $comments, BackendUser|int|string|null $author = null, int $parentUid = 0): void
     {
-        $record = self::preCheckRecordTable($table, $uid);
-
-        $authorId = $author;
-        if ($author instanceof BackendUser) {
-            $authorId = $author->getUid();
-        } elseif (is_string($author)) {
-            $backendUserRepository = GeneralUtility::makeInstance(BackendUserRepository::class);
-            $user = $backendUserRepository->findByUsername($author);
-            $authorId = is_array($user) && isset($user['uid']) ? (int) $user['uid'] : null;
-        }
-
-        if (!is_int($authorId) || 0 === $authorId) {
-            throw new InvalidArgumentException('Author "'.$authorId.'" is not a valid backend user.', 4723563571);
-        }
-
-        self::preCheckParentComment($table, $uid, $parentUid);
-
-        if (!is_array($comments)) {
-            $comments = [$comments];
-        }
-
-        $pid = 'pages' === $table ? $record['uid'] : $record['pid'];
-        $newIds = [];
-        $data = [];
-
-        foreach ($comments as $comment) {
-            $newId = StringUtility::getUniqueId('NEW');
-            $data[Configuration::TABLE_COMMENT][$newId] = [
-                'foreign_uid' => $uid,
-                'foreign_table' => $table,
-                'content' => $comment,
-                'pid' => $pid,
-                'author' => $authorId,
-                'parent_uid' => $parentUid,
-            ];
-            $newIds[] = $newId;
-        }
-
-        /** @var DataHandler $dataHandler */
-        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
-        $dataHandler->start($data, []);
-        $dataHandler->process_datamap();
+        self::service()->addCommentsToRecord($table, $uid, $comments, $author, $parentUid);
     }
 
     /**
@@ -208,10 +134,7 @@ class PlannerUtility
      */
     public static function clearCommentsOfRecord(string $table, int $uid, ?string $like = null): void
     {
-        self::preCheckRecordTable($table, $uid);
-
-        $commentsRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        $commentsRepository->deleteAllCommentsByRecord($uid, $table, $like);
+        self::service()->clearCommentsOfRecord($table, $uid, $like);
     }
 
     /**
@@ -226,34 +149,8 @@ class PlannerUtility
             && $record[Configuration::FIELD_COMMENTS] > 0;
     }
 
-    /**
-     * @return array<string, mixed>
-     *
-     * @throws Exception
-     */
-    private static function preCheckRecordTable(string $table, int $uid): array
+    private static function service(): PlannerService
     {
-        if (!ExtensionUtility::isRegisteredRecordTable($table)) {
-            throw new InvalidArgumentException('Table "'.$table.'" is not a valid content planner record table.', 9518991865);
-        }
-
-        $record = GeneralUtility::makeInstance(RecordRepository::class)->findByUid($table, $uid);
-        if (!$record) {
-            throw new InvalidArgumentException('Record "'.$uid.'" in table "'.$table.'" not found.', 4064696674);
-        }
-
-        return $record;
-    }
-
-    private static function preCheckParentComment(string $table, int $uid, int $parentUid): void
-    {
-        if ($parentUid <= 0) {
-            return;
-        }
-
-        $parentComment = GeneralUtility::makeInstance(CommentRepository::class)->findByUid($parentUid);
-        if (!is_array($parentComment) || $parentComment['foreign_table'] !== $table || (int) $parentComment['foreign_uid'] !== $uid) {
-            throw new InvalidArgumentException('Parent comment "'.$parentUid.'" does not exist or does not belong to the given record.', 4723563572);
-        }
+        return GeneralUtility::makeInstance(PlannerService::class);
     }
 }
