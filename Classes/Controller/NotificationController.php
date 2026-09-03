@@ -101,9 +101,11 @@ class NotificationController extends ActionController
 
         $this->notificationRepository->markAllAsRead($backendUserUid);
 
+        $unreadCount = $this->dataProvider->getUnreadCount($backendUserUid);
+
         return new JsonResponse([
-            'unreadCount' => 0,
-            'badgeLabel' => '0',
+            'unreadCount' => $unreadCount,
+            'badgeLabel' => $this->dataProvider->getUnreadBadgeLabel($backendUserUid, $unreadCount),
         ]);
     }
 
