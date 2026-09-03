@@ -92,7 +92,8 @@ class AssigneeSelect {
     if (!disabled) {
       const previous = Array.isArray(scope) ? scope : []
       previous.forEach(el => {
-        el.disabled = false
+        el.disabled = el.dataset.assigneePrevDisabled === 'true'
+        delete el.dataset.assigneePrevDisabled
         el.removeAttribute('aria-disabled')
         if (el.dataset.assigneePrevTabindex === undefined) {
           el.removeAttribute('tabindex')
@@ -112,6 +113,7 @@ class AssigneeSelect {
 
     elements.forEach(el => {
       if ('disabled' in el) {
+        el.dataset.assigneePrevDisabled = String(el.disabled)
         el.disabled = true
       }
       el.setAttribute('aria-disabled', 'true')
