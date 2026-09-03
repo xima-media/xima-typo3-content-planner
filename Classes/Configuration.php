@@ -62,6 +62,7 @@ class Configuration
 
     final public const TABLE_FOLDER = 'tx_ximatypo3contentplanner_folder';
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
+    final public const TABLE_WATCHER = 'tx_ximatypo3contentplanner_watcher';
 
     /*
      * Up to and including v3, this held 'tx_ximatypo3contentplanner_status' — the name of
