@@ -102,20 +102,53 @@ final class NotificationCenterDataProviderTest extends AbstractFunctionalTestCas
         self::assertSame(1, $this->subject->getUnreadCount(1));
     }
 
+    #[Test]
+    public function changeSummaryIsPopulatedForAContentChangedNotificationWithMultipleActors(): void
+    {
+        $this->createNotification(
+            recipientUid: 1,
+            table: 'pages',
+            recordUid: 1,
+            eventType: NotificationEventType::ContentChanged,
+            payload: ['version' => 1, 'title' => self::SECRET_TITLE, 'changeCount' => 14, 'actorUids' => [2, 3]],
+        );
+
+        $items = $this->subject->getLatestForDropdown(1);
+
+        self::assertCount(1, $items);
+        self::assertNotNull($items[0]->getChangeSummary());
+        self::assertStringContainsString('14', (string) $items[0]->getChangeSummary());
+    }
+
+    #[Test]
+    public function changeSummaryIsNullForNonContentChangedNotifications(): void
+    {
+        $this->createNotification(recipientUid: 1, table: 'pages', recordUid: 1);
+
+        $items = $this->subject->getLatestForDropdown(1);
+
+        self::assertNull($items[0]->getChangeSummary());
+    }
+
+    /**
+     * @param array<string, mixed>|null $payload
+     */
     private function createNotification(
         int $recipientUid,
         string $table,
         int $recordUid,
         NotificationReason $reason = NotificationReason::WatchingManually,
+        NotificationEventType $eventType = NotificationEventType::StatusChanged,
+        ?array $payload = null,
     ): void {
         $this->notificationRepository->create(new Notification(
             $recipientUid,
-            NotificationEventType::StatusChanged,
+            $eventType,
             $table,
             $recordUid,
             null,
             $reason,
-            ['version' => 1, 'title' => self::SECRET_TITLE],
+            $payload ?? ['version' => 1, 'title' => self::SECRET_TITLE],
             time(),
         ));
     }

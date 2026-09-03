@@ -17,10 +17,13 @@ use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Notification;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType};
+use Xima\XimaTypo3ContentPlanner\Service\Notification\ContentChangePayloadMerger;
 
 use function count;
 use function intval;
+use function is_array;
+use function is_string;
 
 /**
  * NotificationRepository.
@@ -68,6 +71,75 @@ class NotificationRepository
                 'crdate' => $notification->getCrdate(),
             ])
             ->executeStatement();
+    }
+
+    /**
+     * Aggregating write path for {@see NotificationEventType::ContentChanged} (issue #309): finds
+     * this recipient's not-yet-digested `content_changed` row for the same record created on the
+     * same calendar day as `$notification`'s crdate and, if one exists, merges the two payloads
+     * into it in place via {@see ContentChangePayloadMerger} rather than inserting a new row -
+     * this is the entire "14 saves collapse to 1 notification with a counter" mechanism.
+     *
+     * Scoping the lookup to `digested_at IS NULL` is deliberate and sufficient on its own to
+     * satisfy "once digested, further changes start a new row": a row that was already digested
+     * simply never matches this WHERE clause again, so the next occurrence falls through to
+     * {@see self::create()} and starts a fresh counter, exactly as issue #309 requires.
+     *
+     * Known limitation: this is a read-then-write, not an atomic upsert, and unlike
+     * {@see WatcherRepository::upsert()} there is no unique DB constraint to catch a genuine race
+     * (two DataHandler operations for the same (recipient, record, day) processed in truly
+     * overlapping requests could both miss the existing row and both insert). This is accepted
+     * rather than engineered around: content changes to one record are normally saved by one
+     * editor at a time, so a concurrent double write here is rare and merely cosmetic (one extra
+     * row for the day, not a correctness or security issue) - no other write path against this
+     * table defends against this class of race either.
+     *
+     * @throws Exception
+     */
+    public function upsertContentChange(Notification $notification): void
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+        $existing = $queryBuilder
+            ->select('uid', 'payload')
+            ->from(Configuration::TABLE_NOTIFICATION)
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'backend_user',
+                    $queryBuilder->createNamedParameter($notification->getRecipientUid(), Connection::PARAM_INT),
+                ),
+                $queryBuilder->expr()->eq('tablename', $queryBuilder->createNamedParameter($notification->getTable())),
+                $queryBuilder->expr()->eq(
+                    'record_uid',
+                    $queryBuilder->createNamedParameter($notification->getRecordUid(), Connection::PARAM_INT),
+                ),
+                $queryBuilder->expr()->eq(
+                    'event_type',
+                    $queryBuilder->createNamedParameter(NotificationEventType::ContentChanged->value),
+                ),
+                $queryBuilder->expr()->isNull('digested_at'),
+                $queryBuilder->expr()->gte(
+                    'crdate',
+                    $queryBuilder->createNamedParameter($this->startOfDay($notification->getCrdate()), Connection::PARAM_INT),
+                ),
+            )
+            ->orderBy('uid', 'DESC')
+            ->setMaxResults(1)
+            ->executeQuery()
+            ->fetchAssociative();
+
+        if (false === $existing) {
+            $this->create($notification);
+
+            return;
+        }
+
+        // The row can be digested between the read above and the write below, in which case
+        // merging into it would hide the new change from every future digest. The write
+        // rechecks that and reports whether it landed; if it did not, the change becomes a
+        // fresh pending row instead of disappearing.
+        if (!$this->mergeIntoExistingContentChangeRow((int) $existing['uid'], $existing['payload'] ?? null, $notification)) {
+            $this->create($notification);
+        }
     }
 
     /**
@@ -358,6 +430,41 @@ class NotificationRepository
         return $this->deleteMatchingInChunks(static function (QueryBuilder $queryBuilder) use ($backendUserUids): void {
             $queryBuilder->andWhere($queryBuilder->expr()->in('backend_user', $queryBuilder->createNamedParameter($backendUserUids, Connection::PARAM_INT_ARRAY)));
         }, $dryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    /**
+     * @return bool false when the row was digested (or removed) in the meantime, so the caller
+     *              has to persist the change separately
+     */
+    private function mergeIntoExistingContentChangeRow(int $uid, mixed $existingPayload, Notification $notification): bool
+    {
+        $decoded = is_string($existingPayload) && '' !== $existingPayload ? json_decode($existingPayload, true) : [];
+        $merged = ContentChangePayloadMerger::merge(is_array($decoded) ? $decoded : [], $notification->getPayload());
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        return $queryBuilder
+            ->update(Configuration::TABLE_NOTIFICATION)
+            ->set('payload', json_encode($merged, \JSON_THROW_ON_ERROR))
+            ->set('crdate', $notification->getCrdate())
+            ->set('actor', $notification->getActorUid())
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->isNull('digested_at'),
+            )
+            ->executeStatement() > 0;
+    }
+
+    /**
+     * Start (00:00:00, local server time) of the calendar day containing `$timestamp` - the
+     * "per record per user per day" boundary for {@see self::upsertContentChange()}.
+     */
+    private function startOfDay(int $timestamp): int
+    {
+        return (int) mktime(0, 0, 0, (int) date('n', $timestamp), (int) date('j', $timestamp), (int) date('Y', $timestamp));
     }
 
     /**

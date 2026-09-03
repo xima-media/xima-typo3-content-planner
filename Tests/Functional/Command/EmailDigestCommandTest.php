@@ -100,6 +100,22 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function contentChangeNotificationsRenderAsACollapsedEntryWithTheChangeCount(): void
+    {
+        // Two aggregated rows (e.g. two separate days) collapse further at digest time into one line.
+        $this->createContentChange(recipientUid: self::RECIPIENT_EDITOR, crdate: 1000, changeCount: 9, actorUids: [10, 11]);
+        $this->createContentChange(recipientUid: self::RECIPIENT_EDITOR, crdate: 2000, changeCount: 5, actorUids: [11]);
+
+        $exitCode = $this->tester->execute([]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertCount(1, $this->mailerSpy->sentMessages);
+        $mail = $this->mailerSpy->sentMessages[0];
+        self::assertStringContainsString('Content edited by 2 users, 14 change(s)', (string) $mail->getHtmlBody());
+        self::assertStringContainsString('Content edited by 2 users, 14 change(s)', (string) $mail->getTextBody());
+    }
+
+    #[Test]
     public function oneMailMaximumPerRecipientEvenAcrossMultipleRecordsAndEventTypes(): void
     {
         $this->createStatusChange(recipientUid: self::RECIPIENT_EDITOR, crdate: 1000, previous: null, new: 'Draft', recordUid: 1);
@@ -237,6 +253,20 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
         $this->tester->execute([]);
 
         self::assertSame([], $this->mailerSpy->sentMessages);
+    }
+
+    private function createContentChange(int $recipientUid, int $crdate, int $changeCount, array $actorUids, int $recordUid = 1): void
+    {
+        $this->notificationRepository->create(new Notification(
+            $recipientUid,
+            NotificationEventType::ContentChanged,
+            'pages',
+            $recordUid,
+            null,
+            NotificationReason::WatchingManually,
+            ['version' => 1, 'title' => 'Home', 'changeCount' => $changeCount, 'actorUids' => $actorUids],
+            $crdate,
+        ));
     }
 
     private function createStatusChange(int $recipientUid, int $crdate, ?string $previous, string $new, int $recordUid = 1): void

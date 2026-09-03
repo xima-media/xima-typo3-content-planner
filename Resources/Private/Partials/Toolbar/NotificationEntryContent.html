@@ -7,6 +7,9 @@
     <span class="content-planner-notification-entry__meta">
         {item.actorLabel} &middot; {item.timeAgo}
     </span>
+    <f:if condition="{item.changeSummary}">
+        <span class="content-planner-notification-entry__reason">{item.changeSummary}</span>
+    </f:if>
     <f:if condition="{item.reasonLabel}">
         <span class="content-planner-notification-entry__reason">{item.reasonLabel}</span>
     </f:if>

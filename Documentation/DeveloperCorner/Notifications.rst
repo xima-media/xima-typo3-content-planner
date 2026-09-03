@@ -18,8 +18,10 @@ Notifications
     <https://github.com/xima-media/xima-typo3-content-planner/issues/301>`__, the email
     digest built for issue `#302 <https://github.com/xima-media/xima-typo3-content-planner/issues/302>`__,
     the retention/cleanup command built for issue `#304
-    <https://github.com/xima-media/xima-typo3-content-planner/issues/304>`__, and the immediate
-    email channel built for issue `#306 <https://github.com/xima-media/xima-typo3-content-planner/issues/306>`__.
+    <https://github.com/xima-media/xima-typo3-content-planner/issues/304>`__, the immediate
+    email channel built for issue `#306 <https://github.com/xima-media/xima-typo3-content-planner/issues/306>`__,
+    and content change notifications built for issue `#309
+    <https://github.com/xima-media/xima-typo3-content-planner/issues/309>`__.
 
 Overview
 ========
@@ -45,7 +47,13 @@ Three PSR-14 events currently feed the dispatcher, each via its own listener in
 `status_changed`                StatusChangeEvent
 `assigned`                      AssigneeChangedEvent
 `comment_added`                 CommentCreatedEvent
+`content_changed`               *(none - see below)*
 =============================  ===============================
+
+`content_changed` (issue #309) is the exception to the "PSR-14 event → listener → dispatch" flow
+above: it is dispatched directly from `DataHandlerHook` rather than from a domain event, and its
+rows are *aggregated in place* rather than inserted one per occurrence - see
+:ref:`Content change notifications <content-change-notifications>` below.
 
 Reason codes
 ============
@@ -357,6 +365,88 @@ channel without affecting the other. `ImmediateEmailChannel::supports()` additio
 recipient to still exist (not deleted/disabled), have a valid email address, and have opted into
 both User Settings toggles above.
 
+..  _content-change-notifications:
+
+Content change notifications
+=============================
+
+`ContentChangeNotificationService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/ContentChangeNotificationService.php>`__
+(issue #309) closes the one gap MVP watching deliberately left open: the eye icon otherwise only
+covers *planner* events (status/assignee/comment), not "someone edited this page's content" in
+general. It is **opt-in and off by default** - gated behind its own `notificationContentChanged`
+extension configuration toggle (`notifications` category), independent of every other
+notification toggle.
+
+Trigger and cheap early return
+-------------------------------
+
+Unlike every other event type, `content_changed` is dispatched directly from
+`DataHandlerHook <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Hooks/DataHandlerHook.php>`__,
+which runs on *every* record save - so the "no overhead for unwatched records" acceptance
+criterion is a real performance concern here, not just a nice-to-have. The hook's own feature-flag
+check is a plain in-memory read (no query), and `ContentChangeNotificationService` then checks
+`WatcherService::getActiveWatchers()` - a single indexed query - *before* building any payload or
+calling `NotificationDispatcher`. An unwatched record therefore costs one indexed `SELECT` and
+nothing more: no title resolution, no dispatch, no write.
+
+For a `tt_content` change, the parent page's watchers are notified too (per the issue's "edits to
+content elements on the page count as a change to the watched page" rule). That needs the
+element's page, so such a save costs up to three queries rather than one: the
+`RecordRepository::findPidByUid()` lookup plus a watcher lookup for the element and for its page.
+The page lookup is skipped entirely when `pages` is not a tracked table, and no other table pays
+for it.
+
+Changes to the content planner's own fields (status, assignee, comment count) and pure
+housekeeping writes such as re-sorting are not treated as content changes. They already have
+their own notifications, so counting them here would notify twice for one action.
+
+Aggregation
+-----------
+
+Aggressive aggregation is the point - the issue's stated failure mode is noise, not silence.
+Unlike every other `event_type`, `content_changed` rows are **not** appended one per occurrence;
+`NotificationRepository::upsertContentChange()` finds this recipient's existing, not-yet-digested
+`content_changed` row for the same `(tablename, record_uid)` created on the same calendar day and
+merges the new occurrence's payload into it in place via `ContentChangePayloadMerger` - summing
+`changeCount` and unioning `actorUids` - rather than inserting a new row. Any number of saves by
+any number of actors against one record on one day therefore collapse into exactly one
+notification per watcher, with a running counter, and appear in the backend toolbar dropdown as
+that single collapsed entry.
+
+The `digested_at IS NULL` clause in that lookup is deliberate and is the *entire* mechanism behind
+"once digested, further changes must never revive the digested row": a row that has already been
+mailed by the digest simply stops matching the aggregation query, so the next change after
+digestion falls through to a plain insert and starts a fresh counter from one - no lost counters
+(the digested row keeps whatever total it had when it was mailed), and no double-digesting (the
+old row is never touched again).
+
+The email digest renders the collapsed entry as a single line, e.g. "Content edited by 2 users,
+14 changes" (`DigestGroupBuilder`/`DigestMailFactory`, shared with the toolbar's own rendering of
+the same payload counters in `NotificationCenterDataProvider`) - summed/unioned again across
+however many daily rows accumulated since the last digest run.
+
+Workspaces: publish, not save
+-------------------------------
+
+This is the one deliberate difference from the "fires on save, not on publish" rule documented
+below for every other event type. `DataHandlerHook` skips the live-save trigger entirely while
+`$GLOBALS['BE_USER']->workspace !== 0` (i.e. the save produced a workspace draft, not a live
+record) and instead fires from `processCmdmap_postProcess()` when it observes a `cmd[table][uid]
+['version'] = ['action' => 'swap', ...]` command - the shape a workspace publish reaches
+DataHandler as. `processCmdmap_postProcess` sees this regardless of which hook object actually
+performs the swap (e.g. EXT:workspaces' own): DataHandler always runs every registered
+`processCmdmap_postProcess` after handling a command, whether the command was handled by
+DataHandler's own switch or fully intercepted by another hook's `processCmdmap()`.
+
+The reasoning is specific to this event type and does not generalize back to the others: a
+content editor may save a workspace draft many times before it is ever reviewed, let alone
+published, and every one of those drafts is invisible to anyone outside the workspace. Notifying
+watchers on every draft save would mean notifying them about content they cannot even see yet -
+exactly the "noise is the failure mode" concern the issue calls out. `StatusChangeEvent`/
+`AssigneeChangedEvent`/`CommentCreatedEvent` do not have this problem: a status/assignee/comment
+change is meaningful review-workflow signal the moment it happens, draft or not, so those three
+keep firing on save.
+
 Cleanup
 =======
 
@@ -433,9 +523,10 @@ Workspaces
 `DataHandlerHook`, which runs on every save - including a save into a workspace, i.e. on
 creating/editing a versioned draft record. None of them are gated on that draft later being
 published. Notifications for planner events on versioned records therefore fire **on save, not
-on publish**. This is a deliberate decision, not an oversight: revisiting it (e.g. to defer
-notification until publish) would need new publish-side wiring and is left to whichever future
-issue needs it (see issue #309), rather than speculatively built here.
+on publish**, and this remains the deliberate, permanent behavior for these three event types -
+see :ref:`Content change notifications <content-change-notifications>` above for the one
+exception (`content_changed`, issue #309), which fires on publish instead for reasons specific to
+that event type.
 
 ..  seealso::
 
