@@ -178,6 +178,23 @@ class ExtensionUtility
         return max(0, $interval);
     }
 
+    public static function isNotificationDigestEmailEnabled(): bool
+    {
+        return self::isFeatureEnabled(Configuration::FEATURE_NOTIFICATION_DIGEST_EMAIL);
+    }
+
+    /**
+     * Configured fallback used to build absolute backend deep links for the email digest
+     * (issue #302): TYPO3 cannot reliably determine its own base URL from a CLI context, so
+     * this extension configuration value is prepended to the (CLI-safe, relative)
+     * {@see Routing\UrlUtility::getRecordLink()} result.
+     * Empty when unconfigured - callers then fall back to a relative link.
+     */
+    public static function getNotificationDigestBackendBaseUrl(): string
+    {
+        return rtrim(self::getExtensionSetting(Configuration::CONF_NOTIFICATION_DIGEST_BACKEND_BASE_URL), '/');
+    }
+
     public static function getTitleField(string $table): string
     {
         // Not every table declares a label — and a stale registration has no TCA at all.

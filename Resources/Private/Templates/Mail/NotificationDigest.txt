@@ -1,0 +1,17 @@
+{greeting -> f:format.htmlentitiesDecode()}
+
+{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:digest.mail.headline')}
+
+{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:digest.mail.intro')}
+<f:for each="{groups}" as="group">
+
+* {group.title -> f:format.htmlentitiesDecode()}
+<f:if condition="{group.url}">  {group.url}
+</f:if>  {group.reasonLabel -> f:format.htmlentitiesDecode()}
+<f:for each="{group.lines}" as="line">
+  - {line -> f:format.htmlentitiesDecode()}
+</f:for>
+</f:for>
+
+---
+{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:digest.mail.footer')}

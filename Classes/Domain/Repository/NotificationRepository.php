@@ -18,6 +18,8 @@ use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Notification;
 
+use function intval;
+
 /**
  * NotificationRepository.
  *
@@ -134,6 +136,95 @@ class NotificationRepository
             ->executeStatement();
 
         return $affected > 0;
+    }
+
+    /**
+     * Distinct recipients with at least one non-digested notification (issue #302's email
+     * digest). Deliberately includes already-read rows: reading a notification in the backend
+     * toolbar must not silently drop it from the digest, per the issue's acceptance criteria.
+     *
+     * @return list<int>
+     *
+     * @throws Exception
+     */
+    public function findRecipientsWithPendingDigest(): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        $rows = $queryBuilder
+            ->select('backend_user')
+            ->distinct()
+            ->from(Configuration::TABLE_NOTIFICATION)
+            ->where($queryBuilder->expr()->isNull('digested_at'))
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return array_map(intval(...), $rows);
+    }
+
+    /**
+     * All non-digested notifications for one recipient, ordered so that every notification for
+     * the same record is adjacent and chronological within it - exactly what
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Digest\DigestGroupBuilder} needs
+     * to group and dedupe per record.
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    public function findPendingByRecipient(int $backendUserUid): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        return $queryBuilder
+            ->select('*')
+            ->from(Configuration::TABLE_NOTIFICATION)
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'backend_user',
+                    $queryBuilder->createNamedParameter($backendUserUid, Connection::PARAM_INT),
+                ),
+                $queryBuilder->expr()->isNull('digested_at'),
+            )
+            ->orderBy('tablename')
+            ->addOrderBy('record_uid')
+            ->addOrderBy('crdate', 'ASC')
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    /**
+     * Marks exactly the given notification uids as digested for one recipient, in a single
+     * atomic `UPDATE`. Scoped to `backend_user` (same ownership guard as {@see self::markAsRead()})
+     * and to `digested_at IS NULL`, so re-running the digest command concurrently can never
+     * double-mark a row or mark one the caller never actually rendered into a mail - the mail is
+     * always sent *before* this call, so a crash between the two simply leaves the notification
+     * pending for the next run rather than silently losing it.
+     *
+     * @param list<int> $uids
+     *
+     * @throws Exception
+     */
+    public function markDigestedByUids(array $uids, int $backendUserUid): int
+    {
+        if ([] === $uids) {
+            return 0;
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        return $queryBuilder
+            ->update(Configuration::TABLE_NOTIFICATION)
+            ->set('digested_at', time())
+            ->where(
+                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)),
+                $queryBuilder->expr()->eq(
+                    'backend_user',
+                    $queryBuilder->createNamedParameter($backendUserUid, Connection::PARAM_INT),
+                ),
+                $queryBuilder->expr()->isNull('digested_at'),
+            )
+            ->executeStatement();
     }
 
     /**
