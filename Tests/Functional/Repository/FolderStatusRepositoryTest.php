@@ -15,6 +15,8 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Repository;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Test;
+use ReflectionMethod;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\FolderStatusRepository;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
@@ -278,5 +280,42 @@ final class FolderStatusRepositoryTest extends AbstractFunctionalTestCase
 
         $stillCached = $this->subject->findByCombinedIdentifier('2:/other_storage/');
         self::assertSame($cachedOther, $stillCached);
+    }
+
+    #[Test]
+    public function staleCacheWriteAfterConcurrentInvalidationDoesNotResurrectOldRow(): void
+    {
+        $combinedIdentifier = '1:/user_upload/';
+
+        // Compute the cache identifier a concurrent reader would have used had its DB fetch
+        // (returning the still-current row) started before any write below, i.e. at the
+        // storage's generation as it stands right now.
+        $cacheIdentifierFor = new ReflectionMethod(FolderStatusRepository::class, 'cacheIdentifierFor');
+        $staleCacheIdentifier = $cacheIdentifierFor->invoke($this->subject, $combinedIdentifier, 1);
+
+        // A write to the same storage happens first: it updates the row, flushes the storage
+        // tag, and (with the fix) advances the storage's generation counter.
+        $this->subject->updateStatus(1, 4);
+
+        // The concurrent reader's set() call only lands now, after the write already flushed
+        // the storage. It writes the row it fetched *before* the write (now stale) under the
+        // identifier it computed back then.
+        $cache = $this->get(CacheManager::class)->getCache('ximatypo3contentplanner_cache');
+        $staleRow = [
+            'uid' => 1,
+            'storage_uid' => 1,
+            'tx_ximatypo3contentplanner_status' => 2,
+        ];
+        $cache->set($staleCacheIdentifier, $staleRow, [
+            'tx_ximatypo3contentplanner_folder_1',
+            'tx_ximatypo3contentplanner_folder__storage__1',
+        ]);
+
+        // A subsequent read must not be served the resurrected stale row: the generation
+        // guard makes it compute a different identifier, so it misses and re-queries the
+        // database, observing the fresh value written above.
+        $fresh = $this->subject->findByCombinedIdentifier($combinedIdentifier);
+        self::assertIsArray($fresh);
+        self::assertSame(4, (int) $fresh['tx_ximatypo3contentplanner_status']);
     }
 }
