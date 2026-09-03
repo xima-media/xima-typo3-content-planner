@@ -16,6 +16,7 @@ into the status process.
 
     AdditionalRecords
     Events
+    Notifications
     ExtensionUtility
     PlannerUtility
     PageTreeIntegration

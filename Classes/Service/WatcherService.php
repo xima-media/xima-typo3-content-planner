@@ -134,6 +134,23 @@ class WatcherService
     }
 
     /**
+     * Like {@see self::getActiveWatchers()}, but keyed by watcher UID with the {@see WatchSource}
+     * that explains why each one is watching. Used by the notification dispatcher (issue #300) to
+     * derive a per-recipient "why you receive this" reason.
+     *
+     * @return array<int, WatchSource> keyed by backend user UID
+     *
+     * @throws Exception
+     */
+    public function getActiveWatchersWithSource(string $table, int $uid): array
+    {
+        $this->assertWatchableTable($table);
+        $uid = $this->watcherRepository->normalizeToDefaultLanguageUid($table, $uid);
+
+        return $this->watcherRepository->findActiveWatchersWithSource($table, $uid);
+    }
+
+    /**
      * @throws Exception
      */
     public function isWatching(string $table, int $uid, int $beUser): bool
