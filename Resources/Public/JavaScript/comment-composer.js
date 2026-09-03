@@ -219,6 +219,7 @@ class CommentComposer {
     if ('edit' === mode) {
       const fragment = document.createRange().createContextualFragment(resolved.result)
       form.closest('[data-comment-uid]')?.replaceWith(fragment.querySelector('[data-comment-uid]'))
+      document.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {bubbles: true, composed: true}))
 
       return
     }
