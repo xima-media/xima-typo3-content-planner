@@ -158,11 +158,9 @@ class StatusChangeManager
         }
 
         [$incomingFieldArray, $allowed] = $this->fieldAuthorizer->assertAssignee($incomingFieldArray, $preRecord);
-        if (!$allowed) {
-            return $incomingFieldArray;
+        if ($allowed) {
+            $this->handleAssigneeChange($incomingFieldArray, $preRecord, $table, $id);
         }
-
-        $this->handleAssigneeChange($incomingFieldArray, $preRecord, $table, $id);
 
         if ($hasStatusChange) {
             $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
