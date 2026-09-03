@@ -31,7 +31,7 @@
                     class="content-planner-assignee__item{f:if(condition: assigneeEntry.isCurrent, then: ' content-planner-assignee__item--current')}{f:if(condition: assigneeEntry.url, then: '', else: ' content-planner-assignee__item--disabled')}"
                     data-assignee-option
                     data-assignee-uid="{assigneeEntry.uid}"
-                    data-assignee-url="{assigneeEntry.url}"
+                    <f:if condition="{assigneeEntry.url}">data-assignee-url="{assigneeEntry.url}"</f:if>
                     data-assignee-name="{assigneeEntry.name}"
                     aria-selected="false"
                     <f:if condition="{assigneeEntry.isCurrent}">aria-current="true"</f:if>
