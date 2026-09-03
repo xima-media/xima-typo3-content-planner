@@ -25,4 +25,10 @@ export const DEMO_STATUS_TITLE_FOR_DRAFT_PAGE = 'Pending';
 /** Matches the ddev addon's admin bootstrap (TYPO3_SETUP_ADMIN_USERNAME). */
 export const DEMO_ASSIGNEE_USERNAME = 'admin';
 
+/**
+ * Plain text on purpose, unlike the PHP constant of the same name: the
+ * comment partial renders the stored value with `f:format.raw()`, so a DOM
+ * assertion (`toHaveText()`/`textContent()`) against the rendered comment
+ * sees this text with the `<p>` wrapper stripped, not the raw markup.
+ */
 export const DEMO_COMMENT_CONTENT = 'Demo comment seeded for e2e tests.';
