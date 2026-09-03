@@ -44,6 +44,14 @@ class Configuration
     final public const FEATURE_NOTIFICATION_CHANNEL_DATABASE = 'notificationChannelDatabase';
     final public const FEATURE_NOTIFICATION_DIGEST_EMAIL = 'notificationDigestEmail';
     final public const FEATURE_NOTIFICATION_IMMEDIATE_EMAIL = 'notificationImmediateEmail';
+
+    /*
+     * Issue #309: content change notifications for watched pages/content elements. Off by
+     * default, unlike every other notification feature flag above - this one fires on every
+     * save/publish of a watched (or watched-page's content element) record, so an installation
+     * has to opt in deliberately rather than being defaulted into it.
+     */
+    final public const FEATURE_NOTIFICATION_CONTENT_CHANGED = 'notificationContentChanged';
     final public const CONF_NOTIFICATION_POLL_INTERVAL = 'notificationPollInterval';
     final public const CONF_NOTIFICATION_DIGEST_BACKEND_BASE_URL = 'notificationDigestBackendBaseUrl';
     final public const CONF_NOTIFICATION_RETENTION_READ_DAYS = 'notificationRetentionReadDays';

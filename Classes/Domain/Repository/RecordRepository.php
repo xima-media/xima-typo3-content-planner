@@ -236,6 +236,33 @@ class RecordRepository
     }
 
     /**
+     * The page a content element (or any other record) lives on - used by
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\ContentChangeNotificationService}
+     * (issue #309) to propagate a `tt_content` change to its parent page's watchers. Deliberately
+     * skips {@see self::findByUid()}'s "must be a registered content planner table" guard: a
+     * content element's page must resolve regardless of whether `tt_content` itself is currently
+     * registered for status tracking, and ignores visibility restrictions for the same reason
+     * {@see self::findByUid()} lets callers opt out of them - a hidden/timed content element still
+     * changed, and its page's watchers still care.
+     *
+     * @throws Exception
+     */
+    public function findPidByUid(string $table, int $uid): ?int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+        $queryBuilder->getRestrictions()->removeAll();
+
+        $pid = $queryBuilder
+            ->select('pid')
+            ->from($table)
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchOne();
+
+        return false !== $pid ? (int) $pid : null;
+    }
+
+    /**
      * Which of the given uids in $table currently exist and are not soft-deleted. Used by
      * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Retention\NotificationRetentionService}
      * (issue #304) to detect orphaned watcher/notification rows for records that have since been
