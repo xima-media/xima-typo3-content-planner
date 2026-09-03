@@ -13,11 +13,16 @@
  *
  *   ddev config --project-name=cp-e2e-<issue>
  *   ddev stop --unlist <name>      # to clean up a stale registration
+ *
+ * That project rename changes the real DDEV hostname too, so point Playwright at it via
+ * PLAYWRIGHT_HOSTNAME instead of editing the default below:
+ *
+ *   PLAYWRIGHT_HOSTNAME=cp-e2e-<issue>.ddev.site npx playwright test
  */
 import { defineTypo3PlaywrightConfig } from '@konradmichalik/ptu';
 
 export default defineTypo3PlaywrightConfig({
-  hostname: 'xima-typo3-content-planner.ddev.site',
+  hostname: process.env.PLAYWRIGHT_HOSTNAME || 'xima-typo3-content-planner.ddev.site',
   defaultVersion: '14',
   testDir: './Tests/Playwright',
 });
