@@ -23,6 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use function count;
 use function hash;
 use function is_array;
+use function is_int;
 use function sprintf;
 
 /**
@@ -48,6 +49,8 @@ class FolderStatusRepository
      * (hashed because a combined identifier contains ':' and '/', which the cache frontend's
      * identifier pattern rejects), tagged per row plus "<table>__storage__<storageUid>" so a
      * write only needs to know the affected storage to invalidate every folder cached under it.
+     * The hash also folds in the storage's generation counter (see cacheIdentifierFor()) to
+     * prevent a stale cache-aside write from resurrecting a row after a concurrent invalidation.
      *
      * @return array<string, mixed>|false
      *
@@ -60,7 +63,7 @@ class FolderStatusRepository
             return false;
         }
 
-        $cacheIdentifier = $this->cacheIdentifierFor($combinedIdentifier);
+        $cacheIdentifier = $this->cacheIdentifierFor($combinedIdentifier, $parsed['storageUid']);
         $cachedResult = $this->cache->get($cacheIdentifier);
         if (is_array($cachedResult)) {
             return $cachedResult;
@@ -118,7 +121,7 @@ class FolderStatusRepository
                 continue;
             }
 
-            $cached = $this->cache->get($this->cacheIdentifierFor($combinedIdentifier));
+            $cached = $this->cache->get($this->cacheIdentifierFor($combinedIdentifier, $parsed['storageUid']));
             if (is_array($cached)) {
                 $result[$combinedIdentifier] = $cached;
                 continue;
@@ -150,7 +153,7 @@ class FolderStatusRepository
                 $combinedIdentifier = $pathMap[$row['folder_identifier']] ?? null;
                 if (null !== $combinedIdentifier) {
                     $result[$combinedIdentifier] = $row;
-                    $this->cache->set($this->cacheIdentifierFor($combinedIdentifier), $row, $this->collectCacheTags($row));
+                    $this->cache->set($this->cacheIdentifierFor($combinedIdentifier, $storageUid), $row, $this->collectCacheTags($row));
                 }
             }
         }
@@ -375,10 +378,41 @@ class FolderStatusRepository
      * Build the cache identifier for a combined identifier. The combined identifier itself
      * contains ':' and '/', which the cache frontend's entry identifier pattern rejects, so
      * it is hashed rather than used verbatim.
+     *
+     * The storage's current generation counter is mixed into the hash so that a write which
+     * advances the generation (see invalidateCacheForStorage()) makes every identifier computed
+     * before that write unreachable. This closes a cache-aside race: a read that fetched a now
+     * stale row before a concurrent write, and only calls set() after that write's flushByTags()
+     * already ran, would otherwise resurrect the stale row under the very same identifier. With
+     * the generation folded in, that late set() lands on an identifier nothing will ever look up
+     * again, so it is simply orphaned rather than served.
      */
-    private function cacheIdentifierFor(string $combinedIdentifier): string
+    private function cacheIdentifierFor(string $combinedIdentifier, int $storageUid): string
     {
-        return sprintf('%s--%s--%s', Configuration::CACHE_IDENTIFIER, self::TABLE, hash('sha256', $combinedIdentifier));
+        $generation = $this->storageGeneration($storageUid);
+
+        return sprintf('%s--%s--%s', Configuration::CACHE_IDENTIFIER, self::TABLE, hash('sha256', $combinedIdentifier.'--gen--'.$generation));
+    }
+
+    /**
+     * Current generation counter for a storage's cached folder statuses, defaulting to 0 when
+     * none has been recorded yet (fresh cache, or the counter was just flushed by a write).
+     */
+    private function storageGeneration(int $storageUid): int
+    {
+        $generation = $this->cache->get($this->storageGenerationCacheIdentifier($storageUid));
+
+        return is_int($generation) ? $generation : 0;
+    }
+
+    /**
+     * Cache identifier for a storage's generation counter. Tagged with the same storage tag as
+     * every folder status row of that storage, so flushByTags() in invalidateCacheForStorage()
+     * clears it together with the rows it guards, right before that method writes the next value.
+     */
+    private function storageGenerationCacheIdentifier(int $storageUid): string
+    {
+        return sprintf('%s--%s--gen--%d', Configuration::CACHE_IDENTIFIER, self::TABLE, $storageUid);
     }
 
     /**
@@ -398,10 +432,18 @@ class FolderStatusRepository
      * Flush every cached folder status belonging to one storage. Write methods only ever know
      * the affected storage (not which combined identifiers are currently cached for it), so
      * invalidation is scoped to the storage tag rather than the individual cache entry.
+     *
+     * Advancing the storage's generation counter afterwards closes the cache-aside race where a
+     * concurrent read, already past its DB fetch when this flush runs, would otherwise call
+     * set() after the flush and resurrect the stale row it fetched. See cacheIdentifierFor().
      */
     private function invalidateCacheForStorage(int $storageUid): void
     {
-        $this->cache->flushByTags([self::TABLE.'__storage__'.$storageUid]);
+        $storageTag = self::TABLE.'__storage__'.$storageUid;
+        $this->cache->flushByTags([$storageTag]);
+
+        $nextGeneration = $this->storageGeneration($storageUid) + 1;
+        $this->cache->set($this->storageGenerationCacheIdentifier($storageUid), $nextGeneration, [$storageTag]);
     }
 
     /**
