@@ -605,8 +605,8 @@ of watcher display names. It is the single source both the initial banner render
 and the AJAX toggle response (`WatcherController`) build from, so both surfaces always agree.
 Watcher names are filtered against the same content-planner-permitted pool
 `BackendUserRepository::findAllWithPermission()` already provides for the assignee picker and the
-@-mention suggestion feed (issue #305) - a watcher who has since lost that permission, or been
-disabled/deleted, is still counted but never named.
+@-mention suggestion feed (issue #305) - a watcher who has since lost that permission is still
+counted but never named. Disabled and deleted watchers are excluded from both fields.
 
 The AJAX response also carries a server-rendered replacement fragment for the toggle button group
 (the same `Partials/WatchToggle.html` the initial render uses), so
