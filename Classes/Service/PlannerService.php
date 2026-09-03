@@ -201,8 +201,12 @@ class PlannerService
 
     private function preCheckParentComment(string $table, int $uid, int $parentUid): void
     {
-        if ($parentUid <= 0) {
+        if (0 === $parentUid) {
             return;
+        }
+
+        if ($parentUid < 0) {
+            throw new InvalidArgumentException('Parent comment UID must be zero or a valid positive UID.', 4723563572);
         }
 
         $parentComment = $this->commentRepository->findByUid($parentUid);
