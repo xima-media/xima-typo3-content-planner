@@ -18,5 +18,6 @@ into the status process.
     Events
     ExtensionUtility
     PlannerUtility
+    PageTreeIntegration
     PlannerService
     UpgradeGuide
