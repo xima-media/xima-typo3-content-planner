@@ -43,6 +43,13 @@ final readonly class NotificationRetentionService
 {
     private const SECONDS_PER_DAY = 86400;
 
+    /**
+     * Matches {@see NotificationRepository}'s DELETE_CHUNK_SIZE convention: keeps the
+     * `filterActiveUids()` IN-clause bounded even though the candidate set itself (distinct
+     * backend users referenced by notifications/watchers) is not expected to be large.
+     */
+    private const FILTER_CHUNK_SIZE = 500;
+
     public function __construct(
         private NotificationRepository $notificationRepository,
         private WatcherRepository $watcherRepository,
@@ -131,7 +138,14 @@ final readonly class NotificationRetentionService
             return [0, 0];
         }
 
-        $orphanedUids = array_values(array_diff($referencedUids, $this->backendUserRepository->filterActiveUids($referencedUids)));
+        $activeUids = array_unique(array_merge(
+            ...array_map(
+                fn (array $chunk): array => $this->backendUserRepository->filterActiveUids($chunk),
+                array_chunk($referencedUids, self::FILTER_CHUNK_SIZE),
+            ),
+        ));
+
+        $orphanedUids = array_values(array_diff($referencedUids, $activeUids));
         if ([] === $orphanedUids) {
             return [0, 0];
         }
