@@ -66,6 +66,20 @@ final class NotificationRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findLatestByRecipientSortsReadRowsByCrdateNotReadAt(): void
+    {
+        $this->createNotification(recipientUid: 1, crdate: 1000); // read first (earlier read_at), older crdate
+        $this->createNotification(recipientUid: 1, crdate: 2000); // read last (later read_at), newer crdate
+        $this->markRowReadAtByCrdate(1000, 1000);
+        $this->markRowReadAtByCrdate(2000, 9000);
+
+        $rows = $this->subject->findLatestByRecipient(1, 10);
+
+        // Both rows are read; sorting by read_at instead of crdate would yield [1000, 2000].
+        self::assertSame([2000, 1000], array_map(static fn (array $row): int => (int) $row['crdate'], $rows));
+    }
+
+    #[Test]
     public function findLatestByRecipientRespectsTheLimit(): void
     {
         for ($i = 0; $i < 5; ++$i) {
@@ -147,9 +161,14 @@ final class NotificationRepositoryTest extends AbstractFunctionalTestCase
 
     private function markRowReadByCrdate(int $crdate): void
     {
+        $this->markRowReadAtByCrdate($crdate, time());
+    }
+
+    private function markRowReadAtByCrdate(int $crdate, int $readAt): void
+    {
         $this->getConnectionPool()
             ->getConnectionForTable(Configuration::TABLE_NOTIFICATION)
-            ->update(Configuration::TABLE_NOTIFICATION, ['read_at' => time()], ['crdate' => $crdate]);
+            ->update(Configuration::TABLE_NOTIFICATION, ['read_at' => $readAt], ['crdate' => $crdate]);
     }
 
     private function fetchUidByCrdate(int $crdate): int
