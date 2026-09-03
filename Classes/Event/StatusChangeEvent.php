@@ -38,7 +38,7 @@ class StatusChangeEvent
         protected array $fieldArray,
         protected ?Status $previousStatus,
         protected ?Status $newStatus,
-        protected ?int $actorUid,
+        protected ?int $actorUid = null,
     ) {}
 
     public function getTable(): string
