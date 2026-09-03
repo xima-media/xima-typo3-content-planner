@@ -54,6 +54,7 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
         $this->importCSVDataSet(__DIR__.'/Fixtures/be_users_digest.csv');
         $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_DIGEST_EMAIL, '1');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_IMMEDIATE_EMAIL, '1');
 
         $this->notificationRepository = $this->get(NotificationRepository::class);
         $this->mailerSpy = new DigestMailerSpy();
@@ -142,6 +143,21 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
 
         self::assertCount(0, $this->mailerSpy->sentMessages);
         self::assertCount(1, $this->notificationRepository->findPendingByRecipient(self::RECIPIENT_IMMEDIATE));
+    }
+
+    #[Test]
+    public function recipientPreferringImmediateEmailStillGetsTheDigestWhenTheImmediateFeatureIsDisabled(): void
+    {
+        // The persisted per-user preference alone must not be enough to skip a recipient: if an
+        // administrator disables the immediate-email feature after they opted in, they must not
+        // silently receive nothing at all - the digest has to fall back to notifying them.
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_IMMEDIATE_EMAIL, '0');
+        $this->createStatusChange(recipientUid: self::RECIPIENT_IMMEDIATE, crdate: 1000, previous: null, new: 'Draft');
+
+        $this->tester->execute([]);
+
+        self::assertCount(1, $this->mailerSpy->sentMessages);
+        self::assertCount(0, $this->notificationRepository->findPendingByRecipient(self::RECIPIENT_IMMEDIATE));
     }
 
     #[Test]
