@@ -1,0 +1,14 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<span class="toolbar-item-icon" data-poll-interval="{pollInterval}" aria-hidden="true">
+    <core:icon identifier="actions-bell" size="small"/>
+</span>
+<span class="visually-hidden">
+    {f:translate(key: 'notification.toolbar.title', extensionName: 'xima_typo3_content_planner')}
+</span>
+<span id="content-planner-notification-badge"
+      class="badge content-planner-notification-badge{f:if(condition: '{unreadCount} == 0', then: ' content-planner-notification-badge--hidden')}"
+      data-unread-count="{unreadCount}"
+      aria-live="polite">
+    <f:if condition="{unreadCount} > 0">{badgeLabel}</f:if>
+</span>
+</html>

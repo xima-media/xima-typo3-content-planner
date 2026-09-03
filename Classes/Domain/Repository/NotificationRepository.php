@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Notification;
 
@@ -24,6 +24,9 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Notification;
  * Persistence for `tx_ximatypo3contentplanner_notification`. Writes go through raw QueryBuilder
  * operations (this table is never edited via FormEngine/DataHandler), following the same
  * convention as {@see WatcherRepository}.
+ *
+ * Read access ({@see self::findLatestByRecipient()}, {@see self::countUnreadByRecipient()}) and the
+ * mark-as-read mutations back the backend toolbar notification center (issue #301).
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -50,6 +53,106 @@ class NotificationRepository
                 'payload' => json_encode($notification->getPayload(), \JSON_THROW_ON_ERROR),
                 'crdate' => $notification->getCrdate(),
             ])
+            ->executeStatement();
+    }
+
+    /**
+     * Latest notifications for the toolbar dropdown, unread first (then most recent first within
+     * each group). Deliberately returns raw rows rather than a hydrated {@see Notification}: that
+     * model has no uid/read_at, both of which the toolbar needs.
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    public function findLatestByRecipient(int $backendUserUid, int $limit): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        return $queryBuilder
+            ->select('*')
+            ->from(Configuration::TABLE_NOTIFICATION)
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'backend_user',
+                    $queryBuilder->createNamedParameter($backendUserUid, Connection::PARAM_INT),
+                ),
+            )
+            // Sort by an explicit read-state flag rather than the read_at timestamp itself, so
+            // read rows keep ordering by crdate DESC among themselves instead of by when they
+            // were read. Works on both MySQL/MariaDB and SQLite.
+            ->addSelectLiteral('(CASE WHEN read_at IS NULL THEN 0 ELSE 1 END) AS is_read')
+            ->orderBy('is_read', 'ASC')
+            ->addOrderBy('crdate', 'DESC')
+            ->setMaxResults($limit)
+            ->executeQuery()
+            ->fetchAllAssociative();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function countUnreadByRecipient(int $backendUserUid): int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        return (int) $queryBuilder
+            ->count('uid')
+            ->from(Configuration::TABLE_NOTIFICATION)
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'backend_user',
+                    $queryBuilder->createNamedParameter($backendUserUid, Connection::PARAM_INT),
+                ),
+                $queryBuilder->expr()->isNull('read_at'),
+            )
+            ->executeQuery()
+            ->fetchOne();
+    }
+
+    /**
+     * Marks a single notification read, scoped to its recipient so one user can never mark
+     * another user's notification read via a guessed uid.
+     *
+     * @throws Exception
+     */
+    public function markAsRead(int $uid, int $backendUserUid): bool
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        $affected = $queryBuilder
+            ->update(Configuration::TABLE_NOTIFICATION)
+            ->set('read_at', time())
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq(
+                    'backend_user',
+                    $queryBuilder->createNamedParameter($backendUserUid, Connection::PARAM_INT),
+                ),
+                $queryBuilder->expr()->isNull('read_at'),
+            )
+            ->executeStatement();
+
+        return $affected > 0;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function markAllAsRead(int $backendUserUid): int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_NOTIFICATION);
+
+        return $queryBuilder
+            ->update(Configuration::TABLE_NOTIFICATION)
+            ->set('read_at', time())
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'backend_user',
+                    $queryBuilder->createNamedParameter($backendUserUid, Connection::PARAM_INT),
+                ),
+                $queryBuilder->expr()->isNull('read_at'),
+            )
             ->executeStatement();
     }
 }
