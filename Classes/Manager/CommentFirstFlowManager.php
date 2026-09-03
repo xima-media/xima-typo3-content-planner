@@ -92,6 +92,10 @@ final readonly class CommentFirstFlowManager
             return null;
         }
 
+        if (!$this->statusRepository->findByUid($requestedStatusUid) instanceof Status) {
+            return null;
+        }
+
         return $requestedStatusUid;
     }
 
