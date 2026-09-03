@@ -1,0 +1,89 @@
+<html
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:if condition="{watch.watchable}">
+    <div
+        class="btn-group content-planner-watch-toggle-group"
+        role="group"
+        aria-label="{f:translate(key: 'header.watch.groupLabel', extensionName: 'xima_typo3_content_planner')}"
+        data-content-planner-watch-container
+        data-table="{table}"
+        data-uid="{uid}"
+    >
+        <f:switch expression="{watch.mode}">
+            <f:case value="auto">
+                <button
+                    type="button"
+                    class="btn btn-default content-planner-watch-toggle content-planner-watch-toggle--auto"
+                    data-content-planner-watch-toggle
+                    data-table="{table}"
+                    data-uid="{uid}"
+                    aria-pressed="true"
+                    title="{f:translate(key: 'header.watch.tooltip.auto', extensionName: 'xima_typo3_content_planner')}"
+                >
+                    <core:icon identifier="actions-eye" size="small" alternativeMarkupIdentifier="inline"/>
+                    <span class="content-planner-watch-toggle__badge">{f:translate(key: 'header.watch.badge.auto', extensionName: 'xima_typo3_content_planner')}</span>
+                </button>
+            </f:case>
+            <f:case value="manual_watch">
+                <button
+                    type="button"
+                    class="btn btn-default content-planner-watch-toggle content-planner-watch-toggle--manual"
+                    data-content-planner-watch-toggle
+                    data-table="{table}"
+                    data-uid="{uid}"
+                    aria-pressed="true"
+                    title="{f:translate(key: 'header.watch.tooltip.manual', extensionName: 'xima_typo3_content_planner')}"
+                >
+                    <core:icon identifier="actions-eye" size="small" alternativeMarkupIdentifier="inline"/>
+                    <span class="content-planner-watch-toggle__badge">{f:translate(key: 'header.watch.badge.manual', extensionName: 'xima_typo3_content_planner')}</span>
+                </button>
+            </f:case>
+            <f:case value="manual_unwatch">
+                <button
+                    type="button"
+                    class="btn btn-default content-planner-watch-toggle content-planner-watch-toggle--muted"
+                    data-content-planner-watch-toggle
+                    data-table="{table}"
+                    data-uid="{uid}"
+                    aria-pressed="false"
+                    title="{f:translate(key: 'header.watch.tooltip.muted', extensionName: 'xima_typo3_content_planner')}"
+                >
+                    <core:icon identifier="actions-ban" size="small" alternativeMarkupIdentifier="inline"/>
+                    <span class="content-planner-watch-toggle__badge">{f:translate(key: 'header.watch.badge.muted', extensionName: 'xima_typo3_content_planner')}</span>
+                </button>
+            </f:case>
+            <f:defaultCase>
+                <button
+                    type="button"
+                    class="btn btn-default content-planner-watch-toggle content-planner-watch-toggle--inactive"
+                    data-content-planner-watch-toggle
+                    data-table="{table}"
+                    data-uid="{uid}"
+                    aria-pressed="false"
+                    title="{f:translate(key: 'header.watch.tooltip.inactive', extensionName: 'xima_typo3_content_planner')}"
+                >
+                    <core:icon identifier="actions-eye" size="small" alternativeMarkupIdentifier="inline"/>
+                    <span class="content-planner-watch-toggle__badge">{f:translate(key: 'header.watch.badge.inactive', extensionName: 'xima_typo3_content_planner')}</span>
+                </button>
+            </f:defaultCase>
+        </f:switch>
+        <f:if condition="{watch.count} > 0">
+            <f:variable name="watchersLabel">
+                <f:if condition="{watch.watcherNamesLabel}">
+                    <f:then>{f:translate(key: 'header.watch.watchers', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.watcherNamesLabel}')}</f:then>
+                    <f:else>{f:translate(key: 'header.watch.watchersCount', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.count}')}</f:else>
+                </f:if>
+            </f:variable>
+            <span
+                class="badge badge-secondary content-planner-watch-toggle__count"
+                title="{watchersLabel}"
+                aria-label="{watchersLabel}"
+            >{watch.count}</span>
+        </f:if>
+    </div>
+</f:if>
+</html>

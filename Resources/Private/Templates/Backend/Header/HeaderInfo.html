@@ -99,6 +99,8 @@
             </button>
         </div>
 
+        <f:render partial="WatchToggle" arguments="{table: table, uid: data.uid, watch: watch}"/>
+
         <div class="btn-group" role="group" aria-label="Comments">
             <f:if condition="{comments.newCommentUri}">
                 <a
