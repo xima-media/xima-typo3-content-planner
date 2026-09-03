@@ -86,4 +86,23 @@
             </div>
         </f:else>
     </f:if>
+
+    <f:if condition="{commentComposerHtml}">
+        <form class="content-planner-comment-composer content-planner-comment-composer--new"
+            data-comment-composer
+            data-mode="new"
+            data-table="{table}"
+            data-id="{id}"
+            data-parent-uid="0"
+            data-comment-uid="0">
+            <div class="content-planner-comment-composer__editor">
+                <f:format.raw>{commentComposerHtml}</f:format.raw>
+            </div>
+            <div class="content-planner-comment-composer__actions">
+                <button type="submit" class="btn btn-primary btn-sm" data-comment-composer-submit>
+                    <f:translate key="comment.actions.submit" extensionName="XimaTypo3ContentPlanner"/>
+                </button>
+            </div>
+        </form>
+    </f:if>
 </div>

@@ -23,6 +23,37 @@
 }
 
 /* ==========================================================================
+   Comment Composer (CP-28, #327)
+   ========================================================================== */
+
+.content-planner-comment-composer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--typo3-component-border-color, rgba(0, 0, 0, 0.1));
+}
+
+.content-planner-comment-composer--pending {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.content-planner-comment-composer__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.content-planner-comment__reply-slot:not(:empty) {
+    margin-top: 0.5rem;
+}
+
+.content-planner-comment__reply-slot .content-planner-comment-composer {
+    margin-top: 0.5rem;
+    padding-top: 0;
+    border-top: 0;
+}
+
+/* ==========================================================================
    Comment Modifiers
    ========================================================================== */
 

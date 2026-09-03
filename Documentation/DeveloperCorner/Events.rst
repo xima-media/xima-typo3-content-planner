@@ -168,11 +168,39 @@ This event is dispatched when a comment is marked as resolved. It is **not** dis
         - name: event.listener
           identifier: 'my-extension/comment-resolved'
 
+ModifyCommentEditorConfigurationEvent
+=====================================
+
+Dispatched once the comment composer's CKEditor5 configuration has been
+assembled, before it reaches the editor. Use it to register additional
+plugins, toolbar items or ``importModules`` entries without replacing
+``CommentEditorConfigurationFactory``.
+
+..  code-block:: php
+
+    <?php
+
+    use Xima\XimaTypo3ContentPlanner\Event\ModifyCommentEditorConfigurationEvent;
+
+    final class AddMentionPluginListener
+    {
+        public function __invoke(ModifyCommentEditorConfigurationEvent $event): void
+        {
+            $configuration = $event->getConfiguration();
+            $configuration['importModules'][] = '@my-extension/mention-plugin.js';
+            $event->setConfiguration($configuration);
+        }
+    }
+
+``getPid()`` returns the page the comment is written on, for listeners that
+need page-dependent configuration.
+
 ..  seealso::
 
     View the sources on GitHub:
 
     -   `PrepareStatusSelectionEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/PrepareStatusSelectionEvent.php>`__
+    -   `ModifyCommentEditorConfigurationEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/ModifyCommentEditorConfigurationEvent.php>`__
     -   `StatusChangeEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/StatusChangeEvent.php>`__
     -   `CommentCreatedEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/CommentCreatedEvent.php>`__
     -   `CommentResolvedEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/CommentResolvedEvent.php>`__

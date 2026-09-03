@@ -3,7 +3,6 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
-import CreateAndEditCommentModal from "@content-planner/create-and-edit-comment-modal.js"
 
 class CommentsListModal {
 
@@ -19,7 +18,10 @@ class CommentsListModal {
           item.getAttribute('data-table'),
           item.getAttribute('data-id'),
           item.getAttribute('data-new-comment-uri'),
-          item.getAttribute('data-edit-uri')
+          item.getAttribute('data-edit-uri'),
+          null,
+          false,
+          item.hasAttribute('data-focus-composer')
         )
       })
     })
@@ -63,7 +65,7 @@ class CommentsListModal {
     }, 300)
   }
 
-  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false, scrollToCommentUid = null, showResolved = false) {
+  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false, scrollToCommentUid = null, showResolved = false, focusComposer = false) {
     const buttons = [
       ...(newCommentUrl ? [{
         text: TYPO3.lang?.['button.modal.footer.new'] || 'New',
@@ -72,7 +74,11 @@ class CommentsListModal {
         active: true,
         btnClass: 'btn-primary',
         trigger: (event, modal) => {
-          CreateAndEditCommentModal.openModal(newCommentUrl, modal.querySelector('#content-planner-comment-list'), table, uid)
+          // The composer is already rendered inline at the bottom of the fetched comment
+          // list (CP-28, #327) - "New" just brings it into view.
+          const composer = modal.querySelector('[data-comment-composer][data-mode="new"]')
+          composer?.scrollIntoView({behavior: 'smooth', block: 'center'})
+          composer?.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
         }
       }] : []),
       ...(editUrl ? [{
@@ -120,6 +126,10 @@ class CommentsListModal {
 
             if (scrollToCommentUid) {
               this.scrollToComment(modal, scrollToCommentUid)
+            } else if (focusComposer) {
+              const composer = modal.querySelector('[data-comment-composer][data-mode="new"]')
+              composer?.scrollIntoView({behavior: 'smooth', block: 'center'})
+              composer?.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
             }
           }
         })

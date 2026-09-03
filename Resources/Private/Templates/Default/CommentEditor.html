@@ -1,0 +1,32 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<form class="content-planner-comment-composer"
+    data-comment-composer
+    data-mode="{mode}"
+    data-table="{table}"
+    data-id="{id}"
+    data-parent-uid="{parentUid}"
+    data-comment-uid="{commentUid}">
+    <div class="content-planner-comment-composer__editor">
+        <f:format.raw>{editorHtml}</f:format.raw>
+    </div>
+    <div class="content-planner-comment-composer__actions">
+        <button type="submit" class="btn btn-primary btn-sm" data-comment-composer-submit>
+            <f:if condition="{mode} == 'edit'">
+                <f:then>
+                    <f:translate key="comment.actions.save" extensionName="XimaTypo3ContentPlanner"/>
+                </f:then>
+                <f:else>
+                    <f:translate key="comment.actions.submit" extensionName="XimaTypo3ContentPlanner"/>
+                </f:else>
+            </f:if>
+        </button>
+        <f:if condition="{mode} == 'edit' || {mode} == 'reply'">
+            <button type="button" class="btn btn-default btn-sm" data-comment-composer-cancel>
+                <f:translate key="comment.actions.cancel" extensionName="XimaTypo3ContentPlanner"/>
+            </button>
+        </f:if>
+    </div>
+</form>
+</html>
