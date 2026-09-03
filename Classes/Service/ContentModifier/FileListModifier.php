@@ -17,6 +17,7 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -200,7 +201,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
      */
     private function injectDropdown(string $content, ?Status $status, array|bool $dropdownItems, string $pattern): string
     {
-        $title = $status instanceof Status ? htmlspecialchars($status->getTitle(), \ENT_QUOTES | \ENT_HTML5, 'UTF-8') : 'Status';
+        $statusLabel = $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status');
+        $title = htmlspecialchars($status instanceof Status ? $status->getTitle() : $statusLabel, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
 
         $iconHtml = $this->iconFactory->getIcon($icon, IconUtility::getDefaultIconSize())->render();
@@ -212,7 +214,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             }
         }
 
-        $dropdown = '<div class="btn-group dropdown"><a href="#" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'">'
+        $dropdown = '<div class="btn-group dropdown"><a href="#" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'" aria-label="'.$title.'">'
             .$iconHtml.'</a><ul class="dropdown-menu">'.$dropdownItemsHtml.'</ul></div>';
 
         $result = preg_replace($pattern, '$1'.$dropdown, $content);
@@ -237,5 +239,10 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         }
 
         return $result ?? $content;
+    }
+
+    private function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }

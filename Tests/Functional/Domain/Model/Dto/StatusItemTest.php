@@ -77,6 +77,18 @@ final class StatusItemTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('<', $item->getStatusIcon());
     }
 
+    /**
+     * CP-14 (#318): status must never be conveyed by colour alone in the dashboard
+     * widgets, so the icon markup must also carry the status title as real text.
+     */
+    #[Test]
+    public function getStatusIconCarriesStatusTitleAsTextForA11y(): void
+    {
+        $item = StatusItem::create($this->pageRow());
+
+        self::assertStringContainsString('In Progress', $item->getStatusIcon());
+    }
+
     #[Test]
     public function getRecordIconReturnsRenderedIcon(): void
     {

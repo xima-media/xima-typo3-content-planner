@@ -320,6 +320,10 @@
 				<source>edited</source>
 				<target>bearbeitet</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.menu">
+				<source>Comment actions</source>
+				<target>Kommentaraktionen</target>
+			</trans-unit>
 			<trans-unit id="comment.actions.edit">
 				<source>Edit</source>
 				<target>Bearbeiten</target>

@@ -65,12 +65,16 @@
 }
 
 /* Comment Todo Badge in Header */
+/* CP-14 (#318): black text on these custom status colours keeps a WCAG AA
+   contrast ratio of at least 4.5:1 (green ~6.7:1, yellow ~14.2:1); the
+   previous "resolved" white-on-green combination measured only ~3.1:1. */
 .content-planner-header__todo-badge .badge[data-status="resolved"] {
-    color: white;
+    color: #000;
     background-color: var(--content-planner-color-green);
 }
 
 .content-planner-header__todo-badge .badge[data-status="pending"] {
+    color: #000;
     background-color: var(--content-planner-color-yellow);
 }
 
