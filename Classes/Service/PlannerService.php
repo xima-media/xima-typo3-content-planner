@@ -77,7 +77,7 @@ class PlannerService
         } elseif (is_string($assignee)) {
             $assigneeId = $this->backendUserRepository->findByUsername($assignee);
             if ($assigneeId) {
-                $assigneeId = $assigneeId['uid'];
+                $assigneeId = (int) $assigneeId['uid'];
             }
         }
 
