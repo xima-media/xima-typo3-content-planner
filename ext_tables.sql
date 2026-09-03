@@ -137,7 +137,9 @@ CREATE TABLE tx_ximatypo3contentplanner_immediate_queue
 	crdate        int(11) DEFAULT '0' NOT NULL,
 
 	PRIMARY KEY (uid),
-	KEY recipient_record (backend_user, tablename(64), record_uid)
+	KEY recipient_record (backend_user, tablename(64), record_uid),
+	KEY sent_at (sent_at),
+	KEY recipient_sent_at (backend_user, sent_at)
 );
 
 CREATE TABLE tx_ximatypo3contentplanner_folder
