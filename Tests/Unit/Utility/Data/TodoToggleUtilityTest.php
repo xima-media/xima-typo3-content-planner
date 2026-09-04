@@ -82,4 +82,46 @@ final class TodoToggleUtilityTest extends TestCase
         self::assertStringContainsString('Ünicode item', $result);
         self::assertStringContainsString('<p>After</p>', $result);
     }
+
+    /**
+     * CKEditor's own saved content is already canonical HTML (double-quoted attributes,
+     * non-self-closing void elements) - toggle() reproduces that form exactly, so this is the
+     * form every comment actually saved through the composer round-trips through unchanged.
+     */
+    #[Test]
+    public function preservesAlreadyCanonicalMarkupExactly(): void
+    {
+        $content = '<p class="lead" data-x="one">Before</p><ul class="todo-list">'
+            .'<li><input type="checkbox">Open item</li></ul><br>After';
+
+        $result = TodoToggleUtility::toggle($content, 0, true);
+
+        self::assertSame(
+            '<p class="lead" data-x="one">Before</p><ul class="todo-list">'
+            .'<li><input type="checkbox" checked>Open item</li></ul><br>After',
+            $result,
+        );
+    }
+
+    /**
+     * Hand-authored non-canonical HTML (e.g. via the RTE's source-editing toolbar item) is not
+     * preserved byte-for-byte: DOMDocument::saveHTML() normalizes single/unquoted attributes to
+     * double quotes and drops the self-closing slash on void elements. This is a known,
+     * documented trade-off (see TodoToggleUtility::toggle() docblock) - cosmetic reformatting of
+     * equivalent HTML, not data loss, and it never affects CKEditor-authored content.
+     */
+    #[Test]
+    public function normalizesNonCanonicalMarkupToEquivalentHtml(): void
+    {
+        $content = "<p class='lead' data-x=one>Before</p><ul class=\"todo-list\">"
+            .'<li><input type="checkbox">Open item</li></ul><br/>After';
+
+        $result = TodoToggleUtility::toggle($content, 0, true);
+
+        self::assertSame(
+            '<p class="lead" data-x="one">Before</p><ul class="todo-list">'
+            .'<li><input type="checkbox" checked>Open item</li></ul><br>After',
+            $result,
+        );
+    }
 }
