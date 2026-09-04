@@ -414,6 +414,16 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
                 continue;
             }
 
+            // Internal marker set by CommentEditorController::commentToggleTodoAction() (CP-30,
+            // #389) - not a TCA column, never persisted. Ticking a to-do checkbox changes the
+            // `content` string but isn't a text edit, so it must not trip the "edited" flag the
+            // way a real content rewrite does. Left in place rather than unset: this hook runs
+            // twice per save (processDatamap_beforeStart and _preProcessFieldArray), and only
+            // the first pass would see an unset marker.
+            if (true === ($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['__todoToggle'] ?? false)) {
+                continue;
+            }
+
             $originalRecord = $this->commentRepository->findByUid((int) $id);
             if (!$originalRecord) {
                 continue;

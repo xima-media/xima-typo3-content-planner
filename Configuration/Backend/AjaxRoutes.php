@@ -40,4 +40,8 @@ return [
         'path' => '/content-planner/comment-save',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\CommentEditorController::class.'::commentSaveAction',
     ],
+    'ximatypo3contentplanner_commenttodotoggle' => [
+        'path' => '/content-planner/comment-todo-toggle',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\CommentEditorController::class.'::commentToggleTodoAction',
+    ],
 ];

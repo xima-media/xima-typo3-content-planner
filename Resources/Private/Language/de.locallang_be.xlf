@@ -224,6 +224,14 @@
 				<source>The comment could not be deleted.</source>
 				<target>Der Kommentar konnte nicht gelöscht werden.</target>
 			</trans-unit>
+			<trans-unit id="message.comment.todo.failure.title">
+				<source>To-do update failed</source>
+				<target>ToDo konnte nicht aktualisiert werden</target>
+			</trans-unit>
+			<trans-unit id="message.comment.todo.failure.message">
+				<source>The to-do item could not be updated.</source>
+				<target>Der ToDo-Eintrag konnte nicht aktualisiert werden.</target>
+			</trans-unit>
 			<trans-unit id="comment.editor.label">
 				<source>Comment text</source>
 				<target>Kommentartext</target>
