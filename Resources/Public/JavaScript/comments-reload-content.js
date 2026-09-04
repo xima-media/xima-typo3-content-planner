@@ -6,6 +6,7 @@ import CommentsResolvedItem from "@content-planner/comments-resolved-item.js";
 import CommentsDeleteItem from "@content-planner/comments-delete-item.js"
 import CommentsShareLink from "@content-planner/comments-share-link.js"
 import CommentComposer from "@content-planner/comment-composer.js"
+import CommentTodoToggle from "@content-planner/comment-todo-toggle.js"
 
 class CommentsReloadContent {
 

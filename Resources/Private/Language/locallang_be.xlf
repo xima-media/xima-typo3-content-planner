@@ -170,6 +170,12 @@
 			<trans-unit id="message.comment.delete.failure.message">
 			 	<source>The comment could not be deleted.</source>
 			</trans-unit>
+			<trans-unit id="message.comment.todo.failure.title">
+			 	<source>To-do update failed</source>
+			</trans-unit>
+			<trans-unit id="message.comment.todo.failure.message">
+			 	<source>The to-do item could not be updated.</source>
+			</trans-unit>
 			<trans-unit id="comment.editor.label">
 				<source>Comment text</source>
 			</trans-unit>

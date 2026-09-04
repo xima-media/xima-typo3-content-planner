@@ -26,7 +26,8 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
  * Covers the CP-28 (#327) inline comment composer: rendering the composer fragment
  * (commentEditorAction) and persisting comments through the DataHandler (commentSaveAction),
  * including the to-do checkbox round-trip regression required by the issue's acceptance
- * criteria.
+ * criteria. Also covers CP-30 (#389), toggling a single to-do checkbox directly from the
+ * comment display state (commentToggleTodoAction).
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -260,6 +261,142 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
         self::assertIsArray($comment);
         self::assertSame(3, (int) $comment['todo_total']);
         self::assertSame(2, (int) $comment['todo_resolved']);
+    }
+
+    // ==================== commentToggleTodoAction ====================
+
+    #[Test]
+    public function commentToggleTodoActionRejectsMissingParameters(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->commentToggleTodoAction($this->createPostRequest([]));
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function commentToggleTodoActionReturnsNotFoundForUnknownComment(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->commentToggleTodoAction(
+            $this->createPostRequest(['commentUid' => 99999, 'todoIndex' => 0, 'checked' => 1]),
+        );
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function commentToggleTodoActionDeniesUserWithoutEditPermission(): void
+    {
+        // Editor (uid 2) is a non-admin without any content planner permission, and did not
+        // author comment uid 1 - both canEditComment() branches (own/foreign) fail.
+        $this->loginBackendUser(2);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentToggleTodoAction(
+            $this->createPostRequest(['commentUid' => 1, 'todoIndex' => 0, 'checked' => 1]),
+        );
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function commentToggleTodoActionReturnsBadRequestForAnIndexBeyondTheAvailableCheckboxes(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $created = $this->createController()->commentSaveAction($this->createPostRequest([
+            'table' => 'pages',
+            'uid' => 1,
+            'content' => '<ul class="todo-list"><li><input type="checkbox">Only item</li></ul>',
+        ]));
+        $commentUid = (int) json_decode((string) $created->getBody(), true)['commentUid'];
+
+        $response = $this->createController()->commentToggleTodoAction(
+            $this->createPostRequest(['commentUid' => $commentUid, 'todoIndex' => 1, 'checked' => 1]),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    /**
+     * Toggling one checkbox persists through the DataHandler (todo_total/todo_resolved
+     * recalculated by DataHandlerHook::updateCommentTodo(), same as any other content edit)
+     * while leaving the rest of the comment's rich-text content untouched.
+     */
+    #[Test]
+    public function commentToggleTodoActionPersistsTheToggleWithoutTouchingOtherContent(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $content = '<p>Before the list</p><ul class="todo-list">'
+            .'<li><input type="checkbox">Open item</li>'
+            .'<li><input type="checkbox" checked>Done item</li>'
+            .'</ul>';
+
+        $created = $this->createController()->commentSaveAction($this->createPostRequest([
+            'table' => 'pages',
+            'uid' => 1,
+            'content' => $content,
+        ]));
+        $commentUid = (int) json_decode((string) $created->getBody(), true)['commentUid'];
+
+        $response = $this->createController()->commentToggleTodoAction(
+            $this->createPostRequest(['commentUid' => $commentUid, 'todoIndex' => 0, 'checked' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(2, $payload['todoTotal']);
+        self::assertSame(2, $payload['todoResolved']);
+
+        $comment = $this->get(CommentRepository::class)->findByUid($commentUid);
+        self::assertIsArray($comment);
+        self::assertStringContainsString('<p>Before the list</p>', $comment['content']);
+        self::assertSame(2, (int) $comment['todo_total']);
+        self::assertSame(2, (int) $comment['todo_resolved']);
+        // Unlike a real content edit (see commentSaveActionUpdatesContentOfAnExistingComment
+        // above), a to-do toggle must not trip the "edited" flag or badge - it changes a
+        // checkbox state, not the comment text.
+        self::assertSame(0, (int) $comment['edited']);
+    }
+
+    /**
+     * Unchecking is the same code path with the inverse `checked` argument - covered
+     * separately since toggleTodoCheckbox() branches on it explicitly.
+     */
+    #[Test]
+    public function commentToggleTodoActionCanUncheckAPreviouslyCheckedItem(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $created = $this->createController()->commentSaveAction($this->createPostRequest([
+            'table' => 'pages',
+            'uid' => 1,
+            'content' => '<ul class="todo-list"><li><input type="checkbox" checked>Done item</li></ul>',
+        ]));
+        $commentUid = (int) json_decode((string) $created->getBody(), true)['commentUid'];
+
+        $response = $this->createController()->commentToggleTodoAction(
+            $this->createPostRequest(['commentUid' => $commentUid, 'todoIndex' => 0, 'checked' => 0]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(0, $payload['todoResolved']);
+
+        $comment = $this->get(CommentRepository::class)->findByUid($commentUid);
+        self::assertIsArray($comment);
+        self::assertSame(0, (int) $comment['todo_resolved']);
     }
 
     private function createController(): CommentEditorController
