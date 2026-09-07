@@ -15,5 +15,6 @@ This section describes how to properly use the extension in various ways.
     Assignee
     Comments
     Filelist
+    PagetreeFacets
     Dashboard
     Command
