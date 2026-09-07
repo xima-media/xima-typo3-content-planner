@@ -19,6 +19,7 @@ use TYPO3\CMS\Dashboard\WidgetRegistry;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 
 return static function (ContainerConfigurator $configurator, ContainerBuilder $containerBuilder): void {
     $services = $configurator->services();
@@ -40,6 +41,7 @@ return static function (ContainerConfigurator $configurator, ContainerBuilder $c
             ->arg('$backendUserRepository', new Reference(BackendUserRepository::class))
             ->arg('$recordRepository', new Reference(RecordRepository::class))
             ->arg('$pageRenderer', new Reference(PageRenderer::class))
+            ->arg('$watcherService', new Reference(WatcherService::class))
             ->tag('dashboard.widget', [
                 'identifier' => 'contentPlanner-configurable',
                 'groupNames' => 'contentPlanner',

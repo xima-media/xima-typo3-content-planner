@@ -92,6 +92,35 @@ final class WatcherRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findActiveWatchedRecordsByUserGroupsUidsByTableAndExcludesManualUnwatch(): void
+    {
+        $this->subject->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('pages', 3, 1, WatchMode::ManualWatch, WatchSource::Manual);
+        $this->subject->upsert('pages', 2, 1, WatchMode::ManualUnwatch, WatchSource::Manual);
+
+        self::assertSame(
+            ['pages' => [1, 3]],
+            $this->subject->findActiveWatchedRecordsByUser(1),
+        );
+    }
+
+    #[Test]
+    public function findActiveWatchedRecordsByUserOnlyReturnsRowsForTheGivenUser(): void
+    {
+        $this->subject->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('pages', 2, 2, WatchMode::ManualWatch, WatchSource::Manual);
+
+        self::assertSame(['pages' => [1]], $this->subject->findActiveWatchedRecordsByUser(1));
+        self::assertSame(['pages' => [2]], $this->subject->findActiveWatchedRecordsByUser(2));
+    }
+
+    #[Test]
+    public function findActiveWatchedRecordsByUserReturnsEmptyArrayWhenUserWatchesNothing(): void
+    {
+        self::assertSame([], $this->subject->findActiveWatchedRecordsByUser(1));
+    }
+
+    #[Test]
     public function normalizeToDefaultLanguageUidResolvesTranslationToDefaultLanguageParent(): void
     {
         self::assertSame(1, $this->subject->normalizeToDefaultLanguageUid('pages', 2));

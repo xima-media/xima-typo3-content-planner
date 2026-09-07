@@ -23,6 +23,7 @@ use TYPO3\CMS\Dashboard\Widgets\{AdditionalCssInterface, JavaScriptInterface, Wi
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{PaginatedResult, StatusItem};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{IconUtility, ViewUtility};
 
@@ -43,6 +44,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         private readonly BackendUserRepository $backendUserRepository,
         private readonly RecordRepository $recordRepository,
         private readonly PageRenderer $pageRenderer,
+        private readonly WatcherService $watcherService,
     ) {}
 
     /**
@@ -92,6 +94,13 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
                 description: 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:widgets.configurable.setting.recordType.description',
                 enum: $this->getRecordTypeOptions(),
             ),
+            new SettingDefinition(
+                key: 'watchedByMe',
+                type: 'bool',
+                default: false,
+                label: 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:widgets.configurable.setting.watchedByMe.label',
+                description: 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:widgets.configurable.setting.watchedByMe.description',
+            ),
         ];
     }
 
@@ -110,8 +119,9 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         $status = '' !== $statusFilter ? (int) $statusFilter : null;
         $type = $this->resolveRecordTypeFilter($context);
         $todo = 'todo' === $mode;
+        $watchedByMe = $this->getBoolSetting($context, 'watchedByMe');
 
-        $result = $this->loadItems($status, $assignee, $type, $todo);
+        $result = $this->loadItems($status, $assignee, $type, $todo, $watchedByMe);
         $items = $result->items;
         $hasSite = array_filter($items, static fn (array $item): bool => '' !== ($item['site'] ?? ''));
 
@@ -169,18 +179,28 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         return $context->settings->has($key) ? (string) $context->settings->get($key) : $default;
     }
 
+    private function getBoolSetting(WidgetContext $context, string $key): bool
+    {
+        return $context->settings->has($key) && (bool) $context->settings->get($key);
+    }
+
     private function resolveAssigneeFilter(WidgetContext $context): ?int
     {
         $assigneeFilter = $this->getSetting($context, 'assignee', '');
 
         if ('current_user' === $assigneeFilter) {
-            /** @var BackendUserAuthentication $backendUser */
-            $backendUser = $GLOBALS['BE_USER'];
-
-            return $backendUser->getUserId();
+            return $this->getCurrentBackendUserId();
         }
 
         return '' !== $assigneeFilter ? (int) $assigneeFilter : null;
+    }
+
+    private function getCurrentBackendUserId(): int
+    {
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
+        return $backendUser->getUserId();
     }
 
     private function resolveRecordTypeFilter(WidgetContext $context): ?string
@@ -195,13 +215,16 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
      *
      * @throws Exception
      */
-    private function loadItems(?int $status, ?int $assignee, ?string $type, bool $todo): PaginatedResult
+    private function loadItems(?int $status, ?int $assignee, ?string $type, bool $todo, bool $watchedByMe): PaginatedResult
     {
+        $watchedRecords = $watchedByMe ? $this->watcherService->getWatchedRecords($this->getCurrentBackendUserId()) : null;
+
         $result = $this->recordRepository->findAllByFilter(
             status: $status,
             assignee: $assignee,
             type: $type,
             todo: $todo,
+            watchedRecords: $watchedRecords,
         );
 
         $items = array_map(
