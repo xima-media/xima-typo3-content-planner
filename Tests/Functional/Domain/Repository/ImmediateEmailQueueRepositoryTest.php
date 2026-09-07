@@ -24,7 +24,8 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
  * Covers the persistence layer backing {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\ImmediateEmailService}
  * (issue #306): every incoming immediate-mode notification is enqueued, `findLastSentAt()`
  * reports the throttle window's anchor per `(backend_user, tablename, record_uid)`, and
- * `markSentByUids()` is scoped exactly like {@see \Xima\XimaTypo3ContentPlanner\Domain\Repository\NotificationRepository::markDigestedByUids()}.
+ * `claimPending()`/`markSent()` together provide the exact-claimed-set, lease-reclaimable
+ * arbitration two concurrent callers need.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -65,7 +66,7 @@ final class ImmediateEmailQueueRepositoryTest extends AbstractFunctionalTestCase
         $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
         $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1001));
         $uids = array_map(static fn (array $row): int => (int) $row['uid'], $this->subject->findPending(2, 'pages', 1));
-        $this->subject->markSentByUids($uids, 5000);
+        $this->subject->markSent($uids, 5000);
 
         self::assertSame(5000, $this->subject->findLastSentAt(2, 'pages', 1));
     }
@@ -75,7 +76,7 @@ final class ImmediateEmailQueueRepositoryTest extends AbstractFunctionalTestCase
     {
         $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
         $uids = array_map(static fn (array $row): int => (int) $row['uid'], $this->subject->findPending(2, 'pages', 1));
-        $this->subject->markSentByUids($uids, 5000);
+        $this->subject->markSent($uids, 5000);
 
         self::assertNull($this->subject->findLastSentAt(3, 'pages', 1), 'different recipient');
         self::assertNull($this->subject->findLastSentAt(2, 'pages', 2), 'different record');
@@ -95,13 +96,13 @@ final class ImmediateEmailQueueRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function markSentByUidsOnlyTouchesTheGivenUids(): void
+    public function markSentOnlyTouchesTheGivenUids(): void
     {
         $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
         $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1001));
         $rows = $this->subject->findPending(2, 'pages', 1);
 
-        $this->subject->markSentByUids([(int) $rows[0]['uid']], 5000);
+        $this->subject->markSent([(int) $rows[0]['uid']], 5000);
 
         $stillPending = $this->subject->findPending(2, 'pages', 1);
         self::assertCount(1, $stillPending);
@@ -109,13 +110,82 @@ final class ImmediateEmailQueueRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function markSentByUidsWithAnEmptyListIsANoop(): void
+    public function markSentWithAnEmptyListIsANoop(): void
     {
         $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
 
-        $this->subject->markSentByUids([], 5000);
+        $this->subject->markSent([], 5000);
 
         self::assertCount(1, $this->subject->findPending(2, 'pages', 1));
+    }
+
+    #[Test]
+    public function claimPendingReturnsExactlyTheRowsItClaimed(): void
+    {
+        $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
+        $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1001));
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $this->subject->findPending(2, 'pages', 1));
+
+        $claimed = $this->subject->claimPending($uids, time() - 300);
+
+        self::assertCount(2, $claimed);
+        self::assertSame($uids, array_map(static fn (array $row): int => (int) $row['uid'], $claimed));
+    }
+
+    #[Test]
+    public function claimPendingWithAnEmptyListIsANoop(): void
+    {
+        self::assertSame([], $this->subject->claimPending([], time() - 300));
+    }
+
+    #[Test]
+    public function claimPendingDoesNotReclaimAnActiveClaim(): void
+    {
+        $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $this->subject->findPending(2, 'pages', 1));
+
+        $first = $this->subject->claimPending($uids, time() - 300);
+        $second = $this->subject->claimPending($uids, time() - 300);
+
+        self::assertCount(1, $first);
+        self::assertSame([], $second, 'a fresh, unexpired claim must not be reclaimable');
+    }
+
+    #[Test]
+    public function claimPendingReclaimsAnExpiredClaim(): void
+    {
+        $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $this->subject->findPending(2, 'pages', 1));
+
+        $this->subject->claimPending($uids, time() - 300);
+        // A lease expiry in the future means "anything claimed before right now is stale".
+        $reclaimed = $this->subject->claimPending($uids, time() + 1);
+
+        self::assertCount(1, $reclaimed, 'a claim older than the lease expiry must become reclaimable');
+    }
+
+    #[Test]
+    public function claimPendingDoesNotClaimAlreadySentRows(): void
+    {
+        $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $this->subject->findPending(2, 'pages', 1));
+        $this->subject->markSent($uids, 5000);
+
+        self::assertSame([], $this->subject->claimPending($uids, time() - 300));
+    }
+
+    #[Test]
+    public function findDistinctPendingTriplesReturnsOnlyTriplesWithUnsentRows(): void
+    {
+        $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1000));
+        $this->subject->enqueue($this->buildNotification(recipientUid: 2, table: 'pages', recordUid: 1, crdate: 1001));
+        $this->subject->enqueue($this->buildNotification(recipientUid: 3, table: 'tt_content', recordUid: 5, crdate: 1000));
+        $sentUids = array_map(static fn (array $row): int => (int) $row['uid'], $this->subject->findPending(3, 'tt_content', 5));
+        $this->subject->markSent($sentUids, 5000);
+
+        $triples = $this->subject->findDistinctPendingTriples();
+
+        self::assertSame([['backend_user' => 2, 'tablename' => 'pages', 'record_uid' => 1]], $triples);
     }
 
     private function buildNotification(int $recipientUid, string $table, int $recordUid, int $crdate): Notification

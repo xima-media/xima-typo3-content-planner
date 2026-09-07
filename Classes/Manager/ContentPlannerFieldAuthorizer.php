@@ -74,9 +74,10 @@ class ContentPlannerFieldAuthorizer
             return [$incomingFieldArray, true];
         }
 
-        $newAssignee = null !== $incomingFieldArray[Configuration::FIELD_ASSIGNEE]
-            ? (int) $incomingFieldArray[Configuration::FIELD_ASSIGNEE]
-            : null;
+        $rawAssignee = $incomingFieldArray[Configuration::FIELD_ASSIGNEE];
+        $newAssignee = ('' === $rawAssignee || null === $rawAssignee)
+            ? null
+            : (int) $rawAssignee;
         $previousAssignee = isset($preRecord[Configuration::FIELD_ASSIGNEE]) && $preRecord[Configuration::FIELD_ASSIGNEE] > 0
             ? (int) $preRecord[Configuration::FIELD_ASSIGNEE]
             : null;

@@ -21,6 +21,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\DigestRunResult;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\RecipientAccessChecker;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 use function array_key_exists;
 use function count;
@@ -195,7 +196,8 @@ final class DigestService implements LoggerAwareInterface
      */
     private function prefersImmediateEmail(array $recipient): bool
     {
-        return (bool) ($recipient[Configuration::FIELD_USER_IMMEDIATE_EMAIL] ?? false);
+        return ExtensionUtility::isNotificationImmediateEmailEnabled()
+            && (bool) ($recipient[Configuration::FIELD_USER_IMMEDIATE_EMAIL] ?? false);
     }
 
     /**

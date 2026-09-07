@@ -18,8 +18,9 @@ use TYPO3\CMS\Core\Localization\{LanguageService, LanguageServiceFactory};
 use TYPO3\CMS\Core\Mail\MailerInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Notification;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, ImmediateEmailQueueRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, ImmediateEmailQueueRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\Digest\{DigestGroupBuilder, DigestMailFactory};
+use Xima\XimaTypo3ContentPlanner\Service\Notification\RecipientAccessChecker;
 
 use function is_array;
 use function is_string;
@@ -66,6 +67,14 @@ class ImmediateEmailService
 
     private const GLOBAL_LIMIT_WINDOW_SECONDS = 3600;
 
+    /**
+     * How long a claim ({@see ImmediateEmailQueueRepository::claimPending()}) may sit without
+     * reaching {@see ImmediateEmailQueueRepository::markSent()} before another call is allowed to
+     * reclaim the same rows. Bounds how long a crashed/thrown-mid-send process can block its
+     * queue rows from ever being retried.
+     */
+    private const CLAIM_LEASE_SECONDS = 300;
+
     public function __construct(
         private readonly ImmediateEmailQueueRepository $queueRepository,
         private readonly DigestGroupBuilder $groupBuilder,
@@ -73,6 +82,8 @@ class ImmediateEmailService
         private readonly MailerInterface $mailer,
         private readonly BackendUserRepository $backendUserRepository,
         private readonly LanguageServiceFactory $languageServiceFactory,
+        private readonly RecordRepository $recordRepository,
+        private readonly RecipientAccessChecker $accessChecker,
     ) {}
 
     /**
@@ -85,28 +96,36 @@ class ImmediateEmailService
     {
         $this->queueRepository->enqueue($notification);
 
-        $lastSentAt = $this->queueRepository->findLastSentAt(
-            $notification->getRecipientUid(),
-            $notification->getTable(),
-            $notification->getRecordUid(),
-        );
+        $this->attemptFlush($notification->getRecipientUid(), $notification->getTable(), $notification->getRecordUid(), $recipient);
+    }
 
-        if (null !== $lastSentAt && (time() - $lastSentAt) < self::THROTTLE_WINDOW_SECONDS) {
-            // Still inside the throttle window: queued, flushed together with this event the
-            // next time one arrives after the window has passed.
-            return;
+    /**
+     * Re-checks every recipient/record pair that still has unsent queue rows and flushes the
+     * ones whose throttle window has now elapsed and whose hourly cap has now reset - the only
+     * way a batch that was queued (not sent) because of either limit ever gets flushed once no
+     * further live event arrives on that same record. Intended to run on a schedule (e.g. every
+     * few minutes) alongside `content-planner:notification:digest`.
+     *
+     * @return int number of triples actually flushed
+     *
+     * @throws Exception
+     */
+    public function flushDueQueues(): int
+    {
+        $flushed = 0;
+
+        foreach ($this->queueRepository->findDistinctPendingTriples() as $triple) {
+            $recipient = $this->backendUserRepository->findByUid($triple['backend_user']);
+            if (!is_array($recipient)) {
+                continue;
+            }
+
+            if ($this->attemptFlush($triple['backend_user'], $triple['tablename'], $triple['record_uid'], $recipient)) {
+                ++$flushed;
+            }
         }
 
-        $sentInWindow = $this->queueRepository->countSentSince(
-            $notification->getRecipientUid(),
-            time() - self::GLOBAL_LIMIT_WINDOW_SECONDS,
-        );
-
-        if ($sentInWindow >= self::GLOBAL_LIMIT_PER_WINDOW) {
-            return;
-        }
-
-        $this->flush($notification, $recipient);
+        return $flushed;
     }
 
     /**
@@ -114,30 +133,80 @@ class ImmediateEmailService
      *
      * @throws Exception
      */
-    private function flush(Notification $notification, array $recipient): void
+    private function attemptFlush(int $backendUserUid, string $table, int $recordUid, array $recipient): bool
     {
-        $rows = $this->queueRepository->findPending(
-            $notification->getRecipientUid(),
-            $notification->getTable(),
-            $notification->getRecordUid(),
-        );
+        $lastSentAt = $this->queueRepository->findLastSentAt($backendUserUid, $table, $recordUid);
+
+        if (null !== $lastSentAt && (time() - $lastSentAt) < self::THROTTLE_WINDOW_SECONDS) {
+            // Still inside the throttle window: queued, flushed together with this event the
+            // next time one arrives after the window has passed (or by flushDueQueues()).
+            return false;
+        }
+
+        $sentInWindow = $this->queueRepository->countSentSince($backendUserUid, time() - self::GLOBAL_LIMIT_WINDOW_SECONDS);
+
+        if ($sentInWindow >= self::GLOBAL_LIMIT_PER_WINDOW) {
+            return false;
+        }
+
+        return $this->flush($backendUserUid, $table, $recordUid, $recipient);
+    }
+
+    /**
+     * @param array<string, mixed> $recipient
+     *
+     * @throws Exception
+     */
+    private function flush(int $backendUserUid, string $table, int $recordUid, array $recipient): bool
+    {
+        $rows = $this->queueRepository->findPending($backendUserUid, $table, $recordUid);
 
         if ([] === $rows) {
-            return;
+            return false;
         }
 
-        // Claim before sending, not after: two concurrent saves can both find the same
-        // pending rows, and only the one whose UPDATE actually stamped them may send. The
-        // cost of this ordering is that a transport failure drops the mail rather than
-        // resending it, which is the better trade for a notification that also exists in the
-        // notification centre.
+        if (!$this->hasRecordAccess($backendUserUid, $table, $recordUid)) {
+            // The recipient's access to the record was revoked since these rows were queued.
+            // Leave them claimed-never/unsent so retention (issue #304) eventually sweeps them
+            // rather than emailing content this recipient may no longer read.
+            return false;
+        }
+
         $uids = array_map(static fn (array $row): int => (int) $row['uid'], $rows);
 
-        if (0 === $this->queueRepository->markSentByUids($uids, time())) {
-            return;
+        // Claim before sending, not after: two concurrent saves can both find the same pending
+        // rows, and each gets back only the exact subset its own claim actually touched -
+        // never a superset it merely observed. A transport failure below leaves the claim in
+        // place; it becomes reclaimable once CLAIM_LEASE_SECONDS has passed, so the mail is
+        // retried rather than silently dropped.
+        $claimedRows = $this->queueRepository->claimPending($uids, time() - self::CLAIM_LEASE_SECONDS);
+
+        if ([] === $claimedRows) {
+            return false;
         }
 
-        $this->sendInRecipientLanguage($recipient, $rows);
+        $this->sendInRecipientLanguage($recipient, $claimedRows);
+
+        $claimedUids = array_map(static fn (array $row): int => (int) $row['uid'], $claimedRows);
+        $this->queueRepository->markSent($claimedUids, time());
+
+        return true;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function hasRecordAccess(int $backendUserUid, string $table, int $recordUid): bool
+    {
+        // Folder status rows are not TCA records and carry no page to check against, matching
+        // DigestService::filterReadableRows()'s handling of the same case.
+        if (Configuration::TABLE_FOLDER === $table) {
+            return true;
+        }
+
+        $record = $this->recordRepository->findByUid($table, $recordUid, true);
+
+        return is_array($record) && $this->accessChecker->canAccess($backendUserUid, $table, $record);
     }
 
     /**
