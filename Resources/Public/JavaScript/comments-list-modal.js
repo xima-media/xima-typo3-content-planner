@@ -78,7 +78,7 @@ class CommentsListModal {
           // list (CP-28, #327) - "New" just brings it into view.
           const composer = modal.querySelector('[data-comment-composer][data-mode="new"]')
           composer?.scrollIntoView({behavior: 'smooth', block: 'center'})
-          composer?.querySelector('typo3-rte-ckeditor-ckeditor5')?.focus()
+          composer?.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
         }
       }] : []),
       ...(editUrl ? [{
@@ -129,7 +129,7 @@ class CommentsListModal {
             } else if (focusComposer) {
               const composer = modal.querySelector('[data-comment-composer][data-mode="new"]')
               composer?.scrollIntoView({behavior: 'smooth', block: 'center'})
-              composer?.querySelector('typo3-rte-ckeditor-ckeditor5')?.focus()
+              composer?.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
             }
           }
         })

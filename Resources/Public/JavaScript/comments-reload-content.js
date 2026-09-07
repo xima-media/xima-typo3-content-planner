@@ -55,7 +55,7 @@ class CommentsReloadContent {
       return
     }
     composer.scrollIntoView({behavior: 'smooth', block: 'center'})
-    composer.querySelector('typo3-rte-ckeditor-ckeditor5')?.focus()
+    composer.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
   }
 
   initRepliesToggle() {
