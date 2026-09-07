@@ -30,7 +30,6 @@ class NotificationCenter {
     // open (see NotificationToolbarItem::getDropDown()); fill it on first open.
     this.toolbarItem.addEventListener('show.bs.dropdown', () => {
       if (!this.listLoaded) {
-        this.listLoaded = true;
         this.refresh();
       }
     });
@@ -66,6 +65,7 @@ class NotificationCenter {
         const data = await result.response.json();
         this.replaceList(data.result);
         this.updateBadge(data.unreadCount, data.badgeLabel);
+        this.listLoaded = true;
       })
       .catch((error) => this.logIncompleteRequest('notification refresh', error));
   }
