@@ -54,6 +54,11 @@ class PlannerService
     }
 
     /**
+     * Note: this bypasses the DataHandler and writes the status directly via
+     * {@see RecordRepository::updateStatusByUid()}.
+     * No StatusChangeEvent/AssigneeChangedEvent is dispatched and no watcher relation is created -
+     * see that method's docblock for the reasoning.
+     *
      * @throws Exception
      */
     public function updateStatusForRecord(string $table, int $uid, Status|int|string $status, BackendUser|int|string|null $assignee = null): void

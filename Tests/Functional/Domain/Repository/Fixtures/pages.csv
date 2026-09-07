@@ -1,0 +1,4 @@
+"pages"
+,"uid","pid","title","tstamp","deleted","hidden","sys_language_uid","l10n_parent","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody"
+,1,0,"Home",1000,0,0,0,0,1,0,31,31,31
+,2,0,"Home (DE)",1000,0,0,1,1,1,0,31,31,31

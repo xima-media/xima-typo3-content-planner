@@ -27,6 +27,10 @@ class StatusChangeEvent
 
     /**
      * @param array<string, mixed> $fieldArray
+     * @param ?int                 $actorUid   UID of the backend user who triggered the change, or
+     *                                         null when unavailable (e.g. CLI context without an
+     *                                         authenticated backend user). Listeners must not fall
+     *                                         back to reading $GLOBALS['BE_USER'] themselves.
      */
     public function __construct(
         protected string $table,
@@ -34,6 +38,7 @@ class StatusChangeEvent
         protected array $fieldArray,
         protected ?Status $previousStatus,
         protected ?Status $newStatus,
+        protected ?int $actorUid = null,
     ) {}
 
     public function getTable(): string
@@ -75,5 +80,14 @@ class StatusChangeEvent
     public function setNewStatus(?Status $newStatus): void
     {
         $this->newStatus = $newStatus;
+    }
+
+    /**
+     * UID of the backend user who triggered the change, or null when unavailable (e.g. CLI
+     * context without an authenticated backend user).
+     */
+    public function getActorUid(): ?int
+    {
+        return $this->actorUid;
     }
 }
