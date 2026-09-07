@@ -132,6 +132,17 @@ class ProxyController extends ActionController
                     'severity' => ContextualFeedbackSeverity::ERROR,
                 ],
             ],
+            // Only 'failure' - a to-do toggle is a quick, high-frequency micro-interaction
+            // (click and move on, like a GitHub task list); a toast on every successful click
+            // would be noise. A failure still needs to be surfaced since the checkbox alone
+            // rolling back doesn't explain why.
+            'todo' => [
+                'failure' => [
+                    'title' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.comment.todo.failure.title',
+                    'message' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.comment.todo.failure.message',
+                    'severity' => ContextualFeedbackSeverity::ERROR,
+                ],
+            ],
         ],
     ];
 

@@ -369,3 +369,19 @@
         }
     }
 }
+
+/* ==========================================================================
+   Inline to-do toggle (CP-30, #389)
+   Own additions on top of the CKEditor to-do list styles above: an affordance for the
+   checkboxes comment-todo-toggle.js re-enables outside the editor, for comments the current
+   user is allowed to edit.
+   ========================================================================== */
+
+[data-todo-editable='true'] .todo-list__label > input:not(:disabled) {
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: 2px solid var(--typo3-state-primary-border, #007bff);
+        outline-offset: 2px;
+    }
+}
