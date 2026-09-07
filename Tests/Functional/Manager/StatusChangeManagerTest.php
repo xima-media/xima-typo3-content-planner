@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Manager;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{AssigneeChangedEvent, StatusChangeEvent};
@@ -392,6 +393,46 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
         // loginBackendUser() (called in setUp) authenticates as be_users uid 1.
         $fields = [Configuration::FIELD_STATUS => 2];
         $manager->processContentPlannerFields($fields, 'pages', 1);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDispatchesStatusChangeEventWhenAssigneeChangeIsUnauthorized(): void
+    {
+        // A user who may change the status but not assign others must still get the status
+        // change persisted and its event dispatched, even though the accompanying (unauthorized)
+        // assignee change is stripped. Regression for the early return in
+        // applyContentPlannerChanges() that used to skip handleStatusChange() entirely whenever
+        // assertAssignee() denied the assignee part of the same request.
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_status_change_only.csv');
+        $backendUser = $this->setUpBackendUser(6);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
+
+        $dispatched = [];
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->willReturnCallback(static function (object $event) use (&$dispatched) {
+                $dispatched[] = $event;
+
+                return $event;
+            });
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
+        );
+
+        // Page 1 has no status/assignee before. User 6 may change the status but has neither
+        // assign-self nor assign-others, so assigning to user 1 (not themselves) is denied.
+        $fields = [Configuration::FIELD_STATUS => 2, Configuration::FIELD_ASSIGNEE => 1];
+        $fields = $manager->processContentPlannerFields($fields, 'pages', 1);
+
+        self::assertArrayNotHasKey(Configuration::FIELD_ASSIGNEE, $fields, 'unauthorized assignee must be stripped');
+        self::assertSame(2, $fields[Configuration::FIELD_STATUS], 'authorized status change must still be applied');
+        self::assertCount(1, $dispatched);
+        self::assertInstanceOf(StatusChangeEvent::class, $dispatched[0]);
     }
 
     #[Test]
