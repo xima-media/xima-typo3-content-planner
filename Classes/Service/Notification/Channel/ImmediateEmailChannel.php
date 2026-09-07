@@ -58,8 +58,9 @@ final readonly class ImmediateEmailChannel implements NotificationChannelInterfa
     public function deliver(Notification $notification): void
     {
         $recipient = $this->fetchRecipient($notification);
-        if (!is_array($recipient)) {
-            // Race between supports() and deliver(): the recipient vanished in between.
+        if (!is_array($recipient) || !$this->isEligibleRecipient($recipient)) {
+            // Race between supports() and deliver(): the recipient vanished, was
+            // disabled, or opted out in between.
             return;
         }
 
