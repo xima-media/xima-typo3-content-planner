@@ -129,6 +129,10 @@ final class StatusRepositoryTest extends AbstractFunctionalTestCase
     #[Test]
     public function findDefaultReturnsTheStatusMarkedAsDefault(): void
     {
+        // The status list is cached under a fixed identifier ('...--status--all'), regardless
+        // of which fixture populated the table - flush it so this fixture's default status is
+        // not masked by an earlier test's cached findAll() result.
+        $this->get(CacheManager::class)->getCache(Configuration::CACHE_IDENTIFIER.'_cache')->flush();
         $this->importCSVDataSet(__DIR__.'/Fixtures/status_with_default.csv');
         $subject = $this->get(StatusRepository::class);
 
