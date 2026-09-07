@@ -69,7 +69,7 @@ class PlannerService
         if ($status instanceof Status) {
             $statusId = $status->getUid();
         } elseif (is_string($status)) {
-            $statusId = $this->statusRepository->findByTitle($status)->getUid();
+            $statusId = $this->statusRepository->findByTitle($status)?->getUid();
         }
 
         if (!is_int($statusId) || 0 === $statusId) {
@@ -82,7 +82,7 @@ class PlannerService
         } elseif (is_string($assignee)) {
             $assigneeId = $this->backendUserRepository->findByUsername($assignee);
             if ($assigneeId) {
-                $assigneeId = $assigneeId['uid'];
+                $assigneeId = (int) $assigneeId['uid'];
             }
         }
 
@@ -206,8 +206,12 @@ class PlannerService
 
     private function preCheckParentComment(string $table, int $uid, int $parentUid): void
     {
-        if ($parentUid <= 0) {
+        if (0 === $parentUid) {
             return;
+        }
+
+        if ($parentUid < 0) {
+            throw new InvalidArgumentException('Parent comment UID must be zero or a valid positive UID.', 4723563572);
         }
 
         $parentComment = $this->commentRepository->findByUid($parentUid);
