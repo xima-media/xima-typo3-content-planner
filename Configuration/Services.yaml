@@ -42,11 +42,27 @@ services:
   Xima\XimaTypo3ContentPlanner\Domain\Repository\WatcherRepository:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\NotificationRepository:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\PlannerService:
     public: true
 
   Xima\XimaTypo3ContentPlanner\Service\WatcherService:
     public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationSuppressionState:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationDispatcher:
+    public: true
+    arguments:
+      $channels: !tagged_iterator xima_typo3_content_planner.notification_channel
+
+  Xima\XimaTypo3ContentPlanner\Service\Notification\Channel\DatabaseChannel:
+    public: true
+    tags:
+      - name: xima_typo3_content_planner.notification_channel
 
   Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook:
     public: true

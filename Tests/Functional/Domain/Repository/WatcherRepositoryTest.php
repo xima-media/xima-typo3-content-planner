@@ -79,6 +79,19 @@ final class WatcherRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findActiveWatchersWithSourceExcludesManualUnwatchAndKeepsSourcePerUser(): void
+    {
+        $this->subject->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('pages', 1, 2, WatchMode::ManualWatch, WatchSource::Manual);
+        $this->subject->upsert('pages', 1, 3, WatchMode::ManualUnwatch, WatchSource::Manual);
+
+        self::assertEquals(
+            [1 => WatchSource::Assignment, 2 => WatchSource::Manual],
+            $this->subject->findActiveWatchersWithSource('pages', 1),
+        );
+    }
+
+    #[Test]
     public function normalizeToDefaultLanguageUidResolvesTranslationToDefaultLanguageParent(): void
     {
         self::assertSame(1, $this->subject->normalizeToDefaultLanguageUid('pages', 2));

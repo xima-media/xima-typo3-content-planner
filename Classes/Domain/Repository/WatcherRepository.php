@@ -146,6 +146,39 @@ class WatcherRepository
     }
 
     /**
+     * Active watchers for a record together with the {@see WatchSource} that explains why each
+     * one is watching, i.e. every backend user whose relation is not {@see WatchMode::ManualUnwatch}.
+     * Used by the notification dispatcher (issue #300) to derive a per-recipient "why you receive
+     * this" reason without a second query per watcher.
+     *
+     * @return array<int, WatchSource> keyed by backend user UID
+     *
+     * @throws Exception
+     */
+    public function findActiveWatchersWithSource(string $table, int $uid): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_WATCHER);
+
+        $rows = $queryBuilder
+            ->select('backend_user', 'source')
+            ->from(Configuration::TABLE_WATCHER)
+            ->where(
+                $queryBuilder->expr()->eq('tablename', $queryBuilder->createNamedParameter($table)),
+                $queryBuilder->expr()->eq('record_uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->neq('mode', $queryBuilder->createNamedParameter(WatchMode::ManualUnwatch->value)),
+            )
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $watchers = [];
+        foreach ($rows as $row) {
+            $watchers[(int) $row['backend_user']] = WatchSource::from((string) $row['source']);
+        }
+
+        return $watchers;
+    }
+
+    /**
      * Insert-or-update the watcher relation for (table, uid, beUser): a single row always exists
      * per unique triple once any trigger has fired for it (see the `watcher_lookup` unique key in
      * ext_tables.sql). Not implemented as a native DB-level upsert (not portable across the
