@@ -92,11 +92,14 @@ final class BulkUpdateCommand extends Command
             return $this->executeBulkUpdate($input, $output);
         }
 
+        $wasPaused = $this->notificationSuppressionState->isPaused();
         $this->notificationSuppressionState->pause();
         try {
             return $this->executeBulkUpdate($input, $output);
         } finally {
-            $this->notificationSuppressionState->resume();
+            if (!$wasPaused) {
+                $this->notificationSuppressionState->resume();
+            }
         }
     }
 
