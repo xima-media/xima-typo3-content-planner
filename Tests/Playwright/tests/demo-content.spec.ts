@@ -26,19 +26,14 @@ test('the seeded demo page tree is visible in the backend', async ({ page }) => 
   // root. Assert the actual hierarchy: TYPO3's page-tree renderer stamps
   // every treeitem with `data-tree-id`, built from its full ancestor path
   // (`<parent-data-tree-id>_<own-id>`), so a child's value is provably
-  // prefixed by its parent's. Verified against the tree.ts shipped in this
-  // project's pinned typo3/cms-backend (v13.4.33): the search filter above
-  // removes non-matching nodes from the DOM entirely, so the filter has to
-  // be cleared and the root expanded before the children are reachable.
-  await pageTree.clear();
-
+  // prefixed by its parent's. Each lookup runs in its own search() rather
+  // than relying on the tree being cleared/expanded first: whether a
+  // collapsed root actually renders its children on expand is lazy,
+  // unasserted UI behavior, while search() is the same filtered-DOM
+  // mechanism already exercised (and proven) by the loop above.
+  await pageTree.search(DEMO_ROOT_PAGE_TITLE);
   const root = pageTree.node(DEMO_ROOT_PAGE_TITLE);
   await expect(root).toBeVisible();
-
-  if ('false' === (await root.getAttribute('aria-expanded'))) {
-    await root.locator('.node-toggle').click();
-  }
-  await expect(root).toHaveAttribute('aria-expanded', 'true');
 
   const rootTreeId = await root.getAttribute('data-tree-id');
   if (null === rootTreeId) {
@@ -46,8 +41,13 @@ test('the seeded demo page tree is visible in the backend', async ({ page }) => 
   }
 
   for (const title of [DEMO_STATUS_PAGE_TITLE, DEMO_DRAFT_PAGE_TITLE]) {
+    await pageTree.search(title);
     const child = pageTree.node(title);
     await expect(child).toBeVisible();
-    await expect(child).toHaveAttribute('data-tree-id', new RegExp(`^${rootTreeId}_`));
+    const childTreeId = await child.getAttribute('data-tree-id');
+    if (null === childTreeId) {
+      throw new Error(`The demo child node "${title}" has no data-tree-id.`);
+    }
+    expect(childTreeId.startsWith(`${rootTreeId}_`)).toBe(true);
   }
 });
