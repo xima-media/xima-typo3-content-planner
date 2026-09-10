@@ -98,7 +98,7 @@ class RecordRepository
             static function (int $offset) use ($connection, $sql, $additionalParams): array {
                 $additionalParams['offset'] = $offset;
 
-                return $connection->executeQuery($sql, $additionalParams)->fetchAllAssociative();
+                return $connection->executeQuery($sql, $additionalParams, ['limit' => Connection::PARAM_INT, 'offset' => Connection::PARAM_INT])->fetchAllAssociative();
             },
             $maxResults,
             $batchSize,
