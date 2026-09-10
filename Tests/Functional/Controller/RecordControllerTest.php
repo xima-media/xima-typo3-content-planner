@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\RecordController;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -234,7 +235,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $recordRepository->expects(self::once())
             ->method('findAllByFilter')
             ->with('term', 2, 1, 'pages', true, 20, true)
-            ->willReturn([
+            ->willReturn(new PaginatedResult([
                 [
                     'uid' => 1,
                     'pid' => 0,
@@ -245,7 +246,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
                     Configuration::FIELD_ASSIGNEE => 1,
                     Configuration::FIELD_COMMENTS => 0,
                 ],
-            ]);
+            ], false));
 
         $response = $this->createController($recordRepository)->filterAction(
             $this->createRequest([
@@ -260,8 +261,37 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
-        self::assertCount(1, $payload);
-        self::assertSame('Home', $payload[0]['title']);
+        self::assertFalse($payload['hasMore']);
+        self::assertCount(1, $payload['items']);
+        self::assertSame('Home', $payload['items'][0]['title']);
+    }
+
+    #[Test]
+    public function filterActionSurfacesHasMoreFromRepository(): void
+    {
+        $this->loginBackendUser(1);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->expects(self::once())
+            ->method('findAllByFilter')
+            ->willReturn(new PaginatedResult([
+                [
+                    'uid' => 1,
+                    'pid' => 0,
+                    'tstamp' => 1000,
+                    'tablename' => 'pages',
+                    'title' => 'Home',
+                    Configuration::FIELD_STATUS => 2,
+                    Configuration::FIELD_ASSIGNEE => 1,
+                    Configuration::FIELD_COMMENTS => 0,
+                ],
+            ], true));
+
+        $response = $this->createController($recordRepository)->filterAction($this->createRequest([]));
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertTrue($payload['hasMore']);
     }
 
     #[Test]
@@ -273,13 +303,14 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $recordRepository->expects(self::once())
             ->method('findAllByFilter')
             ->with(null, null, null, null, false, 20, false)
-            ->willReturn([]);
+            ->willReturn(new PaginatedResult([], false));
 
         $response = $this->createController($recordRepository)->filterAction($this->createRequest([]));
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame([], $payload);
+        self::assertFalse($payload['hasMore']);
+        self::assertSame([], $payload['items']);
     }
 
     #[Test]

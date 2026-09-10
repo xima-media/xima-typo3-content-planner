@@ -21,13 +21,12 @@ use TYPO3\CMS\Core\Settings\SettingDefinition;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\{AdditionalCssInterface, JavaScriptInterface, WidgetConfigurationInterface, WidgetContext, WidgetRendererInterface, WidgetResult};
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{PaginatedResult, StatusItem};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{IconUtility, ViewUtility};
 
 use function count;
-use function is_array;
 use function sprintf;
 
 /**
@@ -112,7 +111,8 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         $type = $this->resolveRecordTypeFilter($context);
         $todo = 'todo' === $mode;
 
-        $items = $this->loadItems($status, $assignee, $type, $todo);
+        $result = $this->loadItems($status, $assignee, $type, $todo);
+        $items = $result->items;
         $hasSite = array_filter($items, static fn (array $item): bool => '' !== ($item['site'] ?? ''));
 
         $content = ViewUtility::render(
@@ -122,6 +122,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
                 'icon' => $this->determineIcon($mode, $assignee),
                 'items' => $items,
                 'itemCount' => count($items),
+                'hasMore' => $result->hasMore,
                 'todo' => $todo ? $this->buildTodoInfo() : false,
                 'mode' => $mode,
                 'hasAssigneeFilter' => null !== $assignee,
@@ -190,27 +191,25 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return PaginatedResult<array<string, mixed>>
      *
      * @throws Exception
      */
-    private function loadItems(?int $status, ?int $assignee, ?string $type, bool $todo): array
+    private function loadItems(?int $status, ?int $assignee, ?string $type, bool $todo): PaginatedResult
     {
-        $records = $this->recordRepository->findAllByFilter(
+        $result = $this->recordRepository->findAllByFilter(
             status: $status,
             assignee: $assignee,
             type: $type,
             todo: $todo,
         );
 
-        $items = [];
-        if (is_array($records)) {
-            foreach ($records as $record) {
-                $items[] = StatusItem::create($record)->toArray();
-            }
-        }
+        $items = array_map(
+            static fn (array $record): array => StatusItem::create($record)->toArray(),
+            $result->items,
+        );
 
-        return $items;
+        return new PaginatedResult($items, $result->hasMore);
     }
 
     /**

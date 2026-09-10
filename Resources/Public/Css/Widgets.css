@@ -196,6 +196,14 @@
     padding-bottom: 20px;
 }
 
+/* More results indicator */
+.content-planner-widget__more-results {
+    color: var(--typo3-text-color-variant, #6e6e6e);
+    font-size: 0.85rem;
+    padding: 8px 0;
+    text-align: center;
+}
+
 /* Avatar */
 .content-planner-widget .avatar {
     display: inline-block;

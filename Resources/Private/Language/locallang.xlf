@@ -69,6 +69,9 @@
 			<trans-unit id="widgets.contentPlanner.status.todo">
 				<source>There are currently %s open tasks in the comments of all content planner records.</source>
 			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.moreResults">
+				<source>More results are available. Refine your filter to narrow the list.</source>
+			</trans-unit>
 
 			<trans-unit id="button.modal.header.comments">
 				<source>Comments</source>

@@ -88,6 +88,11 @@
                     </f:for>
                     </tbody>
                 </table>
+                <f:if condition="{hasMore}">
+                    <div class="content-planner-widget__more-results" role="status">
+                        <f:translate key="widgets.contentPlanner.moreResults" extensionName="XimaTypo3ContentPlanner"/>
+                    </div>
+                </f:if>
             </f:then>
             <f:else>
                 <div class="content-planner-widget__empty">
