@@ -80,6 +80,17 @@ final class NotificationRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findLatestByRecipientBreaksEqualCrdateTiesByUidDescending(): void
+    {
+        $this->createNotification(recipientUid: 1, crdate: 1000);
+        $this->createNotification(recipientUid: 1, crdate: 1000);
+
+        $rows = $this->subject->findLatestByRecipient(1, 10);
+
+        self::assertGreaterThan((int) $rows[1]['uid'], (int) $rows[0]['uid']);
+    }
+
+    #[Test]
     public function findLatestByRecipientRespectsTheLimit(): void
     {
         for ($i = 0; $i < 5; ++$i) {
