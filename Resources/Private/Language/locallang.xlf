@@ -231,6 +231,15 @@
 			<trans-unit id="comment.actions.reply">
 				<source>Reply</source>
 			</trans-unit>
+			<trans-unit id="comment.actions.submit">
+				<source>Comment</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.save">
+				<source>Save</source>
+			</trans-unit>
+			<trans-unit id="comment.actions.cancel">
+				<source>Cancel</source>
+			</trans-unit>
 			<trans-unit id="comment.actions.replies.expand">
 				<source>Expand replies</source>
 			</trans-unit>

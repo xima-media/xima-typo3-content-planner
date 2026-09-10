@@ -51,6 +51,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\FileList\FileListStatusService:
     public: true
 

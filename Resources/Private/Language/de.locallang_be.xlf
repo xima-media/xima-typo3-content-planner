@@ -224,6 +224,10 @@
 				<source>The comment could not be deleted.</source>
 				<target>Der Kommentar konnte nicht gelöscht werden.</target>
 			</trans-unit>
+			<trans-unit id="comment.editor.label">
+				<source>Comment text</source>
+				<target>Kommentartext</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

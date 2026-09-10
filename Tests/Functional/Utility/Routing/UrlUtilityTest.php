@@ -52,13 +52,14 @@ final class UrlUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function getNewCommentUrlForPageUsesUidAsPid(): void
+    public function getNewCommentUrlBuildsCommentEditorAjaxUrl(): void
     {
         $url = UrlUtility::getNewCommentUrl('pages', 1);
 
         $decoded = urldecode($url);
-        self::assertStringContainsString('tx_ximatypo3contentplanner_comment][1]=new', $decoded);
-        self::assertStringContainsString('foreign_table', $decoded);
+        self::assertStringContainsString('/content-planner/comment-editor', $decoded);
+        self::assertStringContainsString('table=pages', $decoded);
+        self::assertStringContainsString('uid=1', $decoded);
     }
 
     #[Test]
@@ -66,16 +67,17 @@ final class UrlUtilityTest extends AbstractFunctionalTestCase
     {
         $url = UrlUtility::getNewCommentUrl('pages', 1, 7);
 
-        self::assertStringContainsString('parent_uid', urldecode($url));
+        self::assertStringContainsString('parentUid=7', urldecode($url));
     }
 
     #[Test]
-    public function getEditCommentUrlBuildsRecordEditUrl(): void
+    public function getEditCommentUrlBuildsCommentEditorAjaxUrl(): void
     {
         $url = UrlUtility::getEditCommentUrl(5);
 
         $decoded = urldecode($url);
-        self::assertStringContainsString('edit[tx_ximatypo3contentplanner_comment][5]=edit', $decoded);
+        self::assertStringContainsString('/content-planner/comment-editor', $decoded);
+        self::assertStringContainsString('commentUid=5', $decoded);
     }
 
     #[Test]

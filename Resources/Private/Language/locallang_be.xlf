@@ -170,6 +170,9 @@
 			<trans-unit id="message.comment.delete.failure.message">
 			 	<source>The comment could not be deleted.</source>
 			</trans-unit>
+			<trans-unit id="comment.editor.label">
+				<source>Comment text</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

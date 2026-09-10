@@ -21,7 +21,6 @@ use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 
 /**
  * UrlUtility.
@@ -61,30 +60,26 @@ class UrlUtility
         return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
     }
 
+    /**
+     * Builds the URL for the inline comment composer (CP-28, #327). Fetched via AJAX and
+     * rendered inline in the comments view - no FormEngine/record_edit iframe involved.
+     *
+     * `ximatypo3contentplanner_commenteditor` is an AJAX route (Configuration/Backend/
+     * AjaxRoutes.php), which the backend router registers internally under an "ajax_"
+     * prefixed identifier - required here since we build the URL server-side rather than
+     * looking it up client-side via TYPO3.settings.ajaxUrls.
+     *
+     * @throws RouteNotFoundException
+     */
     public static function getNewCommentUrl(string $table, int $uid, ?int $parentCommentUid = null): string
     {
-        /** @var ServerRequestInterface $request */
-        $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        $pid = $uid;
-        if ('pages' !== $table) {
-            $record = ContentUtility::getExtensionRecord($table, $uid);
-            $pid = (int) $record['pid'];
-        }
-
-        /** @var NormalizedParams $normalizedParams */
-        $normalizedParams = $request->getAttribute('normalizedParams');
-        $defVals = ['foreign_table' => $table, 'foreign_uid' => $uid];
+        $params = ['table' => $table, 'uid' => $uid];
         if (null !== $parentCommentUid) {
-            $defVals['parent_uid'] = $parentCommentUid;
+            $params['parentUid'] = $parentCommentUid;
         }
-        $params = [
-            'edit' => [Configuration::TABLE_COMMENT => [$pid => 'new']],
-            'returnUrl' => $normalizedParams->getRequestUri(),
-            'defVals' => [Configuration::TABLE_COMMENT => $defVals],
-        ];
 
-        return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
+        return (string) $uriBuilder->buildUriFromRoute('ajax_ximatypo3contentplanner_commenteditor', $params);
     }
 
     /**
@@ -92,18 +87,9 @@ class UrlUtility
      */
     public static function getEditCommentUrl(int $uid): string
     {
-        /** @var ServerRequestInterface $request */
-        $request = $GLOBALS['TYPO3_REQUEST'];
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
 
-        /** @var NormalizedParams $normalizedParams */
-        $normalizedParams = $request->getAttribute('normalizedParams');
-        $params = [
-            'edit' => [Configuration::TABLE_COMMENT => [$uid => 'edit']],
-            'returnUrl' => $normalizedParams->getRequestUri(),
-        ];
-
-        return (string) $uriBuilder->buildUriFromRoute('record_edit', $params);
+        return (string) $uriBuilder->buildUriFromRoute('ajax_ximatypo3contentplanner_commenteditor', ['commentUid' => $uid]);
     }
 
     /**

@@ -101,7 +101,7 @@
                 </ul>
             </div>
         </div>
-        <div class="content-planner-comment__text">{comment.data.content -> f:format.raw()}</div>
+        <div class="content-planner-comment__text" data-comment-text>{comment.data.content -> f:format.raw()}</div>
         <f:if condition="{comment.resolved}">
             <div>
                 <small class="text-success">
@@ -132,6 +132,9 @@
                     <f:translate key="comment.actions.reply" extensionName="XimaTypo3ContentPlanner"/>
                 </button>
             </div>
+        </f:if>
+        <f:if condition="!{isReply}">
+            <div class="content-planner-comment__reply-slot" data-reply-slot></div>
         </f:if>
     </div>
 </div>
