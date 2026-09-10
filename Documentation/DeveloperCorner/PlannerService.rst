@@ -1,34 +1,20 @@
 ..  include:: /Includes.rst.txt
 
-..  _planner_utility:
+..  _planner_service:
 
 =======================
-Planner Utility
+Planner Service
 =======================
 
-The :php:`PlannerUtility` can be used to easily interact programmatically with the content planner.
+:php:`PlannerService` is the injectable service backing :ref:`PlannerUtility <planner_utility>`.
+Inject it via the constructor wherever dependency injection is available - it is easier to
+test and makes the dependency on the content planner explicit.
 
-..  note::
+..  php:namespace:: Xima\XimaTypo3ContentPlanner\Service
 
-    :php:`PlannerUtility` is a thin static facade. Internally it delegates to the injectable
-    :php:`Xima\XimaTypo3ContentPlanner\Service\PlannerService`, which holds the actual logic
-    with its collaborators (:php:`StatusRepository`, :php:`RecordRepository`,
-    :php:`CommentRepository`, :php:`BackendUserRepository`) as constructor-injected
-    dependencies. Wherever constructor injection is available - controllers, event listeners,
-    other services - inject :php:`PlannerService` directly instead of calling the static
-    facade; it is easier to test and makes the dependency explicit. The facade remains the
-    documented, stable entry point for third-party code that has no container access (e.g.
-    a one-off CLI script or a legacy hook).
+..  php:class:: PlannerService
 
-    :php:`PlannerUtility::generateTodoForComment()` and :php:`PlannerUtility::hasComments()`
-    are pure helper functions with no collaborators; they stay directly on the facade and are
-    not part of :php:`PlannerService`.
-
-..  php:namespace:: Xima\XimaTypo3ContentPlanner\Utility
-
-..  php:class:: PlannerUtility
-
-    Utility class to use content planner functionalities.
+    Injectable service to interact programmatically with the content planner.
 
     ..  php:method:: getListOfStatus()
 
@@ -82,13 +68,6 @@ The :php:`PlannerUtility` can be used to easily interact programmatically with t
         :param int $parentUid: UID of the parent comment to reply to. Must belong to the same record, otherwise an :php:`\InvalidArgumentException` is thrown. ``0`` creates a top-level comment. If it identifies an existing reply rather than a root comment, the new comment is attached to that reply's root comment instead.
         :returntype: :php:`void`
 
-    ..  php:method:: generateTodoForComment($todos)
-
-        Simple function to generate the html todo markup for a comment to easily insert them into the comment content.
-
-        :param array $todos: Array of todo strings.
-        :returntype: :php:`string`
-
     ..  php:method:: clearCommentsOfRecord($table, $uid, $like = null)
 
         Simple function to clear all comment(s) of a content planner record.
@@ -98,15 +77,8 @@ The :php:`PlannerUtility` can be used to easily interact programmatically with t
         :param string|null $like: Optional string to filter comments by content.
         :returntype: :php:`void`
 
-    ..  php:method:: hasComments($record)
-
-        Simple function to check whether a record has comments.
-
-        :param array $record: Record array containing the content planner comment counter field.
-        :returntype: :php:`bool`
-
 ..  seealso::
 
     View the sources on GitHub:
 
-    -   `PlannerUtility <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Utility/PlannerUtility.php>`__
+    -   `PlannerService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/PlannerService.php>`__
