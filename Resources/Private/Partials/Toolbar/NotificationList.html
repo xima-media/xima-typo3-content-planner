@@ -1,0 +1,19 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:if condition="{items}">
+    <f:then>
+        <ul class="dropdown-list content-planner-notification-dropdown__list" id="content-planner-notification-list">
+            <f:for each="{items}" as="item">
+                <f:render partial="Toolbar/NotificationEntry" arguments="{item: item}"/>
+            </f:for>
+        </ul>
+    </f:then>
+    <f:else>
+        <div class="content-planner-notification-dropdown__empty" id="content-planner-notification-list">
+            <p>{f:translate(key: 'notification.dropdown.empty', extensionName: 'xima_typo3_content_planner')}</p>
+            <p class="content-planner-notification-dropdown__empty-hint">
+                {f:translate(key: 'notification.dropdown.empty.hint', extensionName: 'xima_typo3_content_planner')}
+            </p>
+        </div>
+    </f:else>
+</f:if>
+</html>
