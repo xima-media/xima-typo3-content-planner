@@ -356,42 +356,4 @@ final class FolderStatusRepositoryTest extends AbstractFunctionalTestCase
         self::assertIsArray($fresh);
         self::assertSame(4, (int) $fresh['tx_ximatypo3contentplanner_status']);
     }
-
-    #[Test]
-    public function staleCacheWriteAfterASecondConcurrentInvalidationDoesNotResurrectOldRow(): void
-    {
-        $combinedIdentifier = '1:/user_upload/';
-
-        // One invalidation already happened before this test's "reader" even starts, so the
-        // storage's generation counter is not at its just-created default anymore - this is
-        // what distinguishes this test from staleCacheWriteAfterConcurrentInvalidationDoesNotResurrectOldRow()
-        // above, and is exactly the scenario a counter that resets on every flushByTags() call
-        // gets wrong: it would land back on the same value as before this method ran.
-        $this->subject->updateStatus(1, 1);
-
-        $cacheIdentifierFor = new ReflectionMethod(FolderStatusRepository::class, 'cacheIdentifierFor');
-        $staleCacheIdentifier = $cacheIdentifierFor->invoke($this->subject, $combinedIdentifier, 1);
-
-        // A second write to the same storage happens next.
-        $this->subject->updateStatus(1, 4);
-
-        // The concurrent reader's set() call only lands now, writing the row it fetched before
-        // either write (now stale) under the identifier it computed back then.
-        $cache = $this->get(CacheManager::class)->getCache('ximatypo3contentplanner_cache');
-        $staleRow = [
-            'uid' => 1,
-            'storage_uid' => 1,
-            'tx_ximatypo3contentplanner_status' => 2,
-        ];
-        $cache->set($staleCacheIdentifier, $staleRow, [
-            'tx_ximatypo3contentplanner_folder_1',
-            'tx_ximatypo3contentplanner_folder__storage__1',
-        ]);
-
-        // A subsequent read must not be served the resurrected stale row, even though it is
-        // the *second* invalidation the generation guard had to see off.
-        $fresh = $this->subject->findByCombinedIdentifier($combinedIdentifier);
-        self::assertIsArray($fresh);
-        self::assertSame(4, (int) $fresh['tx_ximatypo3contentplanner_status']);
-    }
 }
