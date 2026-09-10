@@ -28,6 +28,10 @@ return [
         'path' => '/content-planner/mentions/suggest',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\MentionController::class.'::suggestAction',
     ],
+    'ximatypo3contentplanner_watch_toggle' => [
+        'path' => '/content-planner/watch/toggle',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\WatcherController::class.'::toggleAction',
+    ],
     'ximatypo3contentplanner_message' => [
         'path' => '/content-planner/message',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::messageAction',

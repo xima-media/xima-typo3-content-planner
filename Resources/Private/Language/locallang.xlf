@@ -119,6 +119,39 @@
 			<trans-unit id="header.comments.todo">
 				<source>Shows the count of the pending todos within the comments</source>
 			</trans-unit>
+			<trans-unit id="header.watch.groupLabel">
+				<source>Watch</source>
+			</trans-unit>
+			<trans-unit id="header.watch.badge.auto">
+				<source>auto</source>
+			</trans-unit>
+			<trans-unit id="header.watch.badge.manual">
+				<source>watching</source>
+			</trans-unit>
+			<trans-unit id="header.watch.badge.muted">
+				<source>muted</source>
+			</trans-unit>
+			<trans-unit id="header.watch.badge.inactive">
+				<source>watch</source>
+			</trans-unit>
+			<trans-unit id="header.watch.tooltip.inactive">
+				<source>Get notified about status changes, assignments and comments. Click to watch.</source>
+			</trans-unit>
+			<trans-unit id="header.watch.tooltip.auto">
+				<source>Get notified about status changes, assignments and comments. You're automatically watching this record because of an assignment, comment or status change. Click to stop watching.</source>
+			</trans-unit>
+			<trans-unit id="header.watch.tooltip.manual">
+				<source>Get notified about status changes, assignments and comments. You are watching this record. Click to stop watching.</source>
+			</trans-unit>
+			<trans-unit id="header.watch.tooltip.muted">
+				<source>Get notified about status changes, assignments and comments. You won't be re-added automatically. Click to watch again.</source>
+			</trans-unit>
+			<trans-unit id="header.watch.watchers">
+				<source>Watching: %s</source>
+			</trans-unit>
+			<trans-unit id="header.watch.watchersCount">
+				<source>%s watching</source>
+			</trans-unit>
 
 			<!-- time ago -->
 			<trans-unit id="timeAgo.years">

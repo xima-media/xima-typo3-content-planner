@@ -54,6 +54,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Service\WatcherService:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Service\WatcherPresentationService:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationSuppressionState:
     public: true
 
