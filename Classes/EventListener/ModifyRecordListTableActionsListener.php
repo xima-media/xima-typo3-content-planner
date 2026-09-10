@@ -61,8 +61,10 @@ final readonly class ModifyRecordListTableActionsListener
             return;
         }
 
+        $statusLabel = $this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status');
+
         $action = '<div class="btn-group" style="margin-left:10px;">
-                <a href="#" class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="test">'.
+                <a href="#" class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.htmlspecialchars($statusLabel, \ENT_QUOTES | \ENT_HTML5).'" aria-label="'.htmlspecialchars($statusLabel, \ENT_QUOTES | \ENT_HTML5).'">'.
             $this->iconFactory->getIcon('flag-gray', IconUtility::getDefaultIconSize())->render().'</a><ul class="dropdown-menu">';
 
         $actionsToAdd = [];

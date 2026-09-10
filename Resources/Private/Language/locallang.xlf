@@ -183,6 +183,9 @@
 			<trans-unit id="comment.edited">
 				<source>edited</source>
 			</trans-unit>
+			<trans-unit id="comment.actions.menu">
+				<source>Comment actions</source>
+			</trans-unit>
 			<trans-unit id="comment.actions.edit">
 				<source>Edit</source>
 			</trans-unit>

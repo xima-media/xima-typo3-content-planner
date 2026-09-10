@@ -389,12 +389,20 @@
    ========================================================================== */
 
 /* Badge - Todo Status */
-.content-planner-badge--resolved {
-    color: white;
+/* CP-14 (#318): selector corrected to match the markup StatusItem::getToDoHtml()/
+   ContentStatusWidget actually render (class="content-planner-badge badge"
+   data-status="resolved|pending") - the previous "--resolved"/"--pending" BEM
+   modifier classes never matched anything, so the widget's todo badge silently
+   never got its intended status colour. Black text keeps a WCAG AA contrast
+   ratio of at least 4.5:1 on both (green ~6.7:1, yellow ~14.2:1); white text
+   on green (the previous colour here) measured only ~3.1:1. */
+.content-planner-badge[data-status="resolved"] {
+    color: #000;
     background-color: var(--content-planner-color-green);
 }
 
-.content-planner-badge--pending {
+.content-planner-badge[data-status="pending"] {
+    color: #000;
     background-color: var(--content-planner-color-yellow);
 }
 

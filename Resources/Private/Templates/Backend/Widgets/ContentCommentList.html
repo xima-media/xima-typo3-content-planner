@@ -22,6 +22,9 @@
                             </span>
                             <small class="content-planner-comment__record">
                                 <core:icon identifier="{record.statusIcon}" size="small" title="{record.status}"/>
+                                <f:if condition="{record.status}">
+                                    <span class="visually-hidden">{record.status}</span>
+                                </f:if>
                                 <a href="{record.shareUri}" title="{record.title}">
                                     {record.title}
                                 </a>

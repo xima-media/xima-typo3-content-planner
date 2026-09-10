@@ -28,6 +28,9 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
 {
     private InfoGenerator $subject;
 
+    /** @var array<string, mixed>|null */
+    private ?array $extensionConfigurationBackup = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,6 +41,20 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         $this->loginBackendUser();
         $this->setUpBackendRequest('web_layout', ['id' => 1]);
         $this->subject = $this->get(InfoGenerator::class);
+        $this->extensionConfigurationBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] ?? null;
+    }
+
+    protected function tearDown(): void
+    {
+        // Restored here rather than at the end of the test body, so a failing assertion
+        // cannot leak the registered record tables into the next test in this process.
+        if (null === $this->extensionConfigurationBackup) {
+            unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]);
+        } else {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $this->extensionConfigurationBackup;
+        }
+
+        parent::tearDown();
     }
 
     #[Test]
@@ -71,6 +88,34 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('data-table="pages"', $result);
         self::assertStringContainsString('data-uid="1"', $result);
         self::assertStringContainsString('aria-label="', $result);
+    }
+
+    /**
+     * CP-14 (#318): the content element hint dots in the banner-mode header previously
+     * carried their status only via a `data-color` attribute (colour alone) and a
+     * `title`/aria-label limited to the content element's own title. Both must now also
+     * expose the content element's status as text.
+     */
+    #[Test]
+    public function generateStatusHeaderContentElementHintCarriesStatusAsTextNotColourAlone(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+
+        $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('data-color="', $result);
+        self::assertStringContainsString('Teaser', $result);
+        // Status 1 = "Draft" (see status.csv), distinct from page 1's own status
+        // (status 2 = "In Progress"), so this proves the CE's own status is exposed.
+        self::assertStringContainsString('Draft', $result);
+        self::assertMatchesRegularExpression('/aria-label="[^"]*Draft[^"]*"/', $result);
+        // The hint used to be a bare bullet whose only status signal was its colour, which
+        // sighted users cannot decode. It now renders the status icon, so the status is
+        // carried by a distinguishable shape as well.
+        self::assertStringNotContainsString('&#9679;', $result);
+        self::assertMatchesRegularExpression('/<svg|<span class="[^"]*t3js-icon/', $result);
     }
 
     #[Test]
