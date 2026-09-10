@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\EventListener;
 
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
+use ReflectionClass;
 use TYPO3\CMS\Backend\Controller\Event\AfterPageTreeItemsPreparedEvent;
 use TYPO3\CMS\Backend\Dto\Tree\Label\Label;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -171,9 +172,14 @@ final class AfterPageTreeItemsPreparedListenerTest extends AbstractFunctionalTes
      */
     private function createEvent(array $items): AfterPageTreeItemsPreparedEvent
     {
-        return new AfterPageTreeItemsPreparedEvent(
-            $this->createMock(ServerRequestInterface::class),
-            $items,
-        );
+        // TYPO3 14.3.7 added a $searchQuery constructor argument between $request and
+        // $items; ^14.3 can still resolve to an earlier patch release without it.
+        $reflection = new ReflectionClass(AfterPageTreeItemsPreparedEvent::class);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $arguments = 3 === $reflection->getConstructor()?->getNumberOfParameters()
+            ? [$request, null, $items]
+            : [$request, $items];
+
+        return $reflection->newInstanceArgs($arguments);
     }
 }
