@@ -14,12 +14,13 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Service\Notification\Immediate;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, ImmediateEmailQueueRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\Digest\{DigestGroupBuilder, DigestMailFactory};
-use Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\ImmediateEmailService;
+use Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\{ImmediateEmailRecipientEligibility, ImmediateEmailService};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\RecipientAccessChecker;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\Command\Fixtures\DigestMailerSpy;
@@ -43,6 +44,7 @@ final class ImmediateEmailServiceTest extends AbstractFunctionalTestCase
     private ImmediateEmailService $subject;
     private ImmediateEmailQueueRepository $queueRepository;
     private DigestMailerSpy $mailerSpy;
+    private BackendUserRepository $backendUserRepository;
 
     protected function setUp(): void
     {
@@ -50,19 +52,22 @@ final class ImmediateEmailServiceTest extends AbstractFunctionalTestCase
 
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
         $this->importCSVDataSet(__DIR__.'/Fixtures/be_users.csv');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_IMMEDIATE_EMAIL, '1');
 
         $this->queueRepository = $this->get(ImmediateEmailQueueRepository::class);
         $this->mailerSpy = new DigestMailerSpy();
+        $this->backendUserRepository = $this->get(BackendUserRepository::class);
 
         $this->subject = new ImmediateEmailService(
             $this->queueRepository,
             new DigestGroupBuilder(),
             new DigestMailFactory($this->get(RecordRepository::class)),
             $this->mailerSpy,
-            $this->get(BackendUserRepository::class),
+            $this->backendUserRepository,
             $this->get(LanguageServiceFactory::class),
             $this->get(RecordRepository::class),
             $this->get(RecipientAccessChecker::class),
+            new ImmediateEmailRecipientEligibility(),
         );
     }
 
@@ -121,6 +126,35 @@ final class ImmediateEmailServiceTest extends AbstractFunctionalTestCase
         self::assertCount(2, $this->mailerSpy->sentMessages);
     }
 
+    #[Test]
+    public function flushDueQueuesSendsAPendingRowOnceItsThrottleWindowHasElapsed(): void
+    {
+        $this->subject->handle($this->statusChange(crdate: 1000, previous: null, new: 'Draft'), $this->recipient());
+        $this->subject->handle($this->statusChange(crdate: 1001, previous: 'Draft', new: 'Review'), $this->recipient());
+        $this->expireTheThrottleWindow();
+
+        $flushed = $this->subject->flushDueQueues();
+
+        self::assertSame(1, $flushed);
+        self::assertCount(2, $this->mailerSpy->sentMessages);
+        self::assertCount(0, $this->queueRepository->findPending(self::RECIPIENT, 'pages', 1));
+    }
+
+    #[Test]
+    public function flushDueQueuesSkipsARecipientThatBecameIneligibleWhileQueued(): void
+    {
+        $this->subject->handle($this->statusChange(crdate: 1000, previous: null, new: 'Draft'), $this->recipient());
+        $this->subject->handle($this->statusChange(crdate: 1001, previous: 'Draft', new: 'Review'), $this->recipient());
+        $this->expireTheThrottleWindow();
+        $this->disableRecipient();
+
+        $flushed = $this->subject->flushDueQueues();
+
+        self::assertSame(0, $flushed);
+        self::assertCount(1, $this->mailerSpy->sentMessages);
+        self::assertCount(1, $this->queueRepository->findPending(self::RECIPIENT, 'pages', 1));
+    }
+
     private function statusChange(int $crdate, ?string $previous, string $new, int $recordUid = 1): Notification
     {
         return new Notification(
@@ -165,6 +199,16 @@ final class ImmediateEmailServiceTest extends AbstractFunctionalTestCase
             ->update(Configuration::TABLE_IMMEDIATE_QUEUE)
             ->set('sent_at', time() - 1000)
             ->where($queryBuilder->expr()->isNotNull('sent_at'))
+            ->executeStatement();
+    }
+
+    private function disableRecipient(): void
+    {
+        $queryBuilder = $this->getConnectionPool()->getQueryBuilderForTable('be_users');
+        $queryBuilder
+            ->update('be_users')
+            ->set('disable', 1)
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter(self::RECIPIENT, Connection::PARAM_INT)))
             ->executeStatement();
     }
 }

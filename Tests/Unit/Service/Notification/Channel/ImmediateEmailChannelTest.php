@@ -19,7 +19,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Notification\Channel\ImmediateEmailChannel;
-use Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\ImmediateEmailService;
+use Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\{ImmediateEmailRecipientEligibility, ImmediateEmailService};
 
 /**
  * ImmediateEmailChannelTest.
@@ -53,7 +53,10 @@ final class ImmediateEmailChannelTest extends TestCase
         $immediateEmailService = $this->createMock(ImmediateEmailService::class);
         $immediateEmailService->expects(self::once())->method('handle')->with($notification, $recipient);
 
-        (new ImmediateEmailChannel($backendUserRepository, $immediateEmailService))->deliver($notification);
+        $eligibility = $this->createMock(ImmediateEmailRecipientEligibility::class);
+        $eligibility->method('isEligible')->with($recipient)->willReturn(true);
+
+        (new ImmediateEmailChannel($backendUserRepository, $immediateEmailService, $eligibility))->deliver($notification);
     }
 
     #[Test]
@@ -65,7 +68,10 @@ final class ImmediateEmailChannelTest extends TestCase
         $immediateEmailService = $this->createMock(ImmediateEmailService::class);
         $immediateEmailService->expects(self::never())->method('handle');
 
-        (new ImmediateEmailChannel($backendUserRepository, $immediateEmailService))->deliver($this->buildNotification());
+        $eligibility = $this->createMock(ImmediateEmailRecipientEligibility::class);
+        $eligibility->expects(self::never())->method('isEligible');
+
+        (new ImmediateEmailChannel($backendUserRepository, $immediateEmailService, $eligibility))->deliver($this->buildNotification());
     }
 
     private function buildNotification(): Notification

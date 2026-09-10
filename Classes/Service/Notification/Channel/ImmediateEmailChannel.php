@@ -13,16 +13,12 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Service\Notification\Channel;
 
-use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Notification;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
-use Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\ImmediateEmailService;
+use Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\{ImmediateEmailRecipientEligibility, ImmediateEmailService};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationChannelInterface;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
-use function array_key_exists;
 use function is_array;
-use function is_string;
 
 /**
  * ImmediateEmailChannel.
@@ -44,21 +40,20 @@ final readonly class ImmediateEmailChannel implements NotificationChannelInterfa
     public function __construct(
         private BackendUserRepository $backendUserRepository,
         private ImmediateEmailService $immediateEmailService,
+        private ImmediateEmailRecipientEligibility $eligibility,
     ) {}
 
     public function supports(Notification $notification): bool
     {
-        if (!ExtensionUtility::isNotificationImmediateEmailEnabled()) {
-            return false;
-        }
+        $recipient = $this->fetchRecipient($notification);
 
-        return $this->isEligibleRecipient($this->fetchRecipient($notification));
+        return is_array($recipient) && $this->eligibility->isEligible($recipient);
     }
 
     public function deliver(Notification $notification): void
     {
         $recipient = $this->fetchRecipient($notification);
-        if (!is_array($recipient) || !$this->isEligibleRecipient($recipient)) {
+        if (!is_array($recipient) || !$this->eligibility->isEligible($recipient)) {
             // Race between supports() and deliver(): the recipient vanished, was
             // disabled, or opted out in between.
             return;
@@ -73,33 +68,5 @@ final readonly class ImmediateEmailChannel implements NotificationChannelInterfa
     private function fetchRecipient(Notification $notification): array|false
     {
         return $this->backendUserRepository->findByUid($notification->getRecipientUid());
-    }
-
-    /**
-     * @param array<string, mixed>|false $recipient
-     */
-    private function isEligibleRecipient(array|false $recipient): bool
-    {
-        if (!is_array($recipient) || (bool) ($recipient['deleted'] ?? false) || (bool) ($recipient['disable'] ?? false)) {
-            return false;
-        }
-
-        if (!$this->hasOptedIntoImmediateEmail($recipient)) {
-            return false;
-        }
-
-        $email = is_string($recipient['email'] ?? null) ? trim($recipient['email']) : '';
-
-        return false !== filter_var($email, \FILTER_VALIDATE_EMAIL);
-    }
-
-    /**
-     * @param array<string, mixed> $recipient
-     */
-    private function hasOptedIntoImmediateEmail(array $recipient): bool
-    {
-        $optedIntoDigest = !array_key_exists(Configuration::FIELD_USER_DIGEST, $recipient) || (bool) $recipient[Configuration::FIELD_USER_DIGEST];
-
-        return $optedIntoDigest && (bool) ($recipient[Configuration::FIELD_USER_IMMEDIATE_EMAIL] ?? false);
     }
 }

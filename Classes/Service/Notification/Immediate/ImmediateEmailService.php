@@ -84,6 +84,7 @@ class ImmediateEmailService
         private readonly LanguageServiceFactory $languageServiceFactory,
         private readonly RecordRepository $recordRepository,
         private readonly RecipientAccessChecker $accessChecker,
+        private readonly ImmediateEmailRecipientEligibility $eligibility,
     ) {}
 
     /**
@@ -116,7 +117,11 @@ class ImmediateEmailService
 
         foreach ($this->queueRepository->findDistinctPendingTriples() as $triple) {
             $recipient = $this->backendUserRepository->findByUid($triple['backend_user']);
-            if (!is_array($recipient)) {
+
+            // Rows queued via handle() were eligible at arrival time (checked by
+            // ImmediateEmailChannel), but eligibility can have changed by the time this
+            // scheduled sweep picks them up - reapply the exact same policy here.
+            if (!is_array($recipient) || !$this->eligibility->isEligible($recipient)) {
                 continue;
             }
 
