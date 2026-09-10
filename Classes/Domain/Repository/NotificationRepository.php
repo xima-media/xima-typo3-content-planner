@@ -84,6 +84,10 @@ class NotificationRepository
             ->addSelectLiteral('(CASE WHEN read_at IS NULL THEN 0 ELSE 1 END) AS is_read')
             ->orderBy('is_read', 'ASC')
             ->addOrderBy('crdate', 'DESC')
+            // Tie-breaker for equal crdate values (same-second bulk inserts): without it,
+            // SQL leaves their relative order undefined, so setMaxResults() below could drop
+            // a different row from the tail on every request.
+            ->addOrderBy('uid', 'DESC')
             ->setMaxResults($limit)
             ->executeQuery()
             ->fetchAllAssociative();
