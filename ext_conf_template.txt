@@ -6,6 +6,8 @@ enableFilelistSupport = 1
 enableContentElementSupport = 1
 # cat=basic/enable; type=boolean; label=Enable record edit header info
 recordEditHeaderInfo = 1
+# cat=basic/enable; type=options[Chip (doc header trio)=chip,Banner (full-width legacy)=banner]; label=Header display mode: the compact doc header chip trio (default since v3.0) or the legacy full-width banner/overlay
+headerDisplayMode = chip
 # cat=basic/enable; type=boolean; label=Enable web list header info
 webListHeaderInfo = 1
 # cat=basic/enable; type=options[Nothing=0,Comments=comments,Todos=todos]; label=Enable the additional information in the page tree. Choose between "Comments" or "Todos".

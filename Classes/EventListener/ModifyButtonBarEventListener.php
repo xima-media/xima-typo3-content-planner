@@ -18,13 +18,13 @@ use TYPO3\CMS\Backend\Module\ModuleInterface;
 use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
-use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\Header\ChipTrioButtonBuilder;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
-use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\{ComponentFactoryUtility, RouteUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -33,6 +33,11 @@ use function is_array;
 /**
  * ModifyButtonBarEventListener.
  *
+ * CP-25 (#324): in the default "chip" headerDisplayMode, this listener is also responsible
+ * for the doc header trio (status dropdown, assignee button, comment button) that replaces
+ * the retired RecordEditModifier banner. In the legacy "banner" mode it only adds the status
+ * dropdown, as before.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
@@ -40,11 +45,11 @@ use function is_array;
 final readonly class ModifyButtonBarEventListener
 {
     public function __construct(
-        private IconFactory $iconFactory,
         private StatusRepository $statusRepository,
         private RecordRepository $recordRepository,
         private DropDownSelectionService $dropDownSelectionService,
         private FolderStatusRepository $folderStatusRepository,
+        private ChipTrioButtonBuilder $chipTrioButtonBuilder,
     ) {}
 
     public function __invoke(ModifyButtonBarEvent $event): void
@@ -149,7 +154,14 @@ final readonly class ModifyButtonBarEventListener
         $status = $this->resolveStatusFromRecord($record);
         $buttonsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
 
-        $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
+        $this->chipTrioButtonBuilder->attachStatusDropdown($event, $status, $buttonsToAdd);
+
+        // generateSelection() returns false when the user is not allowed to see status info
+        // for this table (PermissionUtility::isTableAllowedForUser()) or none is configured;
+        // the assignee/comment buttons must respect that same gate, not just the dropdown.
+        if (false !== $buttonsToAdd) {
+            $this->addChipTrioButtons($event, $table, $uid, $record);
+        }
     }
 
     /**
@@ -214,42 +226,38 @@ final readonly class ModifyButtonBarEventListener
             $status = $this->statusRepository->findByUid((int) $folderRecord[Configuration::FIELD_STATUS]);
         }
 
-        $this->addFolderStatusDropdownButton($event, $folderIdentifier, $status);
-    }
-
-    private function addFolderStatusDropdownButton(ModifyButtonBarEvent $event, string $folderIdentifier, ?Status $status): void
-    {
-        $buttonsToAdd = $this->dropDownSelectionService->generateFolderSelection($folderIdentifier);
-
-        $this->attachDropdownToButtonBar($event, $status, $buttonsToAdd);
+        $this->addFolderStatusDropdownButton($event, $folderIdentifier, $status, is_array($folderRecord) ? $folderRecord : []);
     }
 
     /**
-     * @param array<string, \TYPO3\CMS\Backend\Template\Components\Buttons\DropDown\DropDownItemInterface>|false $buttonsToAdd
+     * @param array<string, mixed> $folderRecord
      */
-    private function attachDropdownToButtonBar(ModifyButtonBarEvent $event, ?Status $status, array|false $buttonsToAdd): void
+    private function addFolderStatusDropdownButton(ModifyButtonBarEvent $event, string $folderIdentifier, ?Status $status, array $folderRecord): void
     {
-        if (false === $buttonsToAdd) {
+        $buttonsToAdd = $this->dropDownSelectionService->generateFolderSelection($folderIdentifier);
+
+        $this->chipTrioButtonBuilder->attachStatusDropdown($event, $status, $buttonsToAdd);
+
+        if (false !== $buttonsToAdd && [] !== $folderRecord && isset($folderRecord['uid'])) {
+            $this->addChipTrioButtons($event, Configuration::TABLE_FOLDER, (int) $folderRecord['uid'], $folderRecord);
+        }
+    }
+
+    /**
+     * CP-25 (#324): Level 1 doc header trio. Adds an assignee button and a comment button
+     * next to the status dropdown (see ChipTrioButtonBuilder::attachStatusDropdown()) whenever the "chip"
+     * headerDisplayMode is active. No-op in "banner" mode, where the equivalent controls
+     * still live in the RecordEditModifier banner. Building the buttons themselves is
+     * delegated to ChipTrioButtonBuilder to keep this listener's complexity manageable.
+     *
+     * @param array<string, mixed> $record
+     */
+    private function addChipTrioButtons(ModifyButtonBarEvent $event, string $table, int $uid, array $record): void
+    {
+        if (ExtensionUtility::isBannerDisplayModeEnabled()) {
             return;
         }
 
-        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
-            ->setLabel('Dropdown')
-            ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status'))
-            ->setIcon($this->iconFactory->getIcon(
-                $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
-            ));
-
-        foreach ($buttonsToAdd as $buttonToAdd) {
-            if (!$buttonToAdd->isValid()) {
-                continue;
-            }
-            $dropDownButton->addItem($buttonToAdd);
-        }
-
-        $buttons = $event->getButtons();
-        $buttons['right'] ??= [];
-        $buttons['right'][] = [$dropDownButton];
-        $event->setButtons($buttons);
+        $this->chipTrioButtonBuilder->addButtons($event, $table, $uid, $record);
     }
 }

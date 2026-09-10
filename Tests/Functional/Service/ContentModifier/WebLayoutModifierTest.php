@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Service\ContentModifier;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Backend\Module\Module;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebLayoutModifier;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -26,6 +28,33 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
  */
 final class WebLayoutModifierTest extends AbstractFunctionalTestCase
 {
+    /**
+     * Several tests here switch the display mode and the registered record tables. The
+     * functional test case does not reset superglobals between methods in the same process,
+     * so restore whatever was there instead of leaking into the next test.
+     *
+     * @var array<string, mixed>|null
+     */
+    private ?array $extensionConfigurationBackup = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->extensionConfigurationBackup = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] ?? null;
+    }
+
+    protected function tearDown(): void
+    {
+        if (null === $this->extensionConfigurationBackup) {
+            unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]);
+        } else {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY] = $this->extensionConfigurationBackup;
+        }
+
+        parent::tearDown();
+    }
+
     #[Test]
     public function modifyKeepsTheInnerResponseStatusReasonPhraseAndHeaders(): void
     {
@@ -48,5 +77,38 @@ final class WebLayoutModifierTest extends AbstractFunctionalTestCase
         // The status hint for the fixture's tt_content record (pid 1, status 1) proves the
         // body was actually rebuilt, not just passed through unchanged.
         self::assertStringContainsString('data-uid="1"', $body);
+    }
+
+    #[Test]
+    public function isRelevantReturnsFalseInChipDisplayModeByDefault(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+
+        $modifier = $this->get(WebLayoutModifier::class);
+        $request = $this->buildPageLayoutRequest();
+
+        self::assertFalse($modifier->isRelevant($request));
+    }
+
+    #[Test]
+    public function isRelevantReturnsTrueInBannerDisplayMode(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
+
+        $modifier = $this->get(WebLayoutModifier::class);
+        $request = $this->buildPageLayoutRequest();
+
+        self::assertTrue($modifier->isRelevant($request));
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    private function buildPageLayoutRequest(): ServerRequest
+    {
+        $request = $this->setUpBackendRequest('web_layout', ['id' => 1]);
+
+        return $request->withAttribute('module', Module::createFromConfiguration('web_layout', ['path' => '/module/web_layout']));
     }
 }

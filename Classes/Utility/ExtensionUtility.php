@@ -167,6 +167,18 @@ class ExtensionUtility
         return $configuration[$feature] ?? '';
     }
 
+    /**
+     * CP-25 (#324): true for the legacy full-width banner/overlay display mode. False (the
+     * default from v3.0) means the compact doc header chip trio is active instead, and
+     * RecordEditModifier/WebLayoutModifier no longer inject their banner/overlay markup.
+     */
+    public static function isBannerDisplayModeEnabled(): bool
+    {
+        return Configuration::HEADER_DISPLAY_MODE_BANNER === self::getExtensionSetting(
+            Configuration::FEATURE_HEADER_DISPLAY_MODE,
+        );
+    }
+
     public static function getTitleField(string $table): string
     {
         // Not every table declares a label — and a stale registration has no TCA at all.

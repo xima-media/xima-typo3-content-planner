@@ -19,11 +19,16 @@ use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 
 use function in_array;
 
 /**
  * WebLayoutModifier.
+ *
+ * CP-25 (#324): only active in the legacy "banner" headerDisplayMode. The default "chip"
+ * mode decorates content elements via ContentElementPreviewStatusListener (a
+ * PageContentPreviewRenderingEvent listener) instead of this injected `<style>` overlay.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -33,6 +38,7 @@ class WebLayoutModifier extends AbstractModifier implements ModifierInterface
     public function isRelevant(ServerRequestInterface $request): bool
     {
         return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
+            && ExtensionUtility::isBannerDisplayModeEnabled()
             && null !== $request->getAttribute('module')
             && RouteUtility::isPageLayoutRoute($request->getAttribute('module')->getIdentifier())
             && in_array('tt_content', $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'], true);
