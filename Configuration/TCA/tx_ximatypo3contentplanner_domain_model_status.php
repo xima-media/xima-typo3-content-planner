@@ -33,7 +33,7 @@ return [
     ],
     'types' => [
         '0' => [
-            'showitem' => 'title,icon,color',
+            'showitem' => 'title,icon,color,is_default',
         ],
     ],
     'columns' => [
@@ -85,6 +85,15 @@ return [
                         'disabled' => false,
                     ],
                 ],
+            ],
+        ],
+        'is_default' => [
+            'exclude' => 1,
+            'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:tx_ximatypo3contentplanner_status.is_default',
+            'description' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:tx_ximatypo3contentplanner_status.is_default.description',
+            'config' => [
+                'type' => 'check',
+                'renderType' => 'checkboxToggle',
             ],
         ],
     ],

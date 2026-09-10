@@ -45,6 +45,12 @@
 			<trans-unit id="tx_ximatypo3contentplanner_status.color">
 				<source>Color</source>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.is_default">
+				<source>Use as initial status</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.is_default.description">
+				<source>Applied automatically by the one-click "comment sets status" flow on records that do not have a status yet. Only one status can carry this flag.</source>
+			</trans-unit>
 			<trans-unit id="permission.group">
 				<source>Content Planner</source>
 			</trans-unit>

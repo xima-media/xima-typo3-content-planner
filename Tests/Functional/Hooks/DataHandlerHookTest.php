@@ -23,7 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{CommentCreatedEvent, CommentResolvedEvent};
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
-use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
+use Xima\XimaTypo3ContentPlanner\Manager\{StatusChangeManager, StatusDefaultManager};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 use function sprintf;
@@ -569,6 +569,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(EventDispatcherInterface::class),
+            $this->get(StatusDefaultManager::class),
         );
 
         $hook->processCmdmap_preProcess('delete', self::STATUS_TABLE, $uid, $unused, $dataHandler, null);
@@ -602,6 +603,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(EventDispatcherInterface::class),
+            $this->get(StatusDefaultManager::class),
         );
     }
 
@@ -613,6 +615,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $dispatcher,
+            $this->get(StatusDefaultManager::class),
         );
     }
 }

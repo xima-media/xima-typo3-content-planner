@@ -23,6 +23,7 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Manager\CommentFirstFlowManager;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
@@ -48,6 +49,7 @@ class CommentEditorController extends ActionController
         private readonly RecordRepository $recordRepository,
         private readonly CommentRepository $commentRepository,
         private readonly CommentEditorConfigurationFactory $commentEditorConfigurationFactory,
+        private readonly CommentFirstFlowManager $commentFirstFlowManager,
     ) {}
 
     /**
@@ -217,6 +219,11 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Invalid parent comment'], 400);
         }
 
+        $statusUidResult = $this->resolveCommentFirstStatusUid($body, $record);
+        if ($statusUidResult instanceof JsonResponse) {
+            return $statusUidResult;
+        }
+
         $pid = 'pages' === $table ? $id : (int) $record['pid'];
         $newId = StringUtility::getUniqueId('NEW');
         $data = [
@@ -230,6 +237,14 @@ class CommentEditorController extends ActionController
                 ],
             ],
         ];
+
+        // CP-27 (#326): comment-first flow - status and comment are written in the same
+        // process_datamap() call, so DataHandlerHook applies the normal status-change
+        // machinery (StatusChangeManager, auto-assignment, StatusChangeEvent) to $table/$id
+        // exactly as it would for a standalone status change.
+        if (null !== $statusUidResult) {
+            $data[$table][$id] = [Configuration::FIELD_STATUS => $statusUidResult];
+        }
 
         // DataHandler is inherently a per-operation, stateful object, never a shared service -
         // creating it via makeInstance() here (rather than injecting it) is the correct TYPO3
@@ -304,6 +319,30 @@ class CommentEditorController extends ActionController
             'parentUid' => (int) $comment['parent_uid'],
             'commentCount' => $this->commentRepository->countAllByRecord($recordId, $table),
         ]);
+    }
+
+    /**
+     * CP-27 (#326): resolves the statusUid the composer submitted alongside a new comment on
+     * a status-less record. A statusUid the current user is not allowed to set is a request
+     * the UI would never send on its own, so it is rejected outright rather than silently
+     * dropped; a record that already has a status (e.g. a race with another edit) just
+     * ignores it and falls back to a plain comment save.
+     *
+     * @param array<string, mixed> $body
+     * @param array<string, mixed> $record
+     */
+    private function resolveCommentFirstStatusUid(array $body, array $record): int|JsonResponse|null
+    {
+        $requestedStatusUid = isset($body['statusUid']) && '' !== $body['statusUid'] ? (int) $body['statusUid'] : null;
+        if (null === $requestedStatusUid || $requestedStatusUid <= 0) {
+            return null;
+        }
+
+        if (!PermissionUtility::canChangeStatus($requestedStatusUid)) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        return $this->commentFirstFlowManager->resolveStatusUidForCommentFirst($record, $requestedStatusUid);
     }
 
     private function parentCommentBelongsToRecord(int $parentUid, string $table, int $id): bool

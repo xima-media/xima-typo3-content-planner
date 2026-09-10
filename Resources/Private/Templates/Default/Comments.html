@@ -94,13 +94,38 @@
             data-table="{table}"
             data-id="{id}"
             data-parent-uid="0"
-            data-comment-uid="0">
+            data-comment-uid="0"
+            data-status-uid="{commentFirst.defaultStatus.uid}">
+            <f:if condition="{commentFirst.mode} == 'picker'">
+                <div class="content-planner-comment-composer__status-picker">
+                    <label for="content-planner-comment-status-picker">
+                        <f:translate key="comment.commentFirst.picker.label" extensionName="XimaTypo3ContentPlanner"/>
+                    </label>
+                    <select id="content-planner-comment-status-picker" name="statusUid"
+                            class="form-select form-select-sm" data-comment-status-picker required>
+                        <option value="" selected disabled>
+                            <f:translate key="comment.commentFirst.picker.placeholder" extensionName="XimaTypo3ContentPlanner"/>
+                        </option>
+                        <f:for each="{commentFirst.statuses}" as="statusOption">
+                            <option value="{statusOption.uid}">{statusOption.title}</option>
+                        </f:for>
+                    </select>
+                </div>
+            </f:if>
             <div class="content-planner-comment-composer__editor">
                 <f:format.raw>{commentComposerHtml}</f:format.raw>
             </div>
             <div class="content-planner-comment-composer__actions">
                 <button type="submit" class="btn btn-primary btn-sm" data-comment-composer-submit>
-                    <f:translate key="comment.actions.submit" extensionName="XimaTypo3ContentPlanner"/>
+                    <f:if condition="{commentFirst.mode} == 'oneClick'">
+                        <f:then>
+                            <f:translate key="comment.commentFirst.oneClick.submit" extensionName="XimaTypo3ContentPlanner"
+                                        arguments="{0: '{commentFirst.defaultStatus.title}'}"/>
+                        </f:then>
+                        <f:else>
+                            <f:translate key="comment.actions.submit" extensionName="XimaTypo3ContentPlanner"/>
+                        </f:else>
+                    </f:if>
                 </button>
             </div>
         </form>
