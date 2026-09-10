@@ -241,6 +241,9 @@
 			<trans-unit id="digest.mail.line.comment">
 				<source>Comment: %s</source>
 			</trans-unit>
+			<trans-unit id="digest.mail.line.mention">
+				<source>You were mentioned: %s</source>
+			</trans-unit>
 			<trans-unit id="digest.mail.unassigned">
 				<source>Unassigned</source>
 			</trans-unit>

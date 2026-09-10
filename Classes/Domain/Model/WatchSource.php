@@ -19,8 +19,9 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model;
  * Persisted in the `source` column of `tx_ximatypo3contentplanner_watcher`. Records *why* a
  * watcher relation exists, independent of its current {@see WatchMode}.
  *
- * {@see self::Mention} is reserved for a future auto-watch trigger and is not dispatched by
- * this issue's scope.
+ * {@see self::Mention} (issue #305) is set by {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\MentionNotificationService}
+ * whenever a comment mentions a backend user - subject to the same sticky-against-manual rule
+ * every other auto-watch source already follows in {@see \Xima\XimaTypo3ContentPlanner\Service\WatcherService::watch()}.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later

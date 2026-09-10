@@ -96,7 +96,7 @@
                 </ul>
             </div>
         </div>
-        <div class="content-planner-comment__text">{comment.data.content -> f:format.raw()}</div>
+        <div class="content-planner-comment__text">{comment.content -> f:format.raw()}</div>
         <f:if condition="{comment.resolved}">
             <div>
                 <small class="text-success">

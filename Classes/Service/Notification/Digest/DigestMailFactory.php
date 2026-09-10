@@ -103,6 +103,9 @@ final class DigestMailFactory
         if (null !== $group->getLatestCommentExcerpt()) {
             $lines[] = sprintf($languageService->sL(self::languageLabel('digest.mail.line.comment')), $group->getLatestCommentExcerpt());
         }
+        if (null !== $group->getLatestMentionExcerpt()) {
+            $lines[] = sprintf($languageService->sL(self::languageLabel('digest.mail.line.mention')), $group->getLatestMentionExcerpt());
+        }
         if ($group->getContentChangeCount() > 0) {
             $lines[] = $this->buildContentChangeLine($group, $languageService);
         }
