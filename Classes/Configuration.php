@@ -96,6 +96,27 @@ class Configuration
     final public const PERMISSION_ASSIGN_SELF = 'assign-self';
     final public const PERMISSION_ASSIGN_OTHERS = 'assign-others';
 
+    /*
+     * XCLASSes core's page tree TreeController to append FIELD_STATUS and
+     * FIELD_COMMENTS to the fields fetched per page tree node (see
+     * Controller/TreeController::initializePageTreeRepository()). Without it,
+     * AfterPageTreeItemsPreparedListener would have no status/comment data to
+     * read off `$item['_page']`, and the only alternative is an additional
+     * lookup query per tree node (N+1) since AfterPageTreeItemsPreparedEvent
+     * fires after the tree's own SQL query already ran with a fixed field list,
+     * and AfterRawPageRowPreparedEvent fires per already-fetched row, too late
+     * to widen that SELECT.
+     *
+     * One override serves both v13 and v14: core's
+     * initializePageTreeRepository() is byte-identical between them.
+     *
+     * Note that $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']
+     * [BackendTreeController::class] only accepts one registrant, so this is a
+     * hard conflict with any other extension overriding the page tree's
+     * TreeController. See the Developer Corner "Page tree integration"
+     * documentation for the full rationale, the version comparison and the
+     * conflict-resolution options.
+     */
     public static function overrideClasses(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = [

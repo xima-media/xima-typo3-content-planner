@@ -22,11 +22,26 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 /**
  * TreeController.
  *
+ * Registered as an XCLASS of core's page tree TreeController in
+ * Configuration::overrideClasses() (see that method for the full rationale
+ * and its conflict potential with other extensions). Keep this override
+ * limited to initializePageTreeRepository() below: it is the only method
+ * that needs to change, and every line beyond the two-value $fields array
+ * merely duplicates core's own implementation so it stays a drop-in
+ * replacement across TYPO3 versions.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
 class TreeController extends \TYPO3\CMS\Backend\Controller\Page\TreeController
 {
+    /**
+     * Identical to core's TreeController::initializePageTreeRepository(),
+     * except for passing [Configuration::FIELD_STATUS, Configuration::
+     * FIELD_COMMENTS] instead of an empty array as $additionalFieldsToQuery,
+     * so those columns end up on every tree node's `_page` data without an
+     * extra query per node.
+     */
     protected function initializePageTreeRepository(): PageTreeRepository
     {
         $backendUser = $this->getBackendUser();
