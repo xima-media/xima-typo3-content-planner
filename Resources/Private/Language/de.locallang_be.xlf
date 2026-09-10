@@ -281,6 +281,47 @@
 				<source>You were mentioned</source>
 				<target>Du wurdest erwähnt</target>
 			</trans-unit>
+			<!-- email digest -->
+			<trans-unit id="digest.mail.greeting">
+				<source>Hi %s,</source>
+				<target>Hallo %s,</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.subject">
+				<source>Content Planner: %d update(s) to review</source>
+				<target>Content Planner: %d Aktualisierung(en) zu prüfen</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.headline">
+				<source>Here's what changed while you were away</source>
+				<target>Das hat sich in der Zwischenzeit geändert</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.intro">
+				<source>You're receiving this because you're watching the following records.</source>
+				<target>Du erhältst diese E-Mail, weil du die folgenden Datensätze beobachtest.</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.status">
+				<source>Status: %s</source>
+				<target>Status: %s</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.assignee">
+				<source>Assignee: %s</source>
+				<target>Zuständigkeit: %s</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.comment">
+				<source>Comment: %s</source>
+				<target>Kommentar: %s</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.unassigned">
+				<source>Unassigned</source>
+				<target>Nicht zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.record.unresolved">
+				<source>A record that is no longer available</source>
+				<target>Ein Datensatz, der nicht mehr verfügbar ist</target>
+			</trans-unit>
+			<trans-unit id="digest.mail.footer">
+				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Unwatch". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
+				<target>Um für einen bestimmten Datensatz keine Aktualisierungen mehr zu erhalten, öffne ihn im TYPO3-Backend und wähle "Nicht mehr beobachten". Um diese Sammel-E-Mail vollständig zu deaktivieren, deaktiviere "Content-Planner-E-Mail-Zusammenfassung erhalten" in deinen Backend-Benutzereinstellungen.</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
