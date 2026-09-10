@@ -56,6 +56,15 @@ test('assigning a status via the page-tree context menu updates the node without
 
   const urlBeforeChange = page.url();
 
+  // page.url() alone would not catch a same-URL reload of the main frame - track
+  // framenavigated instead, which fires for a reload even when the URL is unchanged.
+  let mainFrameNavigated = false;
+  page.on('framenavigated', (frame) => {
+    if (frame === page.mainFrame()) {
+      mainFrameNavigated = true;
+    }
+  });
+
   const statusMenu = new StatusMenuPage(page);
   await statusMenu.openFor(node);
   await statusMenu.chooseStatus(DEMO_STATUS_TITLE_FOR_STATUS_PAGE);
@@ -66,4 +75,5 @@ test('assigning a status via the page-tree context menu updates the node without
   // No navigation happened - the whole point of the targeted refresh in
   // refreshPageTreeNode() is that only the affected node's subtree is refetched.
   expect(page.url()).toBe(urlBeforeChange);
+  expect(mainFrameNavigated).toBe(false);
 });
