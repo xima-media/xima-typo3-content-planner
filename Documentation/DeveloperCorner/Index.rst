@@ -18,3 +18,4 @@ into the status process.
     Events
     ExtensionUtility
     PlannerUtility
+    PlannerService
