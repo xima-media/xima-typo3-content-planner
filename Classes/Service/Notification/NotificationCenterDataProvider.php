@@ -26,8 +26,10 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function count;
 use function is_array;
 use function is_string;
+use function sprintf;
 
 /**
  * NotificationCenterDataProvider.
@@ -118,6 +120,33 @@ class NotificationCenterDataProvider
             $this->resolveReasonLabel($reason),
             DiffUtility::timeAgo((int) $row['crdate']),
             null !== ($row['read_at'] ?? null),
+            $this->resolveChangeSummary($eventType, $payload),
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function resolveChangeSummary(?NotificationEventType $eventType, array $payload): ?string
+    {
+        if (NotificationEventType::ContentChanged !== $eventType) {
+            return null;
+        }
+
+        $changeCount = (int) ($payload['changeCount'] ?? 0);
+        if ($changeCount <= 0) {
+            return null;
+        }
+
+        $actorUids = $payload['actorUids'] ?? null;
+        $actorCount = is_array($actorUids) ? count($actorUids) : 0;
+
+        return sprintf(
+            $this->getLanguageService()->sL(self::languageLabel(
+                1 === $actorCount ? 'notification.contentChanged.summary.singular' : 'notification.contentChanged.summary.plural',
+            )),
+            $actorCount,
+            $changeCount,
         );
     }
 
@@ -192,6 +221,7 @@ class NotificationCenterDataProvider
             NotificationEventType::StatusChanged => 'actions-flag-edit',
             NotificationEventType::Assigned => 'actions-assign-to-me',
             NotificationEventType::CommentAdded => 'actions-comment',
+            NotificationEventType::ContentChanged => 'actions-document-edit',
             null => 'actions-info',
         };
     }

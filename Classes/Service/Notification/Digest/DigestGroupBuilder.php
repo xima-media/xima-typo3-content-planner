@@ -17,6 +17,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\DigestRecordGroup;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\NotificationEventType;
 
 use function count;
+use function is_array;
 
 /**
  * DigestGroupBuilder.
@@ -72,6 +73,7 @@ final class DigestGroupBuilder
         $statusEvents = $this->eventsOfType($rows, NotificationEventType::StatusChanged);
         $assigneeEvents = $this->eventsOfType($rows, NotificationEventType::Assigned);
         $commentEvents = $this->eventsOfType($rows, NotificationEventType::CommentAdded);
+        $contentChangeEvents = $this->eventsOfType($rows, NotificationEventType::ContentChanged);
 
         return new DigestRecordGroup(
             (string) $latest['tablename'],
@@ -84,7 +86,38 @@ final class DigestGroupBuilder
             count($commentEvents),
             count($rows),
             (int) $latest['crdate'],
+            $this->sumContentChangeCounts($contentChangeEvents),
+            count($this->unionContentChangeActorUids($contentChangeEvents)),
         );
+    }
+
+    /**
+     * @param list<array<string, mixed>> $contentChangeEvents
+     */
+    private function sumContentChangeCounts(array $contentChangeEvents): int
+    {
+        return array_sum(array_map(
+            static fn (array $event): int => (int) ($event['payload']['changeCount'] ?? 0),
+            $contentChangeEvents,
+        ));
+    }
+
+    /**
+     * @param list<array<string, mixed>> $contentChangeEvents
+     *
+     * @return list<int>
+     */
+    private function unionContentChangeActorUids(array $contentChangeEvents): array
+    {
+        $actorUids = [];
+        foreach ($contentChangeEvents as $event) {
+            $eventActorUids = $event['payload']['actorUids'] ?? [];
+            if (is_array($eventActorUids)) {
+                array_push($actorUids, ...$eventActorUids);
+            }
+        }
+
+        return array_values(array_unique($actorUids));
     }
 
     /**
