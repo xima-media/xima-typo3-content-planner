@@ -28,9 +28,22 @@ use function count;
  */
 final class ConfigurationTest extends TestCase
 {
+    private mixed $originalTreeControllerXclass = null;
+
+    protected function setUp(): void
+    {
+        $this->originalTreeControllerXclass = $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] ?? null;
+    }
+
     protected function tearDown(): void
     {
-        unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class]);
+        if (null === $this->originalTreeControllerXclass) {
+            unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class]);
+
+            return;
+        }
+
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = $this->originalTreeControllerXclass;
     }
 
     public function testOverrideClassesRegistersTreeControllerXclass(): void
