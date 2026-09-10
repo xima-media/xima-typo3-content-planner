@@ -109,6 +109,80 @@ final class WatcherRepositoryTest extends AbstractFunctionalTestCase
         self::assertSame(1, $this->subject->normalizeToDefaultLanguageUid('be_users', 1));
     }
 
+    #[Test]
+    public function findDistinctTableRecordPairsReturnsEachPairOnce(): void
+    {
+        $this->subject->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('pages', 1, 2, WatchMode::ManualWatch, WatchSource::Manual);
+        $this->subject->upsert('tt_content', 5, 1, WatchMode::Auto, WatchSource::Comment);
+
+        $pairs = $this->subject->findDistinctTableRecordPairs();
+
+        self::assertCount(2, $pairs);
+        self::assertContains(['tablename' => 'pages', 'record_uid' => 1], $pairs);
+        self::assertContains(['tablename' => 'tt_content', 'record_uid' => 5], $pairs);
+    }
+
+    #[Test]
+    public function findDistinctBackendUsersReturnsEachWatcherOnce(): void
+    {
+        $this->subject->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('pages', 2, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('pages', 1, 2, WatchMode::ManualWatch, WatchSource::Manual);
+
+        self::assertSame([1, 2], $this->subject->findDistinctBackendUsers());
+    }
+
+    #[Test]
+    public function deleteForTableAndRecordUidsOnlyDeletesMatchingRows(): void
+    {
+        $this->subject->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('pages', 2, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('tt_content', 1, 1, WatchMode::Auto, WatchSource::Comment);
+
+        $deleted = $this->subject->deleteForTableAndRecordUids('pages', [1], false);
+
+        self::assertSame(1, $deleted);
+        self::assertSame(2, $this->countWatcherRows());
+        self::assertNull($this->subject->findMode('pages', 1, 1));
+        self::assertNotNull($this->subject->findMode('pages', 2, 1));
+    }
+
+    #[Test]
+    public function deleteForTableAndRecordUidsReturnsZeroForAnEmptyList(): void
+    {
+        self::assertSame(0, $this->subject->deleteForTableAndRecordUids('pages', [], false));
+    }
+
+    #[Test]
+    public function deleteForBackendUsersOnlyDeletesMatchingRows(): void
+    {
+        $this->subject->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+        $this->subject->upsert('pages', 1, 2, WatchMode::ManualWatch, WatchSource::Manual);
+
+        $deleted = $this->subject->deleteForBackendUsers([1], false);
+
+        self::assertSame(1, $deleted);
+        self::assertSame([2], $this->subject->findDistinctBackendUsers());
+    }
+
+    #[Test]
+    public function deleteForBackendUsersReturnsZeroForAnEmptyList(): void
+    {
+        self::assertSame(0, $this->subject->deleteForBackendUsers([], false));
+    }
+
+    #[Test]
+    public function deleteForTableAndRecordUidsWithDryRunOnlyCountsAndDeletesNothing(): void
+    {
+        $this->subject->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Assignment);
+
+        $counted = $this->subject->deleteForTableAndRecordUids('pages', [1], true);
+
+        self::assertSame(1, $counted);
+        self::assertSame(1, $this->countWatcherRows());
+    }
+
     private function countWatcherRows(): int
     {
         return (int) $this->getConnectionPool()

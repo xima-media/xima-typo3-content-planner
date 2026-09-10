@@ -1,0 +1,6 @@
+"be_users"
+,"uid","pid","username","admin","realName","disable","deleted","email"
+,1,0,"admin",1,"Administrator",0,0,"admin@example.com"
+,2,0,"editor",0,"Editor User",0,0,"editor@example.com"
+,3,0,"disabled",0,"Disabled User",1,0,"disabled@example.com"
+,4,0,"deleted",0,"Deleted User",0,1,"deleted@example.com"

@@ -20,6 +20,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use function array_key_exists;
 use function count;
 use function in_array;
+use function intval;
 
 /**
  * BackendUserRepository.
@@ -126,12 +127,18 @@ class BackendUserRepository
 
     /**
      * Narrows a list of backend user UIDs to those that can still log in, i.e. neither
-     * deleted nor disabled. Used to keep notifications from being addressed to accounts that
-     * no longer exist; a single query regardless of how many UIDs are passed.
+     * deleted nor disabled. A single query regardless of how many UIDs are passed.
      *
-     * @param array<int, int> $uids
+     * Two callers rely on it: the notification dispatcher, to avoid addressing accounts that
+     * no longer exist, and
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Retention\NotificationRetentionService},
+     * to detect orphaned watcher/notification rows. A hard-deleted uid is simply absent from
+     * the result, the same as a soft-deleted one: both mean the row has no reachable
+     * recipient any more.
      *
-     * @return array<int, int>
+     * @param list<int> $uids
+     *
+     * @return list<int>
      *
      * @throws Exception
      */

@@ -45,6 +45,8 @@ class Configuration
     final public const FEATURE_NOTIFICATION_DIGEST_EMAIL = 'notificationDigestEmail';
     final public const CONF_NOTIFICATION_POLL_INTERVAL = 'notificationPollInterval';
     final public const CONF_NOTIFICATION_DIGEST_BACKEND_BASE_URL = 'notificationDigestBackendBaseUrl';
+    final public const CONF_NOTIFICATION_RETENTION_READ_DAYS = 'notificationRetentionReadDays';
+    final public const CONF_NOTIFICATION_RETENTION_UNREAD_DAYS = 'notificationRetentionUnreadDays';
 
     // be_users column: per-user opt-out toggle for the email digest (issue #302), default on.
     final public const FIELD_USER_DIGEST = 'tx_ximatypo3contentplanner_digest';
