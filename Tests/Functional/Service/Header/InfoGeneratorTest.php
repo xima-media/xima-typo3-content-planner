@@ -65,6 +65,12 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
 
         self::assertIsString($result);
         self::assertNotSame('', $result);
+
+        // context-menu-actions.js locates the badge via these attributes to apply a status
+        // change optimistically, see StatusItemProvider / ContextMenuActions.findStatusHeader.
+        self::assertStringContainsString('data-table="pages"', $result);
+        self::assertStringContainsString('data-uid="1"', $result);
+        self::assertStringContainsString('aria-label="', $result);
     }
 
     #[Test]

@@ -219,7 +219,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
     }
 
-    private function fixNewCommentEntry(DataHandler $dataHandler): void
+    private function fixNewCommentEntry(DataHandler &$dataHandler): void
     {
         $id = null;
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $key) {
@@ -254,7 +254,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     /**
      * Flatten nested replies: if parent_uid points to a reply, redirect to the root comment.
      */
-    private function flattenNestedReply(DataHandler $dataHandler, string $id): void
+    private function flattenNestedReply(DataHandler &$dataHandler, string $id): void
     {
         if (!isset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['parent_uid'])) {
             return;

@@ -69,6 +69,8 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'label' => $status->getTitle(),
             'iconIdentifier' => $status->getColoredIcon(),
             'callbackAction' => 'change',
+            'color' => $status->getColor(),
+            'icon' => $status->getIcon(),
         ];
 
         return $selectionEntriesToAdd;
@@ -192,6 +194,8 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
             'label' => $status->getTitle(),
             'iconIdentifier' => $status->getColoredIcon(),
             'callbackAction' => 'change',
+            'color' => $status->getColor(),
+            'icon' => $status->getIcon(),
         ];
 
         return $selectionEntriesToAdd;

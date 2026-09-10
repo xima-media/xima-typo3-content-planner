@@ -147,6 +147,47 @@ final class StatusItemProviderTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function addItemsExposesStatusMetadataForOptimisticClientUpdate(): void
+    {
+        $this->loginBackendUser(1);
+
+        $provider = $this->createProvider('pages', '1');
+        $result = $provider->addItems([]);
+
+        $childItems = $result['wrap']['childItems'];
+
+        $draftAttributes = $childItems['1']['additionalAttributes'];
+        self::assertSame('Draft', $draftAttributes['data-status-title']);
+        self::assertSame('blue', $draftAttributes['data-status-color']);
+        self::assertSame('flag', $draftAttributes['data-status-icon']);
+
+        $doneAttributes = $childItems['3']['additionalAttributes'];
+        self::assertSame('Done', $doneAttributes['data-status-title']);
+        self::assertSame('green', $doneAttributes['data-status-color']);
+        self::assertSame('star', $doneAttributes['data-status-icon']);
+
+        // Non-status entries (reset, assignee, comments) don't carry status metadata.
+        self::assertArrayNotHasKey('data-status-title', $childItems['reset']['additionalAttributes']);
+        self::assertArrayNotHasKey('data-status-color', $childItems['assignee']['additionalAttributes']);
+    }
+
+    #[Test]
+    public function addItemsExposesStatusMetadataForFolderStatusEntries(): void
+    {
+        $this->loginBackendUser(1);
+
+        $provider = $this->createProvider('sys_file', '1:/user_upload/');
+        $result = $provider->addItems([]);
+
+        $childItems = $result['wrap']['childItems'];
+
+        $draftAttributes = $childItems['1']['additionalAttributes'];
+        self::assertSame('Draft', $draftAttributes['data-status-title']);
+        self::assertSame('blue', $draftAttributes['data-status-color']);
+        self::assertSame('flag', $draftAttributes['data-status-icon']);
+    }
+
+    #[Test]
     public function addItemsInsertsAfterInfoItemWhenPresent(): void
     {
         $this->loginBackendUser(1);
