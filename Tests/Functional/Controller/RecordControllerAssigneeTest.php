@@ -19,7 +19,7 @@ use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use Xima\XimaTypo3ContentPlanner\Controller\RecordController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
-use Xima\XimaTypo3ContentPlanner\Manager\CommentFirstFlowManager;
+use Xima\XimaTypo3ContentPlanner\Manager\{ChildCommentAggregationManager, CommentFirstFlowManager};
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -194,6 +194,7 @@ final class RecordControllerAssigneeTest extends AbstractFunctionalTestCase
             $this->get(RequestId::class),
             $this->get(CommentEditorConfigurationFactory::class),
             $this->get(CommentFirstFlowManager::class),
+            $this->get(ChildCommentAggregationManager::class),
         );
     }
 

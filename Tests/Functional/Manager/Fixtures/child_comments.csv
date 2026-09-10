@@ -1,0 +1,8 @@
+"tt_content"
+,"uid","pid","tstamp","deleted","hidden","header","tx_ximatypo3contentplanner_status","tx_ximatypo3contentplanner_assignee","tx_ximatypo3contentplanner_comments"
+,1,1,1000,0,0,"Child CE A",0,0,1
+,2,1,2000,0,0,"Child CE B",0,0,1
+"tx_ximatypo3contentplanner_comment"
+,"uid","pid","foreign_uid","foreign_table","content","author","edited","resolved_user","resolved_date","todo_resolved","todo_total","parent_uid","crdate","deleted"
+,1,0,1,"tt_content","Comment on child CE A",1,0,0,0,0,0,0,1000,0
+,2,0,2,"tt_content","Comment on child CE B",1,0,0,0,0,0,0,2000,0

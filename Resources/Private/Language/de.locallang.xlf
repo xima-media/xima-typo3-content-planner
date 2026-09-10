@@ -444,6 +444,18 @@
 				<source><![CDATA[Currently there are no comments available yet. You may want to create a <a data-new-comment-uri="%s" data-table="%s" data-id="%s">new comment</a>?]]></source>
 				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s">neuen Kommentar</a> erstellen?]]></target>
 			</trans-unit>
+			<trans-unit id="comment.filter.includeChildComments">
+				<source>Show comments from child records</source>
+				<target>Kommentare von untergeordneten Datensätzen anzeigen</target>
+			</trans-unit>
+			<trans-unit id="comment.childComments.heading">
+				<source>Comments on child records</source>
+				<target>Kommentare zu untergeordneten Datensätzen</target>
+			</trans-unit>
+			<trans-unit id="comment.childComments.moreResults">
+				<source>More child records with comments are available. Refine the page to narrow the list.</source>
+				<target>Es sind weitere untergeordnete Datensätze mit Kommentaren vorhanden. Grenze die Seite ein, um die Liste zu verkleinern.</target>
+			</trans-unit>
 
 			<trans-unit id="assignee.selection.label">
 				<source>Select an assignee</source>

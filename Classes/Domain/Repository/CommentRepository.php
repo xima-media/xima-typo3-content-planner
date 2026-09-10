@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 use Doctrine\DBAL\Exception;
 use InvalidArgumentException;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
@@ -48,39 +49,11 @@ class CommentRepository
      */
     public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false): array
     {
-        // Whitelist the sort direction: QueryBuilder::orderBy() does not quote the direction argument.
-        $sortDirection = 'ASC' === strtoupper($sortDirection) ? 'ASC' : 'DESC';
-
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
-
-        $replyTable = self::TABLE.'_replies';
-        $query = $queryBuilder
-            ->select(self::TABLE.'.*')
-            ->from(self::TABLE)
-            ->leftJoin(
-                self::TABLE,
-                self::TABLE,
-                $replyTable,
-                $queryBuilder->expr()->and(
-                    $queryBuilder->expr()->eq($replyTable.'.parent_uid', $queryBuilder->quoteIdentifier(self::TABLE.'.uid')),
-                    $queryBuilder->expr()->eq($replyTable.'.deleted', 0),
-                ),
-            )
-            ->addSelectLiteral(
-                'CASE WHEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
-                .' >= COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
-                .' THEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
-                .' ELSE COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
-                .' END AS last_activity',
-            )
-            ->where(
-                $queryBuilder->expr()->eq(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
-                $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
-                $queryBuilder->expr()->eq(self::TABLE.'.deleted', 0),
-                $queryBuilder->expr()->eq(self::TABLE.'.parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
-            )
-            ->groupBy(self::TABLE.'.uid')
-            ->orderBy('last_activity', $sortDirection);
+        $queryBuilder = $this->buildRootCommentsQueryBuilder($sortDirection);
+        $query = $queryBuilder->andWhere(
+            $queryBuilder->expr()->eq(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+            $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+        );
 
         if (!$showResolved) {
             $query->andWhere(
@@ -95,20 +68,44 @@ class CommentRepository
             return $rootComments;
         }
 
-        $rootUids = array_map(static fn (array $row): int => (int) $row['uid'], $rootComments);
-        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved, $sortDirection) : [];
+        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection);
+    }
 
-        $items = [];
-        foreach ($rootComments as $result) {
-            try {
-                $item = CommentItem::create($result);
-                $item->replies = $repliesByParent[(int) $result['uid']] ?? [];
-                $items[] = $item;
-            } catch (\Exception) {
-            }
+    /**
+     * Batched variant of {@see self::findAllByRecord()}: fetches root comments (with replies
+     * attached) across several foreign records at once instead of one at a time. Introduced for
+     * CP-29 (#328) aggregated child comments, which need the comments of an arbitrary number of
+     * child records living on a page in a single query rather than one findAllByRecord() call per
+     * child - shares the same join/last-activity/grouping query shape as findAllByRecord() via
+     * {@see self::buildRootCommentsQueryBuilder()} instead of duplicating it.
+     *
+     * @param array<int, array{table: string, uid: int}> $refs
+     *
+     * @return array<int, CommentItem>
+     *
+     * @throws Exception
+     */
+    public function findAllByRecords(array $refs, bool $showResolved = false, string $sortDirection = 'DESC'): array
+    {
+        if ([] === $refs) {
+            return [];
         }
 
-        return $items;
+        $queryBuilder = $this->buildRootCommentsQueryBuilder($sortDirection);
+        $query = $queryBuilder->andWhere(
+            $queryBuilder->expr()->or(...$this->buildForeignRefConditions($queryBuilder, $refs)),
+        );
+
+        if (!$showResolved) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq(self::TABLE.'.resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            );
+        }
+
+        $rootComments = $query
+            ->executeQuery()->fetchAllAssociative();
+
+        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection);
     }
 
     /**
@@ -288,6 +285,102 @@ class CommentRepository
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
             )
             ->executeStatement();
+    }
+
+    /**
+     * Builds the shared root-comments query: root comments (parent_uid = 0, not deleted) joined
+     * with their replies to compute `last_activity` (most recent of the comment's own crdate or
+     * any non-deleted reply's), grouped so each root comment yields a single row. Callers add
+     * their own foreign-record condition (single record vs. a batch of refs) on top.
+     */
+    private function buildRootCommentsQueryBuilder(string $sortDirection): QueryBuilder
+    {
+        // Whitelist the sort direction: QueryBuilder::orderBy() does not quote the direction argument.
+        $sortDirection = 'ASC' === strtoupper($sortDirection) ? 'ASC' : 'DESC';
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $replyTable = self::TABLE.'_replies';
+
+        return $queryBuilder
+            ->select(self::TABLE.'.*')
+            ->from(self::TABLE)
+            ->leftJoin(
+                self::TABLE,
+                self::TABLE,
+                $replyTable,
+                $queryBuilder->expr()->and(
+                    $queryBuilder->expr()->eq($replyTable.'.parent_uid', $queryBuilder->quoteIdentifier(self::TABLE.'.uid')),
+                    $queryBuilder->expr()->eq($replyTable.'.deleted', 0),
+                ),
+            )
+            ->addSelectLiteral(
+                'CASE WHEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
+                .' >= COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
+                .' THEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
+                .' ELSE COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
+                .' END AS last_activity',
+            )
+            ->where(
+                $queryBuilder->expr()->eq(self::TABLE.'.deleted', 0),
+                $queryBuilder->expr()->eq(self::TABLE.'.parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->groupBy(self::TABLE.'.uid')
+            ->orderBy('last_activity', $sortDirection);
+    }
+
+    /**
+     * Groups refs by table and builds one "foreign_table = X AND foreign_uid IN (...)" condition
+     * per table, combined with OR by the caller - refs span multiple foreign tables, so a single
+     * IN() on foreign_uid alone would not disambiguate same-uid rows across different tables.
+     *
+     * @param array<int, array{table: string, uid: int}> $refs
+     *
+     * @return array<int, \TYPO3\CMS\Core\Database\Query\Expression\CompositeExpression>
+     */
+    private function buildForeignRefConditions(QueryBuilder $queryBuilder, array $refs): array
+    {
+        $uidsByTable = [];
+        foreach ($refs as $ref) {
+            $uidsByTable[$ref['table']][] = $ref['uid'];
+        }
+
+        $conditions = [];
+        foreach ($uidsByTable as $table => $uids) {
+            $conditions[] = $queryBuilder->expr()->and(
+                $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->in(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)),
+            );
+        }
+
+        return $conditions;
+    }
+
+    /**
+     * Shared by {@see self::findAllByRecord()} and {@see self::findAllByRecords()}: turns root
+     * comment rows into CommentItem DTOs and attaches their replies (batch-fetched in one query).
+     *
+     * @param array<int, array<string, mixed>> $rootComments
+     *
+     * @return array<int, CommentItem>
+     *
+     * @throws Exception
+     */
+    private function hydrateRootComments(array $rootComments, bool $showResolved, string $sortDirection): array
+    {
+        $rootUids = array_map(static fn (array $row): int => (int) $row['uid'], $rootComments);
+        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved, $sortDirection) : [];
+
+        $items = [];
+        foreach ($rootComments as $result) {
+            try {
+                $item = CommentItem::create($result);
+                $item->replies = $repliesByParent[(int) $result['uid']] ?? [];
+                $items[] = $item;
+            } catch (\Exception) {
+            }
+        }
+
+        return $items;
     }
 
     /**

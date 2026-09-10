@@ -236,4 +236,75 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
         self::assertFalse($this->subject->findByUid(1));
         self::assertIsArray($this->subject->findByUid(2));
     }
+
+    // ==================== findAllByRecords() batched variant (CP-29, #328) ====================
+
+    #[Test]
+    public function findAllByRecordsReturnsEmptyArrayForEmptyRefs(): void
+    {
+        self::assertSame([], $this->subject->findAllByRecords([]));
+    }
+
+    #[Test]
+    public function findAllByRecordsAggregatesAcrossMultipleForeignTables(): void
+    {
+        $result = $this->subject->findAllByRecords([
+            ['table' => 'pages', 'uid' => 10],
+            ['table' => 'pages', 'uid' => 20],
+        ]);
+
+        $uids = array_map(static fn (CommentItem $item): int => (int) $item->data['uid'], $result);
+        // Record 10 contributes root comments 1 and 2 (open, non-deleted); record 20 contributes 6.
+        self::assertContains(1, $uids);
+        self::assertContains(2, $uids);
+        self::assertContains(6, $uids);
+        self::assertCount(3, $result);
+    }
+
+    #[Test]
+    public function findAllByRecordsDisambiguatesSameUidAcrossDifferentTables(): void
+    {
+        // Record 10 exists only as 'pages' in the fixture; asking for it under a different
+        // foreign_table must not accidentally match those rows.
+        $result = $this->subject->findAllByRecords([
+            ['table' => 'tt_content', 'uid' => 10],
+        ]);
+
+        self::assertSame([], $result);
+    }
+
+    #[Test]
+    public function findAllByRecordsGroupsRepliesUnderTheirRootComment(): void
+    {
+        $result = $this->subject->findAllByRecords([
+            ['table' => 'pages', 'uid' => 10],
+        ]);
+
+        $commentB = current(array_filter($result, static fn (CommentItem $item): bool => 2 === (int) $item->data['uid']));
+        self::assertNotFalse($commentB);
+        self::assertCount(1, $commentB->getReplies());
+        self::assertSame(3, (int) $commentB->getReplies()[0]->data['uid']);
+    }
+
+    #[Test]
+    public function findAllByRecordsExcludesResolvedCommentsByDefault(): void
+    {
+        $result = $this->subject->findAllByRecords([
+            ['table' => 'pages', 'uid' => 10],
+        ]);
+
+        $uids = array_map(static fn (CommentItem $item): int => (int) $item->data['uid'], $result);
+        self::assertNotContains(4, $uids);
+    }
+
+    #[Test]
+    public function findAllByRecordsIncludesResolvedCommentsWhenRequested(): void
+    {
+        $result = $this->subject->findAllByRecords([
+            ['table' => 'pages', 'uid' => 10],
+        ], true);
+
+        $uids = array_map(static fn (CommentItem $item): int => (int) $item->data['uid'], $result);
+        self::assertContains(4, $uids);
+    }
 }
