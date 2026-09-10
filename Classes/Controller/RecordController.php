@@ -19,6 +19,7 @@ use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\{JsonResponse, RedirectResponse};
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
@@ -205,6 +206,7 @@ class RecordController extends ActionController
             ],
         );
 
+        $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Assignee.css', ['nonce' => $this->requestId->nonce]);
         $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/assignee-select.js', ['nonce' => $this->requestId->nonce]);
 
         return new JsonResponse(['result' => $result]);
@@ -293,7 +295,7 @@ class RecordController extends ActionController
         $currentUserId = (int) ($backendUser->user['uid'] ?? 0);
 
         array_unshift($assignees, [
-            'username' => '-- Not assigned --',
+            'username' => $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned'),
             'realName' => '',
             'uid' => 0,
         ]);
@@ -334,5 +336,10 @@ class RecordController extends ActionController
         }
 
         return $targetUserId === $currentUserId;
+    }
+
+    private function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }
