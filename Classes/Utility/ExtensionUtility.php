@@ -167,6 +167,17 @@ class ExtensionUtility
         return $configuration[$feature] ?? '';
     }
 
+    /**
+     * Polling interval in seconds for the backend toolbar notification center (issue #301).
+     * `0` disables polling; the JS module then only refreshes on backend load.
+     */
+    public static function getNotificationPollInterval(): int
+    {
+        $interval = (int) self::getExtensionSetting(Configuration::CONF_NOTIFICATION_POLL_INTERVAL);
+
+        return max(0, $interval);
+    }
+
     public static function getTitleField(string $table): string
     {
         // Not every table declares a label — and a stale registration has no TCA at all.

@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner;
 use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
 use TYPO3\CMS\Backend\Form\FormDataProvider\EvaluateDisplayConditions;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use Xima\XimaTypo3ContentPlanner\Backend\Toolbar\NotificationToolbarItem;
 use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
 use Xima\XimaTypo3ContentPlanner\Form\FormDataProvider\ContentPlannerFieldsReadOnly;
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
@@ -41,6 +42,7 @@ class Configuration
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
     final public const FEATURE_NOTIFICATION_CHANNEL_DATABASE = 'notificationChannelDatabase';
+    final public const CONF_NOTIFICATION_POLL_INTERVAL = 'notificationPollInterval';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
@@ -268,5 +270,10 @@ class Configuration
                 ],
             ],
         ];
+    }
+
+    public static function registerToolbarItems(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['toolbarItems'][] = NotificationToolbarItem::class;
     }
 }

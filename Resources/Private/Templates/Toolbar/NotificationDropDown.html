@@ -1,0 +1,18 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<div class="content-planner-notification-dropdown" id="content-planner-notification-dropdown">
+    <div class="content-planner-notification-dropdown__header">
+        <p class="dropdown-headline content-planner-notification-dropdown__headline">
+            {f:translate(key: 'notification.dropdown.headline', extensionName: 'xima_typo3_content_planner')}
+        </p>
+        <!-- The list is loaded on first open, so this header is rendered before the entries
+             are known; toolbar-notification-center.js unhides this once there are any. -->
+        <button type="button"
+                class="content-planner-notification-dropdown__mark-all-read"
+                data-notification-mark-all-read="1"
+                {f:if(condition: items, else: 'hidden')}>
+            {f:translate(key: 'notification.dropdown.markAllRead', extensionName: 'xima_typo3_content_planner')}
+        </button>
+    </div>
+    <f:render partial="Toolbar/NotificationList" arguments="{items: items}"/>
+</div>
+</html>
