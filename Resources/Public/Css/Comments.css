@@ -55,7 +55,24 @@
 }
 
 .content-planner-comment-composer-row--reply {
+    position: relative;
     margin-top: 0.75rem;
+    padding-left: 1rem;
+}
+
+/* Picks the thread line up 1px above this row, where .content-planner-comment-replies__items'
+   border ends, and curves it into the avatar's vertical center - 12px down, half of the 24px
+   reply avatar. */
+.content-planner-comment-composer-row--reply::before {
+    content: '';
+    position: absolute;
+    top: calc(-0.75rem - 1px);
+    left: 0;
+    width: 0.75rem;
+    height: calc(0.75rem + 13px);
+    border-left: 1px solid var(--content-planner-color-thread-line);
+    border-bottom: 1px solid var(--content-planner-color-thread-line);
+    border-bottom-left-radius: 0.5rem;
 }
 
 .content-planner-comment-composer-row--reply .content-planner-comment-composer-row__avatar {
@@ -351,9 +368,17 @@
 
 .content-planner-comment-replies {
     margin-left: 0.4375rem;
-    padding-left: 1rem;
-    border-left: 1px solid rgba(125, 125, 125, 0.2);
     margin-top: 0.25rem;
+}
+
+/* The thread line runs alongside the replies and then bends into the "Add a reply..." row
+   below (the elbow on .content-planner-comment-composer-row--reply), so it leads to the
+   affordance for writing the next reply instead of just fencing the block off. That is why it
+   sits on the replies themselves rather than on the container: the container also holds the
+   composer row, and the line has to stop exactly where the elbow takes over. */
+.content-planner-comment-replies__items {
+    padding-left: 1rem;
+    border-left: 1px solid var(--content-planner-color-thread-line);
 }
 
 .content-planner-comment--reply {
