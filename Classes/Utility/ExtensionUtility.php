@@ -195,6 +195,29 @@ class ExtensionUtility
         return rtrim(self::getExtensionSetting(Configuration::CONF_NOTIFICATION_DIGEST_BACKEND_BASE_URL), '/');
     }
 
+    /**
+     * Retention threshold in days for *read* notifications (issue #304's
+     * `content-planner:notification:cleanup` command). Falls back to the documented default of
+     * 30 days when unset or blank, since an unconfigured `ExtensionConfiguration` entry (e.g. in
+     * a test not exercising `extension:setup`) reads as an empty string, not the
+     * `ext_conf_template.txt` default.
+     */
+    public static function getNotificationRetentionReadDays(): int
+    {
+        return self::getPositiveIntSettingOrDefault(Configuration::CONF_NOTIFICATION_RETENTION_READ_DAYS, 30);
+    }
+
+    /**
+     * Retention threshold in days for *unread* notifications (issue #304's
+     * `content-planner:notification:cleanup` command). Deliberately longer than the read
+     * threshold by default: an unread notification has not yet been seen by its recipient and
+     * gets more time before it is cleaned up. See {@see self::getNotificationRetentionReadDays()}.
+     */
+    public static function getNotificationRetentionUnreadDays(): int
+    {
+        return self::getPositiveIntSettingOrDefault(Configuration::CONF_NOTIFICATION_RETENTION_UNREAD_DAYS, 90);
+    }
+
     public static function getTitleField(string $table): string
     {
         // Not every table declares a label — and a stale registration has no TCA at all.
@@ -211,5 +234,20 @@ class ExtensionUtility
         }
 
         return BackendUtility::getNoRecordTitle();
+    }
+
+    /**
+     * Retention settings are day counts that end up in a "delete everything older than now
+     * minus N days" condition, so zero would mean "delete everything", including rows written
+     * seconds ago. The extension configuration lets an administrator enter 0, so the floor is
+     * enforced here rather than trusted: anything below a day falls back to the documented
+     * default instead of silently emptying the table.
+     */
+    private static function getPositiveIntSettingOrDefault(string $key, int $default): int
+    {
+        $value = self::getExtensionSetting($key);
+        $days = '' === $value ? $default : (int) $value;
+
+        return $days >= 1 ? $days : $default;
     }
 }

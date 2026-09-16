@@ -15,8 +15,10 @@ Notifications
     Added in 3.1.0. This page documents the dispatch layer built for issue `#300
     <https://github.com/xima-media/xima-typo3-content-planner/issues/300>`__, the backend
     toolbar notification center built for issue `#301
-    <https://github.com/xima-media/xima-typo3-content-planner/issues/301>`__, and the email
-    digest built for issue `#302 <https://github.com/xima-media/xima-typo3-content-planner/issues/302>`__.
+    <https://github.com/xima-media/xima-typo3-content-planner/issues/301>`__, the email
+    digest built for issue `#302 <https://github.com/xima-media/xima-typo3-content-planner/issues/302>`__,
+    and the retention/cleanup command built for issue `#304
+    <https://github.com/xima-media/xima-typo3-content-planner/issues/304>`__.
 
 Overview
 ========
@@ -260,6 +262,73 @@ same way by any extension depending on this one is appended at a numerically hig
 it first. See `Configuration::registerMailTemplates()
 <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Configuration.php>`__.
 
+Cleanup
+=======
+
+`content-planner:notification:cleanup` (issue #304) is a second schedulable Symfony command,
+intended to run alongside the email digest (recommended: daily, after the digest). It applies
+four independent rules in one run:
+
+-   delete **read** notifications older than `notificationRetentionReadDays` (default **30**)
+-   delete **unread** notifications older than `notificationRetentionUnreadDays` (default **90**)
+    - deliberately longer, since an unread notification has not yet been seen by its recipient
+-   delete watcher/notification rows whose referenced record no longer exists (hard-deleted, or
+    soft-deleted on a table with a TCA `deleted` column)
+-   delete watcher/notification rows owned by a backend user that is now deleted or disabled
+
+Both thresholds are read from this extension's extension configuration (`notifications` category),
+not from a CLI option - this keeps the two commands' configuration in one place. Age is measured
+from a notification's `crdate` (creation), independent of read/unread state; `read_at`/`digested_at`
+only decide *which* rule a row falls under, not how "old" it is.
+
+..  code-block:: bash
+
+    vendor/bin/typo3 content-planner:notification:cleanup
+    vendor/bin/typo3 content-planner:notification:cleanup --dry-run
+
+`--dry-run` runs every rule's matching logic but only *counts* what it would have deleted, printed
+per rule plus a grand total - nothing is deleted.
+
+Orphan detection
+-----------------
+
+The two orphan rules are checked once per distinct reference, not once per notification/watcher
+row: `NotificationRepository::findDistinctTableRecordPairs()` and
+`WatcherRepository::findDistinctTableRecordPairs()` (`(tablename, record_uid)` pairs), and their
+`findDistinctBackendUsers()` counterparts, are unioned and deduped before a single existence check
+per distinct record (`RecordRepository::existingUids()`) or backend user
+(`BackendUserRepository::activeUids()`). `existingUids()` deliberately ignores the hidden/start/end
+time restrictions (a merely hidden or time-restricted record still "exists") and is **not** gated
+by `ExtensionUtility::getRecordTables()` like `RecordRepository::findByUid()` is: a table can be
+de-registered from content planner tracking while old rows for it still need cleaning up. A
+backend user is "orphaned" the same way whether its row was soft-deleted (`deleted = 1`), disabled
+(`disable = 1`), or is hard-deleted and simply absent altogether.
+
+Chunked deletes
+---------------
+
+Every delete in this command - the two age-based rules and the two orphan rules - goes through the
+same private `deleteMatchingInChunks()` engine in `NotificationRepository`/`WatcherRepository`:
+repeatedly `SELECT` up to 500 matching uids and `DELETE ... WHERE uid IN (:uids)` exactly those,
+until a batch returns fewer than 500 rows. Neither statement's cost scales with the total table
+size, so the command stays safe to run against a notification table with millions of historic rows
+- there is no single unbounded `DELETE` holding one long-running lock. `--dry-run` reuses the exact
+same `$configureWhere` callback via a `COUNT` query instead of the delete loop, so the two modes can
+never disagree about which rows match.
+
+Recommended scheduler setup
+----------------------------
+
+Run both commands daily, digest before cleanup, e.g. as a crontab entry:
+
+..  code-block:: text
+
+    0 6 * * * vendor/bin/typo3 content-planner:notification:digest
+    15 6 * * * vendor/bin/typo3 content-planner:notification:cleanup
+
+or as two entries in the TYPO3 scheduler backend module (**Execute console commands** task),
+using the same two command identifiers.
+
 Workspaces
 ==========
 
@@ -283,3 +352,5 @@ issue needs it (see issue #309), rather than speculatively built here.
     -   `DigestService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Digest/DigestService.php>`__
     -   `DigestGroupBuilder <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Digest/DigestGroupBuilder.php>`__
     -   `DigestMailFactory <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Digest/DigestMailFactory.php>`__
+    -   `NotificationCleanupCommand <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Command/NotificationCleanupCommand.php>`__
+    -   `NotificationRetentionService <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Service/Notification/Retention/NotificationRetentionService.php>`__
