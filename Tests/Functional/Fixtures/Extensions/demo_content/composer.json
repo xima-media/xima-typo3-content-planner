@@ -1,0 +1,23 @@
+{
+	"name": "xima/xima-typo3-content-planner-demo-content",
+	"description": "Fixture extension providing a deterministic content-planner demo page tree for e2e tests. Not part of the published extension.",
+	"license": [
+		"GPL-2.0-or-later"
+	],
+	"type": "typo3-cms-extension",
+	"require": {
+		"php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+		"typo3/cms-core": "^13.4 || ^14.3",
+		"xima/xima-typo3-content-planner": "*@dev"
+	},
+	"autoload": {
+		"psr-4": {
+			"Xima\\XimaTypo3ContentPlannerDemoContent\\": "Classes/"
+		}
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "demo_content"
+		}
+	}
+}
