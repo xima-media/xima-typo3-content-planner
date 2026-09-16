@@ -24,3 +24,7 @@ commentTodos = 1
 notificationChannelDatabase = 1
 # cat=notifications/config; type=int+; label=Backend toolbar notification polling interval in seconds (0 disables polling)
 notificationPollInterval = 60
+# cat=notifications/enable; type=boolean; label=Enable the email digest (content-planner:notification:digest command)
+notificationDigestEmail = 1
+# cat=notifications/config; type=string; label=Backend base URL used to build absolute deep links in the email digest, e.g. "https://example.com" (TYPO3 cannot reliably determine its own base URL from a CLI context; leave empty to fall back to relative links)
+notificationDigestBackendBaseUrl =

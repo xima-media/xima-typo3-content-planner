@@ -213,6 +213,37 @@
 			<trans-unit id="notification.reason.mentioned">
 				<source>You were mentioned</source>
 			</trans-unit>
+			<!-- email digest -->
+			<trans-unit id="digest.mail.subject">
+				<source>Content Planner: %d update(s) to review</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.greeting">
+				<source>Hi %s,</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.headline">
+				<source>Here's what changed while you were away</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.intro">
+				<source>You're receiving this because you're watching the following records.</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.status">
+				<source>Status: %s</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.assignee">
+				<source>Assignee: %s</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.comment">
+				<source>Comment: %s</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.unassigned">
+				<source>Unassigned</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.record.unresolved">
+				<source>A record that is no longer available</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.footer">
+				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Unwatch". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

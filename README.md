@@ -39,6 +39,10 @@ This TYPO3 extension adds content planning capabilities to the TYPO3 backend: as
 * Overview, status, updates, assignee, todo, comments widgets
 * [Configurable widget](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Dashboard.html#configurable-widget) with custom filters (TYPO3 v14+)
 
+**[Notifications](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/Notifications.html)** — Stay informed about records you watch
+* Backend toolbar badge with an unread count and a dropdown of recent updates
+* Periodic email digest via the schedulable `content-planner:notification:digest` console command, opt-out per backend user in the user settings; override the default `Resources/Private/Templates/Mail/NotificationDigest.html`/`.txt` templates by registering your own path (at a higher array key) in `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths']`
+
 **Extensibility** — Works beyond pages
 * Extend [additional database records](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/AdditionalRecords.html) with status behavior
 * Built-in support for content elements and [files/folders](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Filelist.html)

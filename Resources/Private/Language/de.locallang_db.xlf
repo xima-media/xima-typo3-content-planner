@@ -31,6 +31,14 @@
 				<source>Disable the display of content planner status information and color within the TYPO3 backend</source>
 				<target>Deaktivieren Sie die Anzeige von Content Planner Statusinformationen und Farben im TYPO3-Backend</target>
 			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_digest">
+				<source>Receive content planner email digest</source>
+				<target>Content-Planner-E-Mail-Zusammenfassung erhalten</target>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_digest.description">
+				<source>Receive a periodic email summarizing updates on records you watch (see "content-planner:notification:digest" command)</source>
+				<target>Erhalte eine regelmäßige E-Mail mit einer Zusammenfassung der Aktualisierungen zu von dir beobachteten Datensätzen (siehe Kommando "content-planner:notification:digest")</target>
+			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_status.title">
 				<source>Title</source>
 				<target>Titel</target>
