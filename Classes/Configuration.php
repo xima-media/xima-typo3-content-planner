@@ -41,7 +41,27 @@ class Configuration
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
 
+    /*
+     * CP-25 (#324): banner|chip toggle for how status/assignee/comment information is
+     * displayed across the backend. "chip" (default from v3.0, breaking) shows a compact
+     * doc header trio (status dropdown, assignee button, comment button) built from
+     * ModifyButtonBarEventListener and retires the injected banner/overlay markup from
+     * RecordEditModifier and WebLayoutModifier. "banner" keeps the pre-3.0 full-width
+     * banner/overlay behaviour for installations that want the added prominence (e.g.
+     * migration projects).
+     */
+    final public const FEATURE_HEADER_DISPLAY_MODE = 'headerDisplayMode';
+    final public const HEADER_DISPLAY_MODE_BANNER = 'banner';
+    final public const HEADER_DISPLAY_MODE_CHIP = 'chip';
+
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
+
+    /*
+     * CP-20 (#322): internal-only, non-breaking rename of the JS module
+     * specifier. Unlike EXT_KEY/CACHE_IDENTIFIER above, this one intentionally
+     * drops the "xima" vendor branding per the CP-17 decision (#321).
+     */
+    final public const JAVASCRIPT_MODULE_PREFIX = '@content-planner/';
 
     /*
      * The page and file tree paint only the highest-priority label per node. The status
@@ -67,6 +87,13 @@ class Configuration
     final public const FIELD_ASSIGNEE = 'tx_ximatypo3contentplanner_assignee';
     final public const FIELD_COMMENTS = 'tx_ximatypo3contentplanner_comments';
 
+    /*
+     * CP-27 (#326): marks a status record as the "initial status" - the one applied
+     * automatically by the comment-first one-click flow. DataHandlerHook enforces that at
+     * most one status carries this flag (see StatusDefaultManager).
+     */
+    final public const FIELD_STATUS_IS_DEFAULT = 'is_default';
+
     // Permission identifiers
     final public const PERMISSION_GROUP = 'tx_ximatypo3contentplanner';
     final public const PERMISSION_VIEW_ONLY = 'view-only';
@@ -89,6 +116,27 @@ class Configuration
     final public const PERMISSION_ASSIGN_SELF = 'assign-self';
     final public const PERMISSION_ASSIGN_OTHERS = 'assign-others';
 
+    /*
+     * XCLASSes core's page tree TreeController to append FIELD_STATUS and
+     * FIELD_COMMENTS to the fields fetched per page tree node (see
+     * Controller/TreeController::initializePageTreeRepository()). Without it,
+     * AfterPageTreeItemsPreparedListener would have no status/comment data to
+     * read off `$item['_page']`, and the only alternative is an additional
+     * lookup query per tree node (N+1) since AfterPageTreeItemsPreparedEvent
+     * fires after the tree's own SQL query already ran with a fixed field list,
+     * and AfterRawPageRowPreparedEvent fires per already-fetched row, too late
+     * to widen that SELECT.
+     *
+     * One override serves both v13 and v14: core's
+     * initializePageTreeRepository() is byte-identical between them.
+     *
+     * Note that $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']
+     * [BackendTreeController::class] only accepts one registrant, so this is a
+     * hard conflict with any other extension overriding the page tree's
+     * TreeController. See the Developer Corner "Page tree integration"
+     * documentation for the full rationale, the version comparison and the
+     * conflict-resolution options.
+     */
     public static function overrideClasses(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = [

@@ -47,9 +47,10 @@ CREATE TABLE tx_ximatypo3contentplanner_domain_model_status
 	cruser_id int(11) DEFAULT '0' NOT NULL,
 	sorting   int(11) unsigned default '0' not null,
 
-	title     varchar(255) DEFAULT '' NOT NULL,
-	icon      varchar(255) DEFAULT '' NOT NULL,
-	color     varchar(255) DEFAULT '' NOT NULL,
+	title      varchar(255) DEFAULT '' NOT NULL,
+	icon       varchar(255) DEFAULT '' NOT NULL,
+	color      varchar(255) DEFAULT '' NOT NULL,
+	is_default tinyint(4) unsigned DEFAULT 0 NOT NULL,
 	PRIMARY KEY (uid)
 );
 

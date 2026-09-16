@@ -28,6 +28,11 @@ use function is_array;
 /**
  * RecordEditModifier.
  *
+ * CP-25 (#324): only active in the legacy "banner" headerDisplayMode. The default "chip"
+ * mode renders the equivalent status/assignee/comment trio in the doc header button bar
+ * instead (see ModifyButtonBarEventListener), so this regex-based body injection is no
+ * longer needed there.
+ *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
@@ -45,6 +50,7 @@ class RecordEditModifier extends AbstractModifier implements ModifierInterface
     {
         if (SystemEnvironmentBuilder::REQUESTTYPE_BE !== $request->getAttribute('applicationType')
             || !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RECORD_EDIT_HEADER_INFO)
+            || !ExtensionUtility::isBannerDisplayModeEnabled()
             || !array_key_exists('edit', $request->getQueryParams())
         ) {
             return false;

@@ -20,7 +20,10 @@ use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\RedirectResponse;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\RecordController;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Manager\{ChildCommentAggregationManager, CommentFirstFlowManager};
+use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -114,6 +117,129 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('Resolved comment', $payload['result']);
+    }
+
+    // ==================== commentsAction: comment-first flow (CP-27, #326) ====================
+
+    #[Test]
+    public function commentsActionRendersOneClickButtonWhenADefaultStatusExists(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_status_less.csv');
+        $this->importSharedDataSet('status_default.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 20]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('data-status-uid="1"', $payload['result']);
+        self::assertStringNotContainsString('data-comment-status-picker', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionRendersPickerFallbackWithoutADefaultStatus(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_status_less.csv');
+        $this->importSharedDataSet('status.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 20]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('data-comment-status-picker', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionOmitsCommentFirstMarkupWhenRecordAlreadyHasAStatus(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importSharedDataSet('status_default.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringNotContainsString('data-comment-status-picker', $payload['result']);
+        self::assertStringContainsString('data-status-uid=""', $payload['result']);
+    }
+
+    // ==================== commentsAction: aggregated child comments (CP-29, #328) ====================
+
+    #[Test]
+    public function commentsActionOmitsChildCommentsByDefault(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['sys_file_metadata']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringNotContainsString('Child record comment', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionIncludesChildCommentsWhenUserSettingIsEnabled(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['sys_file_metadata']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $backendUser->uc['contentPlanner']['includeChildComments'] = true;
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('Child record comment', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionKeepsOwnCommentCountUnaffectedByChildComments(): void
+    {
+        // Regression guard (CP-29, #328): aggregation is a view concern only. The page's own
+        // comment counter (tx_ximatypo3contentplanner_comments) must stay exactly what the page's
+        // own comments produce, whether or not child comments exist or are toggled on.
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['sys_file_metadata']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $backendUser->uc['contentPlanner']['includeChildComments'] = true;
+
+        $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $page = $this->get(RecordRepository::class)->findByUid('pages', 1);
+        self::assertIsArray($page);
+        // Fixture value from pages.csv, unrelated to the child comment added on sys_file_metadata.
+        self::assertSame(1, (int) $page[Configuration::FIELD_COMMENTS]);
     }
 
     #[Test]
@@ -234,7 +360,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $recordRepository->expects(self::once())
             ->method('findAllByFilter')
             ->with('term', 2, 1, 'pages', true, 20, true)
-            ->willReturn([
+            ->willReturn(new PaginatedResult([
                 [
                     'uid' => 1,
                     'pid' => 0,
@@ -245,7 +371,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
                     Configuration::FIELD_ASSIGNEE => 1,
                     Configuration::FIELD_COMMENTS => 0,
                 ],
-            ]);
+            ], false));
 
         $response = $this->createController($recordRepository)->filterAction(
             $this->createRequest([
@@ -260,8 +386,37 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
-        self::assertCount(1, $payload);
-        self::assertSame('Home', $payload[0]['title']);
+        self::assertFalse($payload['hasMore']);
+        self::assertCount(1, $payload['items']);
+        self::assertSame('Home', $payload['items'][0]['title']);
+    }
+
+    #[Test]
+    public function filterActionSurfacesHasMoreFromRepository(): void
+    {
+        $this->loginBackendUser(1);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->expects(self::once())
+            ->method('findAllByFilter')
+            ->willReturn(new PaginatedResult([
+                [
+                    'uid' => 1,
+                    'pid' => 0,
+                    'tstamp' => 1000,
+                    'tablename' => 'pages',
+                    'title' => 'Home',
+                    Configuration::FIELD_STATUS => 2,
+                    Configuration::FIELD_ASSIGNEE => 1,
+                    Configuration::FIELD_COMMENTS => 0,
+                ],
+            ], true));
+
+        $response = $this->createController($recordRepository)->filterAction($this->createRequest([]));
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertTrue($payload['hasMore']);
     }
 
     #[Test]
@@ -273,13 +428,14 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $recordRepository->expects(self::once())
             ->method('findAllByFilter')
             ->with(null, null, null, null, false, 20, false)
-            ->willReturn([]);
+            ->willReturn(new PaginatedResult([], false));
 
         $response = $this->createController($recordRepository)->filterAction($this->createRequest([]));
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame([], $payload);
+        self::assertFalse($payload['hasMore']);
+        self::assertSame([], $payload['items']);
     }
 
     #[Test]
@@ -325,6 +481,36 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         self::assertTrue($backendUser->uc['contentPlanner']['repliesExpanded']);
     }
 
+    #[Test]
+    public function userSettingActionPersistsIncludeChildCommentsSetting(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->userSettingAction(
+            $this->createRequest(['key' => 'includeChildComments', 'value' => '1']),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('includeChildComments', $payload['key']);
+        self::assertTrue($payload['value']);
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        self::assertTrue($backendUser->uc['contentPlanner']['includeChildComments']);
+    }
+
+    #[Test]
+    public function userSettingActionIncludeChildCommentsDefaultsToFalseWhenNeverSet(): void
+    {
+        $this->loginBackendUser(1);
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
+        self::assertFalse((bool) ($backendUser->uc['contentPlanner']['includeChildComments'] ?? false));
+    }
+
     private function createController(?RecordRepository $recordRepository = null): RecordController
     {
         return new RecordController(
@@ -332,6 +518,9 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
             $this->get(CommentRepository::class),
             $this->get(BackendUserRepository::class),
             $this->get(RequestId::class),
+            $this->get(CommentEditorConfigurationFactory::class),
+            $this->get(CommentFirstFlowManager::class),
+            $this->get(ChildCommentAggregationManager::class),
         );
     }
 

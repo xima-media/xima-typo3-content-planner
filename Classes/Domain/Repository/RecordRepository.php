@@ -20,9 +20,12 @@ use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestric
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function array_slice;
 use function count;
 use function in_array;
 use function is_array;
@@ -36,6 +39,30 @@ use function sprintf;
  */
 class RecordRepository
 {
+    /**
+     * Permission filtering happens in PHP after the query (see findAllByFilter()), so the SQL
+     * LIMIT alone cannot guarantee $maxResults *visible* rows. This factor over-fetches beyond
+     * the requested page size to leave enough headroom for rows the current backend user cannot
+     * see. Bounded by FILTER_OVERFETCH_CAP so a large $maxResults cannot blow up the query.
+     */
+    /**
+     * Default number of records per page, shared by every paged read here and by callers
+     * that need to mirror it (see ChildCommentAggregationManager).
+     */
+    public const DEFAULT_PAGE_SIZE = 20;
+
+    private const FILTER_OVERFETCH_FACTOR = 3;
+
+    private const FILTER_OVERFETCH_CAP = 100;
+
+    /**
+     * If a whole batch turns out to be invisible, findAllByFilter() pulls the next one rather
+     * than reporting a short page. This bounds that loop: with FILTER_OVERFETCH_CAP rows per
+     * batch it inspects at most 1000 rows before giving up, so a pathological ratio of
+     * invisible rows cannot turn a single request into an unbounded table scan.
+     */
+    private const FILTER_MAX_BATCHES = 10;
+
     /** @var string[] */
     private array $defaultSelects = [
         'uid',
@@ -49,28 +76,41 @@ class RecordRepository
     public function __construct(private readonly FrontendInterface $cache, private readonly ConnectionPool $connectionPool) {}
 
     /**
-     * @return array<int, array<string, mixed>>|bool
+     * @return PaginatedResult<array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): array|bool
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = self::DEFAULT_PAGE_SIZE, bool $openComments = false): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
         $baseWhere = '';
-        $additionalParams = ['limit' => $maxResults];
+        $batchSize = min($maxResults * self::FILTER_OVERFETCH_FACTOR, self::FILTER_OVERFETCH_CAP);
+        $additionalParams = ['limit' => $batchSize];
 
         [$baseWhere, $additionalParams] = $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
 
         $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments);
         // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
         // tablename literal, so cross-table duplicates cannot occur.
-        $sql = implode(' UNION ALL ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
+        //
+        // tstamp alone is not a total order, so paging by offset could drop or repeat rows on
+        // ties. tablename/uid break those ties and are selected by every union branch.
+        $sql = implode(' UNION ALL ', $sqlArray).' ORDER BY tstamp DESC, tablename ASC, uid ASC LIMIT :limit OFFSET :offset';
 
-        $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
-        $results = $statement->fetchAllAssociative();
+        $connection = $queryBuilder->getConnection();
 
-        return $this->filterResultsByPermission($results);
+        return OverfetchPaginator::paginateBatched(
+            static function (int $offset) use ($connection, $sql, $additionalParams): array {
+                $additionalParams['offset'] = $offset;
+
+                return $connection->executeQuery($sql, $additionalParams, ['limit' => Connection::PARAM_INT, 'offset' => Connection::PARAM_INT])->fetchAllAssociative();
+            },
+            $maxResults,
+            $batchSize,
+            self::FILTER_MAX_BATCHES,
+            static fn (array $record): bool => PermissionUtility::checkAccessForRecord((string) $record['tablename'], $record),
+        );
     }
 
     /**
@@ -201,6 +241,39 @@ class RecordRepository
             ->fetchAssociative();
     }
 
+    /**
+     * Find refs (table + uid) of child records living on a page (pid = $pageId) that have at
+     * least one comment, across every registered record table - the same pid-generic lookup for
+     * `tt_content` on a regular page and, say, `tx_news_domain_model_news` on a sysfolder page.
+     * `pages` (the page itself, not a child of itself) and the folder status table (identified by
+     * folder_identifier/storage_uid rather than uid+pid) are excluded (CP-29, #328).
+     *
+     * Deliberately queried per table with a portable QueryBuilder (unlike findAllByFilter()'s raw
+     * UNION SQL) so this stays testable against SQLite, not just MySQL.
+     *
+     * @return PaginatedResult<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    public function findChildRecordRefsWithComments(int $pageId, int $maxResults = self::DEFAULT_PAGE_SIZE): PaginatedResult
+    {
+        $fetchLimit = min($maxResults * self::FILTER_OVERFETCH_FACTOR, self::FILTER_OVERFETCH_CAP);
+
+        $rows = [];
+        foreach ($this->getChildCommentTables() as $table) {
+            $rows = array_merge($rows, $this->findChildRowsForTable($table, $pageId, $fetchLimit));
+        }
+
+        usort($rows, static fn (array $a, array $b): int => (int) $b['tstamp'] <=> (int) $a['tstamp']);
+        $rows = array_slice($rows, 0, $fetchLimit);
+
+        return OverfetchPaginator::paginate(
+            $rows,
+            $maxResults,
+            static fn (array $record): bool => PermissionUtility::checkAccessForRecord((string) $record['tablename'], $record),
+        );
+    }
+
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -236,6 +309,46 @@ class RecordRepository
                 )
                 ->executeStatement();
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getChildCommentTables(): array
+    {
+        return array_values(array_diff(
+            ExtensionUtility::getRecordTables(),
+            ['pages', Configuration::TABLE_FOLDER],
+        ));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function findChildRowsForTable(string $table, int $pageId, int $limit): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+        $titleField = ExtensionUtility::getTitleField($table);
+
+        $query = $queryBuilder
+            ->select('uid', 'pid', 'tstamp', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
+            ->addSelectLiteral($queryBuilder->quoteIdentifier($titleField).' AS title')
+            ->addSelectLiteral($queryBuilder->quote($table).' AS tablename')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageId, Connection::PARAM_INT)),
+                $queryBuilder->expr()->gt(Configuration::FIELD_COMMENTS, $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->orderBy('tstamp', 'DESC')
+            ->setMaxResults($limit);
+
+        if ($this->hasDeletedRestriction($table)) {
+            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
+        }
+
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     /**
@@ -332,22 +445,6 @@ class RecordRepository
         }
 
         return $where;
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $results
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function filterResultsByPermission(array $results): array
-    {
-        foreach ($results as $key => $record) {
-            if (!PermissionUtility::checkAccessForRecord($record['tablename'], $record)) {
-                unset($results[$key]);
-            }
-        }
-
-        return $results;
     }
 
     private function getSqlByTable(string $table, string $additionalWhere): string

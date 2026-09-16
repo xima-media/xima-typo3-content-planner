@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Repository;
 
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -224,9 +225,97 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
         self::assertNull($record['tx_ximatypo3contentplanner_assignee']);
     }
 
+    // ==================== findChildRecordRefsWithComments() (CP-29, #328) ====================
+
+    #[Test]
+    public function findChildRecordRefsWithCommentsFindsContentElementsOnARegularPage(): void
+    {
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['tt_content']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $result = $this->subject->findChildRecordRefsWithComments(1);
+
+        $tables = array_map(static fn (array $row): string => (string) $row['tablename'], $result->items);
+        self::assertContains('tt_content', $tables);
+        self::assertFalse($result->hasMore);
+    }
+
+    #[Test]
+    public function findChildRecordRefsWithCommentsIsPidGenericForANonTtContentRegisteredTable(): void
+    {
+        // Explicit acceptance case (CP-29, #328): a registered table other than tt_content -
+        // here sys_file_metadata, standing in for e.g. a news record - aggregates on the page
+        // it lives on (pid) the same way tt_content does. The lookup must not special-case
+        // tt_content; it has to work for any registered table with a pid column.
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['sys_file_metadata']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $result = $this->subject->findChildRecordRefsWithComments(1);
+
+        $tables = array_map(static fn (array $row): string => (string) $row['tablename'], $result->items);
+        self::assertContains('sys_file_metadata', $tables);
+    }
+
+    #[Test]
+    public function findChildRecordRefsWithCommentsExcludesRecordsWithoutComments(): void
+    {
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['tt_content']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $result = $this->subject->findChildRecordRefsWithComments(1);
+
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $result->items);
+        // tt_content uid 3 (pid 1) has tx_ximatypo3contentplanner_comments = 0 in the fixture.
+        self::assertNotContains(3, $uids);
+    }
+
+    #[Test]
+    public function findChildRecordRefsWithCommentsExcludesTheFolderStatusTable(): void
+    {
+        // Out of scope by design (CP-29, #328): the folder status table is identified by
+        // storage_uid/folder_identifier, not uid+pid, so it is never queried here.
+        $this->enableExtensionFeature('registerAdditionalRecordTables', [Configuration::TABLE_FOLDER]);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $result = $this->subject->findChildRecordRefsWithComments(1);
+
+        self::assertSame([], $result->items);
+    }
+
+    #[Test]
+    public function findChildRecordRefsWithCommentsExcludesRecordsOnOtherPages(): void
+    {
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['tt_content']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $result = $this->subject->findChildRecordRefsWithComments(2);
+
+        self::assertSame([], $result->items);
+    }
+
+    #[Test]
+    public function findChildRecordRefsWithCommentsSignalsHasMoreBeyondMaxResults(): void
+    {
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['tt_content']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments_many.csv');
+
+        $result = $this->subject->findChildRecordRefsWithComments(1, 2);
+
+        self::assertCount(2, $result->items);
+        self::assertTrue($result->hasMore);
+    }
+
     // NOTE: findAllByFilter() builds raw "(SELECT ...) UNION (SELECT ...)" SQL which is invalid
     // under SQLite (the functional test driver). It is therefore not covered here, together with
     // the private helpers it exclusively calls (applyFilterConditions, buildSearchCondition,
-    // getTitleFieldForSearch, buildUnionQueriesForTables, buildWhereClauseForTable,
-    // filterResultsByPermission, getSqlByTable, getSqlForFileMetadata, getSqlForFolders).
+    // getTitleFieldForSearch, buildUnionQueriesForTables, buildWhereClauseForTable, getSqlByTable,
+    // getSqlForFileMetadata, getSqlForFolders). This also means the CP-16 fix (over-fetch beyond
+    // $maxResults, then apply permission filtering, then truncate to a page + hasMore) cannot be
+    // exercised end-to-end against a real DB connection with a restricted backend user here.
+    // What *is* unit-testable without a DB or TYPO3 bootstrap is the pagination algorithm itself:
+    // Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator::paginate(), covered by
+    // Tests/Unit/Utility/Data/OverfetchPaginatorTest.php, proves that permission filtering applied
+    // before the final page-size truncation yields the correct items + hasMore for a restricted
+    // set of visible rows, independent of how the rows were fetched.
 }

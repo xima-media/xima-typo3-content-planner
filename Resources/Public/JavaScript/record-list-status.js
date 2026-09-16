@@ -1,12 +1,12 @@
 /**
-* Module: @xima/ximatypo3contentplanner/record-list-status
+* Module: @content-planner/record-list-status
 *
 * Handles status changes in record list dropdowns via AJAX
 * to ensure proper page refresh after status change.
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Viewport from "@typo3/backend/viewport.js"
-import Notification from "@xima/ximatypo3contentplanner/notification.js";
+import Notification from "@content-planner/notification.js";
 
 class RecordListStatus {
   constructor() {

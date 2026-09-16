@@ -61,6 +61,10 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
         self::assertArrayHasKey('assignee', $result);
         self::assertArrayHasKey('comments', $result);
         self::assertSame('change', $result['1']['callbackAction']);
+        // color/icon are exposed so StatusItemProvider can pass them to context-menu-actions.js
+        // for the optimistic status-header update.
+        self::assertSame('blue', $result['1']['color']);
+        self::assertSame('flag', $result['1']['icon']);
     }
 
     #[Test]
@@ -146,6 +150,8 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
         self::assertArrayHasKey('1', $result);
         self::assertArrayHasKey('3', $result);
         self::assertArrayNotHasKey('2', $result);
+        self::assertSame('blue', $result['1']['color']);
+        self::assertSame('flag', $result['1']['icon']);
     }
 
     #[Test]

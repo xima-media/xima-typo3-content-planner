@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{CommentCreatedEvent, CommentResolvedEvent};
-use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
+use Xima\XimaTypo3ContentPlanner\Manager\{StatusChangeManager, StatusDefaultManager};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -44,6 +44,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         private RecordRepository $recordRepository,
         private CommentRepository $commentRepository,
         private EventDispatcherInterface $eventDispatcher,
+        private StatusDefaultManager $statusDefaultManager,
     ) {}
 
     /**
@@ -152,6 +153,10 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             $this->updateCommentCountRelation($status, $id, $fieldArray, $dataHandler);
         }
 
+        if (Configuration::TABLE_STATUS === $table) {
+            $this->statusDefaultManager->enforceUniqueDefaultAfterSave($id, $fieldArray, $dataHandler);
+        }
+
         if ($this->shouldRefreshPageTree($table, $fieldArray)) {
             BackendUtility::setUpdateSignal('updatePageTree');
         }
@@ -219,7 +224,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
     }
 
-    private function fixNewCommentEntry(DataHandler $dataHandler): void
+    private function fixNewCommentEntry(DataHandler &$dataHandler): void
     {
         $id = null;
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $key) {
@@ -254,7 +259,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     /**
      * Flatten nested replies: if parent_uid points to a reply, redirect to the root comment.
      */
-    private function flattenNestedReply(DataHandler $dataHandler, string $id): void
+    private function flattenNestedReply(DataHandler &$dataHandler, string $id): void
     {
         if (!isset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['parent_uid'])) {
             return;

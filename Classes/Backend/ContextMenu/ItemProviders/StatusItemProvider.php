@@ -60,6 +60,16 @@ class StatusItemProvider extends AbstractProvider
 
     private int $currentAssignee = 0;
 
+    /**
+     * Per-item status metadata (title/color/icon), keyed by item key. Populated from the
+     * selection entries in {@see addItems()} and read back in {@see getAdditionalAttributes()}
+     * so the JS callback receives enough data to apply a status change optimistically,
+     * without an extra round trip.
+     *
+     * @var array<string, array{title: string, color: string, icon: string}>
+     */
+    private array $statusMetadataByItemKey = [];
+
     public function __construct(
         private readonly ContextMenuSelectionService $contextMenuSelectionService,
         private readonly SysFileMetadataRepository $sysFileMetadataRepository,
@@ -109,8 +119,8 @@ class StatusItemProvider extends AbstractProvider
 
         /** @var PageRenderer $pageRenderer */
         $pageRenderer = $this->pageRenderer;
-        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js');
-        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/comments-list-modal.js');
+        $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js');
+        $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-reload-content.js');
         $pageRenderer->addInlineLanguageLabelFile('EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf');
 
         $this->initDisabledItems();
@@ -126,12 +136,7 @@ class StatusItemProvider extends AbstractProvider
             return $items;
         }
         foreach ($itemsToAdd as $itemKey => $itemToAdd) {
-            $this->itemsConfiguration['wrap']['childItems'][$itemKey] = $itemToAdd;
-
-            // Extract currentAssignee from assignee item for getAdditionalAttributes()
-            if ('assignee' === $itemKey && isset($itemToAdd['currentAssignee'])) {
-                $this->currentAssignee = (int) $itemToAdd['currentAssignee'];
-            }
+            $this->registerItem($itemKey, $itemToAdd);
         }
 
         $localItems = $this->prepareItems($this->itemsConfiguration);
@@ -157,7 +162,7 @@ class StatusItemProvider extends AbstractProvider
     protected function getAdditionalAttributes(string|int $itemName): array
     {
         $attributes = [
-            'data-callback-module' => '@xima/ximatypo3contentplanner/context-menu-actions',
+            'data-callback-module' => Configuration::JAVASCRIPT_MODULE_PREFIX.'context-menu-actions',
             'data-status' => $itemName,
             'data-effective-table' => $this->effectiveTable,
             'data-effective-uid' => $this->effectiveIdentifier,
@@ -192,6 +197,8 @@ class StatusItemProvider extends AbstractProvider
             $attributes['data-current-assignee'] = $this->currentAssignee;
         }
 
+        $attributes = $this->addStatusMetadataAttributes($attributes, $itemName);
+
         return $attributes;
     }
 
@@ -207,6 +214,54 @@ class StatusItemProvider extends AbstractProvider
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    /**
+     * Registers a single context menu item and extracts the metadata
+     * {@see getAdditionalAttributes()} needs for it.
+     *
+     * @param array<string, mixed> $itemToAdd
+     */
+    private function registerItem(int|string $itemKey, array $itemToAdd): void
+    {
+        $this->itemsConfiguration['wrap']['childItems'][$itemKey] = $itemToAdd;
+
+        // Extract currentAssignee from assignee item for getAdditionalAttributes()
+        if ('assignee' === $itemKey && isset($itemToAdd['currentAssignee'])) {
+            $this->currentAssignee = (int) $itemToAdd['currentAssignee'];
+        }
+
+        // Status-change entries carry color/icon so the JS callback can apply the new
+        // status optimistically, see getAdditionalAttributes().
+        if (isset($itemToAdd['color'], $itemToAdd['icon'])) {
+            $this->statusMetadataByItemKey[(string) $itemKey] = [
+                'title' => (string) ($itemToAdd['label'] ?? ''),
+                'color' => (string) $itemToAdd['color'],
+                'icon' => (string) $itemToAdd['icon'],
+            ];
+        }
+    }
+
+    /**
+     * Status-change entries: expose title/color/icon so context-menu-actions.js can apply the
+     * new status to the DOM optimistically, before the request resolves.
+     *
+     * @param array<string, mixed> $attributes
+     *
+     * @return array<string, mixed>
+     */
+    private function addStatusMetadataAttributes(array $attributes, string|int $itemName): array
+    {
+        $metadata = $this->statusMetadataByItemKey[(string) $itemName] ?? null;
+        if (null === $metadata) {
+            return $attributes;
+        }
+
+        $attributes['data-status-title'] = $metadata['title'];
+        $attributes['data-status-color'] = $metadata['color'];
+        $attributes['data-status-icon'] = $metadata['icon'];
+
+        return $attributes;
     }
 
     /**

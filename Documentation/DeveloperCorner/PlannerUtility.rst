@@ -8,6 +8,22 @@ Planner Utility
 
 The :php:`PlannerUtility` can be used to easily interact programmatically with the content planner.
 
+..  note::
+
+    :php:`PlannerUtility` is a thin static facade. Internally it delegates to the injectable
+    :php:`Xima\XimaTypo3ContentPlanner\Service\PlannerService`, which holds the actual logic
+    with its collaborators (:php:`StatusRepository`, :php:`RecordRepository`,
+    :php:`CommentRepository`, :php:`BackendUserRepository`) as constructor-injected
+    dependencies. Wherever constructor injection is available - controllers, event listeners,
+    other services - inject :php:`PlannerService` directly instead of calling the static
+    facade; it is easier to test and makes the dependency explicit. The facade remains the
+    documented, stable entry point for third-party code that has no container access (e.g.
+    a one-off CLI script or a legacy hook).
+
+    :php:`PlannerUtility::generateTodoForComment()` and :php:`PlannerUtility::hasComments()`
+    are pure helper functions with no collaborators; they stay directly on the facade and are
+    not part of :php:`PlannerService`.
+
 ..  php:namespace:: Xima\XimaTypo3ContentPlanner\Utility
 
 ..  php:class:: PlannerUtility

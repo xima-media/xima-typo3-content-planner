@@ -67,7 +67,7 @@ final readonly class RenderAdditionalContentToRecordListListener
         }
 
         $pageRenderer = $this->pageRenderer;
-        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/record-list-status.js');
+        $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'record-list-status.js');
     }
 
     private function extractPidFromRequest(ServerRequestInterface $request): ?int

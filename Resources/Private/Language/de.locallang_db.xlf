@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-	<file source-language="en" datatype="plaintext" original="messages">
+	<file source-language="en" target-language="de" datatype="plaintext" original="messages">
 		<header/>
 		<body>
 			<trans-unit id="pages.tx_ximatypo3contentplanner_status">
@@ -42,6 +42,14 @@
 			<trans-unit id="tx_ximatypo3contentplanner_status.color">
 				<source>Color</source>
 				<target>Farbe</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.is_default">
+				<source>Use as initial status</source>
+				<target>Als Startstatus verwenden</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.is_default.description">
+				<source>Applied automatically by the one-click "comment sets status" flow on records that do not have a status yet. Only one status can carry this flag.</source>
+				<target>Wird automatisch durch den "Kommentar setzt Status"-Ein-Klick-Ablauf auf Datensätzen ohne Status angewendet. Nur ein Status kann diese Markierung tragen.</target>
 			</trans-unit>
 			<trans-unit id="permission.group">
 				<source>Content Planner</source>

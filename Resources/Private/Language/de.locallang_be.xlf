@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-	<file source-language="en" datatype="plaintext" original="messages">
+	<file source-language="en" target-language="de" datatype="plaintext" original="messages">
 		<header/>
 		<body>
 			<trans-unit id="status">
@@ -223,6 +223,10 @@
 			<trans-unit id="message.comment.delete.failure.message">
 				<source>The comment could not be deleted.</source>
 				<target>Der Kommentar konnte nicht gelöscht werden.</target>
+			</trans-unit>
+			<trans-unit id="comment.editor.label">
+				<source>Comment text</source>
+				<target>Kommentartext</target>
 			</trans-unit>
 		</body>
 	</file>

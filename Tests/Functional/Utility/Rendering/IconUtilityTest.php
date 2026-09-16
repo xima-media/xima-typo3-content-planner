@@ -45,9 +45,7 @@ final class IconUtilityTest extends AbstractFunctionalTestCase
     #[Test]
     public function getIconByStatusReturnsIdentifierByDefault(): void
     {
-        $status = new Status();
-        $status->setIcon('flag');
-        $status->setColor('blue');
+        $status = new Status(uid: 0, title: '', icon: 'flag', color: 'blue', isDefault: false);
 
         self::assertSame('flag-blue', IconUtility::getIconByStatus($status));
     }
@@ -55,9 +53,7 @@ final class IconUtilityTest extends AbstractFunctionalTestCase
     #[Test]
     public function getIconByStatusRendersMarkupWhenRenderTrue(): void
     {
-        $status = new Status();
-        $status->setIcon('flag');
-        $status->setColor('blue');
+        $status = new Status(uid: 0, title: '', icon: 'flag', color: 'blue', isDefault: false);
 
         self::assertStringContainsString('<span', IconUtility::getIconByStatus($status, true));
     }
@@ -66,6 +62,33 @@ final class IconUtilityTest extends AbstractFunctionalTestCase
     public function getIconByStatusUsesFallbackForNull(): void
     {
         self::assertSame('flag-gray', IconUtility::getIconByStatus(null));
+    }
+
+    /**
+     * CP-14 (#318): status must never be conveyed by colour alone. The status icon is
+     * aria-hidden (see TYPO3\CMS\Core\Imaging\Icon), so the status title must additionally
+     * be present as real text for screen readers/keyboard users, not only as a `title`
+     * attribute nested inside the aria-hidden icon markup.
+     */
+    #[Test]
+    public function getIconByStatusRenderedMarkupCarriesStatusTitleAsText(): void
+    {
+        $status = new Status(uid: 0, icon: 'flag', color: 'blue', title: 'In Review', isDefault: false);
+
+        $markup = IconUtility::getIconByStatus($status, true);
+
+        self::assertStringContainsString('visually-hidden', $markup);
+        self::assertStringContainsString('In Review', $markup);
+    }
+
+    #[Test]
+    public function getIconByStatusRenderedMarkupHasNoLabelWhenStatusHasNoTitle(): void
+    {
+        $status = new Status(uid: 0, title: '', icon: 'flag', color: 'blue', isDefault: false);
+
+        $markup = IconUtility::getIconByStatus($status, true);
+
+        self::assertStringNotContainsString('visually-hidden', $markup);
     }
 
     #[Test]

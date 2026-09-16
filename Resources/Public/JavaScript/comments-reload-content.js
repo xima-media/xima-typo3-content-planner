@@ -1,18 +1,18 @@
 /**
-* Module: @xima/ximatypo3contentplanner/comments-reload-content
+* Module: @content-planner/comments-reload-content
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
-import CommentsEditItem from "@xima/ximatypo3contentplanner/comments-edit-item.js"
-import CommentsResolvedItem from "@xima/ximatypo3contentplanner/comments-resolved-item.js";
-import CommentsDeleteItem from "@xima/ximatypo3contentplanner/comments-delete-item.js"
-import CommentsShareLink from "@xima/ximatypo3contentplanner/comments-share-link.js"
-import CreateAndEditCommentModal from "@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js"
+import CommentsResolvedItem from "@content-planner/comments-resolved-item.js";
+import CommentsDeleteItem from "@content-planner/comments-delete-item.js"
+import CommentsShareLink from "@content-planner/comments-share-link.js"
+import CommentComposer from "@content-planner/comment-composer.js"
 
 class CommentsReloadContent {
 
   constructor() {
     document.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {bubbles: true, composed: true}))
-    window.addEventListener('typo3:contentplanner:reloadcomments', ({detail: {url, table, id}}) => {
+    window.addEventListener('typo3:contentplanner:reloadcomments', ({detail: {url, table, id, highlightParentUid}}) => {
+      this.pendingHighlightParentUid = highlightParentUid || null
       this.loadComments(url, table, id)
     })
     window.addEventListener('typo3:contentplanner:reinitializelistener', () => {
@@ -30,36 +30,47 @@ class CommentsReloadContent {
       const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
       const table = event.target.closest('form').getAttribute('data-table')
       const uid = event.target.closest('form').getAttribute('data-id')
+
+      // includeChildComments (CP-29, #328) is a persisted user setting, not just a per-request
+      // filter: save it before reloading so the new state survives the next time the panel opens.
+      if ('includeChildComments' === event.target.name) {
+        new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_usersetting)
+          .withQueryArguments({key: 'includeChildComments', value: event.target.checked ? '1' : '0'})
+          .get()
+          .then(() => this.loadComments(url, table, uid))
+          .catch((error) => {
+            console.error('Failed to save user setting:', error)
+            top.TYPO3.Notification.error('Error', 'Failed to save setting.')
+          })
+        return
+      }
+
       this.loadComments(url, table, uid)
     })
 
+    // The composer is always rendered inline at the bottom of the list (CP-28, #327) - a
+    // "new comment" trigger elsewhere (header button, list/tree context menu) only needs to
+    // bring it into view, not fetch or open anything.
     document.querySelectorAll('[data-new-comment-uri]').forEach(item => {
+      if ('true' === item.dataset.commentComposerBound) {
+        return
+      }
+      item.dataset.commentComposerBound = 'true'
       item.addEventListener('click', event => {
         event.preventDefault()
-        const table = event.target.getAttribute('data-table')
-        const id = event.target.getAttribute('data-id')
-        const newCommentUrl = event.target.getAttribute('data-new-comment-uri')
-        CreateAndEditCommentModal.openModal(newCommentUrl, document.querySelector('#content-planner-comment-list'), table, id)
+        this.focusNewCommentComposer()
       })
     })
+  }
 
-    if (!this.replyDelegateInitialized) {
-      document.addEventListener('click', event => {
-        const target = event.target.closest('[data-reply-comment-uri]')
-        if (!target) {
-          return
-        }
-        event.preventDefault()
-        const table = target.getAttribute('data-table')
-        const id = target.getAttribute('data-id')
-        const replyUrl = target.getAttribute('data-reply-comment-uri')
-        const parentUid = new URL(replyUrl, window.location.origin).searchParams
-          .get('defVals[tx_ximatypo3contentplanner_comment][parent_uid]')
-        this.pendingHighlightParentUid = parentUid || null
-        CreateAndEditCommentModal.openModal(replyUrl, document.querySelector('#content-planner-comment-list'), table, id)
-      })
-      this.replyDelegateInitialized = true
+  focusNewCommentComposer() {
+    const composer = document.querySelector('#content-planner-comment-list')
+      ?.parentElement?.querySelector('[data-comment-composer][data-mode="new"]')
+    if (!composer) {
+      return
     }
+    composer.scrollIntoView({behavior: 'smooth', block: 'center'})
+    composer.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
   }
 
   initRepliesToggle() {
@@ -138,10 +149,10 @@ class CommentsReloadContent {
         }
         const parent = commentList.parentElement
         parent.innerHTML = resolved.result
-        CommentsEditItem.initEventListeners()
         CommentsResolvedItem.initEventListeners()
         CommentsDeleteItem.initEventListeners()
         CommentsShareLink.initEventListeners()
+        CommentComposer.initEventListeners()
         this.initEventListeners()
         this.highlightNewReply(parent)
       })

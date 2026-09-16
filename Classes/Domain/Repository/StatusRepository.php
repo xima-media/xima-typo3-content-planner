@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
+use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
-use TYPO3\CMS\Extbase\Persistence\{QueryInterface, Repository};
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 
@@ -27,16 +27,23 @@ use function sprintf;
 /**
  * StatusRepository.
  *
- * @extends Repository<Status>
+ * Reads the status table directly via QueryBuilder and hydrates the readonly {@see Status}
+ * DTO manually - no Extbase persistence involved.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class StatusRepository extends Repository
+class StatusRepository
 {
-    protected $defaultOrderings = [
-        'sorting' => QueryInterface::ORDER_ASCENDING,
-    ];
+    /**
+     * Part of the cache identifiers below, because the cache holds serialized Status
+     * objects. unserialize() does not run the constructor, so a cache entry written before
+     * a property was added comes back with that property uninitialized, and the first
+     * typed-property read fatals until someone flushes the cache by hand. Bump this
+     * whenever Status gains, loses or renames a property, so stale entries are simply
+     * missed instead of being restored into the new shape.
+     */
+    private const CACHE_SHAPE_VERSION = 'v2';
 
     /**
      * Request-level memoization: the repository is a singleton, so this avoids repeated
@@ -50,20 +57,15 @@ class StatusRepository extends Repository
     /** @var array<int, Status>|null */
     private ?array $runtimeAllCache = null;
 
-    public function __construct(private readonly FrontendInterface $cache)
-    {
-        parent::__construct();
-    }
-
-    public function initializeObject(): void
-    {
-        $querySettings = GeneralUtility::makeInstance(Typo3QuerySettings::class);
-        $querySettings->setRespectStoragePage(false);
-        $this->setDefaultQuerySettings($querySettings);
-    }
+    public function __construct(
+        private readonly FrontendInterface $cache,
+        private readonly ConnectionPool $connectionPool,
+    ) {}
 
     /**
      * @return array<int, Status>
+     *
+     * @throws Exception
      */
     public function findAll(): array
     {
@@ -71,14 +73,19 @@ class StatusRepository extends Repository
             return $this->runtimeAllCache;
         }
 
-        $cacheIdentifier = sprintf('%s--status--all', Configuration::CACHE_IDENTIFIER);
+        $cacheIdentifier = sprintf('%s--status--%s--all', Configuration::CACHE_IDENTIFIER, self::CACHE_SHAPE_VERSION);
         $cachedResult = $this->cache->get($cacheIdentifier);
         if (is_array($cachedResult)) {
             return $this->runtimeAllCache = $cachedResult;
         }
 
-        $query = $this->createQuery();
-        $result = $query->execute()->toArray();
+        $rows = $this->createQueryBuilder()
+            ->orderBy('sorting', 'ASC')
+            ->executeQuery()
+            ->fetchAllAssociative()
+        ;
+
+        $result = array_map($this->hydrate(...), $rows);
         $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags($result));
 
         return $this->runtimeAllCache = $result;
@@ -86,6 +93,8 @@ class StatusRepository extends Repository
 
     /**
      * @param int|string|null $uid
+     *
+     * @throws Exception
      */
     public function findByUid(mixed $uid): ?Status
     {
@@ -97,33 +106,82 @@ class StatusRepository extends Repository
             return $this->runtimeStatusCache[$uid];
         }
 
-        $cacheIdentifier = sprintf('%s--status--%s', Configuration::CACHE_IDENTIFIER, $uid);
+        $cacheIdentifier = sprintf('%s--status--%s--%s', Configuration::CACHE_IDENTIFIER, self::CACHE_SHAPE_VERSION, $uid);
         $cachedResult = $this->cache->get($cacheIdentifier);
         if ($cachedResult instanceof Status) {
             return $this->runtimeStatusCache[$uid] = $cachedResult;
         }
 
-        $query = $this->createQuery();
-        $query->matching($query->equals('uid', $uid));
-        /** @var Status|null $result */
-        $result = $query->execute()->getFirst();
+        $queryBuilder = $this->createQueryBuilder();
+        $row = $queryBuilder
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter((int) $uid, Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchAssociative()
+        ;
 
-        if (null === $result) {
+        if (false === $row) {
             return $this->runtimeStatusCache[$uid] = null;
         }
+
+        $result = $this->hydrate($row);
         $this->cache->set($cacheIdentifier, $result, $this->collectCacheTags([$result]));
 
         return $this->runtimeStatusCache[$uid] = $result;
     }
 
+    /**
+     * @throws Exception
+     */
     public function findByTitle(string $title): ?Status
     {
-        $query = $this->createQuery();
-        $query->matching($query->equals('title', $title));
-        /** @var Status|null $result */
-        $result = $query->execute()->getFirst();
+        $queryBuilder = $this->createQueryBuilder();
+        $row = $queryBuilder
+            ->where($queryBuilder->expr()->eq('title', $queryBuilder->createNamedParameter($title)))
+            ->executeQuery()
+            ->fetchAssociative()
+        ;
 
-        return $result;
+        return false === $row ? null : $this->hydrate($row);
+    }
+
+    /**
+     * CP-27 (#326): the status marked as "initial status" for the comment-first one-click
+     * flow, or null when none is configured. Reuses the already-cached findAll() result
+     * rather than a dedicated query/cache entry.
+     *
+     * @throws Exception
+     */
+    public function findDefault(): ?Status
+    {
+        foreach ($this->findAll() as $status) {
+            if ($status->isDefault()) {
+                return $status;
+            }
+        }
+
+        return null;
+    }
+
+    private function createQueryBuilder(): QueryBuilder
+    {
+        return $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_STATUS)
+            ->select('uid', 'title', 'icon', 'color', Configuration::FIELD_STATUS_IS_DEFAULT)
+            ->from(Configuration::TABLE_STATUS)
+        ;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function hydrate(array $row): Status
+    {
+        return new Status(
+            (int) $row['uid'],
+            (string) $row['title'],
+            (string) $row['icon'],
+            (string) $row['color'],
+            (bool) ($row[Configuration::FIELD_STATUS_IS_DEFAULT] ?? false),
+        );
     }
 
     /**

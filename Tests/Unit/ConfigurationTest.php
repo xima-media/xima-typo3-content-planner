@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
 
 use function count;
 
@@ -26,6 +28,37 @@ use function count;
  */
 final class ConfigurationTest extends TestCase
 {
+    private mixed $originalTreeControllerXclass = null;
+
+    protected function setUp(): void
+    {
+        $this->originalTreeControllerXclass = $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] ?? null;
+    }
+
+    protected function tearDown(): void
+    {
+        if (null === $this->originalTreeControllerXclass) {
+            unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class]);
+
+            return;
+        }
+
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class] = $this->originalTreeControllerXclass;
+    }
+
+    public function testOverrideClassesRegistersTreeControllerXclass(): void
+    {
+        // Regression guard for #323: FIELD_STATUS/FIELD_COMMENTS only reach the
+        // page tree via Controller/TreeController::initializePageTreeRepository(),
+        // which core only calls on the class registered here.
+        Configuration::overrideClasses();
+
+        self::assertSame(
+            TreeController::class,
+            $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][BackendTreeController::class]['className'] ?? null,
+        );
+    }
+
     public function testExtensionKeyConstant(): void
     {
         self::assertSame('xima_typo3_content_planner', Configuration::EXT_KEY);
@@ -39,6 +72,19 @@ final class ConfigurationTest extends TestCase
     public function testCacheIdentifierConstant(): void
     {
         self::assertSame('ximatypo3contentplanner', Configuration::CACHE_IDENTIFIER);
+    }
+
+    public function testJavaScriptModulePrefixConstant(): void
+    {
+        self::assertSame('@content-planner/', Configuration::JAVASCRIPT_MODULE_PREFIX);
+    }
+
+    public function testJavaScriptModulePrefixIsNeutral(): void
+    {
+        // CP-20 (#322): the JS module specifier is intentionally neutral and
+        // no longer carries the "xima" vendor branding, unlike EXT_KEY and
+        // CACHE_IDENTIFIER which stay unchanged per the CP-17 decision (#321).
+        self::assertStringNotContainsString('xima', Configuration::JAVASCRIPT_MODULE_PREFIX);
     }
 
     public function testFeatureConstants(): void

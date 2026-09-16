@@ -1,5 +1,5 @@
 /**
-* Module: @xima/ximatypo3contentplanner/assignee-selection-modal
+* Module: @content-planner/assignee-selection-modal
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
@@ -47,14 +47,16 @@ class AssigneeSelectionModal {
           staticBackdrop: true,
           buttons,
           callback: (modal) => {
-            // Reinitialize the modal after a short delay to ensure all elements are loaded
-            setTimeout(() => {
+            // CP-26 (#325): wait for TYPO3 core's own "modal fully shown" signal (dispatched by
+            // typo3-backend-modal once its open animation has settled) instead of a fixed
+            // setTimeout, which raced the modal's async content rendering.
+            modal.addEventListener('typo3-modal-shown', () => {
               modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
                 bubbles: true,
                 composed: true,
                 detail: { modal }
               }))
-            }, 700)
+            }, { once: true })
           }
         })
       })

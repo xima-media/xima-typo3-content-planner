@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-	<file source-language="en" datatype="plaintext" original="messages">
+	<file source-language="en" target-language="de" datatype="plaintext" original="messages">
 		<header/>
 		<body>
 			<trans-unit id="dashboard.contentPlanner">
@@ -90,6 +90,10 @@
 			<trans-unit id="widgets.contentPlanner.status.todo">
 				<source>There are currently %s open tasks in the comments of all content planner records.</source>
 				<target>Aktuell sind %s offene Aufgaben in den Kommentaren aller Content Planner Datensätze vorhanden.</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.moreResults">
+				<source>More results are available. Refine your filter to narrow the list.</source>
+				<target>Es sind weitere Ergebnisse verfügbar. Grenzen Sie die Liste über den Filter weiter ein.</target>
 			</trans-unit>
 
 			<!-- Configurable Widget Settings -->
@@ -316,6 +320,10 @@
 				<source>edited</source>
 				<target>bearbeitet</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.menu">
+				<source>Comment actions</source>
+				<target>Kommentaraktionen</target>
+			</trans-unit>
 			<trans-unit id="comment.actions.edit">
 				<source>Edit</source>
 				<target>Bearbeiten</target>
@@ -376,6 +384,30 @@
 				<source>Reply</source>
 				<target>Antworten</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.submit">
+				<source>Comment</source>
+				<target>Kommentieren</target>
+			</trans-unit>
+			<trans-unit id="comment.commentFirst.oneClick.submit">
+				<source>Comment: sets status "%s"</source>
+				<target>Kommentieren: setzt Status "%s"</target>
+			</trans-unit>
+			<trans-unit id="comment.commentFirst.picker.label">
+				<source>This comment starts the planning - choose a status</source>
+				<target>Dieser Kommentar startet die Planung - wähle einen Status</target>
+			</trans-unit>
+			<trans-unit id="comment.commentFirst.picker.placeholder">
+				<source>Choose a status...</source>
+				<target>Status wählen...</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.save">
+				<source>Save</source>
+				<target>Speichern</target>
+			</trans-unit>
+			<trans-unit id="comment.actions.cancel">
+				<source>Cancel</source>
+				<target>Abbrechen</target>
+			</trans-unit>
 			<trans-unit id="comment.actions.replies.expand">
 				<source>Expand replies</source>
 				<target>Antworten ausklappen</target>
@@ -412,6 +444,18 @@
 				<source><![CDATA[Currently there are no comments available yet. You may want to create a <a data-new-comment-uri="%s" data-table="%s" data-id="%s">new comment</a>?]]></source>
 				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s">neuen Kommentar</a> erstellen?]]></target>
 			</trans-unit>
+			<trans-unit id="comment.filter.includeChildComments">
+				<source>Show comments from child records</source>
+				<target>Kommentare von untergeordneten Datensätzen anzeigen</target>
+			</trans-unit>
+			<trans-unit id="comment.childComments.heading">
+				<source>Comments on child records</source>
+				<target>Kommentare zu untergeordneten Datensätzen</target>
+			</trans-unit>
+			<trans-unit id="comment.childComments.moreResults">
+				<source>More child records with comments are available. Refine the page to narrow the list.</source>
+				<target>Es sind weitere untergeordnete Datensätze mit Kommentaren vorhanden. Grenze die Seite ein, um die Liste zu verkleinern.</target>
+			</trans-unit>
 
 			<trans-unit id="assignee.selection.label">
 				<source>Select an assignee</source>
@@ -421,21 +465,33 @@
 				<source>For every content planner record, a dedicated assignee can be set. The assignee is the backend user responsible for the current record.</source>
 				<target>Für jeden Content Planner-Datensatz kann ein eigener zuständige Nutzer festgelegt werden. Der Zuständige ist der Backend-Benutzer, der für den aktuellen Datensatz verantwortlich ist.</target>
 			</trans-unit>
-			<trans-unit id="assignee.further">
-				<source>Further information</source>
-				<target>Weitere Informationen</target>
+			<trans-unit id="assignee.search.label">
+				<source>Search assignees</source>
+				<target>Zuständige durchsuchen</target>
 			</trans-unit>
-			<trans-unit id="assignee.shortcut">
-				<source>Use the shortcut buttons to easily assign the record to yourself (%s) or unassign it (%s).</source>
-				<target>Nutze die Shortcut Buttons, um den Datensatz einfach dir selbst (%s) zuzuweisen oder die Zuweisung aufzuheben (%s).</target>
+			<trans-unit id="assignee.search.placeholder">
+				<source>Search by name…</source>
+				<target>Nach Namen suchen…</target>
 			</trans-unit>
-			<trans-unit id="assignee.permission">
-				<source>Only admins and backend users with the necessary permission are shown in the assignee selection.</source>
-				<target>Nur Admins und Backend-Benutzer mit entsprechender Berechtigung werden in der Zuständigen-Auswahl angezeigt.</target>
+			<trans-unit id="assignee.list.label">
+				<source>Assignees</source>
+				<target>Zuständige</target>
+			</trans-unit>
+			<trans-unit id="assignee.list.empty">
+				<source>No matching assignees found.</source>
+				<target>Keine passenden Zuständigen gefunden.</target>
+			</trans-unit>
+			<trans-unit id="assignee.list.current">
+				<source>Currently assigned</source>
+				<target>Aktuell zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="assignee.confirm">
+				<source>Assign</source>
+				<target>Zuweisen</target>
 			</trans-unit>
 			<trans-unit id="assignee.documentation">
-				<source><![CDATA[You can find more information about the assignee feature in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
-				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
+				<source><![CDATA[You can find more information about the assignee feature, including permissions and keyboard shortcuts, in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
+				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion, einschließlich Berechtigungen und Tastaturkürzeln, findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
 			</trans-unit>
 
 			<!-- mail -->
