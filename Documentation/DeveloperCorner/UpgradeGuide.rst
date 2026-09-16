@@ -96,3 +96,26 @@ with:
 The JSON payload of the ``ximatypo3contentplanner_filterrecords`` AJAX route
 (``RecordController::filterAction()``) changed accordingly, from a bare array
 to ``{"items": [...], "hasMore": false}``.
+
+Status/assignee/comment display now defaults to compact doc header chips
+--------------------------------------------------------------------------
+
+The extension configuration gained a new ``headerDisplayMode`` setting with
+two values: ``chip`` (the new **default**) and ``banner`` (the previous
+behaviour, up to and including 2.x).
+
+-   In **chip** mode, the status dropdown, an assignee button and a comment
+    button are shown as a compact trio in the record edit form's doc header
+    button bar (via ``ModifyButtonBarEventListener``). Content elements in
+    the page module get a 3px left accent border, a status dot and a mini
+    comment badge instead of a full-surface overlay. The previous full-width
+    banner above the module content, and the injected ``<style>`` overlay in
+    the page module, are no longer rendered.
+-   In **banner** mode, both ``RecordEditModifier`` (record edit form) and
+    ``WebLayoutModifier`` (page module content elements) keep working exactly
+    as before 3.0. Set ``headerDisplayMode = banner`` in the extension
+    configuration to keep the pre-3.0 look, e.g. for migration projects that
+    rely on the added prominence of the full-width banner.
+
+This is a purely visual/configuration change; no PHP API (events,
+repositories, models) is affected.

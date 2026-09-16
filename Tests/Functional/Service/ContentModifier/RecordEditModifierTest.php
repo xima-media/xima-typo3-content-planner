@@ -79,7 +79,19 @@ final class RecordEditModifierTest extends AbstractFunctionalTestCase
     #[Test]
     public function isRelevantReturnsTrueForRegisteredTable(): void
     {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
+
         self::assertTrue($this->subject->isRelevant($this->buildEditRequest('pages', 1)));
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    #[Test]
+    public function isRelevantReturnsFalseInChipDisplayModeByDefault(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+
+        self::assertFalse($this->subject->isRelevant($this->buildEditRequest('pages', 1)));
     }
 
     #[Test]

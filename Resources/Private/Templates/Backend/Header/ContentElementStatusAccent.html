@@ -1,0 +1,31 @@
+<html
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<div class="content-planner-ce-accent content-planner-ce-accent--color-{status.color}">
+    <div class="content-planner-ce-accent__meta">
+        <span
+            class="content-planner-ce-accent__dot"
+            title="{f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}: {status.title}"
+        >
+            <core:icon
+                identifier="{status.icon}"
+                size="small"
+                alternativeMarkupIdentifier="inline"
+            />
+            <span class="content-planner-ce-accent__dot-label">{status.title}</span>
+        </span>
+        <f:if condition="{comments.count}">
+            <span
+                class="content-planner-ce-accent__comments"
+                title="{f:translate(key: 'header.comments', extensionName: 'xima_typo3_content_planner')}: {comments.count}"
+            >
+                <core:icon identifier="actions-message" size="small" alternativeMarkupIdentifier="inline"/>
+                {comments.count}
+            </span>
+        </f:if>
+    </div>
+    <div class="content-planner-ce-accent__content">{content -> f:format.raw()}</div>
+</div>
+</html>
