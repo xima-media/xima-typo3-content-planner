@@ -1,11 +1,11 @@
 /**
-* Module: @xima/ximatypo3contentplanner/context-menu-actions
+* Module: @content-planner/context-menu-actions
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 import Viewport from "@typo3/backend/viewport.js";
-import CommentsModal from "@xima/ximatypo3contentplanner/comments-list-modal.js";
-import AssigneeModal from "@xima/ximatypo3contentplanner/assignee-selection-modal.js";
-import Notification from "@xima/ximatypo3contentplanner/notification.js";
+import CommentsModal from "@content-planner/comments-list-modal.js";
+import AssigneeModal from "@content-planner/assignee-selection-modal.js";
+import Notification from "@content-planner/notification.js";
 
 class ContextMenuActions {
 

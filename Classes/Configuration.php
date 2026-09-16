@@ -44,6 +44,13 @@ class Configuration
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
     /*
+     * CP-20 (#322): internal-only, non-breaking rename of the JS module
+     * specifier. Unlike EXT_KEY/CACHE_IDENTIFIER above, this one intentionally
+     * drops the "xima" vendor branding per the CP-17 decision (#321).
+     */
+    final public const JAVASCRIPT_MODULE_PREFIX = '@content-planner/';
+
+    /*
      * The page and file tree paint only the highest-priority label per node. The status
      * label therefore has to outrank the labels core appends before our event listeners
      * run: the TSconfig label (priority 0) and the background color label (priority -1).

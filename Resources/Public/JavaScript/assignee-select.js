@@ -1,9 +1,9 @@
 /**
-* Module: @xima/ximatypo3contentplanner/assignee-select
+* Module: @content-planner/assignee-select
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Viewport from "@typo3/backend/viewport.js"
-import Notification from "@xima/ximatypo3contentplanner/notification.js";
+import Notification from "@content-planner/notification.js";
 
 class AssigneeSelect {
   constructor() {

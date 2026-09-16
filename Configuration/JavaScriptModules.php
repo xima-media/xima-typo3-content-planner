@@ -11,12 +11,14 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
+use Xima\XimaTypo3ContentPlanner\Configuration;
+
 return [
     'dependencies' => ['core', 'backend'],
     'tags' => [
         'backend.contextmenu',
     ],
     'imports' => [
-        '@xima/ximatypo3contentplanner/' => 'EXT:xima_typo3_content_planner/Resources/Public/JavaScript/',
+        Configuration::JAVASCRIPT_MODULE_PREFIX => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/',
     ],
 ];

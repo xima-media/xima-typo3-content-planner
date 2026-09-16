@@ -1,10 +1,10 @@
 /**
-* Module: @xima/ximatypo3contentplanner/filter-status
+* Module: @content-planner/filter-status
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 import Modal from "@typo3/backend/modal.js";
 import Persistent from "@typo3/backend/storage/persistent.js";
-import CommentsModal from "@xima/ximatypo3contentplanner/comments-list-modal.js";
+import CommentsModal from "@content-planner/comments-list-modal.js";
 
 class FilterStatus {
 

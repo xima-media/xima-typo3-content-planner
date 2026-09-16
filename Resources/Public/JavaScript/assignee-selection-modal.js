@@ -1,5 +1,5 @@
 /**
-* Module: @xima/ximatypo3contentplanner/assignee-selection-modal
+* Module: @content-planner/assignee-selection-modal
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"

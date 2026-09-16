@@ -93,7 +93,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
 
         // Load JavaScript module for handling status changes via AJAX
         $pageRenderer = $this->pageRenderer;
-        $pageRenderer->loadJavaScriptModule('@xima/ximatypo3contentplanner/record-list-status.js');
+        $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'record-list-status.js');
 
         return $this->replaceBody($response, $newContent);
     }
