@@ -246,13 +246,15 @@ class FilterStatus {
       .get()
       .then(async (response) => {
         const resolved = await response.resolve();
+        const items = resolved.items ?? [];
+        const hasMore = resolved.hasMore ?? false;
 
         let html = '';
-        if (resolved.length === 0) {
+        if (items.length === 0) {
           widget.querySelector('.content-planner-widget__empty')?.classList.remove('content-planner-hide');
           widget.querySelector('thead')?.classList.add('content-planner-hide');
         }
-        resolved.forEach(function (item) {
+        items.forEach(function (item) {
           let comments = '';
           if (item.data.tx_ximatypo3contentplanner_comments > 0) {
             comments = '<a href="' + TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments  + '" class="content-planner-link--comments" data-table="' + item.data.tablename + '" data-id="' + item.data.uid + '">' + item.comments + '</a>';
@@ -277,8 +279,14 @@ class FilterStatus {
         }
 
         // Hide Site column when no items have a site value
-        const hasSite = resolved.some(item => item.site);
+        const hasSite = items.some(item => item.site);
         widget.classList.toggle('content-planner-widget--no-site', !hasSite);
+
+        const moreResults = widget.querySelector('.content-planner-widget__more-results');
+        if (moreResults) {
+          moreResults.hidden = !hasMore;
+        }
+
         if (waitingElement) {
           waitingElement.classList.add('content-planner-hide');
         }

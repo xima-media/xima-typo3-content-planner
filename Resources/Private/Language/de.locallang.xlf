@@ -91,6 +91,10 @@
 				<source>There are currently %s open tasks in the comments of all content planner records.</source>
 				<target>Aktuell sind %s offene Aufgaben in den Kommentaren aller Content Planner Datensätze vorhanden.</target>
 			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.moreResults">
+				<source>More results are available. Refine your filter to narrow the list.</source>
+				<target>Es sind weitere Ergebnisse verfügbar. Grenzen Sie die Liste über den Filter weiter ein.</target>
+			</trans-unit>
 
 			<!-- Configurable Widget Settings -->
 			<trans-unit id="widgets.contentPlanner.configurable.title">

@@ -94,13 +94,13 @@ class RecordController extends ActionController
         $type = array_key_exists('type', $request->getQueryParams()) ? $request->getQueryParams()['type'] : null;
         $openComments = array_key_exists('openComments', $request->getQueryParams()) ? (bool) $request->getQueryParams()['openComments'] : false;
 
-        $records = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type, $todo, 20, $openComments);
-        $result = [];
-        foreach ($records as $record) {
-            $result[] = StatusItem::create($record)->toArray();
+        $filterResult = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type, $todo, 20, $openComments);
+        $items = [];
+        foreach ($filterResult->items as $record) {
+            $items[] = StatusItem::create($record)->toArray();
         }
 
-        return new JsonResponse($result);
+        return new JsonResponse(['items' => $items, 'hasMore' => $filterResult->hasMore]);
     }
 
     public function commentsAction(ServerRequestInterface $request): JsonResponse
