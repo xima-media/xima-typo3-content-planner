@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\Notification\Channel;
 
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Notification;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\NotificationRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationChannelInterface;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -39,6 +39,16 @@ final readonly class DatabaseChannel implements NotificationChannelInterface
 
     public function deliver(Notification $notification): void
     {
+        // Content-change notifications (issue #309) are the one event type aggregated in place:
+        // any number of changes to the same record on the same day collapse into a single row
+        // with a running counter rather than one row per dispatch - see
+        // NotificationRepository::upsertContentChange().
+        if (NotificationEventType::ContentChanged === $notification->getEventType()) {
+            $this->notificationRepository->upsertContentChange($notification);
+
+            return;
+        }
+
         $this->notificationRepository->create($notification);
     }
 }

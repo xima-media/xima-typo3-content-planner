@@ -103,6 +103,9 @@ final class DigestMailFactory
         if (null !== $group->getLatestCommentExcerpt()) {
             $lines[] = sprintf($languageService->sL(self::languageLabel('digest.mail.line.comment')), $group->getLatestCommentExcerpt());
         }
+        if ($group->getContentChangeCount() > 0) {
+            $lines[] = $this->buildContentChangeLine($group, $languageService);
+        }
 
         return [
             'title' => '' !== $group->getTitle() ? $group->getTitle() : $languageService->sL(self::languageLabel('digest.mail.record.unresolved')),
@@ -111,6 +114,19 @@ final class DigestMailFactory
             'lines' => $lines,
             'eventCount' => $group->getEventCount(),
         ];
+    }
+
+    /**
+     * Shares its wording (via the same LLL keys) with the toolbar's collapsed-entry rendering in
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationCenterDataProvider} -
+     * issue #309's "Content edited by N users, M changes" summary.
+     */
+    private function buildContentChangeLine(DigestRecordGroup $group, LanguageService $languageService): string
+    {
+        $actorCount = $group->getContentChangeActorCount();
+        $labelKey = 1 === $actorCount ? 'notification.contentChanged.summary.singular' : 'notification.contentChanged.summary.plural';
+
+        return sprintf($languageService->sL(self::languageLabel($labelKey)), $actorCount, $group->getContentChangeCount());
     }
 
     /**

@@ -152,6 +152,47 @@ final class DigestGroupBuilderTest extends TestCase
         self::assertSame('watching_since_status_change', $groups[0]->getReason());
     }
 
+    #[Test]
+    public function contentChangeRowsSumTheChangeCountAndUnionTheDistinctActors(): void
+    {
+        // Two separate rows (e.g. across two digest-eligible days), each already aggregated at
+        // write time by NotificationRepository::upsertContentChange() - the digest sums across them.
+        $rows = [
+            $this->contentChangeRow(crdate: 1000, changeCount: 9, actorUids: [2, 3]),
+            $this->contentChangeRow(crdate: 2000, changeCount: 5, actorUids: [3]),
+        ];
+
+        $groups = $this->subject->build($rows, static fn (mixed $v): string => (string) $v);
+
+        self::assertCount(1, $groups);
+        self::assertSame(14, $groups[0]->getContentChangeCount());
+        self::assertSame(2, $groups[0]->getContentChangeActorCount());
+    }
+
+    #[Test]
+    public function contentChangeCountIsZeroWhenThereAreNoContentChangeEvents(): void
+    {
+        $groups = $this->subject->build([$this->statusRow(crdate: 1000, previous: null, new: 'Draft')], static fn (mixed $v): string => (string) $v);
+
+        self::assertSame(0, $groups[0]->getContentChangeCount());
+        self::assertSame(0, $groups[0]->getContentChangeActorCount());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function contentChangeRow(int $crdate, int $changeCount, array $actorUids, string $table = 'pages', int $recordUid = 1): array
+    {
+        return [
+            'tablename' => $table,
+            'record_uid' => $recordUid,
+            'event_type' => 'content_changed',
+            'reason' => 'watching_manually',
+            'crdate' => $crdate,
+            'payload' => ['version' => 1, 'title' => 'Home', 'changeCount' => $changeCount, 'actorUids' => $actorUids],
+        ];
+    }
+
     /**
      * @return array<string, mixed>
      */

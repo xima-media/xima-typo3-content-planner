@@ -34,3 +34,5 @@ notificationDigestBackendBaseUrl =
 notificationRetentionReadDays = 30
 # cat=notifications/config; type=int+; label=Delete unread notifications older than this many days (content-planner:notification:cleanup command)
 notificationRetentionUnreadDays = 90
+# cat=notifications/enable; type=boolean; label=Enable content change notifications for watched pages/content elements (opt-in, heavily aggregated; off by default, see issue #309)
+notificationContentChanged = 0

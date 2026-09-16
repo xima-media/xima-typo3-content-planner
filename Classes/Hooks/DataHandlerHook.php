@@ -25,10 +25,12 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{CommentCreatedEvent, CommentResolvedEvent};
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
+use Xima\XimaTypo3ContentPlanner\Service\Notification\ContentChangeNotificationService;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
+use function is_array;
 
 /**
  * DataHandlerHook.
@@ -44,6 +46,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         private RecordRepository $recordRepository,
         private CommentRepository $commentRepository,
         private EventDispatcherInterface $eventDispatcher,
+        private ContentChangeNotificationService $contentChangeNotificationService,
     ) {}
 
     /**
@@ -155,6 +158,47 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         if ($this->shouldRefreshPageTree($table, $fieldArray)) {
             BackendUtility::setUpdateSignal('updatePageTree');
         }
+
+        $this->notifyContentChangeOnLiveSave($status, $table, $id, $fieldArray, $dataHandler);
+    }
+
+    /**
+     * Hook: processCmdmap_postProcess.
+     *
+     * Content-change notifications (issue #309) are the one notification type in this extension
+     * that deliberately fires on *publish*, not on save - see Documentation/DeveloperCorner/Notifications.rst
+     * "Workspaces" for why every other type (status/assignee/comment) differs on purpose. A
+     * workspace publish reaches DataHandler as a `cmd[table][liveUid]['version'] = ['action' =>
+     * 'swap', ...]` command (see {@see \TYPO3\TestingFramework\Core\Functional\Framework\DataHandling\ActionService::publishRecords()}
+     * for the exact shape); this hook fires for it regardless of which hook object actually
+     * performed the swap, since DataHandler always runs every registered `processCmdmap_postProcess`
+     * after handling a command, whether that command was handled by its own switch or fully
+     * intercepted by another hook's `processCmdmap()` (e.g. EXT:workspaces).
+     *
+     * @param string                      $command
+     * @param string                      $table
+     * @param string|int                  $id
+     * @param array<string, mixed>|string $value
+     * @param mixed                       $pasteUpdate
+     * @param array<string, mixed>        $pasteDatamap
+     *
+     * @throws Exception
+     */
+    public function processCmdmap_postProcess($command, $table, $id, $value, DataHandler $parentObject, $pasteUpdate, array $pasteDatamap): void
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED)) {
+            return;
+        }
+
+        if ('version' !== $command || !is_array($value) || 'swap' !== ($value['action'] ?? null)) {
+            return;
+        }
+
+        if (!MathUtility::canBeInterpretedAsInteger($id)) {
+            return;
+        }
+
+        $this->contentChangeNotificationService->recordChange($table, (int) $id, $this->currentBackendUserUid());
     }
 
     /**
@@ -179,6 +223,89 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             $tags[] = $params['table'].'__pageId__'.$params['uid_page'];
         }
         $this->cache->flushByTags($tags);
+    }
+
+    /**
+     * Live (non-workspace) save trigger for issue #309's content-change notifications. A save
+     * into a workspace is deliberately *not* notified here - see {@see self::processCmdmap_postProcess()}
+     * for the publish-time trigger that covers that case instead. An empty $fieldArray means
+     * nothing was actually written (e.g. a no-op save), so there is nothing to notify about.
+     *
+     * Reads the acting user's workspace off `$GLOBALS['BE_USER']` rather than `$dataHandler->BE_USER`:
+     * the latter is only populated once `DataHandler::start()` has run, which every other actor
+     * lookup in this class already sidesteps the same way (see {@see self::checkCommentResolved()}).
+     *
+     * @param array<string, mixed> $fieldArray
+     *
+     * @throws Exception
+     */
+
+    /**
+     * Fields that count as an actual content change.
+     *
+     * Two kinds of write reach this hook without an editor having changed any content:
+     * the content planner's own status/assignee/comment bookkeeping, which already has
+     * dedicated notifications and would otherwise produce a second one for the same action,
+     * and pure housekeeping such as a drag in the page module, which only moves a record.
+     *
+     * @param array<string, mixed> $fieldArray
+     *
+     * @return array<string, mixed>
+     */
+    private function contentFieldsOf(array $fieldArray): array
+    {
+        $ignored = [
+            Configuration::FIELD_STATUS,
+            Configuration::FIELD_ASSIGNEE,
+            Configuration::FIELD_COMMENTS,
+            'sorting',
+            'tstamp',
+        ];
+
+        return array_diff_key($fieldArray, array_flip($ignored));
+    }
+
+    /**
+     * Live (non-workspace) save trigger for issue #309's content-change notifications. A save
+     * into a workspace is deliberately *not* notified here - see {@see self::processCmdmap_postProcess()}
+     * for the publish-time trigger that covers that case instead. A save that touches no
+     * content field means there is nothing to notify about.
+     *
+     * Reads the acting user's workspace off `$GLOBALS['BE_USER']` rather than `$dataHandler->BE_USER`:
+     * the latter is only populated once `DataHandler::start()` has run, which every other actor
+     * lookup in this class already sidesteps the same way (see {@see self::checkCommentResolved()}).
+     *
+     * @param array<string, mixed> $fieldArray
+     *
+     * @throws Exception
+     */
+    private function notifyContentChangeOnLiveSave(string $status, string $table, string|int $id, array $fieldArray, DataHandler $dataHandler): void
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED)) {
+            return;
+        }
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        if (0 !== $backendUser->workspace || [] === $this->contentFieldsOf($fieldArray)) {
+            return;
+        }
+
+        $recordUid = 'new' === $status ? ($dataHandler->substNEWwithIDs[$id] ?? null) : $id;
+        if (null === $recordUid || !MathUtility::canBeInterpretedAsInteger($recordUid)) {
+            return;
+        }
+
+        $this->contentChangeNotificationService->recordChange($table, (int) $recordUid, $this->currentBackendUserUid());
+    }
+
+    private function currentBackendUserUid(): ?int
+    {
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $userUid = (int) ($backendUser->user['uid'] ?? 0);
+
+        return $userUid > 0 ? $userUid : null;
     }
 
     /**

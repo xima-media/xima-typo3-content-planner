@@ -20,10 +20,13 @@ use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchSource;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{CommentCreatedEvent, CommentResolvedEvent};
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
 use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
+use Xima\XimaTypo3ContentPlanner\Service\Notification\ContentChangeNotificationService;
+use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 use function sprintf;
@@ -541,6 +544,133 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
         self::expectNotToPerformAssertions();
     }
 
+    #[Test]
+    public function contentChangeNotificationIsSkippedWhenTheFeatureFlagIsOffByDefault(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CHANNEL_DATABASE, '1');
+        $this->get(WatcherService::class)->watch('pages', 10, 2, WatchSource::Manual);
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $this->get(DataHandlerHook::class)->processDatamap_afterDatabaseOperations('update', 'pages', 10, ['title' => 'Updated'], $dataHandler);
+
+        self::assertCount(0, $this->fetchContentChangeNotifications());
+    }
+
+    #[Test]
+    public function contentChangeNotificationFiresImmediatelyOnALiveSaveWhenEnabledAndWatched(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED, '1');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CHANNEL_DATABASE, '1');
+        $this->get(WatcherService::class)->watch('pages', 10, 2, WatchSource::Manual);
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $this->get(DataHandlerHook::class)->processDatamap_afterDatabaseOperations('update', 'pages', 10, ['title' => 'Updated'], $dataHandler);
+
+        self::assertCount(1, $this->fetchContentChangeNotifications());
+    }
+
+    #[Test]
+    public function contentChangeNotificationSkipsRecordsWithNoWatchersEvenWhenEnabled(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED, '1');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CHANNEL_DATABASE, '1');
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $this->get(DataHandlerHook::class)->processDatamap_afterDatabaseOperations('update', 'pages', 10, ['title' => 'Updated'], $dataHandler);
+
+        self::assertCount(0, $this->fetchContentChangeNotifications());
+    }
+
+    #[Test]
+    public function contentChangeNotificationIgnoresANoOpSaveWithAnEmptyFieldArray(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED, '1');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CHANNEL_DATABASE, '1');
+        $this->get(WatcherService::class)->watch('pages', 10, 2, WatchSource::Manual);
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $this->get(DataHandlerHook::class)->processDatamap_afterDatabaseOperations('update', 'pages', 10, [], $dataHandler);
+
+        self::assertCount(0, $this->fetchContentChangeNotifications());
+    }
+
+    #[Test]
+    public function contentChangeNotificationIsDeferredDuringAWorkspaceSaveAndFiresOnPublishInstead(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED, '1');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CHANNEL_DATABASE, '1');
+        $this->get(WatcherService::class)->watch('pages', 10, 2, WatchSource::Manual);
+
+        // Simulate editing inside a workspace: the save must not notify yet.
+        $GLOBALS['BE_USER']->workspace = 3;
+        $draftDataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $this->get(DataHandlerHook::class)->processDatamap_afterDatabaseOperations('update', 'pages', 10, ['title' => 'Draft edit'], $draftDataHandler);
+        self::assertCount(0, $this->fetchContentChangeNotifications(), 'a workspace save must not notify immediately');
+
+        // Publishing (cmd[table][liveUid]['version'] = ['action' => 'swap', ...]) is the trigger instead.
+        $publishDataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $this->get(DataHandlerHook::class)->processCmdmap_postProcess(
+            'version',
+            'pages',
+            10,
+            ['action' => 'swap', 'swapWith' => 999],
+            $publishDataHandler,
+            false,
+            [],
+        );
+
+        self::assertCount(1, $this->fetchContentChangeNotifications(), 'publishing must notify exactly once');
+    }
+
+    #[Test]
+    public function contentChangeNotificationIgnoresNonSwapVersionCommands(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED, '1');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CHANNEL_DATABASE, '1');
+        $this->get(WatcherService::class)->watch('pages', 10, 2, WatchSource::Manual);
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $this->get(DataHandlerHook::class)->processCmdmap_postProcess('version', 'pages', 10, ['action' => 'new'], $dataHandler, false, []);
+
+        self::assertCount(0, $this->fetchContentChangeNotifications());
+    }
+
+    #[Test]
+    public function contentChangeNotificationOnAContentElementAlsoNotifiesThePagesWatchers(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CONTENT_CHANGED, '1');
+        $this->enableExtensionFeature(Configuration::FEATURE_NOTIFICATION_CHANNEL_DATABASE, '1');
+        $this->enableExtensionFeature('enableContentElementSupport', '1');
+        $this->get(WatcherService::class)->watch('pages', 10, 2, WatchSource::Manual);
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $this->get(DataHandlerHook::class)->processDatamap_afterDatabaseOperations('update', 'tt_content', 100, ['header' => 'Updated'], $dataHandler);
+
+        $rows = $this->fetchContentChangeNotifications();
+        self::assertCount(1, $rows);
+        self::assertSame('pages', $rows[0]['tablename']);
+        self::assertSame(10, (int) $rows[0]['record_uid']);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function fetchContentChangeNotifications(): array
+    {
+        return $this->getConnectionPool()
+            ->getConnectionForTable(Configuration::TABLE_NOTIFICATION)
+            ->select(['*'], Configuration::TABLE_NOTIFICATION, ['event_type' => 'content_changed'])
+            ->fetchAllAssociative();
+    }
+
     private function deleteStatus(int $uid): void
     {
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
@@ -569,6 +699,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(EventDispatcherInterface::class),
+            $this->get(ContentChangeNotificationService::class),
         );
 
         $hook->processCmdmap_preProcess('delete', self::STATUS_TABLE, $uid, $unused, $dataHandler, null);
@@ -602,6 +733,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(EventDispatcherInterface::class),
+            $this->get(ContentChangeNotificationService::class),
         );
     }
 
@@ -613,6 +745,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $dispatcher,
+            $this->get(ContentChangeNotificationService::class),
         );
     }
 }
