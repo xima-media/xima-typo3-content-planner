@@ -214,6 +214,32 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findByUidExcludesWorkspaceVersionRecord(): void
+    {
+        // Page 7 is a workspace draft of page 2 (t3ver_wsid=5). Content Planner always
+        // reflects the live record, so requesting the version's own uid must miss, see #400.
+        self::assertFalse($this->subject->findByUid('pages', 7));
+    }
+
+    #[Test]
+    public function findByPidExcludesWorkspaceVersionRecord(): void
+    {
+        $result = $this->subject->findByPid('pages', 1);
+
+        $uids = array_map(static fn (array $row): int => (int) $row['uid'], $result);
+        self::assertNotContains(7, $uids, 'workspace draft of page 2 must be excluded, only the live record counts');
+    }
+
+    #[Test]
+    public function countRecordsByStatusExcludesWorkspaceVersionRecord(): void
+    {
+        $counts = $this->subject->countRecordsByStatus();
+
+        // Page 7 (workspace draft, status 9) must not be counted; only live records do.
+        self::assertArrayNotHasKey(9, $counts);
+    }
+
+    #[Test]
     public function updateStatusByUidClearsAssigneeWhenExplicitlyNull(): void
     {
         $this->subject->updateStatusByUid('pages', 3, 2, 9);
