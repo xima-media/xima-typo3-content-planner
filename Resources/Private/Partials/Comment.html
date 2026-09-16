@@ -125,13 +125,19 @@
             </a>
             <div class="{f:if(condition: '{repliesExpanded}', then: 'collapse show', else: 'collapse')} content-planner-comment-replies" id="replies-{comment.data.uid}">
                 <f:for each="{comment.replies}" as="reply">
-                    <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1, repliesExpanded: repliesExpanded}" />
+                    <f:render partial="Comment" arguments="{comment: reply, id: id, table: table, isReply: 1, repliesExpanded: repliesExpanded, currentUserUid: currentUserUid}" />
                 </f:for>
-                <button type="button" class="btn btn-default btn-sm content-planner-comment-reply-inline"
-                        data-id="{id}" data-table="{table}" data-reply-comment-uri="{comment.replyUri}">
-                    <core:icon identifier="actions-arrow-down-right-alt" size="small"/>
-                    <f:translate key="comment.actions.reply" extensionName="XimaTypo3ContentPlanner"/>
-                </button>
+                <div class="content-planner-comment-composer-row content-planner-comment-composer-row--reply">
+                    <span class="content-planner-comment-composer-row__avatar">
+                        <be:avatar backendUser="{currentUserUid}" size="24" showIcon="true"/>
+                    </span>
+                    <button type="button" class="content-planner-comment-composer-trigger content-planner-comment-composer-trigger--reply"
+                            data-id="{id}" data-table="{table}" data-reply-comment-uri="{comment.replyUri}">
+                        <span class="content-planner-comment-composer-trigger__placeholder">
+                            <f:translate key="comment.composer.reply.placeholder" extensionName="XimaTypo3ContentPlanner"/>
+                        </span>
+                    </button>
+                </div>
             </div>
         </f:if>
         <f:if condition="!{isReply}">

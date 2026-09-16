@@ -148,6 +148,7 @@ class RecordController extends ActionController
                 'id' => $recordId,
                 'table' => $recordTable,
                 'repliesExpanded' => $repliesExpanded,
+                'currentUserUid' => (int) ($backendUser->user['uid'] ?? 0),
                 'newCommentUri' => $canCreateComment ? UrlUtility::getNewCommentUrl($recordTable, $recordId) : '',
                 'commentComposerHtml' => $canCreateComment ? $this->buildNewCommentComposerHtml($recordTable, $recordId, (int) $record['pid']) : '',
                 // CP-27 (#326): comment-first flow - only relevant while the composer can

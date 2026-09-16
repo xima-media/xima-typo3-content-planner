@@ -5,6 +5,10 @@ imports:
 
 editor:
   config:
+    # Jira-style compact composer (#CP comment modal redesign) - the inherited Base.yaml
+    # default of 300 dwarfs a one- or two-line comment; grows via Comments.css instead.
+    height: 100
+
     toolbar:
       items:
         - heading

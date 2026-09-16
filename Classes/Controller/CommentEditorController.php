@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\{GeneralUtility, StringUtility};
@@ -364,6 +365,9 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Comment not found after save'], 500);
         }
 
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
         $result = ViewUtility::render(
             'Default/CommentFragment.html',
             [
@@ -372,6 +376,7 @@ class CommentEditorController extends ActionController
                 'table' => $table,
                 'isReply' => (int) $comment['parent_uid'] > 0 ? 1 : 0,
                 'repliesExpanded' => false,
+                'currentUserUid' => (int) ($backendUser->user['uid'] ?? 0),
             ],
         );
 

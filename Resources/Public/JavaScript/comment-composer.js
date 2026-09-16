@@ -41,6 +41,24 @@ class CommentComposer {
     window.addEventListener('typo3:contentplanner:reinitializelistener', (event) => {
       this.initEventListeners(event.detail?.modal || null)
     })
+
+    // Jira-style "m" shortcut: focuses the (currently collapsed) new-comment composer from
+    // anywhere in the modal, as long as the user isn't already typing somewhere.
+    document.addEventListener('keydown', event => {
+      if ('m' !== event.key.toLowerCase() || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+        return
+      }
+      if (event.target.closest('input, textarea, select, [contenteditable="true"]')) {
+        return
+      }
+      const trigger = document.querySelector('[data-comment-composer-trigger]')
+      const collapsed = trigger?.closest('[data-comment-composer-collapsed]')
+      if (!trigger || !collapsed || collapsed.hidden) {
+        return
+      }
+      event.preventDefault()
+      this.expandNewComposer(trigger)
+    })
   }
 
   initEventListeners(modal = null) {
@@ -50,7 +68,25 @@ class CommentComposer {
     if (forms.length) {
       loadRichTextEditor()
     }
-    forms.forEach(form => this.bindForm(form))
+    forms.forEach(form => this.bindForm(form, 'new' === form.dataset.mode
+      ? {onCancel: () => this.collapseNewComposer(form)}
+      : undefined))
+
+    root.querySelectorAll('[data-comment-composer-trigger]').forEach(trigger => {
+      if ('true' === trigger.dataset.commentComposerBound) {
+        return
+      }
+      trigger.dataset.commentComposerBound = 'true'
+      trigger.addEventListener('click', () => this.expandNewComposer(trigger))
+    })
+
+    // The Cmd/Ctrl+Enter hint text is platform-specific; the markup ships the Windows/Linux
+    // label and this swaps it for Mac users rather than shipping two translation keys.
+    if (this.isMacPlatform()) {
+      root.querySelectorAll('[data-shortcut-modifier]').forEach(el => {
+        el.textContent = '⌘'
+      })
+    }
 
     root.querySelectorAll('[data-edit-comment-uri]').forEach(item => {
       if ('true' === item.dataset.commentComposerBound) {
@@ -74,6 +110,38 @@ class CommentComposer {
       })
       this.replyDelegateInitialized = true
     }
+  }
+
+  isMacPlatform() {
+    return /Mac|iPod|iPhone|iPad/.test(navigator.userAgentData?.platform || navigator.platform || '')
+  }
+
+  // --- new-comment composer: collapsed trigger row, expanded on demand -------------------
+
+  expandNewComposer(trigger) {
+    const collapsed = trigger.closest('[data-comment-composer-collapsed]')
+    const wrapper = trigger.closest('[data-comment-composer-wrapper]')
+    const form = wrapper?.querySelector('[data-comment-composer]')
+    if (!collapsed || !wrapper || !form) {
+      return
+    }
+
+    loadRichTextEditor()
+
+    collapsed.hidden = true
+    form.hidden = false
+    form.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
+  }
+
+  collapseNewComposer(form) {
+    const wrapper = form.closest('[data-comment-composer-wrapper]')
+    const collapsed = wrapper?.querySelector('[data-comment-composer-collapsed]')
+    if (!wrapper || !collapsed) {
+      return
+    }
+
+    form.hidden = true
+    collapsed.hidden = false
   }
 
   // --- opening the on-demand (edit/reply) composer ---------------------------------------
@@ -129,6 +197,13 @@ class CommentComposer {
 
     loadRichTextEditor()
 
+    // The trigger can also be the dropdown "Reply" item, which has no row of its own - only
+    // hide the "Add a reply..." row when that's actually where the click came from.
+    const triggerRow = trigger.closest('.content-planner-comment-composer-row--reply')
+    if (triggerRow) {
+      triggerRow.hidden = true
+    }
+
     new AjaxRequest(trigger.getAttribute('data-reply-comment-uri'))
       .get()
       .then(async response => {
@@ -137,7 +212,12 @@ class CommentComposer {
         const form = fragment.querySelector('[data-comment-composer]')
         slot.appendChild(form)
         this.bindForm(form, {
-          onCancel: () => form.remove(),
+          onCancel: () => {
+            form.remove()
+            if (triggerRow) {
+              triggerRow.hidden = false
+            }
+          },
         })
         form.querySelector('textarea')?.focus()
       })
@@ -160,6 +240,13 @@ class CommentComposer {
     form.addEventListener('submit', event => {
       event.preventDefault()
       this.submit(form)
+    })
+
+    form.addEventListener('keydown', event => {
+      if ('Enter' === event.key && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault()
+        this.submit(form)
+      }
     })
   }
 

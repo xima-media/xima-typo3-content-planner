@@ -75,10 +75,10 @@ class CommentsListModal {
         btnClass: 'btn-primary',
         trigger: (event, modal) => {
           // The composer is already rendered inline at the bottom of the fetched comment
-          // list (CP-28, #327) - "New" just brings it into view.
-          const composer = modal.querySelector('[data-comment-composer][data-mode="new"]')
-          composer?.scrollIntoView({behavior: 'smooth', block: 'center'})
-          composer?.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
+          // list (CP-28, #327), collapsed behind a trigger row - "New" expands and focuses it.
+          const composerTrigger = modal.querySelector('[data-comment-composer-trigger]')
+          composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
+          composerTrigger?.click()
         }
       }] : []),
       ...(editUrl ? [{
@@ -127,9 +127,9 @@ class CommentsListModal {
             if (scrollToCommentUid) {
               this.scrollToComment(modal, scrollToCommentUid)
             } else if (focusComposer) {
-              const composer = modal.querySelector('[data-comment-composer][data-mode="new"]')
-              composer?.scrollIntoView({behavior: 'smooth', block: 'center'})
-              composer?.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
+              const composerTrigger = modal.querySelector('[data-comment-composer-trigger]')
+              composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
+              composerTrigger?.click()
             }
           }
         })
