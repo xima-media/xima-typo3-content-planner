@@ -60,4 +60,8 @@ return [
         'path' => '/content-planner/notifications/read-all',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\NotificationController::class.'::markAllReadAction',
     ],
+    'ximatypo3contentplanner_commenttodotoggle' => [
+        'path' => '/content-planner/comment-todo-toggle',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\CommentEditorController::class.'::commentToggleTodoAction',
+    ],
 ];
