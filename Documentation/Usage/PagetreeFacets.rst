@@ -2,19 +2,20 @@
 
 ..  _pagetree-facets:
 
-=============================
-Pagetree Facets (TYPO3 v14+)
-=============================
+============================
+Pagetree Facets (TYPO3 v13+)
+============================
 
 ..  versionadded:: 2.4.0
 
     Integration with `konradmichalik/typo3-pagetree-facets
     <https://github.com/konradmichalik/typo3-pagetree-facets>`__ was
-    introduced in version 2.4.
+    introduced in version 2.4, initially for TYPO3 v14 only. TYPO3 v13
+    support was added in the sibling package's 1.0.0 release.
 
 If the optional `konradmichalik/typo3-pagetree-facets
 <https://packagist.org/packages/konradmichalik/typo3-pagetree-facets>`__
-extension is installed on TYPO3 v14 and
+extension is installed and
 :ref:`enablePagetreeFacetsIntegration <extconf-enablePagetreeFacetsIntegration>`
 is enabled, a **Content Planner** facet appears in the page tree filter modal.
 
@@ -24,11 +25,6 @@ is enabled, a **Content Planner** facet appears in the page tree filter modal.
 
     The Content Planner facet in the page tree filter modal, with a
     ``status:`` criterion selected and "Pages only" left at its default
-
-..  note::
-    ``typo3-pagetree-facets`` itself requires PHP 8.3+, stricter than this
-    extension's PHP 8.2+ floor - installing it on a PHP 8.2 environment is
-    rejected by Composer independent of this integration.
 
 ..  contents:: Table of Contents
     :local:
@@ -98,4 +94,3 @@ Out of scope
 
 - Slug-based ``status:`` tokens (uid-only for now)
 - Filtering the file storage tree
-- TYPO3 v13 (the underlying core event does not exist there)

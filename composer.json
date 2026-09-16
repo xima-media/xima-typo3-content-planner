@@ -44,10 +44,10 @@
 		"typo3/testing-framework": "^8.0 || ^9.5"
 	},
 	"conflict": {
-		"konradmichalik/typo3-pagetree-facets": "<0.2 || >=1.0"
+		"konradmichalik/typo3-pagetree-facets": "<1.0 || >=2.0"
 	},
 	"suggest": {
-		"konradmichalik/typo3-pagetree-facets": "Adds a Content Planner facet to the TYPO3 v14 page tree filter modal"
+		"konradmichalik/typo3-pagetree-facets": "Adds a Content Planner facet to the TYPO3 v13/v14 page tree filter modal"
 	},
 	"autoload": {
 		"psr-4": {

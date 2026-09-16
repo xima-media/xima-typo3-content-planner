@@ -83,12 +83,11 @@ Features
     :type: boolean
     :Default: 1
 
-    Enable a Content Planner facet in the TYPO3 v14 page tree filter modal
-    provided by the optional `konradmichalik/typo3-pagetree-facets
+    Enable a Content Planner facet in the page tree filter modal provided by
+    the optional `konradmichalik/typo3-pagetree-facets
     <https://github.com/konradmichalik/typo3-pagetree-facets>`__ extension.
-    Has no effect on TYPO3 v13 or when that extension is not installed, so
-    the default stays on: the facet only ever registers once that specific
-    package is present.
+    Has no effect when that extension is not installed, so the default stays
+    on: the facet only ever registers once that specific package is present.
 
     ..  note::
         Although this defaults to on, it stays off until an administrator
