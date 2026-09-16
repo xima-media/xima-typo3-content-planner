@@ -63,6 +63,17 @@ final class ChildCommentAggregationManagerTest extends AbstractFunctionalTestCas
     }
 
     #[Test]
+    public function buildContextReturnsCountEvenWhenIncludeChildCommentsIsDisabled(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $context = $this->subject->buildContext('pages', 1, false);
+
+        self::assertFalse($context['active']);
+        self::assertSame(2, $context['count']);
+    }
+
+    #[Test]
     public function buildContextIsInactiveWhenNoChildRecordHasComments(): void
     {
         $context = $this->subject->buildContext('pages', 1, true);

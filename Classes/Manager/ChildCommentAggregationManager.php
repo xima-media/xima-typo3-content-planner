@@ -17,6 +17,8 @@ use Doctrine\DBAL\Exception;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 
+use function count;
+
 /**
  * ChildCommentAggregationManager.
  *
@@ -46,19 +48,19 @@ final readonly class ChildCommentAggregationManager
     ) {}
 
     /**
-     * @return array{active: bool, groups?: array<int, array{icon: string, title: string, recordLink: string, comments: array<int, CommentItem>}>, hasMore?: bool}
+     * @return array{active: bool, count: int, groups?: array<int, array{icon: string, title: string, recordLink: string, comments: array<int, CommentItem>}>, hasMore?: bool}
      *
      * @throws Exception
      */
     public function buildContext(string $table, int $pageId, bool $includeChildComments, bool $showResolved = false, string $sortDirection = 'DESC'): array
     {
-        if ('pages' !== $table || !$includeChildComments) {
-            return ['active' => false];
+        if ('pages' !== $table) {
+            return ['active' => false, 'count' => 0];
         }
 
         $refsResult = $this->recordRepository->findChildRecordRefsWithComments($pageId, RecordRepository::DEFAULT_PAGE_SIZE);
         if ([] === $refsResult->items) {
-            return ['active' => false];
+            return ['active' => false, 'count' => 0];
         }
 
         $refs = array_map(
@@ -66,13 +68,21 @@ final readonly class ChildCommentAggregationManager
             $refsResult->items,
         );
 
+        // The count is shown as a badge on the "show comments from child records" toggle even
+        // while it's off (CP-29 follow-up), the same way the unrelated resolved-count badge is
+        // always visible - so this lookup can no longer be skipped just because the toggle is off.
         $comments = $this->commentRepository->findAllByRecords($refs, $showResolved, $sortDirection);
         if ([] === $comments) {
-            return ['active' => false];
+            return ['active' => false, 'count' => 0];
+        }
+
+        if (!$includeChildComments) {
+            return ['active' => false, 'count' => count($comments)];
         }
 
         return [
             'active' => true,
+            'count' => count($comments),
             'groups' => $this->groupByRecord($comments),
             'hasMore' => $refsResult->hasMore,
         ];
