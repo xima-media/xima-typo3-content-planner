@@ -63,7 +63,7 @@ final class PlannerServiceTest extends TestCase
     #[Test]
     public function getListOfStatusDelegatesToStatusRepository(): void
     {
-        $expected = [$this->createMock(Status::class)];
+        $expected = [new Status(uid: 1, title: 'Draft', icon: '', color: '')];
         $this->statusRepository->expects(self::once())->method('findAll')->willReturn($expected);
 
         self::assertSame($expected, $this->subject->getListOfStatus());
@@ -72,7 +72,7 @@ final class PlannerServiceTest extends TestCase
     #[Test]
     public function getStatusWithStringIdentifierDelegatesToFindByTitle(): void
     {
-        $status = $this->createMock(Status::class);
+        $status = new Status(uid: 0, title: 'In Progress', icon: '', color: '');
         $this->statusRepository->expects(self::once())->method('findByTitle')->with('In Progress')->willReturn($status);
         $this->statusRepository->expects(self::never())->method('findByUid');
 
@@ -82,7 +82,7 @@ final class PlannerServiceTest extends TestCase
     #[Test]
     public function getStatusWithIntIdentifierDelegatesToFindByUid(): void
     {
-        $status = $this->createMock(Status::class);
+        $status = new Status(uid: 3, title: '', icon: '', color: '');
         $this->statusRepository->expects(self::once())->method('findByUid')->with(3)->willReturn($status);
         $this->statusRepository->expects(self::never())->method('findByTitle');
 
@@ -92,7 +92,7 @@ final class PlannerServiceTest extends TestCase
     #[Test]
     public function getStatusOfRecordReturnsStatusForExistingRecord(): void
     {
-        $status = $this->createMock(Status::class);
+        $status = new Status(uid: 5, title: '', icon: '', color: '');
         $this->recordRepository->method('findByUid')->with('pages', 1)->willReturn([
             'uid' => 1,
             Configuration::FIELD_STATUS => 5,
@@ -126,8 +126,7 @@ final class PlannerServiceTest extends TestCase
     public function updateStatusForRecordResolvesStatusEntityToUid(): void
     {
         $this->stubExistingPageRecord();
-        $status = $this->createMock(Status::class);
-        $status->method('getUid')->willReturn(7);
+        $status = new Status(uid: 7, title: '', icon: '', color: '');
 
         $this->recordRepository->expects(self::once())
             ->method('updateStatusByUid')
@@ -140,8 +139,7 @@ final class PlannerServiceTest extends TestCase
     public function updateStatusForRecordResolvesStatusTitleToUid(): void
     {
         $this->stubExistingPageRecord();
-        $status = $this->createMock(Status::class);
-        $status->method('getUid')->willReturn(2);
+        $status = new Status(uid: 2, title: '', icon: '', color: '');
         $this->statusRepository->expects(self::once())->method('findByTitle')->with('Done')->willReturn($status);
 
         $this->recordRepository->expects(self::once())
@@ -211,7 +209,7 @@ final class PlannerServiceTest extends TestCase
         $expected = [['content' => 'A comment']];
         $this->commentRepository->expects(self::once())
             ->method('findAllByRecord')
-            ->with(1, 'pages', true, showResolved: true)
+            ->with(1, 'pages', true, 'DESC', true)
             ->willReturn($expected);
 
         self::assertSame($expected, $this->subject->getCommentsOfRecord('pages', 1, true, true));

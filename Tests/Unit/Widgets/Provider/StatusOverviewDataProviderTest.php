@@ -125,11 +125,6 @@ final class StatusOverviewDataProviderTest extends TestCase
 
     private function createStatus(int $uid, string $title, string $color): Status
     {
-        $status = new Status();
-        $status->setTitle($title);
-        $status->setColor($color);
-        $status->_setProperty('uid', $uid);
-
-        return $status;
+        return new Status(uid: $uid, title: $title, icon: '', color: $color);
     }
 }
