@@ -82,6 +82,12 @@ the mouse.
 Only users who may use the Content Planner are suggested, and a mention only notifies someone
 who may actually read the record the comment sits on.
 
+Hover over a mention in a saved comment, or reach it with the keyboard, to open a small profile
+card with the person's avatar, name and username. Administrators additionally see the e-mail
+address; for everyone else it stays hidden, the same as anywhere else in TYPO3.
+
+Mentions of *you* are highlighted more strongly than the rest, so your own name is easy to spot
+in a long thread.
 
 A mentioned user is notified even if they do not watch the record, and starts watching it from
 then on. Muting a record does not suppress the mention itself, only the other activity on that

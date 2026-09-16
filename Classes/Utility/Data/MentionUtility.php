@@ -16,10 +16,11 @@ namespace Xima\XimaTypo3ContentPlanner\Utility\Data;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
-use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
-use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 /**
  * MentionUtility.
@@ -33,15 +34,19 @@ use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
  *     <a class="ctp-mention" data-mention-uid="42">@display-name-at-mention-time</a>
  *
  * The UID, not the display name, is the source of truth: a user's name can change after the
- * mention was authored, so {@see self::renderContentWithMentionLinks()} re-resolves it fresh on
+ * mention was authored, so {@see self::renderContentWithMentions()} re-resolves it fresh on
  * every render rather than trusting the stored text.
  *
- * This is the exact contract a future CKEditor5 comment composer (issue #327, landed in a
- * separate branch stack - see this issue's PR description for the full cross-stack note) needs
- * to produce via its Mention plugin's downcast converter (and read back via an upcast converter
- * for editing) - {@see self::MARKER_CLASS} and {@see self::MARKER_ATTRIBUTE} are the two pieces
- * of that contract, kept as named constants specifically so that future config can reference
- * them instead of duplicating the literal strings.
+ * What that method renders is deliberately *not* a link. `be_users` is an adminOnly table, so a
+ * `record_edit` link to the mentioned user is a dead end for everyone but administrators - the
+ * large majority of the people who read a mention. The marker becomes a `<button>` instead,
+ * which comment-mention-card.js turns into a profile card popover, and which - unlike an anchor
+ * without an href - is reachable by keyboard.
+ *
+ * The other half of this contract lives in the composer: comment-mention.js produces the marker
+ * through its Mention plugin's downcast converter and reads it back through the matching upcast
+ * converter. {@see self::MARKER_CLASS} and {@see self::MARKER_ATTRIBUTE} are the two pieces both
+ * sides have to agree on.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -83,10 +88,10 @@ final class MentionUtility
 
     /**
      * Resolves every marker's current display name (falling back to leaving a stale/unknown
-     * marker untouched rather than dropping it) and refreshes its link target. Safe to call on
-     * content with no markers at all - returned unchanged.
+     * marker untouched rather than dropping it) and turns it into the profile-card trigger the
+     * frontend binds to. Safe to call on content with no markers at all - returned unchanged.
      */
-    public static function renderContentWithMentionLinks(string $htmlContent): string
+    public static function renderContentWithMentions(string $htmlContent): string
     {
         $dom = self::parseFragment($htmlContent);
         if (null === $dom) {
@@ -120,17 +125,61 @@ final class MentionUtility
             return;
         }
 
-        while (null !== $marker->firstChild) {
-            $marker->removeChild($marker->firstChild);
-        }
-        $marker->appendChild($dom->createTextNode('@'.$displayName));
+        $marker->parentNode?->replaceChild(self::buildTrigger($dom, $uid, $displayName), $marker);
+    }
 
-        try {
-            $marker->setAttribute('href', UrlUtility::getRecordLink('be_users', $uid));
-        } catch (RouteNotFoundException) {
-            // No backend routing available (e.g. a non-web context) - render the mention text
-            // without a link rather than failing the whole comment render.
+    /**
+     * The stored marker is an `<a>` - that is what survives RteHtmlParser on the way into the
+     * database - but an anchor without an href is not focusable, so the rendered trigger is a
+     * `<button>`. The element is rebuilt rather than renamed because DOM offers no rename.
+     */
+    private static function buildTrigger(DOMDocument $dom, int $uid, string $displayName): DOMElement
+    {
+        $isSelf = $uid === self::getCurrentBackendUserId();
+
+        $trigger = $dom->createElement('button');
+        $trigger->setAttribute('type', 'button');
+        $trigger->setAttribute('class', self::MARKER_CLASS.($isSelf ? ' '.self::MARKER_CLASS.'--self' : ''));
+        $trigger->setAttribute(self::MARKER_ATTRIBUTE, (string) $uid);
+        $trigger->appendChild($dom->createTextNode('@'.$displayName));
+
+        // The stronger tint alone would carry this information by colour only, which is lost to
+        // screen readers and in forced-colors mode.
+        $hint = $isSelf ? self::getSelfHint() : '';
+        if ('' !== $hint) {
+            $hintElement = $dom->createElement('span');
+            $hintElement->setAttribute('class', 'visually-hidden');
+            $hintElement->appendChild($dom->createTextNode(' '.$hint));
+            $trigger->appendChild($hintElement);
         }
+
+        return $trigger;
+    }
+
+    /**
+     * Rendering a comment must not depend on a language service being around: this runs from
+     * the public API too ({@see \Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility}), and a
+     * CLI or scheduler context has no $GLOBALS['LANG']. Losing the hint there is a far better
+     * outcome than a TypeError taking the whole comment down - the same reason the anchor this
+     * replaced caught its missing-routing case.
+     */
+    private static function getSelfHint(): string
+    {
+        $languageService = $GLOBALS['LANG'] ?? null;
+        if (!$languageService instanceof LanguageService) {
+            return '';
+        }
+
+        return $languageService->sL(
+            'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:mention.self',
+        );
+    }
+
+    private static function getCurrentBackendUserId(): int
+    {
+        $backendUser = $GLOBALS['BE_USER'] ?? null;
+
+        return $backendUser instanceof BackendUserAuthentication ? (int) ($backendUser->user['uid'] ?? 0) : 0;
     }
 
     /**

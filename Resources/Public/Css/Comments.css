@@ -638,8 +638,10 @@
 
 /* ==========================================================================
    Mentions (#305)
-   The marker the downcast converter of comment-mention.js writes inside the composer. The "@"
-   prefix and the weight carry the meaning on their own, the tint is only reinforcement.
+   Two elements, one class: inside the composer the downcast converter of comment-mention.js
+   writes an `<a>`, which is what survives RteHtmlParser on the way into the database; in the
+   rendered comment MentionUtility turns that into a `<button>` carrying the profile card. The
+   "@" prefix and the weight carry the meaning on their own, the tint is only reinforcement.
    ========================================================================== */
 
 .ctp-mention {
@@ -650,4 +652,71 @@
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
+}
+
+/* Rendered mentions are buttons (see MentionUtility), so they arrive with the full user-agent
+   button styling - strip it back down to the surrounding prose. */
+button.ctp-mention {
+    appearance: none;
+    border: 0;
+    font: inherit;
+    /* After the `font` shorthand, not before: it resets the weight the base rule sets. */
+    font-weight: 600;
+    vertical-align: baseline;
+    cursor: pointer;
+}
+
+button.ctp-mention:hover {
+    background-color: var(--content-planner-color-blue);
+}
+
+button.ctp-mention:focus-visible {
+    outline: 2px solid var(--typo3-state-primary-border, #007bff);
+    outline-offset: 1px;
+}
+
+/* Your own mention, Jira-style: the one in a long thread you need to spot at a glance. The
+   colour is reinforcement only - MentionUtility appends a visually hidden "(you)" so the
+   distinction survives a screen reader and forced-colors mode. */
+.ctp-mention--self {
+    background-color: var(--content-planner-color-orange-light);
+    box-shadow: inset 0 0 0 1px var(--content-planner-color-orange);
+}
+
+button.ctp-mention--self:hover {
+    background-color: var(--content-planner-color-orange);
+}
+
+/* ==========================================================================
+   Mention profile card
+   ========================================================================== */
+
+.content-planner-mention-card {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+}
+
+.content-planner-mention-card__body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.content-planner-mention-card__name {
+    font-weight: 600;
+}
+
+.content-planner-mention-card__username,
+.content-planner-mention-card__email {
+    font-size: 0.8125rem;
+    word-break: break-all;
+}
+
+.content-planner-mention-card__username {
+    color: color-mix(in srgb, currentColor, transparent 35%);
+}
+
+.content-planner-mention-card-popover {
+    max-width: 20rem;
 }

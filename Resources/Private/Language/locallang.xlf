@@ -433,6 +433,11 @@
 				<source>Only show records you are actively watching</source>
 			</trans-unit>
 
+			<!-- mentions -->
+			<trans-unit id="mention.card.loading">
+				<source>Loading profile…</source>
+			</trans-unit>
+
 			<!-- mail -->
 			<trans-unit id="mail.signature">
 				<source></source>

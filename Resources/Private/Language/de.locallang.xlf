@@ -574,6 +574,12 @@
 				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion, einschließlich Berechtigungen und Tastaturkürzeln, findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
 			</trans-unit>
 
+			<!-- mentions -->
+			<trans-unit id="mention.card.loading">
+				<source>Loading profile…</source>
+				<target>Profil wird geladen…</target>
+			</trans-unit>
+
 			<!-- mail -->
 			<trans-unit id="mail.signature">
 				<source></source>

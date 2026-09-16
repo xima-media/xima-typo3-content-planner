@@ -120,13 +120,13 @@ final class CommentItem
 
     /**
      * Rendered comment content (issue #305): every persisted @-mention marker is refreshed to
-     * the mentioned user's *current* display name and link before display - see
-     * {@see MentionUtility} for the storage contract. Safe to call on content with no mentions
-     * at all, returned unchanged.
+     * the mentioned user's *current* display name and turned into the profile-card trigger -
+     * see {@see MentionUtility} for the storage contract. Safe to call on content with no
+     * mentions at all, returned unchanged.
      */
     public function getContent(): string
     {
-        return MentionUtility::renderContentWithMentionLinks((string) ($this->data['content'] ?? ''));
+        return MentionUtility::renderContentWithMentions((string) ($this->data['content'] ?? ''));
     }
 
     public function getTimeAgo(): string

@@ -15,10 +15,12 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{IconUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
@@ -35,11 +37,10 @@ use function str_contains;
  * exact per-record permission resolution (groups/mounts/page permissions), which the issue
  * explicitly defers as too expensive to evaluate for every keystroke of a live suggestion feed.
  *
- * Response contract for {@see self::suggestAction()} (`{result: list<{id, uid, name}>}`) is the
- * one a future CKEditor5 comment composer (issue #327, a separate branch stack - see this
- * issue's PR description) needs to wire into its Mention plugin's `feed` callback: `id` is what
- * CKEditor5's Mention plugin itself requires (a string beginning with the marker character),
- * `uid`/`name` are this extension's own additions for building the persisted marker
+ * Response contract for {@see self::suggestAction()} (`{result: list<{id, uid, name}>}`) is what
+ * comment-mention.js feeds into its Mention plugin's `feed` callback: `id` is what CKEditor5's
+ * Mention plugin itself requires (a string beginning with the marker character), `uid`/`name`
+ * are this extension's own additions for building the persisted marker
  * ({@see \Xima\XimaTypo3ContentPlanner\Utility\Data\MentionUtility}) and the visible label.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
@@ -88,6 +89,62 @@ class MentionController extends ActionController
     }
 
     /**
+     * Profile card behind a rendered mention (see {@see \Xima\XimaTypo3ContentPlanner\Utility\Data\MentionUtility}).
+     * Fetched on first hover/focus rather than baked into the comment HTML, so a card that
+     * nobody opens never puts the mentioned user's contact details on the page at all.
+     *
+     * The uid is resolved against {@see BackendUserRepository::findAllWithPermission()} - the
+     * same pool {@see self::suggestAction()} suggests from - so this stays a lookup for users
+     * who are already mentionable, not a general be_users directory keyed by uid.
+     *
+     * @throws Exception
+     */
+    public function profileAction(ServerRequestInterface $request): ResponseInterface
+    {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $uid = (int) ($request->getQueryParams()['uid'] ?? 0);
+        if ($uid <= 0) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        $user = $this->findMentionableUser($uid);
+        if (null === $user) {
+            return new JsonResponse(['error' => 'User not found'], 404);
+        }
+
+        return new JsonResponse(['result' => ViewUtility::render(
+            'Default/MentionCard.html',
+            [
+                'avatar' => IconUtility::getAvatarByUser($user, 32),
+                'name' => ContentUtility::generateDisplayName($user),
+                'username' => (string) ($user['username'] ?? ''),
+                // be_users e-mail addresses are not something TYPO3 shows a non-admin anywhere
+                // else, so the card does not become the one place that leaks them.
+                'email' => $this->getBackendUser()->isAdmin() ? (string) ($user['email'] ?? '') : '',
+            ],
+        )]);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     *
+     * @throws Exception
+     */
+    private function findMentionableUser(int $uid): ?array
+    {
+        foreach ($this->backendUserRepository->findAllWithPermission() as $user) {
+            if ((int) $user['uid'] === $uid) {
+                return $user;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return list<array{id: string, uid: int, name: string}>
      */
     private function buildSuggestions(string $term): array
@@ -123,5 +180,10 @@ class MentionController extends ActionController
         $realName = is_string($user['realName'] ?? null) ? $user['realName'] : '';
 
         return str_contains(mb_strtolower($username.' '.$realName), $term);
+    }
+
+    private function getBackendUser(): BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
     }
 }

@@ -370,6 +370,10 @@
 				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Unwatch". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
 				<target>Um für einen bestimmten Datensatz keine Aktualisierungen mehr zu erhalten, öffne ihn im TYPO3-Backend und wähle "Nicht mehr beobachten". Um diese Sammel-E-Mail vollständig zu deaktivieren, deaktiviere "Content-Planner-E-Mail-Zusammenfassung erhalten" in deinen Backend-Benutzereinstellungen.</target>
 			</trans-unit>
+			<trans-unit id="mention.self">
+				<source>(you)</source>
+				<target>(du)</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -280,6 +280,9 @@
 			<trans-unit id="digest.mail.footer">
 				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Unwatch". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
 			</trans-unit>
+			<trans-unit id="mention.self">
+				<source>(you)</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

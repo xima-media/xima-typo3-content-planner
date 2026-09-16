@@ -473,9 +473,9 @@ defines the marker:
 
     <a class="ctp-mention" data-mention-uid="42">@display-name-at-mention-time</a>
 
-The UID, not the display name, is the source of truth: `MentionUtility::renderContentWithMentionLinks()`
-re-resolves the mentioned user's *current* display name and link target on every render rather
-than trusting the stored text, so a later username/realName change is reflected automatically -
+The UID, not the display name, is the source of truth: `MentionUtility::renderContentWithMentions()`
+re-resolves the mentioned user's *current* display name on every render rather than trusting the
+stored text, so a later username/realName change is reflected automatically -
 `CommentItem::getContent()` is what the comment partial now renders instead of the raw `content`
 column directly.
 
@@ -516,6 +516,16 @@ everyone.
     `ModifyCommentEditorConfigurationEvent`, so a third-party plugin can use the same context
     without replacing the factory.
 
+..  note::
+    **Rendering is not a link.** `be_users` is an adminOnly table, so a `record_edit` link to the
+    mentioned user is a dead end for everyone but administrators.
+    `MentionUtility::renderContentWithMentions()` therefore renders each marker as a `<button>`,
+    which `comment-mention-card.js` turns into a profile card fed by `profileAction()`. That
+    endpoint resolves the uid against the same `findAllWithPermission()` pool the suggestion feed
+    uses, so it cannot be used as a be_users lookup keyed by uid, and it only includes the e-mail
+    address when the *viewer* is an administrator. Fetching the card on demand rather than
+    rendering it into the comment HTML also means a card nobody opens never puts contact details
+    on the page.
 
 Dispatch: reaches its target even without a prior watch
 -----------------------------------------------------------
