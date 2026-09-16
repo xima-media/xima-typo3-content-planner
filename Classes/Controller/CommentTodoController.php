@@ -20,10 +20,11 @@ use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\Data\TodoToggleUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function array_key_exists;
 use function is_array;
 
 /**
@@ -45,7 +46,10 @@ use function is_array;
  */
 class CommentTodoController extends ActionController
 {
-    public function __construct(private readonly CommentRepository $commentRepository) {}
+    public function __construct(
+        private readonly CommentRepository $commentRepository,
+        private readonly RecordRepository $recordRepository,
+    ) {}
 
     /**
      * @throws Exception
@@ -59,11 +63,12 @@ class CommentTodoController extends ActionController
         $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
         $commentUid = (int) ($body['commentUid'] ?? 0);
         $todoIndex = (int) ($body['todoIndex'] ?? -1);
-        $checked = (bool) ($body['checked'] ?? false);
 
-        if ($commentUid <= 0 || $todoIndex < 0) {
+        if ($commentUid <= 0 || $todoIndex < 0 || !array_key_exists('checked', $body)) {
             return new JsonResponse(['error' => 'Missing required parameters'], 400);
         }
+
+        $checked = (bool) $body['checked'];
 
         $comment = $this->resolveEditableComment($commentUid);
         if ($comment instanceof JsonResponse) {
@@ -126,6 +131,15 @@ class CommentTodoController extends ActionController
         }
 
         if (!PermissionUtility::canEditComment($comment)) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        // canEditComment() only checks the content-planner comment-edit permission, not whether
+        // the current user may access the record the comment is attached to (mirrors
+        // RecordController::commentsAction(), which checks both for the same reason: knowing a
+        // comment's uid must not let a user reach a record outside their normal TYPO3 access).
+        $record = $this->recordRepository->findByUid((string) $comment['foreign_table'], (int) $comment['foreign_uid'], true);
+        if (!PermissionUtility::checkAccessForRecord((string) $comment['foreign_table'], $record)) {
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 

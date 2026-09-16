@@ -19,7 +19,7 @@ use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\CommentTodoController;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -67,6 +67,47 @@ final class CommentTodoControllerTest extends AbstractFunctionalTestCase
 
         $response = $this->createController()->toggleTodoAction(
             $this->createRequest(['commentUid' => 1, 'todoIndex' => 0, 'checked' => 1]),
+        );
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function toggleTodoActionRejectsARequestMissingTheCheckedField(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $commentUid = $this->createComment('<ul class="todo-list"><li><input type="checkbox">Only item</li></ul>');
+
+        // No 'checked' key at all - must be rejected rather than silently treated as false,
+        // which would uncheck an already-checked item on an otherwise-incomplete request.
+        $response = $this->createController()->toggleTodoAction(
+            $this->createRequest(['commentUid' => $commentUid, 'todoIndex' => 0]),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function toggleTodoActionDeniesAccessToACommentOnARecordTheUserCannotAccess(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        // Page uid 4 has a pid pointing at a non-existent parent page, so
+        // BackendUtility::readPageAccess() cannot resolve it - even for an admin (see
+        // RecordControllerTest::commentsActionReturnsForbiddenWhenRecordAccessIsDenied()).
+        // canEditComment() alone would pass here (admin bypass) - this proves the endpoint also
+        // checks access to the comment's underlying record, not just comment-edit permission.
+        $commentUid = $this->createComment(
+            '<ul class="todo-list"><li><input type="checkbox">Only item</li></ul>',
+            4,
+        );
+
+        $response = $this->createController()->toggleTodoAction(
+            $this->createRequest(['commentUid' => $commentUid, 'todoIndex' => 0, 'checked' => 1]),
         );
 
         self::assertSame(403, $response->getStatusCode());
@@ -156,7 +197,7 @@ final class CommentTodoControllerTest extends AbstractFunctionalTestCase
 
     private function createController(): CommentTodoController
     {
-        return new CommentTodoController($this->get(CommentRepository::class));
+        return new CommentTodoController($this->get(CommentRepository::class), $this->get(RecordRepository::class));
     }
 
     /**
@@ -171,7 +212,7 @@ final class CommentTodoControllerTest extends AbstractFunctionalTestCase
         return $request;
     }
 
-    private function createComment(string $content): int
+    private function createComment(string $content, int $foreignUid = 1): int
     {
         /** @var DataHandler $dataHandler */
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
@@ -179,7 +220,7 @@ final class CommentTodoControllerTest extends AbstractFunctionalTestCase
             Configuration::TABLE_COMMENT => [
                 'NEW1' => [
                     'pid' => 0,
-                    'foreign_uid' => 1,
+                    'foreign_uid' => $foreignUid,
                     'foreign_table' => 'pages',
                     'content' => $content,
                     'parent_uid' => 0,
