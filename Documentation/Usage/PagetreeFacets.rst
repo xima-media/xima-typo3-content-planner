@@ -10,8 +10,7 @@ Pagetree Facets (TYPO3 v13+)
 
     Integration with `konradmichalik/typo3-pagetree-facets
     <https://github.com/konradmichalik/typo3-pagetree-facets>`__ was
-    introduced in version 2.4, initially for TYPO3 v14 only. TYPO3 v13
-    support was added in the sibling package's 1.0.0 release.
+    introduced in version 2.4.
 
 If the optional `konradmichalik/typo3-pagetree-facets
 <https://packagist.org/packages/konradmichalik/typo3-pagetree-facets>`__
