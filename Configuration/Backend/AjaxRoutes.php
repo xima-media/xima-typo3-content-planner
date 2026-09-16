@@ -36,4 +36,8 @@ return [
         'path' => '/content-planner/close-document',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::closeDocumentAction',
     ],
+    'ximatypo3contentplanner_commenttodotoggle' => [
+        'path' => '/content-planner/comment-todo-toggle',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\CommentTodoController::class.'::toggleTodoAction',
+    ],
 ];

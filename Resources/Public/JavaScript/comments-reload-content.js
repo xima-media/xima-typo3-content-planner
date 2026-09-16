@@ -7,6 +7,7 @@ import CommentsResolvedItem from "@xima/ximatypo3contentplanner/comments-resolve
 import CommentsDeleteItem from "@xima/ximatypo3contentplanner/comments-delete-item.js"
 import CommentsShareLink from "@xima/ximatypo3contentplanner/comments-share-link.js"
 import CreateAndEditCommentModal from "@xima/ximatypo3contentplanner/create-and-edit-comment-modal.js"
+import CommentTodoToggle from "@xima/ximatypo3contentplanner/comment-todo-toggle.js"
 
 class CommentsReloadContent {
 
@@ -142,6 +143,7 @@ class CommentsReloadContent {
         CommentsResolvedItem.initEventListeners()
         CommentsDeleteItem.initEventListeners()
         CommentsShareLink.initEventListeners()
+        CommentTodoToggle.initEventListeners()
         this.initEventListeners()
         this.highlightNewReply(parent)
       })
