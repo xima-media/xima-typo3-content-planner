@@ -12,8 +12,12 @@
         -webkit-filter: invert(100%);
     }
 
+    /* PageRenderer only writes data-color-scheme when the user picked light or dark
+       explicitly - on "auto", which is the default, the attribute is left off entirely. So the
+       OS preference has to be matched on the *absence* of an explicit light choice, not on
+       data-color-scheme="auto", which is never rendered. */
     @media (prefers-color-scheme: dark) {
-        html[data-color-scheme="auto"] .content-planner-widget__empty-icon {
+        html:not([data-color-scheme="light"]) .content-planner-widget__empty-icon {
             filter: invert(100%);
             -webkit-filter: invert(100%);
         }

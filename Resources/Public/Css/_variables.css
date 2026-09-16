@@ -28,6 +28,14 @@
     --content-planner-color-highlight: rgba(253, 212, 150, 0.2);
     --content-planner-color-highlight-hover: rgba(253, 212, 150, 0.4);
 
+    /* Secondary text, derived from whatever colour it sits on so it stays legible in both
+       color schemes. Resolves against the element it is used on, not against :root - a custom
+       property is substituted as tokens, so currentColor is evaluated at the point of use. */
+    --content-planner-color-muted: color-mix(in srgb, currentColor, transparent 35%);
+
+    /* Thread line connecting a comment's replies with its "add a reply" affordance. */
+    --content-planner-color-thread-line: rgba(125, 125, 125, 0.3);
+
     /* Todo List (CKEditor compatibility) */
     --ck-todo-list-checkmark-size: 16px;
 }

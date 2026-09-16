@@ -67,12 +67,14 @@
     align-items: center;
     width: 100%;
     padding: 0.5rem 0.875rem;
-    /* --typo3-component-bg resolves to the same surface as the modal itself - this is the
-       token TYPO3's own form inputs use (--typo3-input-bg), which actually is white. */
-    background-color: var(--typo3-input-bg, #fff);
-    border: 1px solid var(--typo3-component-border-color, rgba(0, 0, 0, 0.12));
+    /* Same translucent grey as a rendered comment bubble, not the TYPO3 input surface: in dark
+       mode --typo3-input-bg sits *below* the panel it is drawn on, so the collapsed trigger
+       reads as a hole punched into the panel instead of the comment preview it is meant to be.
+       A grey mixed from the surrounding surface lifts it in both color schemes. */
+    background-color: rgba(125, 125, 125, 0.08);
+    border: 1px solid rgba(125, 125, 125, 0.3);
     border-radius: 0.5rem;
-    color: var(--bs-secondary-color, #6c757d);
+    color: inherit;
     text-align: left;
     cursor: pointer;
     transition: border-color 0.15s ease, background-color 0.15s ease;
@@ -80,25 +82,33 @@
 
 .content-planner-comment-composer-trigger:hover,
 .content-planner-comment-composer-trigger:focus-visible {
-    border-color: var(--bs-secondary-color, #6c757d);
+    background-color: rgba(125, 125, 125, 0.14);
+    border-color: rgba(125, 125, 125, 0.5);
 }
 
+.content-planner-comment-composer-trigger:focus-visible {
+    outline: 2px solid var(--typo3-state-primary-border, #007bff);
+    outline-offset: 2px;
+}
+
+/* Muted against whatever the surrounding text color is, so it stays legible in both color
+   schemes instead of being pinned to one fixed grey. */
 .content-planner-comment-composer-trigger__placeholder {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
+    color: var(--content-planner-color-muted);
 }
 
 .content-planner-comment-composer-trigger--reply {
     padding: 0.375rem 0.625rem;
 }
 
-.content-planner-comment-composer-trigger--reply .content-planner-comment-composer-trigger__placeholder {
-    font-size: 0.8125rem;
-}
-
+/* The box keeps --typo3-input-bg: that is exactly the surface CKEditor's toolbar and
+   editable use (--typo3-rte-base-bg resolves to the same token), so the frame and its content
+   stay one surface in both color schemes. */
 .content-planner-comment-composer {
     margin-top: 0;
     background-color: var(--typo3-input-bg, #fff);
-    border: 1px solid var(--typo3-component-border-color, rgba(0, 0, 0, 0.12));
+    border: 1px solid var(--typo3-component-border-color, rgba(125, 125, 125, 0.3));
     border-radius: 0.5rem;
     /* The editor sits flush against the top/left/right border (no padding here); __footer
        (actions + hint) is a visually separate grey strip, so the CKEditor toolbar's own
@@ -130,7 +140,7 @@
     gap: 0.5rem;
     background-color: var(--typo3-component-bg, rgba(125, 125, 125, 0.08));
     padding: 0.625rem 0.875rem;
-    border-top: 1px solid var(--typo3-component-border-color, rgba(0, 0, 0, 0.08));
+    border-top: 1px solid var(--typo3-component-border-color, rgba(125, 125, 125, 0.3));
 }
 
 .content-planner-comment-composer__actions {
@@ -156,7 +166,7 @@
     margin: 0.375rem 0 0;
     font-size: 0.75rem;
     text-align: right;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--content-planner-color-muted);
 }
 
 .content-planner-comment-composer__footer .content-planner-comment-composer-hint {
@@ -167,21 +177,28 @@
     padding: 0.0625rem 0.3125rem;
     font-size: 0.6875rem;
     font-family: inherit;
-    background-color: rgba(125, 125, 125, 0.15);
-    border: 1px solid var(--typo3-component-border-color, rgba(0, 0, 0, 0.15));
+    color: inherit;
+    background-color: rgba(125, 125, 125, 0.2);
+    border: 1px solid rgba(125, 125, 125, 0.35);
     border-radius: 0.25rem;
 }
 
 /* Count badge on the resolved/child-records dropdown toggles - deliberately quieter than
-   Bootstrap's solid .badge, which reads as an alert/notification rather than a plain count. */
+   Bootstrap's solid .badge, which reads as an alert/notification rather than a plain count.
+   The item itself stops wrapping so the count stays on the label's line and the menu widens
+   instead, the way Bootstrap's own .dropdown-item behaves. */
+.dropdown-item:has(> .content-planner-comment-filter-count) {
+    white-space: nowrap;
+}
+
 .content-planner-comment-filter-count {
     display: inline-block;
     margin-left: 0.25rem;
     padding: 0.0625rem 0.375rem;
     font-size: 0.6875rem;
     font-weight: 400;
-    color: var(--bs-secondary-color, #6c757d);
-    background-color: rgba(125, 125, 125, 0.15);
+    color: color-mix(in srgb, currentColor, transparent 30%);
+    background-color: rgba(125, 125, 125, 0.25);
     border-radius: 999px;
 }
 
@@ -196,7 +213,7 @@
     display: block;
     margin-bottom: 0.25rem;
     font-size: 0.875rem;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--content-planner-color-muted);
 }
 
 .content-planner-comment__reply-slot:not(:empty) {
@@ -309,7 +326,7 @@
     align-items: center;
     gap: 0.25rem;
     font-size: inherit;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--content-planner-color-muted);
     cursor: pointer;
     text-decoration: none;
     margin-top: 0;
@@ -320,7 +337,7 @@
 }
 
 .content-planner-comment-replies-toggle:hover {
-    color: var(--bs-body-color, #212529);
+    color: inherit;
     text-decoration: none;
 }
 
@@ -410,7 +427,22 @@
 
 .content-planner-comment-empty__text {
     padding: 1rem;
-    color: rgba(125, 125, 125, 0.5);
+    color: var(--content-planner-color-muted);
+}
+
+/* The illustration claims the whole modal height, which is what makes an empty list look
+   deliberate - but once the composer is expanded it would push the editor below the fold. The
+   collapsed trigger carries `hidden` exactly while the composer is open, so the empty state
+   drops to its natural size for that state and the editor follows directly under the text. */
+.content-planner-comment-list:has([data-comment-composer-collapsed][hidden]),
+.content-planner-comment-list:has([data-comment-composer-collapsed][hidden]) .content-planner-comment-empty {
+    height: auto;
+}
+
+.content-planner-comment-list:has([data-comment-composer-collapsed][hidden]) .content-planner-widget__empty-icon {
+    flex-grow: 0;
+    height: 9rem;
+    background-size: auto 100%;
 }
 
 .content-planner-comment-empty__text a {
@@ -553,6 +585,13 @@
    checkboxes comment-todo-toggle.js re-enables outside the editor, for comments the current
    user is allowed to edit.
    ========================================================================== */
+
+/* CKEditor's default checkbox outline is a near-black hsl(0, 0%, 20%) that disappears against a
+   dark backend. Deriving it from the surrounding text color keeps it visible in both color
+   schemes; the [checked] rule above is more specific, so the blue filled state is untouched. */
+.todo-list .todo-list__label > input::before {
+    border-color: color-mix(in srgb, currentColor, transparent 50%);
+}
 
 [data-todo-editable='true'] .todo-list__label > input:not(:disabled) {
     cursor: pointer;
