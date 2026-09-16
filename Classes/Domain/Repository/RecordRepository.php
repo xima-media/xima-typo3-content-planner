@@ -234,6 +234,15 @@ class RecordRepository
             ->fetchAssociative();
     }
 
+    /**
+     * Raw-SQL status write, bypassing the DataHandler entirely. Used by BulkUpdateCommand (a CLI
+     * command that can update many records per invocation) and, via
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\PlannerService::updateStatusForRecord()}, by
+     * third-party integrations. Deliberately dispatches no StatusChangeEvent/AssigneeChangedEvent
+     * and creates no watcher relations: both callers may run in bulk and/or from CLI where there
+     * is no reliable actor, so firing one event per row would risk an event storm. See
+     * Documentation/DeveloperCorner/Events.rst for the full reasoning.
+     */
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);

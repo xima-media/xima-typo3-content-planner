@@ -132,6 +132,24 @@
 			<trans-unit id="tx_ximatypo3contentplanner_folder.storage_uid">
 				<source>Storage</source>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher">
+				<source>Watcher</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.tablename">
+				<source>Table</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.record_uid">
+				<source>Record UID</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.backend_user">
+				<source>Backend User</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.mode">
+				<source>Mode</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.source">
+				<source>Source</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

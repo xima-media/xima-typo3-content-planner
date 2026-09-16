@@ -38,7 +38,7 @@ final class StatusChangeEventTest extends TestCase
         $previous = new Status(uid: 0, title: 'Draft', icon: '', color: '');
         $new = new Status(uid: 0, title: 'Published', icon: '', color: '');
 
-        $event = new StatusChangeEvent('pages', 5, ['title' => 'foo'], $previous, $new);
+        $event = new StatusChangeEvent('pages', 5, ['title' => 'foo'], $previous, $new, null);
 
         self::assertSame('pages', $event->getTable());
         self::assertSame(5, $event->getUid());
@@ -50,16 +50,32 @@ final class StatusChangeEventTest extends TestCase
     #[Test]
     public function nullableStatusesAreAccepted(): void
     {
-        $event = new StatusChangeEvent('tt_content', 1, [], null, null);
+        $event = new StatusChangeEvent('tt_content', 1, [], null, null, null);
 
         self::assertNull($event->getPreviousStatus());
         self::assertNull($event->getNewStatus());
     }
 
     #[Test]
+    public function actorUidDefaultsToNull(): void
+    {
+        $event = new StatusChangeEvent('pages', 1, [], null, null, null);
+
+        self::assertNull($event->getActorUid());
+    }
+
+    #[Test]
+    public function actorUidReturnsConstructorValue(): void
+    {
+        $event = new StatusChangeEvent('pages', 1, [], null, null, 7);
+
+        self::assertSame(7, $event->getActorUid());
+    }
+
+    #[Test]
     public function fieldArrayCanBeUpdated(): void
     {
-        $event = new StatusChangeEvent('pages', 1, [], null, null);
+        $event = new StatusChangeEvent('pages', 1, [], null, null, null);
         $event->setFieldArray(['hidden' => 1]);
 
         self::assertSame(['hidden' => 1], $event->getFieldArray());
@@ -68,7 +84,7 @@ final class StatusChangeEventTest extends TestCase
     #[Test]
     public function newStatusCanBeUpdated(): void
     {
-        $event = new StatusChangeEvent('pages', 1, [], null, null);
+        $event = new StatusChangeEvent('pages', 1, [], null, null, null);
         $status = new Status(uid: 0, title: 'Review', icon: '', color: '');
         $event->setNewStatus($status);
 

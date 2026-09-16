@@ -19,7 +19,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
-use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
+use Xima\XimaTypo3ContentPlanner\Event\{AssigneeChangedEvent, StatusChangeEvent};
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
@@ -40,6 +40,7 @@ class StatusChangeManager
         private readonly RecordRepository $recordRepository,
         private readonly CommentRepository $commentRepository,
         private readonly ConnectionPool $connectionPool,
+        private readonly ContentPlannerFieldAuthorizer $fieldAuthorizer,
     ) {}
 
     /**
@@ -51,51 +52,37 @@ class StatusChangeManager
      */
     public function processContentPlannerFields(array $incomingFieldArray, string $table, int $id): array
     {
-        if (!isset($incomingFieldArray[Configuration::FIELD_STATUS])) {
+        // Reassigning a record does not touch the status field (see UrlUtility::getAssignUri()),
+        // so gating on the status field alone meant a plain reassignment never reached
+        // handleAssigneeChange(): no AssigneeChangedEvent, and therefore no assignment watcher.
+        $hasStatusChange = isset($incomingFieldArray[Configuration::FIELD_STATUS]);
+        $hasAssigneeChange = array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray);
+
+        if (!$hasStatusChange && !$hasAssigneeChange) {
             return $incomingFieldArray;
         }
 
-        $incomingFieldArray = $this->nullableField($incomingFieldArray, Configuration::FIELD_ASSIGNEE);
-        $incomingFieldArray = $this->nullableField($incomingFieldArray, Configuration::FIELD_STATUS);
-
-        // Check table permission
-        if (!PermissionUtility::isTableAllowedForUser($table)) {
-            unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
-
+        [$incomingFieldArray, $authorised] = $this->authoriseContentPlannerFields($incomingFieldArray, $table, $id, $hasStatusChange);
+        if (!$authorised) {
             return $incomingFieldArray;
         }
-
-        // Check status change permission
-        $newStatusUid = $incomingFieldArray[Configuration::FIELD_STATUS];
-        if (null === $newStatusUid) {
-            // Unsetting status - check if user can unset
-            if (!PermissionUtility::canUnsetStatus()) {
-                unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
-
-                return $incomingFieldArray;
-            }
-        } else {
-            // Setting status - check if user can change to this specific status
-            if (!PermissionUtility::canChangeStatus((int) $newStatusUid)) {
-                unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
-
-                return $incomingFieldArray;
-            }
-        }
-
-        $incomingFieldArray = $this->handleStatusReset($incomingFieldArray, $table, $id);
 
         $preRecord = $this->recordRepository->findByUid($table, $id);
         if (false === $preRecord) {
             return $incomingFieldArray;
         }
 
-        $incomingFieldArray = $this->handleAutoAssignment($incomingFieldArray, $preRecord);
-        $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
-
-        return $incomingFieldArray;
+        return $this->applyContentPlannerChanges($incomingFieldArray, $preRecord, $table, $id, $hasStatusChange);
     }
 
+    /**
+     * Mass-clear cascade (e.g. clearing all content elements under a page on page-status-reset,
+     * or clearing every record referencing a deleted status). Deliberately dispatches no events
+     * and creates no watcher relations: this is an administrative cascade over an arbitrary
+     * number of records with no single meaningful "actor" or "previous/new status" pair per row,
+     * so emitting one StatusChangeEvent per affected record would be both misleading and a
+     * potential event storm. See Documentation/DeveloperCorner/Events.rst.
+     */
     public function clearStatusOfExtensionRecords(string $table, ?int $status = null, ?int $pid = null): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -117,6 +104,69 @@ class StatusChangeManager
         }
 
         $queryBuilder->executeStatement();
+    }
+
+    /**
+     * Normalises the incoming values and strips whatever the current user may not write.
+     *
+     * @param array<string, mixed> $incomingFieldArray
+     *
+     * @return array{0: array<string, mixed>, 1: bool} the (possibly modified) field array and whether anything may be written at all
+     *
+     * @throws Exception
+     */
+    private function authoriseContentPlannerFields(array $incomingFieldArray, string $table, int $id, bool $hasStatusChange): array
+    {
+        $incomingFieldArray = $this->nullableField($incomingFieldArray, Configuration::FIELD_ASSIGNEE);
+        if ($hasStatusChange) {
+            $incomingFieldArray = $this->nullableField($incomingFieldArray, Configuration::FIELD_STATUS);
+        }
+
+        if (!PermissionUtility::isTableAllowedForUser($table)) {
+            unset($incomingFieldArray[Configuration::FIELD_STATUS], $incomingFieldArray[Configuration::FIELD_ASSIGNEE]);
+
+            return [$incomingFieldArray, false];
+        }
+
+        if (!$hasStatusChange) {
+            return [$incomingFieldArray, true];
+        }
+
+        [$incomingFieldArray, $allowed] = $this->fieldAuthorizer->assertStatus($incomingFieldArray);
+        if (!$allowed) {
+            return [$incomingFieldArray, false];
+        }
+
+        $incomingFieldArray = $this->handleStatusReset($incomingFieldArray, $table, $id);
+
+        return [$incomingFieldArray, true];
+    }
+
+    /**
+     * @param array<string, mixed> $incomingFieldArray
+     * @param array<string, mixed> $preRecord
+     *
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    private function applyContentPlannerChanges(array $incomingFieldArray, array $preRecord, string $table, int $id, bool $hasStatusChange): array
+    {
+        // Only relevant when a status is being written; it derives the assignee from it.
+        if ($hasStatusChange) {
+            $incomingFieldArray = $this->handleAutoAssignment($incomingFieldArray, $preRecord);
+        }
+
+        [$incomingFieldArray, $allowed] = $this->fieldAuthorizer->assertAssignee($incomingFieldArray, $preRecord);
+        if ($allowed) {
+            $this->handleAssigneeChange($incomingFieldArray, $preRecord, $table, $id);
+        }
+
+        if ($hasStatusChange) {
+            $this->handleStatusChange($incomingFieldArray, $preRecord, $table, $id);
+        }
+
+        return $incomingFieldArray;
     }
 
     /**
@@ -173,6 +223,31 @@ class StatusChangeManager
     }
 
     /**
+     * Now that a reassignment reaches this method without a status change, the assignee value
+     * has to be authorised here too. Previously the only gate was that the backend simply did
+     * not render an action URL for a target the user may not pick, which does not survive a
+     * hand-built request.
+     *
+     * @param array<string, mixed> $incomingFieldArray
+     * @param array<string, mixed> $preRecord
+     */
+    private function handleAssigneeChange(array $incomingFieldArray, array $preRecord, string $table, int $id): void
+    {
+        if (!array_key_exists(Configuration::FIELD_ASSIGNEE, $incomingFieldArray)) {
+            return;
+        }
+
+        $previousAssignee = isset($preRecord[Configuration::FIELD_ASSIGNEE]) && is_numeric($preRecord[Configuration::FIELD_ASSIGNEE]) && $preRecord[Configuration::FIELD_ASSIGNEE] > 0 ? (int) $preRecord[Configuration::FIELD_ASSIGNEE] : null;
+        $newAssignee = null !== $incomingFieldArray[Configuration::FIELD_ASSIGNEE] ? (int) $incomingFieldArray[Configuration::FIELD_ASSIGNEE] : null;
+
+        if ($previousAssignee === $newAssignee) {
+            return;
+        }
+
+        $this->eventDispatcher->dispatch(new AssigneeChangedEvent($table, $id, $previousAssignee, $newAssignee, PermissionUtility::getCurrentUserId()));
+    }
+
+    /**
      * @param array<string, mixed> $incomingFieldArray
      * @param array<string, mixed> $preRecord
      *
@@ -186,7 +261,7 @@ class StatusChangeManager
 
         $previousStatus = isset($preRecord[Configuration::FIELD_STATUS]) && is_numeric($preRecord[Configuration::FIELD_STATUS]) && $preRecord[Configuration::FIELD_STATUS] > 0 ? ContentUtility::getStatus((int) $preRecord[Configuration::FIELD_STATUS]) : null;
         $newStatus = isset($incomingFieldArray[Configuration::FIELD_STATUS]) && is_numeric($incomingFieldArray[Configuration::FIELD_STATUS]) && $incomingFieldArray[Configuration::FIELD_STATUS] > 0 ? ContentUtility::getStatus((int) $incomingFieldArray[Configuration::FIELD_STATUS]) : null;
-        $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus));
+        $this->eventDispatcher->dispatch(new StatusChangeEvent($table, $id, $incomingFieldArray, $previousStatus, $newStatus, PermissionUtility::getCurrentUserId()));
 
         if (null === $incomingFieldArray[Configuration::FIELD_STATUS] && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET)) {
             $this->clearStatusOfExtensionRecords('tt_content', null, $id);
