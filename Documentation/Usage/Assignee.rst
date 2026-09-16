@@ -43,6 +43,22 @@ By clicking the assignee field in the header bar, a selection dialog will open. 
 
     Select an assignee
 
+..  versionadded:: 3.0.0
+
+        `Feature: #325 - Redesign the assignee selection modal <https://github.com/xima-media/xima-typo3-content-planner/issues/325>`__
+
+The list can be filtered by typing into the search field above it. Once an entry is highlighted or clicked, use the "Assign" button to confirm the change - selecting an entry does not assign it immediately. The list is fully keyboard operable:
+
+..  csv-table::
+    :header: "Key", "Action"
+
+    ":kbd:`↑` / :kbd:`↓`", "Move the highlighted entry up or down"
+    ":kbd:`Home` / :kbd:`End`", "Jump to the first or last visible entry"
+    ":kbd:`Enter` / :kbd:`Space`", "Mark the highlighted entry as the pending selection"
+    ":kbd:`Tab`", "Move to the search field, list, or action buttons"
+
+The currently assigned user is marked with a highlighted ring around their avatar and a checkmark badge, not by colour alone.
+
 Shortcuts
 ========
 
