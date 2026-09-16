@@ -71,6 +71,9 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('data-table="pages"', $result);
         self::assertStringContainsString('data-uid="1"', $result);
         self::assertStringContainsString('aria-label="', $result);
+
+        // The watch/unwatch toggle (issue #303) renders for a watchable table.
+        self::assertStringContainsString('data-content-planner-watch-toggle', $result);
     }
 
     #[Test]
@@ -109,6 +112,10 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
 
         self::assertIsString($result);
         self::assertNotSame('', $result);
+
+        // Filelist watching is explicitly out of scope for the watch/unwatch toggle (issue #303,
+        // see WatcherService's class docblock) - the folder banner must never render it.
+        self::assertStringNotContainsString('data-content-planner-watch-toggle', $result);
     }
 
     #[Test]

@@ -155,12 +155,24 @@ class WatcherService
      */
     public function isWatching(string $table, int $uid, int $beUser): bool
     {
+        return WatchMode::isWatching($this->getMode($table, $uid, $beUser));
+    }
+
+    /**
+     * The raw {@see WatchMode} for a (table, uid, beUser) triple, or `null` when no watcher row
+     * exists at all (i.e. "never watched"). Used by the watch/unwatch toggle UI (issue #303) to
+     * distinguish its four visual states - {@see self::isWatching()} alone collapses
+     * {@see WatchMode::Auto} and {@see WatchMode::ManualWatch} into one boolean, which is not
+     * enough to tell an auto-watched record apart from a manually-watched one.
+     *
+     * @throws Exception
+     */
+    public function getMode(string $table, int $uid, int $beUser): ?WatchMode
+    {
         $this->assertWatchableTable($table);
         $uid = $this->watcherRepository->normalizeToDefaultLanguageUid($table, $uid);
 
-        $mode = $this->watcherRepository->findMode($table, $uid, $beUser);
-
-        return null !== $mode && WatchMode::ManualUnwatch !== $mode;
+        return $this->watcherRepository->findMode($table, $uid, $beUser);
     }
 
     private function assertWatchableTable(string $table): void

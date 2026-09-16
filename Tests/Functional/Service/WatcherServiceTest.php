@@ -272,6 +272,45 @@ final class WatcherServiceTest extends AbstractFunctionalTestCase
         self::assertFalse($this->subject->isWatching('pages', 1, 1));
     }
 
+    // ==================== getMode() (issue #303 watch/unwatch UI) ====================
+
+    #[Test]
+    public function getModeReturnsNullWhenNoWatcherRowExists(): void
+    {
+        self::assertNull($this->subject->getMode('pages', 1, 1));
+    }
+
+    #[Test]
+    public function getModeReturnsAutoAfterAnAutoWatchTrigger(): void
+    {
+        $this->subject->watch('pages', 1, 1, WatchSource::Assignment);
+
+        self::assertSame(WatchMode::Auto, $this->subject->getMode('pages', 1, 1));
+    }
+
+    #[Test]
+    public function getModeReturnsManualWatchAfterAnExplicitWatch(): void
+    {
+        $this->subject->watch('pages', 1, 1, WatchSource::Manual);
+
+        self::assertSame(WatchMode::ManualWatch, $this->subject->getMode('pages', 1, 1));
+    }
+
+    #[Test]
+    public function getModeReturnsManualUnwatchAfterAnUnwatch(): void
+    {
+        $this->subject->unwatch('pages', 1, 1);
+
+        self::assertSame(WatchMode::ManualUnwatch, $this->subject->getMode('pages', 1, 1));
+    }
+
+    #[Test]
+    public function getModeRejectsAnUnwatchableTable(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->subject->getMode('be_users', 1, 1);
+    }
+
     #[Test]
     public function getActiveWatchersExcludesManuallyUnwatchedUsers(): void
     {

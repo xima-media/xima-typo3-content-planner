@@ -40,6 +40,7 @@ This TYPO3 extension adds content planning capabilities to the TYPO3 backend: as
 * [Configurable widget](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Dashboard.html#configurable-widget) with custom filters (TYPO3 v14+)
 
 **[Notifications](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/Notifications.html)** — Stay informed about records you watch
+* Eye-icon watch/unwatch toggle in the record header: mute records you're done with, watch records you never touched — a mute is sticky and survives future auto-watch triggers
 * Backend toolbar badge with an unread count and a dropdown of recent updates
 * Periodic email digest via the schedulable `content-planner:notification:digest` console command, opt-out per backend user in the user settings; override the default `Resources/Private/Templates/Mail/NotificationDigest.html`/`.txt` templates by registering your own path (at a higher array key) in `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths']`
 * Retention and orphan cleanup via the schedulable `content-planner:notification:cleanup` console command (configurable read/unread thresholds, `--dry-run`); see the recommended scheduler setup below

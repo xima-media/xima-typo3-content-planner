@@ -69,6 +69,26 @@ final class ProxyControllerTest extends AbstractFunctionalTestCase
         self::assertArrayHasKey('severity', $payload);
     }
 
+    /**
+     * The watch/unwatch toggle's JS module (issue #303) resolves its failure toast through this
+     * message path, {@see Xima\XimaTypo3ContentPlanner\Controller\ProxyController::MESSAGES}'s
+     * `watch.toggle` entry.
+     */
+    #[Test]
+    public function messageActionResolvesWatchToggleFailureMessage(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->messageAction(
+            $this->createRequest(['message' => 'watch.toggle', 'resultStatus' => 'failure']),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertIsString($payload['title']);
+        self::assertIsString($payload['message']);
+    }
+
     #[Test]
     public function messageActionReturnsBadRequestForInvalidResultStatus(): void
     {
