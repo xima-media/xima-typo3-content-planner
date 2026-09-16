@@ -136,6 +136,18 @@ class ProxyController extends ActionController
                     'severity' => ContextualFeedbackSeverity::ERROR,
                 ],
             ],
+            'todo' => [
+                'success' => [
+                    'title' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.comment.todo.success.title',
+                    'message' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.comment.todo.success.message',
+                    'severity' => ContextualFeedbackSeverity::OK,
+                ],
+                'failure' => [
+                    'title' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.comment.todo.failure.title',
+                    'message' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:message.comment.todo.failure.message',
+                    'severity' => ContextualFeedbackSeverity::ERROR,
+                ],
+            ],
         ],
     ];
 

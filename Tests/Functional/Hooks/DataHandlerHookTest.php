@@ -263,6 +263,26 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function checkCommentEditedSkipsWhenTheTodoToggleMarkerIsPresent(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->datamap = [
+            Configuration::TABLE_COMMENT => [
+                // Content differs from the fixture's "Root comment" - would set "edited" without
+                // the marker (CommentTodoController::toggleTodoAction() sets it for a checkbox
+                // toggle, which must not count as a text edit).
+                1 => ['content' => 'Root comment with a toggled checkbox', '__todoToggle' => true],
+            ],
+        ];
+        $fields = [];
+
+        $this->createHook()->processDatamap_preProcessFieldArray($fields, Configuration::TABLE_COMMENT, 1, $dataHandler);
+
+        self::assertArrayNotHasKey('edited', $dataHandler->datamap[Configuration::TABLE_COMMENT][1]);
+    }
+
+    #[Test]
     public function checkCommentEditedRemovesContentWhenEditingForeignCommentWithoutPermission(): void
     {
         $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
