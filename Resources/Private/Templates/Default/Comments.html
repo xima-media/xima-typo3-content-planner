@@ -106,8 +106,13 @@
     <f:if condition="{comments -> f:count()}">
         <f:then>
             <f:for each="{comments}" as="record">
-                <f:render partial="Comment" arguments="{comment: record, id: id, table: table, isReply: 0, showRecordInfo: 0, repliesExpanded: repliesExpanded, currentUserUid: currentUserUid}" />
+                <f:render partial="Comment" arguments="{comment: record, id: id, table: table, isReply: 0, showRecordInfo: record.foreignRecord, repliesExpanded: repliesExpanded, currentUserUid: currentUserUid}" />
             </f:for>
+            <f:if condition="{childComments.hasMore}">
+                <div class="content-planner-widget__more-results" role="status" aria-live="polite">
+                    <f:translate key="comment.childComments.moreResults" extensionName="XimaTypo3ContentPlanner"/>
+                </div>
+            </f:if>
         </f:then>
         <f:else>
             <div class="content-planner-widget__empty content-planner-comment-empty">
@@ -120,30 +125,6 @@
                 </div>
             </div>
         </f:else>
-    </f:if>
-
-    <f:if condition="{childComments.active}">
-        <div class="content-planner-comment-child-comments">
-            <h4 class="content-planner-comment-child-comments__heading">
-                <f:translate key="comment.childComments.heading" extensionName="XimaTypo3ContentPlanner"/>
-            </h4>
-            <f:for each="{childComments.groups}" as="group">
-                <div class="content-planner-comment-group">
-                    <div class="content-planner-comment-group__header">
-                        <core:icon identifier="{group.icon}" size="small"/>
-                        <a href="{group.recordLink}">{group.title}</a>
-                    </div>
-                    <f:for each="{group.comments}" as="record">
-                        <f:render partial="Comment" arguments="{comment: record, id: id, table: table, isReply: 0, showRecordInfo: 0, repliesExpanded: repliesExpanded, currentUserUid: currentUserUid}" />
-                    </f:for>
-                </div>
-            </f:for>
-            <f:if condition="{childComments.hasMore}">
-                <div class="content-planner-widget__more-results" role="status" aria-live="polite">
-                    <f:translate key="comment.childComments.moreResults" extensionName="XimaTypo3ContentPlanner"/>
-                </div>
-            </f:if>
-        </div>
     </f:if>
 
     <f:if condition="{commentComposerHtml}">

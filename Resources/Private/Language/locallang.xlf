@@ -333,8 +333,8 @@
 			<trans-unit id="comment.filter.showResolvedComments.hide">
 				<source>Hide resolved comments</source>
 			</trans-unit>
-			<trans-unit id="comment.childComments.heading">
-				<source>Comments on child records</source>
+			<trans-unit id="comment.record.jump">
+				<source>Open %s in the backend</source>
 			</trans-unit>
 			<trans-unit id="comment.childComments.moreResults">
 				<source>More child records with comments are available. Refine the page to narrow the list.</source>

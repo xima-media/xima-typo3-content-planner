@@ -243,10 +243,12 @@ content elements - and on any other registered record type living on that page, 
 record inside a sysfolder - belong to the same conversation about that page but are otherwise
 invisible from there.
 
-Enable the "Show comments from child records" checkbox above a page's comment list to also
-load those comments, grouped by the record they belong to (with a type icon and a deep link to
-that record). This is a :ref:`persisted user setting <user-settings-includeChildComments>`,
-disabled by default so nothing changes silently.
+Enable "Show comments from child records" in the actions menu above a page's comment list to
+also load those comments. They are listed among the page's own comments in the same
+chronological order, since they are part of the same conversation - each one marked with the
+status of the record it belongs to, its type icon and a link that opens that record in the
+backend. This is a :ref:`persisted user setting <user-settings-includeChildComments>`, disabled
+by default so nothing changes silently.
 
 ..  note::
     This is a *view*-only feature. Page tree badges and comment counts continue to count only

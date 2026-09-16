@@ -22,12 +22,15 @@
                 </f:if>
             </div>
             <f:if condition="{showRecordInfo} && !{isReply}">
-                <small>
+                <small class="content-planner-comment__record">
                     <core:icon identifier="{comment.statusIcon}" size="small" title="{comment.status}"/>
                     <f:if condition="{comment.status}">
                         <span class="visually-hidden">{comment.status}</span>
                     </f:if>
-                    <a href="{comment.recordLink}">
+                    <a href="{comment.recordLink}" title="{f:translate(key: 'comment.record.jump', extensionName: 'XimaTypo3ContentPlanner', arguments: {0: comment.title})}">
+                        <f:if condition="{comment.recordIcon}">
+                            <core:icon identifier="{comment.recordIcon}" size="small"/>
+                        </f:if>
                         {comment.title}
                     </a>
                 </small>

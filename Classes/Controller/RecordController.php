@@ -141,6 +141,11 @@ class RecordController extends ActionController
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, false, $sortComments, $showResolvedComments);
         $canCreateComment = PermissionUtility::canCreateComment();
 
+        // CP-29 (#328): aggregated child comments - a view-only concern, only offered for pages
+        // and only when the user opted in via the persisted "includeChildComments" setting.
+        $childComments = $this->childCommentAggregationManager->buildContext($recordTable, $recordId, $includeChildComments, $showResolvedComments, $sortComments);
+        $comments = $this->childCommentAggregationManager->mergeIntoList($comments, $childComments, $sortComments);
+
         $result = ViewUtility::render(
             'Default/Comments.html',
             [
@@ -154,9 +159,7 @@ class RecordController extends ActionController
                 // CP-27 (#326): comment-first flow - only relevant while the composer can
                 // actually be used and the record has no status yet.
                 'commentFirst' => $canCreateComment ? $this->commentFirstFlowManager->buildContext($record) : ['active' => false],
-                // CP-29 (#328): aggregated child comments - a view-only concern, only offered for
-                // pages and only when the user opted in via the persisted "includeChildComments" setting.
-                'childComments' => $this->childCommentAggregationManager->buildContext($recordTable, $recordId, $includeChildComments, $showResolvedComments, $sortComments),
+                'childComments' => $childComments,
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [
                     'sortComments' => $sortComments,

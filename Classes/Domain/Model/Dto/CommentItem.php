@@ -45,6 +45,14 @@ final class CommentItem
     public ?Status $status = null;
 
     /**
+     * CP-29 (#328): true for a comment that sits on a child record rather than on the record
+     * whose comment view is being rendered. Child comments are listed inline among the record's
+     * own, so this is what tells the Comment partial to add the marker (status, record type and
+     * the jump link) that says which element the comment actually belongs to.
+     */
+    public bool $foreignRecord = false;
+
+    /**
      * @param array<string, mixed> $row
      */
     public static function create(array $row): static

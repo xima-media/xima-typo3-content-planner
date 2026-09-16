@@ -18,6 +18,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 
 use function count;
+use function strtoupper;
 
 /**
  * ChildCommentAggregationManager.
@@ -26,11 +27,15 @@ use function count;
  * comments on its content elements, and on any other registered record living on that page
  * (e.g. a news record inside a sysfolder), are invisible from there even though editorially
  * they belong to the same conversation. This manager decides whether that aggregation should
- * run for the current view (`table`/`includeChildComments`) and, if so, builds the grouped
- * child-comment context for Default/Comments.html: one group per child record (its type icon,
- * title, and deep link via the existing shareAction/getRecordLink infrastructure on
- * {@see CommentItem}) plus a `hasMore` signal (CP-16, #320) when more commented child records
- * exist than fit the page.
+ * run for the current view (`table`/`includeChildComments`) and, if so, returns those comments
+ * for RecordController to merge into the record's own list.
+ *
+ * They are returned flat rather than grouped by record on purpose: a conversation reads in
+ * chronological order, so a comment on a content element belongs between the page's own
+ * comments of the same time, not in a section below all of them. Each item is flagged
+ * `foreignRecord`, which is what makes the Comment partial draw the record marker (status,
+ * type, jump link) beside it. `hasMore` (CP-16, #320) still signals that more commented child
+ * records exist than fit the page.
  *
  * Deliberately a *view* concern only: the page's own comment count/tree badge is computed
  * elsewhere (RecordRepository::updateCommentsRelationByRecord()) from the page's own comments
@@ -48,7 +53,7 @@ final readonly class ChildCommentAggregationManager
     ) {}
 
     /**
-     * @return array{active: bool, count: int, groups?: array<int, array{icon: string, title: string, recordLink: string, comments: array<int, CommentItem>}>, hasMore?: bool}
+     * @return array{active: bool, count: int, items?: array<int, CommentItem>, hasMore?: bool}
      *
      * @throws Exception
      */
@@ -80,34 +85,38 @@ final readonly class ChildCommentAggregationManager
             return ['active' => false, 'count' => count($comments)];
         }
 
+        foreach ($comments as $comment) {
+            $comment->foreignRecord = true;
+        }
+
         return [
             'active' => true,
             'count' => count($comments),
-            'groups' => $this->groupByRecord($comments),
+            'items' => $comments,
             'hasMore' => $refsResult->hasMore,
         ];
     }
 
     /**
-     * @param array<int, CommentItem> $comments
+     * Child-record comments read as part of the same conversation, so they are listed among the
+     * record's own in the list's sort order rather than in a section of their own. Sorting the
+     * merged list newest-first and reversing for ASC keeps it to a single comparison.
      *
-     * @return array<int, array{icon: string, title: string, recordLink: string, comments: array<int, CommentItem>}>
+     * @param array<int, CommentItem>                                          $comments
+     * @param array{active: bool, count: int, items?: array<int, CommentItem>} $context
+     *
+     * @return array<int, CommentItem>
      */
-    private function groupByRecord(array $comments): array
+    public function mergeIntoList(array $comments, array $context, string $sortDirection): array
     {
-        $groups = [];
-        foreach ($comments as $comment) {
-            $key = $comment->data['foreign_table'].':'.$comment->data['foreign_uid'];
-
-            $groups[$key] ??= [
-                'icon' => $comment->getRecordIcon(),
-                'title' => $comment->getTitle(),
-                'recordLink' => $comment->getRecordLink(),
-                'comments' => [],
-            ];
-            $groups[$key]['comments'][] = $comment;
+        $childItems = $context['active'] ? ($context['items'] ?? []) : [];
+        if ([] === $childItems) {
+            return $comments;
         }
 
-        return array_values($groups);
+        $merged = [...$comments, ...$childItems];
+        usort($merged, static fn (CommentItem $a, CommentItem $b): int => (int) $b->data['crdate'] <=> (int) $a->data['crdate']);
+
+        return 'ASC' === strtoupper($sortDirection) ? array_reverse($merged) : $merged;
     }
 }

@@ -528,9 +528,9 @@
 				<source>Hide resolved comments</source>
 				<target>Erledigte Kommentare ausblenden</target>
 			</trans-unit>
-			<trans-unit id="comment.childComments.heading">
-				<source>Comments on child records</source>
-				<target>Kommentare zu untergeordneten Datensätzen</target>
+			<trans-unit id="comment.record.jump">
+				<source>Open %s in the backend</source>
+				<target>%s im Backend öffnen</target>
 			</trans-unit>
 			<trans-unit id="comment.childComments.moreResults">
 				<source>More child records with comments are available. Refine the page to narrow the list.</source>
