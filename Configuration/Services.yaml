@@ -47,6 +47,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Manager\CommentFirstFlowManager:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Manager\ChildCommentAggregationManager:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\PlannerService:
     public: true
 

@@ -25,6 +25,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function array_slice;
 use function count;
 use function in_array;
 use function is_array;
@@ -44,6 +45,12 @@ class RecordRepository
      * the requested page size to leave enough headroom for rows the current backend user cannot
      * see. Bounded by FILTER_OVERFETCH_CAP so a large $maxResults cannot blow up the query.
      */
+    /**
+     * Default number of records per page, shared by every paged read here and by callers
+     * that need to mirror it (see ChildCommentAggregationManager).
+     */
+    public const DEFAULT_PAGE_SIZE = 20;
+
     private const FILTER_OVERFETCH_FACTOR = 3;
 
     private const FILTER_OVERFETCH_CAP = 100;
@@ -73,7 +80,7 @@ class RecordRepository
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = 20, bool $openComments = false): PaginatedResult
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = self::DEFAULT_PAGE_SIZE, bool $openComments = false): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
@@ -234,6 +241,39 @@ class RecordRepository
             ->fetchAssociative();
     }
 
+    /**
+     * Find refs (table + uid) of child records living on a page (pid = $pageId) that have at
+     * least one comment, across every registered record table - the same pid-generic lookup for
+     * `tt_content` on a regular page and, say, `tx_news_domain_model_news` on a sysfolder page.
+     * `pages` (the page itself, not a child of itself) and the folder status table (identified by
+     * folder_identifier/storage_uid rather than uid+pid) are excluded (CP-29, #328).
+     *
+     * Deliberately queried per table with a portable QueryBuilder (unlike findAllByFilter()'s raw
+     * UNION SQL) so this stays testable against SQLite, not just MySQL.
+     *
+     * @return PaginatedResult<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    public function findChildRecordRefsWithComments(int $pageId, int $maxResults = self::DEFAULT_PAGE_SIZE): PaginatedResult
+    {
+        $fetchLimit = min($maxResults * self::FILTER_OVERFETCH_FACTOR, self::FILTER_OVERFETCH_CAP);
+
+        $rows = [];
+        foreach ($this->getChildCommentTables() as $table) {
+            $rows = array_merge($rows, $this->findChildRowsForTable($table, $pageId, $fetchLimit));
+        }
+
+        usort($rows, static fn (array $a, array $b): int => (int) $b['tstamp'] <=> (int) $a['tstamp']);
+        $rows = array_slice($rows, 0, $fetchLimit);
+
+        return OverfetchPaginator::paginate(
+            $rows,
+            $maxResults,
+            static fn (array $record): bool => PermissionUtility::checkAccessForRecord((string) $record['tablename'], $record),
+        );
+    }
+
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
@@ -269,6 +309,46 @@ class RecordRepository
                 )
                 ->executeStatement();
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getChildCommentTables(): array
+    {
+        return array_values(array_diff(
+            ExtensionUtility::getRecordTables(),
+            ['pages', Configuration::TABLE_FOLDER],
+        ));
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function findChildRowsForTable(string $table, int $pageId, int $limit): array
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+        $titleField = ExtensionUtility::getTitleField($table);
+
+        $query = $queryBuilder
+            ->select('uid', 'pid', 'tstamp', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
+            ->addSelectLiteral($queryBuilder->quoteIdentifier($titleField).' AS title')
+            ->addSelectLiteral($queryBuilder->quote($table).' AS tablename')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageId, Connection::PARAM_INT)),
+                $queryBuilder->expr()->gt(Configuration::FIELD_COMMENTS, $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->orderBy('tstamp', 'DESC')
+            ->setMaxResults($limit);
+
+        if ($this->hasDeletedRestriction($table)) {
+            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
+        }
+
+        return $query->executeQuery()->fetchAllAssociative();
     }
 
     /**

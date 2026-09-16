@@ -221,3 +221,34 @@ Use the context menu of a comment to copy the share link to the clipboard. To sh
     :alt: Share link for comments
 
     Share a direct link to a comment or the comment modal
+
+..  _comments-child-comments:
+
+Aggregated child comments
+==========================
+
+..  versionadded:: 3.0.0
+
+    `Feature: #328 - Aggregated child comments on page level (CP-29) <https://github.com/xima-media/xima-typo3-content-planner/issues/328>`__
+
+A page's comment view normally only shows comments on the page record itself. Comments on its
+content elements - and on any other registered record type living on that page, e.g. a news
+record inside a sysfolder - belong to the same conversation about that page but are otherwise
+invisible from there.
+
+Enable the "Show comments from child records" checkbox above a page's comment list to also
+load those comments, grouped by the record they belong to (with a type icon and a deep link to
+that record). This is a :ref:`persisted user setting <user-settings-includeChildComments>`,
+disabled by default so nothing changes silently.
+
+..  note::
+    This is a *view*-only feature. Page tree badges and comment counts continue to count only
+    the page's own comments, never its children's.
+
+..  note::
+    With the :ref:`comment-first flow <comments-comment-first>`, commenting on a child record
+    (e.g. a content element) sets the initial status on that child record, not on the page -
+    the same as commenting on it directly.
+
+If a page has more commented child records than fit on screen, a hint indicates that more are
+available.

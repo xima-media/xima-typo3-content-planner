@@ -29,5 +29,21 @@ The following options can be set in the user settings:
 
     This setting can also be toggled directly from the comment modal's action menu via the "Expand replies" / "Collapse replies" button.
 
+..  _user-settings-includeChildComments:
+
+..  confval:: includeChildComments
+    :type: boolean
+    :Default: 0
+
+    If enabled, a page's comment view additionally shows comments left on child records living on
+    that page (content elements, or any other registered record type, e.g. a news record inside a
+    sysfolder), grouped by record with a deep link to each one.
+
+    ..  note::
+        This only changes what the comment view *displays*. Page tree badges and comment counts
+        still count a page's own comments only.
+
+    This setting can also be toggled directly from the checkbox above a page's comment list.
+
 ..  figure:: /Images/user-settings.jpg
     :alt: Content Planner User Settings

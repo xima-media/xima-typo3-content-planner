@@ -30,6 +30,21 @@ class CommentsReloadContent {
       const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
       const table = event.target.closest('form').getAttribute('data-table')
       const uid = event.target.closest('form').getAttribute('data-id')
+
+      // includeChildComments (CP-29, #328) is a persisted user setting, not just a per-request
+      // filter: save it before reloading so the new state survives the next time the panel opens.
+      if ('includeChildComments' === event.target.name) {
+        new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_usersetting)
+          .withQueryArguments({key: 'includeChildComments', value: event.target.checked ? '1' : '0'})
+          .get()
+          .then(() => this.loadComments(url, table, uid))
+          .catch((error) => {
+            console.error('Failed to save user setting:', error)
+            top.TYPO3.Notification.error('Error', 'Failed to save setting.')
+          })
+        return
+      }
+
       this.loadComments(url, table, uid)
     })
 
