@@ -50,6 +50,24 @@ final class ModifyRecordListTableActionsListenerTest extends AbstractFunctionalT
         self::assertStringContainsString('dropdown-menu', (string) $event->getAction('Status'));
     }
 
+    /**
+     * CP-14 (#318): the dropdown toggle must expose a real accessible name (the
+     * placeholder `title="test"` regressed this to an untranslated, meaningless value)
+     * and an explicit aria-label, not just a bare title.
+     */
+    #[Test]
+    public function statusDropdownToggleHasAccessibleNameAndAriaLabel(): void
+    {
+        $event = $this->createEvent('pages');
+
+        $this->subject->__invoke($event);
+
+        $action = (string) $event->getAction('Status');
+
+        self::assertStringNotContainsString('title="test"', $action);
+        self::assertMatchesRegularExpression('/aria-label="[^"]+"/', $action);
+    }
+
     #[Test]
     public function addsNoActionForUnregisteredTable(): void
     {

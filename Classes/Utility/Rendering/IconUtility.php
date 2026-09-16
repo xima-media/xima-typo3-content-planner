@@ -47,7 +47,26 @@ class IconUtility
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $icon = $iconFactory->getIcon($status instanceof Status ? $status->getColoredIcon() : 'flag-gray', self::getDefaultIconSize());
 
-        return $render ? $icon->render() : $icon->getIdentifier();
+        if (!$render) {
+            return $icon->getIdentifier();
+        }
+
+        $label = $status instanceof Status ? $status->getTitle() : '';
+        if ('' !== $label) {
+            // Mouse-hover tooltip. TYPO3 core always marks the icon aria-hidden
+            // (see Icon::wrappedIcon()), so this title never reaches assistive
+            // technology on its own - the visually-hidden span below does that.
+            $icon->setTitle($label);
+        }
+
+        // CP-14 (#318): status is never colour alone. The icon is decorative
+        // (aria-hidden), so the status name is additionally exposed as
+        // visually-hidden text for screen readers/keyboard users.
+        $labelMarkup = '' !== $label
+            ? '<span class="visually-hidden">'.htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5).'</span>'
+            : '';
+
+        return $icon->render().$labelMarkup;
     }
 
     /**

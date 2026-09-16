@@ -143,12 +143,19 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
         );
         // File without a status falls back to the generic "Status" title.
         self::assertMatchesRegularExpression(
-            '/data-filelist-meta-uid="'.$this->imageMetaUid.'".*?<div class="btn-group dropdown">.*?title="Status"/s',
+            '/data-filelist-meta-uid="'.$this->imageMetaUid.'".*?<div class="btn-group dropdown">.*?title="Content Status"/s',
             $body,
         );
         // Subfolder with a status (status 3 = "Done") gets a titled dropdown.
         self::assertMatchesRegularExpression(
             '/data-filelist-identifier="1:\/user_upload\/sub\/".*?<div class="btn-group dropdown">.*?title="Done"/s',
+            $body,
+        );
+
+        // CP-14 (#318): the icon-only dropdown toggle also carries an explicit aria-label,
+        // not just a `title` attribute.
+        self::assertMatchesRegularExpression(
+            '/data-filelist-meta-uid="'.$this->exampleMetaUid.'".*?<div class="btn-group dropdown">.*?aria-label="In Progress"/s',
             $body,
         );
 
@@ -230,8 +237,9 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
         // (the "sub" folder itself does, but that only affects its own header/dropdown, not
         // the CSS generated for its children).
         self::assertStringNotContainsString('<style>', $result);
-        // The dropdown still gets the generic fallback title/icon.
-        self::assertStringContainsString('title="Status"', $result);
+        // The dropdown still gets the generic fallback title/icon. The fallback is the
+        // translated "status" label, the same one the record list actions use.
+        self::assertStringContainsString('title="Content Status"', $result);
     }
 
     private function createLocalStorage(): void
