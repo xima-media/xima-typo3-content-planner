@@ -184,6 +184,16 @@ class ExtensionUtility
     }
 
     /**
+     * Gates the immediate (per-event, throttled) email channel (issue #306), independent of
+     * {@see self::isNotificationDigestEmailEnabled()} - an admin can disable either channel
+     * without affecting the other.
+     */
+    public static function isNotificationImmediateEmailEnabled(): bool
+    {
+        return self::isFeatureEnabled(Configuration::FEATURE_NOTIFICATION_IMMEDIATE_EMAIL);
+    }
+
+    /**
      * Configured fallback used to build absolute backend deep links for the email digest
      * (issue #302): TYPO3 cannot reliably determine its own base URL from a CLI context, so
      * this extension configuration value is prepended to the (CLI-safe, relative)

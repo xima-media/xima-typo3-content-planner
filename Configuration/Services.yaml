@@ -45,6 +45,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Domain\Repository\NotificationRepository:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\ImmediateEmailQueueRepository:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\PlannerService:
     public: true
 
@@ -60,6 +63,14 @@ services:
       $channels: !tagged_iterator xima_typo3_content_planner.notification_channel
 
   Xima\XimaTypo3ContentPlanner\Service\Notification\Channel\DatabaseChannel:
+    public: true
+    tags:
+      - name: xima_typo3_content_planner.notification_channel
+
+  Xima\XimaTypo3ContentPlanner\Service\Notification\Immediate\ImmediateEmailService:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\Notification\Channel\ImmediateEmailChannel:
     public: true
     tags:
       - name: xima_typo3_content_planner.notification_channel

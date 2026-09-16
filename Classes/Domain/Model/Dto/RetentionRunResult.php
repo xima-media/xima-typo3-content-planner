@@ -32,6 +32,7 @@ final readonly class RetentionRunResult
         private int $unreadNotificationsDeleted,
         private int $orphanedNotificationsDeleted,
         private int $orphanedWatchersDeleted,
+        private int $sentImmediateQueueRowsDeleted,
         private bool $dryRun,
     ) {}
 
@@ -55,6 +56,11 @@ final readonly class RetentionRunResult
         return $this->orphanedWatchersDeleted;
     }
 
+    public function getSentImmediateQueueRowsDeleted(): int
+    {
+        return $this->sentImmediateQueueRowsDeleted;
+    }
+
     public function isDryRun(): bool
     {
         return $this->dryRun;
@@ -65,6 +71,7 @@ final readonly class RetentionRunResult
         return $this->readNotificationsDeleted
             + $this->unreadNotificationsDeleted
             + $this->orphanedNotificationsDeleted
-            + $this->orphanedWatchersDeleted;
+            + $this->orphanedWatchersDeleted
+            + $this->sentImmediateQueueRowsDeleted;
     }
 }

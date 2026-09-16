@@ -19,7 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Xima\XimaTypo3ContentPlanner\Command\NotificationCleanupCommand;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason, WatchMode, WatchSource};
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository, RecordRepository, WatcherRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, ImmediateEmailQueueRepository, NotificationRepository, RecordRepository, WatcherRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\Retention\NotificationRetentionService;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -64,6 +64,7 @@ final class NotificationCleanupCommandTest extends AbstractFunctionalTestCase
             $this->watcherRepository,
             $this->get(RecordRepository::class),
             $this->get(BackendUserRepository::class),
+            $this->get(ImmediateEmailQueueRepository::class),
         );
 
         $command = new NotificationCleanupCommand($retentionService);

@@ -26,6 +26,8 @@ notificationChannelDatabase = 1
 notificationPollInterval = 60
 # cat=notifications/enable; type=boolean; label=Enable the email digest (content-planner:notification:digest command)
 notificationDigestEmail = 1
+# cat=notifications/enable; type=boolean; label=Enable the immediate (per-event, throttled) email channel
+notificationImmediateEmail = 1
 # cat=notifications/config; type=string; label=Backend base URL used to build absolute deep links in the email digest, e.g. "https://example.com" (TYPO3 cannot reliably determine its own base URL from a CLI context; leave empty to fall back to relative links)
 notificationDigestBackendBaseUrl =
 # cat=notifications/config; type=int+; label=Delete read notifications older than this many days (content-planner:notification:cleanup command)

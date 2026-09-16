@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\Notification;
 
 use Doctrine\DBAL\Exception;
+use Psr\Log\{LoggerAwareInterface, LoggerAwareTrait};
+use Throwable;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{Notification, NotificationEventType, NotificationReason};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
@@ -34,8 +36,10 @@ use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-class NotificationDispatcher
+class NotificationDispatcher implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     /**
      * @param iterable<NotificationChannelInterface> $channels
      */
@@ -90,8 +94,24 @@ class NotificationDispatcher
             );
 
             foreach ($this->channels as $channel) {
-                if ($channel->supports($notification)) {
+                if (!$channel->supports($notification)) {
+                    continue;
+                }
+
+                try {
                     $channel->deliver($notification);
+                } catch (Throwable $exception) {
+                    // Dispatching happens inside the save request. A channel that reaches
+                    // out to the network - the immediate e-mail channel is the first one
+                    // that does - must not be able to fail the editor's save, or leave the
+                    // remaining recipients unnotified because one delivery threw.
+                    $this->logger?->error('Content planner notification channel failed', [
+                        'channel' => $channel::class,
+                        'recipient' => $recipientUid,
+                        'table' => $table,
+                        'record' => $uid,
+                        'exception' => $exception,
+                    ]);
                 }
             }
         }

@@ -43,6 +43,7 @@ class Configuration
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
     final public const FEATURE_NOTIFICATION_CHANNEL_DATABASE = 'notificationChannelDatabase';
     final public const FEATURE_NOTIFICATION_DIGEST_EMAIL = 'notificationDigestEmail';
+    final public const FEATURE_NOTIFICATION_IMMEDIATE_EMAIL = 'notificationImmediateEmail';
     final public const CONF_NOTIFICATION_POLL_INTERVAL = 'notificationPollInterval';
     final public const CONF_NOTIFICATION_DIGEST_BACKEND_BASE_URL = 'notificationDigestBackendBaseUrl';
     final public const CONF_NOTIFICATION_RETENTION_READ_DAYS = 'notificationRetentionReadDays';
@@ -50,6 +51,13 @@ class Configuration
 
     // be_users column: per-user opt-out toggle for the email digest (issue #302), default on.
     final public const FIELD_USER_DIGEST = 'tx_ximatypo3contentplanner_digest';
+
+    /*
+     * be_users column: per-user email frequency toggle (issue #306), default off (daily digest).
+     * Only relevant when FIELD_USER_DIGEST is on: switches that recipient from the daily digest
+     * (#302) to the throttled per-event immediate channel - see ImmediateEmailChannel.
+     */
+    final public const FIELD_USER_IMMEDIATE_EMAIL = 'tx_ximatypo3contentplanner_immediate_email';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 
@@ -74,6 +82,7 @@ class Configuration
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
     final public const TABLE_WATCHER = 'tx_ximatypo3contentplanner_watcher';
     final public const TABLE_NOTIFICATION = 'tx_ximatypo3contentplanner_notification';
+    final public const TABLE_IMMEDIATE_QUEUE = 'tx_ximatypo3contentplanner_immediate_queue';
 
     /*
      * Up to and including v3, this held 'tx_ximatypo3contentplanner_status' — the name of
@@ -186,6 +195,7 @@ class Configuration
         $fields = [
             'tx_ximatypo3contentplanner_hide' => 'be_users.tx_ximatypo3contentplanner_hide',
             self::FIELD_USER_DIGEST => 'be_users.tx_ximatypo3contentplanner_digest',
+            self::FIELD_USER_IMMEDIATE_EMAIL => 'be_users.tx_ximatypo3contentplanner_immediate_email',
         ];
         $showitemAddition = '--div--;'.$tabLabel.','.implode(',', array_keys($fields));
 
