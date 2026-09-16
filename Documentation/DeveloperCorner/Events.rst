@@ -80,6 +80,11 @@ Note that ``$newStatus`` may be ``null`` when a status is cleared from a record.
     where there is no reliable actor, so firing one event per row was deliberately left out to
     avoid an event storm. See the docblocks on those methods for the full reasoning.
 
+    Since 3.1.0, this same bypass also keeps the :ref:`notification dispatcher <notifications>`
+    silent for these three paths - it is purely event-driven, so no separate suppression was
+    needed to make them notification-storm-safe. See :ref:`notifications` for the full
+    reasoning and for the CLI-wide pause switch used elsewhere.
+
 ..  code-block:: php
     :caption: Classes/EventListener/StatusChangeListener.php
 

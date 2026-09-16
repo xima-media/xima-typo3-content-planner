@@ -42,6 +42,7 @@ This TYPO3 extension adds content planning capabilities to the TYPO3 backend: as
 **Extensibility** — Works beyond pages
 * Extend [additional database records](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/AdditionalRecords.html) with status behavior
 * Built-in support for content elements and [files/folders](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Filelist.html)
+* Register custom [notification channels](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/Notifications.html) via a DI tag
 
 ## 🔥 Installation
 
