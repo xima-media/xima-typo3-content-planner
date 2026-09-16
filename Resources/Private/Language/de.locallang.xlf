@@ -173,6 +173,14 @@
 				<source>All record types</source>
 				<target>Alle Datensatztypen</target>
 			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.watchedByMe.label">
+				<source>Watched by me</source>
+				<target>Von mir beobachtet</target>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.watchedByMe.description">
+				<source>Only show records you are actively watching</source>
+				<target>Nur Datensätze anzeigen, die du aktiv beobachtest</target>
+			</trans-unit>
 
 			<trans-unit id="button.modal.header.comments">
 				<source>Comments</source>

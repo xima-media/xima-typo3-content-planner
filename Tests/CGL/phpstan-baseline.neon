@@ -111,3 +111,9 @@ parameters:
 			identifier: arguments.count
 			count: 1
 			path: ../../Classes/EventListener/ContentElementPreviewStatusListener.php
+
+		-
+			message: '#^Class cognitive complexity is 41, keep it under 40$#'
+			identifier: complexity.classLike
+			count: 1
+			path: ../../Classes/Domain/Repository/RecordRepository.php
