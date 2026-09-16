@@ -25,6 +25,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
+use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
@@ -49,6 +50,7 @@ class RecordController extends ActionController
         private readonly CommentRepository $commentRepository,
         private readonly BackendUserRepository $backendUserRepository,
         private readonly RequestId $requestId,
+        private readonly CommentEditorConfigurationFactory $commentEditorConfigurationFactory,
     ) {}
 
     /**
@@ -133,6 +135,7 @@ class RecordController extends ActionController
         $repliesExpanded = (bool) ($backendUser->uc['contentPlanner']['repliesExpanded'] ?? false);
 
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, false, $sortComments, $showResolvedComments);
+        $canCreateComment = PermissionUtility::canCreateComment();
 
         $result = ViewUtility::render(
             'Default/Comments.html',
@@ -141,7 +144,8 @@ class RecordController extends ActionController
                 'id' => $recordId,
                 'table' => $recordTable,
                 'repliesExpanded' => $repliesExpanded,
-                'newCommentUri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($recordTable, $recordId) : '',
+                'newCommentUri' => $canCreateComment ? UrlUtility::getNewCommentUrl($recordTable, $recordId) : '',
+                'commentComposerHtml' => $canCreateComment ? $this->buildNewCommentComposerHtml($recordTable, $recordId, (int) $record['pid']) : '',
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [
                     'sortComments' => $sortComments,
@@ -336,6 +340,20 @@ class RecordController extends ActionController
         }
 
         return $targetUserId === $currentUserId;
+    }
+
+    /**
+     * Renders the always-visible "new comment" composer embedded at the bottom of
+     * Default/Comments.html (CP-28, #327) - unlike edit/reply, this one does not need an
+     * on-demand AJAX round trip since it is always present when the record view loads.
+     */
+    private function buildNewCommentComposerHtml(string $table, int $id, int $recordPid): string
+    {
+        $pid = 'pages' === $table ? $id : $recordPid;
+        $fieldId = 'tx-ximatypo3contentplanner-comment-new-'.$table.'-'.$id;
+        $ckeditorConfiguration = $this->commentEditorConfigurationFactory->build($pid);
+
+        return $this->commentEditorConfigurationFactory->buildEditorHtml($fieldId, $ckeditorConfiguration, '');
     }
 
     private function getLanguageService(): LanguageService
