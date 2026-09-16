@@ -22,3 +22,4 @@ Configuration::registerHooks();
 Configuration::addRegister();
 Configuration::registerFormDataProviders();
 Configuration::registerPermissions();
+Configuration::registerToolbarItems();
