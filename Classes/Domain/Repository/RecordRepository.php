@@ -67,7 +67,7 @@ class RecordRepository
         // tablename literal, so cross-table duplicates cannot occur.
         $sql = implode(' UNION ALL ', $sqlArray).' ORDER BY tstamp DESC LIMIT :limit';
 
-        $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams);
+        $statement = $queryBuilder->getConnection()->executeQuery($sql, $additionalParams, ['limit' => Connection::PARAM_INT]);
         $results = $statement->fetchAllAssociative();
 
         return $this->filterResultsByPermission($results);

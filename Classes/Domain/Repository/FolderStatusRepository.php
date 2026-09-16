@@ -412,9 +412,9 @@ class FolderStatusRepository
     }
 
     /**
-     * Cache identifier for a storage's generation counter. Tagged with the same storage tag as
-     * every folder status row of that storage, so flushByTags() in invalidateCacheForStorage()
-     * clears it together with the rows it guards, right before that method writes the next value.
+     * Cache identifier for a storage's generation counter. Deliberately a plain identifier, not
+     * tagged with the storage's tag: it must outlive invalidateCacheForStorage()'s flushByTags()
+     * call on that tag, or the counter could never advance past its first increment.
      */
     private function storageGenerationCacheIdentifier(int $storageUid): string
     {
@@ -448,8 +448,12 @@ class FolderStatusRepository
         $storageTag = self::TABLE.'__storage__'.$storageUid;
         $this->cache->flushByTags([$storageTag]);
 
+        // Deliberately untagged: the counter must survive the flushByTags() call above, or
+        // every invalidation after the first would read it back as freshly-flushed (0) and
+        // always advance to the same value (1) instead of a new one - silently disabling the
+        // guard cacheIdentifierFor() relies on for every invalidation but the very first.
         $nextGeneration = $this->storageGeneration($storageUid) + 1;
-        $this->cache->set($this->storageGenerationCacheIdentifier($storageUid), $nextGeneration, [$storageTag]);
+        $this->cache->set($this->storageGenerationCacheIdentifier($storageUid), $nextGeneration);
     }
 
     /**
