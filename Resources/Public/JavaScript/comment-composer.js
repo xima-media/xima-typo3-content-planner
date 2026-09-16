@@ -130,7 +130,7 @@ class CommentComposer {
 
     collapsed.hidden = true
     form.hidden = false
-    form.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
+    this.focusEditor(form)
   }
 
   collapseNewComposer(form) {
@@ -175,7 +175,7 @@ class CommentComposer {
         })
         // Keyboard users activated this deliberately; without moving focus they would have
         // to tab back to the editor that just appeared.
-        form.querySelector('textarea')?.focus()
+        this.focusEditor(form)
       })
       .catch(error => {
         console.error('Content Planner: failed to load the comment editor:', error)
@@ -190,8 +190,9 @@ class CommentComposer {
       return
     }
 
-    if (slot.querySelector('[data-comment-composer]')) {
-      slot.querySelector('[data-comment-composer] textarea')?.focus()
+    const openComposer = slot.querySelector('[data-comment-composer]')
+    if (openComposer) {
+      this.focusEditor(openComposer)
       return // already open
     }
 
@@ -219,12 +220,73 @@ class CommentComposer {
             }
           },
         })
-        form.querySelector('textarea')?.focus()
+        this.focusEditor(form)
       })
       .catch(error => {
         console.error('Content Planner: failed to load the reply editor:', error)
         Notification.message('comment.create', 'failure')
       })
+  }
+
+  /**
+   * CKEditor5 hides the `<textarea>` it was initialized from and takes over input through its
+   * own contenteditable, so focusing that textarea puts the caret nowhere. The web component
+   * builds the editor asynchronously and exposes neither the instance nor a ready event, so
+   * wait for the editable to show up before focusing it.
+   */
+  focusEditor(form) {
+    const editable = form.querySelector('.ck-editor__editable')
+    if (editable) {
+      this.revealEditor(form, editable)
+      return
+    }
+
+    const observer = new MutationObserver(() => {
+      const target = form.querySelector('.ck-editor__editable')
+      if (!target) {
+        return
+      }
+      observer.disconnect()
+      this.revealEditor(form, target)
+    })
+    observer.observe(form, {childList: true, subtree: true})
+    // The editor bundle can fail to load; without this the observer would stay attached to a
+    // form the user has long since cancelled.
+    setTimeout(() => observer.disconnect(), 10000)
+  }
+
+  /**
+   * The new-comment composer sits at the very bottom of the comment list, so expanding it
+   * leaves most of the editor below the fold. Focusing alone only scrolls the caret into view,
+   * which stops as soon as its first line is visible - scrolling the form's bottom edge in
+   * instead reveals the editor together with its toolbar and buttons.
+   */
+  revealEditor(form, editable) {
+    editable.focus({preventScroll: true})
+    form.scrollIntoView({behavior: 'smooth', block: 'end'})
+    this.relocateEditorBalloons(form)
+  }
+
+  /**
+   * TYPO3 v14 opens modals as a native `<dialog>` via `showModal()`, which puts them in the
+   * browser's top layer. CKEditor appends its balloon panels - the mention dropdown, the link
+   * form, special characters - to a `.ck-body-wrapper` on `document.body`, which is ordinary
+   * flow content and therefore painted *below* the top layer no matter what z-index it
+   * carries. Moving that wrapper into the dialog puts the balloons in the same top-layer
+   * subtree as the composer they belong to.
+   *
+   * Moving the shared wrapper is safe: a `showModal()` dialog makes the rest of the document
+   * inert, so no editor behind the modal can open a balloon while it is relocated, and
+   * CKEditor recreates the wrapper on `document.body` as soon as it finds it disconnected -
+   * which is what closing the modal does. In v13 the modal is an ordinary positioned element,
+   * there is no `<dialog>` ancestor and this does nothing.
+   */
+  relocateEditorBalloons(form) {
+    const dialog = form.closest('dialog')
+    const wrapper = document.querySelector('body > .ck-body-wrapper')
+    if (dialog && wrapper) {
+      dialog.appendChild(wrapper)
+    }
   }
 
   // --- submission --------------------------------------------------------------------------
