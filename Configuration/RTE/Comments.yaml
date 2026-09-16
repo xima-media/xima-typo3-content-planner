@@ -35,3 +35,7 @@ editor:
 
     importModules:
       - { module: '@ckeditor/ckeditor5-list', exports: [ 'TodoList' ] }
+      # @-mentions (#305). The plugin brings its own suggestion feed and its own up/downcast
+      # converters, so the record context it needs is injected by
+      # CommentEditorConfigurationFactory rather than configured here.
+      - { module: '@content-planner/comment-mention.js', exports: [ 'ContentPlannerMention' ] }

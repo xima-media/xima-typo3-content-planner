@@ -367,7 +367,7 @@ class RecordController extends ActionController
     {
         $pid = 'pages' === $table ? $id : $recordPid;
         $fieldId = 'tx-ximatypo3contentplanner-comment-new-'.$table.'-'.$id;
-        $ckeditorConfiguration = $this->commentEditorConfigurationFactory->build($pid);
+        $ckeditorConfiguration = $this->commentEditorConfigurationFactory->build($pid, $table, $id);
 
         return $this->commentEditorConfigurationFactory->buildEditorHtml($fieldId, $ckeditorConfiguration, '');
     }

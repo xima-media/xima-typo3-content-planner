@@ -259,7 +259,9 @@ plugins, toolbar items or ``importModules`` entries without replacing
     }
 
 ``getPid()`` returns the page the comment is written on, for listeners that
-need page-dependent configuration.
+need page-dependent configuration; ``getTable()`` and ``getRecordUid()`` return
+the record the comment belongs to, for plugins that need the record context -
+the built-in @-mention suggestion feed is scoped that way.
 
 ..  seealso::
 

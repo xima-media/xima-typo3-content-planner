@@ -53,7 +53,7 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
     {
         $factory = $this->createFactory(['toolbar' => ['items' => ['bold', 'italic']]]);
 
-        $configuration = $factory->build(1);
+        $configuration = $factory->build(1, 'pages', 5);
 
         self::assertSame('', $configuration['customConfig']);
         self::assertSame(['items' => ['bold', 'italic']], $configuration['toolbar']);
@@ -66,7 +66,7 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
         $backendUser->user = ['lang' => 'de'];
         $GLOBALS['BE_USER'] = $backendUser;
 
-        $configuration = $this->createFactory([])->build(1);
+        $configuration = $this->createFactory([])->build(1, 'pages', 5);
 
         self::assertSame('de', $configuration['language']['ui']);
     }
@@ -74,7 +74,7 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
     #[Test]
     public function buildFallsBackToEnglishUiLanguageWhenBackendUserHasNoExplicitLanguage(): void
     {
-        $configuration = $this->createFactory([])->build(1);
+        $configuration = $this->createFactory([])->build(1, 'pages', 5);
 
         self::assertSame('en', $configuration['language']['ui']);
     }
@@ -82,7 +82,7 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
     #[Test]
     public function buildDefaultsContentLanguageToEnglishWhenPresetDoesNotOverrideIt(): void
     {
-        $configuration = $this->createFactory([])->build(1);
+        $configuration = $this->createFactory([])->build(1, 'pages', 5);
 
         self::assertSame('en', $configuration['language']['content']);
     }
@@ -93,10 +93,41 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
         $configuration = $this->createFactory([
             'placeholder' => 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:comment.placeholder',
             'nested' => ['label' => 'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:some.key'],
-        ])->build(1);
+        ])->build(1, 'pages', 5);
 
         self::assertSame('Translated label', $configuration['placeholder']);
         self::assertSame('Translated label', $configuration['nested']['label']);
+    }
+
+    #[Test]
+    public function buildPassesTheRecordContextTheMentionFeedNeedsToTheEditor(): void
+    {
+        $configuration = $this->createFactory([])->build(1, 'tt_content', 42);
+
+        self::assertSame(['table' => 'tt_content', 'uid' => 42], $configuration['contentPlannerMention']);
+    }
+
+    #[Test]
+    public function buildHandsTheRecordContextToListenersAsWell(): void
+    {
+        $richtext = $this->createMock(Richtext::class);
+        $richtext->method('getConfiguration')->willReturn(['editor' => ['config' => []]]);
+        $locales = $this->createMock(Locales::class);
+        $locales->method('isValidLanguageKey')->willReturn(true);
+
+        $seen = null;
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnCallback(
+            static function (ModifyCommentEditorConfigurationEvent $event) use (&$seen): ModifyCommentEditorConfigurationEvent {
+                $seen = [$event->getPid(), $event->getTable(), $event->getRecordUid()];
+
+                return $event;
+            },
+        );
+
+        (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher))->build(12, 'pages', 12);
+
+        self::assertSame([12, 'pages', 12], $seen);
     }
 
     #[Test]
@@ -135,7 +166,7 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
             },
         );
 
-        $result = (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher))->build(12);
+        $result = (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher))->build(12, 'tt_content', 7);
 
         self::assertSame(['@acme/mention-plugin.js'], $result['importModules']);
         self::assertSame(['bold'], $result['toolbar']);

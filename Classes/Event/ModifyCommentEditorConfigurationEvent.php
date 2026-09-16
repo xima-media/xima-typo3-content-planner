@@ -28,7 +28,12 @@ final class ModifyCommentEditorConfigurationEvent
     /**
      * @param array<string, mixed> $configuration
      */
-    public function __construct(private array $configuration, private readonly int $pid) {}
+    public function __construct(
+        private array $configuration,
+        private readonly int $pid,
+        private readonly string $table,
+        private readonly int $recordUid,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -53,5 +58,19 @@ final class ModifyCommentEditorConfigurationEvent
     public function getPid(): int
     {
         return $this->pid;
+    }
+
+    /**
+     * The table of the record the comment is written on, for listeners whose plugin needs the
+     * record context - an @-mention suggestion feed scoped to that record, for instance.
+     */
+    public function getTable(): string
+    {
+        return $this->table;
+    }
+
+    public function getRecordUid(): int
+    {
+        return $this->recordUid;
     }
 }

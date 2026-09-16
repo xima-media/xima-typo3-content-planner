@@ -66,6 +66,30 @@ they would after a normal status change (auto-assignment, the ``StatusChangeEven
     record does not appear in the Status overview module, which lists records *by* status;
     its comments remain visible on the record itself and in the comment dashboard widget.
 
+..  _comments-mentions:
+
+Mentions
+===================
+
+..  versionadded:: 3.0.0
+
+    `Feature: #305 - Mention backend users in comments <https://github.com/xima-media/xima-typo3-content-planner/issues/305>`__
+
+Type ``@`` in the comment editor to mention another backend user. A suggestion list opens and
+narrows down as you keep typing; pick an entry with the arrow keys and :kbd:`Enter`, or with
+the mouse.
+
+Only users who may use the Content Planner are suggested, and a mention only notifies someone
+who may actually read the record the comment sits on.
+
+
+A mentioned user is notified even if they do not watch the record, and starts watching it from
+then on. Muting a record does not suppress the mention itself, only the other activity on that
+record.
+
+Mentions keep pointing at the user, not at the name they had when the comment was written: if
+someone's name changes later, every existing mention of them shows the new one.
+
 ..  _comments-show:
 
 Show comments

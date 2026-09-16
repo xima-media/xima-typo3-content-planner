@@ -249,7 +249,7 @@ class CommentEditorController extends ActionController
      */
     private function renderCommentEditorFragment(string $mode, string $table, int $id, int $parentUid, int $commentUid, string $content, int $pid): JsonResponse
     {
-        $ckeditorConfiguration = $this->commentEditorConfigurationFactory->build($pid);
+        $ckeditorConfiguration = $this->commentEditorConfigurationFactory->build($pid, $table, $id);
         $fieldId = 'tx-ximatypo3contentplanner-comment-'.$mode.'-'.$commentUid.'-'.$table.'-'.$id.'-'.$parentUid;
 
         $result = ViewUtility::render(

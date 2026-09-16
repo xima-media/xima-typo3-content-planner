@@ -622,7 +622,7 @@
 
 /* CKEditor's default checkbox outline is a near-black hsl(0, 0%, 20%) that disappears against a
    dark backend. Deriving it from the surrounding text color keeps it visible in both color
-   schemes; the [checked] rule above is more specific, so the blue filled state is untouched. */
+   schemes; the :checked rule above is more specific, so the blue filled state is untouched. */
 .todo-list .todo-list__label > input::before {
     border-color: color-mix(in srgb, currentColor, transparent 50%);
 }
@@ -634,4 +634,20 @@
         outline: 2px solid var(--typo3-state-primary-border, #007bff);
         outline-offset: 2px;
     }
+}
+
+/* ==========================================================================
+   Mentions (#305)
+   The marker the downcast converter of comment-mention.js writes inside the composer. The "@"
+   prefix and the weight carry the meaning on their own, the tint is only reinforcement.
+   ========================================================================== */
+
+.ctp-mention {
+    padding: 0 0.1875rem;
+    border-radius: 0.1875rem;
+    background-color: var(--content-planner-color-blue-light);
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
 }
