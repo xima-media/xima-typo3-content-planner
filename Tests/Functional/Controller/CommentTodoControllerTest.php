@@ -124,6 +124,36 @@ final class CommentTodoControllerTest extends AbstractFunctionalTestCase
         self::assertSame(0, (int) $comment['edited']);
     }
 
+    /**
+     * The header badge (HeaderInfo.html) shows the to-do count summed across every comment on
+     * the record, not just the one being toggled - the response must carry that aggregate too,
+     * so the frontend can update the badge without a full comments reload.
+     */
+    #[Test]
+    public function toggleTodoActionReturnsTheRecordWideTodoAggregate(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $firstCommentUid = $this->createComment(
+            '<ul class="todo-list"><li><input type="checkbox">First</li><li><input type="checkbox">Second</li></ul>',
+        );
+        $this->createComment('<ul class="todo-list"><li><input type="checkbox" checked>Third</li></ul>');
+
+        $response = $this->createController()->toggleTodoAction(
+            $this->createRequest(['commentUid' => $firstCommentUid, 'todoIndex' => 0, 'checked' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(2, $payload['todoTotal']);
+        self::assertSame(1, $payload['todoResolved']);
+        // 2 + 1 items total, 1 (this comment, post-toggle) + 1 (the other comment) resolved.
+        self::assertSame(3, $payload['recordTodoTotal']);
+        self::assertSame(2, $payload['recordTodoResolved']);
+    }
+
     private function createController(): CommentTodoController
     {
         return new CommentTodoController($this->get(CommentRepository::class));

@@ -62,12 +62,41 @@ class CommentTodoToggle {
         if (!result.response.ok || resolved.error) {
           throw new Error(resolved.error || 'Content Planner: to-do toggle request failed')
         }
+        Notification.message('comment.todo', 'success')
+        this.updateHeaderBadge(resolved.recordTodoResolved, resolved.recordTodoTotal)
       })
       .catch(error => {
         console.error('Content Planner: failed to toggle to-do item:', error)
         checkbox.checked = !checked
         Notification.message('comment.todo', 'failure')
       }))
+  }
+
+  /**
+   * The page header shows a "resolved/total" to-do badge summed across every comment on the
+   * record (Classes/Service/Header/InfoGenerator.php). TYPO3's Modal.advanced() always renders
+   * the comments modal in the top-level document, regardless of which document opened it, but
+   * the header badge itself lives wherever the module content is rendered - inside the
+   * "list_frame" content iframe when the backend uses one. So it is looked up in both places
+   * instead of assuming either.
+   */
+  updateHeaderBadge(recordTodoResolved, recordTodoTotal) {
+    const filterForm = document.querySelector('form#content-planner-comment-filter')
+    const table = filterForm?.getAttribute('data-table')
+    const id = filterForm?.getAttribute('data-id')
+    if (!table || !id) {
+      return
+    }
+
+    const selector = `.content-planner-header__todo-badge[data-table="${CSS.escape(table)}"][data-id="${CSS.escape(id)}"] .badge`
+    const badge = document.querySelector(selector)
+      || document.querySelector('iframe[name="list_frame"]')?.contentDocument?.querySelector(selector)
+    if (!badge) {
+      return
+    }
+
+    badge.textContent = `${recordTodoResolved}/${recordTodoTotal}`
+    badge.dataset.status = recordTodoResolved === recordTodoTotal ? 'resolved' : 'pending'
   }
 
   /**
