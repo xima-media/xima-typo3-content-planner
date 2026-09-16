@@ -441,6 +441,45 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
     }
 
     /**
+     * The header's to-do badge counts every open comment of the record, so the response carries
+     * the record-wide totals next to the toggled comment's own - the client cannot derive them.
+     */
+    #[Test]
+    public function commentToggleTodoActionReturnsTheRecordWideTodoTotals(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $first = $this->createController()->commentSaveAction($this->createPostRequest([
+            'table' => 'pages',
+            'uid' => 1,
+            'content' => '<ul class="todo-list"><li><input type="checkbox">First</li></ul>',
+        ]));
+        $commentUid = (int) json_decode((string) $first->getBody(), true)['commentUid'];
+
+        $this->createController()->commentSaveAction($this->createPostRequest([
+            'table' => 'pages',
+            'uid' => 1,
+            'content' => '<ul class="todo-list">'
+                .'<li><input type="checkbox">Second</li>'
+                .'<li><input type="checkbox" checked>Third</li>'
+                .'</ul>',
+        ]));
+
+        $response = $this->createController()->commentToggleTodoAction(
+            $this->createPostRequest(['commentUid' => $commentUid, 'todoIndex' => 0, 'checked' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(1, $payload['todoResolved']);
+        self::assertSame(1, $payload['todoTotal']);
+        self::assertSame(3, $payload['recordTodoTotal']);
+        self::assertSame(2, $payload['recordTodoResolved']);
+    }
+
+    /**
      * Unchecking is the same code path with the inverse `checked` argument - covered
      * separately since toggleTodoCheckbox() branches on it explicitly.
      */

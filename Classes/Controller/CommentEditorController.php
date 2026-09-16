@@ -165,10 +165,19 @@ class CommentEditorController extends ActionController
         // second SELECT just to read them back.
         $updated = $dataHandler->datamap[Configuration::TABLE_COMMENT][$commentUid];
 
+        // The header badge (HeaderInfo.html) shows the to-do count summed across every comment
+        // on the record, not just this one - the same aggregate InfoGenerator computes for the
+        // initial page render, so the frontend can patch that badge without reloading the whole
+        // comment list.
+        $foreignUid = (int) $comment['foreign_uid'];
+        $foreignTable = (string) $comment['foreign_table'];
+
         return new JsonResponse([
             'commentUid' => $commentUid,
             'todoResolved' => (int) $updated['todo_resolved'],
             'todoTotal' => (int) $updated['todo_total'],
+            'recordTodoResolved' => $this->commentRepository->countTodoAllByRecord($foreignUid, $foreignTable),
+            'recordTodoTotal' => $this->commentRepository->countTodoAllByRecord($foreignUid, $foreignTable, 'todo_total'),
         ]);
     }
 

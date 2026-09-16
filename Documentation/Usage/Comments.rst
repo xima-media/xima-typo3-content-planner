@@ -128,6 +128,8 @@ The ToDo count is automatically updated when you add or remove a ToDo item in th
 
     Click a ToDo checkbox directly in the comment list to check or uncheck it - no need to open
     the comment for editing first. This is only available for comments you are allowed to edit.
+    The checkbox flips immediately, a notification confirms the save, and the ToDo count in the
+    header is updated without reloading the page.
 
 ..  figure:: /Images/todo.jpg
     :alt: ToDo count in header

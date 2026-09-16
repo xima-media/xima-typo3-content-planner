@@ -582,7 +582,11 @@
                 transform: rotate(45deg);
             }
 
-            &[checked] {
+            /* :checked, not [checked]: the attribute only reflects the state the markup was
+               parsed with. Inside the editor that happened to work because CKEditor re-renders
+               the node whenever its model changes, but the inline toggle just flips the
+               property, so the checkmark never appeared until the next full reload. */
+            &:checked {
                 &::before {
                     background: #0078e6;
                     border-color: #0078e6;
