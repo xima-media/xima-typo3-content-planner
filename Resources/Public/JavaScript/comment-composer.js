@@ -273,20 +273,35 @@ class CommentComposer {
    * form, special characters - to a `.ck-body-wrapper` on `document.body`, which is ordinary
    * flow content and therefore painted *below* the top layer no matter what z-index it
    * carries. Moving that wrapper into the dialog puts the balloons in the same top-layer
-   * subtree as the composer they belong to.
+   * subtree as the composer they belong to. In v13 the modal is an ordinary positioned
+   * element, there is no `<dialog>` ancestor and this does nothing.
    *
-   * Moving the shared wrapper is safe: a `showModal()` dialog makes the rest of the document
-   * inert, so no editor behind the modal can open a balloon while it is relocated, and
-   * CKEditor recreates the wrapper on `document.body` as soon as it finds it disconnected -
-   * which is what closing the modal does. In v13 the modal is an ordinary positioned element,
-   * there is no `<dialog>` ancestor and this does nothing.
+   * The wrapper is shared by every editor in the document: CKEditor keeps it in a static field
+   * and only builds a new one when an editor is *created* and finds the old one disconnected
+   * (BodyCollection.attachToDom()). Editors that already exist keep pointing at their own
+   * container inside it, so letting the wrapper be removed along with the dialog would leave
+   * every editor outside the modal silently unable to open a balloon again. It therefore goes
+   * back to the body as the modal closes - while it is away, the rest of the document is inert
+   * anyway, so nothing out there can open a balloon in the meantime.
    */
   relocateEditorBalloons(form) {
     const dialog = form.closest('dialog')
-    const wrapper = document.querySelector('body > .ck-body-wrapper')
-    if (dialog && wrapper) {
-      dialog.appendChild(wrapper)
+    const wrapper = document.querySelector('.ck-body-wrapper')
+    if (!dialog || !wrapper || dialog === wrapper.parentElement) {
+      return
     }
+
+    dialog.appendChild(wrapper)
+
+    const restore = () => {
+      if (wrapper.isConnected && document.body !== wrapper.parentElement) {
+        document.body.appendChild(wrapper)
+      }
+    }
+    // typo3-modal-hide fires at the start of the teardown, the dialog's own close event at its
+    // end. Whichever arrives first moves the wrapper back; the other one is then a no-op.
+    dialog.closest('typo3-backend-modal')?.addEventListener('typo3-modal-hide', restore, {once: true})
+    dialog.addEventListener('close', restore, {once: true})
   }
 
   // --- submission --------------------------------------------------------------------------

@@ -18,12 +18,18 @@ const TRIGGER_SELECTOR = '.ctp-mention[data-mention-uid]'
 class CommentMentionCard {
   constructor() {
     this.cache = new Map()
+    /** @type {Set<HTMLElement>} triggers we created a popover on, for cleanup after a reload */
+    this.triggers = new Set()
 
     // Delegated on the document: comment markup is replaced wholesale on every filter change
     // and after every save, so anything bound to the individual buttons would need rebinding
     // on each reload.
     document.addEventListener('mouseover', event => this.prepare(event.target.closest(TRIGGER_SELECTOR)))
     document.addEventListener('focusin', event => this.prepare(event.target.closest(TRIGGER_SELECTOR)))
+
+    // Covers replacing a single comment in place, e.g. after an inline edit; a full list reload
+    // calls disposeOrphaned() directly (see comments-reload-content.js).
+    window.addEventListener('typo3:contentplanner:reinitializelistener', () => this.disposeOrphaned())
   }
 
   prepare(trigger) {
@@ -31,6 +37,7 @@ class CommentMentionCard {
       return
     }
     trigger.dataset.mentionCardBound = 'true'
+    this.triggers.add(trigger)
 
     // Bootstrap reads the trigger mode when the instance is constructed, so it has to be in
     // place before Popover.popover() - setting it afterwards would not rebind its listeners.
@@ -49,6 +56,23 @@ class CommentMentionCard {
         console.error('Failed to load mention profile card:', error)
         Popover.hide(trigger)
       })
+  }
+
+  /**
+   * Bootstrap hides a hover popover from a `mouseleave` on its trigger. Comment markup is
+   * replaced wholesale on every reload, which takes the trigger out of the document without
+   * that event ever firing: the card is left floating over the modal with nothing to dismiss
+   * it, and its Popover instance stays attached to a node nobody holds any more. So every
+   * trigger that has left the document gets its popover disposed of.
+   */
+  disposeOrphaned() {
+    this.triggers.forEach(trigger => {
+      if (trigger.isConnected) {
+        return
+      }
+      this.triggers.delete(trigger)
+      Popover.destroy(trigger)
+    })
   }
 
   options(trigger, content) {

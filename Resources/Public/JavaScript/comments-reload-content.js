@@ -193,6 +193,8 @@ class CommentsReloadContent {
         }
         const parent = commentList.parentElement
         parent.innerHTML = resolved.result
+        // After the replacement, so the orphaned triggers are the ones already detached.
+        CommentMentionCard.disposeOrphaned()
         CommentsResolvedItem.initEventListeners()
         CommentsDeleteItem.initEventListeners()
         CommentsShareLink.initEventListeners()
