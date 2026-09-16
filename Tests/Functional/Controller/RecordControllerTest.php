@@ -250,6 +250,38 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('content-planner-comment__record', $result);
     }
 
+    /**
+     * The repository sorts root comments by last_activity, so a thread with a fresh reply floats
+     * to the top. Merging child comments in must keep that key - sorting the merged list by
+     * crdate instead would silently reshuffle the record's own comments.
+     */
+    #[Test]
+    public function commentsActionKeepsTheLastActivityOrderWhenMergingChildComments(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['sys_file_metadata']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments_activity.csv');
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $backendUser->uc['contentPlanner']['includeChildComments'] = true;
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+
+        // crdate 500 but last_activity 2000 through its reply, so it stays above the child
+        // comment at crdate 1000.
+        self::assertGreaterThan(
+            strpos($result, 'Old page comment with a fresh reply'),
+            strpos($result, 'Child record comment'),
+        );
+    }
+
     #[Test]
     public function commentsActionSortsChildCommentsInLineWhenSortedOldestFirst(): void
     {

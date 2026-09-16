@@ -115,8 +115,19 @@ final readonly class ChildCommentAggregationManager
         }
 
         $merged = [...$comments, ...$childItems];
-        usort($merged, static fn (CommentItem $a, CommentItem $b): int => (int) $b->data['crdate'] <=> (int) $a->data['crdate']);
+        usort($merged, static fn (CommentItem $a, CommentItem $b): int => self::lastActivity($b) <=> self::lastActivity($a));
 
         return 'ASC' === strtoupper($sortDirection) ? array_reverse($merged) : $merged;
+    }
+
+    /**
+     * The repository orders root comments by last_activity, not crdate, so a thread with a fresh
+     * reply floats to the top (see CommentRepository::buildRootCommentsQueryBuilder()). Merging
+     * has to keep that key, otherwise switching the child-comment toggle on would silently
+     * reshuffle the record's own comments.
+     */
+    private static function lastActivity(CommentItem $comment): int
+    {
+        return (int) ($comment->data['last_activity'] ?? $comment->data['crdate']);
     }
 }
