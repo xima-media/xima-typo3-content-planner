@@ -257,6 +257,25 @@ final class WatcherServiceTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getWatchedRecordsExcludesManuallyUnwatchedRecordsAndGroupsByTable(): void
+    {
+        $this->subject->watch('pages', 1, 1, WatchSource::Assignment);
+        $this->subject->watch('pages', 2, 1, WatchSource::Manual);
+        // Muted: was watched, then explicitly unwatched - must not appear in the result even
+        // though a row for it exists.
+        $this->subject->watch('pages', 3, 1, WatchSource::Manual);
+        $this->subject->unwatch('pages', 3, 1);
+
+        self::assertSame(['pages' => [1, 2]], $this->subject->getWatchedRecords(1));
+    }
+
+    #[Test]
+    public function getWatchedRecordsReturnsEmptyArrayForAUserWatchingNothing(): void
+    {
+        self::assertSame([], $this->subject->getWatchedRecords(1));
+    }
+
+    #[Test]
     public function getActiveWatchersWithSourceRejectsAnUnwatchableTable(): void
     {
         $this->expectException(InvalidArgumentException::class);

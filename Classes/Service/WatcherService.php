@@ -163,6 +163,23 @@ class WatcherService
         return null !== $mode && WatchMode::ManualUnwatch !== $mode;
     }
 
+    /**
+     * All records the given backend user actively watches, keyed by table name with a list of
+     * record UIDs. Backs the "Watched by me" filter on
+     * {@see \Xima\XimaTypo3ContentPlanner\Widgets\ConfigurableContentStatusWidget} (issue #308),
+     * turning the record-centric widget into a personal view. No table argument, and therefore no
+     * {@see self::assertWatchableTable()} call: every persisted watcher row already went through
+     * that check on write (see {@see self::watch()}), so no unwatchable table can appear here.
+     *
+     * @return array<string, list<int>>
+     *
+     * @throws Exception
+     */
+    public function getWatchedRecords(int $beUser): array
+    {
+        return $this->watcherRepository->findActiveWatchedRecordsByUser($beUser);
+    }
+
     private function assertWatchableTable(string $table): void
     {
         if (!$this->isWatchable($table)) {

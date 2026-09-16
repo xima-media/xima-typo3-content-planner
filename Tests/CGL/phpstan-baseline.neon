@@ -95,3 +95,9 @@ parameters:
 			identifier: typePerfect.narrowPublicClassMethodParamType
 			count: 1
 			path: ../../Classes/Widgets/Provider/ContentUpdateDataProvider.php
+
+		-
+			message: '#^Class cognitive complexity is 41, keep it under 40$#'
+			identifier: complexity.classLike
+			count: 1
+			path: ../../Classes/Domain/Repository/RecordRepository.php

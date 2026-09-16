@@ -333,6 +333,12 @@
 			<trans-unit id="widgets.configurable.setting.recordType.all">
 				<source>All record types</source>
 			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.watchedByMe.label">
+				<source>Watched by me</source>
+			</trans-unit>
+			<trans-unit id="widgets.configurable.setting.watchedByMe.description">
+				<source>Only show records you are actively watching</source>
+			</trans-unit>
 
 			<!-- mail -->
 			<trans-unit id="mail.signature">
