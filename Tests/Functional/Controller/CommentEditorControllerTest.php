@@ -111,7 +111,7 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('data-mode="edit"', $payload['result']);
-        self::assertStringContainsString('data-comment-uid="1"', $payload['result']);
+        self::assertStringContainsString('data-composer-comment-uid="1"', $payload['result']);
         self::assertStringContainsString('Open comment', $payload['result']);
     }
 

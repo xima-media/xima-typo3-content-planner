@@ -271,7 +271,7 @@ class CommentComposer {
     const table = form.dataset.table
     const id = form.dataset.id
     const parentUid = form.dataset.parentUid
-    const commentUid = form.dataset.commentUid
+    const commentUid = form.dataset.composerCommentUid
 
     OptimisticUpdate.run({
       apply: () => this.applyPending(form, submitButton),
