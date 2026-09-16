@@ -24,6 +24,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\TodoToggleUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -101,6 +102,71 @@ class CommentEditorController extends ActionController
         }
 
         return $this->saveNewComment($body, $content);
+    }
+
+    /**
+     * Toggles a single to-do checkbox from the comment display state (CP-30, #389), without
+     * opening the composer. Persists through the DataHandler - the same write path
+     * commentSaveAction() uses for whole-comment edits - so permission checks, the
+     * todo_total/todo_resolved recalculation and comment events behave identically to editing
+     * the comment text itself.
+     *
+     * @throws Exception
+     */
+    public function commentToggleTodoAction(ServerRequestInterface $request): JsonResponse
+    {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
+        $commentUid = (int) ($body['commentUid'] ?? 0);
+        $todoIndex = (int) ($body['todoIndex'] ?? -1);
+        $checked = (bool) ($body['checked'] ?? false);
+
+        if ($commentUid <= 0 || $todoIndex < 0) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        $comment = $this->resolveEditableComment($commentUid);
+        if ($comment instanceof JsonResponse) {
+            return $comment;
+        }
+
+        $content = TodoToggleUtility::toggle((string) $comment['content'], $todoIndex, $checked);
+        if (null === $content) {
+            return new JsonResponse(['error' => 'To-do item not found'], 400);
+        }
+
+        /** @var DataHandler $dataHandler */
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->start([
+            Configuration::TABLE_COMMENT => [
+                $commentUid => [
+                    'content' => $content,
+                    // Not a TCA column, never persisted - read by
+                    // DataHandlerHook::checkCommentEdited() to tell a to-do toggle apart from a
+                    // real text edit.
+                    '__todoToggle' => true,
+                ],
+            ],
+        ], []);
+        $dataHandler->process_datamap();
+
+        if ([] !== $dataHandler->errorLog) {
+            return new JsonResponse(['error' => 'Failed to save comment'], 500);
+        }
+
+        // DataHandlerHook::updateCommentTodo() already recalculated and wrote todo_total/
+        // todo_resolved into this same datamap before the save went through - no need for a
+        // second SELECT just to read them back.
+        $updated = $dataHandler->datamap[Configuration::TABLE_COMMENT][$commentUid];
+
+        return new JsonResponse([
+            'commentUid' => $commentUid,
+            'todoResolved' => (int) $updated['todo_resolved'],
+            'todoTotal' => (int) $updated['todo_total'],
+        ]);
     }
 
     /**
@@ -256,13 +322,9 @@ class CommentEditorController extends ActionController
      */
     private function saveCommentEdit(int $commentUid, string $content): JsonResponse
     {
-        $comment = $this->commentRepository->findByUid($commentUid);
-        if (!is_array($comment)) {
-            return new JsonResponse(['error' => 'Comment not found'], 404);
-        }
-
-        if (!PermissionUtility::canEditComment($comment)) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
+        $comment = $this->resolveEditableComment($commentUid);
+        if ($comment instanceof JsonResponse) {
+            return $comment;
         }
 
         /** @var DataHandler $dataHandler */
@@ -328,5 +390,25 @@ class CommentEditorController extends ActionController
         }
 
         return $record;
+    }
+
+    /**
+     * Shared by saveCommentEdit() and commentToggleTodoAction(): both need the existing
+     * comment and its content-edit permission before touching the DataHandler.
+     *
+     * @return array<string, mixed>|JsonResponse
+     */
+    private function resolveEditableComment(int $commentUid): array|JsonResponse
+    {
+        $comment = $this->commentRepository->findByUid($commentUid);
+        if (!is_array($comment)) {
+            return new JsonResponse(['error' => 'Comment not found'], 404);
+        }
+
+        if (!PermissionUtility::canEditComment($comment)) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        return $comment;
     }
 }

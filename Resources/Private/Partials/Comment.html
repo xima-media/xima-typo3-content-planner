@@ -101,7 +101,8 @@
                 </ul>
             </div>
         </div>
-        <div class="content-planner-comment__text" data-comment-text>{comment.data.content -> f:format.raw()}</div>
+        <div class="content-planner-comment__text" data-comment-text
+             data-todo-editable="{f:if(condition: '{comment.canCurrentUserEdit}', then: 'true', else: 'false')}">{comment.data.content -> f:format.raw()}</div>
         <f:if condition="{comment.resolved}">
             <div>
                 <small class="text-success">
