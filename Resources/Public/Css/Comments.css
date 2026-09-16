@@ -317,7 +317,7 @@
                 transform: rotate(45deg);
             }
 
-            &[checked] {
+            &:checked {
                 &::before {
                     background: #0078e6;
                     border-color: #0078e6;
