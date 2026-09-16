@@ -37,7 +37,7 @@ final class PrepareStatusSelectionEventTest extends TestCase
     public function gettersReturnConstructorValues(): void
     {
         $context = new stdClass();
-        $status = new Status(uid: 0, title: 'Draft', icon: '', color: '');
+        $status = new Status(uid: 0, title: 'Draft', icon: '', color: '', isDefault: false);
         $selection = ['a' => 1];
 
         $event = new PrepareStatusSelectionEvent('pages', 7, $context, $selection, $status);

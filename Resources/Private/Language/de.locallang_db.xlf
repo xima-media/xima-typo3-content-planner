@@ -43,6 +43,14 @@
 				<source>Color</source>
 				<target>Farbe</target>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.is_default">
+				<source>Use as initial status</source>
+				<target>Als Startstatus verwenden</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_status.is_default.description">
+				<source>Applied automatically by the one-click "comment sets status" flow on records that do not have a status yet. Only one status can carry this flag.</source>
+				<target>Wird automatisch durch den "Kommentar setzt Status"-Ein-Klick-Ablauf auf Datensätzen ohne Status angewendet. Nur ein Status kann diese Markierung tragen.</target>
+			</trans-unit>
 			<trans-unit id="permission.group">
 				<source>Content Planner</source>
 				<target>Content Planner</target>

@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\Utility\MathUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{CommentCreatedEvent, CommentResolvedEvent};
-use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
+use Xima\XimaTypo3ContentPlanner\Manager\{StatusChangeManager, StatusDefaultManager};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -44,6 +44,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         private RecordRepository $recordRepository,
         private CommentRepository $commentRepository,
         private EventDispatcherInterface $eventDispatcher,
+        private StatusDefaultManager $statusDefaultManager,
     ) {}
 
     /**
@@ -150,6 +151,10 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         if (Configuration::TABLE_COMMENT === $table) {
             $this->dispatchCommentEvents($status, $id, $fieldArray, $dataHandler);
             $this->updateCommentCountRelation($status, $id, $fieldArray, $dataHandler);
+        }
+
+        if (Configuration::TABLE_STATUS === $table) {
+            $this->statusDefaultManager->enforceUniqueDefaultAfterSave($id, $fieldArray, $dataHandler);
         }
 
         if ($this->shouldRefreshPageTree($table, $fieldArray)) {

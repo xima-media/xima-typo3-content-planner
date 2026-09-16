@@ -380,6 +380,20 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function hasStatusReturnsTrueWhenStatusIsSet(): void
+    {
+        self::assertTrue(PlannerUtility::hasStatus([Configuration::FIELD_STATUS => 2]));
+    }
+
+    #[Test]
+    public function hasStatusReturnsFalseWhenZeroNullOrMissing(): void
+    {
+        self::assertFalse(PlannerUtility::hasStatus([Configuration::FIELD_STATUS => 0]));
+        self::assertFalse(PlannerUtility::hasStatus([Configuration::FIELD_STATUS => null]));
+        self::assertFalse(PlannerUtility::hasStatus([]));
+    }
+
+    #[Test]
     public function getListOfStatusMatchesFixtureCount(): void
     {
         self::assertSame(3, count(PlannerUtility::getListOfStatus()));

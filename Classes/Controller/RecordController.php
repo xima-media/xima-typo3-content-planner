@@ -24,6 +24,7 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Manager\CommentFirstFlowManager;
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
@@ -51,6 +52,7 @@ class RecordController extends ActionController
         private readonly BackendUserRepository $backendUserRepository,
         private readonly RequestId $requestId,
         private readonly CommentEditorConfigurationFactory $commentEditorConfigurationFactory,
+        private readonly CommentFirstFlowManager $commentFirstFlowManager,
     ) {}
 
     /**
@@ -146,6 +148,9 @@ class RecordController extends ActionController
                 'repliesExpanded' => $repliesExpanded,
                 'newCommentUri' => $canCreateComment ? UrlUtility::getNewCommentUrl($recordTable, $recordId) : '',
                 'commentComposerHtml' => $canCreateComment ? $this->buildNewCommentComposerHtml($recordTable, $recordId, (int) $record['pid']) : '',
+                // CP-27 (#326): comment-first flow - only relevant while the composer can
+                // actually be used and the record has no status yet.
+                'commentFirst' => $canCreateComment ? $this->commentFirstFlowManager->buildContext($record) : ['active' => false],
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [
                     'sortComments' => $sortComments,

@@ -25,7 +25,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{FolderStatusRepository, Reco
 use Xima\XimaTypo3ContentPlanner\Service\Header\ChipTrioButtonBuilder;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\DropDownSelectionService;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function is_array;
@@ -169,10 +169,7 @@ final readonly class ModifyButtonBarEventListener
      */
     private function resolveStatusFromRecord(array $record): ?Status
     {
-        if (!isset($record[Configuration::FIELD_STATUS])
-            || !is_numeric($record[Configuration::FIELD_STATUS])
-            || $record[Configuration::FIELD_STATUS] <= 0
-        ) {
+        if (!PlannerUtility::hasStatus($record)) {
             return null;
         }
 

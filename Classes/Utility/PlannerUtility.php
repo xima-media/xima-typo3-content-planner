@@ -149,6 +149,19 @@ class PlannerUtility
             && $record[Configuration::FIELD_COMMENTS] > 0;
     }
 
+    /**
+     * Check if a record has a status set. CP-27 (#326): used to gate the comment-first flow,
+     * which only applies to records that do not have one yet.
+     *
+     * @param array<string, mixed> $record
+     */
+    public static function hasStatus(array $record): bool
+    {
+        return isset($record[Configuration::FIELD_STATUS])
+            && is_numeric($record[Configuration::FIELD_STATUS])
+            && $record[Configuration::FIELD_STATUS] > 0;
+    }
+
     private static function service(): PlannerService
     {
         return GeneralUtility::makeInstance(PlannerService::class);

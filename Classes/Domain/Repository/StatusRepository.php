@@ -36,6 +36,16 @@ use function sprintf;
 class StatusRepository
 {
     /**
+     * Part of the cache identifiers below, because the cache holds serialized Status
+     * objects. unserialize() does not run the constructor, so a cache entry written before
+     * a property was added comes back with that property uninitialized, and the first
+     * typed-property read fatals until someone flushes the cache by hand. Bump this
+     * whenever Status gains, loses or renames a property, so stale entries are simply
+     * missed instead of being restored into the new shape.
+     */
+    private const CACHE_SHAPE_VERSION = 'v2';
+
+    /**
      * Request-level memoization: the repository is a singleton, so this avoids repeated
      * cache backend reads (each a database query with the default backend) when the same
      * status is resolved many times per request, e.g. once per page tree item.
@@ -63,7 +73,7 @@ class StatusRepository
             return $this->runtimeAllCache;
         }
 
-        $cacheIdentifier = sprintf('%s--status--all', Configuration::CACHE_IDENTIFIER);
+        $cacheIdentifier = sprintf('%s--status--%s--all', Configuration::CACHE_IDENTIFIER, self::CACHE_SHAPE_VERSION);
         $cachedResult = $this->cache->get($cacheIdentifier);
         if (is_array($cachedResult)) {
             return $this->runtimeAllCache = $cachedResult;
@@ -96,7 +106,7 @@ class StatusRepository
             return $this->runtimeStatusCache[$uid];
         }
 
-        $cacheIdentifier = sprintf('%s--status--%s', Configuration::CACHE_IDENTIFIER, $uid);
+        $cacheIdentifier = sprintf('%s--status--%s--%s', Configuration::CACHE_IDENTIFIER, self::CACHE_SHAPE_VERSION, $uid);
         $cachedResult = $this->cache->get($cacheIdentifier);
         if ($cachedResult instanceof Status) {
             return $this->runtimeStatusCache[$uid] = $cachedResult;
@@ -134,10 +144,28 @@ class StatusRepository
         return false === $row ? null : $this->hydrate($row);
     }
 
+    /**
+     * CP-27 (#326): the status marked as "initial status" for the comment-first one-click
+     * flow, or null when none is configured. Reuses the already-cached findAll() result
+     * rather than a dedicated query/cache entry.
+     *
+     * @throws Exception
+     */
+    public function findDefault(): ?Status
+    {
+        foreach ($this->findAll() as $status) {
+            if ($status->isDefault()) {
+                return $status;
+            }
+        }
+
+        return null;
+    }
+
     private function createQueryBuilder(): QueryBuilder
     {
         return $this->connectionPool->getQueryBuilderForTable(Configuration::TABLE_STATUS)
-            ->select('uid', 'title', 'icon', 'color')
+            ->select('uid', 'title', 'icon', 'color', Configuration::FIELD_STATUS_IS_DEFAULT)
             ->from(Configuration::TABLE_STATUS)
         ;
     }
@@ -152,6 +180,7 @@ class StatusRepository
             (string) $row['title'],
             (string) $row['icon'],
             (string) $row['color'],
+            (bool) ($row[Configuration::FIELD_STATUS_IS_DEFAULT] ?? false),
         );
     }
 

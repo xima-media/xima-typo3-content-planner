@@ -171,6 +171,15 @@ class CommentComposer {
       return
     }
 
+    // CP-27 (#326): comment-first flow. The picker fallback is a native <select required>,
+    // so its own validity check is the "you must choose a status" enforcement; the one-click
+    // flow instead carries its statusUid on the form itself (see Comments.html).
+    const statusPicker = form.querySelector('[data-comment-status-picker]')
+    if (statusPicker && !statusPicker.reportValidity()) {
+      return
+    }
+    const statusUid = statusPicker?.value || form.dataset.statusUid || ''
+
     const mode = form.dataset.mode
     const table = form.dataset.table
     const id = form.dataset.id
@@ -180,7 +189,7 @@ class CommentComposer {
     OptimisticUpdate.run({
       apply: () => this.applyPending(form, submitButton),
       request: () => new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_commentsave)
-        .post({table, uid: id, content, commentUid, parentUid})
+        .post({table, uid: id, content, commentUid, parentUid, statusUid})
         .then(async result => {
           const resolved = await result.resolve()
           if (!result.response.ok || resolved.error) {

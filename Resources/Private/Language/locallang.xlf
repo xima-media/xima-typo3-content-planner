@@ -234,6 +234,15 @@
 			<trans-unit id="comment.actions.submit">
 				<source>Comment</source>
 			</trans-unit>
+			<trans-unit id="comment.commentFirst.oneClick.submit">
+				<source>Comment: sets status "%s"</source>
+			</trans-unit>
+			<trans-unit id="comment.commentFirst.picker.label">
+				<source>This comment starts the planning - choose a status</source>
+			</trans-unit>
+			<trans-unit id="comment.commentFirst.picker.placeholder">
+				<source>Choose a status...</source>
+			</trans-unit>
 			<trans-unit id="comment.actions.save">
 				<source>Save</source>
 			</trans-unit>

@@ -29,29 +29,31 @@ final class StatusTest extends TestCase
     #[Test]
     public function defaultValuesAreEmptyStrings(): void
     {
-        $status = new Status(uid: 0, title: '', icon: '', color: '');
+        $status = new Status(uid: 0, title: '', icon: '', color: '', isDefault: false);
 
         self::assertSame(0, $status->getUid());
         self::assertSame('', $status->getTitle());
         self::assertSame('', $status->getIcon());
         self::assertSame('', $status->getColor());
+        self::assertFalse($status->isDefault());
     }
 
     #[Test]
     public function constructorHydratesAllProperties(): void
     {
-        $status = new Status(uid: 5, title: 'In Progress', icon: 'heart', color: 'yellow');
+        $status = new Status(uid: 5, title: 'In Progress', icon: 'heart', color: 'yellow', isDefault: true);
 
         self::assertSame(5, $status->getUid());
         self::assertSame('In Progress', $status->getTitle());
         self::assertSame('heart', $status->getIcon());
         self::assertSame('yellow', $status->getColor());
+        self::assertTrue($status->isDefault());
     }
 
     #[Test]
     public function coloredIconCombinesIconAndColor(): void
     {
-        $status = new Status(uid: 0, title: '', icon: 'flag', color: 'red');
+        $status = new Status(uid: 0, title: '', icon: 'flag', color: 'red', isDefault: false);
 
         self::assertSame('flag-red', $status->getColoredIcon());
     }
@@ -59,7 +61,7 @@ final class StatusTest extends TestCase
     #[Test]
     public function coloredIconWithEmptyValues(): void
     {
-        $status = new Status(uid: 0, title: '', icon: '', color: '');
+        $status = new Status(uid: 0, title: '', icon: '', color: '', isDefault: false);
 
         self::assertSame('-', $status->getColoredIcon());
     }
