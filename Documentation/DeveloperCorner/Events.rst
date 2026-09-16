@@ -65,6 +65,21 @@ This event is dispatched after the status of a record has been changed. You can 
 
 Note that ``$newStatus`` may be ``null`` when a status is cleared from a record.
 
+..  note::
+
+    Since 3.0.0, the event also carries the acting backend user's UID via ``getActorUid()``,
+    which may be ``null`` when unavailable (e.g. a CLI context without an authenticated backend
+    user). Listeners should read this instead of falling back to ``$GLOBALS['BE_USER']``
+    themselves, which is not reliably set outside a regular backend request.
+
+    Three code paths deliberately bypass the DataHandler and therefore never dispatch this event
+    (or ``AssigneeChangedEvent``): ``RecordRepository::updateStatusByUid()`` (used by the
+    ``BulkUpdateCommand`` CLI command and, via ``PlannerService::updateStatusForRecord()``, by
+    third-party integrations) and ``StatusChangeManager::clearStatusOfExtensionRecords()`` (an
+    administrative mass-clear cascade). Both can affect many records per call, often from CLI
+    where there is no reliable actor, so firing one event per row was deliberately left out to
+    avoid an event storm. See the docblocks on those methods for the full reasoning.
+
 ..  code-block:: php
     :caption: Classes/EventListener/StatusChangeListener.php
 
@@ -97,6 +112,52 @@ Note that ``$newStatus`` may be ``null`` when a status is cleared from a record.
         - name: event.listener
           identifier: 'my-extension/status-change'
 
+
+AssigneeChangedEvent
+====================
+
+..  note::
+
+    Added in 3.0.0.
+
+This event is dispatched whenever the assignee of a record actually changes, including as a side
+effect of auto-assignment (the ``autoAssignment`` feature). It is dispatched from the same place
+as ``StatusChangeEvent`` (``StatusChangeManager::processContentPlannerFields()``), so it shares
+that method's raw-SQL-bypass caveat documented above.
+
+Note that a request which never touches the status field at all is not processed by
+``processContentPlannerFields()`` in the first place, so a pure assignee-only edit unrelated to
+any status change still dispatches nothing - that pre-existing gap is unchanged by this event.
+
+..  code-block:: php
+    :caption: Classes/EventListener/AssigneeChangeListener.php
+
+    <?php
+    namespace MyVendor\MyExtension\EventListener;
+
+    use Xima\XimaTypo3ContentPlanner\Event\AssigneeChangedEvent;
+
+    final class AssigneeChangeListener
+    {
+        public function __invoke(AssigneeChangedEvent $event): void
+        {
+            $table = $event->getTable();
+            $uid = $event->getUid();
+            $previousAssignee = $event->getPreviousAssignee(); // be_users UID or null
+            $newAssignee = $event->getNewAssignee();           // be_users UID or null
+            $actorUid = $event->getActorUid();                 // acting backend user, or null (CLI)
+
+            // Example: notify the newly assigned user
+        }
+    }
+
+..  code-block:: yaml
+    :caption: Configuration/Services.yaml
+
+    MyVendor\MyExtension\EventListener\AssigneeChangeListener:
+      tags:
+        - name: event.listener
+          identifier: 'my-extension/assignee-changed'
 
 CommentCreatedEvent
 ====================
@@ -174,5 +235,6 @@ This event is dispatched when a comment is marked as resolved. It is **not** dis
 
     -   `PrepareStatusSelectionEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/PrepareStatusSelectionEvent.php>`__
     -   `StatusChangeEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/StatusChangeEvent.php>`__
+    -   `AssigneeChangedEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/AssigneeChangedEvent.php>`__
     -   `CommentCreatedEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/CommentCreatedEvent.php>`__
     -   `CommentResolvedEvent <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Event/CommentResolvedEvent.php>`__

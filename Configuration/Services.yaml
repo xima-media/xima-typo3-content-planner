@@ -39,7 +39,13 @@ services:
     arguments:
       $cache: '@cache.ximatypo3contentplanner_cache'
 
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\WatcherRepository:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Service\PlannerService:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\WatcherService:
     public: true
 
   Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook:

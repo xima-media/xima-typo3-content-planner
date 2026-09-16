@@ -175,6 +175,30 @@
 				<source>Storage</source>
 				<target>Speicher</target>
 			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher">
+				<source>Watcher</source>
+				<target>Beobachter</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.tablename">
+				<source>Table</source>
+				<target>Tabelle</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.record_uid">
+				<source>Record UID</source>
+				<target>Datensatz-UID</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.backend_user">
+				<source>Backend User</source>
+				<target>Backend-Benutzer</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.mode">
+				<source>Mode</source>
+				<target>Modus</target>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.source">
+				<source>Source</source>
+				<target>Quelle</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -16,10 +16,11 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Manager;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
-use Xima\XimaTypo3ContentPlanner\Event\StatusChangeEvent;
-use Xima\XimaTypo3ContentPlanner\Manager\StatusChangeManager;
+use Xima\XimaTypo3ContentPlanner\Event\{AssigneeChangedEvent, StatusChangeEvent};
+use Xima\XimaTypo3ContentPlanner\Manager\{ContentPlannerFieldAuthorizer, StatusChangeManager};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -218,6 +219,7 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Page 1 has no status before, so setting it to 2 is a real change.
@@ -235,11 +237,202 @@ final class StatusChangeManagerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
         );
 
         // Page 2 already has status 1.
         $fields = [Configuration::FIELD_STATUS => 1];
         $fields = $manager->processContentPlannerFields($fields, 'pages', 2);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDispatchesAssigneeChangedEventWhenAssigneeChanges(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf(AssigneeChangedEvent::class));
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
+        );
+
+        // Page 2 already has status 1 (left unchanged here, so the status-change path itself
+        // dispatches nothing) and assignee 5; changing the assignee to 9 isolates the
+        // assignee-changed dispatch.
+        $fields = [Configuration::FIELD_STATUS => 1, Configuration::FIELD_ASSIGNEE => 9];
+        $manager->processContentPlannerFields($fields, 'pages', 2);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDispatchesAssigneeChangedEventForAnAssigneeOnlyUpdate(): void
+    {
+        // Reassigning a record via the assignee modal writes only the assignee field (see
+        // UrlUtility::getAssignUri()). Gating this method on the status field alone therefore
+        // meant a plain reassignment produced no AssigneeChangedEvent at all - and with it no
+        // assignment watcher and no notification.
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf(AssigneeChangedEvent::class));
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
+        );
+
+        // Page 2 has assignee 5; no status key in the payload at all.
+        $fields = [Configuration::FIELD_ASSIGNEE => 9];
+        $manager->processContentPlannerFields($fields, 'pages', 2);
+
+        self::assertSame(9, $fields[Configuration::FIELD_ASSIGNEE]);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDoesNotDispatchAssigneeChangedEventWhenAssigneeUnchanged(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::never())->method('dispatch');
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
+        );
+
+        // Page 2 already has assignee 5 and status 1; neither field actually changes.
+        $fields = [Configuration::FIELD_STATUS => 1, Configuration::FIELD_ASSIGNEE => 5];
+        $manager->processContentPlannerFields($fields, 'pages', 2);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDoesNotDispatchAssigneeChangedEventWhenAssigneeKeyAbsent(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::never())->method('dispatch');
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
+        );
+
+        // Status unchanged and the assignee field was never part of the incoming payload.
+        $fields = [Configuration::FIELD_STATUS => 1];
+        $manager->processContentPlannerFields($fields, 'pages', 2);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDispatchesAssigneeChangedEventCoveringAutoAssignment(): void
+    {
+        $this->enableFeature('autoAssignment');
+
+        /** @var array<int, object> $dispatched */
+        $dispatched = [];
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::exactly(2))
+            ->method('dispatch')
+            ->willReturnCallback(static function (object $event) use (&$dispatched) {
+                $dispatched[] = $event;
+
+                return $event;
+            });
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
+        );
+
+        // Page 1 has no status/assignee before. Auto-assign only ever fires together with a real
+        // status change (from "no status" to a status), so this exercises both events at once:
+        // the acceptance criterion is that auto-assignment is also reflected as an
+        // AssigneeChangedEvent, not only implicitly via StatusChangeEvent's field array.
+        $fields = [Configuration::FIELD_STATUS => 2];
+        $manager->processContentPlannerFields($fields, 'pages', 1);
+
+        $assigneeEvents = array_values(array_filter($dispatched, static fn (object $event): bool => $event instanceof AssigneeChangedEvent));
+        self::assertCount(1, $assigneeEvents);
+        /** @var AssigneeChangedEvent $assigneeEvent */
+        $assigneeEvent = $assigneeEvents[0];
+        self::assertSame('pages', $assigneeEvent->getTable());
+        self::assertSame(1, $assigneeEvent->getUid());
+        self::assertNull($assigneeEvent->getPreviousAssignee());
+        self::assertSame(1, $assigneeEvent->getNewAssignee());
+
+        self::assertCount(1, array_filter($dispatched, static fn (object $event): bool => $event instanceof StatusChangeEvent));
+    }
+
+    #[Test]
+    public function statusChangeEventCarriesTheActingBackendUser(): void
+    {
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->with(self::callback(static function (StatusChangeEvent $event): bool {
+                self::assertSame(1, $event->getActorUid());
+
+                return true;
+            }));
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
+        );
+
+        // loginBackendUser() (called in setUp) authenticates as be_users uid 1.
+        $fields = [Configuration::FIELD_STATUS => 2];
+        $manager->processContentPlannerFields($fields, 'pages', 1);
+    }
+
+    #[Test]
+    public function processContentPlannerFieldsDispatchesStatusChangeEventWhenAssigneeChangeIsUnauthorized(): void
+    {
+        // A user who may change the status but not assign others must still get the status
+        // change persisted and its event dispatched, even though the accompanying (unauthorized)
+        // assignee change is stripped. Regression for the early return in
+        // applyContentPlannerChanges() that used to skip handleStatusChange() entirely whenever
+        // assertAssignee() denied the assignee part of the same request.
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_status_change_only.csv');
+        $backendUser = $this->setUpBackendUser(6);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
+
+        $dispatched = [];
+        $dispatcher = $this->createMock(EventDispatcher::class);
+        $dispatcher->expects(self::once())
+            ->method('dispatch')
+            ->willReturnCallback(static function (object $event) use (&$dispatched) {
+                $dispatched[] = $event;
+
+                return $event;
+            });
+        $manager = new StatusChangeManager(
+            $dispatcher,
+            $this->get(RecordRepository::class),
+            $this->get(CommentRepository::class),
+            $this->get(ConnectionPool::class),
+            $this->get(ContentPlannerFieldAuthorizer::class),
+        );
+
+        // Page 1 has no status/assignee before. User 6 may change the status but has neither
+        // assign-self nor assign-others, so assigning to user 1 (not themselves) is denied.
+        $fields = [Configuration::FIELD_STATUS => 2, Configuration::FIELD_ASSIGNEE => 1];
+        $fields = $manager->processContentPlannerFields($fields, 'pages', 1);
+
+        self::assertArrayNotHasKey(Configuration::FIELD_ASSIGNEE, $fields, 'unauthorized assignee must be stripped');
+        self::assertSame(2, $fields[Configuration::FIELD_STATUS], 'authorized status change must still be applied');
+        self::assertCount(1, $dispatched);
+        self::assertInstanceOf(StatusChangeEvent::class, $dispatched[0]);
     }
 
     #[Test]
