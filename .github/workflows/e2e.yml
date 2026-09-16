@@ -1,0 +1,87 @@
+name: E2E
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Classes/**'
+      - 'Configuration/**'
+      - 'Resources/**'
+      - 'Tests/Playwright/**'
+      - 'Tests/Functional/Fixtures/Extensions/**'
+      - '.ddev/**'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'ext_localconf.php'
+      - 'ext_conf_template.txt'
+      - '.github/workflows/e2e.yml'
+  pull_request:
+    paths:
+      - 'Classes/**'
+      - 'Configuration/**'
+      - 'Resources/**'
+      - 'Tests/Playwright/**'
+      - 'Tests/Functional/Fixtures/Extensions/**'
+      - '.ddev/**'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'playwright.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'ext_localconf.php'
+      - 'ext_conf_template.txt'
+      - '.github/workflows/e2e.yml'
+
+# Cancels a superseded run on the same ref rather than letting it burn CI
+# minutes for a result nobody will look at - relevant here specifically
+# because a fresh push mid-run leaves the ddev instance mid-boot for the
+# cancelled run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # No later step needs authenticated git access, and leaving the token in the
+          # workspace would expose it to everything that runs inside the container.
+          persist-credentials: false
+
+      - name: Install ddev
+        uses: ddev/github-action-setup-ddev@v1
+
+      - name: Install TYPO3 14
+        run: ddev install 14
+
+      - name: Install npm dependencies
+        run: ddev exec npm ci
+
+      - name: Install Playwright browsers
+        run: ddev exec npx playwright install --with-deps chromium
+
+      # Environment variables must be arguments to `ddev exec`, not a step-level
+      # `env:` - the latter only sets them on the host runner and never reaches
+      # the container, so CI-specific config (retries, html reporter) would never
+      # activate.
+      - name: Run Playwright tests
+        run: ddev exec env CI=true npx playwright test
+
+      - name: Upload Playwright report
+        # Not `always()`: a superseded run is cancelled by the concurrency group above and
+        # its half-written report is of no use to anyone.
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
