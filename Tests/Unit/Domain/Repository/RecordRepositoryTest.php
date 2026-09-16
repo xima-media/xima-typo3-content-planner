@@ -50,7 +50,7 @@ final class RecordRepositoryTest extends TestCase
     }
 
     #[Test]
-    public function findAllByFilterBindsLimitParameterAsInteger(): void
+    public function findAllByFilterBindsLimitAndOffsetParametersAsIntegers(): void
     {
         $result = $this->createMock(Result::class);
         $result->method('fetchAllAssociative')->willReturn([]);
@@ -58,7 +58,7 @@ final class RecordRepositoryTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects(self::once())
             ->method('executeQuery')
-            ->with(self::isType('string'), ['limit' => 5], ['limit' => Connection::PARAM_INT])
+            ->with(self::isType('string'), ['limit' => 15, 'offset' => 0], ['limit' => Connection::PARAM_INT, 'offset' => Connection::PARAM_INT])
             ->willReturn($result);
 
         $queryBuilder = $this->createMock(QueryBuilder::class);
@@ -71,6 +71,9 @@ final class RecordRepositoryTest extends TestCase
 
         $subject = new RecordRepository($cache, $connectionPool);
 
-        self::assertSame([], $subject->findAllByFilter(null, null, null, null, null, 5));
+        $paginatedResult = $subject->findAllByFilter(null, null, null, null, null, 5);
+
+        self::assertSame([], $paginatedResult->items);
+        self::assertFalse($paginatedResult->hasMore);
     }
 }
