@@ -31,6 +31,8 @@ services:
 
   Xima\XimaTypo3ContentPlanner\Domain\Repository\FolderStatusRepository:
     public: true
+    arguments:
+      $cache: '@cache.ximatypo3contentplanner_cache'
 
   Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository:
     arguments:
