@@ -100,11 +100,16 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Comment content must not be empty'], 400);
         }
 
+        // The record the open list belongs to, which is not necessarily the one the comment
+        // sits on: child-record comments are listed inline (CP-29, #328), and the re-rendered
+        // fragment needs to keep their record marker.
+        $listRef = [(string) ($body['listTable'] ?? ''), (int) ($body['listUid'] ?? 0)];
+
         if ($commentUid > 0) {
-            return $this->saveCommentEdit($commentUid, $content);
+            return $this->saveCommentEdit($commentUid, $content, $listRef);
         }
 
-        return $this->saveNewComment($body, $content);
+        return $this->saveNewComment($body, $content, $listRef);
     }
 
     /**
@@ -176,6 +181,11 @@ class CommentEditorController extends ActionController
             'commentUid' => $commentUid,
             'todoResolved' => (int) $updated['todo_resolved'],
             'todoTotal' => (int) $updated['todo_total'],
+            // Named explicitly: with child comments listed inline, the toggled comment can sit
+            // on a different record than the list it is shown in, and these totals describe its
+            // own record's badge - not the one the open list belongs to.
+            'recordTable' => $foreignTable,
+            'recordUid' => $foreignUid,
             'recordTodoResolved' => $this->commentRepository->countTodoAllByRecord($foreignUid, $foreignTable),
             'recordTodoTotal' => $this->commentRepository->countTodoAllByRecord($foreignUid, $foreignTable, 'todo_total'),
         ]);
@@ -268,11 +278,12 @@ class CommentEditorController extends ActionController
     }
 
     /**
-     * @param array<string, mixed> $body
+     * @param array<string, mixed>     $body
+     * @param array{0: string, 1: int} $listRef
      *
      * @throws Exception
      */
-    private function saveNewComment(array $body, string $content): JsonResponse
+    private function saveNewComment(array $body, string $content, array $listRef): JsonResponse
     {
         $table = (string) ($body['table'] ?? '');
         $id = (int) ($body['uid'] ?? 0);
@@ -339,13 +350,15 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Failed to save comment'], 500);
         }
 
-        return $this->renderSavedComment((int) $resolvedUid, $table, $id);
+        return $this->renderSavedComment((int) $resolvedUid, $table, $id, $listRef);
     }
 
     /**
+     * @param array{0: string, 1: int} $listRef
+     *
      * @throws Exception
      */
-    private function saveCommentEdit(int $commentUid, string $content): JsonResponse
+    private function saveCommentEdit(int $commentUid, string $content, array $listRef): JsonResponse
     {
         $comment = $this->resolveEditableComment($commentUid);
         if ($comment instanceof JsonResponse) {
@@ -361,13 +374,15 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Failed to save comment'], 500);
         }
 
-        return $this->renderSavedComment($commentUid, (string) $comment['foreign_table'], (int) $comment['foreign_uid']);
+        return $this->renderSavedComment($commentUid, (string) $comment['foreign_table'], (int) $comment['foreign_uid'], $listRef);
     }
 
     /**
+     * @param array{0: string, 1: int} $listRef
+     *
      * @throws Exception
      */
-    private function renderSavedComment(int $commentUid, string $table, int $recordId): JsonResponse
+    private function renderSavedComment(int $commentUid, string $table, int $recordId, array $listRef): JsonResponse
     {
         $comment = $this->commentRepository->findByUid($commentUid);
         if (!is_array($comment)) {
@@ -377,10 +392,14 @@ class CommentEditorController extends ActionController
         /** @var BackendUserAuthentication $backendUser */
         $backendUser = $GLOBALS['BE_USER'];
 
+        [$listTable, $listUid] = $listRef;
+        $item = CommentItem::create($comment);
+        $item->foreignRecord = $item->isForeignTo($listTable, $listUid);
+
         $result = ViewUtility::render(
             'Default/CommentFragment.html',
             [
-                'comment' => CommentItem::create($comment),
+                'comment' => $item,
                 'id' => $recordId,
                 'table' => $table,
                 'isReply' => (int) $comment['parent_uid'] > 0 ? 1 : 0,

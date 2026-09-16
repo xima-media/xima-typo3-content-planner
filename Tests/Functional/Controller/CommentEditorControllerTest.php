@@ -477,6 +477,55 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
         self::assertSame(1, $payload['todoTotal']);
         self::assertSame(3, $payload['recordTodoTotal']);
         self::assertSame(2, $payload['recordTodoResolved']);
+        // The client addresses the header badge by this record, not by the open list - a child
+        // comment listed inline would otherwise overwrite the page's badge with its own totals.
+        self::assertSame('pages', $payload['recordTable']);
+        self::assertSame(1, $payload['recordUid']);
+    }
+
+    /**
+     * CP-29 (#328): a comment on a child record is listed inline among the record's own, so the
+     * fragment that replaces it after an inline edit has to keep its record marker.
+     */
+    #[Test]
+    public function commentSaveActionFlagsASavedCommentThatBelongsToAnotherRecordThanTheOpenList(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentSaveAction($this->createPostRequest([
+            'content' => 'Edited content',
+            'commentUid' => 1,
+            // Comment 1 sits on pages:1, but the open list is the one of pages:2.
+            'listTable' => 'pages',
+            'listUid' => 2,
+        ]));
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('content-planner-comment__record', $payload['result']);
+    }
+
+    #[Test]
+    public function commentSaveActionLeavesACommentOfTheOpenListUnmarked(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentSaveAction($this->createPostRequest([
+            'content' => 'Edited content',
+            'commentUid' => 1,
+            'listTable' => 'pages',
+            'listUid' => 1,
+        ]));
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringNotContainsString('content-planner-comment__record', $payload['result']);
     }
 
     /**

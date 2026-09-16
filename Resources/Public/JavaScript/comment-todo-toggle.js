@@ -62,7 +62,7 @@ class CommentTodoToggle {
           throw new Error(resolved.error || 'Content Planner: to-do toggle request failed')
         }
         Notification.message('comment.todo', 'success')
-        this.updateHeaderBadge(resolved.recordTodoResolved, resolved.recordTodoTotal)
+        this.updateHeaderBadge(resolved)
       })
       .catch(error => {
         console.error('Content Planner: failed to toggle to-do item:', error)
@@ -76,17 +76,19 @@ class CommentTodoToggle {
    * record (Classes/Service/Header/InfoGenerator.php). TYPO3's Modal.advanced() always renders
    * the comments modal in the top-level document, regardless of which document opened it, but
    * the header badge itself lives wherever the backend renders the module content.
+   *
+   * The badge is addressed by the record the *response* reports, not by the open list: child
+   * comments are listed inline among the record's own (CP-29, #328), so ticking a to-do on a
+   * content element would otherwise write that element's totals into the page's badge, which
+   * counts the page's own comments only. No badge for that record on screen means no update.
    */
-  updateHeaderBadge(recordTodoResolved, recordTodoTotal) {
-    const filterForm = document.querySelector('form#content-planner-comment-filter')
-    const table = filterForm?.getAttribute('data-table')
-    const id = filterForm?.getAttribute('data-id')
-    if (!table || !id) {
+  updateHeaderBadge({recordTable, recordUid, recordTodoResolved, recordTodoTotal}) {
+    if (!recordTable || !recordUid) {
       return
     }
 
     const badge = this.findBadge(
-      `.content-planner-header__todo-badge[data-table="${CSS.escape(table)}"][data-id="${CSS.escape(id)}"] .badge`,
+      `.content-planner-header__todo-badge[data-table="${CSS.escape(recordTable)}"][data-id="${CSS.escape(String(recordUid))}"] .badge`,
     )
     if (!badge) {
       return

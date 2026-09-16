@@ -63,6 +63,20 @@ final class CommentItem
         return $item;
     }
 
+    /**
+     * Whether this comment sits on a record other than the given one - the condition for the
+     * record marker when a comment is rendered inside another record's list (CP-29, #328). An
+     * empty table means there is no list context at all, so the comment is never foreign.
+     */
+    public function isForeignTo(string $table, int $uid): bool
+    {
+        if ('' === $table) {
+            return false;
+        }
+
+        return $this->data['foreign_table'] !== $table || (int) $this->data['foreign_uid'] !== $uid;
+    }
+
     public function getTitle(): string
     {
         return match ($this->data['foreign_table']) {

@@ -335,10 +335,17 @@ class CommentComposer {
     const parentUid = form.dataset.parentUid
     const commentUid = form.dataset.composerCommentUid
 
+    // The record the open list belongs to, which is not the composer's own for a comment on a
+    // child record listed inline (CP-29, #328) - the server needs it to decide whether the
+    // re-rendered comment keeps its record marker.
+    const filterForm = document.querySelector('form#content-planner-comment-filter')
+    const listTable = filterForm?.getAttribute('data-table') || table
+    const listUid = filterForm?.getAttribute('data-id') || id
+
     OptimisticUpdate.run({
       apply: () => this.applyPending(form, submitButton),
       request: () => new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_commentsave)
-        .post({table, uid: id, content, commentUid, parentUid, statusUid})
+        .post({table, uid: id, content, commentUid, parentUid, statusUid, listTable, listUid})
         .then(async result => {
           const resolved = await result.resolve()
           if (!result.response.ok || resolved.error) {
