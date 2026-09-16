@@ -74,6 +74,7 @@ final class DigestGroupBuilder
         $assigneeEvents = $this->eventsOfType($rows, NotificationEventType::Assigned);
         $commentEvents = $this->eventsOfType($rows, NotificationEventType::CommentAdded);
         $contentChangeEvents = $this->eventsOfType($rows, NotificationEventType::ContentChanged);
+        $mentionEvents = $this->eventsOfType($rows, NotificationEventType::Mentioned);
 
         return new DigestRecordGroup(
             (string) $latest['tablename'],
@@ -88,6 +89,8 @@ final class DigestGroupBuilder
             (int) $latest['crdate'],
             $this->sumContentChangeCounts($contentChangeEvents),
             count($this->unionContentChangeActorUids($contentChangeEvents)),
+            [] !== $mentionEvents ? (string) ($mentionEvents[array_key_last($mentionEvents)]['payload']['commentExcerpt'] ?? '') : null,
+            count($mentionEvents),
         );
     }
 

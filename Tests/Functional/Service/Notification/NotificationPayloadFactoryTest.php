@@ -107,4 +107,20 @@ final class NotificationPayloadFactoryTest extends AbstractFunctionalTestCase
 
         self::assertSame('', $this->subject->forCommentCreated($event)['commentExcerpt']);
     }
+
+    #[Test]
+    public function forMentionCarriesATitleSnapshotAndTheCommentExcerpt(): void
+    {
+        self::assertSame([
+            'version' => 1,
+            'title' => 'Home',
+            'commentExcerpt' => 'Short comment',
+        ], $this->subject->forMention('pages', 1, 1));
+    }
+
+    #[Test]
+    public function forMentionReturnsAnEmptyExcerptWhenTheCommentCannotBeFound(): void
+    {
+        self::assertSame('', $this->subject->forMention('pages', 1, 9999)['commentExcerpt']);
+    }
 }

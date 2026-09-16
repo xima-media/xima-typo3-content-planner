@@ -151,20 +151,20 @@ final class BackendUserRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function activeUidsExcludesDisabledAndDeletedUsers(): void
+    public function filterActiveUidsExcludesDisabledAndDeletedUsers(): void
     {
         // 12 is disabled, 13 is deleted (see Fixtures/be_groups.csv) - both must drop out.
         self::assertSame([1, 10, 11], $this->subject->filterActiveUids([1, 10, 11, 12, 13]));
     }
 
     #[Test]
-    public function activeUidsExcludesAUidThatDoesNotExistAtAll(): void
+    public function filterActiveUidsExcludesAUidThatDoesNotExistAtAll(): void
     {
         self::assertSame([1], $this->subject->filterActiveUids([1, 999]));
     }
 
     #[Test]
-    public function activeUidsReturnsEmptyForAnEmptyUidList(): void
+    public function filterActiveUidsReturnsEmptyForAnEmptyUidList(): void
     {
         self::assertSame([], $this->subject->filterActiveUids([]));
     }

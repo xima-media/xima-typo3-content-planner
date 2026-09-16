@@ -178,6 +178,30 @@ final class DigestGroupBuilderTest extends TestCase
         self::assertSame(0, $groups[0]->getContentChangeActorCount());
     }
 
+    #[Test]
+    public function mentionEventsExposeTheLatestExcerptAndTheirOwnCount(): void
+    {
+        $rows = [
+            $this->mentionRow(crdate: 1000, excerpt: 'Hey @Jane, can you check this?'),
+            $this->mentionRow(crdate: 1001, excerpt: 'Also @John should look'),
+        ];
+
+        $groups = $this->subject->build($rows, static fn (mixed $v): string => (string) $v);
+
+        self::assertSame('Also @John should look', $groups[0]->getLatestMentionExcerpt());
+        self::assertSame(2, $groups[0]->getMentionCount());
+        self::assertSame(2, $groups[0]->getEventCount());
+    }
+
+    #[Test]
+    public function mentionCountIsZeroWhenThereAreNoMentionEvents(): void
+    {
+        $groups = $this->subject->build([$this->statusRow(crdate: 1000, previous: null, new: 'Draft')], static fn (mixed $v): string => (string) $v);
+
+        self::assertNull($groups[0]->getLatestMentionExcerpt());
+        self::assertSame(0, $groups[0]->getMentionCount());
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -233,6 +257,21 @@ final class DigestGroupBuilderTest extends TestCase
             'record_uid' => $recordUid,
             'event_type' => 'comment_added',
             'reason' => 'watching_manually',
+            'crdate' => $crdate,
+            'payload' => ['version' => 1, 'title' => 'Home', 'commentExcerpt' => $excerpt],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function mentionRow(int $crdate, string $excerpt, string $table = 'pages', int $recordUid = 1): array
+    {
+        return [
+            'tablename' => $table,
+            'record_uid' => $recordUid,
+            'event_type' => 'mentioned',
+            'reason' => 'mentioned',
             'crdate' => $crdate,
             'payload' => ['version' => 1, 'title' => 'Home', 'commentExcerpt' => $excerpt],
         ];
