@@ -28,6 +28,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 use function array_slice;
 use function count;
 use function in_array;
+use function intval;
 use function is_array;
 use function sprintf;
 
@@ -274,6 +275,83 @@ class RecordRepository
         );
     }
 
+    /**
+     * The page a content element (or any other record) lives on - used by
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\ContentChangeNotificationService}
+     * (issue #309) to propagate a `tt_content` change to its parent page's watchers. Deliberately
+     * skips {@see self::findByUid()}'s "must be a registered content planner table" guard: a
+     * content element's page must resolve regardless of whether `tt_content` itself is currently
+     * registered for status tracking, and ignores visibility restrictions for the same reason
+     * {@see self::findByUid()} lets callers opt out of them - a hidden/timed content element still
+     * changed, and its page's watchers still care.
+     *
+     * @throws Exception
+     */
+    public function findPidByUid(string $table, int $uid): ?int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+        $queryBuilder->getRestrictions()->removeAll();
+
+        $pid = $queryBuilder
+            ->select('pid')
+            ->from($table)
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)))
+            ->executeQuery()
+            ->fetchOne();
+
+        return false !== $pid ? (int) $pid : null;
+    }
+
+    /**
+     * Which of the given uids in $table currently exist and are not soft-deleted. Used by
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Retention\NotificationRetentionService}
+     * (issue #304) to detect orphaned watcher/notification rows for records that have since been
+     * hard-deleted or (for tables with a TCA `deleted` column) soft-deleted.
+     *
+     * Deliberately not gated by {@see ExtensionUtility::getRecordTables()}
+     * like {@see self::findByUid()}: a table can be de-registered from content planner tracking
+     * (or an extension providing it removed) while old watcher/notification rows for it still
+     * need cleaning up, and hidden/time-restricted records must still count as "existing" - only
+     * `deleted` rows (or a genuinely absent table) are orphaned.
+     *
+     * @param list<int> $uids
+     *
+     * @return list<int>
+     *
+     * @throws Exception
+     */
+    public function existingUids(string $table, array $uids): array
+    {
+        if ([] === $uids || !is_array($GLOBALS['TCA'][$table] ?? null)) {
+            return [];
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+        $queryBuilder->getRestrictions()->removeAll();
+
+        $query = $queryBuilder
+            ->select('uid')
+            ->from($table)
+            ->where(
+                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)),
+            );
+
+        if ($this->hasDeletedRestriction($table)) {
+            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
+        }
+
+        return array_map(intval(...), $query->executeQuery()->fetchFirstColumn());
+    }
+
+    /**
+     * Raw-SQL status write, bypassing the DataHandler entirely. Used by BulkUpdateCommand (a CLI
+     * command that can update many records per invocation) and, via
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\PlannerService::updateStatusForRecord()}, by
+     * third-party integrations. Deliberately dispatches no StatusChangeEvent/AssigneeChangedEvent
+     * and creates no watcher relations: both callers may run in bulk and/or from CLI where there
+     * is no reliable actor, so firing one event per row would risk an event storm. See
+     * Documentation/DeveloperCorner/Events.rst for the full reasoning.
+     */
     public function updateStatusByUid(string $table, int $uid, ?int $status, int|bool|null $assignee = false): void
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);

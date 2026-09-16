@@ -24,6 +24,18 @@
 			<trans-unit id="be_users.tx_ximatypo3contentplanner_hide.description">
 				<source>Disable the display of content planner status information and color within the TYPO3 backend</source>
 			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_digest">
+				<source>Receive content planner email digest</source>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_digest.description">
+				<source>Receive a periodic email summarizing updates on records you watch (see "content-planner:notification:digest" command)</source>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_immediate_email">
+				<source>Send content planner emails immediately</source>
+			</trans-unit>
+			<trans-unit id="be_users.tx_ximatypo3contentplanner_immediate_email.description">
+				<source>Instead of the daily digest, receive a separate email per record shortly after it changes (throttled to at most one email per record every 15 minutes). Only applies while "Receive content planner email digest" is also enabled.</source>
+			</trans-unit>
 			<trans-unit id="be_groups.tx_ximatypo3contentplanner_allowed_statuses">
 				<source>Allowed Statuses</source>
 			</trans-unit>
@@ -137,6 +149,24 @@
 			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_folder.storage_uid">
 				<source>Storage</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher">
+				<source>Watcher</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.tablename">
+				<source>Table</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.record_uid">
+				<source>Record UID</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.backend_user">
+				<source>Backend User</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.mode">
+				<source>Mode</source>
+			</trans-unit>
+			<trans-unit id="tx_ximatypo3contentplanner_watcher.source">
+				<source>Source</source>
 			</trans-unit>
 		</body>
 	</file>

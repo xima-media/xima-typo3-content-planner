@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner;
 use TYPO3\CMS\Backend\Controller\Page\TreeController as BackendTreeController;
 use TYPO3\CMS\Backend\Form\FormDataProvider\EvaluateDisplayConditions;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use Xima\XimaTypo3ContentPlanner\Backend\Toolbar\NotificationToolbarItem;
 use Xima\XimaTypo3ContentPlanner\Controller\TreeController;
 use Xima\XimaTypo3ContentPlanner\Form\FormDataProvider\ContentPlannerFieldsReadOnly;
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
@@ -40,6 +41,31 @@ class Configuration
     final public const FEATURE_TREE_STATUS_INFORMATION = 'treeStatusInformation';
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
+    final public const FEATURE_NOTIFICATION_CHANNEL_DATABASE = 'notificationChannelDatabase';
+    final public const FEATURE_NOTIFICATION_DIGEST_EMAIL = 'notificationDigestEmail';
+    final public const FEATURE_NOTIFICATION_IMMEDIATE_EMAIL = 'notificationImmediateEmail';
+
+    /*
+     * Issue #309: content change notifications for watched pages/content elements. Off by
+     * default, unlike every other notification feature flag above - this one fires on every
+     * save/publish of a watched (or watched-page's content element) record, so an installation
+     * has to opt in deliberately rather than being defaulted into it.
+     */
+    final public const FEATURE_NOTIFICATION_CONTENT_CHANGED = 'notificationContentChanged';
+    final public const CONF_NOTIFICATION_POLL_INTERVAL = 'notificationPollInterval';
+    final public const CONF_NOTIFICATION_DIGEST_BACKEND_BASE_URL = 'notificationDigestBackendBaseUrl';
+    final public const CONF_NOTIFICATION_RETENTION_READ_DAYS = 'notificationRetentionReadDays';
+    final public const CONF_NOTIFICATION_RETENTION_UNREAD_DAYS = 'notificationRetentionUnreadDays';
+
+    // be_users column: per-user opt-out toggle for the email digest (issue #302), default on.
+    final public const FIELD_USER_DIGEST = 'tx_ximatypo3contentplanner_digest';
+
+    /*
+     * be_users column: per-user email frequency toggle (issue #306), default off (daily digest).
+     * Only relevant when FIELD_USER_DIGEST is on: switches that recipient from the daily digest
+     * (#302) to the throttled per-event immediate channel - see ImmediateEmailChannel.
+     */
+    final public const FIELD_USER_IMMEDIATE_EMAIL = 'tx_ximatypo3contentplanner_immediate_email';
 
     /*
      * CP-25 (#324): banner|chip toggle for how status/assignee/comment information is
@@ -75,6 +101,9 @@ class Configuration
 
     final public const TABLE_FOLDER = 'tx_ximatypo3contentplanner_folder';
     final public const TABLE_COMMENT = 'tx_ximatypo3contentplanner_comment';
+    final public const TABLE_WATCHER = 'tx_ximatypo3contentplanner_watcher';
+    final public const TABLE_NOTIFICATION = 'tx_ximatypo3contentplanner_notification';
+    final public const TABLE_IMMEDIATE_QUEUE = 'tx_ximatypo3contentplanner_immediate_queue';
 
     /*
      * Up to and including v3, this held 'tx_ximatypo3contentplanner_status' — the name of
@@ -175,27 +204,45 @@ class Configuration
         $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['comments'] = 'EXT:'.self::EXT_KEY.'/Configuration/RTE/Comments.yaml';
     }
 
+    /**
+     * Registers this extension's Fluid mail templates (issue #302's email digest) as an
+     * *additional* root path, appended after any already registered - e.g. by a site package -
+     * so a site can override `NotificationDigest.html`/`.txt` by adding its own path with a
+     * higher-priority (numerically larger) array key, per the standard TYPO3
+     * `$GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths']` override mechanism documented in
+     * `TYPO3\CMS\Core\Mail\FluidEmail`.
+     */
+    public static function registerMailTemplates(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['MAIL']['templateRootPaths'][] = 'EXT:'.self::EXT_KEY.'/Resources/Private/Templates/Mail/';
+    }
+
     public static function registerUserSettings(): void
     {
-        $label = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide';
-        $description = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:be_users.tx_ximatypo3contentplanner_hide.description';
         $tabLabel = 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:content_planner';
-        $showitemAddition = '--div--;'.$tabLabel.',tx_ximatypo3contentplanner_hide';
+        $fields = [
+            'tx_ximatypo3contentplanner_hide' => 'be_users.tx_ximatypo3contentplanner_hide',
+            self::FIELD_USER_DIGEST => 'be_users.tx_ximatypo3contentplanner_digest',
+            self::FIELD_USER_IMMEDIATE_EMAIL => 'be_users.tx_ximatypo3contentplanner_immediate_email',
+        ];
+        $showitemAddition = '--div--;'.$tabLabel.','.implode(',', array_keys($fields));
 
         // TYPO3 v14.2+ migrated user settings to TCA. The legacy
         // $GLOBALS['TYPO3_USER_SETTINGS'] format without a 'config' key
         // triggers a null pointer when opening the user settings module
         // on v14.3. See https://docs.typo3.org/permalink/t3coreapi:user-settings-extending-migration
         if (method_exists(ExtensionManagementUtility::class, 'addUserSetting')) {
-            $GLOBALS['TCA']['be_users']['columns']['user_settings']['columns']['tx_ximatypo3contentplanner_hide'] = [
-                'label' => $label,
-                'description' => $description,
-                'config' => [
-                    'type' => 'check',
-                    'renderType' => 'checkboxToggle',
-                ],
-                'table' => 'be_users',
-            ];
+            foreach ($fields as $field => $labelKey) {
+                $GLOBALS['TCA']['be_users']['columns']['user_settings']['columns'][$field] = [
+                    'label' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:'.$labelKey,
+                    'description' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:'.$labelKey.'.description',
+                    'config' => [
+                        'type' => 'check',
+                        'renderType' => 'checkboxToggle',
+                    ],
+                    'table' => 'be_users',
+                ];
+            }
 
             $GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem']
                 = ($GLOBALS['TCA']['be_users']['columns']['user_settings']['showitem'] ?? '').','.$showitemAddition;
@@ -203,12 +250,14 @@ class Configuration
             return;
         }
 
-        $GLOBALS['TYPO3_USER_SETTINGS']['columns']['tx_ximatypo3contentplanner_hide'] = [
-            'label' => $label,
-            'description' => $description,
-            'type' => 'check',
-            'table' => 'be_users',
-        ];
+        foreach ($fields as $field => $labelKey) {
+            $GLOBALS['TYPO3_USER_SETTINGS']['columns'][$field] = [
+                'label' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:'.$labelKey,
+                'description' => 'LLL:EXT:'.self::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:'.$labelKey.'.description',
+                'type' => 'check',
+                'table' => 'be_users',
+            ];
+        }
 
         $GLOBALS['TYPO3_USER_SETTINGS']['showitem'] = ($GLOBALS['TYPO3_USER_SETTINGS']['showitem'] ?? '').','.$showitemAddition;
     }
@@ -285,5 +334,10 @@ class Configuration
                 ],
             ],
         ];
+    }
+
+    public static function registerToolbarItems(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['toolbarItems'][] = NotificationToolbarItem::class;
     }
 }

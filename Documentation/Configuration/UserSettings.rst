@@ -45,5 +45,15 @@ The following options can be set in the user settings:
 
     This setting can also be toggled directly from the checkbox above a page's comment list.
 
+..  _user-settings-contentPlannerDigest:
+
+..  confval:: Receive content planner email digest
+    :type: boolean
+    :Default: 1
+
+    Controls whether this backend user receives the periodic email digest sent by the
+    :ref:`content-planner:notification:digest <content-planner-notification-digest>` command.
+    Enabled by default; disable it to opt out entirely without unwatching any records.
+
 ..  figure:: /Images/user-settings.jpg
     :alt: Content Planner User Settings

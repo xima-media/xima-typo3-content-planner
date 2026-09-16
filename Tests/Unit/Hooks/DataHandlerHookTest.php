@@ -21,6 +21,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
 use Xima\XimaTypo3ContentPlanner\Manager\{StatusChangeManager, StatusDefaultManager};
+use Xima\XimaTypo3ContentPlanner\Service\Notification\ContentChangeNotificationService;
 
 /**
  * DataHandlerHookTest.
@@ -91,6 +92,7 @@ final class DataHandlerHookTest extends TestCase
             $this->createMock(CommentRepository::class),
             $this->createMock(EventDispatcherInterface::class),
             new StatusDefaultManager($this->createMock(ConnectionPool::class), $this->createMock(FrontendInterface::class)),
+            $this->createMock(ContentChangeNotificationService::class),
         );
     }
 }

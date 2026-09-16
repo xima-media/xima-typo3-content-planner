@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\WatcherPresentationService;
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
@@ -44,6 +45,7 @@ class InfoGenerator
         private readonly BackendUserRepository $backendUserRepository,
         private readonly CommentRepository $commentRepository,
         private readonly FolderStatusRepository $folderStatusRepository,
+        private readonly WatcherPresentationService $watcherPresentationService,
         private readonly PageRenderer $pageRenderer,
     ) {}
 
@@ -195,6 +197,9 @@ class InfoGenerator
         $pageRenderer->loadJavaScriptModule(
             Configuration::JAVASCRIPT_MODULE_PREFIX.'assignee-selection-modal.js',
         );
+        $pageRenderer->loadJavaScriptModule(
+            Configuration::JAVASCRIPT_MODULE_PREFIX.'watch-toggle.js',
+        );
         $pageRenderer->addCssFile(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
         );
@@ -275,6 +280,7 @@ class InfoGenerator
             ],
             'contentElements' => $this->getContentElements($record, $table),
             'userid' => self::getBackendUserId(),
+            'watch' => $this->watcherPresentationService->build($table, (int) $record['uid'], self::getBackendUserId()),
         ]);
 
         $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode);
@@ -462,6 +468,11 @@ class InfoGenerator
         $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/assignee-selection-modal.js',
+            ['nonce' => $this->requestId->nonce],
+        );
+        $content .= AssetUtility::getJsTag(
+            'EXT:'.Configuration::EXT_KEY.
+            '/Resources/Public/JavaScript/watch-toggle.js',
             ['nonce' => $this->requestId->nonce],
         );
 

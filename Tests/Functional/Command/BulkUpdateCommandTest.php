@@ -19,6 +19,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Xima\XimaTypo3ContentPlanner\Command\BulkUpdateCommand;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationSuppressionState;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -30,6 +31,7 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 final class BulkUpdateCommandTest extends AbstractFunctionalTestCase
 {
     private CommandTester $tester;
+    private NotificationSuppressionState $notificationSuppressionState;
 
     protected function setUp(): void
     {
@@ -40,11 +42,13 @@ final class BulkUpdateCommandTest extends AbstractFunctionalTestCase
         $this->loginBackendUser();
         $this->setUpBackendRequest();
 
+        $this->notificationSuppressionState = $this->get(NotificationSuppressionState::class);
         $command = new BulkUpdateCommand(
             $this->get(StatusRepository::class),
             $this->get(RecordRepository::class),
             $this->get(CommentRepository::class),
             $this->get(FolderStatusRepository::class),
+            $this->notificationSuppressionState,
         );
         $this->tester = new CommandTester($command);
     }
@@ -206,5 +210,34 @@ final class BulkUpdateCommandTest extends AbstractFunctionalTestCase
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertSame(0, $this->get(CommentRepository::class)->countAllByRecord(1, 'pages'));
+    }
+
+    #[Test]
+    public function noNotifyOptionPausesAndResumesNotificationSuppressionStateAroundTheCommand(): void
+    {
+        self::assertFalse($this->notificationSuppressionState->isPaused());
+
+        $exitCode = $this->tester->execute([
+            'table' => 'pages',
+            'uid' => '1',
+            'status' => '2',
+            '--no-notify' => true,
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertFalse($this->notificationSuppressionState->isPaused());
+    }
+
+    #[Test]
+    public function withoutNoNotifyOptionNotificationSuppressionStateIsNeverTouched(): void
+    {
+        $exitCode = $this->tester->execute([
+            'table' => 'pages',
+            'uid' => '1',
+            'status' => '2',
+        ]);
+
+        self::assertSame(Command::SUCCESS, $exitCode);
+        self::assertFalse($this->notificationSuppressionState->isPaused());
     }
 }

@@ -10,6 +10,7 @@ CREATE TABLE pages
 CREATE TABLE be_users
 (
 	tx_ximatypo3contentplanner_hide tinyint(4) unsigned DEFAULT 0 NOT NULL,
+	tx_ximatypo3contentplanner_digest tinyint(4) unsigned DEFAULT 1 NOT NULL,
 );
 
 CREATE TABLE be_groups
@@ -70,6 +71,79 @@ CREATE TABLE sys_file_metadata
 	tx_ximatypo3contentplanner_comments int(11) unsigned DEFAULT '0' NOT NULL,
 	KEY contentplanner_status (tx_ximatypo3contentplanner_status),
 	KEY contentplanner_assignee (tx_ximatypo3contentplanner_assignee)
+);
+
+CREATE TABLE tx_ximatypo3contentplanner_watcher
+(
+	uid           int(11) NOT NULL auto_increment,
+	pid           int(11) DEFAULT '0' NOT NULL,
+
+	tablename     varchar(255) DEFAULT '' NOT NULL,
+	record_uid    int(11) DEFAULT '0' NOT NULL,
+	backend_user  int(11) DEFAULT '0' NOT NULL,
+
+	mode          varchar(32) DEFAULT 'auto' NOT NULL,
+	source        varchar(32) DEFAULT 'manual' NOT NULL,
+
+	crdate        int(11) DEFAULT '0' NOT NULL,
+	tstamp        int(11) DEFAULT '0' NOT NULL,
+
+	PRIMARY KEY (uid),
+	UNIQUE KEY watcher_lookup (tablename(64), record_uid, backend_user),
+	-- backend_user is the third column of watcher_lookup, so that key cannot serve
+	-- "everything user X watches". That is the lookup behind the "watched by me" filter
+	-- and the retention cleanup, both of which would otherwise scan the whole table.
+	KEY watcher_by_user (backend_user, mode)
+);
+
+CREATE TABLE tx_ximatypo3contentplanner_notification
+(
+	uid           int(11) NOT NULL auto_increment,
+	pid           int(11) DEFAULT '0' NOT NULL,
+
+	backend_user  int(11) DEFAULT '0' NOT NULL,
+	event_type    varchar(32) DEFAULT '' NOT NULL,
+	tablename     varchar(255) DEFAULT '' NOT NULL,
+	record_uid    int(11) DEFAULT '0' NOT NULL,
+	actor         int(11) DEFAULT NULL,
+	reason        varchar(64) DEFAULT '' NOT NULL,
+	payload       text,
+
+	read_at       int(11) DEFAULT NULL,
+	digested_at   int(11) DEFAULT NULL,
+	crdate        int(11) DEFAULT '0' NOT NULL,
+
+	PRIMARY KEY (uid),
+	KEY recipient (backend_user),
+	KEY record (tablename(64), record_uid),
+	-- Retention deletes by age and read state; without this every chunk of that delete
+	-- scans the whole table, which is exactly the case the command exists for.
+	KEY retention (read_at, crdate)
+);
+
+CREATE TABLE tx_ximatypo3contentplanner_immediate_queue
+(
+	uid           int(11) NOT NULL auto_increment,
+	pid           int(11) DEFAULT '0' NOT NULL,
+
+	backend_user  int(11) DEFAULT '0' NOT NULL,
+	event_type    varchar(32) DEFAULT '' NOT NULL,
+	tablename     varchar(255) DEFAULT '' NOT NULL,
+	record_uid    int(11) DEFAULT '0' NOT NULL,
+	actor         int(11) DEFAULT NULL,
+	reason        varchar(64) DEFAULT '' NOT NULL,
+	payload       text,
+
+	claimed_at    int(11) DEFAULT NULL,
+	claim_token   varchar(32) DEFAULT NULL,
+	sent_at       int(11) DEFAULT NULL,
+	crdate        int(11) DEFAULT '0' NOT NULL,
+
+	PRIMARY KEY (uid),
+	KEY recipient_record (backend_user, tablename(64), record_uid),
+	KEY sent_at (sent_at),
+	KEY recipient_sent_at (backend_user, sent_at),
+	KEY claim_token (claim_token)
 );
 
 CREATE TABLE tx_ximatypo3contentplanner_folder

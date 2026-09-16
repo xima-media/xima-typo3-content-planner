@@ -98,6 +98,26 @@ final class CommentItemTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getContentReturnsPlainContentUnchangedWhenThereAreNoMentions(): void
+    {
+        $item = CommentItem::create($this->rootCommentRow());
+
+        self::assertSame('Root comment with a question', $item->getContent());
+    }
+
+    #[Test]
+    public function getContentRendersAMentionMarkerWithTheCurrentDisplayName(): void
+    {
+        $row = $this->rootCommentRow();
+        $row['content'] = '<p>Hey <a class="ctp-mention" data-mention-uid="1">@stale-name</a></p>';
+
+        $item = CommentItem::create($row);
+
+        self::assertStringContainsString('@Administrator (admin)', $item->getContent());
+        self::assertStringNotContainsString('stale-name', $item->getContent());
+    }
+
+    #[Test]
     public function getTimeAgoReturnsString(): void
     {
         $item = CommentItem::create($this->rootCommentRow());

@@ -17,8 +17,10 @@ defined('TYPO3') || exit;
 
 Configuration::overrideClasses();
 Configuration::addRtePresets();
+Configuration::registerMailTemplates();
 Configuration::registerCache();
 Configuration::registerHooks();
 Configuration::addRegister();
 Configuration::registerFormDataProviders();
 Configuration::registerPermissions();
+Configuration::registerToolbarItems();

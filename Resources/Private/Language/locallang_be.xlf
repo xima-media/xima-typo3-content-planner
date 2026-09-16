@@ -173,6 +173,101 @@
 			<trans-unit id="comment.editor.label">
 				<source>Comment text</source>
 			</trans-unit>
+			<trans-unit id="message.watch.toggle.success.title">
+			 	<source>Watch state updated</source>
+			</trans-unit>
+			<trans-unit id="message.watch.toggle.success.message">
+			 	<source>Your watch state for this record has been updated.</source>
+			</trans-unit>
+			<trans-unit id="message.watch.toggle.failure.title">
+			 	<source>Watch state update failed</source>
+			</trans-unit>
+			<trans-unit id="message.watch.toggle.failure.message">
+			 	<source>Your watch state could not be updated.</source>
+			</trans-unit>
+			<!-- notification toolbar -->
+			<trans-unit id="notification.toolbar.title">
+				<source>Notifications</source>
+			</trans-unit>
+			<trans-unit id="notification.badge.unreadCount">
+				<source>%d unread notifications</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.headline">
+				<source>Notifications</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.markAllRead">
+				<source>Mark all as read</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.markRead">
+				<source>Mark as read</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.empty">
+				<source>You're all caught up</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.empty.hint">
+				<source>Records you watch will show up here.</source>
+			</trans-unit>
+			<trans-unit id="notification.record.inaccessible">
+				<source>A record you no longer have access to</source>
+			</trans-unit>
+			<trans-unit id="notification.actor.system">
+				<source>System</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.watching_since_assignment">
+				<source>You're watching this since it was assigned to you</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.watching_since_comment">
+				<source>You're watching this since you commented</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.watching_since_status_change">
+				<source>You're watching this since its status changed</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.watching_manually">
+				<source>You chose to watch this</source>
+			</trans-unit>
+			<trans-unit id="notification.reason.mentioned">
+				<source>You were mentioned</source>
+			</trans-unit>
+			<trans-unit id="notification.contentChanged.summary.singular">
+				<source>Content edited by %d user, %d change(s)</source>
+			</trans-unit>
+			<trans-unit id="notification.contentChanged.summary.plural">
+				<source>Content edited by %d users, %d change(s)</source>
+			</trans-unit>
+			<!-- email digest -->
+			<trans-unit id="digest.mail.subject">
+				<source>Content Planner: %d update(s) to review</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.greeting">
+				<source>Hi %s,</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.headline">
+				<source>Here's what changed while you were away</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.intro">
+				<source>You're receiving this because you're watching the following records.</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.status">
+				<source>Status: %s</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.assignee">
+				<source>Assignee: %s</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.comment">
+				<source>Comment: %s</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.line.mention">
+				<source>You were mentioned: %s</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.unassigned">
+				<source>Unassigned</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.record.unresolved">
+				<source>A record that is no longer available</source>
+			</trans-unit>
+			<trans-unit id="digest.mail.footer">
+				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Unwatch". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

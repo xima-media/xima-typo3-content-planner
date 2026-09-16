@@ -306,6 +306,48 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
         self::assertTrue($result->hasMore);
     }
 
+    #[Test]
+    public function existingUidsExcludesDeletedAndAbsentUids(): void
+    {
+        // 5 is soft-deleted, 999 doesn't exist at all - both must be excluded the same way.
+        $result = $this->subject->existingUids('pages', [1, 2, 5, 999]);
+        sort($result);
+        self::assertSame([1, 2], $result);
+    }
+
+    #[Test]
+    public function existingUidsIncludesHiddenRecords(): void
+    {
+        // Orphan cleanup must not treat a merely-hidden record as gone.
+        self::assertSame([6], $this->subject->existingUids('pages', [6]));
+    }
+
+    #[Test]
+    public function existingUidsReturnsEmptyForATableWithoutTca(): void
+    {
+        self::assertSame([], $this->subject->existingUids('tx_not_a_registered_table', [1]));
+    }
+
+    #[Test]
+    public function existingUidsReturnsEmptyForAnEmptyUidList(): void
+    {
+        self::assertSame([], $this->subject->existingUids('pages', []));
+    }
+
+    #[Test]
+    public function findPidByUidReturnsThePageAContentElementLivesOn(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+
+        self::assertSame(1, $this->subject->findPidByUid('tt_content', 1));
+    }
+
+    #[Test]
+    public function findPidByUidReturnsNullForAMissingRecord(): void
+    {
+        self::assertNull($this->subject->findPidByUid('tt_content', 99999));
+    }
+
     // NOTE: findAllByFilter() builds raw "(SELECT ...) UNION (SELECT ...)" SQL which is invalid
     // under SQLite (the functional test driver). It is therefore not covered here, together with
     // the private helpers it exclusively calls (applyFilterConditions, buildSearchCondition,

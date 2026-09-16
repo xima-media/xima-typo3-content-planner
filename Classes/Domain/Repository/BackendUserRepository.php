@@ -20,6 +20,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use function array_key_exists;
 use function count;
 use function in_array;
+use function intval;
 
 /**
  * BackendUserRepository.
@@ -37,6 +38,11 @@ class BackendUserRepository
      * @var array<int, string>
      */
     private array $usernameCache = [];
+
+    /**
+     * @var array<int, string>
+     */
+    private array $displayNameCache = [];
 
     public function __construct(private readonly ConnectionPool $connectionPool) {}
 
@@ -120,6 +126,45 @@ class BackendUserRepository
     }
 
     /**
+     * Narrows a list of backend user UIDs to those that can still log in, i.e. neither
+     * deleted nor disabled. A single query regardless of how many UIDs are passed.
+     *
+     * Two callers rely on it: the notification dispatcher, to avoid addressing accounts that
+     * no longer exist, and
+     * {@see \Xima\XimaTypo3ContentPlanner\Service\Notification\Retention\NotificationRetentionService},
+     * to detect orphaned watcher/notification rows. A hard-deleted uid is simply absent from
+     * the result, the same as a soft-deleted one: both mean the row has no reachable
+     * recipient any more.
+     *
+     * @param list<int> $uids
+     *
+     * @return list<int>
+     *
+     * @throws Exception
+     */
+    public function filterActiveUids(array $uids): array
+    {
+        if ([] === $uids) {
+            return [];
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
+
+        $rows = $queryBuilder
+            ->select('uid')
+            ->from('be_users')
+            ->where(
+                $queryBuilder->expr()->in('uid', $queryBuilder->createNamedParameter($uids, Connection::PARAM_INT_ARRAY)),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('disable', 0),
+            )
+            ->executeQuery()
+            ->fetchFirstColumn();
+
+        return array_map(intval(...), $rows);
+    }
+
+    /**
      * @return array<string, mixed>|bool
      *
      * @throws Exception
@@ -152,27 +197,67 @@ class BackendUserRepository
             return $this->usernameCache[$uid];
         }
 
+        $user = $this->formatDisplayName($this->fetchUsernameAndRealName($uid));
+        if ('' !== $user) {
+            $user = htmlspecialchars($user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        }
+
+        return $this->usernameCache[$uid] = $user;
+    }
+
+    /**
+     * Raw (non-HTML-escaped) counterpart to {@see self::getUsernameByUid()}, for consumers that
+     * render into a non-HTML context (e.g. the plain-text part of the email digest, issue #302)
+     * and would otherwise double-escape or leak HTML entities into their output.
+     *
+     * @throws Exception
+     */
+    public function getDisplayNameByUid(?int $uid): string
+    {
+        if (!(bool) $uid) {
+            return '';
+        }
+
+        if (array_key_exists($uid, $this->displayNameCache)) {
+            return $this->displayNameCache[$uid];
+        }
+
+        return $this->displayNameCache[$uid] = $this->formatDisplayName($this->fetchUsernameAndRealName($uid));
+    }
+
+    /**
+     * @return array<string, mixed>|false
+     *
+     * @throws Exception
+     */
+    private function fetchUsernameAndRealName(int $uid): array|false
+    {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('be_users');
 
-        $userRecord = $queryBuilder
+        return $queryBuilder
             ->select('username', 'realName')
             ->from('be_users')
             ->where(
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             )
             ->executeQuery()->fetchAssociative();
+    }
 
-        $user = '';
-        if ($userRecord) {
-            $user = $userRecord['username'];
-            if ((bool) $userRecord['realName']) {
-                $user = $userRecord['realName'].' ('.$user.')';
-            }
-
-            $user = htmlspecialchars((string) $user, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+    /**
+     * @param array<string, mixed>|false $userRecord
+     */
+    private function formatDisplayName(array|false $userRecord): string
+    {
+        if (!$userRecord) {
+            return '';
         }
 
-        return $this->usernameCache[$uid] = $user;
+        $user = $userRecord['username'];
+        if ((bool) $userRecord['realName']) {
+            $user = $userRecord['realName'].' ('.$user.')';
+        }
+
+        return (string) $user;
     }
 
     /**

@@ -1,0 +1,4 @@
+"tx_ximatypo3contentplanner_comment"
+,"uid","pid","foreign_uid","foreign_table","content","author","edited","resolved_user","resolved_date","todo_resolved","todo_total","parent_uid","crdate","deleted"
+,1,0,1,"pages","Short comment",1,0,0,0,0,0,0,1000,0
+,2,0,1,"pages","This comment is deliberately written to be a lot longer than the one hundred and forty character excerpt limit so that truncation with an ellipsis can be observed reliably in the test assertion.",1,0,0,0,0,0,0,1000,0

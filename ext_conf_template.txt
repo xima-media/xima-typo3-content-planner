@@ -22,3 +22,19 @@ currentAssigneeHighlight = 1
 clearCommentsOnStatusReset = 1
 # cat=comments/enable; type=boolean; label=Parse the todos from comments and show them as separate hint
 commentTodos = 1
+# cat=notifications/enable; type=boolean; label=Enable the database notification channel
+notificationChannelDatabase = 1
+# cat=notifications/config; type=int+; label=Backend toolbar notification polling interval in seconds (0 disables polling)
+notificationPollInterval = 60
+# cat=notifications/enable; type=boolean; label=Enable the email digest (content-planner:notification:digest command)
+notificationDigestEmail = 1
+# cat=notifications/enable; type=boolean; label=Enable the immediate (per-event, throttled) email channel
+notificationImmediateEmail = 1
+# cat=notifications/config; type=string; label=Backend base URL used to build absolute deep links in the email digest, e.g. "https://example.com" (TYPO3 cannot reliably determine its own base URL from a CLI context; leave empty to fall back to relative links)
+notificationDigestBackendBaseUrl =
+# cat=notifications/config; type=int+; label=Delete read notifications older than this many days (content-planner:notification:cleanup command)
+notificationRetentionReadDays = 30
+# cat=notifications/config; type=int+; label=Delete unread notifications older than this many days (content-planner:notification:cleanup command)
+notificationRetentionUnreadDays = 90
+# cat=notifications/enable; type=boolean; label=Enable content change notifications for watched pages/content elements (opt-in, heavily aggregated; off by default, see issue #309)
+notificationContentChanged = 0

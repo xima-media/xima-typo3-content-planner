@@ -24,6 +24,14 @@ return [
         'path' => '/content-planner/assignees',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::assigneeSelectionAction',
     ],
+    'ximatypo3contentplanner_mentions_suggest' => [
+        'path' => '/content-planner/mentions/suggest',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\MentionController::class.'::suggestAction',
+    ],
+    'ximatypo3contentplanner_watch_toggle' => [
+        'path' => '/content-planner/watch/toggle',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\WatcherController::class.'::toggleAction',
+    ],
     'ximatypo3contentplanner_message' => [
         'path' => '/content-planner/message',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::messageAction',
@@ -39,5 +47,17 @@ return [
     'ximatypo3contentplanner_commentsave' => [
         'path' => '/content-planner/comment-save',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\CommentEditorController::class.'::commentSaveAction',
+    ],
+    'ximatypo3contentplanner_notifications' => [
+        'path' => '/content-planner/notifications',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\NotificationController::class.'::listAction',
+    ],
+    'ximatypo3contentplanner_notifications_read' => [
+        'path' => '/content-planner/notifications/read',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\NotificationController::class.'::markReadAction',
+    ],
+    'ximatypo3contentplanner_notifications_read_all' => [
+        'path' => '/content-planner/notifications/read-all',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\NotificationController::class.'::markAllReadAction',
     ],
 ];
