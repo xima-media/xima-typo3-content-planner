@@ -92,7 +92,7 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
+        $body = $this->parsedBody($request);
         $content = trim((string) ($body['content'] ?? ''));
         $commentUid = (int) ($body['commentUid'] ?? 0);
 
@@ -127,7 +127,7 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
+        $body = $this->parsedBody($request);
         $commentUid = (int) ($body['commentUid'] ?? 0);
         $todoIndex = (int) ($body['todoIndex'] ?? -1);
         $checked = (bool) ($body['checked'] ?? false);
@@ -226,7 +226,41 @@ class CommentEditorController extends ActionController
         $id = (int) ($params['uid'] ?? 0);
         $parentUid = (int) ($params['parentUid'] ?? 0);
 
-        if ('' === $table || 0 === $id || 0 === $parentUid) {
+        // The one condition a reply adds over a new root comment: without the comment it
+        // answers there is nothing to reply to.
+        if (0 === $parentUid) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        $target = $this->resolveCommentTarget($table, $id, $parentUid);
+        if ($target instanceof JsonResponse) {
+            return $target;
+        }
+
+        return $this->renderCommentEditorFragment(
+            'reply',
+            $table,
+            $id,
+            $parentUid,
+            0,
+            '',
+            $target['pid'],
+        );
+    }
+
+    /**
+     * Resolves what a new comment or a reply is about to be attached to, and rejects every way
+     * that can be wrong: missing identifiers, a user who may not comment, a record that does
+     * not exist or is out of reach, and a parent comment that sits on some other record.
+     *
+     * Returns the record together with the pid its comment belongs on, which is the record's
+     * own uid for a page and its storage pid for anything else.
+     *
+     * @return array{record: array<string, mixed>, pid: int}|JsonResponse
+     */
+    private function resolveCommentTarget(string $table, int $id, int $parentUid): array|JsonResponse
+    {
+        if ('' === $table || 0 === $id) {
             return new JsonResponse(['error' => 'Missing required parameters'], 400);
         }
 
@@ -239,19 +273,11 @@ class CommentEditorController extends ActionController
             return $record;
         }
 
-        if (!$this->parentCommentBelongsToRecord($parentUid, $table, $id)) {
+        if ($parentUid > 0 && !$this->parentCommentBelongsToRecord($parentUid, $table, $id)) {
             return new JsonResponse(['error' => 'Invalid parent comment'], 400);
         }
 
-        return $this->renderCommentEditorFragment(
-            'reply',
-            $table,
-            $id,
-            $parentUid,
-            0,
-            '',
-            'pages' === $table ? $id : (int) $record['pid'],
-        );
+        return ['record' => $record, 'pid' => 'pages' === $table ? $id : (int) $record['pid']];
     }
 
     /**
@@ -289,29 +315,17 @@ class CommentEditorController extends ActionController
         $id = (int) ($body['uid'] ?? 0);
         $parentUid = (int) ($body['parentUid'] ?? 0);
 
-        if ('' === $table || 0 === $id) {
-            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        $target = $this->resolveCommentTarget($table, $id, $parentUid);
+        if ($target instanceof JsonResponse) {
+            return $target;
         }
 
-        if (!PermissionUtility::canCreateComment()) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        $record = $this->resolveAccessibleRecord($table, $id);
-        if ($record instanceof JsonResponse) {
-            return $record;
-        }
-
-        if ($parentUid > 0 && !$this->parentCommentBelongsToRecord($parentUid, $table, $id)) {
-            return new JsonResponse(['error' => 'Invalid parent comment'], 400);
-        }
-
-        $statusUidResult = $this->resolveCommentFirstStatusUid($body, $record);
+        $statusUidResult = $this->resolveCommentFirstStatusUid($body, $target['record']);
         if ($statusUidResult instanceof JsonResponse) {
             return $statusUidResult;
         }
 
-        $pid = 'pages' === $table ? $id : (int) $record['pid'];
+        $pid = $target['pid'];
         $newId = StringUtility::getUniqueId('NEW');
         $data = [
             Configuration::TABLE_COMMENT => [
@@ -428,8 +442,10 @@ class CommentEditorController extends ActionController
      */
     private function resolveCommentFirstStatusUid(array $body, array $record): int|JsonResponse|null
     {
-        $requestedStatusUid = isset($body['statusUid']) && '' !== $body['statusUid'] ? (int) $body['statusUid'] : null;
-        if (null === $requestedStatusUid || $requestedStatusUid <= 0) {
+        // Absent, empty and a non-positive uid all mean the same thing here: no status was
+        // requested alongside the comment.
+        $requestedStatusUid = (int) ($body['statusUid'] ?? 0);
+        if ($requestedStatusUid <= 0) {
             return null;
         }
 
@@ -438,6 +454,16 @@ class CommentEditorController extends ActionController
         }
 
         return $this->commentFirstFlowManager->resolveStatusUidForCommentFirst($record, $requestedStatusUid);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function parsedBody(ServerRequestInterface $request): array
+    {
+        $body = $request->getParsedBody();
+
+        return is_array($body) ? $body : [];
     }
 
     private function parentCommentBelongsToRecord(int $parentUid, string $table, int $id): bool

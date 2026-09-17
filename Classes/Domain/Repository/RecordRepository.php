@@ -16,9 +16,9 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestriction, StartTimeRestriction};
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
@@ -172,13 +172,7 @@ class RecordRepository
             return $cachedResult;
         }
 
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
-
-        if ($ignoreVisibilityRestriction) {
-            $queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
-            $queryBuilder->getRestrictions()->removeByType(StartTimeRestriction::class);
-            $queryBuilder->getRestrictions()->removeByType(EndTimeRestriction::class);
-        }
+        $queryBuilder = $this->queryBuilderFor($table, $ignoreVisibilityRestriction);
 
         $query = $queryBuilder
             ->select('uid', ExtensionUtility::getTitleField($table).' as title', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
@@ -219,23 +213,14 @@ class RecordRepository
      */
     public function findByUid(?string $table, ?int $uid, bool $ignoreVisibilityRestriction = false): array|bool|null
     {
-        if (!(bool) $table && !(bool) $uid) {
-            return null;
-        }
-
         // Only registered content planner record tables may be queried through this method
-        // (the table name flows into getQueryBuilderForTable()/getTitleField() from request input).
+        // (the table name flows into getQueryBuilderForTable()/getTitleField() from request
+        // input). A null or empty table name is covered by the same check.
         if (null === $table || !in_array($table, ExtensionUtility::getRecordTables(), true)) {
             return null;
         }
 
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
-
-        if ($ignoreVisibilityRestriction) {
-            $queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
-            $queryBuilder->getRestrictions()->removeByType(StartTimeRestriction::class);
-            $queryBuilder->getRestrictions()->removeByType(EndTimeRestriction::class);
-        }
+        $queryBuilder = $this->queryBuilderFor($table, $ignoreVisibilityRestriction);
 
         $query = $queryBuilder
             ->select('uid', 'pid', ExtensionUtility::getTitleField($table).' as "title"', Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE, Configuration::FIELD_COMMENTS)
@@ -582,11 +567,18 @@ class RecordRepository
 
         $titleField = ExtensionUtility::getTitleField($table);
 
-        if ('pages' === $table) {
-            $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', 'perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody', 'NULL as storage_uid', 'NULL as folder_identifier']);
-        } else {
-            $selects = array_merge($this->defaultSelects, [$titleField.' as title, "'.$table.'" as tablename', '0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody', 'NULL as storage_uid', 'NULL as folder_identifier']);
-        }
+        // Only pages carry permission columns; every other table selects literal zeros so each
+        // branch of the UNION keeps the same column list.
+        $permissionSelects = 'pages' === $table
+            ? ['perms_userid', 'perms_groupid', 'perms_user', 'perms_group', 'perms_everybody']
+            : ['0 as perms_userid', '0 as perms_groupid', '0 as perms_user', '0 as perms_group', '0 as perms_everybody'];
+
+        $selects = array_merge($this->defaultSelects, [
+            $titleField.' as title, "'.$table.'" as tablename',
+            ...$permissionSelects,
+            'NULL as storage_uid',
+            'NULL as folder_identifier',
+        ]);
 
         // Add deleted restriction only for tables that have it
         $deletedWhere = $this->hasDeletedRestriction($table) ? ' AND deleted = 0' : '';
@@ -652,6 +644,24 @@ class RecordRepository
      * Check if a table has the deleted field restriction.
      * Tables like sys_file_metadata don't have a deleted field.
      */
+    /**
+     * A query builder for a record table, optionally seeing records the backend would normally
+     * hide: a status is tracked on a record regardless of whether it is currently published, so
+     * the callers that read status back have to reach disabled and time-restricted rows too.
+     */
+    private function queryBuilderFor(string $table, bool $ignoreVisibilityRestriction): QueryBuilder
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+
+        if ($ignoreVisibilityRestriction) {
+            $queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(StartTimeRestriction::class);
+            $queryBuilder->getRestrictions()->removeByType(EndTimeRestriction::class);
+        }
+
+        return $queryBuilder;
+    }
+
     private function hasDeletedRestriction(string $table): bool
     {
         return isset($GLOBALS['TCA'][$table]['ctrl']['delete']);
@@ -664,13 +674,10 @@ class RecordRepository
      */
     private function collectCacheTags(string $table, array $data, ?int $pid): array
     {
-        $tags = [];
-        /* @var $item AbstractEntity */
-        foreach ($data as $item) {
-            if (null !== $item['uid']) {
-                $tags[] = $table.'_'.$item['uid'];
-            }
-        }
+        $tags = array_values(array_map(
+            static fn (array $item): string => $table.'_'.$item['uid'],
+            array_filter($data, static fn (array $item): bool => null !== $item['uid']),
+        ));
 
         if ((bool) $pid) {
             $tags[] = $table.'__pageId__'.$pid;
