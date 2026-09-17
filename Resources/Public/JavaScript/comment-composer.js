@@ -185,7 +185,7 @@ class CommentComposer {
 
   openReplyEditor(trigger) {
     const commentEl = trigger.closest('[data-comment-uid]')
-    const slot = commentEl?.querySelector(':scope > .d-flex > [data-reply-slot]')
+    const slot = this.replySlot(trigger, commentEl)
     if (!commentEl || !slot) {
       return
     }
@@ -198,11 +198,12 @@ class CommentComposer {
 
     loadRichTextEditor()
 
-    // The trigger can also be the dropdown "Reply" item, which has no row of its own - only
-    // hide the "Add a reply..." row when that's actually where the click came from.
-    const triggerRow = trigger.closest('.content-planner-comment-composer-row--reply')
-    if (triggerRow) {
-      triggerRow.hidden = true
+    // Only the trigger goes, never the row around it: the avatar column belongs to the row, and
+    // hiding that too dropped the editor a column and a padding further left than the
+    // "Add a reply..." it replaces.
+    const replyTrigger = slot.querySelector('.content-planner-comment-composer-trigger--reply')
+    if (replyTrigger) {
+      replyTrigger.hidden = true
     }
 
     new AjaxRequest(trigger.getAttribute('data-reply-comment-uri'))
@@ -215,8 +216,8 @@ class CommentComposer {
         this.bindForm(form, {
           onCancel: () => {
             form.remove()
-            if (triggerRow) {
-              triggerRow.hidden = false
+            if (replyTrigger) {
+              replyTrigger.hidden = false
             }
           },
         })
@@ -226,6 +227,25 @@ class CommentComposer {
         console.error('Content Planner: failed to load the reply editor:', error)
         Notification.message('comment.create', 'failure')
       })
+  }
+
+  /**
+   * Where the reply editor opens. Both targets are a
+   * `.content-planner-comment-composer-row__body` sitting next to an avatar, so the editor
+   * lines up with the "Add a reply..." trigger either way.
+   *
+   * Clicking that trigger opens the editor in its place, inside the thread. The dropdown's
+   * "Reply" item has no row of its own and stays on the standalone slot, which sits outside the
+   * replies collapse and is therefore reachable whether or not the thread is expanded.
+   *
+   * @returns {HTMLElement|null}
+   */
+  replySlot(trigger, commentEl) {
+    return (
+      trigger.closest('.content-planner-comment-composer-row--reply')?.querySelector('[data-reply-slot]')
+      ?? commentEl?.querySelector(':scope > .d-flex > .content-planner-comment__reply-slot > [data-reply-slot]')
+      ?? null
+    )
   }
 
   /**

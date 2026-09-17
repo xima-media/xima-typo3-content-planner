@@ -233,8 +233,16 @@
     color: var(--content-planner-color-muted);
 }
 
-.content-planner-comment__reply-slot:not(:empty) {
-    margin-top: 0.5rem;
+/* The slot always carries its avatar column, so "empty" means "holds no composer" rather than
+   "has no children". */
+.content-planner-comment__reply-slot:not(:has([data-comment-composer])) {
+    display: none;
+}
+
+/* Unlike the real "Add a reply..." row, the slot has no thread line above it to pick up: it
+   only appears on comments that have no replies yet. */
+.content-planner-comment__reply-slot::before {
+    content: none;
 }
 
 /* ==========================================================================

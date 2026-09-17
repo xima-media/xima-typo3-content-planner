@@ -136,17 +136,28 @@
                     <span class="content-planner-comment-composer-row__avatar">
                         <be:avatar backendUser="{currentUserUid}" size="24" showIcon="true"/>
                     </span>
-                    <button type="button" class="content-planner-comment-composer-trigger content-planner-comment-composer-trigger--reply"
-                            data-id="{id}" data-table="{table}" data-reply-comment-uri="{comment.replyUri}">
-                        <span class="content-planner-comment-composer-trigger__placeholder">
-                            <f:translate key="comment.composer.reply.placeholder" extensionName="XimaTypo3ContentPlanner"/>
-                        </span>
-                    </button>
+                    <div class="content-planner-comment-composer-row__body" data-reply-slot>
+                        <button type="button" class="content-planner-comment-composer-trigger content-planner-comment-composer-trigger--reply"
+                                data-id="{id}" data-table="{table}" data-reply-comment-uri="{comment.replyUri}">
+                            <span class="content-planner-comment-composer-trigger__placeholder">
+                                <f:translate key="comment.composer.reply.placeholder" extensionName="XimaTypo3ContentPlanner"/>
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </f:if>
         <f:if condition="!{isReply}">
-            <div class="content-planner-comment__reply-slot" data-reply-slot></div>
+            <!-- Fallback target for the dropdown's "Reply" on a comment that has no replies yet
+                 and therefore no "Add a reply..." row to open in place. Carries the same
+                 avatar-left shape as that row so the editor lines up either way; stays out of
+                 the layout entirely until it actually holds a composer. -->
+            <div class="content-planner-comment__reply-slot content-planner-comment-composer-row content-planner-comment-composer-row--reply">
+                <span class="content-planner-comment-composer-row__avatar">
+                    <be:avatar backendUser="{currentUserUid}" size="24" showIcon="true"/>
+                </span>
+                <div class="content-planner-comment-composer-row__body" data-reply-slot></div>
+            </div>
         </f:if>
     </div>
 </div>
