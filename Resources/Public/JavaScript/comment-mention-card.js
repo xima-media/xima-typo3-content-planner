@@ -39,13 +39,23 @@ class CommentMentionCard {
     trigger.dataset.mentionCardBound = 'true'
     this.triggers.add(trigger)
 
+    const loading = TYPO3.lang?.['mention.card.loading'] || '…'
+
     // Bootstrap reads the trigger mode when the instance is constructed, so it has to be in
     // place before Popover.popover() - setting it afterwards would not rebind its listeners.
     trigger.dataset.bsToggle = 'popover'
     trigger.dataset.bsTrigger = 'hover focus'
+    // The content has to be here for the same reason, and the consequence of leaving it out is
+    // far less visible: Bootstrap's show() begins with an _isWithContent() check against the
+    // config it read at construction, and Popover.setOptions() feeds the content through
+    // setContent() only - it deletes `content` before copying the remaining options into that
+    // config. An instance constructed without this attribute therefore counts as empty for
+    // good, and every show() - ours below, and Bootstrap's own hover and focus triggers -
+    // returns before rendering anything.
+    trigger.dataset.bsContent = loading
 
     Popover.popover(trigger)
-    Popover.setOptions(trigger, this.options(trigger, TYPO3.lang?.['mention.card.loading'] || '…'))
+    Popover.setOptions(trigger, this.options(trigger, loading))
     // The hover or focus that got us here happened before the instance existed, so Bootstrap
     // did not see it - the first card has to be opened by hand.
     Popover.show(trigger)
