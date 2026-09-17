@@ -62,11 +62,11 @@ export class WebLayoutPage {
   }
 
   /**
-   * CP-28 (#327) drops this id and folds the trigger into the shared
-   * `[data-content-planner-comments]` button (with `data-focus-composer`), so this needs
-   * updating when the CP epic and this e2e chain are merged. See `CommentsModalPage`.
+   * Opens the comments modal with the new-comment composer already expanded. Since CP-28 (#327)
+   * this is a `[data-content-planner-comments]` button like the list one, told apart by
+   * `data-focus-composer`. See `CommentsModalPage`.
    */
-  newCommentLink(): Locator {
-    return this.header().locator('#create-and-edit-comment-modal');
+  newCommentButton(): Locator {
+    return this.header().locator('[data-content-planner-comments][data-focus-composer]');
   }
 }

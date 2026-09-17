@@ -119,18 +119,25 @@ class CommentsListModal {
           staticBackdrop: true,
           buttons,
           callback: (modal) => {
-            modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
-              bubbles: true,
-              composed: true
-            }))
+            // Same signal assignee-selection-modal.js waits for (CP-26, #325): this callback
+            // runs before the modal's content has been rendered into the document, so listeners
+            // re-binding against `document` here find nothing. `detail.modal` matters for the
+            // same reason - it is the only root that already holds the fetched content.
+            modal.addEventListener('typo3-modal-shown', () => {
+              modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
+                bubbles: true,
+                composed: true,
+                detail: { modal }
+              }))
 
-            if (scrollToCommentUid) {
-              this.scrollToComment(modal, scrollToCommentUid)
-            } else if (focusComposer) {
-              const composerTrigger = modal.querySelector('[data-comment-composer-trigger]')
-              composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
-              composerTrigger?.click()
-            }
+              if (scrollToCommentUid) {
+                this.scrollToComment(modal, scrollToCommentUid)
+              } else if (focusComposer) {
+                const composerTrigger = modal.querySelector('[data-comment-composer-trigger]')
+                composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
+                composerTrigger?.click()
+              }
+            }, { once: true })
           }
         })
       })
