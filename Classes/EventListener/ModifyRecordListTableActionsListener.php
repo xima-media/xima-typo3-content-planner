@@ -62,8 +62,8 @@ final readonly class ModifyRecordListTableActionsListener
         }
 
         $action = '<div class="btn-group" style="margin-left:10px;">
-                <a href="#" class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="test">'.
-            $this->iconFactory->getIcon('flag-gray', IconUtility::getDefaultIconSize())->render().'</a><ul class="dropdown-menu">';
+                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:status').'">'.
+            $this->iconFactory->getIcon('flag-gray', IconUtility::getDefaultIconSize())->render().'</button><ul class="dropdown-menu">';
 
         $actionsToAdd = [];
 
