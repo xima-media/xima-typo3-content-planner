@@ -56,7 +56,7 @@ final class SeedDemoContentCommand extends Command
     /** Root of the seeded demo tree, kept out of any real content the instance might carry. */
     public const ROOT_PAGE_TITLE = 'Content Planner E2E Demo';
 
-    /** Carries a status, an assignee and one comment - covers all three tracking fields. */
+    /** Carries a status, an assignee and two comments (one with an @-mention, one with a reply) - covers all three tracking fields. */
     public const STATUS_PAGE_TITLE = 'Demo Page With Status';
 
     /** Carries a status only, no assignee and no comments. */
@@ -69,6 +69,18 @@ final class SeedDemoContentCommand extends Command
     public const ASSIGNEE_USERNAME = 'admin';
 
     public const COMMENT_CONTENT = '<p>Demo comment seeded for e2e tests.</p>';
+
+    /**
+     * Second comment on the status page, carrying an @-mention in the storage format
+     * {@see \Xima\XimaTypo3ContentPlanner\Utility\Data\MentionUtility} reads back: the profile
+     * card can only be exercised against a rendered marker, and the marker's uid has to point
+     * at a backend user that actually exists, so it is filled in from the seeded author rather
+     * than hardcoded.
+     */
+    public const MENTION_COMMENT_CONTENT = '<p>Demo mention seeded for e2e tests: <a class="ctp-mention" data-mention-uid="%d">@%s</a></p>';
+
+    /** Reply to COMMENT_CONTENT, so the thread renders the "Add a reply..." composer row. */
+    public const REPLY_COMMENT_CONTENT = '<p>Demo reply seeded for e2e tests.</p>';
 
     private const DEMO_PAGE_TITLES = [
         self::ROOT_PAGE_TITLE,
@@ -278,13 +290,51 @@ final class SeedDemoContentCommand extends Command
                     'content' => self::COMMENT_CONTENT,
                     'author' => $authorUid,
                 ],
+                'NEW-mention-comment' => [
+                    'pid' => 0,
+                    'foreign_table' => 'pages',
+                    'foreign_uid' => $pageUid,
+                    'content' => sprintf(self::MENTION_COMMENT_CONTENT, $authorUid, self::ASSIGNEE_USERNAME),
+                    'author' => $authorUid,
+                ],
             ],
         ];
 
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
         $dataHandler->start($data, []);
         $dataHandler->process_datamap();
-        $this->assertNoErrors($dataHandler, 'creating the demo comment');
+        $this->assertNoErrors($dataHandler, 'creating the demo comments');
+
+        $this->createDemoReply((int) $dataHandler->substNEWwithIDs['NEW-comment'], $pageUid, $authorUid);
+    }
+
+    /**
+     * A thread needs one reply for the reply composer to be reachable at all: its
+     * "Add a reply..." row only renders on a comment that already has replies.
+     *
+     * Its own DataHandler call, for the same reason the comments are one of their own: parent_uid
+     * is a 'passthrough' TCA field, so there is no relation config a "NEW-..." placeholder could
+     * be resolved against and the parent's real uid has to exist first.
+     */
+    private function createDemoReply(int $parentUid, int $pageUid, int $authorUid): void
+    {
+        $data = [
+            Configuration::TABLE_COMMENT => [
+                'NEW-reply' => [
+                    'pid' => 0,
+                    'foreign_table' => 'pages',
+                    'foreign_uid' => $pageUid,
+                    'content' => self::REPLY_COMMENT_CONTENT,
+                    'author' => $authorUid,
+                    'parent_uid' => $parentUid,
+                ],
+            ],
+        ];
+
+        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
+        $dataHandler->start($data, []);
+        $dataHandler->process_datamap();
+        $this->assertNoErrors($dataHandler, 'creating the demo reply');
     }
 
     private function assertNoErrors(DataHandler $dataHandler, string $action): void
