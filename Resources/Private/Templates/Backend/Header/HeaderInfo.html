@@ -5,7 +5,7 @@
 >
 
 <div
-    class="content-planner-header content-planner-header--color-{status.color}{f:if(condition: '{compact}', then: ' content-planner-header--compact')}"
+    class="content-planner-header content-planner-header--color-{status.color}{f:if(condition: '{compact}', then: ' content-planner-header--compact')}{f:if(condition: '{mode} == \'web_layout\' && {compact}', then: ' content-planner-header--docked')}"
     data-table="{table}"
     data-uid="{data.uid}"
     aria-label="{f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}: {status.title}"

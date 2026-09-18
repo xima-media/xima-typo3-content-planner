@@ -136,6 +136,17 @@
 }
 
 /* ==========================================================================
+   Docked Header Bar ("docked" mode)
+   Spliced directly above the doc header's own button row (see DockedHeaderModifier),
+   flush against it on every side - unlike the content element variant above, there is
+   no rounded box underneath it to match, so all four corners stay square.
+   ========================================================================== */
+
+.content-planner-header--docked {
+    border-radius: 0;
+}
+
+/* ==========================================================================
    Content Element Status Accent (CP-25 / #324, Level 2, "chip" mode)
    Replaces the injected full-surface `::before` overlay from WebLayoutModifier
    with a 3px left accent border (the visual language core uses for hidden /

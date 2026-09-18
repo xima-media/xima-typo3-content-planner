@@ -292,7 +292,11 @@ class InfoGenerator
         // that point would never reach the response. It gets the inline tags instead (like
         // EDIT does for the same reason), same as WEB_LAYOUT/WEB_LIST get via PageRenderer
         // because those run through a PSR-14 event fired inside the controller, before render.
-        $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode);
+        // The "docked" headerDisplayMode is the same trap in WEB_LAYOUT clothing: it is
+        // rendered from DockedHeaderModifier, a middleware exactly like ContentElementHeaderModifier,
+        // not from DrawBackendHeaderListener's pre-render PSR-14 event - so it needs the inline
+        // tags too, even though $mode is WEB_LAYOUT. $compact is only ever true for that call.
+        $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode && !$compact);
 
         return $content;
     }
