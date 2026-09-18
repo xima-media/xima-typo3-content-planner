@@ -473,9 +473,9 @@ defines the marker:
 
     <a class="ctp-mention" data-mention-uid="42">@display-name-at-mention-time</a>
 
-The UID, not the display name, is the source of truth: `MentionUtility::renderContentWithMentionLinks()`
-re-resolves the mentioned user's *current* display name and link target on every render rather
-than trusting the stored text, so a later username/realName change is reflected automatically -
+The UID, not the display name, is the source of truth: `MentionUtility::renderContentWithMentions()`
+re-resolves the mentioned user's *current* display name on every render rather than trusting the
+stored text, so a later username/realName change is reflected automatically -
 `CommentItem::getContent()` is what the comment partial now renders instead of the raw `content`
 column directly.
 
@@ -505,13 +505,27 @@ with the immediate e-mail channel an unbounded list would turn a single comment 
 everyone.
 
 ..  note::
-    **Not yet wired into the editor.** The backend side described here is complete, but nothing
-    produces the `ctp-mention` markup through the UI: the CKEditor5 Mention plugin that would call
-    `suggestAction()` lives in the comment composer (CP-28, #327), which is developed on a separate
-    branch. Until the two are merged, mention markers can only arrive through the API, and the
-    feature is not reachable for editors. The wiring point exists on that side:
-    `ModifyCommentEditorConfigurationEvent` lets a listener add the plugin and its `feed` callback
-    to the composer's CKEditor5 configuration without replacing the factory.
+    **How the editor produces the markup.** `Configuration/RTE/Comments.yaml` registers the
+    `ContentPlannerMention` plugin (`Resources/Public/JavaScript/comment-mention.js`) through the
+    composer's `importModules`. It calls `suggestAction()` for its suggestion feed and replaces
+    CKEditor5's own up- and downcast converters, so a selected suggestion is written as the
+    `ctp-mention` marker rather than CKEditor's `<span class="mention">` - `RteHtmlParser` limits
+    `<span>` to a fixed attribute list on the way into the database, which would drop the uid on
+    the first save. The record context the feed is scoped to (`table`, `uid`) is injected by
+    `CommentEditorConfigurationFactory` and also reaches
+    `ModifyCommentEditorConfigurationEvent`, so a third-party plugin can use the same context
+    without replacing the factory.
+
+..  note::
+    **Rendering is not a link.** `be_users` is an adminOnly table, so a `record_edit` link to the
+    mentioned user is a dead end for everyone but administrators.
+    `MentionUtility::renderContentWithMentions()` therefore renders each marker as a `<button>`,
+    which `comment-mention-card.js` turns into a profile card fed by `profileAction()`. That
+    endpoint resolves the uid against the same `findAllWithPermission()` pool the suggestion feed
+    uses, so it cannot be used as a be_users lookup keyed by uid, and it only includes the e-mail
+    address when the *viewer* is an administrator. Fetching the card on demand rather than
+    rendering it into the comment HTML also means a card nobody opens never puts contact details
+    on the page.
 
 Dispatch: reaches its target even without a prior watch
 -----------------------------------------------------------

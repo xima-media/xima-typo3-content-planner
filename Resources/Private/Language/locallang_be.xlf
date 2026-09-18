@@ -170,6 +170,12 @@
 			<trans-unit id="message.comment.delete.failure.message">
 			 	<source>The comment could not be deleted.</source>
 			</trans-unit>
+			<trans-unit id="message.comment.todo.success.title">
+			 	<source>To-do updated</source>
+			</trans-unit>
+			<trans-unit id="message.comment.todo.success.message">
+			 	<source>The to-do item was updated.</source>
+			</trans-unit>
 			<trans-unit id="message.comment.todo.failure.title">
 			 	<source>To-do update failed</source>
 			</trans-unit>
@@ -273,6 +279,9 @@
 			</trans-unit>
 			<trans-unit id="digest.mail.footer">
 				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Unwatch". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
+			</trans-unit>
+			<trans-unit id="mention.self">
+				<source>(you)</source>
 			</trans-unit>
 		</body>
 	</file>

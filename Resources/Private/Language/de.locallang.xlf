@@ -440,6 +440,22 @@
 				<source>Comment</source>
 				<target>Kommentieren</target>
 			</trans-unit>
+			<trans-unit id="comment.composer.placeholder">
+				<source>Add a comment...</source>
+				<target>Einen Kommentar hinzufügen...</target>
+			</trans-unit>
+			<trans-unit id="comment.composer.reply.placeholder">
+				<source>Add a reply...</source>
+				<target>Eine Antwort hinzufügen...</target>
+			</trans-unit>
+			<trans-unit id="comment.composer.hint.shortcut">
+				<source><![CDATA[Press <kbd>M</kbd> to add a comment]]></source>
+				<target><![CDATA[Drücken Sie <kbd>M</kbd>, um einen Kommentar zu schreiben]]></target>
+			</trans-unit>
+			<trans-unit id="comment.composer.hint.submit">
+				<source><![CDATA[Press <kbd data-shortcut-modifier>Ctrl</kbd>+<kbd>Enter</kbd> to save]]></source>
+				<target><![CDATA[Drücken Sie <kbd data-shortcut-modifier>Strg</kbd>+<kbd>Enter</kbd> zum Speichern]]></target>
+			</trans-unit>
 			<trans-unit id="comment.commentFirst.oneClick.submit">
 				<source>Comment: sets status "%s"</source>
 				<target>Kommentieren: setzt Status "%s"</target>
@@ -500,9 +516,21 @@
 				<source>Show comments from child records</source>
 				<target>Kommentare von untergeordneten Datensätzen anzeigen</target>
 			</trans-unit>
-			<trans-unit id="comment.childComments.heading">
-				<source>Comments on child records</source>
-				<target>Kommentare zu untergeordneten Datensätzen</target>
+			<trans-unit id="comment.filter.includeChildComments.hide">
+				<source>Hide comments from child records</source>
+				<target>Kommentare von untergeordneten Datensätzen ausblenden</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.showResolvedComments">
+				<source>Show resolved comments</source>
+				<target>Erledigte Kommentare anzeigen</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.showResolvedComments.hide">
+				<source>Hide resolved comments</source>
+				<target>Erledigte Kommentare ausblenden</target>
+			</trans-unit>
+			<trans-unit id="comment.record.jump">
+				<source>Open %s in the backend</source>
+				<target>%s im Backend öffnen</target>
 			</trans-unit>
 			<trans-unit id="comment.childComments.moreResults">
 				<source>More child records with comments are available. Refine the page to narrow the list.</source>
@@ -544,6 +572,12 @@
 			<trans-unit id="assignee.documentation">
 				<source><![CDATA[You can find more information about the assignee feature, including permissions and keyboard shortcuts, in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>
 				<target><![CDATA[Weitere Informationen zur Zuständigen-Funktion, einschließlich Berechtigungen und Tastaturkürzeln, findest du in der <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/de-de/Usage/Assignee.html" target="_blank">offiziellen Dokumentation</a> der Extension.]]></target>
+			</trans-unit>
+
+			<!-- mentions -->
+			<trans-unit id="mention.card.loading">
+				<source>Loading profile…</source>
+				<target>Profil wird geladen…</target>
 			</trans-unit>
 
 			<!-- mail -->

@@ -7,26 +7,34 @@
     data-table="{table}"
     data-id="{id}"
     data-parent-uid="{parentUid}"
-    data-comment-uid="{commentUid}">
+    data-composer-comment-uid="{commentUid}">
     <div class="content-planner-comment-composer__editor">
         <f:format.raw>{editorHtml}</f:format.raw>
     </div>
-    <div class="content-planner-comment-composer__actions">
-        <button type="submit" class="btn btn-primary btn-sm" data-comment-composer-submit>
-            <f:if condition="{mode} == 'edit'">
-                <f:then>
-                    <f:translate key="comment.actions.save" extensionName="XimaTypo3ContentPlanner"/>
-                </f:then>
-                <f:else>
-                    <f:translate key="comment.actions.submit" extensionName="XimaTypo3ContentPlanner"/>
-                </f:else>
-            </f:if>
-        </button>
-        <f:if condition="{mode} == 'edit' || {mode} == 'reply'">
-            <button type="button" class="btn btn-default btn-sm" data-comment-composer-cancel>
-                <f:translate key="comment.actions.cancel" extensionName="XimaTypo3ContentPlanner"/>
+    <div class="content-planner-comment-composer__footer">
+        <div class="content-planner-comment-composer__actions">
+            <button type="submit" class="btn btn-primary btn-sm" data-comment-composer-submit>
+                <f:if condition="{mode} == 'edit'">
+                    <f:then>
+                        <core:icon identifier="actions-save" size="small"/>
+                        <f:translate key="comment.actions.save" extensionName="XimaTypo3ContentPlanner"/>
+                    </f:then>
+                    <f:else>
+                        <core:icon identifier="actions-paperplane" size="small"/>
+                        <f:translate key="comment.actions.submit" extensionName="XimaTypo3ContentPlanner"/>
+                    </f:else>
+                </f:if>
             </button>
-        </f:if>
+            <f:if condition="{mode} == 'edit' || {mode} == 'reply'">
+                <button type="button" class="btn btn-default btn-sm" data-comment-composer-cancel>
+                    <core:icon identifier="actions-close" size="small"/>
+                    <f:translate key="comment.actions.cancel" extensionName="XimaTypo3ContentPlanner"/>
+                </button>
+            </f:if>
+        </div>
+        <p class="content-planner-comment-composer-hint">
+            <f:format.raw><f:translate key="comment.composer.hint.submit" extensionName="XimaTypo3ContentPlanner"/></f:format.raw>
+        </p>
     </div>
 </form>
 </html>

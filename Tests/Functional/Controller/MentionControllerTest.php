@@ -22,9 +22,10 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 /**
  * MentionControllerTest.
  *
- * Covers the permission-filtered @-mention suggestion feed (issue #305): in particular, that a
- * backend user without content-planner access never appears in - or can retrieve - the
- * suggestion list, i.e. no leakage of users outside the CP-permitted pool.
+ * Covers the permission-filtered @-mention endpoints (issue #305): the suggestion feed and the
+ * profile card behind a rendered mention. The recurring theme is the same for both: a backend
+ * user outside the CP-permitted pool must never appear in - or be retrievable through - either
+ * of them, and the card must not become the one place a non-admin can read e-mail addresses.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -129,6 +130,85 @@ final class MentionControllerTest extends AbstractFunctionalTestCase
         self::assertContains('@member', $usernames);
         self::assertContains('@parentmember', $usernames);
         self::assertNotContains('@admin', $usernames);
+    }
+
+    #[Test]
+    public function profileActionReturnsBadRequestWithoutAUid(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->profileAction($this->createRequest([]));
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function profileActionDeniesUserWithoutContentPlannerAccess(): void
+    {
+        $this->loginBackendUser(2);
+
+        $response = $this->createController()->profileAction($this->createRequest(['uid' => 1]));
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function profileActionRefusesAUidOutsideTheMentionablePool(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+
+        // "nogroup" (uid 11) exists but has no content planner permission, so the card must not
+        // turn into a be_users lookup for arbitrary uids.
+        $response = $this->createController()->profileAction($this->createRequest(['uid' => 11]));
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function profileActionRendersTheCardForAMentionableUser(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+
+        $response = $this->createController()->profileAction($this->createRequest(['uid' => 10]));
+
+        self::assertSame(200, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertStringContainsString('Member User', $payload['result']);
+        self::assertStringContainsString('member', $payload['result']);
+    }
+
+    #[Test]
+    public function profileActionShowsTheEmailToAnAdmin(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+
+        $response = $this->createController()->profileAction($this->createRequest(['uid' => 10]));
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertStringContainsString('member@example.com', $payload['result']);
+    }
+
+    #[Test]
+    public function profileActionHidesTheEmailFromANonAdmin(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+        // "member" (uid 10) may use the content planner, so the card itself is allowed - but
+        // TYPO3 shows a non-admin another user's e-mail address nowhere else either.
+        $this->loginBackendUser(10);
+        $this->setUpBackendRequest();
+
+        $response = $this->createController()->profileAction($this->createRequest(['uid' => 14]));
+
+        self::assertSame(200, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertStringContainsString('Parent Group Member', $payload['result']);
+        self::assertStringNotContainsString('parentmember@example.com', $payload['result']);
     }
 
     private function createController(): MentionController

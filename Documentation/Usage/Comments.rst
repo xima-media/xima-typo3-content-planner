@@ -66,6 +66,36 @@ they would after a normal status change (auto-assignment, the ``StatusChangeEven
     record does not appear in the Status overview module, which lists records *by* status;
     its comments remain visible on the record itself and in the comment dashboard widget.
 
+..  _comments-mentions:
+
+Mentions
+===================
+
+..  versionadded:: 3.0.0
+
+    `Feature: #305 - Mention backend users in comments <https://github.com/xima-media/xima-typo3-content-planner/issues/305>`__
+
+Type ``@`` in the comment editor to mention another backend user. A suggestion list opens and
+narrows down as you keep typing; pick an entry with the arrow keys and :kbd:`Enter`, or with
+the mouse.
+
+Only users who may use the Content Planner are suggested, and a mention only notifies someone
+who may actually read the record the comment sits on.
+
+Hover over a mention in a saved comment, or reach it with the keyboard, to open a small profile
+card with the person's avatar, name and username. Administrators additionally see the e-mail
+address; for everyone else it stays hidden, the same as anywhere else in TYPO3.
+
+Mentions of *you* are highlighted more strongly than the rest, so your own name is easy to spot
+in a long thread.
+
+A mentioned user is notified even if they do not watch the record, and starts watching it from
+then on. Muting a record does not suppress the mention itself, only the other activity on that
+record.
+
+Mentions keep pointing at the user, not at the name they had when the comment was written: if
+someone's name changes later, every existing mention of them shows the new one.
+
 ..  _comments-show:
 
 Show comments
@@ -128,6 +158,8 @@ The ToDo count is automatically updated when you add or remove a ToDo item in th
 
     Click a ToDo checkbox directly in the comment list to check or uncheck it - no need to open
     the comment for editing first. This is only available for comments you are allowed to edit.
+    The checkbox flips immediately, a notification confirms the save, and the ToDo count in the
+    header is updated without reloading the page.
 
 ..  figure:: /Images/todo.jpg
     :alt: ToDo count in header
@@ -241,10 +273,12 @@ content elements - and on any other registered record type living on that page, 
 record inside a sysfolder - belong to the same conversation about that page but are otherwise
 invisible from there.
 
-Enable the "Show comments from child records" checkbox above a page's comment list to also
-load those comments, grouped by the record they belong to (with a type icon and a deep link to
-that record). This is a :ref:`persisted user setting <user-settings-includeChildComments>`,
-disabled by default so nothing changes silently.
+Enable "Show comments from child records" in the actions menu above a page's comment list to
+also load those comments. They are listed among the page's own comments in the same
+chronological order, since they are part of the same conversation - each one marked with the
+status of the record it belongs to, its type icon and a link that opens that record in the
+backend. This is a :ref:`persisted user setting <user-settings-includeChildComments>`, disabled
+by default so nothing changes silently.
 
 ..  note::
     This is a *view*-only feature. Page tree badges and comment counts continue to count only

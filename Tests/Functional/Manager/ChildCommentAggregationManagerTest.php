@@ -21,9 +21,9 @@ use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
  * ChildCommentAggregationManagerTest.
  *
  * CP-29 (#328): covers the "should aggregation run at all" gate (table must be pages, the
- * persisted includeChildComments setting must be on) and the grouping of the returned comments
- * by their child record (one group per record, with the type icon/title/deep link CommentItem
- * already exposes).
+ * persisted includeChildComments setting must be on) and the returned comments themselves -
+ * flat, so RecordController can merge them into the record's own list, and each flagged as
+ * belonging to a foreign record so the view knows to mark it.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -63,6 +63,17 @@ final class ChildCommentAggregationManagerTest extends AbstractFunctionalTestCas
     }
 
     #[Test]
+    public function buildContextReturnsCountEvenWhenIncludeChildCommentsIsDisabled(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $context = $this->subject->buildContext('pages', 1, false);
+
+        self::assertFalse($context['active']);
+        self::assertSame(2, $context['count']);
+    }
+
+    #[Test]
     public function buildContextIsInactiveWhenNoChildRecordHasComments(): void
     {
         $context = $this->subject->buildContext('pages', 1, true);
@@ -71,22 +82,21 @@ final class ChildCommentAggregationManagerTest extends AbstractFunctionalTestCas
     }
 
     #[Test]
-    public function buildContextGroupsCommentsByChildRecord(): void
+    public function buildContextReturnsChildCommentsFlaggedAsForeignRecords(): void
     {
         $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
 
         $context = $this->subject->buildContext('pages', 1, true);
 
         self::assertTrue($context['active']);
-        self::assertCount(2, $context['groups']);
+        self::assertCount(2, $context['items']);
         self::assertFalse($context['hasMore']);
 
-        foreach ($context['groups'] as $group) {
-            self::assertArrayHasKey('icon', $group);
-            self::assertArrayHasKey('title', $group);
-            self::assertArrayHasKey('recordLink', $group);
-            self::assertNotSame('', $group['recordLink']);
-            self::assertCount(1, $group['comments']);
+        foreach ($context['items'] as $item) {
+            // Drives the record marker in the Comment partial, which is the only thing telling
+            // the reader that this comment is not on the record being viewed.
+            self::assertTrue($item->foreignRecord);
+            self::assertNotSame('', $item->getRecordLink());
         }
     }
 }

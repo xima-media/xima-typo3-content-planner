@@ -61,12 +61,74 @@ class CommentTodoToggle {
         if (!result.response.ok || resolved.error) {
           throw new Error(resolved.error || 'Content Planner: to-do toggle request failed')
         }
+        Notification.message('comment.todo', 'success')
+        this.updateHeaderBadge(resolved)
       })
       .catch(error => {
         console.error('Content Planner: failed to toggle to-do item:', error)
         checkbox.checked = !checked
         Notification.message('comment.todo', 'failure')
       }))
+  }
+
+  /**
+   * The page header shows a "resolved/total" to-do badge summed across every comment on the
+   * record (Classes/Service/Header/InfoGenerator.php). TYPO3's Modal.advanced() always renders
+   * the comments modal in the top-level document, regardless of which document opened it, but
+   * the header badge itself lives wherever the backend renders the module content.
+   *
+   * The badge is addressed by the record the *response* reports, not by the open list: child
+   * comments are listed inline among the record's own (CP-29, #328), so ticking a to-do on a
+   * content element would otherwise write that element's totals into the page's badge, which
+   * counts the page's own comments only. No badge for that record on screen means no update.
+   */
+  updateHeaderBadge({recordTable, recordUid, recordTodoResolved, recordTodoTotal}) {
+    if (!recordTable || !recordUid) {
+      return
+    }
+
+    const badge = this.findBadge(
+      `.content-planner-header__todo-badge[data-table="${CSS.escape(recordTable)}"][data-id="${CSS.escape(String(recordUid))}"] .badge`,
+    )
+    if (!badge) {
+      return
+    }
+
+    badge.textContent = `${recordTodoResolved}/${recordTodoTotal}`
+    badge.dataset.status = recordTodoResolved === recordTodoTotal ? 'resolved' : 'pending'
+  }
+
+  /**
+   * Which document holds the header depends on how the backend renders the module: its own
+   * top-level document for a module rendered natively, a content iframe for one that is not.
+   * Both hang off the backend's top-level document, so searching that and its frames covers
+   * either - betting on one specific frame name is what made the badge silently not update.
+   */
+  findBadge(selector) {
+    let root = document
+    try {
+      root = window.top?.document ?? document
+    } catch {
+      // Cross-origin top window - only this document is reachable.
+    }
+
+    const direct = root.querySelector(selector)
+    if (direct) {
+      return direct
+    }
+
+    for (const frame of root.querySelectorAll('iframe')) {
+      try {
+        const nested = frame.contentDocument?.querySelector(selector)
+        if (nested) {
+          return nested
+        }
+      } catch {
+        // Cross-origin iframe - not ours to look into.
+      }
+    }
+
+    return null
   }
 
   /**

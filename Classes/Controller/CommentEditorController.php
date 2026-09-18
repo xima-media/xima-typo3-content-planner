@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Utility\{GeneralUtility, StringUtility};
@@ -91,7 +92,7 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
+        $body = $this->parsedBody($request);
         $content = trim((string) ($body['content'] ?? ''));
         $commentUid = (int) ($body['commentUid'] ?? 0);
 
@@ -99,11 +100,16 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Comment content must not be empty'], 400);
         }
 
+        // The record the open list belongs to, which is not necessarily the one the comment
+        // sits on: child-record comments are listed inline (CP-29, #328), and the re-rendered
+        // fragment needs to keep their record marker.
+        $listRef = [(string) ($body['listTable'] ?? ''), (int) ($body['listUid'] ?? 0)];
+
         if ($commentUid > 0) {
-            return $this->saveCommentEdit($commentUid, $content);
+            return $this->saveCommentEdit($commentUid, $content, $listRef);
         }
 
-        return $this->saveNewComment($body, $content);
+        return $this->saveNewComment($body, $content, $listRef);
     }
 
     /**
@@ -121,7 +127,7 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $body = is_array($request->getParsedBody()) ? $request->getParsedBody() : [];
+        $body = $this->parsedBody($request);
         $commentUid = (int) ($body['commentUid'] ?? 0);
         $todoIndex = (int) ($body['todoIndex'] ?? -1);
         $checked = (bool) ($body['checked'] ?? false);
@@ -164,10 +170,24 @@ class CommentEditorController extends ActionController
         // second SELECT just to read them back.
         $updated = $dataHandler->datamap[Configuration::TABLE_COMMENT][$commentUid];
 
+        // The header badge (HeaderInfo.html) shows the to-do count summed across every comment
+        // on the record, not just this one - the same aggregate InfoGenerator computes for the
+        // initial page render, so the frontend can patch that badge without reloading the whole
+        // comment list.
+        $foreignUid = (int) $comment['foreign_uid'];
+        $foreignTable = (string) $comment['foreign_table'];
+
         return new JsonResponse([
             'commentUid' => $commentUid,
             'todoResolved' => (int) $updated['todo_resolved'],
             'todoTotal' => (int) $updated['todo_total'],
+            // Named explicitly: with child comments listed inline, the toggled comment can sit
+            // on a different record than the list it is shown in, and these totals describe its
+            // own record's badge - not the one the open list belongs to.
+            'recordTable' => $foreignTable,
+            'recordUid' => $foreignUid,
+            'recordTodoResolved' => $this->commentRepository->countTodoAllByRecord($foreignUid, $foreignTable),
+            'recordTodoTotal' => $this->commentRepository->countTodoAllByRecord($foreignUid, $foreignTable, 'todo_total'),
         ]);
     }
 
@@ -206,7 +226,41 @@ class CommentEditorController extends ActionController
         $id = (int) ($params['uid'] ?? 0);
         $parentUid = (int) ($params['parentUid'] ?? 0);
 
-        if ('' === $table || 0 === $id || 0 === $parentUid) {
+        // The one condition a reply adds over a new root comment: without the comment it
+        // answers there is nothing to reply to.
+        if (0 === $parentUid) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        $target = $this->resolveCommentTarget($table, $id, $parentUid);
+        if ($target instanceof JsonResponse) {
+            return $target;
+        }
+
+        return $this->renderCommentEditorFragment(
+            'reply',
+            $table,
+            $id,
+            $parentUid,
+            0,
+            '',
+            $target['pid'],
+        );
+    }
+
+    /**
+     * Resolves what a new comment or a reply is about to be attached to, and rejects every way
+     * that can be wrong: missing identifiers, a user who may not comment, a record that does
+     * not exist or is out of reach, and a parent comment that sits on some other record.
+     *
+     * Returns the record together with the pid its comment belongs on, which is the record's
+     * own uid for a page and its storage pid for anything else.
+     *
+     * @return array{record: array<string, mixed>, pid: int}|JsonResponse
+     */
+    private function resolveCommentTarget(string $table, int $id, int $parentUid): array|JsonResponse
+    {
+        if ('' === $table || 0 === $id) {
             return new JsonResponse(['error' => 'Missing required parameters'], 400);
         }
 
@@ -219,19 +273,11 @@ class CommentEditorController extends ActionController
             return $record;
         }
 
-        if (!$this->parentCommentBelongsToRecord($parentUid, $table, $id)) {
+        if ($parentUid > 0 && !$this->parentCommentBelongsToRecord($parentUid, $table, $id)) {
             return new JsonResponse(['error' => 'Invalid parent comment'], 400);
         }
 
-        return $this->renderCommentEditorFragment(
-            'reply',
-            $table,
-            $id,
-            $parentUid,
-            0,
-            '',
-            'pages' === $table ? $id : (int) $record['pid'],
-        );
+        return ['record' => $record, 'pid' => 'pages' === $table ? $id : (int) $record['pid']];
     }
 
     /**
@@ -239,7 +285,7 @@ class CommentEditorController extends ActionController
      */
     private function renderCommentEditorFragment(string $mode, string $table, int $id, int $parentUid, int $commentUid, string $content, int $pid): JsonResponse
     {
-        $ckeditorConfiguration = $this->commentEditorConfigurationFactory->build($pid);
+        $ckeditorConfiguration = $this->commentEditorConfigurationFactory->build($pid, $table, $id);
         $fieldId = 'tx-ximatypo3contentplanner-comment-'.$mode.'-'.$commentUid.'-'.$table.'-'.$id.'-'.$parentUid;
 
         $result = ViewUtility::render(
@@ -258,39 +304,28 @@ class CommentEditorController extends ActionController
     }
 
     /**
-     * @param array<string, mixed> $body
+     * @param array<string, mixed>     $body
+     * @param array{0: string, 1: int} $listRef
      *
      * @throws Exception
      */
-    private function saveNewComment(array $body, string $content): JsonResponse
+    private function saveNewComment(array $body, string $content, array $listRef): JsonResponse
     {
         $table = (string) ($body['table'] ?? '');
         $id = (int) ($body['uid'] ?? 0);
         $parentUid = (int) ($body['parentUid'] ?? 0);
 
-        if ('' === $table || 0 === $id) {
-            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        $target = $this->resolveCommentTarget($table, $id, $parentUid);
+        if ($target instanceof JsonResponse) {
+            return $target;
         }
 
-        if (!PermissionUtility::canCreateComment()) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
-        }
-
-        $record = $this->resolveAccessibleRecord($table, $id);
-        if ($record instanceof JsonResponse) {
-            return $record;
-        }
-
-        if ($parentUid > 0 && !$this->parentCommentBelongsToRecord($parentUid, $table, $id)) {
-            return new JsonResponse(['error' => 'Invalid parent comment'], 400);
-        }
-
-        $statusUidResult = $this->resolveCommentFirstStatusUid($body, $record);
+        $statusUidResult = $this->resolveCommentFirstStatusUid($body, $target['record']);
         if ($statusUidResult instanceof JsonResponse) {
             return $statusUidResult;
         }
 
-        $pid = 'pages' === $table ? $id : (int) $record['pid'];
+        $pid = $target['pid'];
         $newId = StringUtility::getUniqueId('NEW');
         $data = [
             Configuration::TABLE_COMMENT => [
@@ -329,13 +364,15 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Failed to save comment'], 500);
         }
 
-        return $this->renderSavedComment((int) $resolvedUid, $table, $id);
+        return $this->renderSavedComment((int) $resolvedUid, $table, $id, $listRef);
     }
 
     /**
+     * @param array{0: string, 1: int} $listRef
+     *
      * @throws Exception
      */
-    private function saveCommentEdit(int $commentUid, string $content): JsonResponse
+    private function saveCommentEdit(int $commentUid, string $content, array $listRef): JsonResponse
     {
         $comment = $this->resolveEditableComment($commentUid);
         if ($comment instanceof JsonResponse) {
@@ -351,27 +388,37 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Failed to save comment'], 500);
         }
 
-        return $this->renderSavedComment($commentUid, (string) $comment['foreign_table'], (int) $comment['foreign_uid']);
+        return $this->renderSavedComment($commentUid, (string) $comment['foreign_table'], (int) $comment['foreign_uid'], $listRef);
     }
 
     /**
+     * @param array{0: string, 1: int} $listRef
+     *
      * @throws Exception
      */
-    private function renderSavedComment(int $commentUid, string $table, int $recordId): JsonResponse
+    private function renderSavedComment(int $commentUid, string $table, int $recordId, array $listRef): JsonResponse
     {
         $comment = $this->commentRepository->findByUid($commentUid);
         if (!is_array($comment)) {
             return new JsonResponse(['error' => 'Comment not found after save'], 500);
         }
 
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+
+        [$listTable, $listUid] = $listRef;
+        $item = CommentItem::create($comment);
+        $item->foreignRecord = $item->isForeignTo($listTable, $listUid);
+
         $result = ViewUtility::render(
             'Default/CommentFragment.html',
             [
-                'comment' => CommentItem::create($comment),
+                'comment' => $item,
                 'id' => $recordId,
                 'table' => $table,
                 'isReply' => (int) $comment['parent_uid'] > 0 ? 1 : 0,
                 'repliesExpanded' => false,
+                'currentUserUid' => (int) ($backendUser->user['uid'] ?? 0),
             ],
         );
 
@@ -395,8 +442,10 @@ class CommentEditorController extends ActionController
      */
     private function resolveCommentFirstStatusUid(array $body, array $record): int|JsonResponse|null
     {
-        $requestedStatusUid = isset($body['statusUid']) && '' !== $body['statusUid'] ? (int) $body['statusUid'] : null;
-        if (null === $requestedStatusUid || $requestedStatusUid <= 0) {
+        // Absent, empty and a non-positive uid all mean the same thing here: no status was
+        // requested alongside the comment.
+        $requestedStatusUid = (int) ($body['statusUid'] ?? 0);
+        if ($requestedStatusUid <= 0) {
             return null;
         }
 
@@ -405,6 +454,16 @@ class CommentEditorController extends ActionController
         }
 
         return $this->commentFirstFlowManager->resolveStatusUidForCommentFirst($record, $requestedStatusUid);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function parsedBody(ServerRequestInterface $request): array
+    {
+        $body = $request->getParsedBody();
+
+        return is_array($body) ? $body : [];
     }
 
     private function parentCommentBelongsToRecord(int $parentUid, string $table, int $id): bool

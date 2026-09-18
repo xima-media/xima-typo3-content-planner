@@ -7,6 +7,7 @@ import CommentsDeleteItem from "@content-planner/comments-delete-item.js"
 import CommentsShareLink from "@content-planner/comments-share-link.js"
 import CommentComposer from "@content-planner/comment-composer.js"
 import CommentTodoToggle from "@content-planner/comment-todo-toggle.js"
+import CommentMentionCard from "@content-planner/comment-mention-card.js"
 
 class CommentsReloadContent {
 
@@ -25,26 +26,14 @@ class CommentsReloadContent {
   initEventListeners() {
     this.initCommentHover()
     this.initRepliesToggle()
+    this.initIncludeChildCommentsToggle()
+    this.initShowResolvedCommentsToggle()
 
     document.querySelector('form#content-planner-comment-filter')?.addEventListener('change', (event) => {
       event.preventDefault()
       const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
       const table = event.target.closest('form').getAttribute('data-table')
       const uid = event.target.closest('form').getAttribute('data-id')
-
-      // includeChildComments (CP-29, #328) is a persisted user setting, not just a per-request
-      // filter: save it before reloading so the new state survives the next time the panel opens.
-      if ('includeChildComments' === event.target.name) {
-        new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_usersetting)
-          .withQueryArguments({key: 'includeChildComments', value: event.target.checked ? '1' : '0'})
-          .get()
-          .then(() => this.loadComments(url, table, uid))
-          .catch((error) => {
-            console.error('Failed to save user setting:', error)
-            top.TYPO3.Notification.error('Error', 'Failed to save setting.')
-          })
-        return
-      }
 
       this.loadComments(url, table, uid)
     })
@@ -100,6 +89,57 @@ class CommentsReloadContent {
     })
   }
 
+  // includeChildComments (CP-29, #328) is a persisted user setting, not just a per-request
+  // filter, and now lives as a toggle in the "..." dropdown (moved out of the filter form) -
+  // save it before reloading so the new state survives the next time the panel opens.
+  initIncludeChildCommentsToggle() {
+    document.querySelectorAll('[data-toggle-include-child-comments]').forEach(item => {
+      item.addEventListener('click', event => {
+        event.preventDefault()
+        const newValue = item.getAttribute('data-toggle-include-child-comments')
+
+        new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_usersetting)
+          .withQueryArguments({key: 'includeChildComments', value: newValue})
+          .get()
+          .then(() => {
+            const filterForm = document.querySelector('form#content-planner-comment-filter')
+            if (filterForm) {
+              const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
+              const table = filterForm.getAttribute('data-table')
+              const uid = filterForm.getAttribute('data-id')
+              this.loadComments(url, table, uid)
+            }
+          })
+          .catch((error) => {
+            console.error('Failed to save user setting:', error)
+            top.TYPO3.Notification.error('Error', 'Failed to save setting.')
+          })
+      })
+    })
+  }
+
+  // showResolvedComments has never been a persisted user setting (unlike repliesExpanded and
+  // includeChildComments above), just a transient view filter - moving it out of the filter
+  // form into a dropdown toggle means getFilterValues() can no longer pick it up via FormData,
+  // so its current state lives on the filter form's dataset instead.
+  initShowResolvedCommentsToggle() {
+    document.querySelectorAll('[data-toggle-show-resolved-comments]').forEach(item => {
+      item.addEventListener('click', event => {
+        event.preventDefault()
+        const filterForm = document.querySelector('form#content-planner-comment-filter')
+        if (!filterForm) {
+          return
+        }
+        filterForm.dataset.showResolvedComments = item.getAttribute('data-toggle-show-resolved-comments')
+
+        const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
+        const table = filterForm.getAttribute('data-table')
+        const uid = filterForm.getAttribute('data-id')
+        this.loadComments(url, table, uid)
+      })
+    })
+  }
+
   initCommentHover() {
     const container = document.querySelector('#content-planner-comment-list')
     if (!container || container.dataset.hoverInitialized) {
@@ -127,7 +167,10 @@ class CommentsReloadContent {
       return null
     }
     const formData = new FormData(filterForm)
-    return Object.fromEntries(formData.entries())
+    const values = Object.fromEntries(formData.entries())
+    values.showResolvedComments = filterForm.dataset.showResolvedComments || '0'
+
+    return values
   }
 
   loadComments(url, table, uid) {
@@ -150,6 +193,8 @@ class CommentsReloadContent {
         }
         const parent = commentList.parentElement
         parent.innerHTML = resolved.result
+        // After the replacement, so the orphaned triggers are the ones already detached.
+        CommentMentionCard.disposeOrphaned()
         CommentsResolvedItem.initEventListeners()
         CommentsDeleteItem.initEventListeners()
         CommentsShareLink.initEventListeners()

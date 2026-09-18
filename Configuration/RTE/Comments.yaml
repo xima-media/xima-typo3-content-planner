@@ -5,6 +5,10 @@ imports:
 
 editor:
   config:
+    # Jira-style compact composer (#CP comment modal redesign) - the inherited Base.yaml
+    # default of 300 dwarfs a one- or two-line comment; grows via Comments.css instead.
+    height: 100
+
     toolbar:
       items:
         - heading
@@ -31,3 +35,7 @@ editor:
 
     importModules:
       - { module: '@ckeditor/ckeditor5-list', exports: [ 'TodoList' ] }
+      # @-mentions (#305). The plugin brings its own suggestion feed and its own up/downcast
+      # converters, so the record context it needs is injected by
+      # CommentEditorConfigurationFactory rather than configured here.
+      - { module: '@content-planner/comment-mention.js', exports: [ 'ContentPlannerMention' ] }

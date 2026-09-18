@@ -28,10 +28,11 @@ test('opening a page with a status shows the status header in Web > Page', async
   await expect(webLayout.header()).toHaveAttribute('data-table', 'pages');
   await expect(webLayout.statusBody()).toContainText(DEMO_STATUS_TITLE_FOR_STATUS_PAGE);
 
-  // The demo fixture also carries an assignee and one comment (see support/demo-content.ts) -
-  // asserting on both proves the header renders real record state, not just a static shell.
+  // The demo fixture also carries an assignee and three comments, one of them a reply (see
+  // support/demo-content.ts; the badge counts replies too) - asserting on both proves the
+  // header renders real record state, not just a static shell.
   await expect(webLayout.header().locator('[data-content-planner-assignees]')).toContainText(
     DEMO_ASSIGNEE_USERNAME,
   );
-  await expect(webLayout.commentsBadge()).toHaveText('1');
+  await expect(webLayout.commentsBadge()).toHaveText('3');
 });

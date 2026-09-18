@@ -1,45 +1,53 @@
-import type { FrameLocator, Locator, Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 /**
- * The two comment modals opened from `Resources/Private/Templates/Backend/Header/HeaderInfo.html`
- * (`create-and-edit-comment-modal.js` / `comments-list-modal.js`). Both are TYPO3
- * `Modal.advanced()` instances, which always attach to the TOP document - never inside
- * the content iframe that triggered them - so locators here use `page`, not a content frame.
+ * The comments modal opened from `Resources/Private/Templates/Backend/Header/HeaderInfo.html`
+ * (`comments-list-modal.js`). A TYPO3 `Modal.advanced()` instance, which always attaches to the
+ * TOP document - never inside the content iframe that triggered them - so locators here use
+ * `page`, not a content frame.
  *
- * NOTE: this describes the comment UI as it exists on this branch. CP-28 (#327) replaces the
- * iframe/FormEngine flow with an inline CKEditor5 composer: no iframe, a
- * `form[data-comment-composer]` holding a `typo3-rte-ckeditor-ckeditor5` element, submitted
- * through `[data-comment-composer-submit]` via AJAX instead of `_savedok`. When the CP epic
- * and this e2e chain are merged, `createComment()` below and
- * `WebLayoutPage.newCommentLink()` have to be rewritten against that markup - a rewrite, not
- * a selector swap. The status and assignee parts of `web-layout.spec.ts` are unaffected;
- * their markup is unchanged by the CP epic.
+ * Since CP-28 (#327) there is no second modal and no iframe: creating, editing and replying all
+ * happen inline in this one list view through `form[data-comment-composer]`, a
+ * `typo3-rte-ckeditor-ckeditor5` element submitted over AJAX rather than FormEngine's `_savedok`.
+ * The header button carrying `data-focus-composer` opens the list with that composer already
+ * expanded, which is the "add a comment" entry point.
  */
 export class CommentsModalPage {
   constructor(private readonly page: Page) {}
 
-  private modalIframe(): FrameLocator {
-    return this.page.frameLocator('.modal-body iframe');
+  /** The inline composer for a new comment, as opposed to an edit or reply composer. */
+  composer(): Locator {
+    return this.page.locator('form[data-comment-composer][data-mode="new"]');
   }
 
   /**
-   * Fills the CKEditor-backed "content" field of the create-comment form (loaded in the
-   * modal's iframe, an ordinary FormEngine record-edit route) and saves it.
+   * Types into the CKEditor instance of the new-comment composer and submits it.
    *
-   * Waits for the modal iframe to detach afterwards: `create-and-edit-comment-modal.js`
-   * closes the modal itself once it observes the iframe reload after submit, so a
-   * fixed sleep here would either race that or hide a real failure to save.
+   * Waits for the composer to leave the pending state afterwards rather than for the modal to
+   * close: the modal stays open and reconciles the saved comment into the list in place, so
+   * there is no detach to wait on and a fixed sleep would either race the request or mask a
+   * failure to save.
    */
   async createComment(text: string): Promise<void> {
-    const editable = this.modalIframe().locator('.ck-editor__editable');
+    const composer = this.composer();
+    await composer.waitFor({ state: 'visible' });
+
+    const editable = composer.locator('.ck-editor__editable');
     await editable.waitFor({ state: 'visible' });
     await editable.fill(text);
-    await this.modalIframe().locator('button[name="_savedok"]').click();
-    await this.page.locator('.modal-body iframe').waitFor({ state: 'detached', timeout: 15_000 });
+
+    await composer.locator('[data-comment-composer-submit]').click();
   }
 
-  /** Text content of every comment currently rendered in the open "list comments" modal. */
+  /** Text content of every comment currently rendered in the open list. */
   commentTexts(): Locator {
     return this.page.locator('.content-planner-comment__text');
+  }
+
+  /** Closes the modal through its footer button; `staticBackdrop` rules out a click-away. */
+  async close(): Promise<void> {
+    const modal = this.page.locator('.t3js-modal');
+    await modal.locator('button[name="close"]').click();
+    await modal.waitFor({ state: 'detached' });
   }
 }

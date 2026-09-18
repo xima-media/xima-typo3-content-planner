@@ -17,6 +17,9 @@ use Doctrine\DBAL\Exception;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 
+use function count;
+use function strtoupper;
+
 /**
  * ChildCommentAggregationManager.
  *
@@ -24,11 +27,15 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRep
  * comments on its content elements, and on any other registered record living on that page
  * (e.g. a news record inside a sysfolder), are invisible from there even though editorially
  * they belong to the same conversation. This manager decides whether that aggregation should
- * run for the current view (`table`/`includeChildComments`) and, if so, builds the grouped
- * child-comment context for Default/Comments.html: one group per child record (its type icon,
- * title, and deep link via the existing shareAction/getRecordLink infrastructure on
- * {@see CommentItem}) plus a `hasMore` signal (CP-16, #320) when more commented child records
- * exist than fit the page.
+ * run for the current view (`table`/`includeChildComments`) and, if so, returns those comments
+ * for RecordController to merge into the record's own list.
+ *
+ * They are returned flat rather than grouped by record on purpose: a conversation reads in
+ * chronological order, so a comment on a content element belongs between the page's own
+ * comments of the same time, not in a section below all of them. Each item is flagged
+ * `foreignRecord`, which is what makes the Comment partial draw the record marker (status,
+ * type, jump link) beside it. `hasMore` (CP-16, #320) still signals that more commented child
+ * records exist than fit the page.
  *
  * Deliberately a *view* concern only: the page's own comment count/tree badge is computed
  * elsewhere (RecordRepository::updateCommentsRelationByRecord()) from the page's own comments
@@ -46,19 +53,19 @@ final readonly class ChildCommentAggregationManager
     ) {}
 
     /**
-     * @return array{active: bool, groups?: array<int, array{icon: string, title: string, recordLink: string, comments: array<int, CommentItem>}>, hasMore?: bool}
+     * @return array{active: bool, count: int, items?: array<int, CommentItem>, hasMore?: bool}
      *
      * @throws Exception
      */
     public function buildContext(string $table, int $pageId, bool $includeChildComments, bool $showResolved = false, string $sortDirection = 'DESC'): array
     {
-        if ('pages' !== $table || !$includeChildComments) {
-            return ['active' => false];
+        if ('pages' !== $table) {
+            return ['active' => false, 'count' => 0];
         }
 
         $refsResult = $this->recordRepository->findChildRecordRefsWithComments($pageId, RecordRepository::DEFAULT_PAGE_SIZE);
         if ([] === $refsResult->items) {
-            return ['active' => false];
+            return ['active' => false, 'count' => 0];
         }
 
         $refs = array_map(
@@ -66,38 +73,61 @@ final readonly class ChildCommentAggregationManager
             $refsResult->items,
         );
 
+        // The count is shown as a badge on the "show comments from child records" toggle even
+        // while it's off (CP-29 follow-up), the same way the unrelated resolved-count badge is
+        // always visible - so this lookup can no longer be skipped just because the toggle is off.
         $comments = $this->commentRepository->findAllByRecords($refs, $showResolved, $sortDirection);
         if ([] === $comments) {
-            return ['active' => false];
+            return ['active' => false, 'count' => 0];
+        }
+
+        if (!$includeChildComments) {
+            return ['active' => false, 'count' => count($comments)];
+        }
+
+        foreach ($comments as $comment) {
+            $comment->foreignRecord = true;
         }
 
         return [
             'active' => true,
-            'groups' => $this->groupByRecord($comments),
+            'count' => count($comments),
+            'items' => $comments,
             'hasMore' => $refsResult->hasMore,
         ];
     }
 
     /**
-     * @param array<int, CommentItem> $comments
+     * Child-record comments read as part of the same conversation, so they are listed among the
+     * record's own in the list's sort order rather than in a section of their own. Sorting the
+     * merged list newest-first and reversing for ASC keeps it to a single comparison.
      *
-     * @return array<int, array{icon: string, title: string, recordLink: string, comments: array<int, CommentItem>}>
+     * @param array<int, CommentItem>                                          $comments
+     * @param array{active: bool, count: int, items?: array<int, CommentItem>} $context
+     *
+     * @return array<int, CommentItem>
      */
-    private function groupByRecord(array $comments): array
+    public function mergeIntoList(array $comments, array $context, string $sortDirection): array
     {
-        $groups = [];
-        foreach ($comments as $comment) {
-            $key = $comment->data['foreign_table'].':'.$comment->data['foreign_uid'];
-
-            $groups[$key] ??= [
-                'icon' => $comment->getRecordIcon(),
-                'title' => $comment->getTitle(),
-                'recordLink' => $comment->getRecordLink(),
-                'comments' => [],
-            ];
-            $groups[$key]['comments'][] = $comment;
+        $childItems = $context['active'] ? ($context['items'] ?? []) : [];
+        if ([] === $childItems) {
+            return $comments;
         }
 
-        return array_values($groups);
+        $merged = [...$comments, ...$childItems];
+        usort($merged, static fn (CommentItem $a, CommentItem $b): int => self::lastActivity($b) <=> self::lastActivity($a));
+
+        return 'ASC' === strtoupper($sortDirection) ? array_reverse($merged) : $merged;
+    }
+
+    /**
+     * The repository orders root comments by last_activity, not crdate, so a thread with a fresh
+     * reply floats to the top (see CommentRepository::buildRootCommentsQueryBuilder()). Merging
+     * has to keep that key, otherwise switching the child-comment toggle on would silently
+     * reshuffle the record's own comments.
+     */
+    private static function lastActivity(CommentItem $comment): int
+    {
+        return (int) ($comment->data['last_activity'] ?? $comment->data['crdate']);
     }
 }

@@ -1,0 +1,14 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<div class="content-planner-mention-card">
+    <span class="content-planner-mention-card__avatar"><f:format.raw>{avatar}</f:format.raw></span>
+    <span class="content-planner-mention-card__body">
+        <strong class="content-planner-mention-card__name">{name}</strong>
+        <span class="content-planner-mention-card__username">{username}</span>
+        <f:if condition="{email}">
+            <a class="content-planner-mention-card__email" href="mailto:{email}">{email}</a>
+        </f:if>
+    </span>
+</div>
+</html>

@@ -22,10 +22,10 @@ use Xima\XimaTypo3ContentPlanner\Utility\Data\MentionUtility;
 /**
  * MentionUtilityTest.
  *
- * Covers {@see MentionUtility::renderContentWithMentionLinks()}, the DB-backed half of the
- * mention marker contract: it must re-resolve the mentioned user's *current* display name -
- * proving the whole reason markers store a stable UID rather than baking in a name that can go
- * stale.
+ * Covers {@see MentionUtility::renderContentWithMentions()}, the DB-backed half of the mention
+ * marker contract: it must re-resolve the mentioned user's *current* display name - proving the
+ * whole reason markers store a stable UID rather than baking in a name that can go stale - and
+ * turn the stored anchor into the focusable profile-card trigger.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -40,13 +40,12 @@ final class MentionUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function rendersAMentionMarkerAsALinkWithTheCurrentDisplayName(): void
+    public function rendersAMentionMarkerWithTheCurrentDisplayName(): void
     {
         $content = '<p>Hey <a class="ctp-mention" data-mention-uid="2">@stale-name</a>!</p>';
 
-        $rendered = MentionUtility::renderContentWithMentionLinks($content);
+        $rendered = MentionUtility::renderContentWithMentions($content);
 
-        self::assertStringContainsString('class="ctp-mention"', $rendered);
         self::assertStringContainsString('data-mention-uid="2"', $rendered);
         // "Editor User (editor)" is the *current* be_users(2) display name - not "stale-name",
         // which is what the marker text happened to say when the mention was authored.
@@ -55,13 +54,60 @@ final class MentionUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function addsAnHrefPointingAtTheMentionedUsersRecord(): void
+    public function turnsTheStoredAnchorIntoAFocusableButtonWithoutALink(): void
     {
         $content = '<a class="ctp-mention" data-mention-uid="2">@editor</a>';
 
-        $rendered = MentionUtility::renderContentWithMentionLinks($content);
+        $rendered = MentionUtility::renderContentWithMentions($content);
 
-        self::assertMatchesRegularExpression('/href="[^"]+"/', $rendered);
+        // be_users is adminOnly, so the record link the marker used to carry was a dead end for
+        // most readers - the trigger is a button the profile card hangs off instead.
+        self::assertStringContainsString('<button', $rendered);
+        self::assertStringContainsString('type="button"', $rendered);
+        self::assertStringContainsString('class="ctp-mention"', $rendered);
+        self::assertStringNotContainsString('href=', $rendered);
+    }
+
+    #[Test]
+    public function marksTheCurrentUsersOwnMentionSoItStandsOut(): void
+    {
+        $ownUid = (int) $GLOBALS['BE_USER']->user['uid'];
+
+        $rendered = MentionUtility::renderContentWithMentions(
+            '<a class="ctp-mention" data-mention-uid="'.$ownUid.'">@me</a>',
+        );
+
+        self::assertStringContainsString('ctp-mention--self', $rendered);
+        // Not colour alone: the hint has to reach a screen reader too.
+        self::assertStringContainsString('visually-hidden', $rendered);
+    }
+
+    #[Test]
+    public function doesNotMarkSomeoneElsesMentionAsOwn(): void
+    {
+        $otherUid = (int) $GLOBALS['BE_USER']->user['uid'] + 1;
+
+        $rendered = MentionUtility::renderContentWithMentions(
+            '<a class="ctp-mention" data-mention-uid="'.$otherUid.'">@somebody</a>',
+        );
+
+        self::assertStringNotContainsString('ctp-mention--self', $rendered);
+    }
+
+    #[Test]
+    public function rendersTheOwnMentionWithoutALanguageService(): void
+    {
+        $ownUid = (int) $GLOBALS['BE_USER']->user['uid'];
+        // The public API renders comments from CLI and scheduler contexts too, where there is no
+        // $GLOBALS['LANG'] - losing the hint is fine, taking the comment down with it is not.
+        unset($GLOBALS['LANG']);
+
+        $rendered = MentionUtility::renderContentWithMentions(
+            '<a class="ctp-mention" data-mention-uid="'.$ownUid.'">@me</a>',
+        );
+
+        self::assertStringContainsString('ctp-mention--self', $rendered);
+        self::assertStringNotContainsString('visually-hidden', $rendered);
     }
 
     #[Test]
@@ -69,10 +115,10 @@ final class MentionUtilityTest extends AbstractFunctionalTestCase
     {
         $content = '<a class="ctp-mention" data-mention-uid="99999">@ghost</a>';
 
-        $rendered = MentionUtility::renderContentWithMentionLinks($content);
+        $rendered = MentionUtility::renderContentWithMentions($content);
 
         self::assertStringContainsString('@ghost', $rendered);
-        self::assertStringNotContainsString('href=', $rendered);
+        self::assertStringNotContainsString('<button', $rendered);
     }
 
     #[Test]
@@ -80,7 +126,7 @@ final class MentionUtilityTest extends AbstractFunctionalTestCase
     {
         $content = '<p>No mentions here.</p>';
 
-        self::assertSame($content, MentionUtility::renderContentWithMentionLinks($content));
+        self::assertSame($content, MentionUtility::renderContentWithMentions($content));
     }
 
     private function initBackendRequest(): void

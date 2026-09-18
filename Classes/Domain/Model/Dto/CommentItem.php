@@ -45,6 +45,14 @@ final class CommentItem
     public ?Status $status = null;
 
     /**
+     * CP-29 (#328): true for a comment that sits on a child record rather than on the record
+     * whose comment view is being rendered. Child comments are listed inline among the record's
+     * own, so this is what tells the Comment partial to add the marker (status, record type and
+     * the jump link) that says which element the comment actually belongs to.
+     */
+    public bool $foreignRecord = false;
+
+    /**
      * @param array<string, mixed> $row
      */
     public static function create(array $row): static
@@ -53,6 +61,20 @@ final class CommentItem
         $item->data = $row;
 
         return $item;
+    }
+
+    /**
+     * Whether this comment sits on a record other than the given one - the condition for the
+     * record marker when a comment is rendered inside another record's list (CP-29, #328). An
+     * empty table means there is no list context at all, so the comment is never foreign.
+     */
+    public function isForeignTo(string $table, int $uid): bool
+    {
+        if ('' === $table) {
+            return false;
+        }
+
+        return $this->data['foreign_table'] !== $table || (int) $this->data['foreign_uid'] !== $uid;
     }
 
     public function getTitle(): string
@@ -112,13 +134,13 @@ final class CommentItem
 
     /**
      * Rendered comment content (issue #305): every persisted @-mention marker is refreshed to
-     * the mentioned user's *current* display name and link before display - see
-     * {@see MentionUtility} for the storage contract. Safe to call on content with no mentions
-     * at all, returned unchanged.
+     * the mentioned user's *current* display name and turned into the profile-card trigger -
+     * see {@see MentionUtility} for the storage contract. Safe to call on content with no
+     * mentions at all, returned unchanged.
      */
     public function getContent(): string
     {
-        return MentionUtility::renderContentWithMentionLinks((string) ($this->data['content'] ?? ''));
+        return MentionUtility::renderContentWithMentions((string) ($this->data['content'] ?? ''));
     }
 
     public function getTimeAgo(): string

@@ -41,6 +41,24 @@ class CommentComposer {
     window.addEventListener('typo3:contentplanner:reinitializelistener', (event) => {
       this.initEventListeners(event.detail?.modal || null)
     })
+
+    // Jira-style "m" shortcut: focuses the (currently collapsed) new-comment composer from
+    // anywhere in the modal, as long as the user isn't already typing somewhere.
+    document.addEventListener('keydown', event => {
+      if ('m' !== event.key.toLowerCase() || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+        return
+      }
+      if (event.target.closest('input, textarea, select, [contenteditable="true"]')) {
+        return
+      }
+      const trigger = document.querySelector('[data-comment-composer-trigger]')
+      const collapsed = trigger?.closest('[data-comment-composer-collapsed]')
+      if (!trigger || !collapsed || collapsed.hidden) {
+        return
+      }
+      event.preventDefault()
+      this.expandNewComposer(trigger)
+    })
   }
 
   initEventListeners(modal = null) {
@@ -50,7 +68,25 @@ class CommentComposer {
     if (forms.length) {
       loadRichTextEditor()
     }
-    forms.forEach(form => this.bindForm(form))
+    forms.forEach(form => this.bindForm(form, 'new' === form.dataset.mode
+      ? {onCancel: () => this.collapseNewComposer(form)}
+      : undefined))
+
+    root.querySelectorAll('[data-comment-composer-trigger]').forEach(trigger => {
+      if ('true' === trigger.dataset.commentComposerBound) {
+        return
+      }
+      trigger.dataset.commentComposerBound = 'true'
+      trigger.addEventListener('click', () => this.expandNewComposer(trigger))
+    })
+
+    // The Cmd/Ctrl+Enter hint text is platform-specific; the markup ships the Windows/Linux
+    // label and this swaps it for Mac users rather than shipping two translation keys.
+    if (this.isMacPlatform()) {
+      root.querySelectorAll('[data-shortcut-modifier]').forEach(el => {
+        el.textContent = '⌘'
+      })
+    }
 
     root.querySelectorAll('[data-edit-comment-uri]').forEach(item => {
       if ('true' === item.dataset.commentComposerBound) {
@@ -74,6 +110,38 @@ class CommentComposer {
       })
       this.replyDelegateInitialized = true
     }
+  }
+
+  isMacPlatform() {
+    return /Mac|iPod|iPhone|iPad/.test(navigator.userAgentData?.platform || navigator.platform || '')
+  }
+
+  // --- new-comment composer: collapsed trigger row, expanded on demand -------------------
+
+  expandNewComposer(trigger) {
+    const collapsed = trigger.closest('[data-comment-composer-collapsed]')
+    const wrapper = trigger.closest('[data-comment-composer-wrapper]')
+    const form = wrapper?.querySelector('[data-comment-composer]')
+    if (!collapsed || !wrapper || !form) {
+      return
+    }
+
+    loadRichTextEditor()
+
+    collapsed.hidden = true
+    form.hidden = false
+    this.focusEditor(form)
+  }
+
+  collapseNewComposer(form) {
+    const wrapper = form.closest('[data-comment-composer-wrapper]')
+    const collapsed = wrapper?.querySelector('[data-comment-composer-collapsed]')
+    if (!wrapper || !collapsed) {
+      return
+    }
+
+    form.hidden = true
+    collapsed.hidden = false
   }
 
   // --- opening the on-demand (edit/reply) composer ---------------------------------------
@@ -107,7 +175,7 @@ class CommentComposer {
         })
         // Keyboard users activated this deliberately; without moving focus they would have
         // to tab back to the editor that just appeared.
-        form.querySelector('textarea')?.focus()
+        this.focusEditor(form)
       })
       .catch(error => {
         console.error('Content Planner: failed to load the comment editor:', error)
@@ -117,17 +185,26 @@ class CommentComposer {
 
   openReplyEditor(trigger) {
     const commentEl = trigger.closest('[data-comment-uid]')
-    const slot = commentEl?.querySelector(':scope > .d-flex > [data-reply-slot]')
+    const slot = this.replySlot(trigger, commentEl)
     if (!commentEl || !slot) {
       return
     }
 
-    if (slot.querySelector('[data-comment-composer]')) {
-      slot.querySelector('[data-comment-composer] textarea')?.focus()
+    const openComposer = slot.querySelector('[data-comment-composer]')
+    if (openComposer) {
+      this.focusEditor(openComposer)
       return // already open
     }
 
     loadRichTextEditor()
+
+    // Only the trigger goes, never the row around it: the avatar column belongs to the row, and
+    // hiding that too dropped the editor a column and a padding further left than the
+    // "Add a reply..." it replaces.
+    const replyTrigger = slot.querySelector('.content-planner-comment-composer-trigger--reply')
+    if (replyTrigger) {
+      replyTrigger.hidden = true
+    }
 
     new AjaxRequest(trigger.getAttribute('data-reply-comment-uri'))
       .get()
@@ -137,14 +214,117 @@ class CommentComposer {
         const form = fragment.querySelector('[data-comment-composer]')
         slot.appendChild(form)
         this.bindForm(form, {
-          onCancel: () => form.remove(),
+          onCancel: () => {
+            form.remove()
+            if (replyTrigger) {
+              replyTrigger.hidden = false
+            }
+          },
         })
-        form.querySelector('textarea')?.focus()
+        this.focusEditor(form)
       })
       .catch(error => {
         console.error('Content Planner: failed to load the reply editor:', error)
         Notification.message('comment.create', 'failure')
+        if (replyTrigger) {
+          replyTrigger.hidden = false
+        }
       })
+  }
+
+  /**
+   * Where the reply editor opens. Both targets are a
+   * `.content-planner-comment-composer-row__body` sitting next to an avatar, so the editor
+   * lines up with the "Add a reply..." trigger either way.
+   *
+   * Clicking that trigger opens the editor in its place, inside the thread. The dropdown's
+   * "Reply" item has no row of its own and stays on the standalone slot, which sits outside the
+   * replies collapse and is therefore reachable whether or not the thread is expanded.
+   *
+   * @returns {HTMLElement|null}
+   */
+  replySlot(trigger, commentEl) {
+    return (
+      trigger.closest('.content-planner-comment-composer-row--reply')?.querySelector('[data-reply-slot]')
+      ?? commentEl?.querySelector(':scope > .d-flex > .content-planner-comment__reply-slot > [data-reply-slot]')
+      ?? null
+    )
+  }
+
+  /**
+   * CKEditor5 hides the `<textarea>` it was initialized from and takes over input through its
+   * own contenteditable, so focusing that textarea puts the caret nowhere. The web component
+   * builds the editor asynchronously and exposes neither the instance nor a ready event, so
+   * wait for the editable to show up before focusing it.
+   */
+  focusEditor(form) {
+    const editable = form.querySelector('.ck-editor__editable')
+    if (editable) {
+      this.revealEditor(form, editable)
+      return
+    }
+
+    const observer = new MutationObserver(() => {
+      const target = form.querySelector('.ck-editor__editable')
+      if (!target) {
+        return
+      }
+      observer.disconnect()
+      this.revealEditor(form, target)
+    })
+    observer.observe(form, {childList: true, subtree: true})
+    // The editor bundle can fail to load; without this the observer would stay attached to a
+    // form the user has long since cancelled.
+    setTimeout(() => observer.disconnect(), 10000)
+  }
+
+  /**
+   * The new-comment composer sits at the very bottom of the comment list, so expanding it
+   * leaves most of the editor below the fold. Focusing alone only scrolls the caret into view,
+   * which stops as soon as its first line is visible - scrolling the form's bottom edge in
+   * instead reveals the editor together with its toolbar and buttons.
+   */
+  revealEditor(form, editable) {
+    editable.focus({preventScroll: true})
+    form.scrollIntoView({behavior: 'smooth', block: 'end'})
+    this.relocateEditorBalloons(form)
+  }
+
+  /**
+   * TYPO3 v14 opens modals as a native `<dialog>` via `showModal()`, which puts them in the
+   * browser's top layer. CKEditor appends its balloon panels - the mention dropdown, the link
+   * form, special characters - to a `.ck-body-wrapper` on `document.body`, which is ordinary
+   * flow content and therefore painted *below* the top layer no matter what z-index it
+   * carries. Moving that wrapper into the dialog puts the balloons in the same top-layer
+   * subtree as the composer they belong to. In v13 the modal is an ordinary positioned
+   * element, there is no `<dialog>` ancestor and this does nothing.
+   *
+   * The wrapper is shared by every editor in the document: CKEditor keeps it in a static field
+   * and only builds a new one when an editor is *created* and finds the old one disconnected
+   * (BodyCollection.attachToDom()). Editors that already exist keep pointing at their own
+   * container inside it, so letting the wrapper be removed along with the dialog would leave
+   * every editor outside the modal silently unable to open a balloon again. It therefore goes
+   * back to the body as the modal closes - while it is away, the rest of the document is inert
+   * anyway, so nothing out there can open a balloon in the meantime.
+   */
+  relocateEditorBalloons(form) {
+    const dialog = form.closest('dialog')
+    const wrapper = document.querySelector('.ck-body-wrapper')
+    if (!dialog || !wrapper || dialog === wrapper.parentElement) {
+      return
+    }
+
+    dialog.appendChild(wrapper)
+
+    const restore = () => {
+      if (wrapper.isConnected && document.body !== wrapper.parentElement) {
+        document.body.appendChild(wrapper)
+      }
+    }
+    // typo3-modal-hide fires at the start of the teardown, the dialog's own close event at its
+    // end. Whichever arrives first moves the wrapper back; the other one is then a no-op.
+    dialog.closest('typo3-backend-modal')?.addEventListener('typo3-modal-hide', restore, {once: true})
+    dialog.addEventListener('close', restore, {once: true})
   }
 
   // --- submission --------------------------------------------------------------------------
@@ -161,9 +341,20 @@ class CommentComposer {
       event.preventDefault()
       this.submit(form)
     })
+
+    form.addEventListener('keydown', event => {
+      if ('Enter' === event.key && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault()
+        this.submit(form)
+      }
+    })
   }
 
   submit(form) {
+    if (form.classList.contains('content-planner-comment-composer--pending')) {
+      return
+    }
+
     const textarea = form.querySelector('textarea[slot="textarea"]')
     const submitButton = form.querySelector('[data-comment-composer-submit]')
     const content = textarea?.value?.trim() ?? ''
@@ -184,12 +375,19 @@ class CommentComposer {
     const table = form.dataset.table
     const id = form.dataset.id
     const parentUid = form.dataset.parentUid
-    const commentUid = form.dataset.commentUid
+    const commentUid = form.dataset.composerCommentUid
+
+    // The record the open list belongs to, which is not the composer's own for a comment on a
+    // child record listed inline (CP-29, #328) - the server needs it to decide whether the
+    // re-rendered comment keeps its record marker.
+    const filterForm = document.querySelector('form#content-planner-comment-filter')
+    const listTable = filterForm?.getAttribute('data-table') || table
+    const listUid = filterForm?.getAttribute('data-id') || id
 
     OptimisticUpdate.run({
       apply: () => this.applyPending(form, submitButton),
       request: () => new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_commentsave)
-        .post({table, uid: id, content, commentUid, parentUid, statusUid})
+        .post({table, uid: id, content, commentUid, parentUid, statusUid, listTable, listUid})
         .then(async result => {
           const resolved = await result.resolve()
           if (!result.response.ok || resolved.error) {

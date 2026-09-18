@@ -217,6 +217,95 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function commentsActionSortsChildCommentsInLineWithTheRecordsOwnComments(): void
+    {
+        // CP-29 (#328): child comments are part of the same conversation, so they belong in the
+        // list's chronological order rather than in a section of their own below it.
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['sys_file_metadata']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments_interleaved.csv');
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $backendUser->uc['contentPlanner']['includeChildComments'] = true;
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+
+        $newer = strpos($result, 'Newer page comment');
+        $child = strpos($result, 'Child record comment');
+        $older = strpos($result, 'Older page comment');
+        self::assertIsInt($newer);
+        self::assertIsInt($child);
+        self::assertIsInt($older);
+        // Newest first (the default sort), with the child comment in its chronological place.
+        self::assertGreaterThan($newer, $child);
+        self::assertGreaterThan($child, $older);
+        // The marker that tells the reader which record a child comment sits on.
+        self::assertStringContainsString('content-planner-comment__record', $result);
+    }
+
+    /**
+     * The repository sorts root comments by last_activity, so a thread with a fresh reply floats
+     * to the top. Merging child comments in must keep that key - sorting the merged list by
+     * crdate instead would silently reshuffle the record's own comments.
+     */
+    #[Test]
+    public function commentsActionKeepsTheLastActivityOrderWhenMergingChildComments(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['sys_file_metadata']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments_activity.csv');
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $backendUser->uc['contentPlanner']['includeChildComments'] = true;
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+
+        // crdate 500 but last_activity 2000 through its reply, so it stays above the child
+        // comment at crdate 1000.
+        self::assertGreaterThan(
+            strpos($result, 'Old page comment with a fresh reply'),
+            strpos($result, 'Child record comment'),
+        );
+    }
+
+    #[Test]
+    public function commentsActionSortsChildCommentsInLineWhenSortedOldestFirst(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['sys_file_metadata']);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments_interleaved.csv');
+
+        /** @var BackendUserAuthentication $backendUser */
+        $backendUser = $GLOBALS['BE_USER'];
+        $backendUser->uc['contentPlanner']['includeChildComments'] = true;
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'sortComments' => 'ASC']),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+
+        self::assertGreaterThan(strpos($result, 'Older page comment'), strpos($result, 'Child record comment'));
+        self::assertGreaterThan(strpos($result, 'Child record comment'), strpos($result, 'Newer page comment'));
+    }
+
+    #[Test]
     public function commentsActionKeepsOwnCommentCountUnaffectedByChildComments(): void
     {
         // Regression guard (CP-29, #328): aggregation is a view concern only. The page's own

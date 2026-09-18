@@ -56,9 +56,13 @@ final readonly class CommentEditorConfigurationFactory
     ) {}
 
     /**
+     * @param string $table     the record the comment belongs to, passed on to the @-mention
+     *                          suggestion feed so it can scope its permission check
+     * @param int    $recordUid uid of that record
+     *
      * @return array<string, mixed>
      */
-    public function build(int $pid): array
+    public function build(int $pid, string $table, int $recordUid): array
     {
         $tcaFieldConf = $GLOBALS['TCA'][self::TABLE]['columns'][self::FIELD]['config'] ?? [];
         $configuration = $this->richtext->getConfiguration(self::TABLE, self::FIELD, $pid, '0', $tcaFieldConf);
@@ -73,9 +77,14 @@ final readonly class CommentEditorConfigurationFactory
         $ckeditorConfiguration = $this->replaceLanguageFileReferences($ckeditorConfiguration);
         $ckeditorConfiguration = $this->replaceAbsolutePathsToRelativeResourcesPath($ckeditorConfiguration);
 
+        // Read by the ContentPlannerMention plugin (Comments.yaml registers it via
+        // importModules) to build its suggestion feed request. Set after the label and path
+        // normalization above, which would otherwise run over the table name.
+        $ckeditorConfiguration['contentPlannerMention'] = ['table' => $table, 'uid' => $recordUid];
+
         // Extension point for features that need their own CKEditor5 plugins in the comment
-        // composer (e.g. @-mentions), so they do not have to replace this factory.
-        $event = $this->eventDispatcher->dispatch(new ModifyCommentEditorConfigurationEvent($ckeditorConfiguration, $pid));
+        // composer, so they do not have to replace this factory.
+        $event = $this->eventDispatcher->dispatch(new ModifyCommentEditorConfigurationEvent($ckeditorConfiguration, $pid, $table, $recordUid));
 
         return $event->getConfiguration();
     }

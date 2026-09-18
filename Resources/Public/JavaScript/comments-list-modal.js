@@ -75,10 +75,10 @@ class CommentsListModal {
         btnClass: 'btn-primary',
         trigger: (event, modal) => {
           // The composer is already rendered inline at the bottom of the fetched comment
-          // list (CP-28, #327) - "New" just brings it into view.
-          const composer = modal.querySelector('[data-comment-composer][data-mode="new"]')
-          composer?.scrollIntoView({behavior: 'smooth', block: 'center'})
-          composer?.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
+          // list (CP-28, #327), collapsed behind a trigger row - "New" expands and focuses it.
+          const composerTrigger = modal.querySelector('[data-comment-composer-trigger]')
+          composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
+          composerTrigger?.click()
         }
       }] : []),
       ...(editUrl ? [{
@@ -119,18 +119,25 @@ class CommentsListModal {
           staticBackdrop: true,
           buttons,
           callback: (modal) => {
-            modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
-              bubbles: true,
-              composed: true
-            }))
+            // Same signal assignee-selection-modal.js waits for (CP-26, #325): this callback
+            // runs before the modal's content has been rendered into the document, so listeners
+            // re-binding against `document` here find nothing. `detail.modal` matters for the
+            // same reason - it is the only root that already holds the fetched content.
+            modal.addEventListener('typo3-modal-shown', () => {
+              modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
+                bubbles: true,
+                composed: true,
+                detail: { modal }
+              }))
 
-            if (scrollToCommentUid) {
-              this.scrollToComment(modal, scrollToCommentUid)
-            } else if (focusComposer) {
-              const composer = modal.querySelector('[data-comment-composer][data-mode="new"]')
-              composer?.scrollIntoView({behavior: 'smooth', block: 'center'})
-              composer?.querySelector('typo3-rte-ckeditor-ckeditor5 textarea')?.focus()
-            }
+              if (scrollToCommentUid) {
+                this.scrollToComment(modal, scrollToCommentUid)
+              } else if (focusComposer) {
+                const composerTrigger = modal.querySelector('[data-comment-composer-trigger]')
+                composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
+                composerTrigger?.click()
+              }
+            }, { once: true })
           }
         })
       })

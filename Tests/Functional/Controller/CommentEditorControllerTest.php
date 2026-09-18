@@ -111,7 +111,7 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('data-mode="edit"', $payload['result']);
-        self::assertStringContainsString('data-comment-uid="1"', $payload['result']);
+        self::assertStringContainsString('data-composer-comment-uid="1"', $payload['result']);
         self::assertStringContainsString('Open comment', $payload['result']);
     }
 
@@ -438,6 +438,94 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
         // above), a to-do toggle must not trip the "edited" flag or badge - it changes a
         // checkbox state, not the comment text.
         self::assertSame(0, (int) $comment['edited']);
+    }
+
+    /**
+     * The header's to-do badge counts every open comment of the record, so the response carries
+     * the record-wide totals next to the toggled comment's own - the client cannot derive them.
+     */
+    #[Test]
+    public function commentToggleTodoActionReturnsTheRecordWideTodoTotals(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $first = $this->createController()->commentSaveAction($this->createPostRequest([
+            'table' => 'pages',
+            'uid' => 1,
+            'content' => '<ul class="todo-list"><li><input type="checkbox">First</li></ul>',
+        ]));
+        $commentUid = (int) json_decode((string) $first->getBody(), true)['commentUid'];
+
+        $this->createController()->commentSaveAction($this->createPostRequest([
+            'table' => 'pages',
+            'uid' => 1,
+            'content' => '<ul class="todo-list">'
+                .'<li><input type="checkbox">Second</li>'
+                .'<li><input type="checkbox" checked>Third</li>'
+                .'</ul>',
+        ]));
+
+        $response = $this->createController()->commentToggleTodoAction(
+            $this->createPostRequest(['commentUid' => $commentUid, 'todoIndex' => 0, 'checked' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(1, $payload['todoResolved']);
+        self::assertSame(1, $payload['todoTotal']);
+        self::assertSame(3, $payload['recordTodoTotal']);
+        self::assertSame(2, $payload['recordTodoResolved']);
+        // The client addresses the header badge by this record, not by the open list - a child
+        // comment listed inline would otherwise overwrite the page's badge with its own totals.
+        self::assertSame('pages', $payload['recordTable']);
+        self::assertSame(1, $payload['recordUid']);
+    }
+
+    /**
+     * CP-29 (#328): a comment on a child record is listed inline among the record's own, so the
+     * fragment that replaces it after an inline edit has to keep its record marker.
+     */
+    #[Test]
+    public function commentSaveActionFlagsASavedCommentThatBelongsToAnotherRecordThanTheOpenList(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentSaveAction($this->createPostRequest([
+            'content' => 'Edited content',
+            'commentUid' => 1,
+            // Comment 1 sits on pages:1, but the open list is the one of pages:2.
+            'listTable' => 'pages',
+            'listUid' => 2,
+        ]));
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('content-planner-comment__record', $payload['result']);
+    }
+
+    #[Test]
+    public function commentSaveActionLeavesACommentOfTheOpenListUnmarked(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentSaveAction($this->createPostRequest([
+            'content' => 'Edited content',
+            'commentUid' => 1,
+            'listTable' => 'pages',
+            'listUid' => 1,
+        ]));
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringNotContainsString('content-planner-comment__record', $payload['result']);
     }
 
     /**
