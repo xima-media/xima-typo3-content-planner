@@ -189,20 +189,24 @@
 /* Deliberately smaller than a stock .badge: at the default size the pill covers most of the
    16px icon it is attached to, which defeats an icon-only control.
 
-   Sits INLINE next to the icon, not floated over a corner: these buttons are ~30px wide at
-   rest (icon-only, edge-to-edge in a connected .btn-group), which leaves no room for a corner
-   badge that doesn't either bleed into the next segment (an overhang past the border) or cover
-   the icon underneath it (an inset that stays inside the border). A segment that carries a
-   count is simply a few px wider than one that doesn't - still no visible text label, just
-   icon-plus-pill, matching the counter-in-button pattern most issue trackers use for this. */
+   Pinned to the button's own top-right corner - inset by 1px, never past the button's own
+   border - rather than sitting inline next to the icon: these buttons are ~30px wide at rest
+   (icon-only, edge-to-edge in a connected .btn-group), and an inline badge made badged buttons
+   visibly wider than bare ones. Staying inset (not an overhanging notification dot) keeps the
+   badge inside its own button's box, so it can never bleed onto the neighbouring segment -
+   pointer-events: none below means it could never intercept a click either way, but this also
+   keeps the two visually apart. */
 .content-planner-meta__count {
     border-radius: 1rem;
-    font-size: 0.625rem;
+    font-size: 0.5625rem;
     font-variant-numeric: tabular-nums;
     font-weight: 600;
     line-height: 1;
-    min-width: 0.875rem;
-    padding: 0.175rem 0.3rem;
+    min-width: 0.75rem;
+    padding: 0.1rem 0.25rem;
+    position: absolute;
+    right: 1px;
+    top: 1px;
     /* The badge is decorative: the same count is already part of the button's
        aria-label, so it must not be announced a second time. */
     pointer-events: none;
