@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\EventListener;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Backend\Module\Module;
 use TYPO3\CMS\Backend\Template\Components\{ButtonBar, ModifyButtonBarEvent};
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -152,6 +153,40 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
         $this->subject->__invoke($event);
 
         self::assertArrayNotHasKey('right', $event->getButtons());
+    }
+
+    #[Test]
+    public function dockedModeAddsNothingForPageInWebLayoutModule(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_DOCKED;
+
+        $request = $this->setUpBackendRequest('web_layout', ['id' => 1])
+            ->withAttribute('module', Module::createFromConfiguration('web_layout', ['path' => '/module/web_layout']));
+        $GLOBALS['TYPO3_REQUEST'] = $request;
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        self::assertArrayNotHasKey('right', $event->getButtons());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    #[Test]
+    public function dockedModeStillAddsTrioOutsidePageLayoutModule(): void
+    {
+        // Only the page module gets the docked bar (DockedHeaderModifier); record edit falls
+        // back to the "chip" trio since there is no docked bar there to take its place.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_DOCKED;
+
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        self::assertCount(2, $this->getLinkButtons($event));
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
     }
 
     /**

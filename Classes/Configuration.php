@@ -68,17 +68,21 @@ class Configuration
     final public const FIELD_USER_IMMEDIATE_EMAIL = 'tx_ximatypo3contentplanner_immediate_email';
 
     /*
-     * CP-25 (#324): banner|chip toggle for how status/assignee/comment information is
+     * CP-25 (#324): banner|chip|docked toggle for how status/assignee/comment information is
      * displayed across the backend. "chip" (default from v3.0, breaking) shows a compact
      * doc header trio (status dropdown, assignee button, comment button) built from
      * ModifyButtonBarEventListener and retires the injected banner/overlay markup from
      * RecordEditModifier and WebLayoutModifier. "banner" keeps the pre-3.0 full-width
      * banner/overlay behaviour for installations that want the added prominence (e.g.
-     * migration projects).
+     * migration projects). "docked" replaces the doc header trio and the above-content
+     * banner with a single narrow bar spliced into the doc header's button row by
+     * DockedHeaderModifier - scoped to the page module only, other contexts (record edit,
+     * file list) fall back to the "chip" rendering.
      */
     final public const FEATURE_HEADER_DISPLAY_MODE = 'headerDisplayMode';
     final public const HEADER_DISPLAY_MODE_BANNER = 'banner';
     final public const HEADER_DISPLAY_MODE_CHIP = 'chip';
+    final public const HEADER_DISPLAY_MODE_DOCKED = 'docked';
 
     final public const CACHE_IDENTIFIER = 'ximatypo3contentplanner';
 

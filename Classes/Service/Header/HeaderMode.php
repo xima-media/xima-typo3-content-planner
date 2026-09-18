@@ -25,4 +25,5 @@ enum HeaderMode: string
     case WEB_LAYOUT = 'web_layout';
     case WEB_LIST = 'web_list';
     case FILE_LIST = 'file_list';
+    case CONTENT_ELEMENT = 'content_element';
 }

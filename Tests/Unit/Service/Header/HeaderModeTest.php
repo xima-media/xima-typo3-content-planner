@@ -32,6 +32,7 @@ final class HeaderModeTest extends TestCase
         self::assertSame('web_layout', HeaderMode::WEB_LAYOUT->value);
         self::assertSame('web_list', HeaderMode::WEB_LIST->value);
         self::assertSame('file_list', HeaderMode::FILE_LIST->value);
+        self::assertSame('content_element', HeaderMode::CONTENT_ELEMENT->value);
     }
 
     #[Test]
@@ -41,6 +42,7 @@ final class HeaderModeTest extends TestCase
         self::assertSame(HeaderMode::WEB_LAYOUT, HeaderMode::from('web_layout'));
         self::assertSame(HeaderMode::WEB_LIST, HeaderMode::from('web_list'));
         self::assertSame(HeaderMode::FILE_LIST, HeaderMode::from('file_list'));
+        self::assertSame(HeaderMode::CONTENT_ELEMENT, HeaderMode::from('content_element'));
     }
 
     #[Test]
@@ -50,8 +52,8 @@ final class HeaderModeTest extends TestCase
     }
 
     #[Test]
-    public function hasExactlyFourCases(): void
+    public function hasExactlyFiveCases(): void
     {
-        self::assertCount(4, HeaderMode::cases());
+        self::assertCount(5, HeaderMode::cases());
     }
 }

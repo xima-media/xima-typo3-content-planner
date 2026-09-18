@@ -36,7 +36,9 @@ use function is_array;
  * CP-25 (#324): in the default "chip" headerDisplayMode, this listener is also responsible
  * for the doc header trio (status dropdown, assignee button, comment button) that replaces
  * the retired RecordEditModifier banner. In the legacy "banner" mode it only adds the status
- * dropdown, as before.
+ * dropdown, as before. In "docked" mode it adds nothing at all for the page module, where
+ * DockedHeaderModifier splices an equivalent compact bar into the doc header instead; every
+ * other context still gets the "chip" trio.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -94,7 +96,7 @@ final readonly class ModifyButtonBarEventListener
             return;
         }
 
-        $this->addStatusDropdownButton($event, $table, $uid, $record);
+        $this->addStatusDropdownButton($event, $table, $uid, $record, $request);
     }
 
     private function getLanguageService(): LanguageService
@@ -149,8 +151,12 @@ final readonly class ModifyButtonBarEventListener
     /**
      * @param array<string, mixed> $record
      */
-    private function addStatusDropdownButton(ModifyButtonBarEvent $event, string $table, int $uid, array $record): void
+    private function addStatusDropdownButton(ModifyButtonBarEvent $event, string $table, int $uid, array $record, ServerRequestInterface $request): void
     {
+        if ($this->isDockedPageLayoutContext($request, $table)) {
+            return;
+        }
+
         $status = $this->resolveStatusFromRecord($record);
         $buttonsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid);
 
@@ -193,6 +199,21 @@ final readonly class ModifyButtonBarEventListener
             }
         }
         $event->setButtons($buttons);
+    }
+
+    /**
+     * "docked" headerDisplayMode replaces the whole doc header trio (status dropdown,
+     * assignee, comment) with the compact bar DockedHeaderModifier splices into the doc
+     * header's button row - but only in the page module, which is the only place that bar
+     * gets rendered. Every other context (record edit, file list) keeps the "chip" trio,
+     * since there is no docked bar there to take its place.
+     */
+    private function isDockedPageLayoutContext(ServerRequestInterface $request, string $table): bool
+    {
+        return 'pages' === $table
+            && ExtensionUtility::isDockedDisplayModeEnabled()
+            && $request->getAttribute('module') instanceof ModuleInterface
+            && RouteUtility::isPageLayoutRoute($request->getAttribute('module')->getIdentifier());
     }
 
     private function isFileListModule(ServerRequestInterface $request): bool

@@ -23,12 +23,13 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\WatcherPresentationService;
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, IconUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_key_exists;
 use function is_array;
+use function max;
 
 /**
  * InfoGenerator.
@@ -54,6 +55,7 @@ class InfoGenerator
         mixed $record = null,
         ?string $table = null,
         ?int $uid = null,
+        bool $compact = false,
     ): string|bool {
         if (null === $record && (null === $table || null === $uid)) {
             return false;
@@ -82,6 +84,7 @@ class InfoGenerator
             $record,
             $table,
             $status,
+            $compact,
         );
     }
 
@@ -240,9 +243,11 @@ class InfoGenerator
         array $record,
         string $table,
         Status $status,
+        bool $compact = false,
     ): string {
         $content = ViewUtility::render('Backend/Header/HeaderInfo', [
             'mode' => $mode->value,
+            'compact' => HeaderMode::CONTENT_ELEMENT === $mode || $compact,
             'data' => $record,
             'table' => $table,
             'pid' => $this->getPid($record, $table),
@@ -271,18 +276,19 @@ class InfoGenerator
                     $table,
                     $record['uid'],
                 ),
-                'todoResolved' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS,
-                ) ? $this->getCommentsTodoResolved($record, $table) : 0,
-                'todoTotal' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS,
-                ) ? $this->getCommentsTodoTotal($record, $table) : 0,
+                ...$this->getTodoCounts($record, $table),
             ],
             'contentElements' => $this->getContentElements($record, $table),
             'userid' => self::getBackendUserId(),
             'watch' => $this->watcherPresentationService->build($table, (int) $record['uid'], self::getBackendUserId()),
         ]);
 
+        // CONTENT_ELEMENT is rendered from ContentElementHeaderModifier, a middleware that
+        // post-processes the response *after* $handler->handle() (and therefore after
+        // PageRenderer::render()) has already run - registering assets on PageRenderer at
+        // that point would never reach the response. It gets the inline tags instead (like
+        // EDIT does for the same reason), same as WEB_LAYOUT/WEB_LIST get via PageRenderer
+        // because those run through a PSR-14 event fired inside the controller, before render.
         $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode);
 
         return $content;
@@ -304,6 +310,7 @@ class InfoGenerator
 
         $content = ViewUtility::render('Backend/Header/HeaderInfo', [
             'mode' => HeaderMode::FILE_LIST->value,
+            'compact' => false,
             'data' => $folderRecord,
             'table' => $table,
             'pid' => null,
@@ -331,12 +338,7 @@ class InfoGenerator
                     ? UrlUtility::getNewCommentUrl($table, $uid)
                     : '',
                 'editUri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
-                'todoResolved' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS,
-                ) ? $this->getCommentsTodoResolved($folderRecord, $table) : 0,
-                'todoTotal' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS,
-                ) ? $this->getCommentsTodoTotal($folderRecord, $table) : 0,
+                ...$this->getTodoCounts($folderRecord, $table),
             ],
             'contentElements' => null,
             'userid' => self::getBackendUserId(),
@@ -377,6 +379,30 @@ class InfoGenerator
         }
 
         return [];
+    }
+
+    /**
+     * The header shows `todoOpen` as its badge and keeps resolved/total for the tooltip, so all
+     * three are derived from the same pair of queries instead of being recomputed per field.
+     *
+     * @param array<string, mixed> $record
+     *
+     * @return array{todoResolved: int, todoTotal: int, todoOpen: int}
+     */
+    private function getTodoCounts(array $record, string $table): array
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            return ['todoResolved' => 0, 'todoTotal' => 0, 'todoOpen' => 0];
+        }
+
+        $resolved = $this->getCommentsTodoResolved($record, $table);
+        $total = $this->getCommentsTodoTotal($record, $table);
+
+        return [
+            'todoResolved' => $resolved,
+            'todoTotal' => $total,
+            'todoOpen' => max(0, $total - $resolved),
+        ];
     }
 
     /**
@@ -431,11 +457,20 @@ class InfoGenerator
             ExtensionUtility::isRegisteredRecordTable('tt_content')
             && 'pages' === $table
         ) {
-            return $this->recordRepository->findByPid(
+            $contentElements = $this->recordRepository->findByPid(
                 'tt_content',
                 $record['uid'],
                 false,
             );
+
+            // The CE hint dropdown leads with the element's own CType icon (e.g. "text",
+            // "bullets") rather than its status colour, so the list reads by content type
+            // first - the status icon further along the row already carries the status.
+            foreach ($contentElements as &$contentElement) {
+                $contentElement['typeIcon'] = IconUtility::getIconByRecord('tt_content', $contentElement, true);
+            }
+
+            return $contentElements;
         }
 
         return null;

@@ -160,6 +160,44 @@ final class ExtensionUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function isDockedDisplayModeEnabledReturnsFalseByDefault(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+
+        self::assertFalse(ExtensionUtility::isDockedDisplayModeEnabled());
+    }
+
+    #[Test]
+    public function isDockedDisplayModeEnabledReturnsFalseForChip(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_CHIP;
+
+        self::assertFalse(ExtensionUtility::isDockedDisplayModeEnabled());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    #[Test]
+    public function isDockedDisplayModeEnabledReturnsFalseForBanner(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
+
+        self::assertFalse(ExtensionUtility::isDockedDisplayModeEnabled());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    #[Test]
+    public function isDockedDisplayModeEnabledReturnsTrueForDocked(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_DOCKED;
+
+        self::assertTrue(ExtensionUtility::isDockedDisplayModeEnabled());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    }
+
+    #[Test]
     public function addContentPlannerTabToTcaAddsColumnsAndPalette(): void
     {
         $GLOBALS['TCA']['tt_content']['palettes']['tx_ximatypo3contentplanner'] = null;

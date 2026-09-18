@@ -97,7 +97,9 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
      * CP-14 (#318): the content element hint dots in the banner-mode header previously
      * carried their status only via a `data-color` attribute (colour alone) and a
      * `title`/aria-label limited to the content element's own title. Both must now also
-     * expose the content element's status as text.
+     * expose the content element's status as text. The row itself no longer tints its
+     * text/icon in the status colour (that read as noisy with several elements listed
+     * together) - colour lives only on the status icon at the end of the row.
      */
     #[Test]
     public function generateStatusHeaderContentElementHintCarriesStatusAsTextNotColourAlone(): void
@@ -108,7 +110,9 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1);
 
         self::assertIsString($result);
-        self::assertStringContainsString('data-color="', $result);
+        self::assertStringNotContainsString('data-color="', $result);
+        // The element's own CType icon leads the row (see InfoGenerator::getContentElements()).
+        self::assertStringContainsString('content-planner-dropdown-item__title', $result);
         self::assertStringContainsString('Teaser', $result);
         // Status 1 = "Draft" (see status.csv), distinct from page 1's own status
         // (status 2 = "In Progress"), so this proves the CE's own status is exposed.
@@ -119,6 +123,30 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         // carried by a distinguishable shape as well.
         self::assertStringNotContainsString('&#9679;', $result);
         self::assertMatchesRegularExpression('/<svg|<span class="[^"]*t3js-icon/', $result);
+    }
+
+    #[Test]
+    public function generateStatusHeaderRendersCompactHeaderForContentElementMode(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+
+        $result = $this->subject->generateStatusHeader(HeaderMode::CONTENT_ELEMENT, null, 'tt_content', 1);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('content-planner-header--compact', $result);
+        self::assertStringContainsString('data-table="tt_content"', $result);
+        self::assertStringContainsString('data-uid="1"', $result);
+        self::assertStringContainsString('Draft', $result);
+        // Like the page/list headers, the compact header still leads with a "Status:" label
+        // and links to editing the content element's own status field (not the page's).
+        self::assertStringContainsString('Status:', $result);
+        self::assertStringContainsString('edit%5Btt_content%5D%5B1%5D=edit', $result);
+        // ContentElementHeaderModifier calls this from middleware, after $handler->handle()
+        // (and PageRenderer::render()) already ran - so assets must be self-contained inline
+        // tags, same as EDIT mode, never registered on PageRenderer (see addFrontendAssets()).
+        self::assertStringContainsString('<script type="module"', $result);
+        self::assertStringContainsString('<link', $result);
     }
 
     #[Test]

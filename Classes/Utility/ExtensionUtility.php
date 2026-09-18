@@ -180,6 +180,19 @@ class ExtensionUtility
     }
 
     /**
+     * True for the "docked" headerDisplayMode: DockedHeaderModifier splices a compact status
+     * bar into the doc header's button row instead of the doc header trio
+     * (ModifyButtonBarEventListener) or the above-content banner (DrawBackendHeaderListener).
+     * Scoped to the page module only - see {@see \Xima\XimaTypo3ContentPlanner\Service\ContentModifier\DockedHeaderModifier}.
+     */
+    public static function isDockedDisplayModeEnabled(): bool
+    {
+        return Configuration::HEADER_DISPLAY_MODE_DOCKED === self::getExtensionSetting(
+            Configuration::FEATURE_HEADER_DISPLAY_MODE,
+        );
+    }
+
+    /**
      * Polling interval in seconds for the backend toolbar notification center (issue #301).
      * `0` disables polling; the JS module then only refreshes on backend load.
      */

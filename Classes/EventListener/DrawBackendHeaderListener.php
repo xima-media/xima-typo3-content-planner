@@ -17,6 +17,7 @@ use TYPO3\CMS\Backend\Controller\Event\ModifyPageLayoutContentEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Header\{HeaderMode, InfoGenerator};
+use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 /**
@@ -38,6 +39,12 @@ final readonly class DrawBackendHeaderListener
     public function __invoke(ModifyPageLayoutContentEvent $event): void
     {
         if (!PermissionUtility::checkContentStatusVisibility()) {
+            return;
+        }
+
+        // "docked" mode replaces this above-content bar with a compact one spliced into the
+        // doc header's button row instead - see DockedHeaderModifier.
+        if (ExtensionUtility::isDockedDisplayModeEnabled()) {
             return;
         }
 

@@ -5,7 +5,7 @@
 >
 
 <div
-    class="content-planner-header content-planner-header--color-{status.color}"
+    class="content-planner-header content-planner-header--color-{status.color}{f:if(condition: '{compact}', then: ' content-planner-header--compact')}"
     data-table="{table}"
     data-uid="{data.uid}"
     aria-label="{f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}: {status.title}"
@@ -15,7 +15,7 @@
     <div class="content-planner-header__left d-flex align-items-center justify-content-center">
         <core:icon
             identifier="{status.icon}"
-            size="medium"
+            size="{f:if(condition: '{compact}', then: 'small', else: 'medium')}"
             alternativeMarkupIdentifier="inline"
         />
     </div>
@@ -30,13 +30,13 @@
                 </span>
             </f:then>
             <f:else>
-                <f:if condition="{mode} != 'edit'">
+                <f:if condition="{mode} == 'content_element'">
                     <f:then>
                         <be:link.editRecord
                             uid="{data.uid}"
-                            table="pages"
+                            table="{table}"
                             fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-                            returnUrl="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"
+                            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
                             title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
                             class="d-flex align-items-center flex-grow-1"
                         >
@@ -44,7 +44,23 @@
                         </be:link.editRecord>
                     </f:then>
                     <f:else>
-                        {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
+                        <f:if condition="{mode} != 'edit'">
+                            <f:then>
+                                <be:link.editRecord
+                                    uid="{data.uid}"
+                                    table="pages"
+                                    fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                                    returnUrl="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"
+                                    title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
+                                    class="d-flex align-items-center flex-grow-1"
+                                >
+                                    {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
+                                </be:link.editRecord>
+                            </f:then>
+                            <f:else>
+                                {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
+                            </f:else>
+                        </f:if>
                     </f:else>
                 </f:if>
             </f:else>
@@ -53,88 +69,47 @@
 
     <!-- Action buttons -->
     <div class="content-planner-header__actions">
-        <div class="content-planner-header__ce-hint">
-            <f:for each="{contentElements}" as="contentElement">
-                <f:variable name="ceStatusTitle" value="{xcp:statusTitle(statusId: contentElement.tx_ximatypo3contentplanner_status)}"/>
-                <f:variable name="ceHintLabel"><f:translate key="header.editContentElement" extensionName="xima_typo3_content_planner" arguments="{0: contentElement.title}"/><f:if condition="{ceStatusTitle}"> (<f:translate key="header.status" extensionName="xima_typo3_content_planner"/>: {ceStatusTitle})</f:if></f:variable>
-                <be:link.editRecord
-                    uid="{contentElement.uid}"
-                    table="tt_content"
-                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-                    title="{ceHintLabel}"
-                    additionalAttributes="{data-color: '{xcp:statusColor(statusId: contentElement.tx_ximatypo3contentplanner_status)}', aria-label: '{ceHintLabel}'}"
-                >
-                    <!-- CP-14 (#318): the status icon differs in shape per status, so the hint
-                         does not rely on colour alone for sighted users. -->
-                    <core:icon
-                        identifier="{xcp:statusIcon(statusId: contentElement.tx_ximatypo3contentplanner_status)}"
-                        size="small"
-                        alternativeMarkupIdentifier="inline"
-                    />
-                </be:link.editRecord>
-            </f:for>
-        </div>
-        <div class="btn-group" role="group" aria-label="Assignee">
+        <f:variable name="showStatusEdit" value="0"/>
+        <f:if condition="{mode} == 'web_layout' || {mode} == 'web_list' || {mode} == 'content_element'">
+            <f:variable name="showStatusEdit" value="1"/>
+        </f:if>
+        <f:variable name="assigneeLabel"><f:if condition="{data.tx_ximatypo3contentplanner_assignee}"><f:then><f:translate key="header.assignee" extensionName="xima_typo3_content_planner"/>: {assignee.username}</f:then><f:else><f:translate key="header.assignee.none" extensionName="xima_typo3_content_planner"/></f:else></f:if></f:variable>
+
+        <div
+            class="btn-group btn-group-sm content-planner-meta"
+            role="group"
+            aria-label="{f:translate(key: 'header.meta.groupLabel', extensionName: 'xima_typo3_content_planner')}"
+        >
             <button
-                class="btn btn-default content-planner-link--assignee{f:if(condition: assignee.assignedToCurrentUser, then: ' content-planner-link--assignee-current')}"
+                class="btn btn-default content-planner-meta__btn content-planner-link--assignee{f:if(condition: assignee.assignedToCurrentUser, then: ' content-planner-link--assignee-current')}"
                 data-content-planner-assignees
                 type="button"
-                title="{f:translate(key: 'header.assignee', extensionName: 'xima_typo3_content_planner')}"
+                title="{assigneeLabel}"
+                aria-label="{assigneeLabel}"
                 data-id="{data.uid}"
                 data-table="{table}"
                 data-current-assignee="{data.tx_ximatypo3contentplanner_assignee}"
             >
                 <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
                     <f:then>
-                        <div class="content-planner-btn-group-prepend">
-                            <be:avatar
-                                backendUser="{data.tx_ximatypo3contentplanner_assignee}"
-                                size="16"
-                                showIcon="true"
-                            />
-                        </div>
-                        {assignee.username}
+                        <be:avatar
+                            backendUser="{data.tx_ximatypo3contentplanner_assignee}"
+                            size="18"
+                            showIcon="false"
+                        />
                     </f:then>
                     <f:else>
-                        <div class="content-planner-btn-group-prepend">
-                            <core:icon identifier="actions-user" size="small"/>
-                        </div>
-                        <div class="text-muted">
-                            {f:translate(key: 'header.unassigned', extensionName: 'xima_typo3_content_planner')}
-                        </div>
+                        <core:icon identifier="content-planner-user-circle" size="small" alternativeMarkupIdentifier="inline"/>
                     </f:else>
                 </f:if>
             </button>
-        </div>
 
-        <f:render partial="WatchToggle" arguments="{table: table, uid: data.uid, watch: watch}"/>
-
-        <div class="btn-group" role="group" aria-label="Comments">
-            <f:if condition="{comments.newCommentUri}">
-                <button
-                    type="button"
-                    class="btn btn-default"
-                    data-content-planner-comments
-                    data-force-ajax-url="true"
-                    data-focus-composer="true"
-                    data-table="{table}"
-                    data-id="{data.uid}"
-                    data-new-comment-uri="{comments.newCommentUri}"
-                    data-edit-uri="{comments.editUri}"
-                    title="{f:translate(key: 'header.newComment', extensionName: 'xima_typo3_content_planner')}"
-                    aria-label="{f:translate(key: 'header.newComment', extensionName: 'xima_typo3_content_planner')}"
-                >
-                    <core:icon
-                        identifier="actions-message-add"
-                        size="small"
-                    />
-                </button>
-            </f:if>
             <f:if condition="{comments}">
                 <f:variable name="commentsLabel"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/><f:if condition="{comments.count}"> ({comments.count})</f:if></f:variable>
                 <button
-                    class="btn btn-default content-planner-link--comments"
+                    class="btn btn-default content-planner-meta__btn content-planner-link--comments"
                     data-content-planner-comments
+                    data-force-ajax-url="true"
                     type="button"
                     title="{commentsLabel}"
                     aria-label="{commentsLabel}"
@@ -143,16 +118,19 @@
                     data-new-comment-uri="{comments.newCommentUri}"
                     data-edit-uri="{comments.editUri}"
                 >
-                    <core:icon identifier="actions-message" size="small"/>
+                    <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
                     <f:if condition="{comments.count}">
-                        <span class="badge badge-secondary">{comments.count}</span>
+                        <span class="content-planner-meta__count badge badge-secondary" aria-hidden="true">{comments.count}</span>
                     </f:if>
                 </button>
+
                 <f:if condition="{comments.todoTotal}">
-                    <f:variable name="todoLabel"><f:translate key="header.comments.todo" extensionName="xima_typo3_content_planner"/> ({comments.todoResolved}/{comments.todoTotal})</f:variable>
+                    <f:variable name="todoLabel"><f:translate key="header.todos" extensionName="xima_typo3_content_planner"/> ({comments.todoResolved}/{comments.todoTotal})</f:variable>
                     <button
-                        class="btn btn-default content-planner-header__todo-badge"
+                        class="btn btn-default content-planner-meta__btn content-planner-header__todo-badge"
                         data-content-planner-comments
+                        data-force-ajax-url="true"
+                        data-todo-status="{f:if(condition: comments.todoOpen, then: 'pending', else: 'resolved')}"
                         type="button"
                         title="{todoLabel}"
                         aria-label="{todoLabel}"
@@ -161,31 +139,85 @@
                         data-new-comment-uri="{comments.newCommentUri}"
                         data-edit-uri="{comments.editUri}"
                     >
-                        <core:icon identifier="actions-check-square" size="small"/>
-                        <span class="badge"
-                            data-status="{f:if(condition: '{comments.todoResolved} == {comments.todoTotal}', then: 'resolved', else: 'pending')}">
-                            {comments.todoResolved}/{comments.todoTotal}
-                        </span></button>
+                        <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
+                        <f:if condition="{comments.todoOpen}">
+                            <span class="content-planner-meta__count badge" aria-hidden="true">{comments.todoOpen}</span>
+                        </f:if>
+                    </button>
                 </f:if>
             </f:if>
+
+            <f:render partial="WatchToggle" arguments="{table: table, uid: data.uid, watch: watch}"/>
+
+            <f:if condition="{contentElements}">
+                <f:variable name="ceGroupLabel"><f:translate key="header.contentElements" extensionName="xima_typo3_content_planner"/></f:variable>
+                <button
+                    type="button"
+                    class="btn btn-default content-planner-meta__btn dropdown-toggle dropdown-toggle-no-chevron"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="{ceGroupLabel}"
+                    aria-label="{ceGroupLabel}"
+                >
+                    <core:icon identifier="content-planner-layout-grid" size="small" alternativeMarkupIdentifier="inline"/>
+                    <span class="content-planner-meta__count badge badge-secondary" aria-hidden="true">{contentElements -> f:count()}</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <f:for each="{contentElements}" as="contentElement">
+                        <f:variable name="ceStatusTitle" value="{xcp:statusTitle(statusId: contentElement.tx_ximatypo3contentplanner_status)}"/>
+                        <f:variable name="ceHintLabel"><f:translate key="header.editContentElement" extensionName="xima_typo3_content_planner" arguments="{0: contentElement.title}"/><f:if condition="{ceStatusTitle}"> (<f:translate key="header.status" extensionName="xima_typo3_content_planner"/>: {ceStatusTitle})</f:if></f:variable>
+                        <li>
+                            <be:link.editRecord
+                                uid="{contentElement.uid}"
+                                table="tt_content"
+                                returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                                title="{ceHintLabel}"
+                                class="dropdown-item"
+                                additionalAttributes="{aria-label: '{ceHintLabel}'}"
+                            >
+                                {contentElement.typeIcon -> f:format.raw()}
+                                <span class="content-planner-dropdown-item__title">{contentElement.title}</span>
+                                <!-- CP-14 (#318): the status icon differs in shape per status, so the hint
+                                     does not rely on colour alone for sighted users. -->
+                                <core:icon
+                                    identifier="{xcp:statusIcon(statusId: contentElement.tx_ximatypo3contentplanner_status)}"
+                                    size="small"
+                                    alternativeMarkupIdentifier="inline"
+                                />
+                            </be:link.editRecord>
+                        </li>
+                    </f:for>
+                </ul>
+            </f:if>
+
+            <f:if condition="{showStatusEdit}">
+                <f:variable name="moreLabel"><f:translate key="header.actions.more" extensionName="xima_typo3_content_planner"/></f:variable>
+                <button
+                    type="button"
+                    class="btn btn-default content-planner-meta__btn dropdown-toggle dropdown-toggle-no-chevron"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="{moreLabel}"
+                    aria-label="{moreLabel}"
+                >
+                    <core:icon identifier="content-planner-dots" size="small" alternativeMarkupIdentifier="inline"/>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <be:link.editRecord
+                            uid="{data.uid}"
+                            table="{table}"
+                            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
+                            class="dropdown-item"
+                        >
+                            <core:icon identifier="actions-flag-edit" size="small" alternativeMarkupIdentifier="inline"/>
+                            <f:translate key="header.editStatus" extensionName="xima_typo3_content_planner"/>
+                        </be:link.editRecord>
+                    </li>
+                </ul>
+            </f:if>
         </div>
-        <f:if condition="{mode} == 'web_layout' || {mode} == 'web_list'">
-            <be:link.editRecord
-                uid="{data.uid}"
-                table="{table}"
-                fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-                returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': data.uid}')}"
-                title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
-                additionalAttributes="{aria-label: '{f:translate(key: \'header.editStatus\', extensionName: \'xima_typo3_content_planner\')}'}"
-                class="btn btn-default"
-            >
-                <core:icon
-                    identifier="actions-flag-edit"
-                    alternativeMarkupIdentifier="inline"
-                    size="small"
-                />
-            </be:link.editRecord>
-        </f:if>
     </div>
 </div>
 </html>

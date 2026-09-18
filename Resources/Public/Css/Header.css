@@ -39,43 +39,21 @@
 }
 
 .content-planner-header__actions {
-    display: flex;
-    gap: 1em;
-}
-
-.content-planner-header__btn-group {
-    display: flex;
-    gap: 1em;
-}
-
-/* Content Element Hint */
-.content-planner-header__ce-hint {
-    display: flex;
     align-items: center;
-    margin-right: 1em;
+    display: flex;
+    gap: 1em;
 }
 
-.content-planner-header__ce-hint a {
-    padding: 0 0.5em;
-}
-
-.content-planner-header__ce-hint a:hover {
-    text-decoration: none;
-    transform: scale(1.4);
-}
-
-/* Comment Todo Badge in Header */
-/* CP-14 (#318): black text on these custom status colours keeps a WCAG AA
-   contrast ratio of at least 4.5:1 (green ~6.7:1, yellow ~14.2:1); the
-   previous "resolved" white-on-green combination measured only ~3.1:1. */
-.content-planner-header__todo-badge .badge[data-status="resolved"] {
-    color: #000;
-    background-color: var(--content-planner-color-green);
-}
-
-.content-planner-header__todo-badge .badge[data-status="pending"] {
+/* Todo segment: the badge counts what is still OPEN, so whether it is there at all - not its
+   colour - is what says "there is work left". Resolved/total stays in the tooltip. */
+.content-planner-header__todo-badge .content-planner-meta__count {
+    /* CP-14 (#318): black on this yellow keeps a WCAG AA contrast ratio of ~14.2:1. */
     color: #000;
     background-color: var(--content-planner-color-yellow);
+}
+
+.content-planner-header__todo-badge[data-todo-status="resolved"] {
+    color: var(--typo3-text-color-success, #4b8f29);
 }
 
 /* ==========================================================================
@@ -118,77 +96,43 @@
 }
 
 /* ==========================================================================
-   CE Hint Color Modifiers
+   Content Element Hint Dropdown
+
+   Deliberately neutral: the row used to be tinted in the content element's status
+   colour, which read as noisy once several elements with different statuses were
+   listed together. Colour now lives only on the status icon at the end of the row.
    ========================================================================== */
 
-.content-planner-header__ce-hint a[data-color="black"] {
-    color: var(--content-planner-color-black);
-}
-
-.content-planner-header__ce-hint a[data-color="red"] {
-    color: var(--content-planner-color-red);
-}
-
-.content-planner-header__ce-hint a[data-color="yellow"] {
-    color: var(--content-planner-color-yellow);
-}
-
-.content-planner-header__ce-hint a[data-color="green"] {
-    color: var(--content-planner-color-green);
-}
-
-.content-planner-header__ce-hint a[data-color="blue"] {
-    color: var(--content-planner-color-blue);
-}
-
-.content-planner-header__ce-hint a[data-color="purple"] {
-    color: var(--content-planner-color-purple);
-}
-
-.content-planner-header__ce-hint a[data-color="orange"] {
-    color: var(--content-planner-color-orange);
+.content-planner-dropdown-item__title {
+    flex-grow: 1;
 }
 
 /* ==========================================================================
-   Content Element Status Accent (CP-25 / #324, Level 2, "chip" mode)
-   Replaces the injected full-surface `::before` overlay from WebLayoutModifier
-   with a 3px left accent border (the visual language core uses for hidden /
-   workspace content elements) plus a status dot and mini comment badge.
+   Content Element Status Header - compact (CP-25 / #324, "chip" mode)
+   The content element preview reuses .content-planner-header itself (see
+   HeaderInfo.html, HeaderMode::CONTENT_ELEMENT) instead of a separate markup
+   set, so status colours/icons/actions never drift between the page header
+   and this one. This modifier only scales it down to fit inside a single
+   content element's preview.
    ========================================================================== */
 
-.content-planner-ce-accent {
-    border-left: 3px solid var(--content-planner-color-black);
-    padding-left: 0.5em;
-}
-
-.content-planner-ce-accent--color-black { border-left-color: var(--content-planner-color-black); }
-.content-planner-ce-accent--color-red { border-left-color: var(--content-planner-color-red); }
-.content-planner-ce-accent--color-yellow { border-left-color: var(--content-planner-color-yellow); }
-.content-planner-ce-accent--color-green { border-left-color: var(--content-planner-color-green); }
-.content-planner-ce-accent--color-blue { border-left-color: var(--content-planner-color-blue); }
-.content-planner-ce-accent--color-purple { border-left-color: var(--content-planner-color-purple); }
-.content-planner-ce-accent--color-orange { border-left-color: var(--content-planner-color-orange); }
-
-.content-planner-ce-accent__meta {
-    display: flex;
-    align-items: center;
+.content-planner-header--compact {
+    /* Sits directly on top of core's own .t3-page-ce-header row (see
+       ContentElementHeaderModifier), so only the top corners - shared with the content
+       element box itself - stay rounded; the bottom edge is a flat seam against that row. */
+    border-radius: 5px 5px 0 0;
+    border-top-width: 4px;
     gap: 0.5em;
-    margin-bottom: 0.25em;
+    margin-bottom: 0.5em;
+    padding: 0.4em 0.6em;
+}
+
+.content-planner-header--compact .content-planner-header__left {
+    margin: 0;
+}
+
+.content-planner-header--compact .content-planner-meta__btn {
     font-size: 0.85em;
-}
-
-.content-planner-ce-accent__dot,
-.content-planner-ce-accent__comments {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25em;
-}
-
-/* Icon + visible text always co-occur (see CP-14 / #318): the status name is
-   visually de-emphasised, not removed, so colour is never the only carrier. */
-.content-planner-ce-accent__dot-label {
-    color: var(--typo3-text-color-base, inherit);
-    opacity: 0.75;
 }
 
 /* ==========================================================================
@@ -205,40 +149,85 @@
     background-color: var(--content-planner-color-highlight-hover);
 }
 
-/* Button Group Prepend */
-.content-planner-btn-group-prepend {
-    border-right: 1px solid var(--bs-btn-border-color, var(--typo3-btn-hover-border-color));
-    margin: calc(var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) * -1) var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) calc(var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) * -1) calc(var(--bs-btn-padding-x, var(--typo3-btn-padding-x)) * -1);
-    padding: var(--bs-btn-padding-y, var(--typo3-btn-padding-y)) var(--bs-btn-padding-x, var(--typo3-btn-padding-x));
+/* ==========================================================================
+   Meta Button Group (issue #404)
+
+   Assignee, comments and the watch toggle share one connected button group
+   instead of standing next to each other as separate controls. Every segment
+   is icon-only, so the readable label lives in title/aria-label and the
+   numeric badge overhangs the button corner the way core's toolbar items do
+   (.toolbar-item-badge). Bootstrap's own .btn-group rules join the borders -
+   the watch toggle renders as a direct child of the group so those
+   :first-child/:last-child selectors keep matching.
+   ========================================================================== */
+
+.content-planner-meta__btn {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.3rem;
+    /* .btn only sets min-height, and .btn-group's align-items: center does not stretch flex
+       items - so a segment with a badge (taller content row than a bare icon) grows past that
+       floor while an icon-only segment stays at it, leaving the two visibly uneven. Pinning
+       every segment to that same custom property keeps them uniform regardless of content;
+       the badge still fits inside it without being clipped, it just stops inflating the row. */
+    height: var(--typo3-btn-min-height);
+    justify-content: center;
+    position: relative;
+}
+
+/* Deliberately smaller than a stock .badge: at the default size the pill covers most of the
+   16px icon it is attached to, which defeats an icon-only control.
+
+   Sits INLINE next to the icon, not floated over a corner: these buttons are ~30px wide at
+   rest (icon-only, edge-to-edge in a connected .btn-group), which leaves no room for a corner
+   badge that doesn't either bleed into the next segment (an overhang past the border) or cover
+   the icon underneath it (an inset that stays inside the border). A segment that carries a
+   count is simply a few px wider than one that doesn't - still no visible text label, just
+   icon-plus-pill, matching the counter-in-button pattern most issue trackers use for this. */
+.content-planner-meta__count {
+    border-radius: 1rem;
+    font-size: 0.625rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    line-height: 1;
+    min-width: 0.875rem;
+    padding: 0.175rem 0.3rem;
+    /* The badge is decorative: the same count is already part of the button's
+       aria-label, so it must not be announced a second time. */
+    pointer-events: none;
+}
+
+.content-planner-meta .dropdown-item {
+    align-items: center;
+    display: flex;
+    gap: 0.5em;
+}
+
+/* Bootstrap's .btn-group strips a segment's OUTER (end) corner radius for every plain .btn
+   that isn't last, via `.btn-group>.btn:not(:last-child):not(.dropdown-toggle)` - deliberately
+   skipping .dropdown-toggle, because that class is normally the trailing caret of a split
+   button and is meant to keep its own rounded outer edge.
+
+   `:last-child` can't tell our two dropdown-toggle segments (content elements, more actions)
+   apart, though: each is immediately followed by its own <ul class="dropdown-menu">, so
+   NEITHER button is ever its parent's actual last child - the trailing <ul> always is. Select
+   on "has a later sibling that's still one of our segments" instead: that's true for the
+   content-elements toggle (the more-actions button follows it) and false for whichever
+   dropdown-toggle really is the last visible segment, so only the former loses its rounding. */
+.content-planner-meta > .dropdown-toggle:has(~ .content-planner-meta__btn) {
+    border-end-end-radius: 0;
+    border-start-end-radius: 0;
 }
 
 /* ==========================================================================
    Watch Toggle (issue #303)
 
-   Four visual states, each distinguishable by more than color alone: icon
-   shape (plain eye vs. the muted state's ban icon) plus a short text badge
-   naming the state, not just a color. Themed via TYPO3 core's --typo3-*
-   custom properties so both light and dark backend themes stay readable
-   without any hardcoded hex values.
+   Four visual states, each distinguishable by more than color alone: every
+   state carries its own Tabler bell (plain, ringing, filled, struck through),
+   so the state survives without colour perception. Themed via TYPO3 core's
+   --typo3-* custom properties so both light and dark backend themes stay
+   readable without any hardcoded hex values.
    ========================================================================== */
-
-.content-planner-watch-toggle-group {
-    align-items: center;
-    display: flex;
-}
-
-.content-planner-watch-toggle {
-    align-items: center;
-    display: flex;
-    gap: 0.35em;
-}
-
-.content-planner-watch-toggle__badge {
-    font-size: 0.7em;
-    font-weight: bold;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-}
 
 /* Not watching: neutral/muted, same tone as other inactive header controls. */
 .content-planner-watch-toggle--inactive,
@@ -266,8 +255,4 @@
 .content-planner-watch-toggle--muted:hover,
 .content-planner-watch-toggle--muted:focus-visible {
     color: var(--typo3-text-color-warning, #a36e00);
-}
-
-.content-planner-watch-toggle__count {
-    font-variant-numeric: tabular-nums;
 }

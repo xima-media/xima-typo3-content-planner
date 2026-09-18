@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Controller\Event\ModifyPageLayoutContentEvent;
 use TYPO3\CMS\Backend\Routing\Route;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -67,6 +68,22 @@ final class DrawBackendHeaderListenerTest extends AbstractFunctionalTestCase
         $this->subject->__invoke($event);
 
         self::assertSame('', $event->getHeaderContent());
+    }
+
+    #[Test]
+    public function addsNoHeaderContentInDockedDisplayMode(): void
+    {
+        // "docked" mode splices the bar into the doc header instead (DockedHeaderModifier);
+        // this above-content placement must stay empty to avoid rendering it twice.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_DOCKED;
+
+        $event = $this->createEvent(1);
+
+        $this->subject->__invoke($event);
+
+        self::assertSame('', $event->getHeaderContent());
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
     }
 
     private function createEvent(int $pageId): ModifyPageLayoutContentEvent
