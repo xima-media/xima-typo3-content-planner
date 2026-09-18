@@ -40,14 +40,14 @@
                         aria-expanded="false"
                         aria-label="{f:translate(key: 'comment.actions.menu', extensionName: 'XimaTypo3ContentPlanner')}"
                         title="{f:translate(key: 'comment.actions.menu', extensionName: 'XimaTypo3ContentPlanner')}">
-                    <core:icon identifier="actions-menu-alternative" size="small"/>
+                    <core:icon identifier="content-planner-dots" size="small" alternativeMarkupIdentifier="inline"/>
                 </button>
                 <ul class="dropdown-menu">
                     <f:if condition="{comment.canCurrentUserEdit}">
                     <li>
                         <a class="dropdown-item" data-id="{id}" data-table="{table}"
                         data-edit-comment-uri="{comment.editUri}">
-                            <core:icon identifier="actions-open" size="small" title="Edit"/>
+                            <core:icon identifier="content-planner-edit" size="small" title="Edit" alternativeMarkupIdentifier="inline"/>
                             <f:translate key="comment.actions.edit"
                                         extensionName="XimaTypo3ContentPlanner"/>
                         </a>
@@ -63,7 +63,7 @@
                         data-resolved-comment-description="{f:translate(key: 'comment.actions.{status}.description', extensionName: 'XimaTypo3ContentPlanner')}"
                         data-resolved-comment-button="{f:translate(key: 'comment.actions.{status}.button', extensionName: 'XimaTypo3ContentPlanner')}"
                         >
-                            <core:icon identifier="actions-check-circle" size="small" title="Resolved"/>
+                            <core:icon identifier="content-planner-circle-check" size="small" title="Resolved" alternativeMarkupIdentifier="inline"/>
                             <f:translate key="comment.actions.{status}"
                                         extensionName="XimaTypo3ContentPlanner"/>
                         </a>
@@ -73,7 +73,7 @@
                     <li>
                         <a class="dropdown-item" data-id="{id}" data-table="{table}"
                         data-reply-comment-uri="{comment.replyUri}">
-                            <core:icon identifier="actions-arrow-down-right-alt" size="small" title="Reply"/>
+                            <core:icon identifier="content-planner-corner-down-right" size="small" title="Reply" alternativeMarkupIdentifier="inline"/>
                             <f:translate key="comment.actions.reply"
                                         extensionName="XimaTypo3ContentPlanner"/>
                         </a>
@@ -81,7 +81,7 @@
                     </f:if>
                     <li>
                         <a class="dropdown-item" data-share-comment-uri="{comment.shareUri}">
-                            <core:icon identifier="actions-link" size="small" title="Share"/>
+                            <core:icon identifier="content-planner-link" size="small" title="Share" alternativeMarkupIdentifier="inline"/>
                             <f:translate key="comment.actions.share"
                                         extensionName="XimaTypo3ContentPlanner"/>
                         </a>
@@ -95,7 +95,7 @@
                         data-delete-comment-description="{f:translate(key: 'comment.actions.delete.description', extensionName: 'XimaTypo3ContentPlanner')}"
                         data-delete-comment-button="{f:translate(key: 'comment.actions.delete.button', extensionName: 'XimaTypo3ContentPlanner')}"
                         >
-                            <core:icon identifier="actions-delete" size="small" title="Delete"/>
+                            <core:icon identifier="content-planner-trash" size="small" title="Delete" alternativeMarkupIdentifier="inline"/>
                             <f:translate key="comment.actions.delete"
                                         extensionName="XimaTypo3ContentPlanner"/>
                         </a>
@@ -109,7 +109,7 @@
         <f:if condition="{comment.resolved}">
             <div>
                 <small class="text-success">
-                    <core:icon identifier="actions-check-circle" size="small" title="Resolved"/>
+                    <core:icon identifier="content-planner-circle-check" size="small" title="Resolved" alternativeMarkupIdentifier="inline"/>
                 </small>
                 <small>
                     <f:translate key="comment.resolved" extensionName="XimaTypo3ContentPlanner"
@@ -121,7 +121,7 @@
             <a class="content-planner-comment-replies-toggle"
                data-bs-toggle="collapse" href="#replies-{comment.data.uid}"
                role="button" aria-expanded="{f:if(condition: '{repliesExpanded}', then: 'true', else: 'false')}" aria-controls="replies-{comment.data.uid}">
-                <core:icon identifier="actions-chevron-right" size="small"/>
+                <core:icon identifier="content-planner-chevron-right" size="small" alternativeMarkupIdentifier="inline"/>
                 <span><f:if condition="{comment.replyCount} == 1"><f:then><f:translate key="comment.reply.toggle" extensionName="XimaTypo3ContentPlanner"
                             arguments="{0: '{comment.lastReplyTimeAgo}'}"/></f:then><f:else><f:translate key="comment.replies.toggle" extensionName="XimaTypo3ContentPlanner"
                             arguments="{0: '{comment.replyCount}', 1: '{comment.lastReplyTimeAgo}'}"/></f:else></f:if></span>

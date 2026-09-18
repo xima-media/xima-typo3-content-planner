@@ -119,6 +119,90 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('Resolved comment', $payload['result']);
     }
 
+    #[Test]
+    public function commentsActionFiltersToOnlyTodoCommentsWhenRequested(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'showTodoComments' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('Todo comment', $payload['result']);
+        self::assertStringNotContainsString('Open comment', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionShowsAllCommentsWhenTodoFilterNotRequested(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('Todo comment', $payload['result']);
+        self::assertStringContainsString('Open comment', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionRendersNoActiveFilterBadgeByDefault(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertStringNotContainsString('content-planner-comment-actions-badge', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionRendersActiveFilterBadgeWhenShowResolvedCommentsIsActive(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'showResolvedComments' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertStringContainsString('content-planner-comment-actions-badge">1<', $payload['result']);
+    }
+
+    #[Test]
+    public function commentsActionRendersActiveFilterBadgeCountingBothFiltersWhenBothAreActive(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'showResolvedComments' => 1, 'showTodoComments' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertStringContainsString('content-planner-comment-actions-badge">2<', $payload['result']);
+    }
+
     // ==================== commentsAction: comment-first flow (CP-27, #326) ====================
 
     #[Test]

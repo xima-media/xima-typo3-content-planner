@@ -28,6 +28,8 @@ class CommentsReloadContent {
     this.initRepliesToggle()
     this.initIncludeChildCommentsToggle()
     this.initShowResolvedCommentsToggle()
+    this.initShowTodoCommentsToggle()
+    this.initNewCommentTrigger()
 
     document.querySelector('form#content-planner-comment-filter')?.addEventListener('change', (event) => {
       event.preventDefault()
@@ -49,6 +51,24 @@ class CommentsReloadContent {
       item.addEventListener('click', event => {
         event.preventDefault()
         this.focusNewCommentComposer()
+      })
+    })
+  }
+
+  // The record-modal.js tab bar replaced the modal footer's own "New" button (it applied to
+  // both tabs, but the merged modal's footer is now static Edit/Close) with this row-level
+  // equivalent: same behaviour, expand and scroll to the already-inline composer trigger.
+  initNewCommentTrigger() {
+    document.querySelectorAll('[data-comment-new-trigger]').forEach(item => {
+      if ('true' === item.dataset.commentNewTriggerBound) {
+        return
+      }
+      item.dataset.commentNewTriggerBound = 'true'
+      item.addEventListener('click', event => {
+        event.preventDefault()
+        const composerTrigger = document.querySelector('#content-planner-comment-list [data-comment-composer-trigger]')
+        composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
+        composerTrigger?.click()
       })
     })
   }
@@ -140,6 +160,26 @@ class CommentsReloadContent {
     })
   }
 
+  // showTodoComments follows the same transient-filter shape as showResolvedComments above -
+  // never persisted, its current state lives on the filter form's dataset.
+  initShowTodoCommentsToggle() {
+    document.querySelectorAll('[data-toggle-show-todo-comments]').forEach(item => {
+      item.addEventListener('click', event => {
+        event.preventDefault()
+        const filterForm = document.querySelector('form#content-planner-comment-filter')
+        if (!filterForm) {
+          return
+        }
+        filterForm.dataset.showTodoComments = item.getAttribute('data-toggle-show-todo-comments')
+
+        const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
+        const table = filterForm.getAttribute('data-table')
+        const uid = filterForm.getAttribute('data-id')
+        this.loadComments(url, table, uid)
+      })
+    })
+  }
+
   initCommentHover() {
     const container = document.querySelector('#content-planner-comment-list')
     if (!container || container.dataset.hoverInitialized) {
@@ -169,6 +209,7 @@ class CommentsReloadContent {
     const formData = new FormData(filterForm)
     const values = Object.fromEntries(formData.entries())
     values.showResolvedComments = filterForm.dataset.showResolvedComments || '0'
+    values.showTodoComments = filterForm.dataset.showTodoComments || '0'
 
     return values
   }

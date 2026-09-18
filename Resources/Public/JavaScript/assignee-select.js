@@ -23,22 +23,43 @@ class AssigneeSelect {
     })
   }
 
-  initEventListeners(modal = null) {
-    const root = modal || document
-    const listbox = root.querySelector('[data-assignee-listbox]')
+  /**
+   * @param {Element|null} modal the modal instance, used to hide it after a successful
+   *   assignment - not necessarily the same element to query against, see `root`
+   * @param {Element|null} root element to query the assignee fragment in. Defaults to `modal`,
+   *   which was correct back when the assignee fragment was the modal's only content; in the
+   *   merged record modal (Comments/Assignee tabs of one Modal.advanced() instance) it is the
+   *   assignee pane specifically, so a same-modal Comments-pane reinit cannot re-bind this.
+   */
+  initEventListeners(modal = null, root = null) {
+    const scope = root || modal || document
+    const listbox = scope.querySelector('[data-assignee-listbox]')
     if (!listbox) {
       // Not (or no longer) the assignee modal content, e.g. the reinit event fired for
       // a different modal instance.
       return
     }
 
+    // In the merged record modal, the global `typo3:contentplanner:reinitializelistener`
+    // event this class also listens for on `window` can fire again later purely because the
+    // Comments pane finished loading - without this guard that would re-bind every listener
+    // below a second time onto the still-live assignee pane (duplicate assignments, duplicate
+    // notifications).
+    const container = scope.querySelector('[data-assignee-selector]')
+    if (container?.dataset.assigneeInitialized === 'true') {
+      return
+    }
+    if (container) {
+      container.dataset.assigneeInitialized = 'true'
+    }
+
     const ctx = {
       modal,
       listbox,
       options: Array.from(listbox.querySelectorAll('[data-assignee-option]')),
-      search: root.querySelector('[data-assignee-search]'),
-      confirmButton: root.querySelector('[data-action-assignee-confirm]'),
-      emptyState: root.querySelector('[data-assignee-empty]'),
+      search: scope.querySelector('[data-assignee-search]'),
+      confirmButton: scope.querySelector('[data-action-assignee-confirm]'),
+      emptyState: scope.querySelector('[data-assignee-empty]'),
       state: { activeIndex: 0, pendingUid: null },
     }
 
@@ -65,7 +86,7 @@ class AssigneeSelect {
       ctx.confirmButton.addEventListener('click', () => this.confirmSelection(ctx))
     }
 
-    root.querySelectorAll('[data-action-assignee]').forEach(item => {
+    scope.querySelectorAll('[data-action-assignee]').forEach(item => {
       item.addEventListener('click', event => {
         event.preventDefault()
         this.changeAssignee(item.dataset.url, item.hasAttribute('data-action-assignee-unset'), modal)

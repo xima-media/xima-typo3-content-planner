@@ -1,8 +1,7 @@
 /**
 * Module: @content-planner/comments-list-modal
 */
-import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
-import Modal from "@typo3/backend/modal.js"
+import RecordModal from "@content-planner/record-modal.js"
 
 class CommentsListModal {
 
@@ -65,106 +64,23 @@ class CommentsListModal {
     }, 300)
   }
 
+  /**
+   * `newCommentUrl` is kept for call-site compatibility (every existing trigger still passes
+   * it positionally) but is no longer read here: whether the composer is offered at all is
+   * already decided server-side (Default/Comments.html renders it only when the record's
+   * `commentComposerHtml` is non-empty, the same permission check that used to gate this
+   * parameter), and the "New" trigger itself moved into the comments pane's own toolbar.
+   */
   fetchComments(url, table, uid, newCommentUrl = false, editUrl = false, scrollToCommentUid = null, showResolved = false, focusComposer = false) {
-    const buttons = [
-      ...(newCommentUrl ? [{
-        text: TYPO3.lang?.['button.modal.footer.new'] || 'New',
-        name: 'new',
-        icon: 'actions-message-add',
-        active: true,
-        btnClass: 'btn-primary',
-        trigger: (event, modal) => {
-          // The composer is already rendered inline at the bottom of the fetched comment
-          // list (CP-28, #327), collapsed behind a trigger row - "New" expands and focuses it.
-          const composerTrigger = modal.querySelector('[data-comment-composer-trigger]')
-          composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
-          composerTrigger?.click()
-        }
-      }] : []),
-      ...(editUrl ? [{
-        text: TYPO3.lang?.['button.modal.footer.edit'] || 'Edit',
-        name: 'edit',
-        icon: 'actions-flag-edit',
-        active: true,
-        btnClass: 'btn-secondary',
-        trigger: (event, modal) => {
-          modal.hideModal()
-          setTimeout(() => window.location.href = editUrl, 100)
-        }
-      }] : []),
-      {
-        text: TYPO3.lang?.['button.modal.footer.close'] || 'Close',
-        name: 'close',
-        icon: 'actions-close',
-        active: true,
-        btnClass: 'btn-secondary',
-        trigger: (event, modal) => modal.hideModal()
-      }
-    ]
-
-    const queryArguments = {table, uid}
-    if (showResolved) {
-      queryArguments.showResolvedComments = 1
-    }
-
-    new AjaxRequest(url)
-      .withQueryArguments(queryArguments)
-      .get()
-      .then(async response => {
-        const resolved = await response.resolve()
-        Modal.advanced({
-          title: TYPO3.lang?.['button.modal.header.comments'] || 'Comments',
-          content: document.createRange().createContextualFragment(resolved.result),
-          size: Modal.sizes.large,
-          staticBackdrop: true,
-          buttons,
-          callback: (modal) => {
-            // Same signal assignee-selection-modal.js waits for (CP-26, #325): this callback
-            // runs before the modal's content has been rendered into the document, so listeners
-            // re-binding against `document` here find nothing. `detail.modal` matters for the
-            // same reason - it is the only root that already holds the fetched content.
-            modal.addEventListener('typo3-modal-shown', () => {
-              modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
-                bubbles: true,
-                composed: true,
-                detail: { modal }
-              }))
-
-              if (scrollToCommentUid) {
-                this.scrollToComment(modal, scrollToCommentUid)
-              } else if (focusComposer) {
-                const composerTrigger = modal.querySelector('[data-comment-composer-trigger]')
-                composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
-                composerTrigger?.click()
-              }
-            }, { once: true })
-          }
-        })
-      })
-  }
-
-  scrollToComment(modal, commentUid) {
-    setTimeout(() => {
-      // Expand all collapsed reply sections so the target comment is visible
-      modal.querySelectorAll('.content-planner-comment-replies.collapse:not(.show)').forEach(el => {
-        el.classList.add('show')
-        const toggle = modal.querySelector(`[aria-controls="${CSS.escape(el.id)}"]`)
-        if (toggle) {
-          toggle.setAttribute('aria-expanded', 'true')
-        }
-      })
-
-      setTimeout(() => {
-        const commentElement = modal.querySelector(`[data-comment-uid="${CSS.escape(commentUid)}"]`)
-        if (commentElement) {
-          commentElement.scrollIntoView({behavior: 'smooth', block: 'center'})
-          commentElement.classList.add('content-planner-comment--highlight')
-          setTimeout(() => {
-            commentElement.classList.remove('content-planner-comment--highlight')
-          }, 2500)
-        }
-      }, 100)
-    }, 300)
+    RecordModal.open('comments', {
+      table,
+      uid,
+      commentsUrl: url,
+      editUri: editUrl || false,
+      scrollToCommentUid,
+      showResolvedComments: showResolved,
+      focusComposer,
+    })
   }
 }
 

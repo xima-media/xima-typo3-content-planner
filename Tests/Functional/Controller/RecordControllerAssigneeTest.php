@@ -143,6 +143,25 @@ final class RecordControllerAssigneeTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function assigneeSelectionActionFallsBackToRecordAssigneeWhenCurrentAssigneeIsOmitted(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        // The merged record modal's Comments trigger does not send `currentAssignee` at all
+        // (CP-XX): switching to the Assignee tab from there must still resolve the record's
+        // own tx_ximatypo3contentplanner_assignee field (uid 1 on page 1, see pages.csv).
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertMatchesRegularExpression('/data-assignee-uid="1"[^>]*aria-current="true"/', $payload['result']);
+    }
+
+    #[Test]
     public function assigneeSelectionActionRestrictsAssignSelfOnlyUserToOwnAssignment(): void
     {
         $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_assign_self.csv');

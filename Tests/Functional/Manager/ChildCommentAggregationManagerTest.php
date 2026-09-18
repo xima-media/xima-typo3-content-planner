@@ -99,4 +99,16 @@ final class ChildCommentAggregationManagerTest extends AbstractFunctionalTestCas
             self::assertNotSame('', $item->getRecordLink());
         }
     }
+
+    #[Test]
+    public function buildContextAppliesTheTodoFilterToChildComments(): void
+    {
+        // Fixture child comments carry no todo checklist, so the todo-only filter leaves nothing.
+        $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
+
+        $context = $this->subject->buildContext('pages', 1, true, false, 'DESC', true);
+
+        self::assertFalse($context['active']);
+        self::assertSame(0, $context['count']);
+    }
 }

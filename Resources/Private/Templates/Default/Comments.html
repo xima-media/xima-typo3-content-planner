@@ -5,7 +5,14 @@
 <div id="content-planner-comment-list" class="content-planner-comment-list" data-replies-expanded="{f:if(condition: '{repliesExpanded}', then: '1', else: '0')}">
     <f:if condition="{comments -> f:count()} || {filter.resolvedCount} || {filter.isPage}">
         <form id="content-planner-comment-filter" class="content-planner-comment-filter" data-table="{table}" data-id="{id}"
-              data-show-resolved-comments="{f:if(condition: '{filter.showResolvedComments}', then: '1', else: '0')}">
+              data-show-resolved-comments="{f:if(condition: '{filter.showResolvedComments}', then: '1', else: '0')}"
+              data-show-todo-comments="{f:if(condition: '{filter.showTodoComments}', then: '1', else: '0')}">
+            <f:if condition="{commentComposerHtml}">
+                <button type="button" class="btn btn-default btn-sm" data-comment-new-trigger>
+                    <core:icon identifier="actions-message-add" size="small" alternativeMarkupIdentifier="inline"/>
+                    <f:translate key="button.modal.footer.new" extensionName="XimaTypo3ContentPlanner"/>
+                </button>
+            </f:if>
             <div class="form-sort">
                 <label for="content-planner-comment-filter-sort">Sort</label>
                 <select id="content-planner-comment-filter-sort" name="sortComments"
@@ -18,17 +25,20 @@
                     </f:for>
                 </select>
                 <div class="dropdown">
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle dropdown-toggle-no-chevron" data-bs-toggle="dropdown"
+                    <button type="button" class="btn btn-default btn-sm dropdown-toggle dropdown-toggle-no-chevron content-planner-comment-actions-trigger" data-bs-toggle="dropdown"
                             aria-expanded="false"
                             aria-label="{f:translate(key: 'comment.actions.menu', extensionName: 'XimaTypo3ContentPlanner')}"
                             title="{f:translate(key: 'comment.actions.menu', extensionName: 'XimaTypo3ContentPlanner')}">
-                        <core:icon identifier="actions-menu-alternative" size="small"/>
+                        <core:icon identifier="content-planner-dots" size="small" alternativeMarkupIdentifier="inline"/>
+                        <f:if condition="{filter.activeFilterCount} > 0">
+                            <span class="badge badge-pill badge-warning content-planner-comment-actions-badge">{filter.activeFilterCount}</span>
+                        </f:if>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <f:if condition="{shareUrl}">
                             <li>
                                 <a class="dropdown-item" data-share-modal-uri="{shareUrl}">
-                                    <core:icon identifier="actions-link" size="small"/>
+                                    <core:icon identifier="content-planner-link" size="small" alternativeMarkupIdentifier="inline"/>
                                     <f:translate key="comment.actions.share"
                                                 extensionName="XimaTypo3ContentPlanner"/>
                                 </a>
@@ -40,7 +50,7 @@
                                 <f:if condition="{filter.showResolvedComments}">
                                     <f:then>
                                         <button type="button" class="dropdown-item" data-toggle-show-resolved-comments="0">
-                                            <core:icon identifier="actions-check-circle" size="small"/>
+                                            <core:icon identifier="content-planner-circle-check" size="small" alternativeMarkupIdentifier="inline"/>
                                             <f:translate key="comment.filter.showResolvedComments.hide"
                                                         extensionName="XimaTypo3ContentPlanner"/>
                                             <span class="content-planner-comment-filter-count">{filter.resolvedCount}</span>
@@ -48,10 +58,32 @@
                                     </f:then>
                                     <f:else>
                                         <button type="button" class="dropdown-item" data-toggle-show-resolved-comments="1">
-                                            <core:icon identifier="actions-check-circle" size="small"/>
+                                            <core:icon identifier="content-planner-circle-check" size="small" alternativeMarkupIdentifier="inline"/>
                                             <f:translate key="comment.filter.showResolvedComments"
                                                         extensionName="XimaTypo3ContentPlanner"/>
                                             <span class="content-planner-comment-filter-count">{filter.resolvedCount}</span>
+                                        </button>
+                                    </f:else>
+                                </f:if>
+                            </li>
+                        </f:if>
+                        <f:if condition="{filter.todoCount}">
+                            <li>
+                                <f:if condition="{filter.showTodoComments}">
+                                    <f:then>
+                                        <button type="button" class="dropdown-item" data-toggle-show-todo-comments="0">
+                                            <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
+                                            <f:translate key="comment.filter.showTodoComments.hide"
+                                                        extensionName="XimaTypo3ContentPlanner"/>
+                                            <span class="content-planner-comment-filter-count">{filter.todoCount}</span>
+                                        </button>
+                                    </f:then>
+                                    <f:else>
+                                        <button type="button" class="dropdown-item" data-toggle-show-todo-comments="1">
+                                            <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
+                                            <f:translate key="comment.filter.showTodoComments"
+                                                        extensionName="XimaTypo3ContentPlanner"/>
+                                            <span class="content-planner-comment-filter-count">{filter.todoCount}</span>
                                         </button>
                                     </f:else>
                                 </f:if>
@@ -62,7 +94,7 @@
                                 <f:if condition="{filter.includeChildComments}">
                                     <f:then>
                                         <button type="button" class="dropdown-item" data-toggle-include-child-comments="0">
-                                            <core:icon identifier="actions-pagetree" size="small"/>
+                                            <core:icon identifier="content-planner-external-link" size="small" alternativeMarkupIdentifier="inline"/>
                                             <f:translate key="comment.filter.includeChildComments.hide"
                                                         extensionName="XimaTypo3ContentPlanner"/>
                                             <span class="content-planner-comment-filter-count">{childComments.count}</span>
@@ -70,7 +102,7 @@
                                     </f:then>
                                     <f:else>
                                         <button type="button" class="dropdown-item" data-toggle-include-child-comments="1">
-                                            <core:icon identifier="actions-pagetree" size="small"/>
+                                            <core:icon identifier="content-planner-external-link" size="small" alternativeMarkupIdentifier="inline"/>
                                             <f:translate key="comment.filter.includeChildComments"
                                                         extensionName="XimaTypo3ContentPlanner"/>
                                             <span class="content-planner-comment-filter-count">{childComments.count}</span>
@@ -83,14 +115,14 @@
                             <f:if condition="{repliesExpanded}">
                                 <f:then>
                                     <button type="button" class="dropdown-item" data-toggle-replies-expanded="0">
-                                        <core:icon identifier="actions-chevron-up" size="small"/>
+                                        <core:icon identifier="content-planner-chevron-up" size="small" alternativeMarkupIdentifier="inline"/>
                                         <f:translate key="comment.actions.replies.collapse"
                                                     extensionName="XimaTypo3ContentPlanner"/>
                                     </button>
                                 </f:then>
                                 <f:else>
                                     <button type="button" class="dropdown-item" data-toggle-replies-expanded="1">
-                                        <core:icon identifier="actions-chevron-down" size="small"/>
+                                        <core:icon identifier="content-planner-chevron-down" size="small" alternativeMarkupIdentifier="inline"/>
                                         <f:translate key="comment.actions.replies.expand"
                                                     extensionName="XimaTypo3ContentPlanner"/>
                                     </button>
@@ -175,7 +207,7 @@
                         <div class="content-planner-comment-composer__footer">
                             <div class="content-planner-comment-composer__actions">
                                 <button type="submit" class="btn btn-primary btn-sm" data-comment-composer-submit>
-                                    <core:icon identifier="actions-paperplane" size="small"/>
+                                    <core:icon identifier="content-planner-send" size="small" alternativeMarkupIdentifier="inline"/>
                                     <f:if condition="{commentFirst.mode} == 'oneClick'">
                                         <f:then>
                                             <f:translate key="comment.commentFirst.oneClick.submit" extensionName="XimaTypo3ContentPlanner"
@@ -187,7 +219,7 @@
                                     </f:if>
                                 </button>
                                 <button type="button" class="btn btn-default btn-sm" data-comment-composer-cancel>
-                                    <core:icon identifier="actions-close" size="small"/>
+                                    <core:icon identifier="content-planner-x" size="small" alternativeMarkupIdentifier="inline"/>
                                     <f:translate key="comment.actions.cancel" extensionName="XimaTypo3ContentPlanner"/>
                                 </button>
                             </div>

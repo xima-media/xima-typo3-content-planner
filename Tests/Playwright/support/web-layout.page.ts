@@ -48,25 +48,22 @@ export class WebLayoutPage {
     return this.header().locator('[data-content-planner-comments]');
   }
 
+  assigneeButton(): Locator {
+    return this.header().locator('[data-content-planner-assignees]');
+  }
+
   commentsBadge(): Locator {
     return this.commentsButton().locator('.badge');
   }
 
   /**
    * The button that opens the comment list, as opposed to `commentsButton()`, which also
-   * matches the header's second `[data-content-planner-comments]` trigger for the composer
-   * and is therefore ambiguous for anything but the badge.
+   * matches the overflow menu's todo entry and is therefore ambiguous for anything but the
+   * badge. Since issue #404 it is the only way into the modal from the header: the separate
+   * new-comment trigger is gone, because the composer expands on the modal's first open
+   * anyway.
    */
   commentsListButton(): Locator {
     return this.header().locator('button.content-planner-link--comments');
-  }
-
-  /**
-   * Opens the comments modal with the new-comment composer already expanded. Since CP-28 (#327)
-   * this is a `[data-content-planner-comments]` button like the list one, told apart by
-   * `data-focus-composer`. See `CommentsModalPage`.
-   */
-  newCommentButton(): Locator {
-    return this.header().locator('[data-content-planner-comments][data-focus-composer]');
   }
 }

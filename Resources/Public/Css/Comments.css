@@ -8,6 +8,7 @@
  */
 
 @import '_variables.css';
+@import 'RecordModal.css';
 
 /* ==========================================================================
    Comment Block
@@ -219,6 +220,20 @@
     border-radius: 999px;
 }
 
+/* Hints on the closed "..." trigger that a filter inside its menu (show resolved/todo comments)
+   is currently active - same overhanging corner-badge convention as the widget filter trigger
+   (see Widgets.css .content-planner-widget__filter-badge). */
+.content-planner-comment-actions-trigger {
+    position: relative;
+}
+
+.content-planner-comment-actions-badge {
+    position: absolute;
+    top: -0.375rem;
+    inset-inline-end: -0.375rem;
+    z-index: 4;
+}
+
 /* CP-27 (#326): inline status picker fallback shown above the editor when a comment starts
    the planning for a status-less record and no default status is configured. */
 .content-planner-comment-composer__status-picker {
@@ -413,24 +428,30 @@
    Comment Filter
    ========================================================================== */
 
+/* left/right sit at -1rem rather than 0 to cancel the pane's inherited 1rem .modal-body
+   padding, so the bar reaches the modal's actual edges instead of stopping at the pane's -
+   width is intentionally omitted: with both left and right set, the browser computes it. */
 .content-planner-comment-filter {
-    width: 100%;
     background: rgba(125, 125, 125, 0.1);
     position: absolute;
     top: 0;
-    right: 0;
-    left: 0;
+    right: -1rem;
+    left: -1rem;
     padding: 0.5rem 1rem;
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     align-items: center;
     z-index: 10;
 }
 
+/* margin-left: auto rather than justify-content: space-between on the parent, so .form-sort
+   stays flush right whether or not the "New comment" button (data-comment-new-trigger, only
+   rendered with create permission) precedes it as a sibling. */
 .content-planner-comment-filter .form-sort {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    margin-left: auto;
 }
 
 

@@ -1,0 +1,68 @@
+/**
+ * Content Planner - Record Modal Tab Shell
+ *
+ * BEM Structure:
+ * - content-planner-record-modal (Block)
+ * - content-planner-record-modal__tabs, __tab, __pane (Elements)
+ *
+ * Shared tab bar for the merged Comments/Assignee modal (record-modal.js). Lives inside the
+ * modal's own content fragment rather than TYPO3 core's `.modal-header`, whose markup differs
+ * between v13 and v14 and is Lit-managed.
+ */
+
+.content-planner-record-modal {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cancels TYPO3 core's 1rem .modal-body padding on top/left/right so the tab bar's border-
+   bottom spans the full width of the modal, then adds it back as inner padding so the tab
+   labels themselves don't sit flush against the modal border. */
+.content-planner-record-modal__tabs {
+    display: flex;
+    gap: 1.5rem;
+    margin: -0.5rem -1rem 1rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--typo3-component-border-color, rgba(125, 125, 125, 0.3));
+}
+
+.content-planner-record-modal__tab {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.75rem 0.125rem;
+    margin-bottom: -1px;
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--content-planner-color-muted);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.content-planner-record-modal__tab:hover {
+    color: var(--typo3-text-color-base, inherit);
+}
+
+.content-planner-record-modal__tab:focus-visible {
+    outline: 2px solid var(--typo3-state-primary-border, #007bff);
+    outline-offset: 2px;
+}
+
+/* Emphasis comes from weight + border thickness rather than color alone, so the active tab
+   doesn't rely on a brand/status hue that could be mistaken for a record status indicator. */
+.content-planner-record-modal__tab[aria-selected="true"] {
+    color: var(--typo3-text-color-base, inherit);
+    border-bottom: 3px solid currentColor;
+    font-weight: 700;
+}
+
+/* Keeps both tabs at a comparable height so switching between the longer Comments list and
+   the shorter Assignee picker doesn't visibly jump the modal's size. `position: relative`
+   contains the Comments pane's absolutely-positioned filter bar (.content-planner-comment-
+   filter, top: 0/right: -1rem/left: -1rem) to the pane itself - without it, that bar escapes
+   to the modal dialog's own positioning context and overlaps the tab bar above it. */
+.content-planner-record-modal__pane {
+    position: relative;
+    min-height: 320px;
+}

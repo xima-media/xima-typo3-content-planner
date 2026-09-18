@@ -125,6 +125,25 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findAllByRecordFiltersToCommentsWithTodosWhenRequested(): void
+    {
+        // Only comment B (uid 2, todo_total 3) has a todo checklist; comment A (uid 1) does not.
+        $result = $this->subject->findAllByRecord(10, 'pages', false, 'DESC', false, true);
+
+        self::assertCount(1, $result);
+        self::assertSame(2, (int) $result[0]->data['uid']);
+    }
+
+    #[Test]
+    public function findAllByRecordTodoFilterAlsoAppliesToReplies(): void
+    {
+        // The reply to comment B (uid 3) has no todo checklist of its own, so it drops out too.
+        $result = $this->subject->findAllByRecord(10, 'pages', false, 'DESC', false, true);
+
+        self::assertCount(0, $result[0]->getReplies());
+    }
+
+    #[Test]
     public function countAllByRecordCountsOpenCommentsByDefault(): void
     {
         // uid 1, 2, 3 are open and non-deleted for record 10 (resolved=4, deleted=5/7 excluded).
@@ -142,6 +161,19 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
     public function countAllByRecordCountsOnlyResolvedWhenOnlyResolved(): void
     {
         self::assertSame(1, $this->subject->countAllByRecord(10, 'pages', false, true));
+    }
+
+    #[Test]
+    public function countCommentsWithTodosByRecordCountsCommentsHavingATodoChecklist(): void
+    {
+        // Only comment B (uid 2) has todo_total > 0; its reply and the other root comments don't.
+        self::assertSame(1, $this->subject->countCommentsWithTodosByRecord(10, 'pages'));
+    }
+
+    #[Test]
+    public function countCommentsWithTodosByRecordReturnsZeroWhenNoneHaveTodos(): void
+    {
+        self::assertSame(0, $this->subject->countCommentsWithTodosByRecord(20, 'pages'));
     }
 
     #[Test]
@@ -306,5 +338,16 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
 
         $uids = array_map(static fn (CommentItem $item): int => (int) $item->data['uid'], $result);
         self::assertContains(4, $uids);
+    }
+
+    #[Test]
+    public function findAllByRecordsFiltersToCommentsWithTodosWhenRequested(): void
+    {
+        $result = $this->subject->findAllByRecords([
+            ['table' => 'pages', 'uid' => 10],
+        ], false, 'DESC', true);
+
+        $uids = array_map(static fn (CommentItem $item): int => (int) $item->data['uid'], $result);
+        self::assertSame([2], $uids);
     }
 }

@@ -57,7 +57,7 @@ final readonly class ChildCommentAggregationManager
      *
      * @throws Exception
      */
-    public function buildContext(string $table, int $pageId, bool $includeChildComments, bool $showResolved = false, string $sortDirection = 'DESC'): array
+    public function buildContext(string $table, int $pageId, bool $includeChildComments, bool $showResolved = false, string $sortDirection = 'DESC', bool $showTodoComments = false): array
     {
         if ('pages' !== $table) {
             return ['active' => false, 'count' => 0];
@@ -76,7 +76,7 @@ final readonly class ChildCommentAggregationManager
         // The count is shown as a badge on the "show comments from child records" toggle even
         // while it's off (CP-29 follow-up), the same way the unrelated resolved-count badge is
         // always visible - so this lookup can no longer be skipped just because the toggle is off.
-        $comments = $this->commentRepository->findAllByRecords($refs, $showResolved, $sortDirection);
+        $comments = $this->commentRepository->findAllByRecords($refs, $showResolved, $sortDirection, $showTodoComments);
         if ([] === $comments) {
             return ['active' => false, 'count' => 0];
         }

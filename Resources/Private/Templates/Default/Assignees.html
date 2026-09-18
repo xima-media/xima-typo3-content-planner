@@ -4,89 +4,94 @@
 
 <f:if condition="{assignees -> f:count()}">
     <div class="content-planner-assignee" data-assignee-selector>
-        <p>{f:translate(key: 'assignee.info', extensionName: 'xima_typo3_content_planner')}</p>
+        <div class="content-planner-assignee__main">
+            <div class="content-planner-assignee__search input-group mb-2">
+                <span class="input-group-addon input-group-icon input-group-text">
+                    <core:icon identifier="content-planner-search" size="small" alternativeMarkupIdentifier="inline"/>
+                </span>
+                <label for="assignee-search" class="visually-hidden">
+                    {f:translate(key: 'assignee.search.label', extensionName: 'xima_typo3_content_planner')}
+                </label>
+                <input type="search" id="assignee-search" class="form-control" data-assignee-search
+                    autocomplete="off" aria-controls="assignee-listbox"
+                    role="combobox" aria-expanded="true" aria-autocomplete="list"
+                    placeholder="{f:translate(key: 'assignee.search.placeholder', extensionName: 'xima_typo3_content_planner')}"
+                    <f:if condition="{canChangeAssignee}"><f:else>disabled</f:else></f:if>
+                />
+            </div>
 
-        <div class="content-planner-assignee__search input-group mb-2">
-            <span class="input-group-addon input-group-icon input-group-text">
-                <core:icon identifier="actions-search" size="small"/>
-            </span>
-            <label for="assignee-search" class="visually-hidden">
-                {f:translate(key: 'assignee.search.label', extensionName: 'xima_typo3_content_planner')}
-            </label>
-            <input type="search" id="assignee-search" class="form-control" data-assignee-search
-                autocomplete="off" aria-controls="assignee-listbox"
-                role="combobox" aria-expanded="true" aria-autocomplete="list"
-                placeholder="{f:translate(key: 'assignee.search.placeholder', extensionName: 'xima_typo3_content_planner')}"
-                <f:if condition="{canChangeAssignee}"><f:else>disabled</f:else></f:if>
-            />
-        </div>
-
-        <ul id="assignee-listbox" class="content-planner-assignee__list" role="listbox" tabindex="0"
-            data-assignee-listbox
-            aria-label="{f:translate(key: 'assignee.list.label', extensionName: 'xima_typo3_content_planner')}"
-            <f:if condition="{canChangeAssignee}"><f:else>aria-disabled="true"</f:else></f:if>
-        >
-            <f:for each="{assignees}" as="assigneeEntry">
-                <li id="assignee-option-{assigneeEntry.uid}" role="option"
-                    class="content-planner-assignee__item{f:if(condition: assigneeEntry.isCurrent, then: ' content-planner-assignee__item--current')}{f:if(condition: assigneeEntry.url, then: '', else: ' content-planner-assignee__item--disabled')}"
-                    data-assignee-option
-                    data-assignee-uid="{assigneeEntry.uid}"
-                    <f:if condition="{assigneeEntry.url}">data-assignee-url="{assigneeEntry.url}"</f:if>
-                    data-assignee-name="{assigneeEntry.name}"
-                    aria-selected="false"
-                    <f:if condition="{assigneeEntry.isCurrent}">aria-current="true"</f:if>
-                    <f:if condition="{assigneeEntry.url}"><f:else>aria-disabled="true"</f:else></f:if>
-                >
-                    <span class="content-planner-assignee__avatar">
-                        <f:if condition="{assigneeEntry.uid} > 0">
-                            <f:then>
-                                <be:avatar backendUser="{assigneeEntry.uid}" size="20" showIcon="true"/>
-                            </f:then>
-                            <f:else>
-                                <core:icon identifier="actions-user" size="small"/>
-                            </f:else>
-                        </f:if>
-                    </span>
-                    <span class="content-planner-assignee__name">{assigneeEntry.name}</span>
-                    <f:if condition="{assigneeEntry.isCurrent}">
-                        <span class="content-planner-assignee__current-badge">
-                            <core:icon identifier="actions-check-circle" size="small"/>
-                            <span class="visually-hidden">{f:translate(key: 'assignee.list.current', extensionName: 'xima_typo3_content_planner')}</span>
+            <ul id="assignee-listbox" class="content-planner-assignee__list" role="listbox" tabindex="0"
+                data-assignee-listbox
+                aria-label="{f:translate(key: 'assignee.list.label', extensionName: 'xima_typo3_content_planner')}"
+                <f:if condition="{canChangeAssignee}"><f:else>aria-disabled="true"</f:else></f:if>
+            >
+                <f:for each="{assignees}" as="assigneeEntry">
+                    <li id="assignee-option-{assigneeEntry.uid}" role="option"
+                        class="content-planner-assignee__item{f:if(condition: assigneeEntry.isCurrent, then: ' content-planner-assignee__item--current')}{f:if(condition: assigneeEntry.url, then: '', else: ' content-planner-assignee__item--disabled')}"
+                        data-assignee-option
+                        data-assignee-uid="{assigneeEntry.uid}"
+                        <f:if condition="{assigneeEntry.url}">data-assignee-url="{assigneeEntry.url}"</f:if>
+                        data-assignee-name="{assigneeEntry.name}"
+                        aria-selected="false"
+                        <f:if condition="{assigneeEntry.isCurrent}">aria-current="true"</f:if>
+                        <f:if condition="{assigneeEntry.url}"><f:else>aria-disabled="true"</f:else></f:if>
+                    >
+                        <span class="content-planner-assignee__avatar">
+                            <f:if condition="{assigneeEntry.uid} > 0">
+                                <f:then>
+                                    <be:avatar backendUser="{assigneeEntry.uid}" size="20" showIcon="true"/>
+                                </f:then>
+                                <f:else>
+                                    <core:icon identifier="content-planner-user-circle" size="small" alternativeMarkupIdentifier="inline"/>
+                                </f:else>
+                            </f:if>
                         </span>
-                    </f:if>
-                </li>
-            </f:for>
-        </ul>
-        <p class="content-planner-assignee__empty" data-assignee-empty hidden role="status" aria-live="polite">
-            {f:translate(key: 'assignee.list.empty', extensionName: 'xima_typo3_content_planner')}
-        </p>
+                        <span class="content-planner-assignee__name">{assigneeEntry.name}</span>
+                        <f:if condition="{assigneeEntry.isCurrent}">
+                            <span class="content-planner-assignee__current-badge">
+                                <core:icon identifier="content-planner-circle-check" size="small" alternativeMarkupIdentifier="inline"/>
+                                <span class="visually-hidden">{f:translate(key: 'assignee.list.current', extensionName: 'xima_typo3_content_planner')}</span>
+                            </span>
+                        </f:if>
+                    </li>
+                </f:for>
+            </ul>
+            <p class="content-planner-assignee__empty" data-assignee-empty hidden role="status" aria-live="polite">
+                {f:translate(key: 'assignee.list.empty', extensionName: 'xima_typo3_content_planner')}
+            </p>
 
-        <div class="content-planner-assignee__actions">
-            <f:if condition="{assignee.assignToCurrentUser}">
-                <button type="button" class="btn btn-primary" data-action-assignee
-                    data-url="{assignee.assignToCurrentUser}">
-                    <core:icon identifier="actions-assign-to-me" alternativeMarkupIdentifier="inline" size="small"/>
-                    {f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}
-                </button>
-            </f:if>
-            <f:if condition="{assignee.unassign}">
-                <button type="button" class="btn btn-default" data-action-assignee
-                    data-action-assignee-unset data-url="{assignee.unassign}">
-                    <core:icon identifier="actions-unassign" alternativeMarkupIdentifier="inline" size="small"/>
-                    {f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}
-                </button>
-            </f:if>
-            <f:if condition="{canChangeAssignee}">
-                <button type="button" class="btn btn-default content-planner-assignee__confirm"
-                    data-action-assignee-confirm disabled>
-                    {f:translate(key: 'assignee.confirm', extensionName: 'xima_typo3_content_planner')}
-                </button>
-            </f:if>
+            <div class="content-planner-assignee__actions">
+                <f:if condition="{assignee.assignToCurrentUser}">
+                    <button type="button" class="btn btn-primary" data-action-assignee
+                        data-url="{assignee.assignToCurrentUser}">
+                        <core:icon identifier="actions-assign-to-me" alternativeMarkupIdentifier="inline" size="small"/>
+                        {f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}
+                    </button>
+                </f:if>
+                <f:if condition="{assignee.unassign}">
+                    <button type="button" class="btn btn-default" data-action-assignee
+                        data-action-assignee-unset data-url="{assignee.unassign}">
+                        <core:icon identifier="actions-unassign" alternativeMarkupIdentifier="inline" size="small"/>
+                        {f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}
+                    </button>
+                </f:if>
+                <f:if condition="{canChangeAssignee}">
+                    <button type="button" class="btn btn-default content-planner-assignee__confirm"
+                        data-action-assignee-confirm disabled>
+                        {f:translate(key: 'assignee.confirm', extensionName: 'xima_typo3_content_planner')}
+                    </button>
+                </f:if>
+            </div>
         </div>
 
-        <p class="content-planner-assignee__docs-link">
-            {f:translate(key: 'assignee.documentation', extensionName: 'xima_typo3_content_planner') -> f:format.raw()}
-        </p>
+        <div class="content-planner-assignee__aside">
+            <p class="content-planner-assignee__info">
+                {f:translate(key: 'assignee.info', extensionName: 'xima_typo3_content_planner')}
+            </p>
+            <p class="content-planner-assignee__docs-link">
+                {f:translate(key: 'assignee.documentation', extensionName: 'xima_typo3_content_planner') -> f:format.raw()}
+            </p>
+        </div>
     </div>
 </f:if>
 </html>

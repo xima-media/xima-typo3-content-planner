@@ -47,7 +47,7 @@ class CommentRepository
      *
      * @throws Exception
      */
-    public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false): array
+    public function findAllByRecord(int $id, string $table, bool $raw = false, string $sortDirection = 'DESC', bool $showResolved = false, bool $showTodoComments = false): array
     {
         $queryBuilder = $this->buildRootCommentsQueryBuilder($sortDirection);
         $query = $queryBuilder->andWhere(
@@ -61,6 +61,12 @@ class CommentRepository
             );
         }
 
+        if ($showTodoComments) {
+            $query->andWhere(
+                $queryBuilder->expr()->gt(self::TABLE.'.todo_total', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            );
+        }
+
         $rootComments = $query
             ->executeQuery()->fetchAllAssociative();
 
@@ -68,7 +74,7 @@ class CommentRepository
             return $rootComments;
         }
 
-        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection);
+        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection, $showTodoComments);
     }
 
     /**
@@ -85,7 +91,7 @@ class CommentRepository
      *
      * @throws Exception
      */
-    public function findAllByRecords(array $refs, bool $showResolved = false, string $sortDirection = 'DESC'): array
+    public function findAllByRecords(array $refs, bool $showResolved = false, string $sortDirection = 'DESC', bool $showTodoComments = false): array
     {
         if ([] === $refs) {
             return [];
@@ -102,10 +108,16 @@ class CommentRepository
             );
         }
 
+        if ($showTodoComments) {
+            $query->andWhere(
+                $queryBuilder->expr()->gt(self::TABLE.'.todo_total', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            );
+        }
+
         $rootComments = $query
             ->executeQuery()->fetchAllAssociative();
 
-        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection);
+        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection, $showTodoComments);
     }
 
     /**
@@ -136,6 +148,30 @@ class CommentRepository
         }
 
         return $query->executeQuery()->fetchOne();
+    }
+
+    /**
+     * Counts comments that carry a to-do checklist of their own (`todo_total > 0`), independent
+     * of the current resolved/todo view filters - drives the badge on the "show only ToDo
+     * comments" toggle, the same way {@see self::countAllByRecord()}'s $onlyResolved branch
+     * always shows how many resolved comments exist regardless of whether they're hidden.
+     *
+     * @throws Exception
+     */
+    public function countCommentsWithTodosByRecord(int $id, string $table): int
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+
+        return (int) $queryBuilder
+            ->count('uid')
+            ->from(self::TABLE)
+            ->where(
+                $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
+                $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
+                $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->gt('todo_total', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            )
+            ->executeQuery()->fetchOne();
     }
 
     public function countTodoAllByRecord(?int $id = null, ?string $table = null, string $todoField = 'todo_resolved', bool $allRecords = false): int
@@ -365,10 +401,10 @@ class CommentRepository
      *
      * @throws Exception
      */
-    private function hydrateRootComments(array $rootComments, bool $showResolved, string $sortDirection): array
+    private function hydrateRootComments(array $rootComments, bool $showResolved, string $sortDirection, bool $showTodoComments = false): array
     {
         $rootUids = array_map(static fn (array $row): int => (int) $row['uid'], $rootComments);
-        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved, $sortDirection) : [];
+        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved, $sortDirection, $showTodoComments) : [];
 
         $items = [];
         foreach ($rootComments as $result) {
@@ -390,7 +426,7 @@ class CommentRepository
      *
      * @throws Exception
      */
-    private function findRepliesByParentUids(array $parentUids, bool $showResolved = false, string $sortDirection = 'DESC'): array
+    private function findRepliesByParentUids(array $parentUids, bool $showResolved = false, string $sortDirection = 'DESC', bool $showTodoComments = false): array
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
@@ -406,6 +442,12 @@ class CommentRepository
         if (!$showResolved) {
             $query->andWhere(
                 $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            );
+        }
+
+        if ($showTodoComments) {
+            $query->andWhere(
+                $queryBuilder->expr()->gt('todo_total', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             );
         }
 

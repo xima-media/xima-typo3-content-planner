@@ -25,7 +25,7 @@ test('adding a comment persists it and increments the comment count', async ({ p
   // the comment list) but carries no count badge yet.
   await expect(webLayout.commentsBadge()).toHaveCount(0);
 
-  await webLayout.newCommentButton().click();
+  await webLayout.commentsListButton().click();
 
   const commentModal = new CommentsModalPage(page);
   await commentModal.createComment(commentText);

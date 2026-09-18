@@ -115,6 +115,7 @@ class RecordController extends ActionController
         $recordTable = $request->getQueryParams()['table'] ?? '';
         $sortComments = $request->getQueryParams()['sortComments'] ?? 'DESC';
         $showResolvedComments = (bool) ($request->getQueryParams()['showResolvedComments'] ?? false);
+        $showTodoComments = (bool) ($request->getQueryParams()['showTodoComments'] ?? false);
 
         if ('' === $recordTable || 0 === $recordId) {
             return new JsonResponse(['error' => 'Missing required parameters'], 400);
@@ -138,12 +139,12 @@ class RecordController extends ActionController
         $repliesExpanded = (bool) ($backendUser->uc['contentPlanner']['repliesExpanded'] ?? false);
         $includeChildComments = (bool) ($backendUser->uc['contentPlanner']['includeChildComments'] ?? false);
 
-        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, false, $sortComments, $showResolvedComments);
+        $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, false, $sortComments, $showResolvedComments, $showTodoComments);
         $canCreateComment = PermissionUtility::canCreateComment();
 
         // CP-29 (#328): aggregated child comments - a view-only concern, only offered for pages
         // and only when the user opted in via the persisted "includeChildComments" setting.
-        $childComments = $this->childCommentAggregationManager->buildContext($recordTable, $recordId, $includeChildComments, $showResolvedComments, $sortComments);
+        $childComments = $this->childCommentAggregationManager->buildContext($recordTable, $recordId, $includeChildComments, $showResolvedComments, $sortComments, $showTodoComments);
         $comments = $this->childCommentAggregationManager->mergeIntoList($comments, $childComments, $sortComments);
 
         $result = ViewUtility::render(
@@ -165,8 +166,14 @@ class RecordController extends ActionController
                     'sortComments' => $sortComments,
                     'showResolvedComments' => $showResolvedComments,
                     'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true),
+                    'showTodoComments' => $showTodoComments,
+                    'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable),
                     'includeChildComments' => $includeChildComments,
                     'isPage' => 'pages' === $recordTable,
+                    // Drives the badge on the "..." dropdown trigger, hinting that the closed
+                    // menu hides a non-default view - includeChildComments is a persisted
+                    // preference (like repliesExpanded), not a per-view filter, so it's excluded.
+                    'activeFilterCount' => (int) $showResolvedComments + (int) $showTodoComments,
                 ],
             ],
         );
@@ -185,7 +192,6 @@ class RecordController extends ActionController
     {
         $recordId = (int) ($request->getQueryParams()['uid'] ?? 0);
         $recordTable = $request->getQueryParams()['table'] ?? '';
-        $currentAssignee = (int) ($request->getQueryParams()['currentAssignee'] ?? 0);
 
         if ('' === $recordTable || 0 === $recordId) {
             return new JsonResponse(['error' => 'Missing required parameters'], 400);
@@ -204,6 +210,8 @@ class RecordController extends ActionController
         if (!PermissionUtility::checkAccessForRecord($recordTable, $record)) {
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
+
+        $currentAssignee = $this->resolveCurrentAssignee($request, $record);
 
         $permissions = $this->getAssignmentPermissions();
         $assignees = $this->prepareAssigneeList($recordTable, $recordId, $currentAssignee, $permissions);
@@ -279,6 +287,20 @@ class RecordController extends ActionController
         }
 
         return $params;
+    }
+
+    /**
+     * The merged record modal's Comments trigger does not know the current assignee, so
+     * switching to the Assignee tab from there sends no `currentAssignee` at all - fall back
+     * to the record's own field so that tab still marks the right entry as current.
+     *
+     * @param array<string, mixed> $record
+     */
+    private function resolveCurrentAssignee(ServerRequestInterface $request, array $record): int
+    {
+        return array_key_exists('currentAssignee', $request->getQueryParams())
+            ? (int) $request->getQueryParams()['currentAssignee']
+            : (int) ($record[Configuration::FIELD_ASSIGNEE] ?? 0);
     }
 
     /**

@@ -16,18 +16,18 @@
             <button type="submit" class="btn btn-primary btn-sm" data-comment-composer-submit>
                 <f:if condition="{mode} == 'edit'">
                     <f:then>
-                        <core:icon identifier="actions-save" size="small"/>
+                        <core:icon identifier="content-planner-device-floppy" size="small" alternativeMarkupIdentifier="inline"/>
                         <f:translate key="comment.actions.save" extensionName="XimaTypo3ContentPlanner"/>
                     </f:then>
                     <f:else>
-                        <core:icon identifier="actions-paperplane" size="small"/>
+                        <core:icon identifier="content-planner-send" size="small" alternativeMarkupIdentifier="inline"/>
                         <f:translate key="comment.actions.submit" extensionName="XimaTypo3ContentPlanner"/>
                     </f:else>
                 </f:if>
             </button>
             <f:if condition="{mode} == 'edit' || {mode} == 'reply'">
                 <button type="button" class="btn btn-default btn-sm" data-comment-composer-cancel>
-                    <core:icon identifier="actions-close" size="small"/>
+                    <core:icon identifier="content-planner-x" size="small" alternativeMarkupIdentifier="inline"/>
                     <f:translate key="comment.actions.cancel" extensionName="XimaTypo3ContentPlanner"/>
                 </button>
             </f:if>
