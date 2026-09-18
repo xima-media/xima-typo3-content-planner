@@ -226,6 +226,9 @@ class CommentComposer {
       .catch(error => {
         console.error('Content Planner: failed to load the reply editor:', error)
         Notification.message('comment.create', 'failure')
+        if (replyTrigger) {
+          replyTrigger.hidden = false
+        }
       })
   }
 
@@ -348,6 +351,10 @@ class CommentComposer {
   }
 
   submit(form) {
+    if (form.classList.contains('content-planner-comment-composer--pending')) {
+      return
+    }
+
     const textarea = form.querySelector('textarea[slot="textarea"]')
     const submitButton = form.querySelector('[data-comment-composer-submit]')
     const content = textarea?.value?.trim() ?? ''
