@@ -18,6 +18,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchMode;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 
+use function array_map;
 use function count;
 use function implode;
 
@@ -50,7 +51,7 @@ class WatcherPresentationService
      * whether this array is non-empty (a non-empty array is always truthy in Fluid, even one
      * whose fields all describe "nothing to show").
      *
-     * @return array{watchable: bool, mode: string|null, watching: bool, icon: string, state: string, count: int, watcherNames: list<string>, watcherNamesLabel: string}
+     * @return array{watchable: bool, mode: string|null, watching: bool, icon: string, state: string, count: int, watcherNames: list<string>, watcherNamesLabel: string, watchers: list<array{uid: int, name: string}>}
      *
      * @throws Exception
      */
@@ -66,12 +67,14 @@ class WatcherPresentationService
                 'count' => 0,
                 'watcherNames' => [],
                 'watcherNamesLabel' => '',
+                'watchers' => [],
             ];
         }
 
         $mode = $this->watcherService->getMode($table, $uid, $beUser);
         $activeWatcherUids = $this->backendUserRepository->filterActiveUids($this->watcherService->getActiveWatchers($table, $uid));
-        $watcherNames = $this->resolveVisibleNames($activeWatcherUids);
+        $watchers = $this->resolveVisibleWatchers($activeWatcherUids);
+        $watcherNames = array_map(static fn (array $watcher): string => $watcher['name'], $watchers);
 
         return [
             'watchable' => true,
@@ -81,10 +84,13 @@ class WatcherPresentationService
             'state' => WatchMode::presentationState($mode),
             // Deliberately every active watcher, not just the named ones: a viewer who may
             // not see a colleague still sees that the record is watched. The resulting
-            // "3 watchers, 2 names" is intentional and documented; see resolveVisibleNames().
+            // "3 watchers, 2 names" is intentional and documented; see resolveVisibleWatchers().
             'count' => count($activeWatcherUids),
             'watcherNames' => $watcherNames,
             'watcherNamesLabel' => implode(', ', $watcherNames),
+            // Same visibility pool as watcherNames, but keeps the uid alongside each name so
+            // the record modal's Watch tab can render an avatar per watcher, not just a label.
+            'watchers' => $watchers,
         ];
     }
 
@@ -102,11 +108,11 @@ class WatcherPresentationService
      *
      * @param array<int, int> $watcherUids
      *
-     * @return list<string>
+     * @return list<array{uid: int, name: string}>
      *
      * @throws Exception
      */
-    private function resolveVisibleNames(array $watcherUids): array
+    private function resolveVisibleWatchers(array $watcherUids): array
     {
         if ([] === $watcherUids) {
             return [];
@@ -117,14 +123,14 @@ class WatcherPresentationService
             $namesByUid[(int) $user['uid']] = ContentUtility::generateDisplayName($user);
         }
 
-        $names = [];
+        $watchers = [];
         foreach ($watcherUids as $watcherUid) {
             $name = $namesByUid[$watcherUid] ?? '';
             if ('' !== $name) {
-                $names[] = $name;
+                $watchers[] = ['uid' => $watcherUid, 'name' => $name];
             }
         }
 
-        return $names;
+        return $watchers;
     }
 }

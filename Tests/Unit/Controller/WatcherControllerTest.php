@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Controller;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Core\RequestId;
 use Xima\XimaTypo3ContentPlanner\Controller\WatcherController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Service\{WatcherPresentationService, WatcherService};
@@ -80,6 +81,7 @@ final class WatcherControllerTest extends TestCase
             $this->createMock(RecordRepository::class),
             $this->createMock(WatcherService::class),
             $this->createMock(WatcherPresentationService::class),
+            new RequestId(),
         );
     }
 

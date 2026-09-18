@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Controller;
 
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Core\RequestId;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Controller\WatcherController;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{WatchMode, WatchSource};
@@ -193,12 +194,93 @@ final class WatcherControllerTest extends AbstractFunctionalTestCase
         self::assertNotContains('No Group User (nogroup)', $payload['watcherNames']);
     }
 
+    #[Test]
+    public function watchersActionReturnsBadRequestWhenParametersMissing(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->watchersAction($this->createRequest([]));
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function watchersActionDeniesUserWithoutContentPlannerAccess(): void
+    {
+        // Editor (uid 2) is a non-admin without any content planner permission.
+        $this->loginBackendUser(2);
+
+        $response = $this->createController()->watchersAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function watchersActionReturnsNotFoundForUnknownRecord(): void
+    {
+        $this->loginBackendUser(1);
+
+        $response = $this->createController()->watchersAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 99999]),
+        );
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function watchersActionReturnsForbiddenWhenRecordAccessIsDenied(): void
+    {
+        $this->loginBackendUser(1);
+
+        // Page uid 4 has a pid pointing at a non-existent parent page, so
+        // BackendUtility::readPageAccess() cannot resolve it - even for an admin.
+        $response = $this->createController()->watchersAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 4]),
+        );
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function watchersActionRendersTheCurrentWatcherList(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+        $this->watcherRepository->upsert('pages', 1, 10, WatchMode::ManualWatch, WatchSource::Manual);
+
+        $response = $this->createController()->watchersAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertStringContainsString('Member User (member)', $payload['result']);
+    }
+
+    #[Test]
+    public function watchersActionRendersTheEmptyStateWhenNobodyIsWatching(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+
+        $response = $this->createController()->watchersAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $payload = json_decode((string) $response->getBody(), true);
+        self::assertStringContainsString('Nobody is watching this record yet.', $payload['result']);
+    }
+
     private function createController(): WatcherController
     {
         return new WatcherController(
             $this->get(RecordRepository::class),
             $this->get(WatcherService::class),
             $this->get(WatcherPresentationService::class),
+            $this->get(RequestId::class),
         );
     }
 

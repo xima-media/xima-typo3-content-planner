@@ -85,6 +85,21 @@
 			<trans-unit id="button.modal.header.assignee">
 				<source>Assignee</source>
 			</trans-unit>
+			<trans-unit id="button.modal.header.watch">
+				<source>Watch</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.explanation">
+				<source>Watching a record notifies you about its status changes, assignments and comments. You're added automatically when you're assigned, comment, or change its status - or you can watch it manually at any time.</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.watchers.heading">
+				<source>Watchers (%s)</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.watchers.empty">
+				<source>Nobody is watching this record yet.</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.notWatchable">
+				<source>This record does not support watching.</source>
+			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
 				<source>Cancel</source>
 			</trans-unit>

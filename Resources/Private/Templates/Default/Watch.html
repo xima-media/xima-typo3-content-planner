@@ -1,0 +1,52 @@
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:if condition="{watch.watchable}">
+    <f:then>
+        <div class="content-planner-watch-tab">
+            <div class="content-planner-watch-tab__toggle">
+                <f:render partial="WatchToggle" arguments="{table: table, uid: uid, watch: watch}"/>
+                <div class="content-planner-watch-tab__state">
+                    <strong>{f:translate(key: 'header.watch.tooltip.{watch.state}', extensionName: 'xima_typo3_content_planner')}</strong>
+                    <p>{f:translate(key: 'header.watch.hint.{watch.state}', extensionName: 'xima_typo3_content_planner')}</p>
+                </div>
+            </div>
+
+            <p class="content-planner-watch-tab__explanation">
+                {f:translate(key: 'watch.tab.explanation', extensionName: 'xima_typo3_content_planner')}
+            </p>
+
+            <div class="content-planner-watch-tab__watchers">
+                <h3 class="content-planner-watch-tab__watchers-heading">
+                    {f:translate(key: 'watch.tab.watchers.heading', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.count}')}
+                </h3>
+                <f:if condition="{watch.count} > 0">
+                    <f:then>
+                        <ul class="content-planner-watch-tab__watcher-list">
+                            <f:for each="{watch.watchers}" as="watcher">
+                                <li class="content-planner-watch-tab__watcher">
+                                    <be:avatar backendUser="{watcher.uid}" size="20" showIcon="true"/>
+                                    <span>{watcher.name}</span>
+                                </li>
+                            </f:for>
+                        </ul>
+                    </f:then>
+                    <f:else>
+                        <p class="content-planner-watch-tab__empty">
+                            {f:translate(key: 'watch.tab.watchers.empty', extensionName: 'xima_typo3_content_planner')}
+                        </p>
+                    </f:else>
+                </f:if>
+            </div>
+        </div>
+    </f:then>
+    <f:else>
+        <p class="content-planner-watch-tab__empty">
+            {f:translate(key: 'watch.tab.notWatchable', extensionName: 'xima_typo3_content_planner')}
+        </p>
+    </f:else>
+</f:if>
+</html>

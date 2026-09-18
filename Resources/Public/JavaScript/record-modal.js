@@ -21,7 +21,7 @@ import Modal from "@typo3/backend/modal.js"
 import Icons from "@typo3/backend/icons.js"
 import AssigneeSelect from "@content-planner/assignee-select.js"
 
-const TAB_NAMES = ['comments', 'assignee']
+const TAB_NAMES = ['comments', 'assignee', 'watch']
 const TABS = {
   comments: {
     icon: 'content-planner-message-circle',
@@ -33,11 +33,43 @@ const TABS = {
     labelKey: 'button.modal.header.assignee',
     labelFallback: 'Assignee',
   },
+  watch: {
+    icon: 'content-planner-bell',
+    labelKey: 'button.modal.header.watch',
+    labelFallback: 'Watch',
+  },
 }
 
 class RecordModal {
   constructor() {
     this.reset()
+
+    // top.document alone, matching watch-toggle.js's own single dispatch target - see
+    // WatchToggle.announceToggled()'s docblock for why only one of the two documents involved
+    // is ever used as the event bus.
+    top.document.addEventListener('content-planner:watch-toggled', event => {
+      this.refreshWatchPaneIfOpen(event.detail.table, event.detail.uid)
+    })
+  }
+
+  /**
+   * Re-fetches the Watch pane's content from the server so its watcher count/list stay
+   * correct after a toggle - the toggle's own AJAX round trip (watch-toggle.js) only ever
+   * replaces the toggle button itself, not the pane content around it.
+   */
+  refreshWatchPaneIfOpen(table, uid) {
+    if (!this.modal || this.recordKey !== `${table}:${uid}`) {
+      return
+    }
+
+    const pane = this.panes.watch
+    if (!pane || !pane.dataset.loaded) {
+      return
+    }
+
+    delete pane.dataset.loaded
+    pane.replaceChildren()
+    this.loadPaneIfNeeded('watch')
   }
 
   reset() {
@@ -256,6 +288,13 @@ class RecordModal {
         .then(async response => response.resolve())
     }
 
+    if ('watch' === tab) {
+      return new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_watchers)
+        .withQueryArguments({ table, uid })
+        .get()
+        .then(async response => response.resolve())
+    }
+
     const url = this.context.commentsUrl || TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
     const queryArguments = { table, uid }
     if (this.context.showResolvedComments) {
@@ -274,6 +313,13 @@ class RecordModal {
   onPaneReady(tab, pane, payload) {
     if ('assignee' === tab) {
       AssigneeSelect.initEventListeners(this.modal, pane)
+      return
+    }
+
+    if ('watch' === tab) {
+      // The toggle button inside this pane is the same WatchToggle partial the header
+      // renders, wired up by watch-toggle.js's document-level click delegation - nothing
+      // extra to bind here.
       return
     }
 

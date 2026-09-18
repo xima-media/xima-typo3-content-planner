@@ -1,0 +1,62 @@
+/**
+ * Content Planner - Watch Tab Styles
+ *
+ * BEM Structure:
+ * - content-planner-watch-tab (Block)
+ * - content-planner-watch-tab__toggle, __state, __explanation, __watchers,
+ *   __watchers-heading, __watcher-list, __watcher, __empty (Elements)
+ *
+ * The record modal's "Watch" tab: explains the feature and lists who is currently watching.
+ * Reuses the WatchToggle partial for the toggle button itself, so this file only styles the
+ * surrounding explanation and watcher list.
+ */
+
+@import '_variables.css';
+
+/* ==========================================================================
+   Watch Tab
+   ========================================================================== */
+
+.content-planner-watch-tab__toggle {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.content-planner-watch-tab__state p {
+    color: var(--typo3-text-color-variant, rgba(127, 127, 127, 0.9));
+    margin: 0;
+}
+
+.content-planner-watch-tab__explanation {
+    border-bottom: 1px solid var(--typo3-component-border-color, rgba(125, 125, 125, 0.3));
+    color: var(--typo3-text-color-variant, rgba(127, 127, 127, 0.9));
+    margin: 0 0 1rem;
+    padding-bottom: 1rem;
+}
+
+.content-planner-watch-tab__watchers-heading {
+    font-size: 0.875rem;
+    margin: 0 0 0.5rem;
+}
+
+.content-planner-watch-tab__watcher-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.content-planner-watch-tab__watcher {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.content-planner-watch-tab__empty {
+    color: var(--typo3-text-color-variant, rgba(127, 127, 127, 0.9));
+    margin: 0;
+}

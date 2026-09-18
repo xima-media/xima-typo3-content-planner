@@ -211,8 +211,9 @@ class InfoGenerator
         );
         // Preloaded here rather than left to load only when the record modal's AJAX response
         // first injects its <link> tags (RecordController::commentsAction()/
-        // assigneeSelectionAction()) - otherwise the modal's first open in a session renders
-        // its content unstyled for a moment while the browser fetches these for the first time.
+        // assigneeSelectionAction()/watchersAction()) - otherwise the modal's first open in a
+        // session renders its content unstyled for a moment while the browser fetches these
+        // for the first time.
         $pageRenderer->addCssFile(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/RecordModal.css',
         );
@@ -221,6 +222,9 @@ class InfoGenerator
         );
         $pageRenderer->addCssFile(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Assignee.css',
+        );
+        $pageRenderer->addCssFile(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Watch.css',
         );
         $pageRenderer->addInlineLanguageLabelFile(
             'EXT:'.Configuration::EXT_KEY.
@@ -528,6 +532,10 @@ class InfoGenerator
         );
         $content .= AssetUtility::getCssTag(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Assignee.css',
+            ['nonce' => $this->requestId->nonce],
+        );
+        $content .= AssetUtility::getCssTag(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Watch.css',
             ['nonce' => $this->requestId->nonce],
         );
         $content .= AssetUtility::getJsTag(

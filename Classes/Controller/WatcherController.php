@@ -15,12 +15,14 @@ namespace Xima\XimaTypo3ContentPlanner\Controller;
 
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchSource;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository;
 use Xima\XimaTypo3ContentPlanner\Service\{WatcherPresentationService, WatcherService};
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 /**
@@ -46,6 +48,7 @@ class WatcherController extends ActionController
         private readonly RecordRepository $recordRepository,
         private readonly WatcherService $watcherService,
         private readonly WatcherPresentationService $watcherPresentationService,
+        private readonly RequestId $requestId,
     ) {}
 
     /**
@@ -97,6 +100,49 @@ class WatcherController extends ActionController
         ]);
 
         return new JsonResponse($state);
+    }
+
+    /**
+     * The record modal's "Watch" tab: explains the feature and lists who is currently watching.
+     * The toggle button rendered inside it is the same Partials/WatchToggle.html partial the
+     * header renders, wired up by watch-toggle.js's own document-level click delegation - this
+     * action only has to render the pane around it.
+     *
+     * @throws Exception
+     */
+    public function watchersAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $table = (string) ($request->getQueryParams()['table'] ?? '');
+        $uid = (int) ($request->getQueryParams()['uid'] ?? 0);
+
+        if ('' === $table || 0 === $uid) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        $backendUserUid = $this->resolveBackendUserUid();
+        if (null === $backendUserUid) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $record = $this->recordRepository->findByUid($table, $uid, true);
+        if (!$record) {
+            return new JsonResponse(['error' => 'Record not found'], 404);
+        }
+
+        if (!PermissionUtility::checkAccessForRecord($table, $record)) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $result = ViewUtility::render('Default/Watch.html', [
+            'table' => $table,
+            'uid' => $uid,
+            'watch' => $this->watcherPresentationService->build($table, $uid, $backendUserUid),
+        ]);
+
+        $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/RecordModal.css', ['nonce' => $this->requestId->nonce]);
+        $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Watch.css', ['nonce' => $this->requestId->nonce]);
+
+        return new JsonResponse(['result' => $result]);
     }
 
     /**

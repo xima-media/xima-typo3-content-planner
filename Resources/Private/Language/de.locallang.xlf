@@ -198,6 +198,26 @@
 				<source>Assignee</source>
 				<target>Zuständigkeit</target>
 			</trans-unit>
+			<trans-unit id="button.modal.header.watch">
+				<source>Watch</source>
+				<target>Beobachten</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.explanation">
+				<source>Watching a record notifies you about its status changes, assignments and comments. You're added automatically when you're assigned, comment, or change its status - or you can watch it manually at any time.</source>
+				<target>Wenn du einen Datensatz beobachtest, wirst du über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du wirst automatisch hinzugefügt, wenn du zugewiesen wirst, kommentierst oder den Status änderst - oder du beobachtest ihn jederzeit manuell.</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.watchers.heading">
+				<source>Watchers (%s)</source>
+				<target>Beobachter (%s)</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.watchers.empty">
+				<source>Nobody is watching this record yet.</source>
+				<target>Noch niemand beobachtet diesen Datensatz.</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.notWatchable">
+				<source>This record does not support watching.</source>
+				<target>Dieser Datensatz unterstützt kein Beobachten.</target>
+			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
 				<source>Cancel</source>
 				<target>Abbrechen</target>

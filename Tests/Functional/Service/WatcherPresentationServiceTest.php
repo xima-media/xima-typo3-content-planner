@@ -152,4 +152,19 @@ final class WatcherPresentationServiceTest extends AbstractFunctionalTestCase
         self::assertTrue($result['watchable']);
         self::assertSame(['Member User (member)'], $result['watcherNames']);
     }
+
+    #[Test]
+    public function buildPairsEachVisibleWatcherNameWithItsUid(): void
+    {
+        // Drives the avatar list in the record modal's Watch tab, which needs the uid
+        // alongside the name - unlike watcherNames/watcherNamesLabel, which only ever needed
+        // the display string.
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_watcher.csv');
+        $this->watcherService->watch('pages', 1, 10, WatchSource::Manual); // member: permitted
+        $this->watcherService->watch('pages', 1, 11, WatchSource::Manual); // nogroup: not permitted
+
+        $result = $this->subject->build('pages', 1, 1);
+
+        self::assertSame([['uid' => 10, 'name' => 'Member User (member)']], $result['watchers']);
+    }
 }
