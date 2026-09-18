@@ -18,6 +18,7 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
+import Icons from "@typo3/backend/icons.js"
 import AssigneeSelect from "@content-planner/assignee-select.js"
 
 const TAB_NAMES = ['comments', 'assignee']
@@ -58,6 +59,7 @@ class RecordModal {
    * @param {string|number|false} [context.currentAssignee]
    * @param {string|null} [context.scrollToCommentUid]
    * @param {boolean} [context.showResolvedComments]
+   * @param {boolean} [context.showTodoComments]
    * @param {boolean} [context.focusComposer]
    */
   open(tab, context) {
@@ -108,9 +110,15 @@ class RecordModal {
       button.setAttribute('aria-selected', String(isActive))
       button.setAttribute('tabindex', isActive ? '0' : '-1')
 
-      const icon = document.createElement('typo3-backend-icon')
-      icon.setAttribute('identifier', config.icon)
-      icon.setAttribute('size', 'small')
+      // Not <typo3-backend-icon>: that custom element fetches its SVG lazily on its own
+      // first Lit update, which never runs here - the whole tab bar is built as a detached
+      // subtree and only gets connected to the document once Modal.advanced() has finished
+      // its own async setup, by which point the icon element's one connection-triggered
+      // update has already been missed. Icons.getIcon() is the same fetch (and cache) the
+      // custom element uses internally, just applied directly once resolved.
+      const icon = document.createElement('span')
+      icon.className = 'content-planner-record-modal__tab-icon'
+      Icons.getIcon(config.icon, 'small').then(markup => { icon.innerHTML = markup })
       button.append(icon)
 
       const label = document.createElement('span')
@@ -216,15 +224,15 @@ class RecordModal {
     pane.dataset.loaded = 'pending'
 
     this.fetchTabContent(tab)
-      .then(html => {
+      .then(payload => {
         // The modal was closed (reset()) or reopened for a different record while this
         // request was in flight - this.panes[tab] now points at a different element.
         if (this.panes[tab] !== pane) {
           return
         }
         pane.dataset.loaded = 'true'
-        pane.appendChild(document.createRange().createContextualFragment(html))
-        this.onPaneReady(tab, pane)
+        pane.appendChild(document.createRange().createContextualFragment(payload.result))
+        this.onPaneReady(tab, pane, payload)
       })
       .catch(error => {
         console.error(`Content Planner: failed to load the "${tab}" tab:`, error)
@@ -245,7 +253,7 @@ class RecordModal {
       return new AjaxRequest(url)
         .withQueryArguments(queryArguments)
         .get()
-        .then(async response => (await response.resolve()).result)
+        .then(async response => response.resolve())
     }
 
     const url = this.context.commentsUrl || TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
@@ -253,18 +261,23 @@ class RecordModal {
     if (this.context.showResolvedComments) {
       queryArguments.showResolvedComments = 1
     }
+    if (this.context.showTodoComments) {
+      queryArguments.showTodoComments = 1
+    }
 
     return new AjaxRequest(url)
       .withQueryArguments(queryArguments)
       .get()
-      .then(async response => (await response.resolve()).result)
+      .then(async response => response.resolve())
   }
 
-  onPaneReady(tab, pane) {
+  onPaneReady(tab, pane, payload) {
     if ('assignee' === tab) {
       AssigneeSelect.initEventListeners(this.modal, pane)
       return
     }
+
+    this.updateTabCount('comments', payload.commentsCount)
 
     this.modal.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {
       bubbles: true,
@@ -279,6 +292,21 @@ class RecordModal {
       composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
       composerTrigger?.click()
     }
+  }
+
+  updateTabCount(tab, count) {
+    if (undefined === count || null === count) {
+      return
+    }
+
+    let badge = this.tabButtons[tab].querySelector('.content-planner-record-modal__tab-count')
+    if (!badge) {
+      badge = document.createElement('span')
+      badge.className = 'content-planner-record-modal__tab-count'
+      this.tabButtons[tab].append(badge)
+    }
+    badge.textContent = String(count)
+    badge.hidden = 0 === count
   }
 
   scrollToComment(pane, commentUid) {

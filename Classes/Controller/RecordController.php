@@ -178,10 +178,20 @@ class RecordController extends ActionController
             ],
         );
 
+        // RecordModal.css owns the shared tab-bar shell (record-modal.js) - loaded explicitly
+        // here rather than only via Assignee.css's @import, since the Comments tab is the
+        // modal's default entry point and would otherwise never pull it in at all.
+        $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/RecordModal.css', ['nonce' => $this->requestId->nonce]);
         $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css', ['nonce' => $this->requestId->nonce]);
         $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/comments-reload-content.js', ['nonce' => $this->requestId->nonce]);
 
-        return new JsonResponse(['result' => $result]);
+        return new JsonResponse([
+            'result' => $result,
+            // Read by the merged record modal's tab bar (record-modal.js) to show the count
+            // next to the Comments tab label - the same unresolved count the trigger's own
+            // badge already showed before the modal was opened (ChipTrioButtonBuilder).
+            'commentsCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable),
+        ]);
     }
 
     /**
@@ -234,6 +244,7 @@ class RecordController extends ActionController
             ],
         );
 
+        $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/RecordModal.css', ['nonce' => $this->requestId->nonce]);
         $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Assignee.css', ['nonce' => $this->requestId->nonce]);
         $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/assignee-select.js', ['nonce' => $this->requestId->nonce]);
 

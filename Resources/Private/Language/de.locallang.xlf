@@ -202,10 +202,6 @@
 				<source>Cancel</source>
 				<target>Abbrechen</target>
 			</trans-unit>
-			<trans-unit id="button.modal.footer.new">
-				<source>New</source>
-				<target>Neu</target>
-			</trans-unit>
 			<trans-unit id="button.modal.footer.edit">
 				<source>Edit</source>
 				<target>Bearbeiten</target>
@@ -228,9 +224,17 @@
 				<source>Content elements</source>
 				<target>Inhaltselemente</target>
 			</trans-unit>
+			<trans-unit id="header.contentElements.hint">
+				<source>Click to jump to one.</source>
+				<target>Klicke, um zu einem zu springen.</target>
+			</trans-unit>
 			<trans-unit id="header.assignee">
-				<source>Current assignee</source>
-				<target>Zuständiger Nutzer</target>
+				<source>Assigned to %s</source>
+				<target>Zugewiesen an %s</target>
+			</trans-unit>
+			<trans-unit id="header.assignee.hint">
+				<source>Click to reassign or unassign.</source>
+				<target>Klicke, um neu zuzuweisen oder die Zuweisung aufzuheben.</target>
 			</trans-unit>
 			<trans-unit id="header.assignToMe">
 				<source>Assign to me</source>
@@ -245,16 +249,28 @@
 				<target>-- Nicht zugewiesen --</target>
 			</trans-unit>
 			<trans-unit id="header.assignee.none">
-				<source>Not assigned</source>
-				<target>Nicht zugewiesen</target>
+				<source>Not assigned yet</source>
+				<target>Noch nicht zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="header.assignee.none.hint">
+				<source>Click to assign yourself or someone else.</source>
+				<target>Klicke, um dich selbst oder jemand anderen zuzuweisen.</target>
 			</trans-unit>
 			<trans-unit id="header.todos">
-				<source>Todos</source>
+				<source>To-dos</source>
 				<target>Aufgaben</target>
+			</trans-unit>
+			<trans-unit id="header.todos.hint">
+				<source>Click to view the checklist.</source>
+				<target>Klicke, um die Aufgabenliste anzusehen.</target>
 			</trans-unit>
 			<trans-unit id="header.comments">
 				<source>Comments</source>
 				<target>Kommentare</target>
+			</trans-unit>
+			<trans-unit id="header.comments.hint">
+				<source>Click to view or add one.</source>
+				<target>Klicke, um sie anzusehen oder einen hinzuzufügen.</target>
 			</trans-unit>
 			<trans-unit id="header.meta.groupLabel">
 				<source>Assignee, comments and notifications</source>
@@ -265,20 +281,36 @@
 				<target>Weitere Aktionen</target>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.inactive">
-				<source>Get notified about status changes, assignments and comments. Click to watch.</source>
-				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Klicke, um ihn zu beobachten.</target>
+				<source>Not watching</source>
+				<target>Nicht beobachtet</target>
+			</trans-unit>
+			<trans-unit id="header.watch.hint.inactive">
+				<source>Watch this record to get notified about status changes, assignments and comments.</source>
+				<target>Beobachte diesen Datensatz, um über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt zu werden.</target>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.auto">
-				<source>Get notified about status changes, assignments and comments. You're automatically watching this record because of an assignment, comment or status change. Click to stop watching.</source>
-				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du beobachtest diesen Datensatz automatisch aufgrund einer Zuweisung, eines Kommentars oder einer Status-Änderung. Klicke, um das zu beenden.</target>
+				<source>Watching automatically</source>
+				<target>Wird automatisch beobachtet</target>
+			</trans-unit>
+			<trans-unit id="header.watch.hint.auto">
+				<source>Because of an assignment, a comment or a status change on this record. Click to stop.</source>
+				<target>Aufgrund einer Zuweisung, eines Kommentars oder einer Status-Änderung an diesem Datensatz. Klicke, um das zu beenden.</target>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.manual">
-				<source>Get notified about status changes, assignments and comments. You are watching this record. Click to stop watching.</source>
-				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du beobachtest diesen Datensatz. Klicke, um das zu beenden.</target>
+				<source>Watching</source>
+				<target>Wird beobachtet</target>
+			</trans-unit>
+			<trans-unit id="header.watch.hint.manual">
+				<source>You'll be notified about status changes, assignments and comments. Click to stop.</source>
+				<target>Du wirst über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Klicke, um das zu beenden.</target>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.muted">
-				<source>Get notified about status changes, assignments and comments. You won't be re-added automatically. Click to watch again.</source>
-				<target>Werde über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du wirst nicht automatisch wieder hinzugefügt. Klicke, um ihn erneut zu beobachten.</target>
+				<source>Not watching</source>
+				<target>Nicht beobachtet</target>
+			</trans-unit>
+			<trans-unit id="header.watch.hint.muted">
+				<source>Won't be re-added automatically after a status change, comment or assignment. Click to watch again.</source>
+				<target>Wirst nach einer Status-Änderung, einem Kommentar oder einer Zuweisung nicht automatisch wieder hinzugefügt. Klicke, um erneut zu beobachten.</target>
 			</trans-unit>
 			<trans-unit id="header.watch.watchers">
 				<source>Watching: %s</source>
@@ -428,6 +460,10 @@
 				<source>Delete</source>
 				<target>Löschen</target>
 			</trans-unit>
+			<trans-unit id="comment.actions.add">
+				<source>Add comment</source>
+				<target>Kommentar hinzufügen</target>
+			</trans-unit>
 			<trans-unit id="comment.actions.share">
 				<source>Share link</source>
 				<target>Link teilen</target>
@@ -512,29 +548,21 @@
 				<source><![CDATA[Currently there are no comments available yet. You may want to create a <a data-new-comment-uri="%s" data-table="%s" data-id="%s">new comment</a>?]]></source>
 				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s">neuen Kommentar</a> erstellen?]]></target>
 			</trans-unit>
+			<trans-unit id="comment.filter.headline">
+				<source>Filter</source>
+				<target>Filter</target>
+			</trans-unit>
 			<trans-unit id="comment.filter.includeChildComments">
 				<source>Show comments from child records</source>
 				<target>Kommentare von untergeordneten Datensätzen anzeigen</target>
-			</trans-unit>
-			<trans-unit id="comment.filter.includeChildComments.hide">
-				<source>Hide comments from child records</source>
-				<target>Kommentare von untergeordneten Datensätzen ausblenden</target>
 			</trans-unit>
 			<trans-unit id="comment.filter.showResolvedComments">
 				<source>Show resolved comments</source>
 				<target>Erledigte Kommentare anzeigen</target>
 			</trans-unit>
-			<trans-unit id="comment.filter.showResolvedComments.hide">
-				<source>Hide resolved comments</source>
-				<target>Erledigte Kommentare ausblenden</target>
-			</trans-unit>
 			<trans-unit id="comment.filter.showTodoComments">
 				<source>Show only ToDo comments</source>
 				<target>Nur ToDo-Kommentare anzeigen</target>
-			</trans-unit>
-			<trans-unit id="comment.filter.showTodoComments.hide">
-				<source>Show all comments</source>
-				<target>Alle Kommentare anzeigen</target>
 			</trans-unit>
 			<trans-unit id="comment.record.jump">
 				<source>Open %s in the backend</source>
