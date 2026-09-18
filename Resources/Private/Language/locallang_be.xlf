@@ -198,26 +198,8 @@
 			 	<source>Your watch state could not be updated.</source>
 			</trans-unit>
 			<!-- notification toolbar -->
-			<trans-unit id="notification.toolbar.title">
-				<source>Notifications</source>
-			</trans-unit>
 			<trans-unit id="notification.badge.unreadCount">
 				<source>%d unread notifications</source>
-			</trans-unit>
-			<trans-unit id="notification.dropdown.headline">
-				<source>Notifications</source>
-			</trans-unit>
-			<trans-unit id="notification.dropdown.markAllRead">
-				<source>Mark all as read</source>
-			</trans-unit>
-			<trans-unit id="notification.dropdown.markRead">
-				<source>Mark as read</source>
-			</trans-unit>
-			<trans-unit id="notification.dropdown.empty">
-				<source>You're all caught up</source>
-			</trans-unit>
-			<trans-unit id="notification.dropdown.empty.hint">
-				<source>Records you watch will show up here.</source>
 			</trans-unit>
 			<trans-unit id="notification.record.inaccessible">
 				<source>A record you no longer have access to</source>

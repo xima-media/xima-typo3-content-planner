@@ -636,6 +636,32 @@
 				<target>Profil wird geladen…</target>
 			</trans-unit>
 
+			<!-- notification toolbar chrome: see locallang.xlf for why these live here -->
+			<trans-unit id="notification.toolbar.title">
+				<source>Notifications</source>
+				<target>Benachrichtigungen</target>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.headline">
+				<source>Notifications</source>
+				<target>Benachrichtigungen</target>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.markAllRead">
+				<source>Mark all as read</source>
+				<target>Alle als gelesen markieren</target>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.markRead">
+				<source>Mark as read</source>
+				<target>Als gelesen markieren</target>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.empty">
+				<source>You're all caught up</source>
+				<target>Du bist auf dem neuesten Stand</target>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.empty.hint">
+				<source>Records you watch will show up here.</source>
+				<target>Von dir beobachtete Datensätze erscheinen hier.</target>
+			</trans-unit>
+
 			<!-- mail -->
 			<trans-unit id="mail.signature">
 				<source></source>
