@@ -209,6 +209,19 @@ class InfoGenerator
         $pageRenderer->addCssFile(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
         );
+        // Preloaded here rather than left to load only when the record modal's AJAX response
+        // first injects its <link> tags (RecordController::commentsAction()/
+        // assigneeSelectionAction()) - otherwise the modal's first open in a session renders
+        // its content unstyled for a moment while the browser fetches these for the first time.
+        $pageRenderer->addCssFile(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/RecordModal.css',
+        );
+        $pageRenderer->addCssFile(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css',
+        );
+        $pageRenderer->addCssFile(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Assignee.css',
+        );
         $pageRenderer->addInlineLanguageLabelFile(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Private/Language/locallang.xlf',
@@ -502,6 +515,21 @@ class InfoGenerator
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
             ['nonce' => $this->requestId->nonce],
         );
+        // Preloaded for the same reason as in loadHeaderAssets() above: without this, the
+        // record modal's first open in a session renders unstyled until its own AJAX response
+        // injects these for the first time.
+        $content .= AssetUtility::getCssTag(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/RecordModal.css',
+            ['nonce' => $this->requestId->nonce],
+        );
+        $content .= AssetUtility::getCssTag(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css',
+            ['nonce' => $this->requestId->nonce],
+        );
+        $content .= AssetUtility::getCssTag(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Assignee.css',
+            ['nonce' => $this->requestId->nonce],
+        );
         $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/comments-list-modal.js',
@@ -515,6 +543,11 @@ class InfoGenerator
         $content .= AssetUtility::getJsTag(
             'EXT:'.Configuration::EXT_KEY.
             '/Resources/Public/JavaScript/watch-toggle.js',
+            ['nonce' => $this->requestId->nonce],
+        );
+        $content .= AssetUtility::getJsTag(
+            'EXT:'.Configuration::EXT_KEY.
+            '/Resources/Public/JavaScript/header-tooltips.js',
             ['nonce' => $this->requestId->nonce],
         );
 
