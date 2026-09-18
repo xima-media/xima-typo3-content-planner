@@ -27,8 +27,8 @@ use function in_array;
  * WebLayoutModifier.
  *
  * CP-25 (#324): only active in the legacy "banner" headerDisplayMode. The default "chip"
- * mode decorates content elements via ContentElementPreviewStatusListener (a
- * PageContentPreviewRenderingEvent listener) instead of this injected `<style>` overlay.
+ * mode decorates content elements via {@see ContentElementHeaderModifier} instead of this
+ * injected `<style>` overlay.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
