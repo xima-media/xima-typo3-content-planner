@@ -50,14 +50,23 @@ class WatcherPresentationService
      * whether this array is non-empty (a non-empty array is always truthy in Fluid, even one
      * whose fields all describe "nothing to show").
      *
-     * @return array{watchable: bool, mode: string|null, watching: bool, count: int, watcherNames: list<string>, watcherNamesLabel: string}
+     * @return array{watchable: bool, mode: string|null, watching: bool, icon: string, state: string, count: int, watcherNames: list<string>, watcherNamesLabel: string}
      *
      * @throws Exception
      */
     public function build(string $table, int $uid, int $beUser): array
     {
         if (!$this->watcherService->isWatchable($table)) {
-            return ['watchable' => false, 'mode' => null, 'watching' => false, 'count' => 0, 'watcherNames' => [], 'watcherNamesLabel' => ''];
+            return [
+                'watchable' => false,
+                'mode' => null,
+                'watching' => false,
+                'icon' => WatchMode::iconIdentifier(null),
+                'state' => WatchMode::presentationState(null),
+                'count' => 0,
+                'watcherNames' => [],
+                'watcherNamesLabel' => '',
+            ];
         }
 
         $mode = $this->watcherService->getMode($table, $uid, $beUser);
@@ -68,6 +77,8 @@ class WatcherPresentationService
             'watchable' => true,
             'mode' => $mode?->value,
             'watching' => WatchMode::isWatching($mode),
+            'icon' => WatchMode::iconIdentifier($mode),
+            'state' => WatchMode::presentationState($mode),
             // Deliberately every active watcher, not just the named ones: a viewer who may
             // not see a colleague still sees that the record is watched. The resulting
             // "3 watchers, 2 names" is intentional and documented; see resolveVisibleNames().

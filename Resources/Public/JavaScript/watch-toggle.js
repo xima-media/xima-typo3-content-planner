@@ -59,16 +59,16 @@ class WatchToggle {
 
   /**
    * `container.outerHTML = html` detaches the clicked button, so keyboard focus would otherwise
-   * fall back to <body> with no indication the toggle succeeded. Capture a stable anchor before
-   * the swap and refocus the re-rendered toggle button afterwards.
+   * fall back to <body> with no indication the toggle succeeded. The container is the toggle
+   * button itself since it became a segment of the header's shared button group (issue #404),
+   * so the re-rendered button is found through the surviving parent, not through the detached
+   * node.
    */
   replaceAndRestoreFocus(container, html) {
     const parent = container.parentElement
-    const nextSibling = container.nextSibling
     container.outerHTML = html
 
-    const replaced = nextSibling ? nextSibling.previousSibling : parent?.lastElementChild
-    replaced?.querySelector?.('[data-content-planner-watch-toggle]')?.focus()
+    parent?.querySelector?.('[data-content-planner-watch-toggle]')?.focus()
   }
 
   /**

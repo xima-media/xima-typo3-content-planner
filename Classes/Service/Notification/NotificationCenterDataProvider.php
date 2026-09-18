@@ -220,10 +220,10 @@ class NotificationCenterDataProvider
         return match ($eventType) {
             NotificationEventType::StatusChanged => 'actions-flag-edit',
             NotificationEventType::Assigned => 'actions-assign-to-me',
-            NotificationEventType::CommentAdded => 'actions-comment',
-            NotificationEventType::ContentChanged => 'actions-document-edit',
-            NotificationEventType::Mentioned => 'actions-tag',
-            null => 'actions-info',
+            NotificationEventType::CommentAdded => 'content-planner-message-circle',
+            NotificationEventType::ContentChanged => 'content-planner-edit',
+            NotificationEventType::Mentioned => 'content-planner-tag',
+            null => 'content-planner-info-circle',
         };
     }
 

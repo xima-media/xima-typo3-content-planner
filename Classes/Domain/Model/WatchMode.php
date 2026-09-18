@@ -44,4 +44,31 @@ enum WatchMode: string
     {
         return null !== $mode && self::ManualUnwatch !== $mode;
     }
+
+    /**
+     * The four states differ in icon shape, not only in colour, so the toggle stays readable
+     * without colour perception (WCAG 1.4.1) now that the header renders it icon-only.
+     */
+    public static function iconIdentifier(?self $mode): string
+    {
+        return match ($mode) {
+            self::Auto => 'content-planner-bell-ringing',
+            self::ManualWatch => 'content-planner-bell-filled',
+            self::ManualUnwatch => 'content-planner-bell-off',
+            null => 'content-planner-bell',
+        };
+    }
+
+    /**
+     * Suffix of the `content-planner-watch-toggle--*` CSS modifier.
+     */
+    public static function presentationState(?self $mode): string
+    {
+        return match ($mode) {
+            self::Auto => 'auto',
+            self::ManualWatch => 'manual',
+            self::ManualUnwatch => 'muted',
+            null => 'inactive',
+        };
+    }
 }
