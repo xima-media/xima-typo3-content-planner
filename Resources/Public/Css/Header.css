@@ -132,7 +132,12 @@
 }
 
 .content-planner-header--compact .content-planner-meta__btn {
+    /* Keeps the content element preview / docked bar's original, tighter sizing - the bump in
+       the base rule above is for the roomier page-level header only. */
+    --icon-size-small: 1rem;
     font-size: 0.85em;
+    height: var(--typo3-btn-min-height);
+    width: auto;
 }
 
 /* ==========================================================================
@@ -173,17 +178,23 @@
    ========================================================================== */
 
 .content-planner-meta__btn {
+    /* Scoped override, not a global icon-size change: --icon-size-small feeds the icon
+       wrapper's own --icon-size (see TYPO3 core's .icon-size-small rule), so every icon
+       rendered inside this button picks up the larger size without touching any template. */
+    --icon-size-small: 1.125rem;
     align-items: center;
     display: inline-flex;
     gap: 0.3rem;
     /* .btn only sets min-height, and .btn-group's align-items: center does not stretch flex
        items - so a segment with a badge (taller content row than a bare icon) grows past that
        floor while an icon-only segment stays at it, leaving the two visibly uneven. Pinning
-       every segment to that same custom property keeps them uniform regardless of content;
-       the badge still fits inside it without being clipped, it just stops inflating the row. */
-    height: var(--typo3-btn-min-height);
+       every segment to a fixed size (rather than the smaller --typo3-btn-min-height default)
+       keeps them uniform regardless of content and gives the icon above room to grow into;
+       the badge still fits inside it without being clipped. */
+    height: 2.25rem;
     justify-content: center;
     position: relative;
+    width: 2.25rem;
 }
 
 /* Deliberately smaller than a stock .badge: at the default size the pill covers most of the

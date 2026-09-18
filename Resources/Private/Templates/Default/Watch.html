@@ -44,9 +44,11 @@
         </div>
     </f:then>
     <f:else>
-        <p class="content-planner-watch-tab__empty">
-            {f:translate(key: 'watch.tab.notWatchable', extensionName: 'xima_typo3_content_planner')}
-        </p>
+        <div class="content-planner-watch-tab">
+            <p class="content-planner-watch-tab__empty">
+                {f:translate(key: 'watch.tab.notWatchable', extensionName: 'xima_typo3_content_planner')}
+            </p>
+        </div>
     </f:else>
 </f:if>
 </html>

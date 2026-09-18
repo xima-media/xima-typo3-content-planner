@@ -17,6 +17,13 @@
    Watch Tab
    ========================================================================== */
 
+/* Unlike the Comments tab's own filter toolbar, this content has no reason to sit flush
+   against the tab bar's border above it (see RecordModal.css's __pane rule for why that one
+   doesn't get a top gap). */
+.content-planner-watch-tab {
+    padding-top: 1rem;
+}
+
 .content-planner-watch-tab__toggle {
     align-items: center;
     display: flex;
