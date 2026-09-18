@@ -118,7 +118,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      */
     public function addStatusResetItemToSelection(array $selectionEntriesToAdd, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
-        $icon = $this->iconFactory->getIcon('actions-close', IconUtility::getDefaultIconSize())->render();
+        $icon = $this->iconFactory->getIcon('content-planner-x', IconUtility::getDefaultIconSize())->render('inline');
         $href = $this->buildUriForStatusChange($table, $uid, null)->__toString();
         $title = htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
@@ -148,7 +148,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             ? $username
             : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
 
-        $icon = $this->iconFactory->getIcon('actions-user', IconUtility::getDefaultIconSize())->render();
+        $icon = $this->iconFactory->getIcon('content-planner-user-circle', IconUtility::getDefaultIconSize())->render('inline');
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
@@ -178,7 +178,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
     {
         $commentsCount = PlannerUtility::hasComments($record) ? (int) $record[Configuration::FIELD_COMMENTS] : 0;
 
-        $icon = $this->iconFactory->getIcon('actions-message', IconUtility::getDefaultIconSize())->render();
+        $icon = $this->iconFactory->getIcon('content-planner-message-circle', IconUtility::getDefaultIconSize())->render('inline');
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = ($commentsCount > 0 ? $commentsCount.' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
         $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
@@ -217,7 +217,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
         }
 
         $todoResolved = $this->getCommentsTodoResolved($record, $table);
-        $icon = $this->iconFactory->getIcon('actions-check-square', IconUtility::getDefaultIconSize())->render();
+        $icon = $this->iconFactory->getIcon('content-planner-checkbox', IconUtility::getDefaultIconSize())->render('inline');
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = "$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo');
         $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
@@ -276,7 +276,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
      */
     public function addFolderStatusResetItemToSelection(array $selectionEntriesToAdd, string $combinedIdentifier): array
     {
-        $icon = $this->iconFactory->getIcon('actions-close', IconUtility::getDefaultIconSize())->render();
+        $icon = $this->iconFactory->getIcon('content-planner-x', IconUtility::getDefaultIconSize())->render('inline');
         $href = $this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString();
         $title = htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
 
@@ -310,7 +310,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
             ? $username
             : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
 
-        $icon = $this->iconFactory->getIcon('actions-user', IconUtility::getDefaultIconSize())->render();
+        $icon = $this->iconFactory->getIcon('content-planner-user-circle', IconUtility::getDefaultIconSize())->render('inline');
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $escapedHref = htmlspecialchars($href, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $escapedLabel = htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
@@ -344,7 +344,7 @@ class ListSelectionService extends AbstractSelectionService implements Selection
 
         $commentsCount = PlannerUtility::hasComments($folderRecord) ? $this->commentRepository->countAllByRecord($uid, $table) : 0;
 
-        $icon = $this->iconFactory->getIcon('actions-message', IconUtility::getDefaultIconSize())->render();
+        $icon = $this->iconFactory->getIcon('content-planner-message-circle', IconUtility::getDefaultIconSize())->render('inline');
         $href = UrlUtility::getContentStatusPropertiesEditUrl($table, $uid);
         $label = ($commentsCount > 0 ? $commentsCount.' ' : '').$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments');
         $newCommentUri = PermissionUtility::canCreateComment()

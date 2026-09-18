@@ -182,6 +182,14 @@
 				<target>Nur Datensätze anzeigen, die du aktiv beobachtest</target>
 			</trans-unit>
 
+			<trans-unit id="modal.record.title">
+				<source>Content Planner</source>
+				<target>Content Planner</target>
+			</trans-unit>
+			<trans-unit id="modal.tabs.label">
+				<source>Record actions</source>
+				<target>Datensatz-Aktionen</target>
+			</trans-unit>
 			<trans-unit id="button.modal.header.comments">
 				<source>Comments</source>
 				<target>Kommentare</target>
@@ -216,6 +224,10 @@
 				<source>Edit content element "%s"</source>
 				<target>Inhaltselement "%s" bearbeiten</target>
 			</trans-unit>
+			<trans-unit id="header.contentElements">
+				<source>Content elements</source>
+				<target>Inhaltselemente</target>
+			</trans-unit>
 			<trans-unit id="header.assignee">
 				<source>Current assignee</source>
 				<target>Zuständiger Nutzer</target>
@@ -232,37 +244,25 @@
 				<source>-- Not assigned --</source>
 				<target>-- Nicht zugewiesen --</target>
 			</trans-unit>
-			<trans-unit id="header.newComment">
-				<source>Add a new comment</source>
-				<target>Neuen Kommentar hinzufügen</target>
+			<trans-unit id="header.assignee.none">
+				<source>Not assigned</source>
+				<target>Nicht zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="header.todos">
+				<source>Todos</source>
+				<target>Aufgaben</target>
 			</trans-unit>
 			<trans-unit id="header.comments">
 				<source>Comments</source>
 				<target>Kommentare</target>
 			</trans-unit>
-			<trans-unit id="header.comments.todo">
-				<source>Shows the count of the pending todos within the comments</source>
-				<target>Zeigt die Anzahl der offenen ToDos aus den Kommentaren</target>
+			<trans-unit id="header.meta.groupLabel">
+				<source>Assignee, comments and notifications</source>
+				<target>Zuständigkeit, Kommentare und Benachrichtigungen</target>
 			</trans-unit>
-			<trans-unit id="header.watch.groupLabel">
-				<source>Watch</source>
-				<target>Beobachten</target>
-			</trans-unit>
-			<trans-unit id="header.watch.badge.auto">
-				<source>auto</source>
-				<target>auto</target>
-			</trans-unit>
-			<trans-unit id="header.watch.badge.manual">
-				<source>watching</source>
-				<target>beobachtet</target>
-			</trans-unit>
-			<trans-unit id="header.watch.badge.muted">
-				<source>muted</source>
-				<target>stummgeschaltet</target>
-			</trans-unit>
-			<trans-unit id="header.watch.badge.inactive">
-				<source>watch</source>
-				<target>beobachten</target>
+			<trans-unit id="header.actions.more">
+				<source>More actions</source>
+				<target>Weitere Aktionen</target>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.inactive">
 				<source>Get notified about status changes, assignments and comments. Click to watch.</source>
@@ -527,6 +527,14 @@
 			<trans-unit id="comment.filter.showResolvedComments.hide">
 				<source>Hide resolved comments</source>
 				<target>Erledigte Kommentare ausblenden</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.showTodoComments">
+				<source>Show only ToDo comments</source>
+				<target>Nur ToDo-Kommentare anzeigen</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.showTodoComments.hide">
+				<source>Show all comments</source>
+				<target>Alle Kommentare anzeigen</target>
 			</trans-unit>
 			<trans-unit id="comment.record.jump">
 				<source>Open %s in the backend</source>

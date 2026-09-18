@@ -133,7 +133,7 @@ final class StatusItem
     {
         return PlannerUtility::hasComments($this->data) ? sprintf(
             '%s <span class="badge">%d</span>',
-            IconUtility::getIconByIdentifier('actions-message'),
+            IconUtility::getIconByIdentifier('content-planner-message-circle'),
             $this->data[Configuration::FIELD_COMMENTS],
         ) : '';
     }
@@ -166,7 +166,7 @@ final class StatusItem
 
         return $this->getToDoTotal() > 0 ? sprintf(
             '%s <span class="content-planner-badge badge" data-status="%s">%d/%d</span>',
-            IconUtility::getIconByIdentifier('actions-check-square'),
+            IconUtility::getIconByIdentifier('content-planner-checkbox'),
             $this->getToDoResolved() === $this->getToDoTotal() ? 'resolved' : 'pending',
             $this->getToDoResolved(),
             $this->getToDoTotal(),

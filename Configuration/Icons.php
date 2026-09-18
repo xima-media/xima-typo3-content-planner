@@ -27,6 +27,120 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/actions-unassign.svg',
     ],
+    // Tabler Icons (https://tabler.io/icons), MIT licensed. Prefixed to keep them clear of the
+    // core identifier namespace, which owns actions-bell, actions-user and friends.
+    'content-planner-bell' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/bell.svg',
+    ],
+    'content-planner-bell-ringing' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/bell-ringing.svg',
+    ],
+    'content-planner-bell-filled' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/bell-filled.svg',
+    ],
+    'content-planner-bell-off' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/bell-off.svg',
+    ],
+    'content-planner-message-circle' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/message-circle.svg',
+    ],
+    'content-planner-user-circle' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/user-circle.svg',
+    ],
+    'content-planner-checkbox' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/checkbox.svg',
+    ],
+    'content-planner-dots' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/dots.svg',
+    ],
+    'content-planner-circle-check' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/circle-check.svg',
+    ],
+    'content-planner-x' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/x.svg',
+    ],
+    'content-planner-send' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/send.svg',
+    ],
+    'content-planner-link' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/link.svg',
+    ],
+    'content-planner-corner-down-right' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/corner-down-right.svg',
+    ],
+    'content-planner-device-floppy' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/device-floppy.svg',
+    ],
+    'content-planner-edit' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/edit.svg',
+    ],
+    'content-planner-trash' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/trash.svg',
+    ],
+    'content-planner-check' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/check.svg',
+    ],
+    'content-planner-chevron-up' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/chevron-up.svg',
+    ],
+    'content-planner-chevron-down' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/chevron-down.svg',
+    ],
+    'content-planner-chevron-right' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/chevron-right.svg',
+    ],
+    'content-planner-user-minus' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/user-minus.svg',
+    ],
+    'content-planner-search' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/search.svg',
+    ],
+    'content-planner-filter' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/filter.svg',
+    ],
+    'content-planner-external-link' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/external-link.svg',
+    ],
+    'content-planner-layout-grid' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/layout-grid.svg',
+    ],
+    'content-planner-tag' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/tag.svg',
+    ],
+    'content-planner-info-circle' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/info-circle.svg',
+    ],
+    'content-planner-refresh' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/tabler/refresh.svg',
+    ],
     // flag
     'flag-black' => [
         'provider' => SvgSpriteIconProvider::class,

@@ -22,6 +22,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, Comme
 use Xima\XimaTypo3ContentPlanner\Manager\StatusSelectionManager;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\ComponentFactoryUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -112,7 +113,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     {
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'))
-            ->setIcon($this->iconFactory->getIcon('actions-close'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-x')))
             ->setAttributes(['data-content-planner-status-change' => 'true', 'data-content-planner-status-reset' => 'true'])
             ->setHref($this->buildUriForStatusChange($table, $uid, null)->__toString());
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
@@ -139,7 +140,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
 
         $assigneeDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($label)
-            ->setIcon($this->iconFactory->getIcon('actions-user'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-user-circle')))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-current-assignee' => $currentAssignee, 'data-content-planner-assignees' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
@@ -164,7 +165,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
 
         $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'))
-            ->setIcon($this->iconFactory->getIcon('actions-message'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-message-circle')))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($table, $uid) : '', 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['comments'] = $commentsDropDownItem;
@@ -190,7 +191,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
         $todoResolved = $this->getCommentsTodoResolved($record, $table);
         $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel("$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo'))
-            ->setIcon($this->iconFactory->getIcon('actions-check-square'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-checkbox')))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($table, $uid) : '', 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['commentsTodo'] = $commentsDropDownItem;
@@ -232,7 +233,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
     {
         $statusDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset'))
-            ->setIcon($this->iconFactory->getIcon('actions-close'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-x')))
             ->setAttributes(['data-content-planner-status-change' => 'true', 'data-content-planner-status-reset' => 'true'])
             ->setHref($this->buildUriForFolderStatusChange($combinedIdentifier, null)->__toString());
         $selectionEntriesToAdd['reset'] = $statusDropDownItem;
@@ -261,7 +262,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
 
         $assigneeDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($label)
-            ->setIcon($this->iconFactory->getIcon('actions-user'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-user-circle')))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-current-assignee' => $currentAssignee, 'data-content-planner-assignees' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['assignee'] = $assigneeDropDownItem;
@@ -288,7 +289,7 @@ class DropDownSelectionService extends AbstractSelectionService implements Selec
 
         $commentsDropDownItem = ComponentFactoryUtility::createDropDownItem()
             ->setLabel($commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'))
-            ->setIcon($this->iconFactory->getIcon('actions-message'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-message-circle')))
             ->setAttributes(['data-id' => $uid, 'data-table' => $table, 'data-new-comment-uri' => PermissionUtility::canCreateComment() ? UrlUtility::getNewCommentUrl($table, $uid) : '', 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid), 'data-content-planner-comments' => true, 'data-force-ajax-url' => true]) // @phpstan-ignore-line
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
         $selectionEntriesToAdd['comments'] = $commentsDropDownItem;

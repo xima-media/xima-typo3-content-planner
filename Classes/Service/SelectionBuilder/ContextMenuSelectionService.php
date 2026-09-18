@@ -99,7 +99,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
     {
         $selectionEntriesToAdd['reset'] = [
             'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset',
-            'iconIdentifier' => 'actions-close',
+            'iconIdentifier' => 'content-planner-x',
             'callbackAction' => 'reset',
         ];
 
@@ -124,7 +124,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
 
         $selectionEntriesToAdd['assignee'] = [
             'label' => $label,
-            'iconIdentifier' => 'actions-user',
+            'iconIdentifier' => 'content-planner-user-circle',
             'callbackAction' => 'assignee',
             'currentAssignee' => $currentAssignee,
         ];
@@ -148,7 +148,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
 
         $selectionEntriesToAdd['comments'] = [
             'label' => $commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'),
-            'iconIdentifier' => 'actions-message',
+            'iconIdentifier' => 'content-planner-message-circle',
             'callbackAction' => 'comments',
         ];
 
@@ -172,7 +172,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
 
         $selectionEntriesToAdd['commentsTodo'] = [
             'label' => "$todoResolved/$todoTotal ".$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments.todo'),
-            'iconIdentifier' => 'actions-check-square',
+            'iconIdentifier' => 'content-planner-checkbox',
             'callbackAction' => 'comments',
         ];
 
@@ -210,7 +210,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
     {
         $selectionEntriesToAdd['reset'] = [
             'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:reset',
-            'iconIdentifier' => 'actions-close',
+            'iconIdentifier' => 'content-planner-x',
             'callbackAction' => 'reset',
         ];
 
@@ -235,7 +235,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
 
         $selectionEntriesToAdd['assignee'] = [
             'label' => $label,
-            'iconIdentifier' => 'actions-user',
+            'iconIdentifier' => 'content-planner-user-circle',
             'callbackAction' => 'assignee',
             'currentAssignee' => $currentAssignee,
         ];
@@ -259,7 +259,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
 
         $selectionEntriesToAdd['comments'] = [
             'label' => $commentsLabel.$this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:comments'),
-            'iconIdentifier' => 'actions-message',
+            'iconIdentifier' => 'content-planner-message-circle',
             'callbackAction' => 'comments',
         ];
 

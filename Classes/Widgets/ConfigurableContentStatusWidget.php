@@ -323,7 +323,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
 
         return sprintf(
             '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
-            IconUtility::getIconByIdentifier('actions-check-square'),
+            IconUtility::getIconByIdentifier('content-planner-checkbox'),
             $todoResolved === $todoTotal ? 'resolved' : 'pending',
             $todoResolved,
             $todoTotal,

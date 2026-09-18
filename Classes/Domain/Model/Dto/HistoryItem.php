@@ -150,18 +150,18 @@ final class HistoryItem
     public function getChangeTypeIcon(): string
     {
         if (Configuration::TABLE_COMMENT === $this->data['tablename']) {
-            return IconUtility::getIconByIdentifier('actions-comment');
+            return IconUtility::getIconByIdentifier('content-planner-message-circle');
         }
 
         if (ExtensionUtility::isRegisteredRecordTable($this->data['tablename'])) {
             return match (array_key_first($this->data['raw_history']['newRecord'])) {
                 Configuration::FIELD_STATUS => IconUtility::getIconByStatusUid((int) $this->data['raw_history']['newRecord'][Configuration::FIELD_STATUS], true),
-                Configuration::FIELD_ASSIGNEE => IconUtility::getIconByIdentifier('actions-user'),
-                default => IconUtility::getIconByIdentifier('actions-open'),
+                Configuration::FIELD_ASSIGNEE => IconUtility::getIconByIdentifier('content-planner-user-circle'),
+                default => IconUtility::getIconByIdentifier('content-planner-edit'),
             };
         }
 
-        return IconUtility::getIconByIdentifier('actions-open');
+        return IconUtility::getIconByIdentifier('content-planner-edit');
     }
 
     /**

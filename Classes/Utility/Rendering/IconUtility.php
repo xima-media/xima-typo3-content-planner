@@ -15,7 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Utility\Rendering;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\Backend\Avatar\Avatar;
-use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
+use TYPO3\CMS\Core\Imaging\{Icon, IconFactory, IconSize};
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
@@ -32,7 +32,7 @@ class IconUtility
     {
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
 
-        return $iconFactory->getIcon($identifier, self::getDefaultIconSize())->render();
+        return $iconFactory->getIcon($identifier, self::getDefaultIconSize())->render('inline');
     }
 
     public static function getIconByStatusUid(int $uid, bool $render = false): string
@@ -66,7 +66,7 @@ class IconUtility
             ? '<span class="visually-hidden">'.htmlspecialchars($label, \ENT_QUOTES | \ENT_HTML5).'</span>'
             : '';
 
-        return $icon->render().$labelMarkup;
+        return $icon->render('inline').$labelMarkup;
     }
 
     /**
@@ -80,7 +80,7 @@ class IconUtility
         $iconFactory = GeneralUtility::makeInstance(IconFactory::class);
         $icon = $iconFactory->getIconForRecord($table, $record, self::getDefaultIconSize());
 
-        return $render ? $icon->render() : $icon->getIdentifier();
+        return $render ? $icon->render('inline') : $icon->getIdentifier();
     }
 
     /**
@@ -108,5 +108,21 @@ class IconUtility
     public static function getDefaultIconSize(): IconSize
     {
         return IconSize::SMALL;
+    }
+
+    /**
+     * Backend document header/dropdown buttons (LinkButton, DropDownItem, ...) always call
+     * {@see Icon::render()} with no argument, which uses an icon's DEFAULT markup. For
+     * {@see \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider} that default is a plain
+     * `<img src>` tag - an isolated document the surrounding CSS can never reach - so a custom
+     * SVG's `stroke="currentColor"` resolves to the SVG's own initial colour (black) instead of
+     * the button's, breaking dark mode and any hover/active tint. Swapping the default markup
+     * for the icon's already-generated 'inline' alternative fixes this wherever an Icon object
+     * is handed to a button API instead of rendered directly. No-op for core sprite icons: their
+     * default and 'inline' markup are identical (see SvgSpriteIconProvider::generateInlineMarkup()).
+     */
+    public static function withInlineMarkup(Icon $icon): Icon
+    {
+        return $icon->setMarkup($icon->getAlternativeMarkup('inline'));
     }
 }

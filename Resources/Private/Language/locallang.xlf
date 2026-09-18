@@ -73,6 +73,12 @@
 				<source>More results are available. Refine your filter to narrow the list.</source>
 			</trans-unit>
 
+			<trans-unit id="modal.record.title">
+				<source>Content Planner</source>
+			</trans-unit>
+			<trans-unit id="modal.tabs.label">
+				<source>Record actions</source>
+			</trans-unit>
 			<trans-unit id="button.modal.header.comments">
 				<source>Comments</source>
 			</trans-unit>
@@ -98,6 +104,9 @@
 			<trans-unit id="header.editContentElement">
 				<source>Edit content element ”%s”</source>
 			</trans-unit>
+			<trans-unit id="header.contentElements">
+				<source>Content elements</source>
+			</trans-unit>
 			<trans-unit id="header.assignee">
 				<source>Current assignee</source>
 			</trans-unit>
@@ -110,29 +119,20 @@
 			<trans-unit id="header.unassigned">
 				<source>-- Not assigned --</source>
 			</trans-unit>
-			<trans-unit id="header.newComment">
-				<source>Add a new comment</source>
+			<trans-unit id="header.assignee.none">
+				<source>Not assigned</source>
+			</trans-unit>
+			<trans-unit id="header.todos">
+				<source>Todos</source>
 			</trans-unit>
 			<trans-unit id="header.comments">
 				<source>Comments</source>
 			</trans-unit>
-			<trans-unit id="header.comments.todo">
-				<source>Shows the count of the pending todos within the comments</source>
+			<trans-unit id="header.meta.groupLabel">
+				<source>Assignee, comments and notifications</source>
 			</trans-unit>
-			<trans-unit id="header.watch.groupLabel">
-				<source>Watch</source>
-			</trans-unit>
-			<trans-unit id="header.watch.badge.auto">
-				<source>auto</source>
-			</trans-unit>
-			<trans-unit id="header.watch.badge.manual">
-				<source>watching</source>
-			</trans-unit>
-			<trans-unit id="header.watch.badge.muted">
-				<source>muted</source>
-			</trans-unit>
-			<trans-unit id="header.watch.badge.inactive">
-				<source>watch</source>
+			<trans-unit id="header.actions.more">
+				<source>More actions</source>
 			</trans-unit>
 			<trans-unit id="header.watch.tooltip.inactive">
 				<source>Get notified about status changes, assignments and comments. Click to watch.</source>
@@ -332,6 +332,12 @@
 			</trans-unit>
 			<trans-unit id="comment.filter.showResolvedComments.hide">
 				<source>Hide resolved comments</source>
+			</trans-unit>
+			<trans-unit id="comment.filter.showTodoComments">
+				<source>Show only ToDo comments</source>
+			</trans-unit>
+			<trans-unit id="comment.filter.showTodoComments.hide">
+				<source>Show all comments</source>
 			</trans-unit>
 			<trans-unit id="comment.record.jump">
 				<source>Open %s in the backend</source>

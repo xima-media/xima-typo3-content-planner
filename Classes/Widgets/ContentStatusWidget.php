@@ -137,7 +137,7 @@ class ContentStatusWidget extends AbstractWidget
 
         return sprintf(
             '%s <span class="content-planner-badge badge" data-status="%s">%d/%d</span>',
-            IconUtility::getIconByIdentifier('actions-check-square'),
+            IconUtility::getIconByIdentifier('content-planner-checkbox'),
             $todoResolved === $todoTotal ? 'resolved' : 'pending',
             $todoResolved,
             $todoTotal,

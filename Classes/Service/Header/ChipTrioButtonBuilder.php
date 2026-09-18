@@ -24,6 +24,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\ComponentFactoryUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -108,7 +109,7 @@ final readonly class ChipTrioButtonBuilder
         $assignedToCurrentUser = InfoGenerator::getAssignedToCurrentUser($record);
 
         $assigneeButton = GeneralUtility::makeInstance(LinkButton::class)
-            ->setIcon($this->iconFactory->getIcon('actions-user'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-user-circle')))
             ->setShowLabelText(true)
             ->setTitle($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.assignee').': '.$label)
             ->setClasses('content-planner-link--assignee'.($assignedToCurrentUser ? ' content-planner-link--assignee-current' : ''))
@@ -136,7 +137,7 @@ final readonly class ChipTrioButtonBuilder
         $title = $commentsCount > 0 ? $commentsCount.' '.$commentsLabel : $commentsLabel;
 
         $commentsButton = GeneralUtility::makeInstance(LinkButton::class)
-            ->setIcon($this->iconFactory->getIcon('actions-message'))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-message-circle')))
             ->setShowLabelText(true)
             ->setTitle($title)
             ->setClasses('content-planner-link--comments')

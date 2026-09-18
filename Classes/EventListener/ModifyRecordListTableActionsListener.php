@@ -79,7 +79,7 @@ final readonly class ModifyRecordListTableActionsListener
         // reset
         $url = $this->buildUri($event, null);
         $actionsToAdd['reset'] = '<li><a class="dropdown-item dropdown-item-spaced" href="'.htmlspecialchars((string) $url, \ENT_QUOTES | \ENT_HTML5).'" title="'.$this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset').'">'
-            .$this->iconFactory->getIcon('actions-close', IconUtility::getDefaultIconSize())->render().$this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset').'</a></li>';
+            .$this->iconFactory->getIcon('content-planner-x', IconUtility::getDefaultIconSize())->render('inline').$this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:reset').'</a></li>';
 
         foreach ($actionsToAdd as $actionToAdd) {
             $action .= $actionToAdd;
