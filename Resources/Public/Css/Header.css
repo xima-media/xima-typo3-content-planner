@@ -122,7 +122,7 @@
        element box itself - stay rounded; the bottom edge is a flat seam against that row. */
     border-radius: 5px 5px 0 0;
     border-top-width: 4px;
-    gap: 0.5em;
+    gap: 0.75em;
     margin-bottom: 0.5em;
     padding: 0.4em 0.6em;
 }
@@ -259,6 +259,50 @@
 .content-planner-meta > .dropdown-toggle:has(~ .content-planner-meta__btn) {
     border-end-end-radius: 0;
     border-start-end-radius: 0;
+}
+
+/* ==========================================================================
+   Header Tooltip (issue #404)
+
+   Ported from EXT:typo3_page_metrics's own hint tooltip (sparkline.js/page-metrics.css): a
+   single floating element on <body>, not the native `title` attribute, which is slow to
+   appear, cannot be styled, and cannot hold a bold label and a separate explanation as two
+   distinct lines. `pointer-events: none` matters more here than it looks: without it, a click
+   landing on the tooltip while it happens to overlap its own trigger's edge would swallow the
+   click meant for the button underneath.
+   ========================================================================== */
+
+.content-planner-header-tooltip {
+    position: fixed;
+    z-index: 2100;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: max-content;
+    max-width: 240px;
+    padding: 6px 8px;
+    border-radius: var(--typo3-component-border-radius, 4px);
+    background: var(--typo3-component-bg, #fff);
+    border: 1px solid var(--typo3-component-border-color, #cbcbcb);
+    box-shadow: var(--typo3-component-box-shadow-flyout, 0 2px 8px rgba(0, 0, 0, 0.15));
+    color: var(--typo3-text-color-variant, #6a7085);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+.content-planner-header-tooltip__title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--typo3-text-color-base, #14213d);
+    font-weight: 600;
+}
+
+.content-planner-header-tooltip__title svg {
+    flex-shrink: 0;
+    width: 12px;
+    height: 12px;
 }
 
 /* ==========================================================================

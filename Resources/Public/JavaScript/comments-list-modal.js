@@ -20,7 +20,8 @@ class CommentsListModal {
           item.getAttribute('data-edit-uri'),
           null,
           false,
-          item.hasAttribute('data-focus-composer')
+          item.hasAttribute('data-focus-composer'),
+          item.hasAttribute('data-show-todo-comments')
         )
       })
     })
@@ -71,7 +72,7 @@ class CommentsListModal {
    * `commentComposerHtml` is non-empty, the same permission check that used to gate this
    * parameter), and the "New" trigger itself moved into the comments pane's own toolbar.
    */
-  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false, scrollToCommentUid = null, showResolved = false, focusComposer = false) {
+  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false, scrollToCommentUid = null, showResolved = false, focusComposer = false, showTodo = false) {
     RecordModal.open('comments', {
       table,
       uid,
@@ -79,6 +80,7 @@ class CommentsListModal {
       editUri: editUrl || false,
       scrollToCommentUid,
       showResolvedComments: showResolved,
+      showTodoComments: showTodo,
       focusComposer,
     })
   }

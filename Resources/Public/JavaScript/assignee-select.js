@@ -247,6 +247,10 @@ class AssigneeSelect {
     if (ctx.confirmButton) {
       ctx.confirmButton.disabled = 'true' === option.getAttribute('aria-current')
     }
+    // updateActiveDescendant() is what actually applies the visible --active class (aria-
+    // selected alone is only announced to assistive tech) - keyboard navigation already
+    // called it via moveActive()/moveActiveToEdge(), a mouse click needs it too.
+    this.updateActiveDescendant(ctx)
   }
 
   confirmSelection(ctx) {

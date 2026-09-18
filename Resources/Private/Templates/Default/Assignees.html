@@ -62,22 +62,25 @@
 
             <div class="content-planner-assignee__actions">
                 <f:if condition="{assignee.assignToCurrentUser}">
-                    <button type="button" class="btn btn-primary" data-action-assignee
-                        data-url="{assignee.assignToCurrentUser}">
+                    <f:variable name="assignToMeLabel"><f:translate key="header.assignToMe" extensionName="xima_typo3_content_planner"/></f:variable>
+                    <button type="button" class="btn btn-default" data-action-assignee
+                        data-url="{assignee.assignToCurrentUser}"
+                        title="{assignToMeLabel}" aria-label="{assignToMeLabel}">
                         <core:icon identifier="actions-assign-to-me" alternativeMarkupIdentifier="inline" size="small"/>
-                        {f:translate(key: 'header.assignToMe', extensionName: 'xima_typo3_content_planner')}
                     </button>
                 </f:if>
                 <f:if condition="{assignee.unassign}">
+                    <f:variable name="unassignLabel"><f:translate key="header.unassign" extensionName="xima_typo3_content_planner"/></f:variable>
                     <button type="button" class="btn btn-default" data-action-assignee
-                        data-action-assignee-unset data-url="{assignee.unassign}">
+                        data-action-assignee-unset data-url="{assignee.unassign}"
+                        title="{unassignLabel}" aria-label="{unassignLabel}">
                         <core:icon identifier="actions-unassign" alternativeMarkupIdentifier="inline" size="small"/>
-                        {f:translate(key: 'header.unassign', extensionName: 'xima_typo3_content_planner')}
                     </button>
                 </f:if>
                 <f:if condition="{canChangeAssignee}">
-                    <button type="button" class="btn btn-default content-planner-assignee__confirm"
+                    <button type="button" class="btn btn-primary content-planner-assignee__confirm"
                         data-action-assignee-confirm disabled>
+                        <core:icon identifier="content-planner-check" alternativeMarkupIdentifier="inline" size="small"/>
                         {f:translate(key: 'assignee.confirm', extensionName: 'xima_typo3_content_planner')}
                     </button>
                 </f:if>

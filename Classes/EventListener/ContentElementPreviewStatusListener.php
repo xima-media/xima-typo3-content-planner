@@ -16,7 +16,6 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 use TYPO3\CMS\Backend\Preview\StandardPreviewRendererResolver;
 use TYPO3\CMS\Backend\View\BackendLayout\Grid\{GridColumn, GridColumnItem};
 use TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent;
-use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Domain\RecordInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -36,6 +35,13 @@ use function is_array;
  * `<style>` overlay previously added by WebLayoutModifier. Only active in "chip"
  * headerDisplayMode; WebLayoutModifier remains responsible for the equivalent decoration in
  * "banner" mode.
+ *
+ * Disabled: not registered as a PSR-14 event listener (see the removed #[AsEventListener]
+ * and the explicit `public: true` override in Configuration/Services.yaml keeping it directly
+ * testable). ContentElementHeaderModifier renders its own compact status bar directly above
+ * the same content element under the identical chip-mode condition, so this accent duplicated
+ * the status a second time inside the preview box. Kept in place rather than removed outright,
+ * in case a display mode needs the decoration again.
  *
  * This event only lets a listener either leave the default preview content untouched or
  * fully replace it (TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent is a
@@ -59,7 +65,6 @@ use function is_array;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-#[AsEventListener(identifier: 'xima-typo3-content-planner/backend/content-element-preview-status')]
 final readonly class ContentElementPreviewStatusListener
 {
     public function __construct(

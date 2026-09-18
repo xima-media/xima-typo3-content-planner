@@ -73,7 +73,16 @@
         <f:if condition="{mode} == 'web_layout' || {mode} == 'web_list' || {mode} == 'content_element'">
             <f:variable name="showStatusEdit" value="1"/>
         </f:if>
-        <f:variable name="assigneeLabel"><f:if condition="{data.tx_ximatypo3contentplanner_assignee}"><f:then><f:translate key="header.assignee" extensionName="xima_typo3_content_planner"/>: {assignee.username}</f:then><f:else><f:translate key="header.assignee.none" extensionName="xima_typo3_content_planner"/></f:else></f:if></f:variable>
+        <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
+            <f:then>
+                <f:variable name="assigneeTitle"><f:translate key="header.assignee" extensionName="xima_typo3_content_planner" arguments="{0: assignee.username}"/></f:variable>
+                <f:variable name="assigneeHint"><f:translate key="header.assignee.hint" extensionName="xima_typo3_content_planner"/></f:variable>
+            </f:then>
+            <f:else>
+                <f:variable name="assigneeTitle"><f:translate key="header.assignee.none" extensionName="xima_typo3_content_planner"/></f:variable>
+                <f:variable name="assigneeHint"><f:translate key="header.assignee.none.hint" extensionName="xima_typo3_content_planner"/></f:variable>
+            </f:else>
+        </f:if>
 
         <div
             class="btn-group btn-group-sm content-planner-meta"
@@ -84,8 +93,9 @@
                 class="btn btn-default content-planner-meta__btn content-planner-link--assignee{f:if(condition: assignee.assignedToCurrentUser, then: ' content-planner-link--assignee-current')}"
                 data-content-planner-assignees
                 type="button"
-                title="{assigneeLabel}"
-                aria-label="{assigneeLabel}"
+                data-hint-title="{assigneeTitle}"
+                data-hint-text="{assigneeHint}"
+                aria-label="{assigneeTitle}. {assigneeHint}"
                 data-id="{data.uid}"
                 data-table="{table}"
                 data-current-assignee="{data.tx_ximatypo3contentplanner_assignee}"
@@ -105,14 +115,16 @@
             </button>
 
             <f:if condition="{comments}">
-                <f:variable name="commentsLabel"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/><f:if condition="{comments.count}"> ({comments.count})</f:if></f:variable>
+                <f:variable name="commentsTitle"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/><f:if condition="{comments.count}"> ({comments.count})</f:if></f:variable>
+                <f:variable name="commentsHint"><f:translate key="header.comments.hint" extensionName="xima_typo3_content_planner"/></f:variable>
                 <button
                     class="btn btn-default content-planner-meta__btn content-planner-link--comments"
                     data-content-planner-comments
                     data-force-ajax-url="true"
                     type="button"
-                    title="{commentsLabel}"
-                    aria-label="{commentsLabel}"
+                    data-hint-title="{commentsTitle}"
+                    data-hint-text="{commentsHint}"
+                    aria-label="{commentsTitle}. {commentsHint}"
                     data-table="{table}"
                     data-id="{data.uid}"
                     data-new-comment-uri="{comments.newCommentUri}"
@@ -125,15 +137,18 @@
                 </button>
 
                 <f:if condition="{comments.todoTotal}">
-                    <f:variable name="todoLabel"><f:translate key="header.todos" extensionName="xima_typo3_content_planner"/> ({comments.todoResolved}/{comments.todoTotal})</f:variable>
+                    <f:variable name="todoTitle"><f:translate key="header.todos" extensionName="xima_typo3_content_planner"/> ({comments.todoResolved}/{comments.todoTotal})</f:variable>
+                    <f:variable name="todoHint"><f:translate key="header.todos.hint" extensionName="xima_typo3_content_planner"/></f:variable>
                     <button
                         class="btn btn-default content-planner-meta__btn content-planner-header__todo-badge"
                         data-content-planner-comments
                         data-force-ajax-url="true"
+                        data-show-todo-comments="1"
                         data-todo-status="{f:if(condition: comments.todoOpen, then: 'pending', else: 'resolved')}"
                         type="button"
-                        title="{todoLabel}"
-                        aria-label="{todoLabel}"
+                        data-hint-title="{todoTitle}"
+                        data-hint-text="{todoHint}"
+                        aria-label="{todoTitle}. {todoHint}"
                         data-table="{table}"
                         data-id="{data.uid}"
                         data-new-comment-uri="{comments.newCommentUri}"
@@ -150,14 +165,16 @@
             <f:render partial="WatchToggle" arguments="{table: table, uid: data.uid, watch: watch}"/>
 
             <f:if condition="{contentElements}">
-                <f:variable name="ceGroupLabel"><f:translate key="header.contentElements" extensionName="xima_typo3_content_planner"/></f:variable>
+                <f:variable name="ceGroupTitle"><f:translate key="header.contentElements" extensionName="xima_typo3_content_planner"/></f:variable>
+                <f:variable name="ceGroupHint"><f:translate key="header.contentElements.hint" extensionName="xima_typo3_content_planner"/></f:variable>
                 <button
                     type="button"
                     class="btn btn-default content-planner-meta__btn dropdown-toggle dropdown-toggle-no-chevron"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    title="{ceGroupLabel}"
-                    aria-label="{ceGroupLabel}"
+                    data-hint-title="{ceGroupTitle}"
+                    data-hint-text="{ceGroupHint}"
+                    aria-label="{ceGroupTitle}. {ceGroupHint}"
                 >
                     <core:icon identifier="content-planner-layout-grid" size="small" alternativeMarkupIdentifier="inline"/>
                     <span class="content-planner-meta__count badge badge-secondary" aria-hidden="true">{contentElements -> f:count()}</span>
@@ -197,7 +214,8 @@
                     class="btn btn-default content-planner-meta__btn dropdown-toggle dropdown-toggle-no-chevron"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    title="{moreLabel}"
+                    data-hint-title="{moreLabel}"
+                    data-hint-text=""
                     aria-label="{moreLabel}"
                 >
                     <core:icon identifier="content-planner-dots" size="small" alternativeMarkupIdentifier="inline"/>

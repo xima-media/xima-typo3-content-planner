@@ -5,14 +5,13 @@
 >
 
 <f:if condition="{watch.watchable}">
+    <f:variable name="watchTitle"><f:translate key="header.watch.tooltip.{watch.state}" extensionName="xima_typo3_content_planner"/></f:variable>
+    <f:variable name="watchHint"><f:translate key="header.watch.hint.{watch.state}" extensionName="xima_typo3_content_planner"/></f:variable>
     <f:if condition="{watch.count} > 0">
-        <f:then>
-            <f:if condition="{watch.watcherNamesLabel}">
-                <f:then><f:variable name="watchLabel"><f:translate key="header.watch.tooltip.{watch.state}" extensionName="xima_typo3_content_planner"/> ({f:translate(key: 'header.watch.watchers', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.watcherNamesLabel}')})</f:variable></f:then>
-                <f:else><f:variable name="watchLabel"><f:translate key="header.watch.tooltip.{watch.state}" extensionName="xima_typo3_content_planner"/> ({f:translate(key: 'header.watch.watchersCount', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.count}')})</f:variable></f:else>
-            </f:if>
-        </f:then>
-        <f:else><f:variable name="watchLabel"><f:translate key="header.watch.tooltip.{watch.state}" extensionName="xima_typo3_content_planner"/></f:variable></f:else>
+        <f:if condition="{watch.watcherNamesLabel}">
+            <f:then><f:variable name="watchHint">{watchHint} ({f:translate(key: 'header.watch.watchers', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.watcherNamesLabel}')})</f:variable></f:then>
+            <f:else><f:variable name="watchHint">{watchHint} ({f:translate(key: 'header.watch.watchersCount', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.count}')})</f:variable></f:else>
+        </f:if>
     </f:if>
     <button
         type="button"
@@ -22,8 +21,9 @@
         data-table="{table}"
         data-uid="{uid}"
         aria-pressed="{f:if(condition: watch.watching, then: 'true', else: 'false')}"
-        title="{watchLabel}"
-        aria-label="{watchLabel}"
+        data-hint-title="{watchTitle}"
+        data-hint-text="{watchHint}"
+        aria-label="{watchTitle}. {watchHint}"
     >
         <core:icon identifier="{watch.icon}" size="small" alternativeMarkupIdentifier="inline"/>
         <f:if condition="{watch.count} > 0">

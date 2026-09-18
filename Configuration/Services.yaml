@@ -51,6 +51,11 @@ services:
   Xima\XimaTypo3ContentPlanner\Manager\ChildCommentAggregationManager:
     public: true
 
+  # Not a PSR-14 event listener (see the class docblock for why) - public so its own
+  # functional test can still fetch and exercise it directly.
+  Xima\XimaTypo3ContentPlanner\EventListener\ContentElementPreviewStatusListener:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\WatcherRepository:
     public: true
 

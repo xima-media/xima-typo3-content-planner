@@ -203,6 +203,9 @@ class InfoGenerator
         $pageRenderer->loadJavaScriptModule(
             Configuration::JAVASCRIPT_MODULE_PREFIX.'watch-toggle.js',
         );
+        $pageRenderer->loadJavaScriptModule(
+            Configuration::JAVASCRIPT_MODULE_PREFIX.'header-tooltips.js',
+        );
         $pageRenderer->addCssFile(
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Header.css',
         );

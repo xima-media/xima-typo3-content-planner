@@ -209,6 +209,19 @@
     white-space: nowrap;
 }
 
+/* The three filter toggles (resolved/todo/child records) use a native checkbox instead of an
+   icon that used to swap between "Show"/"Hide" - the checked state itself is now the active
+   indicator, so no separate icon is needed. */
+.dropdown-item:has(> input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.dropdown-item > input[type="checkbox"] {
+    margin: 0 0.5rem 0 0;
+}
+
 .content-planner-comment-filter-count {
     display: inline-block;
     margin-left: 0.25rem;
@@ -227,6 +240,13 @@
     position: relative;
 }
 
+/* Positioning only - relies on TYPO3's own .badge-secondary (--typo3-badge-secondary-*) for
+   colour. The default badge variant is a very light grey meant to sit inline in text, which
+   read as nearly invisible floating over a button corner; badge-secondary is a solid darker
+   grey defined with the same fixed value in both colour schemes (unlike most --typo3-* tokens,
+   it isn't relative to the surrounding surface), so it stays legible without a dark-mode
+   override. Still neutral grey, not Bootstrap's warning yellow - a filter being active isn't
+   a warning. */
 .content-planner-comment-actions-badge {
     position: absolute;
     top: -0.375rem;

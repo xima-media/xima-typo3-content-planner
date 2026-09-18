@@ -27,8 +27,6 @@ class CommentsReloadContent {
     this.initCommentHover()
     this.initRepliesToggle()
     this.initIncludeChildCommentsToggle()
-    this.initShowResolvedCommentsToggle()
-    this.initShowTodoCommentsToggle()
     this.initNewCommentTrigger()
 
     document.querySelector('form#content-planner-comment-filter')?.addEventListener('change', (event) => {
@@ -110,13 +108,16 @@ class CommentsReloadContent {
   }
 
   // includeChildComments (CP-29, #328) is a persisted user setting, not just a per-request
-  // filter, and now lives as a toggle in the "..." dropdown (moved out of the filter form) -
-  // save it before reloading so the new state survives the next time the panel opens.
+  // filter, and now lives as a checkbox in the "..." dropdown (moved out of the filter form) -
+  // save it before reloading so the new state survives the next time the panel opens. Its
+  // checkbox still lives inside #content-planner-comment-filter, so its native `change` event
+  // would otherwise also reach the form-level listener below and trigger a second, premature
+  // reload (before the setting has actually been persisted) - stopPropagation() prevents that.
   initIncludeChildCommentsToggle() {
     document.querySelectorAll('[data-toggle-include-child-comments]').forEach(item => {
-      item.addEventListener('click', event => {
-        event.preventDefault()
-        const newValue = item.getAttribute('data-toggle-include-child-comments')
+      item.addEventListener('change', event => {
+        event.stopPropagation()
+        const newValue = event.target.checked ? '1' : '0'
 
         new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_usersetting)
           .withQueryArguments({key: 'includeChildComments', value: newValue})
@@ -134,48 +135,6 @@ class CommentsReloadContent {
             console.error('Failed to save user setting:', error)
             top.TYPO3.Notification.error('Error', 'Failed to save setting.')
           })
-      })
-    })
-  }
-
-  // showResolvedComments has never been a persisted user setting (unlike repliesExpanded and
-  // includeChildComments above), just a transient view filter - moving it out of the filter
-  // form into a dropdown toggle means getFilterValues() can no longer pick it up via FormData,
-  // so its current state lives on the filter form's dataset instead.
-  initShowResolvedCommentsToggle() {
-    document.querySelectorAll('[data-toggle-show-resolved-comments]').forEach(item => {
-      item.addEventListener('click', event => {
-        event.preventDefault()
-        const filterForm = document.querySelector('form#content-planner-comment-filter')
-        if (!filterForm) {
-          return
-        }
-        filterForm.dataset.showResolvedComments = item.getAttribute('data-toggle-show-resolved-comments')
-
-        const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
-        const table = filterForm.getAttribute('data-table')
-        const uid = filterForm.getAttribute('data-id')
-        this.loadComments(url, table, uid)
-      })
-    })
-  }
-
-  // showTodoComments follows the same transient-filter shape as showResolvedComments above -
-  // never persisted, its current state lives on the filter form's dataset.
-  initShowTodoCommentsToggle() {
-    document.querySelectorAll('[data-toggle-show-todo-comments]').forEach(item => {
-      item.addEventListener('click', event => {
-        event.preventDefault()
-        const filterForm = document.querySelector('form#content-planner-comment-filter')
-        if (!filterForm) {
-          return
-        }
-        filterForm.dataset.showTodoComments = item.getAttribute('data-toggle-show-todo-comments')
-
-        const url = TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments
-        const table = filterForm.getAttribute('data-table')
-        const uid = filterForm.getAttribute('data-id')
-        this.loadComments(url, table, uid)
       })
     })
   }
@@ -200,18 +159,17 @@ class CommentsReloadContent {
     })
   }
 
+  // showResolvedComments/showTodoComments are now real `name`d checkboxes inside the form
+  // (not persisted settings, just transient view filters), so FormData already carries their
+  // state on its own: present with value "1" when checked, absent entirely when not - which
+  // the controller already treats as falsy via `?? false`.
   getFilterValues() {
     const filterForm = document.querySelector('form#content-planner-comment-filter')
     if (!filterForm) {
       console.warn('Filter form not found')
       return null
     }
-    const formData = new FormData(filterForm)
-    const values = Object.fromEntries(formData.entries())
-    values.showResolvedComments = filterForm.dataset.showResolvedComments || '0'
-    values.showTodoComments = filterForm.dataset.showTodoComments || '0'
-
-    return values
+    return Object.fromEntries(new FormData(filterForm).entries())
   }
 
   loadComments(url, table, uid) {
@@ -240,6 +198,7 @@ class CommentsReloadContent {
         CommentsDeleteItem.initEventListeners()
         CommentsShareLink.initEventListeners()
         CommentComposer.initEventListeners()
+        CommentTodoToggle.initEventListeners()
         this.initEventListeners()
         this.highlightNewReply(parent)
       })

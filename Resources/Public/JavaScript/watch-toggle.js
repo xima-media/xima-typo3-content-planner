@@ -3,6 +3,7 @@
 */
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Notification from "@content-planner/notification.js"
+import HeaderTooltips from "@content-planner/header-tooltips.js"
 
 class WatchToggle {
 
@@ -66,6 +67,10 @@ class WatchToggle {
    */
   replaceAndRestoreFocus(container, html) {
     const parent = container.parentElement
+    // Hides the tooltip if it is showing for this exact button at the moment of the swap - the
+    // trigger it is anchored to is about to leave the document, and nothing else would tell it
+    // to close or reposition.
+    HeaderTooltips.hideIfShownFor(container)
     container.outerHTML = html
 
     parent?.querySelector?.('[data-content-planner-watch-toggle]')?.focus()

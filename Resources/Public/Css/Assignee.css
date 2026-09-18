@@ -13,15 +13,20 @@
  */
 
 @import '_variables.css';
-@import 'RecordModal.css';
 
 /* ==========================================================================
    Assignee Block
    ========================================================================== */
 
+/* Top spacing lives here, not on the shared .content-planner-record-modal__pane wrapper
+   (RecordModal.css): that wrapper has no padding on purpose, so the Comments pane's
+   absolutely-positioned filter bar (top: 0) stays flush under the tab bar - adding padding
+   there would push that bar down by the same amount. The assignee content is normal flow,
+   so it needs its own breathing room from the tab bar above it. */
 .content-planner-assignee {
     display: flex;
     flex-direction: column;
+    margin-top: 1rem;
 }
 
 /* In the merged record modal (record-modal.js) the Assignee pane gets the same large modal
