@@ -7,3 +7,5 @@
 ,5,0,10,"pages","Deleted root",1,0,0,0,0,0,0,1500,1
 ,6,0,20,"pages","Other record comment",1,0,0,0,0,0,0,1000,0
 ,7,0,10,"pages","Deleted reply to B",2,0,0,0,0,0,2,4000,1
+,8,0,30,"pages","Reply with its own todo",2,0,0,0,0,2,10,4500,0
+,9,0,30,"pages","Resolved root with a todo",1,0,1,6000,0,4,0,600,0

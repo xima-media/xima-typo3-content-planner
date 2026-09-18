@@ -167,7 +167,7 @@ class RecordController extends ActionController
                     'showResolvedComments' => $showResolvedComments,
                     'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true),
                     'showTodoComments' => $showTodoComments,
-                    'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable),
+                    'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable, $showResolvedComments),
                     'includeChildComments' => $includeChildComments,
                     'isPage' => 'pages' === $recordTable,
                     // Drives the badge on the "..." dropdown trigger, hinting that the closed

@@ -103,12 +103,16 @@ final class ChildCommentAggregationManagerTest extends AbstractFunctionalTestCas
     #[Test]
     public function buildContextAppliesTheTodoFilterToChildComments(): void
     {
-        // Fixture child comments carry no todo checklist, so the todo-only filter leaves nothing.
+        // Only the comment on child CE A (uid 1) carries a todo checklist; the comment on
+        // child CE B (uid 2) does not, so the todo-only filter narrows 2 comments down to 1
+        // rather than leaving the set untouched or emptying it entirely.
         $this->importCSVDataSet(__DIR__.'/Fixtures/child_comments.csv');
 
         $context = $this->subject->buildContext('pages', 1, true, false, 'DESC', true);
 
-        self::assertFalse($context['active']);
-        self::assertSame(0, $context['count']);
+        self::assertTrue($context['active']);
+        self::assertCount(1, $context['items']);
+        self::assertSame(1, $context['count']);
+        self::assertSame(1, (int) $context['items'][0]->data['uid']);
     }
 }

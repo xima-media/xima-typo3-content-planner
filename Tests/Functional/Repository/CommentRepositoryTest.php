@@ -135,12 +135,15 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function findAllByRecordTodoFilterAlsoAppliesToReplies(): void
+    public function findAllByRecordTodoFilterNeverHidesReplies(): void
     {
-        // The reply to comment B (uid 3) has no todo checklist of its own, so it drops out too.
+        // "Show only ToDo comments" selects which THREADS are visible, not which individual
+        // comments are: comment B (uid 2) has a todo checklist and passes the filter, and its
+        // reply (uid 3) - which has no todo checklist of its own - stays visible with it.
         $result = $this->subject->findAllByRecord(10, 'pages', false, 'DESC', false, true);
 
-        self::assertCount(0, $result[0]->getReplies());
+        self::assertCount(1, $result[0]->getReplies());
+        self::assertSame(3, (int) $result[0]->getReplies()[0]->data['uid']);
     }
 
     #[Test]
@@ -177,6 +180,23 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function countCommentsWithTodosByRecordExcludesRepliesAndResolvedRootsByDefault(): void
+    {
+        // Record 30: uid 8 is a reply with a todo checklist (excluded - it's not a root, and
+        // the filter it drives never applies to replies), uid 9 is a resolved root with a todo
+        // checklist (excluded by default - the count must match what the unresolved view shows).
+        self::assertSame(0, $this->subject->countCommentsWithTodosByRecord(30, 'pages'));
+    }
+
+    #[Test]
+    public function countCommentsWithTodosByRecordIncludesResolvedRootsWhenRequested(): void
+    {
+        // Same fixture as above, but $showResolved=true: the resolved root (uid 9) now counts,
+        // the reply (uid 8) still doesn't - it is never a root regardless of $showResolved.
+        self::assertSame(1, $this->subject->countCommentsWithTodosByRecord(30, 'pages', true));
+    }
+
+    #[Test]
     public function countTodoAllByRecordSumsTotalTodos(): void
     {
         self::assertSame(3, $this->subject->countTodoAllByRecord(10, 'pages', 'todo_total'));
@@ -191,7 +211,11 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
     #[Test]
     public function countTodoAllByRecordCountsAllRecordsWhenAllRecordsTrue(): void
     {
-        self::assertSame(3, $this->subject->countTodoAllByRecord(null, null, 'todo_total', true));
+        // Sums todo_total across the whole table regardless of foreign_uid: comment B (uid 2,
+        // record 10) contributes 3, and the unresolved reply on record 30 (uid 8) contributes
+        // its own 2 - the resolved root on record 30 (uid 9) is excluded, same as everywhere
+        // else in this repository, by the unconditional resolved_date = 0 in the query itself.
+        self::assertSame(5, $this->subject->countTodoAllByRecord(null, null, 'todo_total', true));
     }
 
     #[Test]

@@ -100,7 +100,10 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
         $content = $this->createWidget(['todo' => true])->renderWidgetContent();
 
         self::assertStringContainsString('data-status="pending"', $content);
-        self::assertStringContainsString('1/3', $content);
+        // Global resolved/total across the whole fixture, not just record 10: comment B (uid 2)
+        // contributes 1 resolved of 3, plus the unresolved reply on record 30 (uid 8)
+        // contributes 0 of 2 - see CommentRepositoryTest::countTodoAllByRecordCountsAllRecordsWhenAllRecordsTrue.
+        self::assertStringContainsString('1/5', $content);
     }
 
     #[Test]

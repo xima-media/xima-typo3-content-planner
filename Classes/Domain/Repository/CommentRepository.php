@@ -74,7 +74,7 @@ class CommentRepository
             return $rootComments;
         }
 
-        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection, $showTodoComments);
+        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection);
     }
 
     /**
@@ -117,7 +117,7 @@ class CommentRepository
         $rootComments = $query
             ->executeQuery()->fetchAllAssociative();
 
-        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection, $showTodoComments);
+        return $this->hydrateRootComments($rootComments, $showResolved, $sortDirection);
     }
 
     /**
@@ -151,27 +151,37 @@ class CommentRepository
     }
 
     /**
-     * Counts comments that carry a to-do checklist of their own (`todo_total > 0`), independent
-     * of the current resolved/todo view filters - drives the badge on the "show only ToDo
-     * comments" toggle, the same way {@see self::countAllByRecord()}'s $onlyResolved branch
-     * always shows how many resolved comments exist regardless of whether they're hidden.
+     * Counts root comments that carry a to-do checklist of their own (`todo_total > 0`) - drives
+     * the badge on the "show only ToDo comments" toggle. Scoped to `parent_uid = 0` and (unless
+     * $showResolved) `resolved_date = 0` so the count matches exactly what toggling the filter
+     * would reveal: the "show only ToDo comments" filter selects THREADS
+     * ({@see self::findRepliesByParentUids()} never filters replies by todo), so counting a
+     * reply's own todo here would advertise a number the filter can never actually produce.
      *
      * @throws Exception
      */
-    public function countCommentsWithTodosByRecord(int $id, string $table): int
+    public function countCommentsWithTodosByRecord(int $id, string $table, bool $showResolved = false): int
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
-        return (int) $queryBuilder
+        $query = $queryBuilder
             ->count('uid')
             ->from(self::TABLE)
             ->where(
                 $queryBuilder->expr()->eq('foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
                 $queryBuilder->expr()->eq('foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
                 $queryBuilder->expr()->eq('deleted', 0),
+                $queryBuilder->expr()->eq('parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
                 $queryBuilder->expr()->gt('todo_total', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
-            )
-            ->executeQuery()->fetchOne();
+            );
+
+        if (!$showResolved) {
+            $query->andWhere(
+                $queryBuilder->expr()->eq('resolved_date', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            );
+        }
+
+        return (int) $query->executeQuery()->fetchOne();
     }
 
     public function countTodoAllByRecord(?int $id = null, ?string $table = null, string $todoField = 'todo_resolved', bool $allRecords = false): int
@@ -401,10 +411,10 @@ class CommentRepository
      *
      * @throws Exception
      */
-    private function hydrateRootComments(array $rootComments, bool $showResolved, string $sortDirection, bool $showTodoComments = false): array
+    private function hydrateRootComments(array $rootComments, bool $showResolved, string $sortDirection): array
     {
         $rootUids = array_map(static fn (array $row): int => (int) $row['uid'], $rootComments);
-        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved, $sortDirection, $showTodoComments) : [];
+        $repliesByParent = [] !== $rootUids ? $this->findRepliesByParentUids($rootUids, $showResolved, $sortDirection) : [];
 
         $items = [];
         foreach ($rootComments as $result) {
@@ -426,7 +436,7 @@ class CommentRepository
      *
      * @throws Exception
      */
-    private function findRepliesByParentUids(array $parentUids, bool $showResolved = false, string $sortDirection = 'DESC', bool $showTodoComments = false): array
+    private function findRepliesByParentUids(array $parentUids, bool $showResolved = false, string $sortDirection = 'DESC'): array
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
@@ -445,12 +455,10 @@ class CommentRepository
             );
         }
 
-        if ($showTodoComments) {
-            $query->andWhere(
-                $queryBuilder->expr()->gt('todo_total', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
-            );
-        }
-
+        // Unlike $showResolved, the "show only ToDo comments" filter never applies here: it
+        // selects which THREADS are visible (via the root query in findAllByRecord()), not
+        // which individual comments are. A reply without its own checklist still belongs to
+        // a visible thread and must not be hidden out from under its parent.
         $replies = $query->executeQuery()->fetchAllAssociative();
 
         $grouped = [];
