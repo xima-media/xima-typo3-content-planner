@@ -8,9 +8,13 @@
     <f:variable name="watchTitle"><f:translate key="header.watch.tooltip.{watch.state}" extensionName="xima_typo3_content_planner"/></f:variable>
     <f:variable name="watchHint"><f:translate key="header.watch.hint.{watch.state}" extensionName="xima_typo3_content_planner"/></f:variable>
     <f:if condition="{watch.count} > 0">
+        <!-- {watchHint} is re-interpolated here, not assigned fresh - it already went through
+             Fluid's default escaping once when first assigned above, so it is marked raw on
+             this second pass to avoid escaping it again (would otherwise show literal "&amp;"
+             instead of "&" the moment a translation or watcher name contains one). -->
         <f:if condition="{watch.watcherNamesLabel}">
-            <f:then><f:variable name="watchHint">{watchHint} ({f:translate(key: 'header.watch.watchers', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.watcherNamesLabel}')})</f:variable></f:then>
-            <f:else><f:variable name="watchHint">{watchHint} ({f:translate(key: 'header.watch.watchersCount', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.count}')})</f:variable></f:else>
+            <f:then><f:variable name="watchHint">{watchHint -> f:format.raw()} ({f:translate(key: 'header.watch.watchers', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.watcherNamesLabel}')})</f:variable></f:then>
+            <f:else><f:variable name="watchHint">{watchHint -> f:format.raw()} ({f:translate(key: 'header.watch.watchersCount', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.count}')})</f:variable></f:else>
         </f:if>
     </f:if>
     <button

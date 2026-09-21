@@ -84,8 +84,34 @@ class HeaderTooltips {
     // watch-toggle.js), so anything bound upfront would be orphaned the moment its button is
     // replaced. Binding lazily on first hover/focus instead means a fresh replacement node
     // just gets its own listeners the next time it is touched.
-    document.addEventListener('mouseover', event => this.prepare(event.target.closest(TRIGGER_SELECTOR)))
-    document.addEventListener('focusin', event => this.prepare(event.target.closest(TRIGGER_SELECTOR)))
+    //
+    // Duck-typed target check rather than `instanceof Element`: this module, like watch-
+    // toggle.js, is only ever imported once per document realm - a same-realm `Element`
+    // constructor check fails for a target from a DIFFERENT realm (e.g. the record modal,
+    // which TYPO3's Modal.advanced() attaches to top.document regardless of which realm
+    // opened it), silently dropping every event from there.
+    document.addEventListener('mouseover', event => {
+      if ('function' === typeof event.target?.closest) {
+        this.prepare(event.target.closest(TRIGGER_SELECTOR))
+      }
+    })
+    document.addEventListener('focusin', event => {
+      if ('function' === typeof event.target?.closest) {
+        this.prepare(event.target.closest(TRIGGER_SELECTOR))
+      }
+    })
+
+    // WCAG 2.1 SC 1.4.13 (Content on Hover or Focus): dismissable without moving the pointer
+    // or focus. mouseleave/blur already cover pointer/keyboard navigating away from the
+    // trigger; these two cover the remaining cases - the user wants it gone without doing
+    // either (Escape), or the trigger scrolls out of view while the tooltip, anchored by a
+    // one-time getBoundingClientRect() call, stays fixed at its now-stale position.
+    document.addEventListener('keydown', event => {
+      if ('Escape' === event.key) {
+        hideTooltip()
+      }
+    })
+    document.addEventListener('scroll', hideTooltip, true)
   }
 
   prepare(trigger) {
