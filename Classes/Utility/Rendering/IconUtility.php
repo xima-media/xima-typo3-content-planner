@@ -118,11 +118,24 @@ class IconUtility
      * SVG's `stroke="currentColor"` resolves to the SVG's own initial colour (black) instead of
      * the button's, breaking dark mode and any hover/active tint. Swapping the default markup
      * for the icon's already-generated 'inline' alternative fixes this wherever an Icon object
-     * is handed to a button API instead of rendered directly. No-op for core sprite icons: their
-     * default and 'inline' markup are identical (see SvgSpriteIconProvider::generateInlineMarkup()).
+     * is handed to a button API instead of rendered directly.
+     *
+     * Not a no-op for core sprite icons: {@see \TYPO3\CMS\Core\Imaging\IconProvider\SvgSpriteIconProvider::generateInlineMarkup()}
+     * inlines the full SVG file, which differs from the sprite `<use>` reference
+     * generateMarkup() produces by default and drops the `icon-color` class - only call this
+     * for icons that are actually meant to render inline everywhere.
+     *
+     * `IconFactory::getIcon()` returns cached Icon instances without cloning, so mutating the
+     * one handed in here would leak into every other, unrelated render of the same
+     * identifier/size/state for the rest of the request - hence the clone. An icon whose
+     * provider never registered inline markup has an empty string there
+     * ({@see Icon::getAlternativeMarkup()}), and setting that as the markup would render as an
+     * empty, glyph-less icon instead of leaving the original intact.
      */
     public static function withInlineMarkup(Icon $icon): Icon
     {
-        return $icon->setMarkup($icon->getAlternativeMarkup('inline'));
+        $inlineMarkup = $icon->getAlternativeMarkup('inline');
+
+        return '' === $inlineMarkup ? $icon : (clone $icon)->setMarkup($inlineMarkup);
     }
 }
