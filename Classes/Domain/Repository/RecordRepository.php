@@ -64,6 +64,23 @@ class RecordRepository
      */
     private const FILTER_MAX_BATCHES = 10;
 
+    /**
+     * Allow-list for findAllByFilter()'s $sortField, mapping it to the actual UNION output
+     * column to order by. The UNION is raw SQL (see buildUnionQueriesForTables()), not
+     * QueryBuilder, so a sort field reaches this string concatenation unescaped - it must never
+     * be taken from request input directly, only through this list. Every union branch selects
+     * both columns under these exact aliases, so either name is valid regardless of which
+     * table a given row came from. Site is deliberately not sortable this way: it is resolved
+     * per-record in PHP via SiteFinder (see StatusItem::getSiteName()), not a column this query
+     * has, and status/assignee are stored as UIDs that sort by insertion order, not by the
+     * status title/assignee name a user actually sees - both would need a join to mean
+     * anything, so only Title and Changed (CP-33 follow-up) are sortable for now.
+     */
+    private const SORTABLE_FIELDS = [
+        'title' => 'title',
+        'changed' => 'tstamp',
+    ];
+
     /** @var string[] */
     private array $defaultSelects = [
         'uid',
@@ -82,12 +99,15 @@ class RecordRepository
      *                                                      null leaves the result unfiltered by watcher state
      * @param int                           $offset         number of *visible* records to skip, for pagination beyond
      *                                                      the first page (see OverfetchPaginator::paginateBatched())
+     * @param string                        $sortField      one of the keys of {@see self::SORTABLE_FIELDS}; an unknown value
+     *                                                      falls back to 'changed', the pre-CP-33 default
+     * @param string                        $sortDirection  'asc' or 'desc'; anything else falls back to 'desc'
      *
      * @return PaginatedResult<array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = self::DEFAULT_PAGE_SIZE, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0): PaginatedResult
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = self::DEFAULT_PAGE_SIZE, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0, string $sortField = 'changed', string $sortDirection = 'desc'): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
@@ -104,12 +124,17 @@ class RecordRepository
         if ([] === $sqlArray) {
             return new PaginatedResult([], false);
         }
+
+        $sortColumn = self::SORTABLE_FIELDS[$sortField] ?? self::SORTABLE_FIELDS['changed'];
+        $direction = 'asc' === $sortDirection ? 'ASC' : 'DESC';
+
         // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
         // tablename literal, so cross-table duplicates cannot occur.
         //
-        // tstamp alone is not a total order, so paging by offset could drop or repeat rows on
-        // ties. tablename/uid break those ties and are selected by every union branch.
-        $sql = implode(' UNION ALL ', $sqlArray).' ORDER BY tstamp DESC, tablename ASC, uid ASC LIMIT :limit OFFSET :offset';
+        // The primary sort column alone is not a total order, so paging by offset could drop or
+        // repeat rows on ties. tablename/uid break those ties and are selected by every union
+        // branch, regardless of which column is sorted first.
+        $sql = implode(' UNION ALL ', $sqlArray).sprintf(' ORDER BY %s %s, tablename ASC, uid ASC LIMIT :limit OFFSET :offset', $sortColumn, $direction);
 
         $connection = $queryBuilder->getConnection();
 

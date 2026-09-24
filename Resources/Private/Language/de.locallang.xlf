@@ -435,6 +435,54 @@
 				<source>Watched by me</source>
 				<target>Von mir beobachtet</target>
 			</trans-unit>
+			<trans-unit id="filter.moreFilters">
+				<source>More filters</source>
+				<target>Weitere Filter</target>
+			</trans-unit>
+			<trans-unit id="records.presets.assignee">
+				<source>%1$s records assigned to me</source>
+				<target>%1$s Datensätze mir zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="records.presets.todo">
+				<source>%1$s records with open todos</source>
+				<target>%1$s Datensätze mit offenen ToDos</target>
+			</trans-unit>
+			<trans-unit id="records.presets.openComments">
+				<source>%1$s records with open comments</source>
+				<target>%1$s Datensätze mit offenen Kommentaren</target>
+			</trans-unit>
+			<trans-unit id="records.pagination.range">
+				<source>Showing %1$d–%2$d</source>
+				<target>%1$d–%2$d angezeigt</target>
+			</trans-unit>
+			<trans-unit id="records.chips.search">
+				<source>Search: %1$s</source>
+				<target>Suche: %1$s</target>
+			</trans-unit>
+			<trans-unit id="records.chips.status">
+				<source>Status: %1$s</source>
+				<target>Status: %1$s</target>
+			</trans-unit>
+			<trans-unit id="records.chips.assignee">
+				<source>Assignee: %1$s</source>
+				<target>Zuständig: %1$s</target>
+			</trans-unit>
+			<trans-unit id="records.chips.type">
+				<source>Record type: %1$s</source>
+				<target>Datensatztyp: %1$s</target>
+			</trans-unit>
+			<trans-unit id="records.chips.remove">
+				<source>Remove filter</source>
+				<target>Filter entfernen</target>
+			</trans-unit>
+			<trans-unit id="records.header.headline">
+				<source>Records (with Content Planner status)</source>
+				<target>Datensätze (mit Content Planner Status)</target>
+			</trans-unit>
+			<trans-unit id="records.header.title">
+				<source>Title</source>
+				<target>Titel</target>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source>edited</source>
