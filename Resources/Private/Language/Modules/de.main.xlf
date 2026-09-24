@@ -3,7 +3,7 @@
     <file source-language="en" target-language="de" datatype="plaintext" original="EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/main.xlf" product-name="xima_typo3_content_planner">
         <header/>
         <body>
-            <trans-unit id="title">
+            <trans-unit id="mlang_tabs_tab">
                 <source>Content Planner</source>
                 <target>Content Planner</target>
             </trans-unit>

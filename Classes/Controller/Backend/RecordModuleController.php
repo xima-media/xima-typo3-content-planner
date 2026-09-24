@@ -87,7 +87,7 @@ final class RecordModuleController
         );
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
-        $moduleTemplate->setTitle('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/records.xlf:title');
+        $moduleTemplate->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/records.xlf:title'));
         $moduleTemplate->assignMultiple([
             'items' => $items,
             'hasMore' => $filterResult->hasMore,

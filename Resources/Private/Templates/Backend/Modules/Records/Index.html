@@ -17,7 +17,7 @@
                     <select name="status" id="status" class="form-select">
                         <option value="">-</option>
                         <f:for each="{statusOptions}" as="status">
-                            <option value="{status.uid}" selected="{f:if(condition: '{status.uid} == {filter.status}', then: 'selected')}">{status.title}</option>
+                            <option value="{status.uid}" <f:if condition="{status.uid} == {filter.status}">selected="selected"</f:if>>{status.title}</option>
                         </f:for>
                     </select>
                 </div>
@@ -26,7 +26,7 @@
                     <select name="assignee" id="assignee" class="form-select">
                         <option value="">-</option>
                         <f:for each="{userOptions}" as="user">
-                            <option value="{user.uid}" selected="{f:if(condition: '{user.uid} == {filter.assignee}', then: 'selected')}">{user.username}</option>
+                            <option value="{user.uid}" <f:if condition="{user.uid} == {filter.assignee}">selected="selected"</f:if>>{user.username}</option>
                         </f:for>
                     </select>
                 </div>
@@ -36,21 +36,21 @@
                         <select name="type" id="type" class="form-select">
                             <option value="">-</option>
                             <f:for each="{typeOptions}" as="type">
-                                <option value="{type.value}" selected="{f:if(condition: '{type.value} == {filter.type}', then: 'selected')}">{type.label}</option>
+                                <option value="{type.value}" <f:if condition="{type.value} == {filter.type}">selected="selected"</f:if>>{type.label}</option>
                             </f:for>
                         </select>
                     </div>
                 </f:if>
                 <div class="col-auto form-check">
-                    <input class="form-check-input" type="checkbox" name="todo" id="todo" value="1" checked="{f:if(condition: filter.todo, then: 'checked')}">
+                    <input class="form-check-input" type="checkbox" name="todo" id="todo" value="1" <f:if condition="{filter.todo}">checked="checked"</f:if>>
                     <label class="form-check-label" for="todo"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openTodos" default="Open TODOs"/></label>
                 </div>
                 <div class="col-auto form-check">
-                    <input class="form-check-input" type="checkbox" name="openComments" id="openComments" value="1" checked="{f:if(condition: filter.openComments, then: 'checked')}">
+                    <input class="form-check-input" type="checkbox" name="openComments" id="openComments" value="1" <f:if condition="{filter.openComments}">checked="checked"</f:if>>
                     <label class="form-check-label" for="openComments"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openComments" default="Open comments"/></label>
                 </div>
                 <div class="col-auto form-check">
-                    <input class="form-check-input" type="checkbox" name="watched" id="watched" value="1" checked="{f:if(condition: filter.watched, then: 'checked')}">
+                    <input class="form-check-input" type="checkbox" name="watched" id="watched" value="1" <f:if condition="{filter.watched}">checked="checked"</f:if>>
                     <label class="form-check-label" for="watched"><f:translate key="filter.watchedByMe" extensionName="XimaTypo3ContentPlanner" default="Watched by me"/></label>
                 </div>
                 <div class="col-auto">
