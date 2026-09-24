@@ -43,15 +43,15 @@ use function count;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class RecordModuleController
+final readonly class RecordModuleController
 {
     public function __construct(
-        private readonly ModuleTemplateFactory $moduleTemplateFactory,
-        private readonly UriBuilder $uriBuilder,
-        private readonly RecordRepository $recordRepository,
-        private readonly StatusRepository $statusRepository,
-        private readonly BackendUserRepository $backendUserRepository,
-        private readonly WatcherService $watcherService,
+        private ModuleTemplateFactory $moduleTemplateFactory,
+        private UriBuilder $uriBuilder,
+        private RecordRepository $recordRepository,
+        private StatusRepository $statusRepository,
+        private BackendUserRepository $backendUserRepository,
+        private WatcherService $watcherService,
     ) {}
 
     /**
