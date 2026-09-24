@@ -19,6 +19,7 @@ use TYPO3\CMS\Backend\Module\ModuleProvider;
 use TYPO3\CMS\Backend\Routing\{Route, UriBuilder};
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Imaging\IconFactory;
 use Xima\XimaTypo3ContentPlanner\Controller\Backend\StatusModuleController;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -113,6 +114,7 @@ final class StatusModuleControllerTest extends AbstractFunctionalTestCase
             $this->get(ModuleTemplateFactory::class),
             $this->get(UriBuilder::class),
             $this->get(ConnectionPool::class),
+            $this->get(IconFactory::class),
         );
     }
 

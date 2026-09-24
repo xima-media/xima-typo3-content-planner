@@ -15,6 +15,9 @@
             <trans-unit id="title">
                 <source>Status</source>
             </trans-unit>
+            <trans-unit id="header.headline">
+                <source>Content Planner Status</source>
+            </trans-unit>
             <trans-unit id="header.title">
                 <source>Title</source>
             </trans-unit>

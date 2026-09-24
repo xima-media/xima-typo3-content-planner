@@ -19,6 +19,10 @@
                 <source>Status</source>
                 <target>Status</target>
             </trans-unit>
+            <trans-unit id="header.headline">
+                <source>Content Planner Status</source>
+                <target>Content Planner Status</target>
+            </trans-unit>
             <trans-unit id="header.title">
                 <source>Title</source>
                 <target>Titel</target>

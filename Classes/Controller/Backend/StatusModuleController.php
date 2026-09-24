@@ -16,12 +16,15 @@ namespace Xima\XimaTypo3ContentPlanner\Controller\Backend;
 use Doctrine\DBAL\Exception;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Backend\Template\Components\ButtonBar;
+use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
+use TYPO3\CMS\Backend\Template\{ModuleTemplate, ModuleTemplateFactory};
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\HiddenRestriction;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\{HtmlResponse, RedirectResponse};
+use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -56,6 +59,7 @@ final readonly class StatusModuleController
         private ModuleTemplateFactory $moduleTemplateFactory,
         private UriBuilder $uriBuilder,
         private ConnectionPool $connectionPool,
+        private IconFactory $iconFactory,
     ) {}
 
     /**
@@ -78,9 +82,9 @@ final readonly class StatusModuleController
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         $moduleTemplate->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:title'));
+        $this->addNewStatusButton($moduleTemplate);
         $moduleTemplate->assignMultiple([
             'statuses' => $rows,
-            'newUrl' => $this->buildEditUrl(0, 'new'),
         ]);
 
         return $moduleTemplate->renderResponse('Backend/Modules/Status/Index');
@@ -120,6 +124,22 @@ final readonly class StatusModuleController
         }
 
         return new RedirectResponse($this->buildIndexUrl());
+    }
+
+    /**
+     * "New status" as a doc header button (annotation feedback, CP-38 follow-up) rather than an
+     * in-content button - matches where core's own list-type modules place their primary create
+     * action.
+     */
+    private function addNewStatusButton(ModuleTemplate $moduleTemplate): void
+    {
+        $button = GeneralUtility::makeInstance(LinkButton::class)
+            ->setHref($this->buildEditUrl(0, 'new'))
+            ->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.new'))
+            ->setShowLabelText(true)
+            ->setIcon($this->iconFactory->getIcon('actions-add', IconSize::SMALL));
+
+        $moduleTemplate->getDocHeaderComponent()->getButtonBar()->addButton($button, ButtonBar::BUTTON_POSITION_LEFT, 1);
     }
 
     /**
