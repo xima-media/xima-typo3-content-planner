@@ -324,6 +324,97 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
         self::assertSame(403, $response->getStatusCode());
     }
 
+    #[Test]
+    public function indexActionDefaultsToSortingByChangedDescending(): void
+    {
+        $this->loginBackendUser(1);
+
+        $capturedSortField = null;
+        $capturedSortDirection = null;
+
+        $pageRow = [
+            'uid' => 1,
+            'pid' => 0,
+            'tablename' => 'pages',
+            'title' => 'Home',
+            'tstamp' => 1700000000,
+            'tx_ximatypo3contentplanner_status' => 0,
+            'tx_ximatypo3contentplanner_assignee' => 0,
+            'tx_ximatypo3contentplanner_comments' => 0,
+        ];
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturnCallback(
+            static function (?string $search, ?int $status, ?int $assignee, ?string $type, ?bool $todo, int $maxResults, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0, string $sortField = 'changed', string $sortDirection = 'desc') use (&$capturedSortField, &$capturedSortDirection, $pageRow): PaginatedResult {
+                if (RecordRepository::DEFAULT_PAGE_SIZE === $maxResults) {
+                    $capturedSortField = $sortField;
+                    $capturedSortDirection = $sortDirection;
+
+                    return new PaginatedResult([$pageRow], false);
+                }
+
+                return new PaginatedResult([], false);
+            },
+        );
+
+        $response = $this->createController($recordRepository)->indexAction($this->createRequest([]));
+        $body = (string) $response->getBody();
+
+        self::assertSame('changed', $capturedSortField);
+        self::assertSame('desc', $capturedSortDirection);
+        // Title is not the active sort column, so clicking it should sort ascending by default.
+        self::assertStringContainsString('sort=title', $body);
+        self::assertStringContainsString('dir=asc', $body);
+    }
+
+    #[Test]
+    public function indexActionThreadsSortAndDirectionQueryParamsToTheRepositoryAndPreservesThemAcrossPagination(): void
+    {
+        $this->loginBackendUser(1);
+
+        $capturedSortField = null;
+        $capturedSortDirection = null;
+
+        $pageRow = [
+            'uid' => 1,
+            'pid' => 0,
+            'tablename' => 'pages',
+            'title' => 'Home',
+            'tstamp' => 1700000000,
+            'tx_ximatypo3contentplanner_status' => 0,
+            'tx_ximatypo3contentplanner_assignee' => 0,
+            'tx_ximatypo3contentplanner_comments' => 0,
+        ];
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturnCallback(
+            static function (?string $search, ?int $status, ?int $assignee, ?string $type, ?bool $todo, int $maxResults, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0, string $sortField = 'changed', string $sortDirection = 'desc') use (&$capturedSortField, &$capturedSortDirection, $pageRow): PaginatedResult {
+                if (RecordRepository::DEFAULT_PAGE_SIZE === $maxResults) {
+                    $capturedSortField = $sortField;
+                    $capturedSortDirection = $sortDirection;
+
+                    return new PaginatedResult([$pageRow], true);
+                }
+
+                return new PaginatedResult([], false);
+            },
+        );
+
+        $response = $this->createController($recordRepository)->indexAction(
+            $this->createRequest(['sort' => 'title', 'dir' => 'asc']),
+        );
+        $body = (string) $response->getBody();
+
+        self::assertSame('title', $capturedSortField);
+        self::assertSame('asc', $capturedSortDirection);
+        // Title is the active column ascending - clicking it again must flip to descending.
+        self::assertStringContainsString('sort=title', $body);
+        self::assertStringContainsString('dir=desc', $body);
+        // The next-page link must carry the current sort along, or paginating would silently
+        // reset back to the default "changed desc" order.
+        self::assertMatchesRegularExpression('/href="[^"]*page=2[^"]*sort=title[^"]*"|href="[^"]*sort=title[^"]*page=2[^"]*"/', $body);
+    }
+
     private function createController(?RecordRepository $recordRepository = null, ?WatcherService $watcherService = null): RecordModuleController
     {
         return new RecordModuleController(

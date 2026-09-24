@@ -33,6 +33,7 @@ use function array_filter;
 use function array_key_exists;
 use function array_map;
 use function count;
+use function in_array;
 use function sprintf;
 
 /**
@@ -85,6 +86,8 @@ final readonly class RecordModuleController
         $backendUserId = $this->getBackendUserId();
 
         $watchedRecords = $filter['watched'] ? $this->watcherService->getWatchedRecords($backendUserId) : null;
+        $effectiveSort = $filter['sort'] ?? 'changed';
+        $effectiveDirection = $filter['dir'] ?? 'desc';
 
         $filterResult = $this->recordRepository->findAllByFilter(
             $filter['search'],
@@ -96,6 +99,8 @@ final readonly class RecordModuleController
             $filter['openComments'],
             $watchedRecords,
             $offset,
+            $effectiveSort,
+            $effectiveDirection,
         );
 
         $items = array_map(
@@ -115,6 +120,7 @@ final readonly class RecordModuleController
             'rangeStart' => [] === $items ? 0 : $offset + 1,
             'rangeEnd' => $offset + count($items),
             'filter' => $filter,
+            'sortLinks' => $this->buildSortLinks($filter, $effectiveSort, $effectiveDirection),
             'advancedFilterCount' => $this->countActiveAdvancedFilters($filter),
             'activeFilterChips' => $this->buildActiveFilterChips($filter, $statusOptions, $userOptions),
             'presets' => $this->buildPresetTiles($filter, $backendUserId),
@@ -141,21 +147,59 @@ final readonly class RecordModuleController
      */
     private function addFilterLinks(array $item): array
     {
-        $statusUid = (int) ($item['data'][Configuration::FIELD_STATUS] ?? 0);
-        $item['statusFilterLink'] = $statusUid > 0 ? $this->buildUrl(['status' => $statusUid]) : null;
-
+        $item['statusFilterLink'] = $this->buildConditionalFilterLink('status', (int) ($item['data'][Configuration::FIELD_STATUS] ?? 0));
         $item['typeFilterLink'] = $this->buildUrl(['type' => $item['data']['tablename']]);
-
-        $assigneeUid = (int) ($item['data'][Configuration::FIELD_ASSIGNEE] ?? 0);
-        $item['assigneeFilterLink'] = $assigneeUid > 0 ? $this->buildUrl(['assignee' => $assigneeUid]) : null;
+        $item['assigneeFilterLink'] = $this->buildConditionalFilterLink('assignee', (int) ($item['data'][Configuration::FIELD_ASSIGNEE] ?? 0));
 
         return $item;
     }
 
     /**
+     * A record with no status/assignee (uid 0) has nothing to filter by - buildUrl() would
+     * otherwise happily build a "status=0"/"assignee=0" link that just returns an empty list.
+     */
+    private function buildConditionalFilterLink(string $key, int $uid): ?string
+    {
+        return $uid > 0 ? $this->buildUrl([$key => $uid]) : null;
+    }
+
+    /**
+     * Column header sort links (CP-33 follow-up): clicking a sortable header sorts by it,
+     * clicking the already-active one flips direction. Only Title and Changed are sortable -
+     * see {@see RecordRepository::SORTABLE_FIELDS}
+     * for why Status/Assignee/Site are not.
+     *
+     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
+     *
+     * @return array<string, array{link: string, activeDirection: ?string}>
+     */
+    private function buildSortLinks(array $filter, string $effectiveSort, string $effectiveDirection): array
+    {
+        $defaultDirections = ['title' => 'asc', 'changed' => 'desc'];
+        $links = [];
+
+        foreach ($defaultDirections as $field => $defaultDirection) {
+            $isActive = $effectiveSort === $field;
+            $nextDirection = $isActive ? $this->flipDirection($effectiveDirection) : $defaultDirection;
+
+            $links[$field] = [
+                'link' => $this->buildUrl(['sort' => $field, 'dir' => $nextDirection] + $filter),
+                'activeDirection' => $isActive ? $effectiveDirection : null,
+            ];
+        }
+
+        return $links;
+    }
+
+    private function flipDirection(string $direction): string
+    {
+        return 'asc' === $direction ? 'desc' : 'asc';
+    }
+
+    /**
      * @param array<string, mixed> $queryParams
      *
-     * @return array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool}
+     * @return array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string}
      */
     private function parseFilter(array $queryParams): array
     {
@@ -167,11 +211,26 @@ final readonly class RecordModuleController
             'todo' => (bool) ($queryParams['todo'] ?? false),
             'openComments' => (bool) ($queryParams['openComments'] ?? false),
             'watched' => (bool) ($queryParams['watched'] ?? false),
+            // Kept null (rather than defaulting here to "changed"/"desc") so a link/URL built
+            // from $filter stays clean until the user actually picks a sort - see buildUrl().
+            'sort' => $this->parseEnumParam($queryParams, 'sort', ['title', 'changed']),
+            'dir' => $this->parseEnumParam($queryParams, 'dir', ['asc', 'desc']),
         ];
     }
 
     /**
-     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool} $filter
+     * @param array<string, mixed> $queryParams
+     * @param list<string>         $allowedValues
+     */
+    private function parseEnumParam(array $queryParams, string $key, array $allowedValues): ?string
+    {
+        return array_key_exists($key, $queryParams) && in_array($queryParams[$key], $allowedValues, true)
+            ? $queryParams[$key]
+            : null;
+    }
+
+    /**
+     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
      */
     private function countActiveAdvancedFilters(array $filter): int
     {
@@ -193,7 +252,7 @@ final readonly class RecordModuleController
      * one dimension at a time, so a preset's count can never disagree with what clicking it
      * actually shows.
      *
-     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool} $filter
+     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
      *
      * @return array<string, array{count: int, countLabel: string, link: string, active: bool}>
      *
@@ -237,9 +296,9 @@ final readonly class RecordModuleController
      * single, complete "what's currently filtering this list" summary, not just the fields the
      * advanced panel owns.
      *
-     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool} $filter
-     * @param list<Status>                                                                                                       $statusOptions
-     * @param list<array<string, mixed>>                                                                                         $userOptions
+     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
+     * @param list<Status>                                                                                                                                    $statusOptions
+     * @param list<array<string, mixed>>                                                                                                                      $userOptions
      *
      * @return list<array{label: string, removeUrl: string}>
      */

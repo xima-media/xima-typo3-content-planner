@@ -110,6 +110,12 @@
             <f:if condition="{filter.openComments}">
                 <input type="hidden" name="openComments" value="1">
             </f:if>
+            <f:if condition="{filter.sort}">
+                <input type="hidden" name="sort" value="{filter.sort}">
+            </f:if>
+            <f:if condition="{filter.dir}">
+                <input type="hidden" name="dir" value="{filter.dir}">
+            </f:if>
         </form>
 
         <f:if condition="{items}">
@@ -118,13 +124,33 @@
                     <table class="table table-striped table-hover content-planner-module__table{f:if(condition: typeOptions, then: ' content-planner-module__table--with-type')}">
                         <thead>
                             <tr>
-                                <th><f:translate key="records.header.title" extensionName="XimaTypo3ContentPlanner" default="Title"/></th>
+                                <th>
+                                    <a href="{sortLinks.title.link}" class="content-planner-module__sort-link">
+                                        <f:translate key="records.header.title" extensionName="XimaTypo3ContentPlanner" default="Title"/>
+                                        <f:if condition="{sortLinks.title.activeDirection}">
+                                            <f:if condition="{sortLinks.title.activeDirection} == 'asc'">
+                                                <f:then><core:icon identifier="content-planner-chevron-up" size="small" alternativeMarkupIdentifier="inline"/></f:then>
+                                                <f:else><core:icon identifier="content-planner-chevron-down" size="small" alternativeMarkupIdentifier="inline"/></f:else>
+                                            </f:if>
+                                        </f:if>
+                                    </a>
+                                </th>
                                 <th><f:translate key="widgets.contentPlanner.header.flag" extensionName="XimaTypo3ContentPlanner" default="Status"/></th>
                                 <f:if condition="{typeOptions}">
                                     <th><f:translate key="widgets.configurable.setting.recordType.label" extensionName="XimaTypo3ContentPlanner" default="Record Type"/></th>
                                 </f:if>
                                 <th><f:translate key="widgets.contentPlanner.header.site" extensionName="XimaTypo3ContentPlanner"/></th>
-                                <th><f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/></th>
+                                <th>
+                                    <a href="{sortLinks.changed.link}" class="content-planner-module__sort-link">
+                                        <f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
+                                        <f:if condition="{sortLinks.changed.activeDirection}">
+                                            <f:if condition="{sortLinks.changed.activeDirection} == 'asc'">
+                                                <f:then><core:icon identifier="content-planner-chevron-up" size="small" alternativeMarkupIdentifier="inline"/></f:then>
+                                                <f:else><core:icon identifier="content-planner-chevron-down" size="small" alternativeMarkupIdentifier="inline"/></f:else>
+                                            </f:if>
+                                        </f:if>
+                                    </a>
+                                </th>
                                 <th><f:translate key="widgets.contentPlanner.header.assignee" extensionName="XimaTypo3ContentPlanner"/></th>
                                 <th></th>
                             </tr>
