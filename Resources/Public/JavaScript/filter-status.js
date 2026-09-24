@@ -236,10 +236,8 @@ class FilterStatus {
   static search(widget, queryArguments = {}, callback) {
     widget.querySelector('thead')?.classList.remove('content-planner-hide');
     widget.querySelector('.content-planner-widget__empty')?.classList.add('content-planner-hide');
-    const waitingElement = widget.parentElement.parentElement.querySelector('.widget-waiting');
-    if (waitingElement) {
-      waitingElement.classList.remove('content-planner-hide');
-    }
+    const waitingElement = widget.querySelector('.content-planner-widget__loading');
+    waitingElement?.classList.remove('content-planner-hide');
     widget.querySelector('.content-planner-widget__table-wrapper')?.classList.add('content-planner-hide');
     new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterrecords)
       .withQueryArguments(queryArguments)
@@ -287,9 +285,7 @@ class FilterStatus {
           moreResults.hidden = !hasMore;
         }
 
-        if (waitingElement) {
-          waitingElement.classList.add('content-planner-hide');
-        }
+        waitingElement?.classList.add('content-planner-hide');
         widget.querySelector('.content-planner-widget__table-wrapper')?.classList.remove('content-planner-hide');
 
         FilterStatus.initCommentLinks(widget);
@@ -297,6 +293,17 @@ class FilterStatus {
         if (callback) {
           callback();
         }
+      })
+      .catch((error) => {
+        // Without this, a failed request (e.g. CP-36, #408: a 500 from the endpoint) left the
+        // widget permanently blank - table-wrapper still hidden from above, no empty state, no
+        // spinner. Fall back to the empty state so the widget always reaches a visible terminal
+        // state, and surface the error for whoever has DevTools open.
+        console.error('Content Planner: failed to load status widget records:', error);
+        waitingElement?.classList.add('content-planner-hide');
+        widget.querySelector('thead')?.classList.add('content-planner-hide');
+        widget.querySelector('.content-planner-widget__table-wrapper')?.classList.remove('content-planner-hide');
+        widget.querySelector('.content-planner-widget__empty')?.classList.remove('content-planner-hide');
       });
   }
 }
