@@ -11,7 +11,7 @@ declare(strict_types=1);
  * file that was distributed with this source code.
  */
 
-use Xima\XimaTypo3ContentPlanner\Controller\Backend\RecordModuleController;
+use Xima\XimaTypo3ContentPlanner\Controller\Backend\{RecordModuleController, StatusModuleController};
 
 return [
     // Top-level main module (no 'parent', no 'path'): the extension is not page-bound, so it
@@ -35,6 +35,21 @@ return [
         'routes' => [
             '_default' => [
                 'target' => RecordModuleController::class.'::indexAction',
+            ],
+        ],
+    ],
+    'content_planner_status' => [
+        'parent' => 'content_planner',
+        // Admin-only, matching the status table's own TCA (adminOnly => true, #411) - the
+        // controller re-checks this itself as defense in depth, since 'access' alone only hides
+        // the menu entry and the route, not a guarantee callers should rely on exclusively.
+        'access' => 'admin',
+        'path' => '/module/content-planner/status',
+        'iconIdentifier' => 'flag-gray',
+        'labels' => 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf',
+        'routes' => [
+            '_default' => [
+                'target' => StatusModuleController::class.'::indexAction',
             ],
         ],
     ],

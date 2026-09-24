@@ -1,0 +1,89 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<f:layout name="Module"/>
+
+<f:section name="Content">
+    <div class="content-planner-module">
+        <div class="mb-3">
+            <a href="{newUrl}" class="btn btn-primary">
+                <core:icon identifier="actions-add" size="small" alternativeMarkupIdentifier="inline"/>
+                <f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.new"/>
+            </a>
+        </div>
+
+        <f:if condition="{statuses}">
+            <f:then>
+                <div class="table-fit">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:header.title"/></th>
+                                <th><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:header.default"/></th>
+                                <th><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:header.hidden"/></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <f:for each="{statuses}" as="status">
+                                <tr class="{f:if(condition: status.hidden, then: 'text-body-secondary')}">
+                                    <td>
+                                        <a href="{status.moveUpUrl}" title="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.moveUp')}" class="btn btn-default btn-sm{f:if(condition: status.moveUpUrl, else: ' disabled')}" aria-label="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.moveUp')}">
+                                            <core:icon identifier="actions-chevron-up" size="small" alternativeMarkupIdentifier="inline"/>
+                                        </a>
+                                        <a href="{status.moveDownUrl}" title="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.moveDown')}" class="btn btn-default btn-sm{f:if(condition: status.moveDownUrl, else: ' disabled')}" aria-label="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.moveDown')}">
+                                            <core:icon identifier="actions-chevron-down" size="small" alternativeMarkupIdentifier="inline"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{status.editUrl}">
+                                            <core:icon identifier="{status.icon}-{status.color}" size="small" alternativeMarkupIdentifier="inline"/>
+                                            <strong>{status.title}</strong>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <f:if condition="{status.isDefault}">
+                                            <core:icon identifier="actions-check" size="small" alternativeMarkupIdentifier="inline"/>
+                                            <span class="visually-hidden"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:header.default"/></span>
+                                        </f:if>
+                                    </td>
+                                    <td>
+                                        <f:if condition="{status.hidden}">
+                                            <core:icon identifier="actions-ban" size="small" alternativeMarkupIdentifier="inline"/>
+                                            <span class="visually-hidden"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:header.hidden"/></span>
+                                        </f:if>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{status.editUrl}" class="btn btn-default btn-sm" title="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.edit')}" aria-label="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.edit')}">
+                                            <core:icon identifier="actions-open" size="small" alternativeMarkupIdentifier="inline"/>
+                                        </a>
+                                        <a href="#"
+                                           class="btn btn-default btn-sm t3js-modal-trigger"
+                                           title="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.delete')}"
+                                           aria-label="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.delete')}"
+                                           aria-haspopup="dialog"
+                                           data-severity="warning"
+                                           data-title="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:confirm.delete.title')}"
+                                           data-content="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:confirm.delete.content', arguments: '{0: status.title}')}"
+                                           data-button-ok-text="{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:button.delete')}"
+                                           data-button-close-text="{f:translate(key: 'LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:cancel')}"
+                                           data-uri="{status.deleteUrl}">
+                                            <core:icon identifier="actions-delete" size="small" alternativeMarkupIdentifier="inline"/>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </f:for>
+                        </tbody>
+                    </table>
+                </div>
+            </f:then>
+            <f:else>
+                <f:render partial="Empty"/>
+            </f:else>
+        </f:if>
+    </div>
+</f:section>
+
+</html>

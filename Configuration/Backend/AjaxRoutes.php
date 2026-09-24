@@ -72,4 +72,8 @@ return [
         'path' => '/content-planner/comment-todo-toggle',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\CommentEditorController::class.'::commentToggleTodoAction',
     ],
+    'ximatypo3contentplanner_statusmove' => [
+        'path' => '/content-planner/status-move',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\Backend\StatusModuleController::class.'::moveAction',
+    ],
 ];
