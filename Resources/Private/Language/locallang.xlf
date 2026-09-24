@@ -293,6 +293,12 @@
 			<trans-unit id="records.chips.remove">
 				<source>Remove filter</source>
 			</trans-unit>
+			<trans-unit id="records.header.headline">
+				<source>Records (with Content Planner status)</source>
+			</trans-unit>
+			<trans-unit id="records.header.title">
+				<source>Title</source>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source>edited</source>

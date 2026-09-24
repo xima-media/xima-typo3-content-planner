@@ -475,6 +475,14 @@
 				<source>Remove filter</source>
 				<target>Filter entfernen</target>
 			</trans-unit>
+			<trans-unit id="records.header.headline">
+				<source>Records (with Content Planner status)</source>
+				<target>Datensätze (mit Content Planner Status)</target>
+			</trans-unit>
+			<trans-unit id="records.header.title">
+				<source>Title</source>
+				<target>Titel</target>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source>edited</source>

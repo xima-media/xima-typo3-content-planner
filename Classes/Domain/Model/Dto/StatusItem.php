@@ -17,6 +17,7 @@ use DateTime;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -107,6 +108,21 @@ final class StatusItem
         return IconUtility::getIconByRecord($this->data['tablename'], $this->data, true);
     }
 
+    /**
+     * The record table's own human title (e.g. "Page", "News") for a dedicated "Type" column
+     * (CP-33 follow-up) - same TCA lookup {@see \Xima\XimaTypo3ContentPlanner\Controller\Backend\RecordModuleController::buildTypeOptions()}
+     * uses for the equivalent filter option label.
+     */
+    public function getRecordTypeLabel(): string
+    {
+        $table = (string) ($this->data['tablename'] ?? '');
+        if ('' === $table) {
+            return '';
+        }
+
+        return $this->getLanguageService()->sL($GLOBALS['TCA'][$table]['ctrl']['title'] ?? $table);
+    }
+
     public function getRecordLink(): string
     {
         $folderIdentifier = $this->getFolderCombinedIdentifier();
@@ -122,6 +138,22 @@ final class StatusItem
     public function getAssigneeName(): string
     {
         return ContentUtility::getBackendUsernameById((int) $this->data[Configuration::FIELD_ASSIGNEE]);
+    }
+
+    /**
+     * Just the assignee's real name (falling back to the username), as opposed to
+     * {@see self::getAssigneeName()}'s "Real Name (username)" combination - a record list row
+     * (CP-33 follow-up) needs something short enough to sit next to the avatar; the fuller
+     * combined form still reaches the user as that avatar's title tooltip.
+     */
+    public function getAssigneeShortName(): string
+    {
+        $user = ContentUtility::getBackendUserById($this->getAssignee());
+        if (!$user) {
+            return '';
+        }
+
+        return (string) ($user['realName'] ?: $user['username']);
     }
 
     public function getAssigneeAvatar(): string
@@ -225,10 +257,12 @@ final class StatusItem
             'status' => $this->getStatus(),
             'statusIcon' => $this->getStatusIcon(),
             'recordIcon' => $this->getRecordIcon(),
+            'recordTypeLabel' => $this->getRecordTypeLabel(),
             'updated' => DiffUtility::timeAgo((int) $this->data['tstamp']),
             'updatedRaw' => (new DateTime())->setTimestamp((int) $this->data['tstamp'])->format('d.m.Y H:i'),
             'assignee' => $this->getAssignee(),
             'assigneeName' => $this->getAssigneeName(),
+            'assigneeShortName' => $this->getAssigneeShortName(),
             'assigneeAvatar' => $this->getAssigneeAvatar(),
             'assignedToCurrentUser' => $this->getAssignedToCurrentUser(),
             'comments' => $this->getCommentsHtml(),
@@ -237,6 +271,11 @@ final class StatusItem
             'site' => $this->getSiteName(),
             'siteIcon' => $this->getSiteIcon(),
         ];
+    }
+
+    private function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 
     private function hasMultipleSites(): bool

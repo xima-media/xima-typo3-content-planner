@@ -122,6 +122,49 @@ final class StatusItemTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getAssigneeShortNameReturnsJustTheRealNameNotTheUsernameCombo(): void
+    {
+        $item = StatusItem::create($this->pageRow());
+
+        // be_users.csv: uid 1 has realName "Administrator" - getAssigneeName()'s combined
+        // "Administrator (admin)" form is deliberately not what this method returns.
+        self::assertSame('Administrator', $item->getAssigneeShortName());
+    }
+
+    #[Test]
+    public function getAssigneeShortNamePrefersRealNameOverUsernameForAnotherUser(): void
+    {
+        $row = $this->pageRow();
+        $row['tx_ximatypo3contentplanner_assignee'] = 2;
+
+        $item = StatusItem::create($row);
+
+        // be_users.csv: uid 2 ("editor") has realName "Editor User".
+        self::assertSame('Editor User', $item->getAssigneeShortName());
+    }
+
+    #[Test]
+    public function getAssigneeShortNameFallsBackToUsernameWithoutRealName(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_users_no_realname.csv');
+
+        $row = $this->pageRow();
+        $row['tx_ximatypo3contentplanner_assignee'] = 4;
+
+        $item = StatusItem::create($row);
+
+        self::assertSame('norealname', $item->getAssigneeShortName());
+    }
+
+    #[Test]
+    public function getRecordTypeLabelReturnsTheTableTitle(): void
+    {
+        $item = StatusItem::create($this->pageRow());
+
+        self::assertSame('Page', $item->getRecordTypeLabel());
+    }
+
+    #[Test]
     public function getAssigneeAvatarReturnsString(): void
     {
         $item = StatusItem::create($this->pageRow());

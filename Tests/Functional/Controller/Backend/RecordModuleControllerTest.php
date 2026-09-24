@@ -179,6 +179,42 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
         // second <core:icon identifier="..."> made TYPO3 try to resolve that markup string as
         // an icon identifier and silently fall back to "not found".
         self::assertStringNotContainsString('icon-default-not-found', $body);
+        // The Title/Status split (CP-33 follow-up): the status now has its own column with the
+        // status title as real text, not just an icon.
+        self::assertStringContainsString('In Progress', $body);
+    }
+
+    #[Test]
+    public function indexActionRendersATypeColumnWhenMultipleRecordTablesAreTracked(): void
+    {
+        $this->loginBackendUser(1);
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['tt_content']);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturnCallback(
+            static function (?string $search, ?int $status, ?int $assignee, ?string $type, ?bool $todo, int $maxResults, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0): PaginatedResult {
+                if (RecordRepository::DEFAULT_PAGE_SIZE === $maxResults) {
+                    return new PaginatedResult([[
+                        'uid' => 1,
+                        'pid' => 0,
+                        'tablename' => 'pages',
+                        'title' => 'Home',
+                        'tstamp' => 1700000000,
+                        'tx_ximatypo3contentplanner_status' => 0,
+                        'tx_ximatypo3contentplanner_assignee' => 0,
+                        'tx_ximatypo3contentplanner_comments' => 0,
+                    ]], false);
+                }
+
+                return new PaginatedResult([], false);
+            },
+        );
+
+        $response = $this->createController($recordRepository)->indexAction($this->createRequest([]));
+        $body = (string) $response->getBody();
+
+        self::assertStringContainsString('content-planner-module__table--with-type', $body);
+        self::assertStringContainsString('Page', $body);
     }
 
     #[Test]
