@@ -31,8 +31,14 @@ test('opening a page with a status shows the status header in Web > Page', async
   // The demo fixture also carries an assignee and three comments, one of them a reply (see
   // support/demo-content.ts; the badge counts replies too) - asserting on both proves the
   // header renders real record state, not just a static shell.
-  await expect(webLayout.header().locator('[data-content-planner-assignees]')).toContainText(
-    DEMO_ASSIGNEE_USERNAME,
+  //
+  // The assignee button is icon-only by design (an avatar, or a placeholder icon when
+  // unassigned) - the codebase's a11y convention pairs that with an accessible name rather
+  // than visible text (see Documentation/Configuration/Status.rst's "Icon-only Controls Need
+  // an Accessible Name" section), so the username is asserted via aria-label, not textContent.
+  await expect(webLayout.header().locator('[data-content-planner-assignees]')).toHaveAttribute(
+    'aria-label',
+    new RegExp(DEMO_ASSIGNEE_USERNAME),
   );
   await expect(webLayout.commentsBadge()).toHaveText('3');
 });
