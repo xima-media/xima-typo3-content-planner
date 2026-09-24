@@ -26,6 +26,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Controller\Backend\RecordModuleController:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Controller\Backend\StatusModuleController:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository:
     public: true
     arguments:
