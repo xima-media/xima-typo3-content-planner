@@ -196,6 +196,34 @@
     padding-bottom: 20px;
 }
 
+/* KPI Tile (Todo / Assignee widgets, CP-33) */
+.content-planner-kpi-tile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.content-planner-kpi-tile:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+.content-planner-kpi-tile .icon {
+    --icon-size: 2rem;
+}
+
+.content-planner-kpi-tile__figure {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.content-planner-kpi-tile--empty {
+    opacity: 0.6;
+}
+
 /* More results indicator */
 .content-planner-widget__more-results {
     color: var(--typo3-text-color-variant, #6e6e6e);

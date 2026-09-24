@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Widgets;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 use Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
@@ -63,11 +65,34 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
     #[Test]
     public function renderWidgetContentRendersAssigneeMode(): void
     {
-        $content = $this->createWidget(['currentUserAssignee' => true])->renderWidgetContent();
+        // findAllByFilter() builds raw UNION SQL invalid on the functional suite's SQLite backend
+        // (see CLAUDE.md), so the repository is mocked here - same convention as
+        // RecordModuleControllerTest, which hits the exact same method.
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')
+            // 999: ContentStatusWidget::ASSIGNEE_COUNT_LIMIT (private, not reachable from here)
+            ->with(null, null, 1, null, null, 999)
+            ->willReturn(new PaginatedResult([['uid' => 1], ['uid' => 3]], false));
+
+        $content = $this->createWidget(['currentUserAssignee' => true], $recordRepository)->renderWidgetContent();
 
         self::assertStringContainsString('content-planner-widget--assigned', $content);
         self::assertStringContainsString('name="currentBackendUser" value="1"', $content);
+        self::assertStringContainsString('content-planner-kpi-tile', $content);
+        self::assertStringContainsString('>2<', $content);
         self::assertStringContainsString('content planner records assigned to you', $content);
+    }
+
+    #[Test]
+    public function renderWidgetContentRendersAssigneeModeWithNoAssignedRecords(): void
+    {
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([], false));
+
+        $content = $this->createWidget(['currentUserAssignee' => true], $recordRepository)->renderWidgetContent();
+
+        self::assertStringContainsString('content-planner-kpi-tile--empty', $content);
+        self::assertStringContainsString('You have no content planner records assigned to you', $content);
     }
 
     #[Test]
@@ -76,8 +101,8 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
         $content = $this->createWidget(['todo' => true])->renderWidgetContent();
 
         self::assertStringContainsString('content-planner-widget--todo', $content);
-        self::assertStringContainsString('open tasks in the comments', $content);
-        self::assertStringNotContainsString('content-planner-badge', $content);
+        self::assertStringContainsString('content-planner-kpi-tile--empty', $content);
+        self::assertStringContainsString('There are no open comment tasks', $content);
     }
 
     #[Test]
@@ -88,7 +113,7 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
         $content = $this->createWidget(['todo' => true])->renderWidgetContent();
 
         self::assertStringContainsString('content-planner-widget--todo', $content);
-        self::assertStringNotContainsString('content-planner-badge', $content);
+        self::assertStringContainsString('content-planner-kpi-tile--empty', $content);
     }
 
     #[Test]
@@ -99,7 +124,7 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
 
         $content = $this->createWidget(['todo' => true])->renderWidgetContent();
 
-        self::assertStringContainsString('data-status="pending"', $content);
+        self::assertStringContainsString('content-planner-kpi-tile', $content);
         // Global resolved/total across the whole fixture, not just record 10: comment B (uid 2)
         // contributes 1 resolved of 3, plus the unresolved reply on record 30 (uid 8)
         // contributes 0 of 2 - see CommentRepositoryTest::countTodoAllByRecordCountsAllRecordsWhenAllRecordsTrue.
@@ -114,7 +139,7 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
 
         $content = $this->createWidget(['todo' => true])->renderWidgetContent();
 
-        self::assertStringContainsString('data-status="resolved"', $content);
+        self::assertStringContainsString('content-planner-kpi-tile', $content);
         self::assertStringContainsString('2/2', $content);
     }
 
@@ -143,9 +168,17 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
     /**
      * @param array<string, mixed> $options
      */
-    private function createWidget(array $options = []): ContentStatusWidget
+    private function createWidget(array $options = [], ?RecordRepository $recordRepository = null): ContentStatusWidget
     {
-        return new ContentStatusWidget($this->configuration, $this->dataProvider, null, [], $options);
+        return new ContentStatusWidget(
+            $this->configuration,
+            $this->dataProvider,
+            $recordRepository ?? $this->get(RecordRepository::class),
+            $this->get(UriBuilder::class),
+            null,
+            [],
+            $options,
+        );
     }
 
     private function enableCommentTodosFeature(): void

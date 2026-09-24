@@ -84,12 +84,24 @@
 				<target>Zuständigkeit</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.assignee">
-				<source><![CDATA[There are currently <span class="badge">0</span> content planner records assigned to you.]]></source>
-				<target><![CDATA[Aktuell sind dir <span class="badge">0</span> Content Planner Datensätze zugewiesen.]]></target>
+				<source>There are currently %1$d content planner records assigned to you.</source>
+				<target>Aktuell sind dir %1$d Content Planner Datensätze zugewiesen.</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.assignee.atLeast">
+				<source>There are currently more than %1$d content planner records assigned to you.</source>
+				<target>Aktuell sind dir mehr als %1$d Content Planner Datensätze zugewiesen.</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.assignee.empty">
+				<source>You have no content planner records assigned to you.</source>
+				<target>Dir sind keine Content Planner Datensätze zugewiesen.</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.todo">
-				<source>There are currently %s open tasks in the comments of all content planner records.</source>
-				<target>Aktuell sind %s offene Aufgaben in den Kommentaren aller Content Planner Datensätze vorhanden.</target>
+				<source>%1$d of %2$d comment tasks are resolved across all content planner records.</source>
+				<target>%1$d von %2$d Kommentar-Aufgaben sind über alle Content Planner Datensätze hinweg erledigt.</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.status.todo.empty">
+				<source>There are no open comment tasks in the comments of any content planner record.</source>
+				<target>Es gibt keine offenen Kommentar-Aufgaben in den Kommentaren eines Content Planner Datensatzes.</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.moreResults">
 				<source>More results are available. Refine your filter to narrow the list.</source>

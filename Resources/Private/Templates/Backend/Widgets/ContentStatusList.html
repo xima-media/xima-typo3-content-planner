@@ -8,13 +8,48 @@
 
     <f:if condition="{mode} == 'todo'">
         <div class="content-planner-widget__description">
-            <f:format.raw><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todo}"/></f:format.raw>
+            <f:if condition="{todoInfo.total} > 0">
+                <f:then>
+                    <a href="{todoInfo.link}" class="content-planner-kpi-tile">
+                        <core:icon identifier="content-planner-checkbox" size="large"/>
+                        <span class="content-planner-kpi-tile__figure" aria-hidden="true">{todoInfo.resolved}/{todoInfo.total}</span>
+                        <span class="visually-hidden"><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todoInfo.resolved, 1: todoInfo.total}"/></span>
+                    </a>
+                </f:then>
+                <f:else>
+                    <div class="content-planner-kpi-tile content-planner-kpi-tile--empty">
+                        <core:icon identifier="content-planner-checkbox" size="large"/>
+                        <span class="content-planner-kpi-tile__figure" aria-hidden="true">0</span>
+                        <span class="visually-hidden"><f:translate key="widgets.contentPlanner.status.todo.empty" extensionName="XimaTypo3ContentPlanner"/></span>
+                    </div>
+                </f:else>
+            </f:if>
         </div>
     </f:if>
 
     <f:if condition="{mode} == 'assignee'">
         <div class="content-planner-widget__description">
-            <f:format.raw><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner"/></f:format.raw>
+            <f:if condition="{assigneeInfo.count} > 0">
+                <f:then>
+                    <a href="{assigneeInfo.link}" class="content-planner-kpi-tile">
+                        <core:icon identifier="content-planner-user-circle" size="large"/>
+                        <span class="content-planner-kpi-tile__figure" aria-hidden="true"><f:if condition="{assigneeInfo.hasMore}"><f:then>{assigneeInfo.count}+</f:then><f:else>{assigneeInfo.count}</f:else></f:if></span>
+                        <span class="visually-hidden">
+                            <f:if condition="{assigneeInfo.hasMore}">
+                                <f:then><f:translate key="widgets.contentPlanner.status.assignee.atLeast" extensionName="XimaTypo3ContentPlanner" arguments="{0: assigneeInfo.count}"/></f:then>
+                                <f:else><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner" arguments="{0: assigneeInfo.count}"/></f:else>
+                            </f:if>
+                        </span>
+                    </a>
+                </f:then>
+                <f:else>
+                    <div class="content-planner-kpi-tile content-planner-kpi-tile--empty">
+                        <core:icon identifier="content-planner-user-circle" size="large"/>
+                        <span class="content-planner-kpi-tile__figure" aria-hidden="true">0</span>
+                        <span class="visually-hidden"><f:translate key="widgets.contentPlanner.status.assignee.empty" extensionName="XimaTypo3ContentPlanner"/></span>
+                    </div>
+                </f:else>
+            </f:if>
         </div>
     </f:if>
 
