@@ -5,6 +5,8 @@
  * - content-planner-module (Block)
  * - content-planner-module__presets, __preset, __preset-figure (Elements)
  * - content-planner-module__preset--active (Modifier)
+ * - content-planner-module__chips, __chip (active filter summary, dismissable)
+ * - content-planner-module__site, __action-group (table cell helpers)
  *
  * Filter presets (CP-33 follow-up), right-aligned on the same row as the search field and the
  * "More filters" toggle: quick links into the same list, one findAllByFilter() dimension at a
@@ -12,6 +14,11 @@
  * (Widgets.css .content-planner-kpi-tile) - three of those side by side would dominate a page
  * whose actual content is the table below.
  */
+
+.content-planner-module h1 {
+    font-size: 1.375rem;
+    margin: 0 0 1rem;
+}
 
 .content-planner-module__presets {
     display: flex;
@@ -55,4 +62,60 @@
 /* Advanced filters toggle badge */
 .content-planner-module__filter-toggle .badge {
     margin-left: 0.25rem;
+}
+
+/* Active filter chips (CP-33 follow-up): a dismissable summary of the filter currently
+   applied, one chip per dimension, each linking to the same list with just that one
+   dimension removed. */
+.content-planner-module__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+}
+
+.content-planner-module__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background-color: var(--typo3-state-primary-bg, #0b4980);
+    color: var(--typo3-state-primary-color, #fff);
+    font-size: 0.8125rem;
+    text-decoration: none;
+}
+
+.content-planner-module__chip:hover {
+    text-decoration: none;
+    color: var(--typo3-state-primary-color, #fff);
+    opacity: 0.85;
+}
+
+.content-planner-module__chip .icon {
+    --icon-size: 0.875rem;
+}
+
+/* Site column: long auto-generated identifiers must not stretch the table */
+.content-planner-module__site {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Actions column: comments/todo are two distinct counts (CP-33 follow-up) - a divider
+   between them keeps it clear which icon a figure belongs to. */
+.content-planner-module__action-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.content-planner-module__action-group + .content-planner-module__action-group {
+    margin-left: 0.75rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--typo3-list-item-border-color, #e0e0e0);
 }

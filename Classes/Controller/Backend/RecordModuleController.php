@@ -22,6 +22,7 @@ use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
@@ -31,6 +32,7 @@ use function array_filter;
 use function array_key_exists;
 use function array_map;
 use function count;
+use function sprintf;
 
 /**
  * RecordModuleController.
@@ -100,6 +102,9 @@ final readonly class RecordModuleController
             $filterResult->items,
         );
 
+        $statusOptions = $this->statusRepository->findAll();
+        $userOptions = $this->backendUserRepository->findAll();
+
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         $moduleTemplate->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/records.xlf:title'));
         $moduleTemplate->assignMultiple([
@@ -110,12 +115,13 @@ final readonly class RecordModuleController
             'rangeEnd' => $offset + count($items),
             'filter' => $filter,
             'advancedFilterCount' => $this->countActiveAdvancedFilters($filter),
+            'activeFilterChips' => $this->buildActiveFilterChips($filter, $statusOptions, $userOptions),
             'presets' => $this->buildPresetTiles($filter, $backendUserId),
             'formUrl' => $this->buildUrl([]),
             'previousPageUrl' => $page > 1 ? $this->buildUrl($filter, $page - 1) : null,
             'nextPageUrl' => $filterResult->hasMore ? $this->buildUrl($filter, $page + 1) : null,
-            'statusOptions' => $this->statusRepository->findAll(),
-            'userOptions' => $this->backendUserRepository->findAll(),
+            'statusOptions' => $statusOptions,
+            'userOptions' => $userOptions,
             'typeOptions' => $this->buildTypeOptions(),
         ]);
 
@@ -196,6 +202,109 @@ final readonly class RecordModuleController
             'link' => $this->buildUrl($urlParams),
             'active' => $active,
         ];
+    }
+
+    /**
+     * Dismissable summary of the currently active filters (CP-33 follow-up), shown below the
+     * filter row: each chip's link is the current filter with just that one dimension cleared,
+     * built via buildUrl() like every other link this controller generates. `search`/`todo`/
+     * `openComments` are included here too, even though they already have their own visible
+     * affordance elsewhere (the search field, the preset tiles) - the chip row is meant to be a
+     * single, complete "what's currently filtering this list" summary, not just the fields the
+     * advanced panel owns.
+     *
+     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool} $filter
+     * @param list<Status>                                                                                                       $statusOptions
+     * @param list<array<string, mixed>>                                                                                         $userOptions
+     *
+     * @return list<array{label: string, removeUrl: string}>
+     */
+    private function buildActiveFilterChips(array $filter, array $statusOptions, array $userOptions): array
+    {
+        $languageService = $this->getLanguageService();
+        $chips = [];
+
+        if (null !== $filter['search'] && '' !== $filter['search']) {
+            $chips[] = [
+                'label' => sprintf($languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:records.chips.search'), $filter['search']),
+                'removeUrl' => $this->buildUrl(['search' => null] + $filter),
+            ];
+        }
+
+        if (null !== $filter['status']) {
+            $statusTitle = $this->findStatusTitle($statusOptions, $filter['status']) ?? (string) $filter['status'];
+            $chips[] = [
+                'label' => sprintf($languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:records.chips.status'), $statusTitle),
+                'removeUrl' => $this->buildUrl(['status' => null] + $filter),
+            ];
+        }
+
+        if (null !== $filter['assignee']) {
+            $username = $this->findLabel($userOptions, 'uid', 'username', $filter['assignee']) ?? (string) $filter['assignee'];
+            $chips[] = [
+                'label' => sprintf($languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:records.chips.assignee'), $username),
+                'removeUrl' => $this->buildUrl(['assignee' => null] + $filter),
+            ];
+        }
+
+        if (null !== $filter['type']) {
+            $typeLabel = $this->getLanguageService()->sL($GLOBALS['TCA'][$filter['type']]['ctrl']['title'] ?? $filter['type']);
+            $chips[] = [
+                'label' => sprintf($languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:records.chips.type'), $typeLabel),
+                'removeUrl' => $this->buildUrl(['type' => null] + $filter),
+            ];
+        }
+
+        if ($filter['todo']) {
+            $chips[] = [
+                'label' => $languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openTodos'),
+                'removeUrl' => $this->buildUrl(['todo' => false] + $filter),
+            ];
+        }
+
+        if ($filter['openComments']) {
+            $chips[] = [
+                'label' => $languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openComments'),
+                'removeUrl' => $this->buildUrl(['openComments' => false] + $filter),
+            ];
+        }
+
+        if ($filter['watched']) {
+            $chips[] = [
+                'label' => $languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.watchedByMe'),
+                'removeUrl' => $this->buildUrl(['watched' => false] + $filter),
+            ];
+        }
+
+        return $chips;
+    }
+
+    /**
+     * @param list<Status> $statusOptions
+     */
+    private function findStatusTitle(array $statusOptions, int $uid): ?string
+    {
+        foreach ($statusOptions as $status) {
+            if ($status->getUid() === $uid) {
+                return $status->getTitle();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param list<array<string, mixed>> $options
+     */
+    private function findLabel(array $options, string $keyField, string $labelField, int $value): ?string
+    {
+        foreach ($options as $option) {
+            if ((int) $option[$keyField] === $value) {
+                return (string) $option[$labelField];
+            }
+        }
+
+        return null;
     }
 
     /**

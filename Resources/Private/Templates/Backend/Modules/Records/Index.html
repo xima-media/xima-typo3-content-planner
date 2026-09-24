@@ -6,6 +6,8 @@
 
 <f:section name="Content">
     <div class="content-planner-module">
+        <h1><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/records.xlf:title"/></h1>
+
         <form method="get" action="{formUrl}" class="content-planner-module__filter mb-3">
             <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
                 <div class="row g-2 align-items-end">
@@ -39,6 +41,20 @@
                     <f:render partial="RecordPresetTile" arguments="{preset: presets.openComments, icon: 'content-planner-message-circle', labelKey: 'records.presets.openComments'}"/>
                 </div>
             </div>
+
+            <f:if condition="{activeFilterChips}">
+                <ul class="content-planner-module__chips">
+                    <f:for each="{activeFilterChips}" as="chip">
+                        <li>
+                            <a href="{chip.removeUrl}" class="content-planner-module__chip">
+                                <span>{chip.label}</span>
+                                <core:icon identifier="content-planner-x" size="small" alternativeMarkupIdentifier="inline"/>
+                                <span class="visually-hidden"><f:translate key="records.chips.remove" extensionName="XimaTypo3ContentPlanner" default="Remove filter"/></span>
+                            </a>
+                        </li>
+                    </f:for>
+                </ul>
+            </f:if>
 
             <div class="collapse{f:if(condition: '{advancedFilterCount} > 0', then: ' show')}" id="recordFilterAdvanced">
                 <div class="row g-2 align-items-end mt-1">
@@ -108,21 +124,32 @@
                                 <tr class="{f:if(condition: item.assignedToCurrentUser, then: 'table-info')}">
                                     <td>
                                         <a href="{item.link}">
-                                            <core:icon identifier="{item.statusIcon}" size="small" alternativeMarkupIdentifier="inline"/>
-                                            <core:icon identifier="{item.recordIcon}" size="small" alternativeMarkupIdentifier="inline"/>
+                                            <f:format.raw>{item.statusIcon}</f:format.raw>
+                                            <f:format.raw>{item.recordIcon}</f:format.raw>
                                             <strong>{item.title}</strong>
                                         </a>
                                     </td>
-                                    <td>{item.site}</td>
+                                    <td class="content-planner-module__site" title="{item.site}">{item.site}</td>
                                     <td><small title="{item.updatedRaw}">{item.updated}</small></td>
                                     <td>
                                         <f:if condition="{item.assignee}">
-                                            <f:format.raw>{item.assigneeAvatar}</f:format.raw> {item.assigneeName}
+                                            <span title="{item.assigneeName}">
+                                                <f:format.raw>{item.assigneeAvatar}</f:format.raw>
+                                                <span class="visually-hidden">{item.assigneeName}</span>
+                                            </span>
                                         </f:if>
                                     </td>
                                     <td>
-                                        <f:format.raw>{item.comments}</f:format.raw>
-                                        <f:format.raw>{item.todo}</f:format.raw>
+                                        <f:if condition="{item.comments}">
+                                            <span class="content-planner-module__action-group">
+                                                <f:format.raw>{item.comments}</f:format.raw>
+                                            </span>
+                                        </f:if>
+                                        <f:if condition="{item.todo}">
+                                            <span class="content-planner-module__action-group">
+                                                <f:format.raw>{item.todo}</f:format.raw>
+                                            </span>
+                                        </f:if>
                                     </td>
                                 </tr>
                             </f:for>

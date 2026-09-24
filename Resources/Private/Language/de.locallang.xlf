@@ -455,6 +455,26 @@
 				<source>Showing %1$d–%2$d</source>
 				<target>%1$d–%2$d angezeigt</target>
 			</trans-unit>
+			<trans-unit id="records.chips.search">
+				<source>Search: %1$s</source>
+				<target>Suche: %1$s</target>
+			</trans-unit>
+			<trans-unit id="records.chips.status">
+				<source>Status: %1$s</source>
+				<target>Status: %1$s</target>
+			</trans-unit>
+			<trans-unit id="records.chips.assignee">
+				<source>Assignee: %1$s</source>
+				<target>Zuständig: %1$s</target>
+			</trans-unit>
+			<trans-unit id="records.chips.type">
+				<source>Record type: %1$s</source>
+				<target>Datensatztyp: %1$s</target>
+			</trans-unit>
+			<trans-unit id="records.chips.remove">
+				<source>Remove filter</source>
+				<target>Filter entfernen</target>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source>edited</source>

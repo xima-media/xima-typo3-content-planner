@@ -278,6 +278,21 @@
 			<trans-unit id="records.pagination.range">
 				<source>Showing %1$d–%2$d</source>
 			</trans-unit>
+			<trans-unit id="records.chips.search">
+				<source>Search: %1$s</source>
+			</trans-unit>
+			<trans-unit id="records.chips.status">
+				<source>Status: %1$s</source>
+			</trans-unit>
+			<trans-unit id="records.chips.assignee">
+				<source>Assignee: %1$s</source>
+			</trans-unit>
+			<trans-unit id="records.chips.type">
+				<source>Record type: %1$s</source>
+			</trans-unit>
+			<trans-unit id="records.chips.remove">
+				<source>Remove filter</source>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source>edited</source>

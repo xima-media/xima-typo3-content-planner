@@ -174,6 +174,49 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
         $body = (string) $response->getBody();
 
         self::assertStringContainsString('Showing 1–3', $body);
+        // Regression: the status/record icons must be rendered directly (they are already
+        // fully-rendered markup from IconUtility, not bare identifiers) - wrapping them in a
+        // second <core:icon identifier="..."> made TYPO3 try to resolve that markup string as
+        // an icon identifier and silently fall back to "not found".
+        self::assertStringNotContainsString('icon-default-not-found', $body);
+    }
+
+    #[Test]
+    public function indexActionRendersActiveFilterChipsWithRemoveLinksForEachDimension(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importSharedDataSet('status.csv');
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([], false));
+
+        $response = $this->createController($recordRepository)->indexAction(
+            $this->createRequest(['search' => 'foo', 'status' => '2', 'todo' => '1']),
+        );
+        $body = (string) $response->getBody();
+
+        self::assertStringContainsString('content-planner-module__chip', $body);
+        self::assertStringContainsString('Search: foo', $body);
+        // status.csv uid 2 is "In Progress"
+        self::assertStringContainsString('Status: In Progress', $body);
+        self::assertStringContainsString('Open TODOs', $body);
+        // each chip must remove only its own dimension, keeping the others
+        self::assertStringContainsString('search=foo&amp;todo=1', $body);
+        self::assertStringContainsString('search=foo&amp;status=2', $body);
+    }
+
+    #[Test]
+    public function indexActionRendersNoFilterChipsWhenNothingIsFiltered(): void
+    {
+        $this->loginBackendUser(1);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([], false));
+
+        $response = $this->createController($recordRepository)->indexAction($this->createRequest([]));
+        $body = (string) $response->getBody();
+
+        self::assertStringNotContainsString('content-planner-module__chip"', $body);
     }
 
     #[Test]
