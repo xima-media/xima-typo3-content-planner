@@ -14,17 +14,17 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Dashboard\Widgets\{ButtonProviderInterface, ListDataProviderInterface, WidgetConfigurationInterface};
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
 
 use function count;
-use function sprintf;
 
 /**
  * ContentStatusWidget.
@@ -34,13 +34,38 @@ use function sprintf;
  */
 class ContentStatusWidget extends AbstractWidget
 {
+    /**
+     * Upper bound for the assignee KPI tile's count query (CP-33, #405). Not a pagination page
+     * size like {@see RecordRepository::DEFAULT_PAGE_SIZE} - a large cap so the figure is exact
+     * for realistic workloads, while {@see PaginatedResult::$hasMore} still gives an honest "at
+     * least N" signal for the rare case a single user has more records assigned than this covers.
+     */
+    private const ASSIGNEE_COUNT_LIMIT = 999;
+
+    /**
+     * @param array<string, mixed> $buttons
+     * @param array<string, mixed> $options
+     */
+    public function __construct(
+        WidgetConfigurationInterface $configuration,
+        ListDataProviderInterface $dataProvider,
+        private readonly RecordRepository $recordRepository,
+        private readonly UriBuilder $uriBuilder,
+        ?ButtonProviderInterface $buttonProvider = null,
+        array $buttons = [],
+        array $options = [],
+    ) {
+        parent::__construct($configuration, $dataProvider, $buttonProvider, $buttons, $options);
+    }
+
     public function renderWidgetContent(): string
     {
         $filter = isset($this->options['useFilter']);
         ['mode' => $mode, 'assignee' => $assignee, 'todo' => $todo, 'icon' => $icon] = $this->determineWidgetMode();
 
         $filterValues = $filter ? $this->buildFilterValues() : false;
-        $todoInfo = $todo ? $this->buildTodoInfo() : false;
+        $todoInfo = $todo ? $this->buildTodoInfo() : null;
+        $assigneeInfo = (null !== $assignee && $assignee > 0) ? $this->buildAssigneeInfo($assignee) : null;
 
         return $this->render(
             'Backend/Widgets/ContentStatusList.html',
@@ -50,7 +75,9 @@ class ContentStatusWidget extends AbstractWidget
                 'icon' => $icon,
                 'currentBackendUser' => $assignee,
                 'backendUserId' => $this->getBackendUserId(),
-                'todo' => $todoInfo,
+                'todo' => $todo,
+                'todoInfo' => $todoInfo,
+                'assigneeInfo' => $assigneeInfo,
                 'mode' => $mode,
                 'filter' => $filterValues,
             ],
@@ -121,26 +148,50 @@ class ContentStatusWidget extends AbstractWidget
         return $filterValues;
     }
 
-    private function buildTodoInfo(): string|bool
+    /**
+     * @return array{resolved: int, total: int, link: string}|null null when the todo feature is
+     *                                                             disabled ext-wide (see CP-33, #405
+     *                                                             zero state: 0 open tasks reads the
+     *                                                             same as the feature being off)
+     */
+    private function buildTodoInfo(): ?array
     {
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
-            return false;
+            return null;
         }
 
         $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
         $todoResolved = $commentRepository->countTodoAllByRecord(null, null, 'todo_resolved', true);
         $todoTotal = $commentRepository->countTodoAllByRecord(null, null, 'todo_total', true);
 
-        if ($todoTotal <= 0) {
-            return '';
-        }
+        return [
+            'resolved' => $todoResolved,
+            'total' => $todoTotal,
+            'link' => $this->buildRecordsLink(['todo' => 1]),
+        ];
+    }
 
-        return sprintf(
-            '%s <span class="content-planner-badge badge" data-status="%s">%d/%d</span>',
-            IconUtility::getIconByIdentifier('content-planner-checkbox'),
-            $todoResolved === $todoTotal ? 'resolved' : 'pending',
-            $todoResolved,
-            $todoTotal,
-        );
+    /**
+     * @return array{count: int, hasMore: bool, link: string}
+     *
+     * @throws Exception
+     */
+    private function buildAssigneeInfo(int $userId): array
+    {
+        $result = $this->recordRepository->findAllByFilter(null, null, $userId, null, null, self::ASSIGNEE_COUNT_LIMIT);
+
+        return [
+            'count' => count($result->items),
+            'hasMore' => $result->hasMore,
+            'link' => $this->buildRecordsLink(['assignee' => $userId]),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function buildRecordsLink(array $params): string
+    {
+        return (string) $this->uriBuilder->buildUriFromRoute('content_planner_records', $params);
     }
 }
