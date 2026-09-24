@@ -155,7 +155,10 @@ final class StatusItem
             return null;
         }
 
-        return $site->getAttribute('websiteTitle') ?? $site->getIdentifier();
+        // Site::getAttribute() throws InvalidArgumentException for a key the site config never
+        // set, rather than returning null - websiteTitle is optional and commonly absent, so
+        // read the raw configuration array instead of the throwing accessor.
+        return $site->getConfiguration()['websiteTitle'] ?? $site->getIdentifier();
     }
 
     public function getToDoHtml(): string
