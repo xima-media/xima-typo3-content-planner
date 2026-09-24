@@ -6,6 +6,12 @@
 
 <f:section name="Content">
     <div class="content-planner-module">
+        <div class="content-planner-module__presets">
+            <f:render partial="RecordPresetTile" arguments="{preset: presets.assignee, icon: 'content-planner-user-circle', labelKey: 'records.presets.assignee'}"/>
+            <f:render partial="RecordPresetTile" arguments="{preset: presets.todo, icon: 'content-planner-checkbox', labelKey: 'records.presets.todo'}"/>
+            <f:render partial="RecordPresetTile" arguments="{preset: presets.openComments, icon: 'content-planner-message-circle', labelKey: 'records.presets.openComments'}"/>
+        </div>
+
         <form method="get" action="{formUrl}" class="content-planner-module__filter mb-3">
             <div class="row g-2 align-items-end">
                 <div class="col-auto">
@@ -13,51 +19,73 @@
                     <input type="text" name="search" id="search" class="form-control" value="{filter.search}">
                 </div>
                 <div class="col-auto">
-                    <label for="status" class="form-label"><f:translate key="widgets.contentPlanner.header.flag" extensionName="XimaTypo3ContentPlanner" default="Status"/></label>
-                    <select name="status" id="status" class="form-select">
-                        <option value="">-</option>
-                        <f:for each="{statusOptions}" as="status">
-                            <option value="{status.uid}" <f:if condition="{status.uid} == {filter.status}">selected="selected"</f:if>>{status.title}</option>
-                        </f:for>
-                    </select>
+                    <button type="submit" class="btn btn-primary"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></button>
+                    <a href="{formUrl}" class="btn btn-default"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.reset" default="Reset"/></a>
+                    <button
+                        type="button"
+                        class="btn btn-default content-planner-module__filter-toggle"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#recordFilterAdvanced"
+                        aria-expanded="{f:if(condition: '{advancedFilterCount} > 0', then: 'true', else: 'false')}"
+                        aria-controls="recordFilterAdvanced"
+                    >
+                        <core:icon identifier="content-planner-filter" size="small" alternativeMarkupIdentifier="inline"/>
+                        <f:translate key="filter.moreFilters" extensionName="XimaTypo3ContentPlanner" default="More filters"/>
+                        <f:if condition="{advancedFilterCount} > 0">
+                            <span class="badge badge-primary">{advancedFilterCount}</span>
+                        </f:if>
+                    </button>
                 </div>
-                <div class="col-auto">
-                    <label for="assignee" class="form-label"><f:translate key="widgets.contentPlanner.header.assignee" extensionName="XimaTypo3ContentPlanner" default="Assignee"/></label>
-                    <select name="assignee" id="assignee" class="form-select">
-                        <option value="">-</option>
-                        <f:for each="{userOptions}" as="user">
-                            <option value="{user.uid}" <f:if condition="{user.uid} == {filter.assignee}">selected="selected"</f:if>>{user.username}</option>
-                        </f:for>
-                    </select>
-                </div>
-                <f:if condition="{typeOptions}">
+            </div>
+
+            <div class="collapse{f:if(condition: '{advancedFilterCount} > 0', then: ' show')}" id="recordFilterAdvanced">
+                <div class="row g-2 align-items-end mt-1">
                     <div class="col-auto">
-                        <label for="type" class="form-label"><f:translate key="widgets.configurable.setting.recordType.label" extensionName="XimaTypo3ContentPlanner" default="Record Type"/></label>
-                        <select name="type" id="type" class="form-select">
+                        <label for="status" class="form-label"><f:translate key="widgets.contentPlanner.header.flag" extensionName="XimaTypo3ContentPlanner" default="Status"/></label>
+                        <select name="status" id="status" class="form-select">
                             <option value="">-</option>
-                            <f:for each="{typeOptions}" as="type">
-                                <option value="{type.value}" <f:if condition="{type.value} == {filter.type}">selected="selected"</f:if>>{type.label}</option>
+                            <f:for each="{statusOptions}" as="status">
+                                <option value="{status.uid}" <f:if condition="{status.uid} == {filter.status}">selected="selected"</f:if>>{status.title}</option>
                             </f:for>
                         </select>
                     </div>
-                </f:if>
-                <div class="col-auto form-check">
-                    <input class="form-check-input" type="checkbox" name="todo" id="todo" value="1" <f:if condition="{filter.todo}">checked="checked"</f:if>>
-                    <label class="form-check-label" for="todo"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openTodos" default="Open TODOs"/></label>
-                </div>
-                <div class="col-auto form-check">
-                    <input class="form-check-input" type="checkbox" name="openComments" id="openComments" value="1" <f:if condition="{filter.openComments}">checked="checked"</f:if>>
-                    <label class="form-check-label" for="openComments"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openComments" default="Open comments"/></label>
-                </div>
-                <div class="col-auto form-check">
-                    <input class="form-check-input" type="checkbox" name="watched" id="watched" value="1" <f:if condition="{filter.watched}">checked="checked"</f:if>>
-                    <label class="form-check-label" for="watched"><f:translate key="filter.watchedByMe" extensionName="XimaTypo3ContentPlanner" default="Watched by me"/></label>
-                </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></button>
-                    <a href="{formUrl}" class="btn btn-default"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.reset" default="Reset"/></a>
+                    <div class="col-auto">
+                        <label for="assignee" class="form-label"><f:translate key="widgets.contentPlanner.header.assignee" extensionName="XimaTypo3ContentPlanner" default="Assignee"/></label>
+                        <select name="assignee" id="assignee" class="form-select">
+                            <option value="">-</option>
+                            <f:for each="{userOptions}" as="user">
+                                <option value="{user.uid}" <f:if condition="{user.uid} == {filter.assignee}">selected="selected"</f:if>>{user.username}</option>
+                            </f:for>
+                        </select>
+                    </div>
+                    <f:if condition="{typeOptions}">
+                        <div class="col-auto">
+                            <label for="type" class="form-label"><f:translate key="widgets.configurable.setting.recordType.label" extensionName="XimaTypo3ContentPlanner" default="Record Type"/></label>
+                            <select name="type" id="type" class="form-select">
+                                <option value="">-</option>
+                                <f:for each="{typeOptions}" as="type">
+                                    <option value="{type.value}" <f:if condition="{type.value} == {filter.type}">selected="selected"</f:if>>{type.label}</option>
+                                </f:for>
+                            </select>
+                        </div>
+                    </f:if>
+                    <div class="col-auto form-check">
+                        <input class="form-check-input" type="checkbox" name="watched" id="watched" value="1" <f:if condition="{filter.watched}">checked="checked"</f:if>>
+                        <label class="form-check-label" for="watched"><f:translate key="filter.watchedByMe" extensionName="XimaTypo3ContentPlanner" default="Watched by me"/></label>
+                    </div>
                 </div>
             </div>
+
+            <!-- Preset filters applied via the tiles above still need to travel with the form
+                 on submit (e.g. adjusting search while "Open ToDos" is active), but have no
+                 visible field of their own once "aufräumen" (CP-33 follow-up) moved them out of
+                 the advanced panel. -->
+            <f:if condition="{filter.todo}">
+                <input type="hidden" name="todo" value="1">
+            </f:if>
+            <f:if condition="{filter.openComments}">
+                <input type="hidden" name="openComments" value="1">
+            </f:if>
         </form>
 
         <f:if condition="{items}">
@@ -100,16 +128,18 @@
                     </table>
                 </div>
 
-                <nav class="content-planner-module__pagination d-flex justify-content-between mt-3">
-                    <f:if condition="{previousPageUrl}">
-                        <f:then>
+                <nav class="content-planner-module__pagination d-flex justify-content-between align-items-center mt-3">
+                    <span class="text-body-secondary">
+                        <f:translate key="records.pagination.range" extensionName="XimaTypo3ContentPlanner" arguments="{0: rangeStart, 1: rangeEnd}"/>
+                    </span>
+                    <div>
+                        <f:if condition="{previousPageUrl}">
                             <a href="{previousPageUrl}" class="btn btn-default">&larr; <f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:previous"/></a>
-                        </f:then>
-                        <f:else><span></span></f:else>
-                    </f:if>
-                    <f:if condition="{nextPageUrl}">
-                        <a href="{nextPageUrl}" class="btn btn-default"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:next"/> &rarr;</a>
-                    </f:if>
+                        </f:if>
+                        <f:if condition="{nextPageUrl}">
+                            <a href="{nextPageUrl}" class="btn btn-default"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:next"/> &rarr;</a>
+                        </f:if>
+                    </div>
                 </nav>
             </f:then>
             <f:else>
