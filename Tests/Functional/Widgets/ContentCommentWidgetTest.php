@@ -77,6 +77,45 @@ final class ContentCommentWidgetTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('Reply', $content);
     }
 
+    #[Test]
+    public function renderWidgetContentResolvesMentionsInsteadOfRawMarkup(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Provider/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments_mention.csv');
+
+        $content = $this->createWidget()->renderWidgetContent();
+
+        // CP-35 (#407): the raw persisted marker (an unresolved <a>, no display name) must never
+        // reach the widget output ...
+        self::assertStringNotContainsString('stale-name', $content);
+        self::assertDoesNotMatchRegularExpression('/<a class="ctp-mention"/', $content);
+        // ... it must be resolved through CommentItem::getContent(), same as the record modal:
+        // a <button> carrying the current display name.
+        self::assertStringContainsString('<button type="button" class="ctp-mention', $content);
+        self::assertStringContainsString('@Administrator (admin)', $content);
+    }
+
+    #[Test]
+    public function renderWidgetContentDoesNotNestTheCommentTextInsideAnAnchor(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Provider/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments_mention.csv');
+
+        $content = $this->createWidget()->renderWidgetContent();
+
+        // A resolved mention is a <button>; nesting it inside the record link (an <a>, still
+        // present in the header) would be invalid markup. See Widgets.css for why the comment
+        // text itself is a <div>, not a link.
+        self::assertMatchesRegularExpression(
+            '/<div class="content-planner-comment__text content-planner-comment__text--widget">/',
+            $content,
+        );
+        self::assertDoesNotMatchRegularExpression(
+            '/<a[^>]*class="content-planner-comment__text/',
+            $content,
+        );
+    }
+
     private function createWidget(): ContentCommentWidget
     {
         return new ContentCommentWidget(
