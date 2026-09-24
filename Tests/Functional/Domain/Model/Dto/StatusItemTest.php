@@ -226,6 +226,28 @@ final class StatusItemTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getSiteNameFallsBackToIdentifierWhenWebsiteTitleIsNotConfigured(): void
+    {
+        // CP-36 (#408): Site::getAttribute() throws InvalidArgumentException for a key the site
+        // config never set, rather than returning null - websiteTitle is optional and commonly
+        // absent (never set by TYPO3's own site setup), so a site without it must not 500 the
+        // whole "Recent Updates" widget filter endpoint.
+        $siteFinder = $this->createMock(SiteFinder::class);
+        $siteFinder->method('getAllSites')->willReturn([
+            'first' => new Site('first', 1, ['base' => 'https://one.example/']),
+            'second' => new Site('second', 2, ['base' => 'https://two.example/']),
+        ]);
+        $siteFinder->method('getSiteByPageId')->willReturn(
+            new Site('second', 1, ['base' => 'https://two.example/']),
+        );
+        GeneralUtility::addInstance(SiteFinder::class, $siteFinder);
+
+        $item = StatusItem::create($this->pageRow());
+
+        self::assertSame('second', $item->getSiteName());
+    }
+
+    #[Test]
     public function getSiteNameReturnsWebsiteTitleForRecordWithinSite(): void
     {
         $this->writeTwoSiteConfigurations();
