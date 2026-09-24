@@ -336,8 +336,34 @@ class RecordModal {
     } else if (this.context.focusComposer) {
       const composerTrigger = pane.querySelector('[data-comment-composer-trigger]')
       composerTrigger?.scrollIntoView({behavior: 'smooth', block: 'center'})
-      composerTrigger?.click()
+      this.clickComposerTriggerWhenBound(composerTrigger)
     }
+  }
+
+  /**
+   * `typo3:contentplanner:reinitializelistener` is dispatched on `this.modal`, which
+   * `Modal.advanced()` always attaches to the TOP document. The listener that binds
+   * `[data-comment-composer-trigger]` (comment-composer.js) only reaches that document once
+   * its own module has loaded there - which happens lazily, via the AJAX response that
+   * fetched this very pane, not eagerly like the page module's own copy of the same module.
+   * On a session's first modal open that load is still in flight when this runs, so a plain
+   * `composerTrigger.click()` right after the dispatch above silently does nothing: the
+   * click fires before any listener is bound to catch it. Retrying against
+   * `dataset.commentComposerBound` (set by that listener once it binds) rides out the race
+   * instead of assuming the dispatch above was synchronous.
+   */
+  clickComposerTriggerWhenBound(trigger, attempt = 0) {
+    if (!trigger) {
+      return
+    }
+    if ('true' === trigger.dataset.commentComposerBound) {
+      trigger.click()
+      return
+    }
+    if (attempt >= 40) {
+      return
+    }
+    setTimeout(() => this.clickComposerTriggerWhenBound(trigger, attempt + 1), 50)
   }
 
   updateTabCount(tab, count) {
