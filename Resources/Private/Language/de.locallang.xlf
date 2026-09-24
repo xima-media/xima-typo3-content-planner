@@ -419,6 +419,10 @@
 				<source>Open TODOs</source>
 				<target>Offene ToDos</target>
 			</trans-unit>
+			<trans-unit id="filter.watchedByMe">
+				<source>Watched by me</source>
+				<target>Von mir beobachtet</target>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source>edited</source>

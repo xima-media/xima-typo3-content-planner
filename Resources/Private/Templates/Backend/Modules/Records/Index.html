@@ -1,0 +1,122 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<f:layout name="Module"/>
+
+<f:section name="Content">
+    <div class="content-planner-module">
+        <form method="get" action="{formUrl}" class="content-planner-module__filter mb-3">
+            <div class="row g-2 align-items-end">
+                <div class="col-auto">
+                    <label for="search" class="form-label"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></label>
+                    <input type="text" name="search" id="search" class="form-control" value="{filter.search}">
+                </div>
+                <div class="col-auto">
+                    <label for="status" class="form-label"><f:translate key="widgets.contentPlanner.header.flag" extensionName="XimaTypo3ContentPlanner" default="Status"/></label>
+                    <select name="status" id="status" class="form-select">
+                        <option value="">-</option>
+                        <f:for each="{statusOptions}" as="status">
+                            <option value="{status.uid}" <f:if condition="{status.uid} == {filter.status}">selected="selected"</f:if>>{status.title}</option>
+                        </f:for>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label for="assignee" class="form-label"><f:translate key="widgets.contentPlanner.header.assignee" extensionName="XimaTypo3ContentPlanner" default="Assignee"/></label>
+                    <select name="assignee" id="assignee" class="form-select">
+                        <option value="">-</option>
+                        <f:for each="{userOptions}" as="user">
+                            <option value="{user.uid}" <f:if condition="{user.uid} == {filter.assignee}">selected="selected"</f:if>>{user.username}</option>
+                        </f:for>
+                    </select>
+                </div>
+                <f:if condition="{typeOptions}">
+                    <div class="col-auto">
+                        <label for="type" class="form-label"><f:translate key="widgets.configurable.setting.recordType.label" extensionName="XimaTypo3ContentPlanner" default="Record Type"/></label>
+                        <select name="type" id="type" class="form-select">
+                            <option value="">-</option>
+                            <f:for each="{typeOptions}" as="type">
+                                <option value="{type.value}" <f:if condition="{type.value} == {filter.type}">selected="selected"</f:if>>{type.label}</option>
+                            </f:for>
+                        </select>
+                    </div>
+                </f:if>
+                <div class="col-auto form-check">
+                    <input class="form-check-input" type="checkbox" name="todo" id="todo" value="1" <f:if condition="{filter.todo}">checked="checked"</f:if>>
+                    <label class="form-check-label" for="todo"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openTodos" default="Open TODOs"/></label>
+                </div>
+                <div class="col-auto form-check">
+                    <input class="form-check-input" type="checkbox" name="openComments" id="openComments" value="1" <f:if condition="{filter.openComments}">checked="checked"</f:if>>
+                    <label class="form-check-label" for="openComments"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openComments" default="Open comments"/></label>
+                </div>
+                <div class="col-auto form-check">
+                    <input class="form-check-input" type="checkbox" name="watched" id="watched" value="1" <f:if condition="{filter.watched}">checked="checked"</f:if>>
+                    <label class="form-check-label" for="watched"><f:translate key="filter.watchedByMe" extensionName="XimaTypo3ContentPlanner" default="Watched by me"/></label>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></button>
+                    <a href="{formUrl}" class="btn btn-default"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.reset" default="Reset"/></a>
+                </div>
+            </div>
+        </form>
+
+        <f:if condition="{items}">
+            <f:then>
+                <div class="table-fit">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th><f:translate key="widgets.contentPlanner.header.title" extensionName="XimaTypo3ContentPlanner"/></th>
+                                <th><f:translate key="widgets.contentPlanner.header.site" extensionName="XimaTypo3ContentPlanner"/></th>
+                                <th><f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/></th>
+                                <th><f:translate key="widgets.contentPlanner.header.assignee" extensionName="XimaTypo3ContentPlanner"/></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <f:for each="{items}" as="item">
+                                <tr class="{f:if(condition: item.assignedToCurrentUser, then: 'table-info')}">
+                                    <td>
+                                        <a href="{item.link}">
+                                            <core:icon identifier="{item.statusIcon}" size="small" alternativeMarkupIdentifier="inline"/>
+                                            <core:icon identifier="{item.recordIcon}" size="small" alternativeMarkupIdentifier="inline"/>
+                                            <strong>{item.title}</strong>
+                                        </a>
+                                    </td>
+                                    <td>{item.site}</td>
+                                    <td><small title="{item.updatedRaw}">{item.updated}</small></td>
+                                    <td>
+                                        <f:if condition="{item.assignee}">
+                                            <f:format.raw>{item.assigneeAvatar}</f:format.raw> {item.assigneeName}
+                                        </f:if>
+                                    </td>
+                                    <td>
+                                        <f:format.raw>{item.comments}</f:format.raw>
+                                        <f:format.raw>{item.todo}</f:format.raw>
+                                    </td>
+                                </tr>
+                            </f:for>
+                        </tbody>
+                    </table>
+                </div>
+
+                <nav class="content-planner-module__pagination d-flex justify-content-between mt-3">
+                    <f:if condition="{previousPageUrl}">
+                        <f:then>
+                            <a href="{previousPageUrl}" class="btn btn-default">&larr; <f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:previous"/></a>
+                        </f:then>
+                        <f:else><span></span></f:else>
+                    </f:if>
+                    <f:if condition="{nextPageUrl}">
+                        <a href="{nextPageUrl}" class="btn btn-default"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:next"/> &rarr;</a>
+                    </f:if>
+                </nav>
+            </f:then>
+            <f:else>
+                <f:render partial="Empty"/>
+            </f:else>
+        </f:if>
+    </div>
+</f:section>
+
+</html>

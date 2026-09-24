@@ -251,6 +251,9 @@
 			<trans-unit id="filter.openTodos">
 				<source>Open TODOs</source>
 			</trans-unit>
+			<trans-unit id="filter.watchedByMe">
+				<source>Watched by me</source>
+			</trans-unit>
 
 			<trans-unit id="comment.edited">
 				<source>edited</source>

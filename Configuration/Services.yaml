@@ -18,6 +18,14 @@ services:
     factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
     arguments: [ 'ximatypo3contentplanner_cache' ]
 
+  # Backend module routes (Configuration/Backend/Modules.php) resolve their controller through
+  # TYPO3\CMS\Core\Http\Dispatcher::getCallableFromTarget(), which only asks the DI container for
+  # a class it considers public - a private (the default) autowired service falls through to a
+  # bare GeneralUtility::makeInstance() with no constructor arguments at all. AJAX routes and
+  # widgets do not hit this path, so their controllers stay private (CP-32, #404).
+  Xima\XimaTypo3ContentPlanner\Controller\Backend\RecordModuleController:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository:
     public: true
     arguments:

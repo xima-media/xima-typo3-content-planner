@@ -175,6 +175,49 @@ final class OverfetchPaginatorTest extends TestCase
         self::assertTrue($result->hasMore);
     }
 
+    #[Test]
+    public function skipDiscardsTheFirstNVisibleRowsBeforeCollecting(): void
+    {
+        // CP-32 (#404): page 2 of a page size of 3 skips the first 3 visible rows.
+        $result = self::paginateOver(range(1, 10), 3, 100, 10, static fn (int $row): bool => true, 3);
+
+        self::assertSame([4, 5, 6], $result->items);
+        self::assertTrue($result->hasMore);
+    }
+
+    #[Test]
+    public function skipCountsOnlyVisibleRowsNotRawRows(): void
+    {
+        // A restricted backend user: half the raw rows are invisible. Skipping "3 visible rows"
+        // must land on the 4th visible row, not the 4th raw row.
+        $isVisible = static fn (int $row): bool => 0 === $row % 2;
+        $rows = range(1, 20);
+
+        $result = self::paginateOver($rows, 2, 100, 10, $isVisible, 3);
+
+        // Visible rows in order: 2, 4, 6, 8, 10, 12, ... - skip 2, 4, 6, collect 8, 10.
+        self::assertSame([8, 10], $result->items);
+        self::assertTrue($result->hasMore);
+    }
+
+    #[Test]
+    public function skipBeyondAllVisibleRowsReturnsAnEmptyExhaustedPage(): void
+    {
+        $result = self::paginateOver(range(1, 5), 3, 100, 10, static fn (int $row): bool => true, 10);
+
+        self::assertSame([], $result->items);
+        self::assertFalse($result->hasMore);
+    }
+
+    #[Test]
+    public function skipOfZeroBehavesLikeNoSkipAtAll(): void
+    {
+        $withoutSkip = self::paginateOver(range(1, 5), 3, 100, 10, static fn (int $row): bool => true, 0);
+
+        self::assertSame([1, 2, 3], $withoutSkip->items);
+        self::assertTrue($withoutSkip->hasMore);
+    }
+
     /**
      * Serve $source through the batched API the way a paged SQL query would.
      *
@@ -183,7 +226,7 @@ final class OverfetchPaginatorTest extends TestCase
      *
      * @return PaginatedResult<int>
      */
-    private static function paginateOver(array $source, int $pageSize, int $batchSize, int $maxBatches, callable $isVisible): PaginatedResult
+    private static function paginateOver(array $source, int $pageSize, int $batchSize, int $maxBatches, callable $isVisible, int $skip = 0): PaginatedResult
     {
         return OverfetchPaginator::paginateBatched(
             static fn (int $offset): array => array_values(array_slice($source, $offset, $batchSize)),
@@ -191,6 +234,7 @@ final class OverfetchPaginatorTest extends TestCase
             $batchSize,
             $maxBatches,
             $isVisible,
+            $skip,
         );
     }
 }
