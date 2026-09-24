@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+    <file source-language="en" target-language="de" datatype="plaintext" original="EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/records.xlf" product-name="xima_typo3_content_planner">
+        <header/>
+        <body>
+            <trans-unit id="title">
+                <source>Records</source>
+                <target>Datensätze</target>
+            </trans-unit>
+            <trans-unit id="short_description">
+                <source>Filterable list of all tracked records</source>
+                <target>Filterbare Liste aller erfassten Datensätze</target>
+            </trans-unit>
+            <trans-unit id="description">
+                <source>Browse, search and filter every record with a Content Planner status across all tracked tables.</source>
+                <target>Durchsuche und filtere alle Datensätze mit Content-Planner-Status über alle erfassten Tabellen hinweg.</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

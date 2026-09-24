@@ -80,12 +80,14 @@ class RecordRepository
      * @param array<string, list<int>>|null $watchedRecords table => watched record UIDs, as returned by
      *                                                      {@see \Xima\XimaTypo3ContentPlanner\Service\WatcherService::getWatchedRecords()};
      *                                                      null leaves the result unfiltered by watcher state
+     * @param int                           $offset         number of *visible* records to skip, for pagination beyond
+     *                                                      the first page (see OverfetchPaginator::paginateBatched())
      *
      * @return PaginatedResult<array<string, mixed>>
      *
      * @throws Exception
      */
-    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = self::DEFAULT_PAGE_SIZE, bool $openComments = false, ?array $watchedRecords = null): PaginatedResult
+    public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = self::DEFAULT_PAGE_SIZE, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0): PaginatedResult
     {
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
 
@@ -121,6 +123,7 @@ class RecordRepository
             $batchSize,
             self::FILTER_MAX_BATCHES,
             static fn (array $record): bool => PermissionUtility::checkAccessForRecord((string) $record['tablename'], $record),
+            $offset,
         );
     }
 

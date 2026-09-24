@@ -76,4 +76,35 @@ final class RecordRepositoryTest extends TestCase
         self::assertSame([], $paginatedResult->items);
         self::assertFalse($paginatedResult->hasMore);
     }
+
+    #[Test]
+    public function findAllByFilterAlwaysStartsTheRawSqlScanAtOffsetZeroEvenWithAPageOffset(): void
+    {
+        // CP-32 (#404): the $offset parameter skips N *visible* rows in PHP
+        // (OverfetchPaginator), it never becomes the SQL OFFSET directly - a raw offset would
+        // skip past rows that get filtered out by permission checks on an earlier page.
+        $result = $this->createMock(Result::class);
+        $result->method('fetchAllAssociative')->willReturn([]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::once())
+            ->method('executeQuery')
+            ->with(self::isType('string'), ['limit' => 15, 'offset' => 0], ['limit' => Connection::PARAM_INT, 'offset' => Connection::PARAM_INT])
+            ->willReturn($result);
+
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('getConnection')->willReturn($connection);
+
+        $connectionPool = $this->createMock(ConnectionPool::class);
+        $connectionPool->method('getQueryBuilderForTable')->with('pages')->willReturn($queryBuilder);
+
+        $cache = $this->createMock(FrontendInterface::class);
+
+        $subject = new RecordRepository($cache, $connectionPool);
+
+        $paginatedResult = $subject->findAllByFilter(null, null, null, null, null, 5, false, null, 40);
+
+        self::assertSame([], $paginatedResult->items);
+        self::assertFalse($paginatedResult->hasMore);
+    }
 }

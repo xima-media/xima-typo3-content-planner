@@ -78,6 +78,13 @@ final class OverfetchPaginator
      * pathological ratio of invisible rows cannot turn one request into an
      * unbounded scan.
      *
+     * $skip discards the first N *visible* rows before collection starts,
+     * for pagination beyond the first page - the scan still always starts at
+     * raw offset 0, since a visible-row count cannot be translated into a raw
+     * SQL offset once invisible rows are filtered out in PHP. $maxBatches
+     * bounds this the same way it bounds page 1: a deep page under heavy
+     * permission filtering can come back short rather than scan unbounded.
+     *
      * @template T
      *
      * @param callable(int): list<T> $fetchBatch
@@ -91,10 +98,12 @@ final class OverfetchPaginator
         int $batchSize,
         int $maxBatches,
         callable $isVisible,
+        int $skip = 0,
     ): PaginatedResult {
         $items = [];
         $offset = 0;
         $exhausted = false;
+        $skipped = 0;
 
         for ($batch = 0; $batch < $maxBatches; ++$batch) {
             $rows = $fetchBatch($offset);
@@ -106,6 +115,11 @@ final class OverfetchPaginator
 
             foreach ($rows as $row) {
                 if (!$isVisible($row)) {
+                    continue;
+                }
+
+                if ($skipped < $skip) {
+                    ++$skipped;
                     continue;
                 }
 
