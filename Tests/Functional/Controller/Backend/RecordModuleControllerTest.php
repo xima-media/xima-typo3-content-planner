@@ -185,6 +185,57 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function indexActionLinksStatusAndAssigneeCellsToTheMatchingFilterButOmitsAnUnassignedLink(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importSharedDataSet('status.csv');
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturnCallback(
+            static function (?string $search, ?int $status, ?int $assignee, ?string $type, ?bool $todo, int $maxResults, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0): PaginatedResult {
+                if (RecordRepository::DEFAULT_PAGE_SIZE === $maxResults) {
+                    return new PaginatedResult([
+                        [
+                            'uid' => 1,
+                            'pid' => 0,
+                            'tablename' => 'pages',
+                            'title' => 'Assigned',
+                            'tstamp' => 1700000000,
+                            'tx_ximatypo3contentplanner_status' => 2,
+                            'tx_ximatypo3contentplanner_assignee' => 1,
+                            'tx_ximatypo3contentplanner_comments' => 0,
+                        ],
+                        [
+                            'uid' => 2,
+                            'pid' => 0,
+                            'tablename' => 'pages',
+                            'title' => 'Unassigned',
+                            'tstamp' => 1700000000,
+                            'tx_ximatypo3contentplanner_status' => 0,
+                            'tx_ximatypo3contentplanner_assignee' => 0,
+                            'tx_ximatypo3contentplanner_comments' => 0,
+                        ],
+                    ], false);
+                }
+
+                return new PaginatedResult([], false);
+            },
+        );
+
+        $response = $this->createController($recordRepository)->indexAction($this->createRequest([]));
+        $body = (string) $response->getBody();
+
+        self::assertStringContainsString('content-planner-module__cell-link', $body);
+        self::assertStringContainsString('status=2', $body);
+        self::assertStringContainsString('assignee=1', $body);
+        // record uid 2 has neither a status nor an assignee - the Title/Site/etc. columns
+        // must not silently link to "status=0" or "assignee=0", which would just be an
+        // always-empty filter.
+        self::assertStringNotContainsString('status=0', $body);
+        self::assertStringNotContainsString('assignee=0', $body);
+    }
+
+    #[Test]
     public function indexActionRendersATypeColumnWhenMultipleRecordTablesAreTracked(): void
     {
         $this->loginBackendUser(1);
@@ -215,6 +266,9 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
 
         self::assertStringContainsString('content-planner-module__table--with-type', $body);
         self::assertStringContainsString('Page', $body);
+        // The Type cell links into the same list filtered by that table (CP-33 follow-up),
+        // like the Status/Assignee cells.
+        self::assertStringContainsString('type=pages', $body);
     }
 
     #[Test]

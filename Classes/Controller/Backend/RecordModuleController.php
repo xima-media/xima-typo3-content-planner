@@ -21,6 +21,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
@@ -98,7 +99,7 @@ final readonly class RecordModuleController
         );
 
         $items = array_map(
-            static fn (array $record): array => StatusItem::create($record)->toArray(),
+            fn (array $record): array => $this->addFilterLinks(StatusItem::create($record)->toArray()),
             $filterResult->items,
         );
 
@@ -126,6 +127,29 @@ final readonly class RecordModuleController
         ]);
 
         return $moduleTemplate->renderResponse('Backend/Modules/Records/Index');
+    }
+
+    /**
+     * Row-level quick filters (CP-33 follow-up): clicking a row's status/type/assignee jumps
+     * into the same list filtered by just that value, the same single-dimension `buildUrl()`
+     * pattern the preset tiles above the list already use. Only set when that dimension carries
+     * a real value - a record with no assignee has nothing to filter by.
+     *
+     * @param array<string, mixed> $item {@see StatusItem::toArray()}
+     *
+     * @return array<string, mixed>
+     */
+    private function addFilterLinks(array $item): array
+    {
+        $statusUid = (int) ($item['data'][Configuration::FIELD_STATUS] ?? 0);
+        $item['statusFilterLink'] = $statusUid > 0 ? $this->buildUrl(['status' => $statusUid]) : null;
+
+        $item['typeFilterLink'] = $this->buildUrl(['type' => $item['data']['tablename']]);
+
+        $assigneeUid = (int) ($item['data'][Configuration::FIELD_ASSIGNEE] ?? 0);
+        $item['assigneeFilterLink'] = $assigneeUid > 0 ? $this->buildUrl(['assignee' => $assigneeUid]) : null;
+
+        return $item;
     }
 
     /**

@@ -6,7 +6,7 @@
  * - content-planner-module__presets, __preset, __preset-figure (Elements)
  * - content-planner-module__preset--active (Modifier)
  * - content-planner-module__chips, __chip (active filter summary, dismissable)
- * - content-planner-module__table, __site, __action-group (table + cell helpers)
+ * - content-planner-module__table, __site, __action-group, __cell-link (table + cell helpers)
  * - content-planner-module__table--with-type (Modifier: an extra "Type" column is present)
  *
  * Filter presets (CP-33 follow-up), right-aligned on the same row as the search field and the
@@ -110,32 +110,32 @@
 }
 
 .content-planner-module__table th:nth-child(1),
-.content-planner-module__table td:nth-child(1) { width: 30%; }
+.content-planner-module__table td:nth-child(1) { width: 26%; }
 .content-planner-module__table th:nth-child(2),
-.content-planner-module__table td:nth-child(2) { width: 15%; }
+.content-planner-module__table td:nth-child(2) { width: 13%; }
 .content-planner-module__table th:nth-child(3),
-.content-planner-module__table td:nth-child(3) { width: 15%; }
+.content-planner-module__table td:nth-child(3) { width: 13%; }
 .content-planner-module__table th:nth-child(4),
 .content-planner-module__table td:nth-child(4) { width: 12%; }
 .content-planner-module__table th:nth-child(5),
 .content-planner-module__table td:nth-child(5) { width: 18%; }
 .content-planner-module__table th:nth-child(6),
-.content-planner-module__table td:nth-child(6) { width: 10%; }
+.content-planner-module__table td:nth-child(6) { width: 18%; }
 
 .content-planner-module__table--with-type th:nth-child(1),
-.content-planner-module__table--with-type td:nth-child(1) { width: 26%; }
+.content-planner-module__table--with-type td:nth-child(1) { width: 22%; }
 .content-planner-module__table--with-type th:nth-child(2),
-.content-planner-module__table--with-type td:nth-child(2) { width: 13%; }
+.content-planner-module__table--with-type td:nth-child(2) { width: 12%; }
 .content-planner-module__table--with-type th:nth-child(3),
-.content-planner-module__table--with-type td:nth-child(3) { width: 12%; }
+.content-planner-module__table--with-type td:nth-child(3) { width: 11%; }
 .content-planner-module__table--with-type th:nth-child(4),
-.content-planner-module__table--with-type td:nth-child(4) { width: 13%; }
+.content-planner-module__table--with-type td:nth-child(4) { width: 12%; }
 .content-planner-module__table--with-type th:nth-child(5),
-.content-planner-module__table--with-type td:nth-child(5) { width: 11%; }
+.content-planner-module__table--with-type td:nth-child(5) { width: 10%; }
 .content-planner-module__table--with-type th:nth-child(6),
 .content-planner-module__table--with-type td:nth-child(6) { width: 15%; }
 .content-planner-module__table--with-type th:nth-child(7),
-.content-planner-module__table--with-type td:nth-child(7) { width: 10%; }
+.content-planner-module__table--with-type td:nth-child(7) { width: 18%; }
 
 /* Site column: long auto-generated identifiers must not stretch the table */
 .content-planner-module__site {
@@ -145,7 +145,13 @@
 }
 
 /* Actions column: comments/todo are two distinct counts (CP-33 follow-up) - a divider
-   between them keeps it clear which icon a figure belongs to. */
+   between them keeps it clear which icon a figure belongs to, and nowrap plus the wider
+   column width above (bumped up after the two groups wrapped onto separate lines at the
+   original, narrower width) keep both on one line. */
+.content-planner-module__table td:last-child {
+    white-space: nowrap;
+}
+
 .content-planner-module__action-group {
     display: inline-flex;
     align-items: center;
@@ -156,4 +162,13 @@
     margin-left: 0.75rem;
     padding-left: 0.75rem;
     border-left: 1px solid var(--typo3-list-item-border-color, #e0e0e0);
+}
+
+/* Row-level quick filters (CP-33 follow-up): status/type/assignee become links into the
+   same list filtered by that one value, the same convention as the preset tiles and chips
+   above - kept unstyled beyond alignment so they read the same as the existing Title link. */
+.content-planner-module__cell-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
 }

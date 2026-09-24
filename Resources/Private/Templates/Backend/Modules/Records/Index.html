@@ -136,23 +136,35 @@
                                         <a href="{item.link}"><strong>{item.title}</strong></a>
                                     </td>
                                     <td>
-                                        <f:format.raw>{item.statusIcon}</f:format.raw>
-                                        {item.status}
+                                        <f:if condition="{item.statusFilterLink}">
+                                            <f:then>
+                                                <a href="{item.statusFilterLink}" class="content-planner-module__cell-link">
+                                                    <f:format.raw>{item.statusIcon}</f:format.raw>
+                                                    {item.status}
+                                                </a>
+                                            </f:then>
+                                            <f:else>
+                                                <f:format.raw>{item.statusIcon}</f:format.raw>
+                                                {item.status}
+                                            </f:else>
+                                        </f:if>
                                     </td>
                                     <f:if condition="{typeOptions}">
                                         <td>
-                                            <f:format.raw>{item.recordIcon}</f:format.raw>
-                                            {item.recordTypeLabel}
+                                            <a href="{item.typeFilterLink}" class="content-planner-module__cell-link">
+                                                <f:format.raw>{item.recordIcon}</f:format.raw>
+                                                {item.recordTypeLabel}
+                                            </a>
                                         </td>
                                     </f:if>
                                     <td class="content-planner-module__site" title="{item.site}">{item.site}</td>
                                     <td><small title="{item.updatedRaw}">{item.updated}</small></td>
                                     <td>
                                         <f:if condition="{item.assignee}">
-                                            <span title="{item.assigneeName}">
+                                            <a href="{item.assigneeFilterLink}" class="content-planner-module__cell-link" title="{item.assigneeName}">
                                                 <f:format.raw>{item.assigneeAvatar}</f:format.raw>
                                                 {item.assigneeShortName}
-                                            </span>
+                                            </a>
                                         </f:if>
                                     </td>
                                     <td>
