@@ -6,35 +6,37 @@
 
 <f:section name="Content">
     <div class="content-planner-module">
-        <div class="content-planner-module__presets">
-            <f:render partial="RecordPresetTile" arguments="{preset: presets.assignee, icon: 'content-planner-user-circle', labelKey: 'records.presets.assignee'}"/>
-            <f:render partial="RecordPresetTile" arguments="{preset: presets.todo, icon: 'content-planner-checkbox', labelKey: 'records.presets.todo'}"/>
-            <f:render partial="RecordPresetTile" arguments="{preset: presets.openComments, icon: 'content-planner-message-circle', labelKey: 'records.presets.openComments'}"/>
-        </div>
-
         <form method="get" action="{formUrl}" class="content-planner-module__filter mb-3">
-            <div class="row g-2 align-items-end">
-                <div class="col-auto">
-                    <label for="search" class="form-label"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></label>
-                    <input type="text" name="search" id="search" class="form-control" value="{filter.search}">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label for="search" class="form-label"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></label>
+                        <input type="text" name="search" id="search" class="form-control" value="{filter.search}">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></button>
+                        <a href="{formUrl}" class="btn btn-default"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.reset" default="Reset"/></a>
+                        <button
+                            type="button"
+                            class="btn btn-default content-planner-module__filter-toggle"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#recordFilterAdvanced"
+                            aria-expanded="{f:if(condition: '{advancedFilterCount} > 0', then: 'true', else: 'false')}"
+                            aria-controls="recordFilterAdvanced"
+                        >
+                            <core:icon identifier="content-planner-filter" size="small" alternativeMarkupIdentifier="inline"/>
+                            <f:translate key="filter.moreFilters" extensionName="XimaTypo3ContentPlanner" default="More filters"/>
+                            <f:if condition="{advancedFilterCount} > 0">
+                                <span class="badge badge-primary">{advancedFilterCount}</span>
+                            </f:if>
+                        </button>
+                    </div>
                 </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary"><f:translate key="LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.title.search"/></button>
-                    <a href="{formUrl}" class="btn btn-default"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.reset" default="Reset"/></a>
-                    <button
-                        type="button"
-                        class="btn btn-default content-planner-module__filter-toggle"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#recordFilterAdvanced"
-                        aria-expanded="{f:if(condition: '{advancedFilterCount} > 0', then: 'true', else: 'false')}"
-                        aria-controls="recordFilterAdvanced"
-                    >
-                        <core:icon identifier="content-planner-filter" size="small" alternativeMarkupIdentifier="inline"/>
-                        <f:translate key="filter.moreFilters" extensionName="XimaTypo3ContentPlanner" default="More filters"/>
-                        <f:if condition="{advancedFilterCount} > 0">
-                            <span class="badge badge-primary">{advancedFilterCount}</span>
-                        </f:if>
-                    </button>
+
+                <div class="content-planner-module__presets">
+                    <f:render partial="RecordPresetTile" arguments="{preset: presets.assignee, icon: 'content-planner-user-circle', labelKey: 'records.presets.assignee'}"/>
+                    <f:render partial="RecordPresetTile" arguments="{preset: presets.todo, icon: 'content-planner-checkbox', labelKey: 'records.presets.todo'}"/>
+                    <f:render partial="RecordPresetTile" arguments="{preset: presets.openComments, icon: 'content-planner-message-circle', labelKey: 'records.presets.openComments'}"/>
                 </div>
             </div>
 

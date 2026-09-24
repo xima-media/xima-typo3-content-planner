@@ -6,17 +6,17 @@
  * - content-planner-module__presets, __preset, __preset-figure (Elements)
  * - content-planner-module__preset--active (Modifier)
  *
- * Filter presets above the list (CP-33 follow-up): quick links into the same list, one
- * findAllByFilter() dimension at a time, styled as small bordered chips rather than the
- * dashboard's large KPI tiles (Widgets.css .content-planner-kpi-tile) - three of those side by
- * side would dominate a page whose actual content is the table below.
+ * Filter presets (CP-33 follow-up), right-aligned on the same row as the search field and the
+ * "More filters" toggle: quick links into the same list, one findAllByFilter() dimension at a
+ * time, styled as small bordered chips rather than the dashboard's large KPI tiles
+ * (Widgets.css .content-planner-kpi-tile) - three of those side by side would dominate a page
+ * whose actual content is the table below.
  */
 
 .content-planner-module__presets {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-bottom: 1rem;
 }
 
 .content-planner-module__preset {
