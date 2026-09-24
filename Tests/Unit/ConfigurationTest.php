@@ -87,6 +87,11 @@ final class ConfigurationTest extends TestCase
         self::assertStringNotContainsString('xima', Configuration::JAVASCRIPT_MODULE_PREFIX);
     }
 
+    public function testFeaturePagetreeFacetsIntegrationConstant(): void
+    {
+        self::assertSame('enablePagetreeFacetsIntegration', Configuration::FEATURE_PAGETREE_FACETS_INTEGRATION);
+    }
+
     public function testFeatureConstants(): void
     {
         // Test all feature constants exist and have expected values
@@ -113,6 +118,7 @@ final class ConfigurationTest extends TestCase
             Configuration::FEATURE_TREE_STATUS_INFORMATION,
             Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET,
             Configuration::FEATURE_COMMENT_TODOS,
+            Configuration::FEATURE_PAGETREE_FACETS_INTEGRATION,
         ];
 
         $uniqueFeatures = array_unique($features);
@@ -132,6 +138,7 @@ final class ConfigurationTest extends TestCase
             Configuration::FEATURE_TREE_STATUS_INFORMATION,
             Configuration::FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET,
             Configuration::FEATURE_COMMENT_TODOS,
+            Configuration::FEATURE_PAGETREE_FACETS_INTEGRATION,
         ];
 
         foreach ($features as $feature) {

@@ -30,7 +30,6 @@ return [
         'security' => [
             'ignorePageTypeRestriction' => true,
         ],
-        'versioningWS' => true,
     ],
     'types' => [
         '0' => [

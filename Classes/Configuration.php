@@ -41,6 +41,7 @@ class Configuration
     final public const FEATURE_TREE_STATUS_INFORMATION = 'treeStatusInformation';
     final public const FEATURE_RESET_CONTENT_ELEMENT_STATUS_ON_PAGE_RESET = 'resetContentElementStatusOnPageReset';
     final public const FEATURE_COMMENT_TODOS = 'commentTodos';
+    final public const FEATURE_PAGETREE_FACETS_INTEGRATION = 'enablePagetreeFacetsIntegration';
     final public const FEATURE_NOTIFICATION_CHANNEL_DATABASE = 'notificationChannelDatabase';
     final public const FEATURE_NOTIFICATION_DIGEST_EMAIL = 'notificationDigestEmail';
     final public const FEATURE_NOTIFICATION_IMMEDIATE_EMAIL = 'notificationImmediateEmail';

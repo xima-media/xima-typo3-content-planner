@@ -214,8 +214,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             }
         }
 
-        $dropdown = '<div class="btn-group dropdown"><a href="#" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'" aria-label="'.$title.'">'
-            .$iconHtml.'</a><ul class="dropdown-menu">'.$dropdownItemsHtml.'</ul></div>';
+        $dropdown = '<div class="btn-group dropdown"><button type="button" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'" aria-label="'.$title.'">'
+            .$iconHtml.'</button><ul class="dropdown-menu">'.$dropdownItemsHtml.'</ul></div>';
 
         $result = preg_replace($pattern, '$1'.$dropdown, $content);
 

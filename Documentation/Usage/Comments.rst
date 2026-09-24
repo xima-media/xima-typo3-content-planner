@@ -154,7 +154,7 @@ Use the ToDo list within the editor to track the progress of your comments.
 
 The ToDo count is automatically updated when you add or remove a ToDo item in the comment.
 
-..  versionadded:: 3.0.0
+..  versionadded:: 2.5.0
 
     Click a ToDo checkbox directly in the comment list to check or uncheck it - no need to open
     the comment for editing first. This is only available for comments you are allowed to edit.

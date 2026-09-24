@@ -1,5 +1,9 @@
 {
 	"symbol-whitelist": [
+		"KonradMichalik\\PagetreeFacets\\Api\\FacetInterface",
+		"KonradMichalik\\PagetreeFacets\\Api\\FilterContext",
+		"KonradMichalik\\PagetreeFacets\\Event\\RegisterFacetsEvent",
+		"KonradMichalik\\PagetreeFacets\\Token\\Token",
 		"TYPO3\\CMS\\Backend\\Controller\\Event\\AfterFileStorageTreeItemsPreparedEvent",
 		"TYPO3\\CMS\\Backend\\Template\\Components\\ActionGroup",
 		"TYPO3\\CMS\\Core\\SystemResource\\Publishing\\SystemResourcePublisherInterface",

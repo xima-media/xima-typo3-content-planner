@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Database\Query\Restriction\{EndTimeRestriction, HiddenRestric
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
-use Xima\XimaTypo3ContentPlanner\Utility\Data\OverfetchPaginator;
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{OverfetchPaginator, RecordRestrictionUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -138,7 +138,7 @@ class RecordRepository
 
         foreach (ExtensionUtility::getRecordTables() as $table) {
             $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
-            $rows = $queryBuilder
+            $query = $queryBuilder
                 ->select($statusField)
                 ->addSelectLiteral(sprintf('COUNT(%s) AS record_count', $queryBuilder->quoteIdentifier('uid')))
                 ->from($table)
@@ -146,7 +146,11 @@ class RecordRepository
                     $queryBuilder->expr()->isNotNull($statusField),
                     $queryBuilder->expr()->neq($statusField, 0),
                 )
-                ->groupBy($statusField)
+                ->groupBy($statusField);
+
+            RecordRestrictionUtility::applyWorkspaceRestriction($queryBuilder, $table);
+
+            $rows = $query
                 ->executeQuery()
                 ->fetchAllAssociative();
 
@@ -182,9 +186,7 @@ class RecordRepository
                 $queryBuilder->expr()->neq(Configuration::FIELD_STATUS, 0),
             );
 
-        if ($this->hasDeletedRestriction($table)) {
-            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
-        }
+        RecordRestrictionUtility::applyLiveRestrictions($queryBuilder, $table);
 
         if ($orderByTstamp) {
             $query->addOrderBy('tstamp', 'DESC');
@@ -229,9 +231,7 @@ class RecordRepository
                 $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, Connection::PARAM_INT)),
             );
 
-        if ($this->hasDeletedRestriction($table)) {
-            $query->andWhere($queryBuilder->expr()->eq('deleted', 0));
-        }
+        RecordRestrictionUtility::applyLiveRestrictions($queryBuilder, $table);
 
         return $query->executeQuery()
             ->fetchAssociative();
@@ -580,10 +580,7 @@ class RecordRepository
             'NULL as folder_identifier',
         ]);
 
-        // Add deleted restriction only for tables that have it
-        $deletedWhere = $this->hasDeletedRestriction($table) ? ' AND deleted = 0' : '';
-
-        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.$deletedWhere.$additionalWhere.')';
+        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.RecordRestrictionUtility::buildLiveRestrictionSql($table).$additionalWhere.')';
     }
 
     /**
@@ -610,7 +607,7 @@ class RecordRepository
             'NULL as folder_identifier',
         ];
 
-        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x INNER JOIN sys_file f ON x.file = f.uid WHERE x.tx_ximatypo3contentplanner_status IS NOT NULL AND x.tx_ximatypo3contentplanner_status != 0'.$additionalWhere.')';
+        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x INNER JOIN sys_file f ON x.file = f.uid WHERE x.tx_ximatypo3contentplanner_status IS NOT NULL AND x.tx_ximatypo3contentplanner_status != 0'.RecordRestrictionUtility::buildLiveRestrictionSql($table, 'x').$additionalWhere.')';
     }
 
     /**
@@ -637,13 +634,9 @@ class RecordRepository
             'folder_identifier',
         ];
 
-        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0 AND deleted = 0'.$additionalWhere.')';
+        return '(SELECT '.implode(',', $selects).' FROM '.$table.' x WHERE tx_ximatypo3contentplanner_status IS NOT NULL AND tx_ximatypo3contentplanner_status != 0'.RecordRestrictionUtility::buildLiveRestrictionSql($table).$additionalWhere.')';
     }
 
-    /**
-     * Check if a table has the deleted field restriction.
-     * Tables like sys_file_metadata don't have a deleted field.
-     */
     /**
      * A query builder for a record table, optionally seeing records the backend would normally
      * hide: a status is tracked on a record regardless of whether it is currently published, so
@@ -662,6 +655,10 @@ class RecordRepository
         return $queryBuilder;
     }
 
+    /**
+     * Check if a table has the deleted field restriction.
+     * Tables like sys_file_metadata don't have a deleted field.
+     */
     private function hasDeletedRestriction(string $table): bool
     {
         return isset($GLOBALS['TCA'][$table]['ctrl']['delete']);

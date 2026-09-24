@@ -22,6 +22,8 @@ currentAssigneeHighlight = 1
 clearCommentsOnStatusReset = 1
 # cat=comments/enable; type=boolean; label=Parse the todos from comments and show them as separate hint
 commentTodos = 1
+# cat=integration/enable; type=boolean; label=Enable the Content Planner facet in EXT:typo3_pagetree_facets (TYPO3 v13+, requires the optional konradmichalik/typo3-pagetree-facets package)
+enablePagetreeFacetsIntegration = 1
 # cat=notifications/enable; type=boolean; label=Enable the database notification channel
 notificationChannelDatabase = 1
 # cat=notifications/config; type=int+; label=Backend toolbar notification polling interval in seconds (0 disables polling)
