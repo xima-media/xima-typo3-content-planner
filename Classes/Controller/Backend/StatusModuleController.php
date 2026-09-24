@@ -50,12 +50,12 @@ use function count;
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
  */
-final class StatusModuleController
+final readonly class StatusModuleController
 {
     public function __construct(
-        private readonly ModuleTemplateFactory $moduleTemplateFactory,
-        private readonly UriBuilder $uriBuilder,
-        private readonly ConnectionPool $connectionPool,
+        private ModuleTemplateFactory $moduleTemplateFactory,
+        private UriBuilder $uriBuilder,
+        private ConnectionPool $connectionPool,
     ) {}
 
     /**
@@ -69,14 +69,12 @@ final class StatusModuleController
 
         $statuses = $this->findAllStatusesIncludingHidden();
         $lastIndex = count($statuses) - 1;
-        $rows = array_map(function (array $status, int $index) use ($lastIndex): array {
-            return $status + [
-                'editUrl' => $this->buildEditUrl($status['uid'], 'edit'),
-                'deleteUrl' => $this->buildDeleteUrl($status['uid']),
-                'moveUpUrl' => $index > 0 ? $this->buildMoveUrl($status['uid'], 'up') : null,
-                'moveDownUrl' => $index < $lastIndex ? $this->buildMoveUrl($status['uid'], 'down') : null,
-            ];
-        }, $statuses, array_keys($statuses));
+        $rows = array_map(fn (array $status, int $index): array => $status + [
+            'editUrl' => $this->buildEditUrl($status['uid'], 'edit'),
+            'deleteUrl' => $this->buildDeleteUrl($status['uid']),
+            'moveUpUrl' => $index > 0 ? $this->buildMoveUrl($status['uid'], 'up') : null,
+            'moveDownUrl' => $index < $lastIndex ? $this->buildMoveUrl($status['uid'], 'down') : null,
+        ], $statuses, array_keys($statuses));
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         $moduleTemplate->setTitle($this->getLanguageService()->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf:title'));
