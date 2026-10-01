@@ -35,14 +35,6 @@ use function count;
 class ContentStatusWidget extends AbstractWidget
 {
     /**
-     * Upper bound for the assignee KPI tile's count query (CP-33, #405). Not a pagination page
-     * size like {@see RecordRepository::DEFAULT_PAGE_SIZE} - a large cap so the figure is exact
-     * for realistic workloads, while {@see PaginatedResult::$hasMore} still gives an honest "at
-     * least N" signal for the rare case a single user has more records assigned than this covers.
-     */
-    private const ASSIGNEE_COUNT_LIMIT = 999;
-
-    /**
      * @param array<string, mixed> $buttons
      * @param array<string, mixed> $options
      */
@@ -172,17 +164,14 @@ class ContentStatusWidget extends AbstractWidget
     }
 
     /**
-     * @return array{count: int, hasMore: bool, link: string}
+     * @return array{count: int, link: string}
      *
      * @throws Exception
      */
     private function buildAssigneeInfo(int $userId): array
     {
-        $result = $this->recordRepository->findAllByFilter(null, null, $userId, null, null, self::ASSIGNEE_COUNT_LIMIT);
-
         return [
-            'count' => count($result->items),
-            'hasMore' => $result->hasMore,
+            'count' => $this->recordRepository->countVisibleByAssignee($userId),
             'link' => $this->buildRecordsLink(['assignee' => $userId]),
         ];
     }

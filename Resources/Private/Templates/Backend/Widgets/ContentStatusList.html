@@ -10,11 +10,22 @@
         <div class="content-planner-widget__description">
             <f:if condition="{todoInfo.total} > 0">
                 <f:then>
-                    <a href="{todoInfo.link}" class="content-planner-kpi-tile">
-                        <core:icon identifier="content-planner-checkbox" size="large"/>
-                        <span class="content-planner-kpi-tile__figure" aria-hidden="true">{todoInfo.resolved}/{todoInfo.total}</span>
-                        <span class="visually-hidden"><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todoInfo.resolved, 1: todoInfo.total}"/></span>
-                    </a>
+                    <f:if condition="{todoInfo.resolved} < {todoInfo.total}">
+                        <f:then>
+                            <a href="{todoInfo.link}" class="content-planner-kpi-tile">
+                                <core:icon identifier="content-planner-checkbox" size="large"/>
+                                <span class="content-planner-kpi-tile__figure" aria-hidden="true">{todoInfo.resolved}/{todoInfo.total}</span>
+                                <span class="visually-hidden"><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todoInfo.resolved, 1: todoInfo.total}"/></span>
+                            </a>
+                        </f:then>
+                        <f:else>
+                            <div class="content-planner-kpi-tile content-planner-kpi-tile--empty">
+                                <core:icon identifier="content-planner-checkbox" size="large"/>
+                                <span class="content-planner-kpi-tile__figure" aria-hidden="true">{todoInfo.resolved}/{todoInfo.total}</span>
+                                <span class="visually-hidden"><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todoInfo.resolved, 1: todoInfo.total}"/></span>
+                            </div>
+                        </f:else>
+                    </f:if>
                 </f:then>
                 <f:else>
                     <div class="content-planner-kpi-tile content-planner-kpi-tile--empty">
@@ -33,13 +44,8 @@
                 <f:then>
                     <a href="{assigneeInfo.link}" class="content-planner-kpi-tile">
                         <core:icon identifier="content-planner-user-circle" size="large"/>
-                        <span class="content-planner-kpi-tile__figure" aria-hidden="true"><f:if condition="{assigneeInfo.hasMore}"><f:then>{assigneeInfo.count}+</f:then><f:else>{assigneeInfo.count}</f:else></f:if></span>
-                        <span class="visually-hidden">
-                            <f:if condition="{assigneeInfo.hasMore}">
-                                <f:then><f:translate key="widgets.contentPlanner.status.assignee.atLeast" extensionName="XimaTypo3ContentPlanner" arguments="{0: assigneeInfo.count}"/></f:then>
-                                <f:else><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner" arguments="{0: assigneeInfo.count}"/></f:else>
-                            </f:if>
-                        </span>
+                        <span class="content-planner-kpi-tile__figure" aria-hidden="true">{assigneeInfo.count}</span>
+                        <span class="visually-hidden"><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner" arguments="{0: assigneeInfo.count}"/></span>
                     </a>
                 </f:then>
                 <f:else>
@@ -56,38 +62,45 @@
     <f:if condition="{filter}">
         <f:render partial="WidgetFilter" arguments="{_all}" />
     </f:if>
-    <div class="content-planner-widget__table-wrapper">
-        <table class="widget-table table">
-            <thead class="content-planner-hide">
-            <tr>
-                <th>
-                    <f:translate key="widgets.contentPlanner.header.title" extensionName="XimaTypo3ContentPlanner"/>
-                </th>
-                <th>
-                    <f:translate key="widgets.contentPlanner.header.site" extensionName="XimaTypo3ContentPlanner"/>
-                </th>
-                <th>
-                    <f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
-                </th>
-                <th>
-                    <f:translate key="widgets.contentPlanner.header.assignee"
-                                extensionName="XimaTypo3ContentPlanner"/>
-                </th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-    <div class="content-planner-widget__empty">
-        <f:render partial="Empty"/>
-    </div>
-    <div class="content-planner-widget__more-results" role="status" aria-live="polite" hidden>
-        <f:translate key="widgets.contentPlanner.moreResults" extensionName="XimaTypo3ContentPlanner"/>
-    </div>
-    <div class="content-planner-widget__loading content-planner-hide">
-        <core:icon identifier="spinner-circle" size="large"/>
-    </div>
+
+    <!-- The Todo/Assignee KPI tiles above already carry a server-computed count and link
+         straight to the matching filtered Records module view (CP-33 follow-up annotation
+         feedback) - the per-record list below them is the general, filterable Status widget's
+         own content and would just duplicate that count as a single, redundant row. -->
+    <f:if condition="{mode} != 'todo' && {mode} != 'assignee'">
+        <div class="content-planner-widget__table-wrapper">
+            <table class="widget-table table">
+                <thead class="content-planner-hide">
+                <tr>
+                    <th>
+                        <f:translate key="widgets.contentPlanner.header.title" extensionName="XimaTypo3ContentPlanner"/>
+                    </th>
+                    <th>
+                        <f:translate key="widgets.contentPlanner.header.site" extensionName="XimaTypo3ContentPlanner"/>
+                    </th>
+                    <th>
+                        <f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
+                    </th>
+                    <th>
+                        <f:translate key="widgets.contentPlanner.header.assignee"
+                                    extensionName="XimaTypo3ContentPlanner"/>
+                    </th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="content-planner-widget__empty">
+            <f:render partial="Empty"/>
+        </div>
+        <div class="content-planner-widget__more-results" role="status" aria-live="polite" hidden>
+            <f:translate key="widgets.contentPlanner.moreResults" extensionName="XimaTypo3ContentPlanner"/>
+        </div>
+        <div class="content-planner-widget__loading content-planner-hide">
+            <core:icon identifier="spinner-circle" size="large"/>
+        </div>
+    </f:if>
 </div>
 </html>

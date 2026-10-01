@@ -107,4 +107,27 @@ final class RecordRepositoryTest extends TestCase
         self::assertSame([], $paginatedResult->items);
         self::assertFalse($paginatedResult->hasMore);
     }
+
+    #[Test]
+    public function countVisibleByAssigneeScansInFullBatchesAndStopsOnAnEmptyResult(): void
+    {
+        $result = $this->createMock(Result::class);
+        $result->method('fetchAllAssociative')->willReturn([]);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(self::once())
+            ->method('executeQuery')
+            ->with(self::isType('string'), ['limit' => 100, 'assignee' => 7, 'offset' => 0], ['limit' => Connection::PARAM_INT, 'offset' => Connection::PARAM_INT])
+            ->willReturn($result);
+
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->method('getConnection')->willReturn($connection);
+
+        $connectionPool = $this->createMock(ConnectionPool::class);
+        $connectionPool->method('getQueryBuilderForTable')->with('pages')->willReturn($queryBuilder);
+
+        $subject = new RecordRepository($this->createMock(FrontendInterface::class), $connectionPool);
+
+        self::assertSame(0, $subject->countVisibleByAssignee(7));
+    }
 }

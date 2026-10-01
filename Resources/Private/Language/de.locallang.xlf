@@ -87,10 +87,6 @@
 				<source>There are currently %1$d content planner records assigned to you.</source>
 				<target>Aktuell sind dir %1$d Content Planner Datensätze zugewiesen.</target>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.status.assignee.atLeast">
-				<source>There are currently more than %1$d content planner records assigned to you.</source>
-				<target>Aktuell sind dir mehr als %1$d Content Planner Datensätze zugewiesen.</target>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.assignee.empty">
 				<source>You have no content planner records assigned to you.</source>
 				<target>Dir sind keine Content Planner Datensätze zugewiesen.</target>

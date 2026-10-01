@@ -66,9 +66,6 @@
 			<trans-unit id="widgets.contentPlanner.status.assignee">
 				<source>There are currently %1$d content planner records assigned to you.</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.status.assignee.atLeast">
-				<source>There are currently more than %1$d content planner records assigned to you.</source>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.assignee.empty">
 				<source>You have no content planner records assigned to you.</source>
 			</trans-unit>
