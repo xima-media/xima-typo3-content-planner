@@ -62,6 +62,21 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function renderWidgetContentRendersBothTilesInMyWorkMode(): void
+    {
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('countVisibleByAssignee')
+            ->with(1)
+            ->willReturn(3);
+
+        $content = $this->createWidget(['myWork' => true], $recordRepository)->renderWidgetContent();
+
+        self::assertStringContainsString('content-planner-widget--mywork', $content);
+        self::assertSame(2, substr_count($content, 'content-planner-kpi-tile__figure'));
+        self::assertStringNotContainsString('<table', $content);
+    }
+
+    #[Test]
     public function renderWidgetContentRendersAssigneeMode(): void
     {
         // countVisibleByAssignee() builds raw UNION SQL invalid on the functional suite's SQLite
