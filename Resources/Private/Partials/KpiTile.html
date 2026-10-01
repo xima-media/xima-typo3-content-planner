@@ -1,0 +1,24 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    data-namespace-typo3-fluid="true">
+
+<f:if condition="{link}">
+    <f:then>
+        <a href="{link}" class="content-planner-kpi-tile" title="{summary}">
+            <f:render section="Body" arguments="{_all}"/>
+        </a>
+    </f:then>
+    <f:else>
+        <div class="content-planner-kpi-tile content-planner-kpi-tile--empty" title="{summary}">
+            <f:render section="Body" arguments="{_all}"/>
+        </div>
+    </f:else>
+</f:if>
+
+<f:section name="Body">
+    <span class="content-planner-kpi-tile__icon"><core:icon identifier="{icon}" size="medium"/></span>
+    <span class="content-planner-kpi-tile__content">
+        <span class="content-planner-kpi-tile__label">{label}</span>
+        <span class="content-planner-kpi-tile__figure">{figure}</span>
+    </span>
+</f:section>
+</html>

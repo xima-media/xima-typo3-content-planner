@@ -14,13 +14,14 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Widgets;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Dashboard\Widgets\{ButtonProviderInterface, ListDataProviderInterface, WidgetConfigurationInterface};
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
 
 use function count;
@@ -34,13 +35,32 @@ use function sprintf;
  */
 class ContentStatusWidget extends AbstractWidget
 {
+    /**
+     * @param array<string, mixed> $buttons
+     * @param array<string, mixed> $options
+     */
+    public function __construct(
+        WidgetConfigurationInterface $configuration,
+        ListDataProviderInterface $dataProvider,
+        private readonly RecordRepository $recordRepository,
+        private readonly UriBuilder $uriBuilder,
+        ?ButtonProviderInterface $buttonProvider = null,
+        array $buttons = [],
+        array $options = [],
+    ) {
+        parent::__construct($configuration, $dataProvider, $buttonProvider, $buttons, $options);
+    }
+
     public function renderWidgetContent(): string
     {
         $filter = isset($this->options['useFilter']);
         ['mode' => $mode, 'assignee' => $assignee, 'todo' => $todo, 'icon' => $icon] = $this->determineWidgetMode();
 
         $filterValues = $filter ? $this->buildFilterValues() : false;
-        $todoInfo = $todo ? $this->buildTodoInfo() : false;
+        $tiles = array_values(array_filter([
+            (null !== $assignee && $assignee > 0) ? $this->buildAssigneeTile($assignee) : null,
+            $todo ? $this->buildTodoTile() : null,
+        ]));
 
         return $this->render(
             'Backend/Widgets/ContentStatusList.html',
@@ -50,7 +70,8 @@ class ContentStatusWidget extends AbstractWidget
                 'icon' => $icon,
                 'currentBackendUser' => $assignee,
                 'backendUserId' => $this->getBackendUserId(),
-                'todo' => $todoInfo,
+                'todo' => $todo,
+                'tiles' => $tiles,
                 'mode' => $mode,
                 'filter' => $filterValues,
             ],
@@ -89,6 +110,12 @@ class ContentStatusWidget extends AbstractWidget
             $mode = 'todo';
         }
 
+        if (isset($this->options['myWork'])) {
+            $assignee = $this->getBackendUserId();
+            $todo = true;
+            $mode = 'mywork';
+        }
+
         $icon = match (true) {
             null !== $assignee && $assignee > 0 => 'status-user-backend',
             $todo => 'form-multi-checkbox',
@@ -121,26 +148,62 @@ class ContentStatusWidget extends AbstractWidget
         return $filterValues;
     }
 
-    private function buildTodoInfo(): string|bool
+    /**
+     * With the todo feature disabled ext-wide the tile reads as a zero state (CP-33, #405).
+     *
+     * @return array{link: string, icon: string, label: string, figure: string, summary: string}
+     */
+    private function buildTodoTile(): array
     {
-        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
-            return false;
+        $resolved = 0;
+        $total = 0;
+        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+            $resolved = $commentRepository->countTodoAllByRecord(null, null, 'todo_resolved', true);
+            $total = $commentRepository->countTodoAllByRecord(null, null, 'todo_total', true);
         }
 
-        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        $todoResolved = $commentRepository->countTodoAllByRecord(null, null, 'todo_resolved', true);
-        $todoTotal = $commentRepository->countTodoAllByRecord(null, null, 'todo_total', true);
+        return [
+            'link' => $total > 0 && $resolved < $total ? $this->buildRecordsLink(['todo' => 1]) : '',
+            'icon' => 'content-planner-checkbox',
+            'label' => $this->translate('widgets.contentPlanner.kpi.todo'),
+            'figure' => $total > 0 ? $resolved.'/'.$total : '0',
+            'summary' => $total > 0
+                ? sprintf($this->translate('widgets.contentPlanner.status.todo'), $resolved, $total)
+                : $this->translate('widgets.contentPlanner.status.todo.empty'),
+        ];
+    }
 
-        if ($todoTotal <= 0) {
-            return '';
-        }
+    /**
+     * @return array{link: string, icon: string, label: string, figure: string, summary: string}
+     *
+     * @throws Exception
+     */
+    private function buildAssigneeTile(int $userId): array
+    {
+        $count = $this->recordRepository->countVisibleByAssignee($userId);
 
-        return sprintf(
-            '%s <span class="content-planner-badge badge" data-status="%s">%d/%d</span>',
-            IconUtility::getIconByIdentifier('content-planner-checkbox'),
-            $todoResolved === $todoTotal ? 'resolved' : 'pending',
-            $todoResolved,
-            $todoTotal,
-        );
+        return [
+            'link' => $count > 0 ? $this->buildRecordsLink(['assignee' => $userId]) : '',
+            'icon' => 'content-planner-user-circle',
+            'label' => $this->translate('widgets.contentPlanner.kpi.assignee'),
+            'figure' => (string) $count,
+            'summary' => $count > 0
+                ? sprintf($this->translate('widgets.contentPlanner.status.assignee'), $count)
+                : $this->translate('widgets.contentPlanner.status.assignee.empty'),
+        ];
+    }
+
+    private function translate(string $key): string
+    {
+        return $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:'.$key);
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     */
+    private function buildRecordsLink(array $params): string
+    {
+        return (string) $this->uriBuilder->buildUriFromRoute('content_planner_records', $params);
     }
 }
