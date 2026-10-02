@@ -1,4 +1,3 @@
-name: xima-typo3-content-planner
 type: php
 docroot: .Build
 php_version: "8.2"
