@@ -304,6 +304,18 @@
 				<source>Click to assign yourself or someone else.</source>
 				<target>Klicke, um dich selbst oder jemand anderen zuzuweisen.</target>
 			</trans-unit>
+			<trans-unit id="header.todoCallout.title">
+				<source>%s open to-dos on this page</source>
+				<target>%s offene To-dos auf dieser Seite</target>
+			</trans-unit>
+			<trans-unit id="header.todoCallout.body">
+				<source>%s of %s checklist items are done.</source>
+				<target>%s von %s Checklisten-Punkten sind erledigt.</target>
+			</trans-unit>
+			<trans-unit id="header.todoCallout.show">
+				<source>Show to-dos</source>
+				<target>To-dos anzeigen</target>
+			</trans-unit>
 			<trans-unit id="header.todos">
 				<source>To-dos</source>
 				<target>Aufgaben</target>

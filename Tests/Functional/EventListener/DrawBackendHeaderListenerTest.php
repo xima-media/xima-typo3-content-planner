@@ -104,6 +104,33 @@ final class DrawBackendHeaderListenerTest extends AbstractFunctionalTestCase
         self::assertStringNotContainsString('content-planner-header', $event->getHeaderContent());
     }
 
+    #[Test]
+    public function addsOpenTodoCalloutInChipDisplayMode(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_CHIP;
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments_todo.csv');
+
+        $event = $this->createEvent(1);
+
+        $this->subject->__invoke($event);
+
+        self::assertStringContainsString('callout callout-info', $event->getHeaderContent());
+        self::assertStringContainsString('data-show-todo-comments', $event->getHeaderContent());
+        self::assertMatchesRegularExpression('/\\b2\\b/', strip_tags($event->getHeaderContent()));
+    }
+
+    #[Test]
+    public function addsNoCalloutInChipDisplayModeWithoutOpenTodos(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_CHIP;
+
+        $event = $this->createEvent(1);
+
+        $this->subject->__invoke($event);
+
+        self::assertSame('', $event->getHeaderContent());
+    }
+
     private function createEvent(int $pageId): ModifyPageLayoutContentEvent
     {
         $request = $this->setUpBackendRequest('web_layout', ['id' => $pageId])

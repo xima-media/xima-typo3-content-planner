@@ -42,10 +42,8 @@ final readonly class DrawBackendHeaderListener
             return;
         }
 
-        // Only the legacy "banner" mode renders this above-content bar: "chip" carries the same
-        // information in the doc header trio, "docked" splices a compact bar into the doc
-        // header's button row instead (DockedHeaderModifier).
-        if (!ExtensionUtility::isBannerDisplayModeEnabled()) {
+        // "docked" splices a compact bar into the doc header's button row (DockedHeaderModifier).
+        if (ExtensionUtility::isDockedDisplayModeEnabled()) {
             return;
         }
 
@@ -53,6 +51,14 @@ final readonly class DrawBackendHeaderListener
         $pageInfo = $this->pageRepository->getPage($id);
 
         if ([] === $pageInfo) {
+            return;
+        }
+
+        // "chip" carries status, assignee and comments in the doc header trio, so only the open
+        // to-dos that the legacy banner used to show remain to be surfaced here.
+        if (!ExtensionUtility::isBannerDisplayModeEnabled()) {
+            $event->addHeaderContent($this->headerInfoGenerator->renderOpenTodoCallout($pageInfo, 'pages'));
+
             return;
         }
 

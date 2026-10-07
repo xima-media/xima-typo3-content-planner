@@ -164,6 +164,15 @@
 			<trans-unit id="header.assignee.none.hint">
 				<source>Click to assign yourself or someone else.</source>
 			</trans-unit>
+			<trans-unit id="header.todoCallout.title">
+				<source>%s open to-dos on this page</source>
+			</trans-unit>
+			<trans-unit id="header.todoCallout.body">
+				<source>%s of %s checklist items are done.</source>
+			</trans-unit>
+			<trans-unit id="header.todoCallout.show">
+				<source>Show to-dos</source>
+			</trans-unit>
 			<trans-unit id="header.todos">
 				<source>To-dos</source>
 			</trans-unit>
