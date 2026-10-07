@@ -26,6 +26,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, Comme
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{IconUtility, ViewUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
 use function sprintf;
@@ -114,6 +115,13 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
 
         $customTitle = $this->getSetting($context, 'title', '');
         $mode = $this->getSetting($context, 'mode', 'status');
+
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new WidgetResult(
+                content: ViewUtility::render('Backend/Widgets/NotAvailable', [], $context->request),
+                label: '' !== $customTitle ? $customTitle : null,
+            );
+        }
         $statusFilter = $this->getSetting($context, 'status', '');
         $assignee = $this->resolveAssigneeFilter($context);
         $status = '' !== $statusFilter ? (int) $statusFilter : null;

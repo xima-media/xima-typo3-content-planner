@@ -16,6 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Widgets\Provider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
@@ -38,6 +39,17 @@ final class StatusOverviewDataProviderTest extends TestCase
         $this->statusRepository = $this->createMock(StatusRepository::class);
         $this->recordRepository = $this->createMock(RecordRepository::class);
         $this->subject = new StatusOverviewDataProvider($this->statusRepository, $this->recordRepository);
+
+        $backendUser = $this->createMock(BackendUserAuthentication::class);
+        $backendUser->method('isAdmin')->willReturn(true);
+        $backendUser->user = [];
+        $GLOBALS['BE_USER'] = $backendUser;
+    }
+
+    protected function tearDown(): void
+    {
+        unset($GLOBALS['BE_USER']);
+        parent::tearDown();
     }
 
     #[Test]

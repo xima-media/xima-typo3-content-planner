@@ -93,6 +93,10 @@ class RecordController extends ActionController
 
     public function filterAction(ServerRequestInterface $request): JsonResponse
     {
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
         $search = array_key_exists('search', $request->getQueryParams()) ? $request->getQueryParams()['search'] : null;
         $status = array_key_exists('status', $request->getQueryParams()) ? (int) $request->getQueryParams()['status'] : null;
         $assignee = array_key_exists('assignee', $request->getQueryParams()) ? (int) $request->getQueryParams()['assignee'] : null;
