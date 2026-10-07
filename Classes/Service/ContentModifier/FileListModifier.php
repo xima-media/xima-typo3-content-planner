@@ -83,7 +83,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
 
         // Add status dropdowns to file and folder rows (only in list view, not tiles)
         if (!$isTilesView) {
-            $newContent = $this->addStatusDropdownsToFiles($newContent, $folderIdentifier);
+            $newContent = $this->addStatusDropdownsToFiles($newContent);
             $newContent = $this->addStatusDropdownsToFolders($newContent, $folderIdentifier);
         }
 
@@ -147,30 +147,48 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         return end($segments) ?: $path;
     }
 
-    private function addStatusDropdownsToFiles(string $content, string $folderIdentifier): string
+    /**
+     * Works only on the rows the file list actually rendered (it paginates), with a single
+     * batched metadata query and one pass over the HTML, so the cost no longer grows with
+     * the number of files in the folder.
+     */
+    private function addStatusDropdownsToFiles(string $content): string
     {
-        $files = $this->sysFileMetadataRepository->findFilesByFolder($folderIdentifier);
+        preg_match_all('/<tr\b[^>]*\bdata-filelist-meta-uid="(\d+)"/i', $content, $matches);
+        $metadataByUid = $this->sysFileMetadataRepository->findByUids(array_map(intval(...), $matches[1]));
 
-        foreach ($files as $file) {
-            $metadata = $this->sysFileMetadataRepository->findByIdentifier($file->getIdentifier());
-
-            if (!is_array($metadata) || !array_key_exists('uid', $metadata)) {
-                continue;
-            }
-
-            $metaUid = (int) $metadata['uid'];
-            $status = null;
-
-            if (isset($metadata[Configuration::FIELD_STATUS]) && 0 !== (int) $metadata[Configuration::FIELD_STATUS]) {
-                $status = $this->statusRepository->findByUid((int) $metadata[Configuration::FIELD_STATUS]);
-            }
-
-            $dropdownItems = $this->listSelectionService->generateSelection('sys_file_metadata', $metaUid);
-            $pattern = '/(<tr\b[^>]*data-filelist-meta-uid="'.$metaUid.'"[^>]*>.*?<div class="btn-group">)/is';
-            $content = $this->injectDropdown($content, $status, $dropdownItems, $pattern);
+        if ([] === $metadataByUid) {
+            return $content;
         }
 
-        return $content;
+        // Stops at </tr>, so a row without a button group cannot pull the next row's into its match.
+        // Possessive and atomic, so long rows cannot exhaust the PCRE JIT stack and drop every dropdown at once.
+        $result = preg_replace_callback(
+            '/<tr\b[^>]*\bdata-filelist-meta-uid="(\d+)"[^>]*>(?>[^<]++|<(?!\/tr>|div class="btn-group">))*+<div class="btn-group">/i',
+            fn (array $match): string => $match[0].$this->buildFileDropdown($metadataByUid[(int) $match[1]] ?? null),
+            $content,
+        );
+
+        return $result ?? $content;
+    }
+
+    /**
+     * @param array<string, mixed>|null $metadata
+     */
+    private function buildFileDropdown(?array $metadata): string
+    {
+        if (null === $metadata) {
+            return '';
+        }
+
+        $status = null;
+        if (isset($metadata[Configuration::FIELD_STATUS]) && 0 !== (int) $metadata[Configuration::FIELD_STATUS]) {
+            $status = $this->statusRepository->findByUid((int) $metadata[Configuration::FIELD_STATUS]);
+        }
+
+        $dropdownItems = $this->listSelectionService->generateSelection('sys_file_metadata', (int) $metadata['uid'], $metadata);
+
+        return $this->buildDropdown($status, $dropdownItems);
     }
 
     private function addStatusDropdownsToFolders(string $content, string $folderIdentifier): string
@@ -200,6 +218,16 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
      */
     private function injectDropdown(string $content, ?Status $status, array|bool $dropdownItems, string $pattern): string
     {
+        $result = preg_replace($pattern, '$1'.$this->buildDropdown($status, $dropdownItems), $content);
+
+        return $result ?? $content;
+    }
+
+    /**
+     * @param array<string, string>|bool $dropdownItems
+     */
+    private function buildDropdown(?Status $status, array|bool $dropdownItems): string
+    {
         $title = $status instanceof Status ? htmlspecialchars($status->getTitle(), \ENT_QUOTES | \ENT_HTML5, 'UTF-8') : 'Status';
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
 
@@ -212,12 +240,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             }
         }
 
-        $dropdown = '<div class="btn-group dropdown"><button type="button" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'">'
+        return '<div class="btn-group dropdown"><button type="button" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'">'
             .$iconHtml.'</button><ul class="dropdown-menu">'.$dropdownItemsHtml.'</ul></div>';
-
-        $result = preg_replace($pattern, '$1'.$dropdown, $content);
-
-        return $result ?? $content;
     }
 
     private function injectFileListStyles(string $content, string $css, bool $isTilesView): string

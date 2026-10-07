@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\{ArrayParameterType, Exception};
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Resource\{File, ResourceFactory};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
@@ -43,25 +44,9 @@ class SysFileMetadataRepository
      */
     public function findByFileUid(int $fileUid): array|false
     {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->createMetadataQuery();
 
         return $queryBuilder
-            ->select(
-                'sys_file_metadata.uid',
-                'sys_file.name as title',
-                'sys_file.identifier',
-                'sys_file.uid as file_uid',
-                'sys_file_metadata.'.Configuration::FIELD_STATUS,
-                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
-                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
-            )
-            ->from(self::TABLE)
-            ->innerJoin(
-                'sys_file_metadata',
-                'sys_file',
-                'sys_file',
-                'sys_file_metadata.file = sys_file.uid',
-            )
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'sys_file.uid',
@@ -81,25 +66,9 @@ class SysFileMetadataRepository
      */
     public function findByUid(int $uid): array|false
     {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->createMetadataQuery();
 
         return $queryBuilder
-            ->select(
-                'sys_file_metadata.uid',
-                'sys_file.name as title',
-                'sys_file.identifier',
-                'sys_file.uid as file_uid',
-                'sys_file_metadata.'.Configuration::FIELD_STATUS,
-                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
-                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
-            )
-            ->from(self::TABLE)
-            ->innerJoin(
-                'sys_file_metadata',
-                'sys_file',
-                'sys_file',
-                'sys_file_metadata.file = sys_file.uid',
-            )
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'sys_file_metadata.uid',
@@ -119,25 +88,9 @@ class SysFileMetadataRepository
      */
     public function findByIdentifier(string $identifier): array|false
     {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->createMetadataQuery();
 
         return $queryBuilder
-            ->select(
-                'sys_file_metadata.uid',
-                'sys_file.name as title',
-                'sys_file.identifier',
-                'sys_file.uid as file_uid',
-                'sys_file_metadata.'.Configuration::FIELD_STATUS,
-                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
-                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
-            )
-            ->from(self::TABLE)
-            ->innerJoin(
-                'sys_file_metadata',
-                'sys_file',
-                'sys_file',
-                'sys_file_metadata.file = sys_file.uid',
-            )
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'sys_file.identifier',
@@ -163,24 +116,8 @@ class SysFileMetadataRepository
             return [];
         }
 
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+        $queryBuilder = $this->createMetadataQuery();
         $rows = $queryBuilder
-            ->select(
-                'sys_file_metadata.uid',
-                'sys_file.name as title',
-                'sys_file.identifier',
-                'sys_file.uid as file_uid',
-                'sys_file_metadata.'.Configuration::FIELD_STATUS,
-                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
-                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
-            )
-            ->from(self::TABLE)
-            ->innerJoin(
-                'sys_file_metadata',
-                'sys_file',
-                'sys_file',
-                'sys_file_metadata.file = sys_file.uid',
-            )
             ->where(
                 $queryBuilder->expr()->in(
                     'sys_file.identifier',
@@ -196,6 +133,40 @@ class SysFileMetadataRepository
         }
 
         return $byIdentifier;
+    }
+
+    /**
+     * Batch-resolve metadata records by their UIDs.
+     *
+     * @param array<int, int> $uids
+     *
+     * @return array<int, array<string, mixed>> keyed by sys_file_metadata.uid
+     *
+     * @throws Exception
+     */
+    public function findByUids(array $uids): array
+    {
+        if ([] === $uids) {
+            return [];
+        }
+
+        $queryBuilder = $this->createMetadataQuery();
+        $rows = $queryBuilder
+            ->where(
+                $queryBuilder->expr()->in(
+                    'sys_file_metadata.uid',
+                    $queryBuilder->createNamedParameter($uids, ArrayParameterType::INTEGER),
+                ),
+            )
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        $byUid = [];
+        foreach ($rows as $row) {
+            $byUid[(int) $row['uid']] = $row;
+        }
+
+        return $byUid;
     }
 
     /**
@@ -259,5 +230,28 @@ class SysFileMetadataRepository
         }
 
         $queryBuilder->executeStatement();
+    }
+
+    private function createMetadataQuery(): QueryBuilder
+    {
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
+
+        return $queryBuilder
+            ->select(
+                'sys_file_metadata.uid',
+                'sys_file.name as title',
+                'sys_file.identifier',
+                'sys_file.uid as file_uid',
+                'sys_file_metadata.'.Configuration::FIELD_STATUS,
+                'sys_file_metadata.'.Configuration::FIELD_ASSIGNEE,
+                'sys_file_metadata.'.Configuration::FIELD_COMMENTS,
+            )
+            ->from(self::TABLE)
+            ->innerJoin(
+                'sys_file_metadata',
+                'sys_file',
+                'sys_file',
+                'sys_file_metadata.file = sys_file.uid',
+            );
     }
 }

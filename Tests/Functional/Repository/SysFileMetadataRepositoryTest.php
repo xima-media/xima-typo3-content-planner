@@ -106,6 +106,23 @@ final class SysFileMetadataRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findByUidsBatchResolvesMultipleRecordsKeyedByUid(): void
+    {
+        $result = $this->subject->findByUids([1, 2, 999]);
+
+        self::assertEqualsCanonicalizing([1, 2], array_keys($result));
+        self::assertSame('example.pdf', $result[1]['title']);
+        self::assertSame(2, (int) $result[1]['tx_ximatypo3contentplanner_status']);
+        self::assertSame('image.jpg', $result[2]['title']);
+    }
+
+    #[Test]
+    public function findByUidsReturnsEmptyArrayForNoInput(): void
+    {
+        self::assertSame([], $this->subject->findByUids([]));
+    }
+
+    #[Test]
     public function updateStatusChangesStatusOnly(): void
     {
         $this->subject->updateStatus(2, 3);
