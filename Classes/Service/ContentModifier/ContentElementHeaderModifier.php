@@ -82,13 +82,24 @@ class ContentElementHeaderModifier extends AbstractModifier implements ModifierI
 
     private function injectContentElementHeaders(string $content, int $pid): string
     {
+        $assetsEmitted = false;
         foreach ($this->recordRepository->findByPid('tt_content', $pid) as $record) {
             $header = $this->infoGenerator->generateStatusHeader(HeaderMode::CONTENT_ELEMENT, $record, 'tt_content');
             if (false === $header) {
                 continue;
             }
 
-            $content = $this->insertBeforeHeaderRow($content, (int) $record['uid'], $header);
+            // Not every record of the page is part of the rendered layout (other languages,
+            // hidden columns), so the assets go with the first header that actually lands.
+            $modified = $this->insertBeforeHeaderRow(
+                $content,
+                (int) $record['uid'],
+                $assetsEmitted ? $header : $this->infoGenerator->renderInlineHeaderAssets().$header,
+            );
+            if (null !== $modified) {
+                $content = $modified;
+                $assetsEmitted = true;
+            }
         }
 
         return $content;
@@ -98,16 +109,16 @@ class ContentElementHeaderModifier extends AbstractModifier implements ModifierI
      * Anchored on the content element's own unique `id`, so an unrelated content element
      * sharing e.g. the same status colour is never matched instead.
      */
-    private function insertBeforeHeaderRow(string $content, int $uid, string $header): string
+    private function insertBeforeHeaderRow(string $content, int $uid, string $header): ?string
     {
         $anchorPosition = strpos($content, 'id="element-tt_content-'.$uid.'"');
         if (false === $anchorPosition) {
-            return $content;
+            return null;
         }
 
         $headerRowPosition = strpos($content, '<div class="t3-page-ce-header', $anchorPosition);
         if (false === $headerRowPosition) {
-            return $content;
+            return null;
         }
 
         return substr($content, 0, $headerRowPosition).$header.substr($content, $headerRowPosition);

@@ -254,6 +254,14 @@ class InfoGenerator
     }
 
     /**
+     * Inline asset tags for headers injected by a middleware after PageRenderer::render().
+     */
+    public function renderInlineHeaderAssets(): string
+    {
+        return $this->addFrontendAssets(false);
+    }
+
+    /**
      * @param array<string, mixed> $record
      *
      * @throws RouteNotFoundException
@@ -313,7 +321,11 @@ class InfoGenerator
         // rendered from DockedHeaderModifier, a middleware exactly like ContentElementHeaderModifier,
         // not from DrawBackendHeaderListener's pre-render PSR-14 event - so it needs the inline
         // tags too, even though $mode is WEB_LAYOUT. $compact is only ever true for that call.
-        $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode && !$compact);
+        // CONTENT_ELEMENT headers repeat once per element; ContentElementHeaderModifier emits
+        // the inline tags itself, once per response, via renderInlineHeaderAssets().
+        if (HeaderMode::CONTENT_ELEMENT !== $mode) {
+            $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode && !$compact);
+        }
 
         return $content;
     }
