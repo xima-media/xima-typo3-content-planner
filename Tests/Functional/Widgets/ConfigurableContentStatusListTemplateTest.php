@@ -56,6 +56,20 @@ final class ConfigurableContentStatusListTemplateTest extends AbstractFunctional
         self::assertStringContainsString('4 content planner records', $content);
     }
 
+    #[Test]
+    public function commentLinksCarryTheClassTheCommentsModalBindsTo(): void
+    {
+        $content = $this->renderTemplate([
+            'items' => [[
+                'link' => '/typo3/record/edit',
+                'comments' => '2',
+                'data' => ['tablename' => 'pages', 'uid' => 1, 'tx_ximatypo3contentplanner_comments' => 2],
+            ]],
+        ]);
+
+        self::assertStringContainsString('class="content-planner-link--comments"', $content);
+    }
+
     /**
      * @param array<string, mixed> $arguments
      */
