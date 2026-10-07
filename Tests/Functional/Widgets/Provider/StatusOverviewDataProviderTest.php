@@ -40,6 +40,14 @@ final class StatusOverviewDataProviderTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getChartDataReturnsOneSegmentPerStatusOnRepeatedCalls(): void
+    {
+        $this->subject->getChartData();
+
+        self::assertCount(3, $this->subject->getChartData()['labels']);
+    }
+
+    #[Test]
     public function getChartDataIsEmptyWhenContentPlannerIsHiddenForTheUser(): void
     {
         $GLOBALS['BE_USER']->user['tx_ximatypo3contentplanner_hide'] = 1;

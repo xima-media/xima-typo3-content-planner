@@ -69,6 +69,10 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
 
     protected function calculateStatusCounts(): void
     {
+        $this->labels = [];
+        $this->data = [];
+        $this->colors = [];
+
         if (!PermissionUtility::checkContentStatusVisibility()) {
             return;
         }
