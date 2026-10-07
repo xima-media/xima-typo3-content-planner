@@ -12,6 +12,7 @@
 * its header/body split needing awkward `title`-stripping to avoid a duplicated line) is the
 * wrong shape for a plain hover explanation anyway.
 */
+import oncePerRealm from "@content-planner/once-per-realm.js"
 
 const TRIGGER_SELECTOR = '.content-planner-meta__btn[data-hint-title]'
 
@@ -79,6 +80,9 @@ function hideTooltip() {
 
 class HeaderTooltips {
   constructor() {
+    if (!oncePerRealm('header-tooltips')) {
+      return
+    }
     // Delegated on document, not bound per element: the assignee, comments, todo and watch
     // buttons are all individually replaced via outerHTML on their own AJAX round trips (see
     // watch-toggle.js), so anything bound upfront would be orphaned the moment its button is
