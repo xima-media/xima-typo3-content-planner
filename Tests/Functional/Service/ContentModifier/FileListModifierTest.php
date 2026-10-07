@@ -234,6 +234,84 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('title="Status"', $result);
     }
 
+    #[Test]
+    public function modifyDoesNotLetARowWithoutButtonGroupSwallowTheNextRow(): void
+    {
+        $body = <<<HTML
+            <html><body>
+            <div class="t3-filelist-container">
+            <table id="typo3-filelist">
+            <tbody>
+            <tr data-filelist-meta-uid="{$this->exampleMetaUid}"><td>example.pdf</td><td></td></tr>
+            <tr data-filelist-meta-uid="{$this->imageMetaUid}"><td>image.jpg</td><td><div class="btn-group"></div></td></tr>
+            </tbody>
+            </table>
+            </div>
+            </body></html>
+            HTML;
+
+        $response = $this->subject->modify($this->buildRequest('media_management', '1:/user_upload/'), $this->buildResponseHandler($body));
+        $result = (string) $response->getBody();
+
+        self::assertSame(1, substr_count($result, '<div class="btn-group dropdown">'));
+        self::assertMatchesRegularExpression(
+            '/data-filelist-meta-uid="'.$this->imageMetaUid.'"><td>image\.jpg<\/td><td><div class="btn-group"><div class="btn-group dropdown">.*?title="Status"/s',
+            $result,
+        );
+    }
+
+    #[Test]
+    public function modifyInjectsDropdownBehindLongCellContent(): void
+    {
+        $longCell = str_repeat('<span>x</span>', 8000);
+        $body = <<<HTML
+            <html><body>
+            <div class="t3-filelist-container">
+            <table id="typo3-filelist">
+            <tbody>
+            <tr class="selected" data-filelist-meta-uid="{$this->imageMetaUid}" draggable="true"><td>{$longCell}</td><td><div class="btn-group"></div></td></tr>
+            </tbody>
+            </table>
+            </div>
+            </body></html>
+            HTML;
+
+        $response = $this->subject->modify($this->buildRequest('media_management', '1:/user_upload/'), $this->buildResponseHandler($body));
+
+        self::assertSame(1, substr_count((string) $response->getBody(), '<div class="btn-group dropdown">'));
+    }
+
+    #[Test]
+    public function modifyKeepsDollarSignsInFolderStatusTitleLiteral(): void
+    {
+        $this->getConnectionPool()->getConnectionForTable('tx_ximatypo3contentplanner_domain_model_status')
+            ->update('tx_ximatypo3contentplanner_domain_model_status', ['title' => 'Done $0'], ['uid' => 3]);
+
+        $response = $this->subject->modify($this->buildRequest('media_management', '1:/user_upload/'), $this->buildResponseHandler($this->buildListViewBody()));
+
+        self::assertStringContainsString('title="Done $0"', (string) $response->getBody());
+    }
+
+    #[Test]
+    public function modifySkipsRowsWithUnknownMetadataUid(): void
+    {
+        $body = <<<'HTML'
+            <html><body>
+            <div class="t3-filelist-container">
+            <table id="typo3-filelist">
+            <tbody>
+            <tr data-filelist-meta-uid="999999"><td>ghost.txt</td><td><div class="btn-group"></div></td></tr>
+            </tbody>
+            </table>
+            </div>
+            </body></html>
+            HTML;
+
+        $response = $this->subject->modify($this->buildRequest('media_management', '1:/user_upload/'), $this->buildResponseHandler($body));
+
+        self::assertStringNotContainsString('dropdown-menu', (string) $response->getBody());
+    }
+
     private function createLocalStorage(): void
     {
         $configuration = "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>"
