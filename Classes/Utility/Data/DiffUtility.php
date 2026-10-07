@@ -86,23 +86,10 @@ class DiffUtility
         }
 
         $diff = [];
-        $isRenderable = static fn (mixed $value): bool => null === $value || is_string($value) || is_int($value);
-
         foreach ($data['oldRecord'] as $key => $oldValue) {
-            if ('l10n_diffsource' === $key) {
-                continue;
-            }
-
-            $newValue = $data['newRecord'][$key] ?? null;
-            if (!$isRenderable($oldValue) || !$isRenderable($newValue)) {
-                continue;
-            }
-
-            if ($oldValue !== $newValue) {
-                $diffValue = self::makeRecordDiffReadable($key, $actiontype, $oldValue, $newValue);
-                if ($diffValue) {
-                    $diff[] = $diffValue;
-                }
+            $diffValue = self::diffRecordField($key, $actiontype, $oldValue, $data['newRecord'][$key] ?? null);
+            if ($diffValue) {
+                $diff[] = $diffValue;
             }
         }
 
@@ -139,6 +126,23 @@ class DiffUtility
         }
 
         return null;
+    }
+
+    private static function diffRecordField(string $field, int $actiontype, mixed $old, mixed $new): string|bool
+    {
+        if ('l10n_diffsource' === $field || !self::isRenderable($old) || !self::isRenderable($new) || $old === $new) {
+            return false;
+        }
+
+        return self::makeRecordDiffReadable($field, $actiontype, $old, $new);
+    }
+
+    /**
+     * @phpstan-assert-if-true string|int|null $value
+     */
+    private static function isRenderable(mixed $value): bool
+    {
+        return null === $value || is_string($value) || is_int($value);
     }
 
     private static function makeRecordDiffReadable(string $field, int $actiontype, string|int|null $old, string|int|null $new): string|bool

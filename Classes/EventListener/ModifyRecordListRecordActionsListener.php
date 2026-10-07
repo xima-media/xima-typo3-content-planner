@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\EventListener;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
+use TYPO3\CMS\Backend\Template\Components\Buttons\DropDownButton;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Domain\RecordInterface;
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
@@ -78,26 +79,38 @@ final readonly class ModifyRecordListRecordActionsListener
             return;
         }
 
-        $statusId = $record[Configuration::FIELD_STATUS];
-        $status = $this->statusRepository->findByUid($statusId);
-
-        $title = $status instanceof Status ? $status->getTitle() : 'Status';
-        $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
-
-        $dropDownButton = ComponentFactoryUtility::createDropDownButton()
-            ->setLabel($title)
-            ->setTitle($title)
-            ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
-
         // Reuse the record already loaded above instead of a second lookup inside generateSelection().
         $actionsToAdd = $this->dropDownSelectionService->generateSelection($table, $uid, $record);
         if (!is_array($actionsToAdd)) {
             return;
         }
+
+        $dropDownButton = $this->createDropDownButton($record);
         foreach ($actionsToAdd as $actionToAdd) {
             $dropDownButton->addItem($actionToAdd);
         }
 
+        $this->setStatusAction($event, $dropDownButton);
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     */
+    private function createDropDownButton(array $record): DropDownButton
+    {
+        $status = $this->statusRepository->findByUid($record[Configuration::FIELD_STATUS]);
+
+        $title = $status instanceof Status ? $status->getTitle() : 'Status';
+        $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
+
+        return ComponentFactoryUtility::createDropDownButton()
+            ->setLabel($title)
+            ->setTitle($title)
+            ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
+    }
+
+    private function setStatusAction(ModifyRecordListRecordActionsEvent $event, DropDownButton $dropDownButton): void
+    {
         // ActionGroup::primary is v14-only; resolve via constant() at runtime
         // so PHPStan does not need to know the v14 enum when analysing v13.
         $primaryGroup = VersionUtility::is14OrHigher()

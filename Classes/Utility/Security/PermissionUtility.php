@@ -61,26 +61,11 @@ class PermissionUtility
             return true;
         }
 
-        if ('pages' === $table && isset($record['uid']) && !BackendUtility::readPageAccess(
-            (int) $record['uid'],
-            $backendUser->getPagePermsClause(Permission::PAGE_SHOW),
-        )) {
-            return false;
-        }
-
-        if (!$backendUser->check('tables_select', $table)) {
-            return false;
-        }
-
-        // Check page access only if record has a pid (not applicable for sys_file_metadata, folders, etc.)
-        if (isset($record['pid']) && !BackendUtility::readPageAccess(
-            (int) $record['pid'],
-            $backendUser->getPagePermsClause(Permission::PAGE_SHOW),
-        )) {
-            return false;
-        }
-
-        return true;
+        // A page record is checked against itself, every record with a pid against its page
+        // (not applicable for sys_file_metadata, folders, etc.)
+        return self::canShowPage($backendUser, 'pages' === $table ? ($record['uid'] ?? null) : null)
+            && $backendUser->check('tables_select', $table)
+            && self::canShowPage($backendUser, $record['pid'] ?? null);
     }
 
     /**
@@ -331,6 +316,15 @@ class PermissionUtility
     private static function getBackendUser(): object
     {
         return $GLOBALS['BE_USER'];
+    }
+
+    /**
+     * @param BackendUserAuthentication $backendUser
+     */
+    private static function canShowPage(object $backendUser, mixed $pageUid): bool
+    {
+        return null === $pageUid
+            || (bool) BackendUtility::readPageAccess((int) $pageUid, $backendUser->getPagePermsClause(Permission::PAGE_SHOW));
     }
 
     /**

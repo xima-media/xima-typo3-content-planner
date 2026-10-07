@@ -199,16 +199,7 @@ class InfoGenerator
                 'color' => $status->getColor(),
                 'icon' => $status->getColoredIcon(),
             ],
-            'assignee' => [
-                'username' => $this->getAssigneeUsername($record),
-                'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
-                'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($record)
-                    ? UrlUtility::assignToUser($table, $record['uid'])
-                    : false,
-                'unassign' => self::canUnassignRecord($record) && self::checkUnassign($record)
-                    ? UrlUtility::assignToUser($table, $record['uid'], null, true)
-                    : null,
-            ],
+            'assignee' => $this->buildAssigneeData($record, $table, (int) $record['uid']),
             'comments' => [
                 'items' => $this->getComments($record, $table),
                 'count' => $this->commentRepository->countAllByRecord((int) $record['uid'], $table),
@@ -219,12 +210,7 @@ class InfoGenerator
                     $table,
                     $record['uid'],
                 ),
-                'todoResolved' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS,
-                ) ? $this->getCommentsTodoResolved($record, $table) : 0,
-                'todoTotal' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS,
-                ) ? $this->getCommentsTodoTotal($record, $table) : 0,
+                ...$this->getCommentsTodoCounts($record, $table),
             ],
             'contentElements' => $this->getContentElements($record, $table),
             'userid' => $this->getBackendUserId(),
@@ -261,16 +247,7 @@ class InfoGenerator
                 'color' => $status->getColor(),
                 'icon' => $status->getColoredIcon(),
             ],
-            'assignee' => [
-                'username' => $this->getAssigneeUsername($folderRecord),
-                'assignedToCurrentUser' => $this->getAssignedToCurrentUser($folderRecord),
-                'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($folderRecord)
-                    ? UrlUtility::assignToUser($table, $uid)
-                    : false,
-                'unassign' => self::canUnassignRecord($folderRecord) && self::checkUnassign($folderRecord)
-                    ? UrlUtility::assignToUser($table, $uid, null, true)
-                    : null,
-            ],
+            'assignee' => $this->buildAssigneeData($folderRecord, $table, $uid),
             'comments' => [
                 'items' => $this->getFolderComments($folderRecord),
                 'count' => $this->commentRepository->countAllByRecord($uid, $table),
@@ -278,12 +255,7 @@ class InfoGenerator
                     ? UrlUtility::getNewCommentUrl($table, $uid)
                     : '',
                 'editUri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
-                'todoResolved' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS,
-                ) ? $this->getCommentsTodoResolved($folderRecord, $table) : 0,
-                'todoTotal' => ExtensionUtility::isFeatureEnabled(
-                    Configuration::FEATURE_COMMENT_TODOS,
-                ) ? $this->getCommentsTodoTotal($folderRecord, $table) : 0,
+                ...$this->getCommentsTodoCounts($folderRecord, $table),
             ],
             'contentElements' => null,
             'userid' => $this->getBackendUserId(),
@@ -342,6 +314,44 @@ class InfoGenerator
         }
 
         return [];
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     *
+     * @return array<string, mixed>
+     *
+     * @throws Exception|RouteNotFoundException
+     */
+    private function buildAssigneeData(array $record, string $table, int $uid): array
+    {
+        return [
+            'username' => $this->getAssigneeUsername($record),
+            'assignedToCurrentUser' => $this->getAssignedToCurrentUser($record),
+            'assignToCurrentUser' => PermissionUtility::canAssignSelf() && self::checkAssignToCurrentUser($record)
+                ? UrlUtility::assignToUser($table, $uid)
+                : false,
+            'unassign' => self::canUnassignRecord($record) && self::checkUnassign($record)
+                ? UrlUtility::assignToUser($table, $uid, null, true)
+                : null,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     *
+     * @return array{todoResolved: int, todoTotal: int}
+     */
+    private function getCommentsTodoCounts(array $record, string $table): array
+    {
+        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            return ['todoResolved' => 0, 'todoTotal' => 0];
+        }
+
+        return [
+            'todoResolved' => $this->getCommentsTodoResolved($record, $table),
+            'todoTotal' => $this->getCommentsTodoTotal($record, $table),
+        ];
     }
 
     /**
