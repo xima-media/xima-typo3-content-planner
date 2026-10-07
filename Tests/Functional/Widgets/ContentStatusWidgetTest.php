@@ -17,7 +17,6 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 use Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget;
@@ -63,16 +62,30 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function renderWidgetContentRendersBothTilesInMyWorkMode(): void
+    {
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('countVisibleByAssignee')
+            ->with(1)
+            ->willReturn(3);
+
+        $content = $this->createWidget(['myWork' => true], $recordRepository)->renderWidgetContent();
+
+        self::assertStringContainsString('content-planner-widget--mywork', $content);
+        self::assertSame(2, substr_count($content, 'content-planner-kpi-tile__figure'));
+        self::assertStringNotContainsString('<table', $content);
+    }
+
+    #[Test]
     public function renderWidgetContentRendersAssigneeMode(): void
     {
-        // findAllByFilter() builds raw UNION SQL invalid on the functional suite's SQLite backend
-        // (see CLAUDE.md), so the repository is mocked here - same convention as
-        // RecordModuleControllerTest, which hits the exact same method.
+        // countVisibleByAssignee() builds raw UNION SQL invalid on the functional suite's SQLite
+        // backend (see CLAUDE.md), so the repository is mocked here - same convention as
+        // RecordModuleControllerTest.
         $recordRepository = $this->createMock(RecordRepository::class);
-        $recordRepository->method('findAllByFilter')
-            // 999: ContentStatusWidget::ASSIGNEE_COUNT_LIMIT (private, not reachable from here)
-            ->with(null, null, 1, null, null, 999)
-            ->willReturn(new PaginatedResult([['uid' => 1], ['uid' => 3]], false));
+        $recordRepository->method('countVisibleByAssignee')
+            ->with(1)
+            ->willReturn(2);
 
         $content = $this->createWidget(['currentUserAssignee' => true], $recordRepository)->renderWidgetContent();
 
@@ -81,13 +94,16 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('content-planner-kpi-tile', $content);
         self::assertStringContainsString('>2<', $content);
         self::assertStringContainsString('content planner records assigned to you', $content);
+        // The KPI tile already links to the filtered Records module (annotation feedback
+        // follow-up) - no redundant per-record list underneath it any more.
+        self::assertStringNotContainsString('<table class="widget-table table">', $content);
     }
 
     #[Test]
     public function renderWidgetContentRendersAssigneeModeWithNoAssignedRecords(): void
     {
         $recordRepository = $this->createMock(RecordRepository::class);
-        $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([], false));
+        $recordRepository->method('countVisibleByAssignee')->willReturn(0);
 
         $content = $this->createWidget(['currentUserAssignee' => true], $recordRepository)->renderWidgetContent();
 
@@ -103,6 +119,7 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('content-planner-widget--todo', $content);
         self::assertStringContainsString('content-planner-kpi-tile--empty', $content);
         self::assertStringContainsString('There are no open comment tasks', $content);
+        self::assertStringNotContainsString('<table class="widget-table table">', $content);
     }
 
     #[Test]
@@ -141,6 +158,8 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
 
         self::assertStringContainsString('content-planner-kpi-tile', $content);
         self::assertStringContainsString('2/2', $content);
+        // Nothing is left to do, so the tile must not link to an empty todo=1 Records list.
+        self::assertStringNotContainsString('todo=1', $content);
     }
 
     #[Test]

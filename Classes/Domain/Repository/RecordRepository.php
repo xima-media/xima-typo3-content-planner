@@ -109,47 +109,65 @@ class RecordRepository
      */
     public function findAllByFilter(?string $search = null, ?int $status = null, ?int $assignee = null, ?string $type = null, ?bool $todo = null, int $maxResults = self::DEFAULT_PAGE_SIZE, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0, string $sortField = 'changed', string $sortDirection = 'desc'): PaginatedResult
     {
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('pages');
-
-        $baseWhere = '';
         $batchSize = min($maxResults * self::FILTER_OVERFETCH_FACTOR, self::FILTER_OVERFETCH_CAP);
-        $additionalParams = ['limit' => $batchSize];
+        $sortColumn = self::SORTABLE_FIELDS[$sortField] ?? self::SORTABLE_FIELDS['changed'];
+        $direction = 'asc' === $sortDirection ? 'ASC' : 'DESC';
+        $scan = $this->buildFilteredScan($batchSize, $search, $status, $assignee, $type, $todo, $openComments, $watchedRecords, $sortColumn, $direction);
 
-        [$baseWhere, $additionalParams] = $this->applyFilterConditions($baseWhere, $additionalParams, $search, $status, $assignee);
-
-        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments, $watchedRecords);
-
-        // Every tracked table can drop out of the UNION when filtering by watched records,
-        // which leaves nothing to query at all.
-        if ([] === $sqlArray) {
+        if (null === $scan) {
             return new PaginatedResult([], false);
         }
 
-        $sortColumn = self::SORTABLE_FIELDS[$sortField] ?? self::SORTABLE_FIELDS['changed'];
-        $direction = 'asc' === $sortDirection ? 'ASC' : 'DESC';
-
-        // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
-        // tablename literal, so cross-table duplicates cannot occur.
-        //
-        // The primary sort column alone is not a total order, so paging by offset could drop or
-        // repeat rows on ties. tablename/uid break those ties and are selected by every union
-        // branch, regardless of which column is sorted first.
-        $sql = implode(' UNION ALL ', $sqlArray).sprintf(' ORDER BY %s %s, tablename ASC, uid ASC LIMIT :limit OFFSET :offset', $sortColumn, $direction);
-
-        $connection = $queryBuilder->getConnection();
+        [$sql, $additionalParams] = $scan;
+        $connection = $this->connectionPool->getQueryBuilderForTable('pages')->getConnection();
 
         return OverfetchPaginator::paginateBatched(
-            static function (int $offset) use ($connection, $sql, $additionalParams): array {
-                $additionalParams['offset'] = $offset;
-
-                return $connection->executeQuery($sql, $additionalParams, ['limit' => Connection::PARAM_INT, 'offset' => Connection::PARAM_INT])->fetchAllAssociative();
-            },
+            fn (int $offset): array => $this->fetchScanBatch($connection, $sql, $additionalParams, $offset),
             $maxResults,
             $batchSize,
             self::FILTER_MAX_BATCHES,
             static fn (array $record): bool => PermissionUtility::checkAccessForRecord((string) $record['tablename'], $record),
             $offset,
         );
+    }
+
+    /**
+     * Number of records assigned to $assignee that the current backend user may see.
+     *
+     * Unlike findAllByFilter() this scans every batch (no FILTER_MAX_BATCHES bound), so the
+     * figure is exact even when the first rows are invisible. The cost is one pass over the
+     * assigned records, which is the point of a KPI count.
+     *
+     * @throws Exception
+     */
+    public function countVisibleByAssignee(int $assignee): int
+    {
+        $scan = $this->buildFilteredScan(self::FILTER_OVERFETCH_CAP, null, null, $assignee, null, null, false, null);
+
+        if (null === $scan) {
+            return 0;
+        }
+
+        [$sql, $additionalParams] = $scan;
+        $connection = $this->connectionPool->getQueryBuilderForTable('pages')->getConnection();
+        $count = 0;
+
+        // The visibility callback counts and always rejects, so no rows are collected in memory.
+        OverfetchPaginator::paginateBatched(
+            fn (int $offset): array => $this->fetchScanBatch($connection, $sql, $additionalParams, $offset),
+            \PHP_INT_MAX,
+            self::FILTER_OVERFETCH_CAP,
+            \PHP_INT_MAX,
+            static function (array $record) use (&$count): bool {
+                if (PermissionUtility::checkAccessForRecord((string) $record['tablename'], $record)) {
+                    ++$count;
+                }
+
+                return false;
+            },
+        );
+
+        return $count;
     }
 
     /**
@@ -450,6 +468,50 @@ class RecordRepository
         }
 
         return $query->executeQuery()->fetchAllAssociative();
+    }
+
+    /**
+     * @param array<string, list<int>>|null $watchedRecords
+     * @param string                        $sortColumn     a value of {@see self::SORTABLE_FIELDS}, never request input
+     * @param 'ASC'|'DESC'                  $direction
+     *
+     * @return array{0: string, 1: array<string, mixed>}|null null when no tracked table is left to query
+     */
+    private function buildFilteredScan(int $batchSize, ?string $search, ?int $status, ?int $assignee, ?string $type, ?bool $todo, bool $openComments, ?array $watchedRecords, string $sortColumn = 'tstamp', string $direction = 'DESC'): ?array
+    {
+        [$baseWhere, $additionalParams] = $this->applyFilterConditions('', ['limit' => $batchSize], $search, $status, $assignee);
+
+        $sqlArray = $this->buildUnionQueriesForTables($baseWhere, $type, $todo, $search, $openComments, $watchedRecords);
+
+        // Every tracked table can drop out of the UNION when filtering by watched records,
+        // which leaves nothing to query at all.
+        if ([] === $sqlArray) {
+            return null;
+        }
+
+        // UNION ALL avoids an unnecessary de-duplication pass: each sub-query carries a distinct
+        // tablename literal, so cross-table duplicates cannot occur.
+        //
+        // The primary sort column alone is not a total order, so paging by offset could drop or
+        // repeat rows on ties. tablename/uid break those ties and are selected by every union
+        // branch, regardless of which column is sorted first.
+        $sql = implode(' UNION ALL ', $sqlArray).sprintf(' ORDER BY %s %s, tablename ASC, uid ASC LIMIT :limit OFFSET :offset', $sortColumn, $direction);
+
+        return [$sql, $additionalParams];
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    private function fetchScanBatch(Connection $connection, string $sql, array $params, int $offset): array
+    {
+        $params['offset'] = $offset;
+
+        return $connection->executeQuery($sql, $params, ['limit' => Connection::PARAM_INT, 'offset' => Connection::PARAM_INT])->fetchAllAssociative();
     }
 
     /**

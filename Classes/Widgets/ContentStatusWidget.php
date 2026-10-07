@@ -25,6 +25,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
 
 use function count;
+use function sprintf;
 
 /**
  * ContentStatusWidget.
@@ -34,14 +35,6 @@ use function count;
  */
 class ContentStatusWidget extends AbstractWidget
 {
-    /**
-     * Upper bound for the assignee KPI tile's count query (CP-33, #405). Not a pagination page
-     * size like {@see RecordRepository::DEFAULT_PAGE_SIZE} - a large cap so the figure is exact
-     * for realistic workloads, while {@see PaginatedResult::$hasMore} still gives an honest "at
-     * least N" signal for the rare case a single user has more records assigned than this covers.
-     */
-    private const ASSIGNEE_COUNT_LIMIT = 999;
-
     /**
      * @param array<string, mixed> $buttons
      * @param array<string, mixed> $options
@@ -64,8 +57,10 @@ class ContentStatusWidget extends AbstractWidget
         ['mode' => $mode, 'assignee' => $assignee, 'todo' => $todo, 'icon' => $icon] = $this->determineWidgetMode();
 
         $filterValues = $filter ? $this->buildFilterValues() : false;
-        $todoInfo = $todo ? $this->buildTodoInfo() : null;
-        $assigneeInfo = (null !== $assignee && $assignee > 0) ? $this->buildAssigneeInfo($assignee) : null;
+        $tiles = array_values(array_filter([
+            (null !== $assignee && $assignee > 0) ? $this->buildAssigneeTile($assignee) : null,
+            $todo ? $this->buildTodoTile() : null,
+        ]));
 
         return $this->render(
             'Backend/Widgets/ContentStatusList.html',
@@ -76,8 +71,7 @@ class ContentStatusWidget extends AbstractWidget
                 'currentBackendUser' => $assignee,
                 'backendUserId' => $this->getBackendUserId(),
                 'todo' => $todo,
-                'todoInfo' => $todoInfo,
-                'assigneeInfo' => $assigneeInfo,
+                'tiles' => $tiles,
                 'mode' => $mode,
                 'filter' => $filterValues,
             ],
@@ -116,6 +110,12 @@ class ContentStatusWidget extends AbstractWidget
             $mode = 'todo';
         }
 
+        if (isset($this->options['myWork'])) {
+            $assignee = $this->getBackendUserId();
+            $todo = true;
+            $mode = 'mywork';
+        }
+
         $icon = match (true) {
             null !== $assignee && $assignee > 0 => 'status-user-backend',
             $todo => 'form-multi-checkbox',
@@ -149,42 +149,54 @@ class ContentStatusWidget extends AbstractWidget
     }
 
     /**
-     * @return array{resolved: int, total: int, link: string}|null null when the todo feature is
-     *                                                             disabled ext-wide (see CP-33, #405
-     *                                                             zero state: 0 open tasks reads the
-     *                                                             same as the feature being off)
+     * With the todo feature disabled ext-wide the tile reads as a zero state (CP-33, #405).
+     *
+     * @return array{link: string, icon: string, label: string, figure: string, summary: string}
      */
-    private function buildTodoInfo(): ?array
+    private function buildTodoTile(): array
     {
-        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
-            return null;
+        $resolved = 0;
+        $total = 0;
+        if (ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+            $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
+            $resolved = $commentRepository->countTodoAllByRecord(null, null, 'todo_resolved', true);
+            $total = $commentRepository->countTodoAllByRecord(null, null, 'todo_total', true);
         }
 
-        $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        $todoResolved = $commentRepository->countTodoAllByRecord(null, null, 'todo_resolved', true);
-        $todoTotal = $commentRepository->countTodoAllByRecord(null, null, 'todo_total', true);
-
         return [
-            'resolved' => $todoResolved,
-            'total' => $todoTotal,
-            'link' => $this->buildRecordsLink(['todo' => 1]),
+            'link' => $total > 0 && $resolved < $total ? $this->buildRecordsLink(['todo' => 1]) : '',
+            'icon' => 'content-planner-checkbox',
+            'label' => $this->translate('widgets.contentPlanner.kpi.todo'),
+            'figure' => $total > 0 ? $resolved.'/'.$total : '0',
+            'summary' => $total > 0
+                ? sprintf($this->translate('widgets.contentPlanner.status.todo'), $resolved, $total)
+                : $this->translate('widgets.contentPlanner.status.todo.empty'),
         ];
     }
 
     /**
-     * @return array{count: int, hasMore: bool, link: string}
+     * @return array{link: string, icon: string, label: string, figure: string, summary: string}
      *
      * @throws Exception
      */
-    private function buildAssigneeInfo(int $userId): array
+    private function buildAssigneeTile(int $userId): array
     {
-        $result = $this->recordRepository->findAllByFilter(null, null, $userId, null, null, self::ASSIGNEE_COUNT_LIMIT);
+        $count = $this->recordRepository->countVisibleByAssignee($userId);
 
         return [
-            'count' => count($result->items),
-            'hasMore' => $result->hasMore,
-            'link' => $this->buildRecordsLink(['assignee' => $userId]),
+            'link' => $count > 0 ? $this->buildRecordsLink(['assignee' => $userId]) : '',
+            'icon' => 'content-planner-user-circle',
+            'label' => $this->translate('widgets.contentPlanner.kpi.assignee'),
+            'figure' => (string) $count,
+            'summary' => $count > 0
+                ? sprintf($this->translate('widgets.contentPlanner.status.assignee'), $count)
+                : $this->translate('widgets.contentPlanner.status.assignee.empty'),
         ];
+    }
+
+    private function translate(string $key): string
+    {
+        return $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:'.$key);
     }
 
     /**

@@ -174,7 +174,24 @@ services:
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.description'
         iconIdentifier: 'dashboard-assignee'
-        height: 'medium'
+        height: 'small'
+        width: 'small'
+
+  dashboard.widget.ContentStatus-mywork:
+    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
+    arguments:
+      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+      $options:
+        refreshAvailable: true
+        myWork: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'contentPlanner-mywork'
+        groupNames: 'contentPlanner'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.mywork.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.mywork.description'
+        iconIdentifier: 'dashboard-assignee'
+        height: 'small'
         width: 'small'
 
   dashboard.widget.ContentStatus-todo:
@@ -191,7 +208,7 @@ services:
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.description'
         iconIdentifier: 'dashboard-todo'
-        height: 'medium'
+        height: 'small'
         width: 'small'
 
   dashboard.widget.ContentStatus-comments:
