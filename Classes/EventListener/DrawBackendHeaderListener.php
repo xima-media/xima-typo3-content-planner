@@ -42,9 +42,10 @@ final readonly class DrawBackendHeaderListener
             return;
         }
 
-        // "docked" mode replaces this above-content bar with a compact one spliced into the
-        // doc header's button row instead - see DockedHeaderModifier.
-        if (ExtensionUtility::isDockedDisplayModeEnabled()) {
+        // Only the legacy "banner" mode renders this above-content bar: "chip" carries the same
+        // information in the doc header trio, "docked" splices a compact bar into the doc
+        // header's button row instead (DockedHeaderModifier).
+        if (!ExtensionUtility::isBannerDisplayModeEnabled()) {
             return;
         }
 

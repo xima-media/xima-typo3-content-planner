@@ -44,6 +44,7 @@ class WebListModifier extends AbstractModifier implements ModifierInterface
     {
         return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
             && ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_WEB_LIST_HEADER_INFO)
+            && ExtensionUtility::isBannerDisplayModeEnabled()
             && null !== $request->getAttribute('module')
             && RouteUtility::isRecordListRoute($request->getAttribute('module')->getIdentifier());
     }

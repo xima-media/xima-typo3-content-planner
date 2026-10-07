@@ -38,6 +38,13 @@ final class DrawBackendHeaderListenerTest extends AbstractFunctionalTestCase
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
         $this->loginBackendUser();
         $this->subject = $this->get(DrawBackendHeaderListener::class);
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
+    }
+
+    protected function tearDown(): void
+    {
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+        parent::tearDown();
     }
 
     #[Test]
@@ -82,8 +89,19 @@ final class DrawBackendHeaderListenerTest extends AbstractFunctionalTestCase
         $this->subject->__invoke($event);
 
         self::assertSame('', $event->getHeaderContent());
+    }
 
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+    #[Test]
+    public function addsNoBannerInChipDisplayMode(): void
+    {
+        // The doc header trio already carries status, assignee and comments in "chip" mode.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_CHIP;
+
+        $event = $this->createEvent(1);
+
+        $this->subject->__invoke($event);
+
+        self::assertStringNotContainsString('content-planner-header', $event->getHeaderContent());
     }
 
     private function createEvent(int $pageId): ModifyPageLayoutContentEvent
