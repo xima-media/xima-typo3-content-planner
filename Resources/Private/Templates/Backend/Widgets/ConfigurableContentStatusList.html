@@ -5,15 +5,15 @@
 <div class="widget-content-main content-planner-widget content-planner-widget--configurable content-planner-widget--server-rendered {f:if(condition: '!{hasSite}', then: 'content-planner-widget--no-site')}">
 
     <f:if condition="{items}">
-        <f:if condition="{mode} == 'todo'">
+        <f:if condition="{mode} == 'todo' && {todo}">
             <div class="content-planner-widget__description">
-                <f:format.raw><f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todo}"/></f:format.raw>
+                <f:translate key="widgets.contentPlanner.status.todo" extensionName="XimaTypo3ContentPlanner" arguments="{0: todo.resolved, 1: todo.total}"/>
             </div>
         </f:if>
 
-        <f:if condition="{hasAssigneeFilter}">
+        <f:if condition="{assignedToMeCount} !== null">
             <div class="content-planner-widget__description">
-                <f:format.raw><f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner"/></f:format.raw>
+                <f:translate key="widgets.contentPlanner.status.assignee" extensionName="XimaTypo3ContentPlanner" arguments="{0: assignedToMeCount}"/>
             </div>
         </f:if>
     </f:if>
