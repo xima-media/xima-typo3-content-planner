@@ -185,8 +185,7 @@ class RecordModal {
         text: TYPO3.lang?.['button.modal.footer.edit'] || 'Edit',
         name: 'edit',
         icon: 'actions-flag-edit',
-        active: true,
-        btnClass: 'btn-secondary',
+        btnClass: 'btn-default',
         trigger: (event, modal) => {
           modal.hideModal()
           setTimeout(() => window.location.href = this.context.editUri, 100)
@@ -199,7 +198,7 @@ class RecordModal {
       name: 'close',
       icon: 'actions-close',
       active: true,
-      btnClass: 'btn-secondary',
+      btnClass: 'btn-default',
       trigger: (event, modal) => modal.hideModal()
     })
 

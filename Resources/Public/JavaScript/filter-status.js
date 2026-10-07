@@ -173,7 +173,7 @@ class FilterStatus {
         name: 'close',
         icon: 'actions-close',
         active: true,
-        btnClass: 'btn-secondary',
+        btnClass: 'btn-default',
         trigger: (event, modal) => modal.hideModal()
       }
     ];

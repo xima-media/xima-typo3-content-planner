@@ -119,7 +119,7 @@
 				<source>This record does not support watching.</source>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
-				<source>Cancel</source>
+				<source>Close</source>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.edit">
 				<source>Edit</source>

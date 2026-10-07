@@ -243,8 +243,8 @@
 				<target>Dieser Datensatz unterstützt kein Beobachten.</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
-				<source>Cancel</source>
-				<target>Abbrechen</target>
+				<source>Close</source>
+				<target>Schließen</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.edit">
 				<source>Edit</source>
