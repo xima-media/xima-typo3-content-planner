@@ -112,7 +112,7 @@ class NotificationCenterDataProvider
 
         return new NotificationItem(
             (int) $row['uid'],
-            null !== $eventType ? $eventType->value : (string) $row['event_type'],
+            $eventType->value ?? (string) $row['event_type'],
             $this->resolveIcon($eventType),
             $title,
             $url,

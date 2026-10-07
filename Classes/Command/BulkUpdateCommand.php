@@ -114,7 +114,7 @@ final class BulkUpdateCommand extends Command
             return Command::FAILURE;
         }
 
-        $status = null !== $statusEntity ? $statusEntity->getUid() : null;
+        $status = $statusEntity?->getUid();
 
         // Validate and process assignee option
         $assigneeRawValue = $input->getOption('assignee');
@@ -143,7 +143,7 @@ final class BulkUpdateCommand extends Command
             'Updated %d "%s" records to status "%s".',
             $count,
             $table,
-            null !== $statusEntity ? $statusEntity->getTitle() : 'clear',
+            $statusEntity?->getTitle() ?? 'clear',
         ));
 
         return Command::SUCCESS;
@@ -171,7 +171,7 @@ final class BulkUpdateCommand extends Command
         $output->writeln(sprintf(
             'Updated folder "%s" to status "%s".',
             $combinedIdentifier,
-            null !== $statusEntity ? $statusEntity->getTitle() : 'clear',
+            $statusEntity?->getTitle() ?? 'clear',
         ));
 
         return Command::SUCCESS;
