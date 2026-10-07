@@ -111,12 +111,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         }
 
         if (Configuration::TABLE_COMMENT === $table) {
-            $comment = $this->commentRepository->findByUid((int) $id);
-            if ($comment && !PermissionUtility::canDeleteComment($comment)) {
-                unset($parentObject->cmdmap[$table][$id]);
-            } elseif ($comment) {
-                $this->commentRepository->deleteRepliesByParentUid((int) $id);
-            }
+            $this->guardCommentDeletion((int) $id, $parentObject);
         }
     }
 
@@ -343,6 +338,25 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         ));
     }
 
+    /**
+     * Drops the delete command when the user may not delete the comment, cascades to its replies otherwise.
+     */
+    private function guardCommentDeletion(int $id, DataHandler $dataHandler): void
+    {
+        $comment = $this->commentRepository->findByUid($id);
+        if (!$comment) {
+            return;
+        }
+
+        if (!PermissionUtility::canDeleteComment($comment)) {
+            unset($dataHandler->cmdmap[Configuration::TABLE_COMMENT][$id]);
+
+            return;
+        }
+
+        $this->commentRepository->deleteRepliesByParentUid($id);
+    }
+
     private function updateCommentTodo(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
@@ -406,40 +420,41 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
     private function checkCommentEdited(DataHandler $dataHandler): void
     {
         foreach (array_keys($dataHandler->datamap[Configuration::TABLE_COMMENT]) as $id) {
-            if (!MathUtility::canBeInterpretedAsInteger($id)) {
-                continue;
+            if (MathUtility::canBeInterpretedAsInteger($id)) {
+                $this->checkSingleCommentEdited($dataHandler, $id);
             }
-
-            if (!array_key_exists('content', $dataHandler->datamap[Configuration::TABLE_COMMENT][$id])) {
-                continue;
-            }
-
-            // Internal marker set by CommentTodoController::toggleTodoAction() (CP-30, #389) -
-            // not a TCA column, never persisted. Ticking a to-do checkbox changes the `content`
-            // string but isn't a text edit, so it must not trip the "edited" flag the way a real
-            // content rewrite does. Left in place rather than unset: this hook runs twice per
-            // save (processDatamap_beforeStart and _preProcessFieldArray), and only the first
-            // pass would see an unset marker.
-            if (true === ($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['__todoToggle'] ?? false)) {
-                continue;
-            }
-
-            $originalRecord = $this->commentRepository->findByUid((int) $id);
-            if (!$originalRecord) {
-                continue;
-            }
-
-            if ($originalRecord['content'] === $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']) {
-                continue;
-            }
-
-            if (!PermissionUtility::canEditComment($originalRecord)) {
-                unset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']);
-                continue;
-            }
-
-            $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['edited'] = 1;
         }
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function checkSingleCommentEdited(DataHandler $dataHandler, string|int $id): void
+    {
+        $commentData = $dataHandler->datamap[Configuration::TABLE_COMMENT][$id];
+
+        // Internal marker set by CommentTodoController::toggleTodoAction() (CP-30, #389) -
+        // not a TCA column, never persisted. Ticking a to-do checkbox changes the `content`
+        // string but isn't a text edit, so it must not trip the "edited" flag the way a real
+        // content rewrite does. Left in place rather than unset: this hook runs twice per
+        // save (processDatamap_beforeStart and _preProcessFieldArray), and only the first
+        // pass would see an unset marker.
+        if (!array_key_exists('content', $commentData) || true === ($commentData['__todoToggle'] ?? false)) {
+            return;
+        }
+
+        $originalRecord = $this->commentRepository->findByUid((int) $id);
+        if (!$originalRecord || $originalRecord['content'] === $commentData['content']) {
+            return;
+        }
+
+        if (!PermissionUtility::canEditComment($originalRecord)) {
+            unset($dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['content']);
+
+            return;
+        }
+
+        $dataHandler->datamap[Configuration::TABLE_COMMENT][$id]['edited'] = 1;
     }
 
     /**

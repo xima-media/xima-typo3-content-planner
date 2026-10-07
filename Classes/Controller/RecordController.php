@@ -87,12 +87,13 @@ class RecordController extends ActionController
 
     public function filterAction(ServerRequestInterface $request): JsonResponse
     {
-        $search = array_key_exists('search', $request->getQueryParams()) ? $request->getQueryParams()['search'] : null;
-        $status = array_key_exists('status', $request->getQueryParams()) ? (int) $request->getQueryParams()['status'] : null;
-        $assignee = array_key_exists('assignee', $request->getQueryParams()) ? (int) $request->getQueryParams()['assignee'] : null;
-        $todo = array_key_exists('todo', $request->getQueryParams()) ? (bool) $request->getQueryParams()['todo'] : false;
-        $type = array_key_exists('type', $request->getQueryParams()) ? $request->getQueryParams()['type'] : null;
-        $openComments = array_key_exists('openComments', $request->getQueryParams()) ? (bool) $request->getQueryParams()['openComments'] : false;
+        $queryParams = $request->getQueryParams();
+        $search = $queryParams['search'] ?? null;
+        $status = array_key_exists('status', $queryParams) ? (int) $queryParams['status'] : null;
+        $assignee = array_key_exists('assignee', $queryParams) ? (int) $queryParams['assignee'] : null;
+        $todo = (bool) ($queryParams['todo'] ?? false);
+        $type = $queryParams['type'] ?? null;
+        $openComments = (bool) ($queryParams['openComments'] ?? false);
 
         $records = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type, $todo, 20, $openComments);
         $result = [];

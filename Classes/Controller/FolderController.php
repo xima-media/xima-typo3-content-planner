@@ -73,21 +73,28 @@ class FolderController extends ActionController
 
         try {
             $uid = $this->folderStatusRepository->createOrUpdate($identifier, $status, $assignee);
-
-            // If a valid local redirect URL is provided, redirect instead of returning JSON
-            $redirect = null !== $redirect ? GeneralUtility::sanitizeLocalUrl($redirect) : '';
-            if ('' !== $redirect) {
-                return new RedirectResponse($redirect);
-            }
-
-            return new JsonResponse([
-                'success' => true,
-                'uid' => $uid,
-                'identifier' => $identifier,
-            ]);
         } catch (InvalidArgumentException $e) {
             return new JsonResponse(['error' => $e->getMessage()], 400);
         }
+
+        return $this->buildSuccessResponse($uid, $identifier, $redirect);
+    }
+
+    /**
+     * Redirects when a valid local redirect URL is provided, returns JSON otherwise.
+     */
+    private function buildSuccessResponse(int $uid, string $identifier, ?string $redirect): ResponseInterface
+    {
+        $redirect = null !== $redirect ? GeneralUtility::sanitizeLocalUrl($redirect) : '';
+        if ('' !== $redirect) {
+            return new RedirectResponse($redirect);
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'uid' => $uid,
+            'identifier' => $identifier,
+        ]);
     }
 
     /**
