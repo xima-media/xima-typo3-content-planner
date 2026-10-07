@@ -70,6 +70,16 @@ final class ConfigurableContentStatusListTemplateTest extends AbstractFunctional
         self::assertStringContainsString('class="content-planner-link--comments"', $content);
     }
 
+    #[Test]
+    public function rowsAssignedToTheCurrentUserCarryTheHighlightClassFromWidgetsCss(): void
+    {
+        $content = $this->renderTemplate([
+            'items' => [['assignedToCurrentUser' => true, 'data' => ['tablename' => 'pages', 'uid' => 1]]],
+        ]);
+
+        self::assertStringContainsString('content-planner-widget__row--current', $content);
+    }
+
     /**
      * @param array<string, mixed> $arguments
      */

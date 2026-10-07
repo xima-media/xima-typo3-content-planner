@@ -41,7 +41,7 @@
                     </thead>
                     <tbody>
                     <f:for each="{items}" as="item">
-                        <tr class="{f:if(condition: item.assignedToCurrentUser, then: 'current')}">
+                        <tr class="{f:if(condition: item.assignedToCurrentUser, then: 'content-planner-widget__row--current')}">
                             <td>
                                 <a href="{item.link}">
                                     <f:format.raw>{item.statusIcon}</f:format.raw>
