@@ -282,6 +282,17 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function modifyKeepsDollarSignsInFolderStatusTitleLiteral(): void
+    {
+        $this->getConnectionPool()->getConnectionForTable('tx_ximatypo3contentplanner_domain_model_status')
+            ->update('tx_ximatypo3contentplanner_domain_model_status', ['title' => 'Done $0'], ['uid' => 3]);
+
+        $response = $this->subject->modify($this->buildRequest('media_management', '1:/user_upload/'), $this->buildResponseHandler($this->buildListViewBody()));
+
+        self::assertStringContainsString('title="Done $0"', (string) $response->getBody());
+    }
+
+    #[Test]
     public function modifySkipsRowsWithUnknownMetadataUid(): void
     {
         $body = <<<'HTML'

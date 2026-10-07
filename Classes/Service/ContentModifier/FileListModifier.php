@@ -204,23 +204,13 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             }
 
             $combinedIdentifier = $subfolder['combined_identifier'];
-            $dropdownItems = $this->listSelectionService->generateFolderSelection($combinedIdentifier);
-            $escapedIdentifier = preg_quote($combinedIdentifier, '/');
-            $pattern = '/(<tr\b[^>]*data-filelist-identifier="'.$escapedIdentifier.'"[^>]*>.*?<div class="btn-group">)/is';
-            $content = $this->injectDropdown($content, $status, $dropdownItems, $pattern);
+            $dropdown = $this->buildDropdown($status, $this->listSelectionService->generateFolderSelection($combinedIdentifier));
+            $pattern = '/<tr\b[^>]*data-filelist-identifier="'.preg_quote($combinedIdentifier, '/').'"[^>]*>.*?<div class="btn-group">/is';
+            // A callback instead of a replacement string, so "$1" or "\1" in a status title stays literal.
+            $content = preg_replace_callback($pattern, static fn (array $match): string => $match[0].$dropdown, $content) ?? $content;
         }
 
         return $content;
-    }
-
-    /**
-     * @param array<string, string>|bool $dropdownItems
-     */
-    private function injectDropdown(string $content, ?Status $status, array|bool $dropdownItems, string $pattern): string
-    {
-        $result = preg_replace($pattern, '$1'.$this->buildDropdown($status, $dropdownItems), $content);
-
-        return $result ?? $content;
     }
 
     /**
