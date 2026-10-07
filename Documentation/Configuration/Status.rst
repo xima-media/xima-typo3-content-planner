@@ -26,21 +26,28 @@ By default, there are four different statuses available:
 Custom Status
 ==================
 
-Statuses are managed as records on the root page (pid 0).
+Statuses are managed in the **Content Planner > Status** backend module, visible to admin
+backend users only.
 
-..  figure:: /Images/status-default.png
-    :alt: Default Status Records
+..  figure:: /Images/status-module-list.png
+    :alt: Status submodule listing all configured statuses
     :class: with-shadow
 
-    Default Status Records
+    Status submodule
 
-You can add a new status, edit an existing status, change the status order or delete a status.
+Add a new status, edit an existing one, reorder statuses with the arrow buttons, or delete a
+status - all directly from the list.
 
-..  figure:: /Images/status-edit.png
-    :alt: Edit Status Record
+..  figure:: /Images/status-module-edit.png
+    :alt: Editing a status record
     :class: with-shadow
 
-    Edit Status Record
+    Editing a status record
+
+..  versionchanged:: 3.0.0
+
+    Before 3.0, statuses were only reachable as records on the root page (pid 0) via the core
+    List module. The dedicated Status submodule replaces that path.
 
 
 .. t3-field-list-table::

@@ -21,69 +21,59 @@ class FilterStatus {
           return;
         }
 
-        let currentBackendUser = event.target.querySelector('input[name="currentBackendUser"]')?.value || false;
-        let todo = event.target.querySelector('input[name="todo"]')?.value || false;
-
-        if (currentBackendUser) {
-          FilterStatus.search(widget, {assignee: currentBackendUser}, () => {
-            const badge = widget.querySelector('.content-planner-widget__description .badge');
-            if (badge) {
-              badge.innerHTML = widget.querySelectorAll('.widget-table tbody tr').length;
-            }
-          });
-          widget.classList.add('content-planner-widget--assigned');
-        } else if (todo && todo !== 'false') {
-          FilterStatus.search(widget, {todo: true});
-          widget.classList.add('content-planner-widget--todo');
-        } else {
-          let queryArguments = FilterStatus.loadFilter();
-          const form = event.target.querySelector('.content-planner-widget__filter-form');
-          const search = event.target.querySelector('input[name="search"]');
-          const filterTrigger = event.target.querySelector('.content-planner-widget__filter-modal-trigger');
-          const filterTemplate = event.target.querySelector('.content-planner-widget__filter-modal-content');
-
-          // Restore search field value
-          if (search && queryArguments.search) {
-            search.value = queryArguments.search;
-          }
-
-          // Restore badge state
-          if (filterTrigger) {
-            FilterStatus.updateBadge(filterTrigger, queryArguments);
-          }
-
-          FilterStatus.search(widget, queryArguments);
-
-          if (form && search) {
-            search.addEventListener('input', function(event) {
-              queryArguments[search.name] = search.value;
-              FilterStatus.saveFilter(queryArguments);
-              FilterStatus.search(widget, queryArguments);
-            });
-
-            if (filterTrigger && filterTemplate) {
-              filterTrigger.addEventListener('click', function() {
-                FilterStatus.openFilterModal(widget, filterTemplate, queryArguments, (newArgs) => {
-                  queryArguments = newArgs;
-                  FilterStatus.saveFilter(queryArguments);
-                  FilterStatus.search(widget, queryArguments);
-                  FilterStatus.updateBadge(filterTrigger, queryArguments);
-                });
-              });
-            }
-
-            form.querySelector('.content-planner-widget__filter-reset')?.addEventListener('click', function() {
-              form.reset();
-              queryArguments = {};
-              FilterStatus.saveFilter(queryArguments);
-              FilterStatus.search(widget, queryArguments);
-              if (filterTrigger) {
-                FilterStatus.updateBadge(filterTrigger, queryArguments);
-              }
-            });
-          }
+        // Todo/Assignee widgets are KPI tiles with a server-computed count and no per-record
+        // list of their own (CP-33 follow-up annotation feedback) - the template already marks
+        // them with these classes, so there is nothing left to fetch or populate here.
+        if (widget.classList.contains('content-planner-widget--assigned') || widget.classList.contains('content-planner-widget--todo') || widget.classList.contains('content-planner-widget--mywork')) {
+          return;
         }
 
+        let queryArguments = FilterStatus.loadFilter();
+        const form = event.target.querySelector('.content-planner-widget__filter-form');
+        const search = event.target.querySelector('input[name="search"]');
+        const filterTrigger = event.target.querySelector('.content-planner-widget__filter-modal-trigger');
+        const filterTemplate = event.target.querySelector('.content-planner-widget__filter-modal-content');
+
+        // Restore search field value
+        if (search && queryArguments.search) {
+          search.value = queryArguments.search;
+        }
+
+        // Restore badge state
+        if (filterTrigger) {
+          FilterStatus.updateBadge(filterTrigger, queryArguments);
+        }
+
+        FilterStatus.search(widget, queryArguments);
+
+        if (form && search) {
+          search.addEventListener('input', function(event) {
+            queryArguments[search.name] = search.value;
+            FilterStatus.saveFilter(queryArguments);
+            FilterStatus.search(widget, queryArguments);
+          });
+
+          if (filterTrigger && filterTemplate) {
+            filterTrigger.addEventListener('click', function() {
+              FilterStatus.openFilterModal(widget, filterTemplate, queryArguments, (newArgs) => {
+                queryArguments = newArgs;
+                FilterStatus.saveFilter(queryArguments);
+                FilterStatus.search(widget, queryArguments);
+                FilterStatus.updateBadge(filterTrigger, queryArguments);
+              });
+            });
+          }
+
+          form.querySelector('.content-planner-widget__filter-reset')?.addEventListener('click', function() {
+            form.reset();
+            queryArguments = {};
+            FilterStatus.saveFilter(queryArguments);
+            FilterStatus.search(widget, queryArguments);
+            if (filterTrigger) {
+              FilterStatus.updateBadge(filterTrigger, queryArguments);
+            }
+          });
+        }
       }
     });
   }
@@ -236,10 +226,8 @@ class FilterStatus {
   static search(widget, queryArguments = {}, callback) {
     widget.querySelector('thead')?.classList.remove('content-planner-hide');
     widget.querySelector('.content-planner-widget__empty')?.classList.add('content-planner-hide');
-    const waitingElement = widget.parentElement.parentElement.querySelector('.widget-waiting');
-    if (waitingElement) {
-      waitingElement.classList.remove('content-planner-hide');
-    }
+    const waitingElement = widget.querySelector('.content-planner-widget__loading');
+    waitingElement?.classList.remove('content-planner-hide');
     widget.querySelector('.content-planner-widget__table-wrapper')?.classList.add('content-planner-hide');
     new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterrecords)
       .withQueryArguments(queryArguments)
@@ -267,7 +255,7 @@ class FilterStatus {
 
           html += '<tr ' + (item.assignedToCurrentUser ? 'class="content-planner-row--current"' : '') + '>' +
             '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + FilterStatus.escapeHtml(item.title) + '</strong></a></td>' +
-            '<td>' + FilterStatus.escapeHtml(item.site ?? '') + '</td>' +
+            '<td title="' + FilterStatus.escapeHtml(item.site ?? '') + '">' + FilterStatus.escapeHtml(item.site ?? '') + '</td>' +
             '<td><small title="' + item.updatedRaw + '">' + item.updated + '</small></td>' +
             '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
             '<td>' + comments + '</td>' +
@@ -287,9 +275,7 @@ class FilterStatus {
           moreResults.hidden = !hasMore;
         }
 
-        if (waitingElement) {
-          waitingElement.classList.add('content-planner-hide');
-        }
+        waitingElement?.classList.add('content-planner-hide');
         widget.querySelector('.content-planner-widget__table-wrapper')?.classList.remove('content-planner-hide');
 
         FilterStatus.initCommentLinks(widget);
@@ -297,6 +283,17 @@ class FilterStatus {
         if (callback) {
           callback();
         }
+      })
+      .catch((error) => {
+        // Without this, a failed request (e.g. CP-36, #408: a 500 from the endpoint) left the
+        // widget permanently blank - table-wrapper still hidden from above, no empty state, no
+        // spinner. Fall back to the empty state so the widget always reaches a visible terminal
+        // state, and surface the error for whoever has DevTools open.
+        console.error('Content Planner: failed to load status widget records:', error);
+        waitingElement?.classList.add('content-planner-hide');
+        widget.querySelector('thead')?.classList.add('content-planner-hide');
+        widget.querySelector('.content-planner-widget__table-wrapper')?.classList.remove('content-planner-hide');
+        widget.querySelector('.content-planner-widget__empty')?.classList.remove('content-planner-hide');
       });
   }
 }

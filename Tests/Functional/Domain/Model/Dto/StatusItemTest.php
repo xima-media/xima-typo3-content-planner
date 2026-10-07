@@ -122,6 +122,49 @@ final class StatusItemTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getAssigneeShortNameReturnsJustTheRealNameNotTheUsernameCombo(): void
+    {
+        $item = StatusItem::create($this->pageRow());
+
+        // be_users.csv: uid 1 has realName "Administrator" - getAssigneeName()'s combined
+        // "Administrator (admin)" form is deliberately not what this method returns.
+        self::assertSame('Administrator', $item->getAssigneeShortName());
+    }
+
+    #[Test]
+    public function getAssigneeShortNamePrefersRealNameOverUsernameForAnotherUser(): void
+    {
+        $row = $this->pageRow();
+        $row['tx_ximatypo3contentplanner_assignee'] = 2;
+
+        $item = StatusItem::create($row);
+
+        // be_users.csv: uid 2 ("editor") has realName "Editor User".
+        self::assertSame('Editor User', $item->getAssigneeShortName());
+    }
+
+    #[Test]
+    public function getAssigneeShortNameFallsBackToUsernameWithoutRealName(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_users_no_realname.csv');
+
+        $row = $this->pageRow();
+        $row['tx_ximatypo3contentplanner_assignee'] = 4;
+
+        $item = StatusItem::create($row);
+
+        self::assertSame('norealname', $item->getAssigneeShortName());
+    }
+
+    #[Test]
+    public function getRecordTypeLabelReturnsTheTableTitle(): void
+    {
+        $item = StatusItem::create($this->pageRow());
+
+        self::assertSame('Page', $item->getRecordTypeLabel());
+    }
+
+    #[Test]
     public function getAssigneeAvatarReturnsString(): void
     {
         $item = StatusItem::create($this->pageRow());
@@ -223,6 +266,28 @@ final class StatusItemTest extends AbstractFunctionalTestCase
 
         self::assertSame($maliciousTitle, $item->getSiteName());
         self::assertStringNotContainsString('<script>', (string) $item->getSiteIcon());
+    }
+
+    #[Test]
+    public function getSiteNameFallsBackToIdentifierWhenWebsiteTitleIsNotConfigured(): void
+    {
+        // CP-36 (#408): Site::getAttribute() throws InvalidArgumentException for a key the site
+        // config never set, rather than returning null - websiteTitle is optional and commonly
+        // absent (never set by TYPO3's own site setup), so a site without it must not 500 the
+        // whole "Recent Updates" widget filter endpoint.
+        $siteFinder = $this->createMock(SiteFinder::class);
+        $siteFinder->method('getAllSites')->willReturn([
+            'first' => new Site('first', 1, ['base' => 'https://one.example/']),
+            'second' => new Site('second', 2, ['base' => 'https://two.example/']),
+        ]);
+        $siteFinder->method('getSiteByPageId')->willReturn(
+            new Site('second', 1, ['base' => 'https://two.example/']),
+        );
+        GeneralUtility::addInstance(SiteFinder::class, $siteFinder);
+
+        $item = StatusItem::create($this->pageRow());
+
+        self::assertSame('second', $item->getSiteName());
     }
 
     #[Test]

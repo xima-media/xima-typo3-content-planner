@@ -48,6 +48,13 @@ parameters:
 		-
 			identifier: ergebnis.noConstructorParameterWithDefaultValue
 			path: ../../Classes/Widgets/AbstractWidget.php
+		# Same reason as AbstractWidget.php above: ContentStatusWidget adds constructor-injected
+		# dependencies (CP-33, #405) but must forward $buttonProvider/$buttons/$options to
+		# parent::__construct(), and the three existing dashboard.widget.ContentStatus-* service
+		# definitions in Services.yaml still omit them.
+		-
+			identifier: ergebnis.noConstructorParameterWithDefaultValue
+			path: ../../Classes/Widgets/ContentStatusWidget.php
 		# $actorUid defaults to null for backward compatibility: this is a documented public
 		# extension point (see Notifications.rst), and a pre-existing 5-argument caller must
 		# not fatal with an ArgumentCountError after this parameter was added.

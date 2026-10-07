@@ -18,6 +18,17 @@ services:
     factory: [ '@TYPO3\CMS\Core\Cache\CacheManager', 'getCache' ]
     arguments: [ 'ximatypo3contentplanner_cache' ]
 
+  # Backend module routes (Configuration/Backend/Modules.php) resolve their controller through
+  # TYPO3\CMS\Core\Http\Dispatcher::getCallableFromTarget(), which only asks the DI container for
+  # a class it considers public - a private (the default) autowired service falls through to a
+  # bare GeneralUtility::makeInstance() with no constructor arguments at all. AJAX routes and
+  # widgets do not hit this path, so their controllers stay private (CP-32, #404).
+  Xima\XimaTypo3ContentPlanner\Controller\Backend\RecordModuleController:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Controller\Backend\StatusModuleController:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository:
     public: true
     arguments:
@@ -163,7 +174,24 @@ services:
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.description'
         iconIdentifier: 'dashboard-assignee'
-        height: 'medium'
+        height: 'small'
+        width: 'small'
+
+  dashboard.widget.ContentStatus-mywork:
+    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
+    arguments:
+      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+      $options:
+        refreshAvailable: true
+        myWork: true
+    tags:
+      - name: dashboard.widget
+        identifier: 'contentPlanner-mywork'
+        groupNames: 'contentPlanner'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.mywork.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.mywork.description'
+        iconIdentifier: 'dashboard-assignee'
+        height: 'small'
         width: 'small'
 
   dashboard.widget.ContentStatus-todo:
@@ -180,7 +208,7 @@ services:
         title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.title'
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.description'
         iconIdentifier: 'dashboard-todo'
-        height: 'medium'
+        height: 'small'
         width: 'small'
 
   dashboard.widget.ContentStatus-comments:
