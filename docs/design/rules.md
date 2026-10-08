@@ -124,7 +124,6 @@ One group of three buttons, in this order:
 - Core buttons render icon and text only. No avatar, no count pill.
 - Build the assignee and comment buttons with `GenericButton`, which keeps label and title apart. `LinkButton` prints its title as the label.
 - Push the three buttons as one group array. Core renders an empty `aria-label` on the group, so the group cannot carry a name.
-- The page module has no reload button in v14 and the drawings do not show one.
 
 ```php
 $icon = $this->iconFactory->getIcon('content-planner-user-circle', IconSize::SMALL);
