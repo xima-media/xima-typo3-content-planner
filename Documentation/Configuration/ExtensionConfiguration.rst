@@ -70,7 +70,8 @@ Features
     :type: boolean
     :Default: 1
 
-    Enable web list header info
+    Enable web list header info. Only applies to the ``banner`` display mode, the ``chip``
+    mode shows the same information in the doc header trio.
 
 ..  _extconf-treeStatusInformation:
 

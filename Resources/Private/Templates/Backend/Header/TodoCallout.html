@@ -1,0 +1,13 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+<f:be.infobox state="-1" iconName="actions-check-square" title="{f:translate(key: 'header.todoCallout.title', arguments: {0: todoOpen}, extensionName: 'xima_typo3_content_planner')}">
+    <p>{f:translate(key: 'header.todoCallout.body', arguments: {0: todoResolved, 1: todoTotal}, extensionName: 'xima_typo3_content_planner')}</p>
+    <button type="button" class="btn btn-default btn-sm"
+        data-content-planner-comments
+        data-force-ajax-url="true"
+        data-show-todo-comments="1"
+        data-table="{table}"
+        data-id="{uid}">
+        {f:translate(key: 'header.todoCallout.show', extensionName: 'xima_typo3_content_planner')}
+    </button>
+</f:be.infobox>
+</html>

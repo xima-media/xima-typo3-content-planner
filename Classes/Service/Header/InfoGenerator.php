@@ -254,6 +254,28 @@ class InfoGenerator
     }
 
     /**
+     * Core callout above the page module columns in "chip" display mode, where the banner and
+     * its to-do badge are not rendered. Empty when the record has no open to-dos.
+     *
+     * @param array<string, mixed> $record
+     *
+     * @throws Exception
+     */
+    public function renderOpenTodoCallout(array $record, string $table): string
+    {
+        $todoCounts = $this->getTodoCounts($record, $table);
+        if (0 === $todoCounts['todoOpen']) {
+            return '';
+        }
+
+        return ViewUtility::render('Backend/Header/TodoCallout', [
+            ...$todoCounts,
+            'table' => $table,
+            'uid' => (int) $record['uid'],
+        ]);
+    }
+
+    /**
      * Inline asset tags for headers injected by a middleware after PageRenderer::render().
      */
     public function renderInlineHeaderAssets(): string

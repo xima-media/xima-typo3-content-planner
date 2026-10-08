@@ -42,6 +42,7 @@ final class WebListModifierTest extends AbstractFunctionalTestCase
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
         $this->loginBackendUser();
         $this->subject = $this->get(WebListModifier::class);
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
     }
 
     protected function tearDown(): void
@@ -49,6 +50,7 @@ final class WebListModifierTest extends AbstractFunctionalTestCase
         unset(
             $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_WEB_LIST_HEADER_INFO],
             $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_RECORD_EDIT_HEADER_INFO],
+            $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE],
         );
         parent::tearDown();
     }
@@ -69,6 +71,16 @@ final class WebListModifierTest extends AbstractFunctionalTestCase
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_WEB_LIST_HEADER_INFO] = 1;
 
         self::assertTrue($this->subject->isRelevant($this->buildRequest('web_list', 1)));
+    }
+
+    #[Test]
+    public function isRelevantReturnsFalseInChipDisplayMode(): void
+    {
+        // The doc header trio already carries status, assignee and comments in "chip" mode.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_WEB_LIST_HEADER_INFO] = 1;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_CHIP;
+
+        self::assertFalse($this->subject->isRelevant($this->buildRequest('web_list', 1)));
     }
 
     #[Test]

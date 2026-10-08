@@ -123,6 +123,19 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function chipModeCommentsButtonOpensTheModalWithTheComposerFocused(): void
+    {
+        // Parity with the banner's comments button, which carries the same attribute (HeaderInfo.html).
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        $commentsButton = $this->getLinkButtons($event)[1];
+        self::assertArrayHasKey('focus-composer', $commentsButton->getDataAttributes());
+    }
+
+    #[Test]
     public function chipModeButtonsUseSmallIconsToMatchCoreButtonHeight(): void
     {
         $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
