@@ -4,13 +4,12 @@ import { BackendPage, PageTreePage } from '@konradmichalik/ptu';
 const CONTENT_IFRAME = '#typo3-contentIframe';
 
 /**
- * Web > Page (`web_layout`) status header, rendered by
- * `Classes\EventListener\DrawBackendHeaderListener` /
- * `Classes\Service\Header\InfoGenerator::generateStatusHeader()` into
- * `Resources/Private/Templates/Backend/Header/HeaderInfo.html`.
- *
- * Pre-#324 (chip-redesign) state: a single banner (`.content-planner-header`), not the
- * chip trio the CP-epic branch introduces later - see the spec file for details.
+ * Web > Page (`web_layout`) status surface. In the default `chip` display mode it is the
+ * Content Planner button group in the doc header, added by
+ * `Classes\EventListener\ModifyButtonBarEventListener` /
+ * `Classes\Service\Header\ChipTrioButtonBuilder`: the status dropdown, the assignee button and
+ * the comments button. The full-width banner (`.content-planner-header`) only exists in
+ * `banner` mode and is not covered here.
  *
  * TYPO3 renders module content in `#typo3-contentIframe`, so every locator here is
  * scoped through `frameLocator()`, which re-resolves on each access and therefore
@@ -33,37 +32,37 @@ export class WebLayoutPage {
     await node.waitFor({ state: 'visible' });
     await pageTree.clear();
     await node.click();
-    await this.header().waitFor({ state: 'visible', timeout: 20_000 });
+    // The module opened without a page has no Content Planner buttons, so this only resolves
+    // once the selected page's doc header has rendered.
+    await this.commentsButton().waitFor({ state: 'visible', timeout: 20_000 });
   }
 
-  header(): Locator {
-    return this.content().locator('.content-planner-header');
+  docHeader(): Locator {
+    return this.content().locator('.module-docheader');
   }
 
-  statusBody(): Locator {
-    return this.header().locator('.content-planner-header__body');
-  }
-
-  commentsButton(): Locator {
-    return this.header().locator('[data-content-planner-comments]');
-  }
-
-  assigneeButton(): Locator {
-    return this.header().locator('[data-content-planner-assignees]');
-  }
-
-  commentsBadge(): Locator {
-    return this.commentsButton().locator('.badge');
+  /** The status dropdown, labelled with the current status title. */
+  statusButton(statusTitle: string): Locator {
+    return this.docHeader().locator('button.dropdown-toggle').filter({ hasText: statusTitle });
   }
 
   /**
-   * The button that opens the comment list, as opposed to `commentsButton()`, which also
-   * matches the overflow menu's todo entry and is therefore ambiguous for anything but the
-   * badge. Since issue #404 it is the only way into the modal from the header: the separate
-   * new-comment trigger is gone, because the composer expands on the modal's first open
-   * anyway.
+   * Shows the display name, so the username is asserted via its text. `.btn` skips the copy
+   * core also renders in the doc header's overflow menu (`dropdown-item`).
    */
+  assigneeButton(): Locator {
+    return this.docHeader().locator('.btn[data-content-planner-assignees]');
+  }
+
+  /**
+   * Opens the record modal. Its label carries the count ("3 Comment(s)"), and only the bare
+   * label while the page has no comments.
+   */
+  commentsButton(): Locator {
+    return this.docHeader().locator('.btn[data-content-planner-comments]');
+  }
+
   commentsListButton(): Locator {
-    return this.header().locator('button.content-planner-link--comments');
+    return this.commentsButton();
   }
 }

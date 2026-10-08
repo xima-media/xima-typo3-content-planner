@@ -20,10 +20,8 @@ test('adding a comment persists it and increments the comment count', async ({ p
   const webLayout = new WebLayoutPage(page);
   await webLayout.openPage(DEMO_DRAFT_PAGE_TITLE);
 
-  // Starting state: the comments button itself always renders (HeaderInfo.html's
-  // `<f:if condition="{comments}">` checks the always-populated view-model array, not
-  // the comment list) but carries no count badge yet.
-  await expect(webLayout.commentsBadge()).toHaveCount(0);
+  // Starting state: the comments button always renders but carries no count yet.
+  await expect(webLayout.commentsButton()).not.toHaveText(/\d/);
 
   await webLayout.commentsListButton().click();
 
@@ -39,5 +37,5 @@ test('adding a comment persists it and increments the comment count', async ({ p
   await commentModal.close();
   await webLayout.openPage(DEMO_DRAFT_PAGE_TITLE);
 
-  await expect(webLayout.commentsBadge()).toHaveText('1');
+  await expect(webLayout.commentsButton()).toContainText('1');
 });
