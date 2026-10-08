@@ -150,6 +150,7 @@ final readonly class ChipTrioButtonBuilder
                 'edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
                 'content-planner-comments' => '1',
                 'force-ajax-url' => '1',
+                'focus-composer' => 'true',
             ])
             ->setHref(UrlUtility::getContentStatusPropertiesEditUrl($table, $uid));
 
