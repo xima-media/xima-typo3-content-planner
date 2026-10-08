@@ -15,7 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Service\Header;
 
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Backend\Template\Components\ModifyButtonBarEvent;
-use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -67,6 +67,7 @@ final readonly class ChipTrioButtonBuilder
             ->setTitle($isChipMode && $status instanceof Status ? $statusLabel.': '.$status->getTitle() : $statusLabel)
             ->setIcon($this->iconFactory->getIcon(
                 $status instanceof Status ? $status->getColoredIcon() : 'flag-gray',
+                IconSize::SMALL,
             ));
 
         foreach ($buttonsToAdd as $buttonToAdd) {
@@ -99,7 +100,8 @@ final readonly class ChipTrioButtonBuilder
     private function addAssigneeButton(ModifyButtonBarEvent $event, string $table, int $uid, array $record): void
     {
         $currentAssignee = (int) ($record[Configuration::FIELD_ASSIGNEE] ?? 0);
-        $username = $currentAssignee > 0 ? $this->backendUserRepository->getUsernameByUid($currentAssignee) : '';
+        // Raw name: LinkButton::render() escapes the title itself, the pre-escaped variant would double-encode.
+        $username = $currentAssignee > 0 ? $this->backendUserRepository->getDisplayNameByUid($currentAssignee) : '';
         $label = '' !== $username
             ? $username
             : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.unassigned');
@@ -109,9 +111,9 @@ final readonly class ChipTrioButtonBuilder
         $assignedToCurrentUser = InfoGenerator::getAssignedToCurrentUser($record);
 
         $assigneeButton = GeneralUtility::makeInstance(LinkButton::class)
-            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-user-circle')))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-user-circle', IconSize::SMALL)))
             ->setShowLabelText(true)
-            ->setTitle($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:header.assignee').': '.$label)
+            ->setTitle($this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:button.modal.header.assignee').': '.$label)
             ->setClasses('content-planner-link--assignee'.($assignedToCurrentUser ? ' content-planner-link--assignee-current' : ''))
             ->setDataAttributes([
                 'id' => (string) $uid,
@@ -137,7 +139,7 @@ final readonly class ChipTrioButtonBuilder
         $title = $commentsCount > 0 ? $commentsCount.' '.$commentsLabel : $commentsLabel;
 
         $commentsButton = GeneralUtility::makeInstance(LinkButton::class)
-            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-message-circle')))
+            ->setIcon(IconUtility::withInlineMarkup($this->iconFactory->getIcon('content-planner-message-circle', IconSize::SMALL)))
             ->setShowLabelText(true)
             ->setTitle($title)
             ->setClasses('content-planner-link--comments')

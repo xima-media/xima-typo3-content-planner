@@ -173,7 +173,7 @@ class FilterStatus {
         name: 'close',
         icon: 'actions-close',
         active: true,
-        btnClass: 'btn-secondary',
+        btnClass: 'btn-default',
         trigger: (event, modal) => modal.hideModal()
       }
     ];
@@ -253,7 +253,7 @@ class FilterStatus {
             }
           }
 
-          html += '<tr ' + (item.assignedToCurrentUser ? 'class="content-planner-row--current"' : '') + '>' +
+          html += '<tr ' + (item.assignedToCurrentUser ? 'class="content-planner-widget__row--current"' : '') + '>' +
             '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + FilterStatus.escapeHtml(item.title) + '</strong></a></td>' +
             '<td title="' + FilterStatus.escapeHtml(item.site ?? '') + '">' + FilterStatus.escapeHtml(item.site ?? '') + '</td>' +
             '<td><small title="' + item.updatedRaw + '">' + item.updated + '</small></td>' +

@@ -1,0 +1,9 @@
+"be_groups"
+,"uid","pid","title","tables_select","tables_modify","db_mountpoints","custom_options","deleted"
+,10,0,"Limited editors","pages,tx_ximatypo3contentplanner_comment","pages,tx_ximatypo3contentplanner_comment","1","tx_ximatypo3contentplanner:content-status",0
+"be_users"
+,"uid","pid","username","admin","realName","usergroup","disable","deleted"
+,20,0,"limited",0,"Limited Editor","10",0,0
+"pages"
+,"uid","pid","title","doktype","slug","deleted","hidden","tstamp","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody"
+,7,1,"Restricted Page","1","/restricted","0","0","1700000000","1","0","31","0","0"

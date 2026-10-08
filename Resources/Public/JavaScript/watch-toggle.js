@@ -1,6 +1,7 @@
 /**
 * Module: @content-planner/watch-toggle
 */
+import oncePerRealm from "@content-planner/once-per-realm.js"
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Notification from "@content-planner/notification.js"
 import HeaderTooltips from "@content-planner/header-tooltips.js"
@@ -8,6 +9,9 @@ import HeaderTooltips from "@content-planner/header-tooltips.js"
 class WatchToggle {
 
   constructor() {
+    if (!oncePerRealm('watch-toggle')) {
+      return
+    }
     // Delegated rather than bound to individual buttons: the toggle re-renders itself
     // (outerHTML) on every click, so a direct listener would be gone after the first toggle.
     //

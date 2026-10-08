@@ -84,6 +84,8 @@ class BackendUserRepository
             ->where(
                 $queryBuilder->expr()->eq('be_users.deleted', 0),
                 $queryBuilder->expr()->eq('be_users.disable', 0),
+                // The CLI system user is an admin, but nobody can be assigned, mentioned or named as a watcher through it.
+                $queryBuilder->expr()->neq('be_users.username', $queryBuilder->createNamedParameter('_cli_', Connection::PARAM_STR)),
             )
             ->orderBy('be_users.username');
 

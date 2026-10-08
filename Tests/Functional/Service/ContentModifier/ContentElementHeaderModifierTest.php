@@ -91,6 +91,32 @@ final class ContentElementHeaderModifierTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function modifyEmitsHeaderAssetsOnceEvenWhenTheFirstRecordIsNotRendered(): void
+    {
+        $this->importSharedDataSet('status.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content_multiple.csv');
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
+
+        $modifier = $this->get(ContentElementHeaderModifier::class);
+        $request = (new ServerRequest('https://example.com/typo3/index.php', 'GET'))
+            ->withQueryParams(['id' => '1']);
+
+        // Element 1 has a status but is not part of the rendered layout (e.g. another language),
+        // so its header is never inserted and must not be the one carrying the assets.
+        $body = '';
+        foreach ([2, 3] as $uid) {
+            $body .= '<div class="t3-page-ce" id="element-tt_content-'.$uid.'">'
+                .'<div class="t3-page-ce-header t3js-page-ce-header">Element '.$uid.'</div></div>';
+        }
+
+        $content = (string) $modifier->modify($request, $this->buildResponseHandler($body))->getBody();
+
+        self::assertSame(2, substr_count($content, 'content-planner-header--compact'));
+        self::assertSame(1, substr_count($content, 'Css/Header.css'));
+        self::assertSame(1, substr_count($content, 'JavaScript/watch-toggle.js'));
+    }
+
+    #[Test]
     public function modifyLeavesResponseUntouchedWhenContentElementHasNoStatus(): void
     {
         $this->importSharedDataSet('status.csv');

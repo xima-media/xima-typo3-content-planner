@@ -19,6 +19,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Dashboard\Widgets\{AdditionalCssInterface, ButtonProviderInterface, JavaScriptInterface, ListDataProviderInterface, WidgetConfigurationInterface, WidgetInterface};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 /**
  * AbstractWidget.
@@ -49,6 +50,11 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
     {
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $pageRenderer->addInlineLanguageLabelFile('EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf');
+
+        // Widgets are granted through dashboard permissions, independently of Content Planner access.
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return ViewUtility::render('Backend/Widgets/NotAvailable', []);
+        }
 
         return ViewUtility::render($templateFile, $templateArguments);
     }

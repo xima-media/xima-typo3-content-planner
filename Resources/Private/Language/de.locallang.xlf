@@ -87,6 +87,10 @@
 				<source>Changed</source>
 				<target>Geändert</target>
 			</trans-unit>
+			<trans-unit id="widgets.notAvailable">
+				<source>Content Planner information is not available for your account. It may be hidden in your user settings.</source>
+				<target>Content-Planner-Informationen sind für dein Konto nicht verfügbar. Eventuell sind sie in deinen Benutzereinstellungen ausgeblendet.</target>
+			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.assignee">
 				<source>Assignee</source>
 				<target>Zuständigkeit</target>
@@ -243,8 +247,8 @@
 				<target>Dieser Datensatz unterstützt kein Beobachten.</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.close">
-				<source>Cancel</source>
-				<target>Abbrechen</target>
+				<source>Close</source>
+				<target>Schließen</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.edit">
 				<source>Edit</source>

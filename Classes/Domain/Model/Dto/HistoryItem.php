@@ -102,7 +102,8 @@ final class HistoryItem
             $this->loadRelatedRecord();
         }
 
-        if (!PermissionUtility::checkAccessForRecord($this->data['tablename'], $this->relatedRecord)) {
+        // A comment entry's related record is the commented record, so its own table decides access.
+        if (!PermissionUtility::checkAccessForRecord($this->data['relatedRecordTablename'] ?? $this->data['tablename'], $this->relatedRecord)) {
             $this->relatedRecord = false;
         }
 
