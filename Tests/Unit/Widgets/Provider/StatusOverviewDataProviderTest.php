@@ -49,7 +49,6 @@ final class StatusOverviewDataProviderTest extends TestCase
     protected function tearDown(): void
     {
         unset($GLOBALS['BE_USER']);
-        parent::tearDown();
     }
 
     #[Test]
