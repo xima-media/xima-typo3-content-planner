@@ -19,6 +19,7 @@ return [
         '.github',
         'bin',
         'build',
+        'docs',
         'node_modules',
         'public',
         'resources\\/private\\/frontend',
