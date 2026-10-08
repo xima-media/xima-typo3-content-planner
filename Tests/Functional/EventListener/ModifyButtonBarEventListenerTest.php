@@ -123,6 +123,19 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function chipModeButtonsUseSmallIconsToMatchCoreButtonHeight(): void
+    {
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        foreach ($this->getLinkButtons($event) as $button) {
+            self::assertSame('small', $button->getIcon()?->getSize());
+        }
+    }
+
+    #[Test]
     public function bannerModeDoesNotAddAssigneeOrCommentButtons(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
