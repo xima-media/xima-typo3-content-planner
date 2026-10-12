@@ -137,7 +137,7 @@ final class CommentRepositoryTest extends AbstractFunctionalTestCase
     #[Test]
     public function findAllByRecordTodoFilterNeverHidesReplies(): void
     {
-        // "Show only ToDo comments" selects which THREADS are visible, not which individual
+        // "Show only comments with to-dos" selects which THREADS are visible, not which individual
         // comments are: comment B (uid 2) has a todo checklist and passes the filter, and its
         // reply (uid 3) - which has no todo checklist of its own - stays visible with it.
         $result = $this->subject->findAllByRecord(10, 'pages', false, 'DESC', false, true);

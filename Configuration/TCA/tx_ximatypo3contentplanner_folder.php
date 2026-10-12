@@ -56,7 +56,7 @@ return [
             'label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
             'config' => [
                 'items' => [
-                    ['label' => '-- stateless --', 'value' => null],
+                    ['label' => 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status.empty', 'value' => null],
                 ],
                 'itemsProcFunc' => 'Xima\XimaTypo3ContentPlanner\Utility\Data\StatusRegistry->getStatus',
                 'type' => 'select',

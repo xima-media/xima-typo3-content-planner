@@ -32,11 +32,11 @@
 				<target>Alle Datensätze mit Ihrer Zuweisung anzeigen</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.todo.title">
-				<source>ToDo</source>
+				<source>To-dos</source>
 				<target>Offene Aufgaben</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.todo.description">
-				<source>Display all records with open todos in the comments</source>
+				<source>Display all records with open to-dos in the comments</source>
 				<target>Zeigt alle Datensätze mit offenen Aufgaben in den zugehörigen Kommentaren</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.mywork.title">
@@ -44,7 +44,7 @@
 				<target>Meine Aufgaben</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.mywork.description">
-				<source>Display your assigned records and resolved todos at a glance</source>
+				<source>Display your assigned records and resolved to-dos at a glance</source>
 				<target>Zeigt deine zugewiesenen Datensätze und die gelösten Aufgaben auf einen Blick</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.title">
@@ -158,7 +158,7 @@
 				<target>Zugewiesene Datensätze</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.mode.todo">
-				<source>Records with open TODOs</source>
+				<source>Records with open to-dos</source>
 				<target>Datensätze mit offenen Aufgaben</target>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.status.label">
@@ -235,8 +235,8 @@
 				<target>Wenn du einen Datensatz beobachtest, wirst du über Status-Änderungen, Zuweisungen und Kommentare benachrichtigt. Du wirst automatisch hinzugefügt, wenn du zugewiesen wirst, kommentierst oder den Status änderst - oder du beobachtest ihn jederzeit manuell.</target>
 			</trans-unit>
 			<trans-unit id="watch.tab.watchers.heading">
-				<source>Watchers (%s)</source>
-				<target>Beobachter (%s)</target>
+				<source>Watchers · %s</source>
+				<target>Beobachter · %s</target>
 			</trans-unit>
 			<trans-unit id="watch.tab.watchers.empty">
 				<source>Nobody is watching this record yet.</source>
@@ -293,12 +293,12 @@
 				<target>Zuweisung aufheben</target>
 			</trans-unit>
 			<trans-unit id="header.unassigned">
-				<source>-- Not assigned --</source>
-				<target>-- Nicht zugewiesen --</target>
+				<source>Unassigned</source>
+				<target>Nicht zugewiesen</target>
 			</trans-unit>
 			<trans-unit id="header.assignee.none">
-				<source>Not assigned yet</source>
-				<target>Noch nicht zugewiesen</target>
+				<source>Unassigned</source>
+				<target>Nicht zugewiesen</target>
 			</trans-unit>
 			<trans-unit id="header.assignee.none.hint">
 				<source>Click to assign yourself or someone else.</source>
@@ -456,8 +456,8 @@
 				<target>Offene Kommentare</target>
 			</trans-unit>
 			<trans-unit id="filter.openTodos">
-				<source>Open TODOs</source>
-				<target>Offene ToDos</target>
+				<source>Open to-dos</source>
+				<target>Offene To-dos</target>
 			</trans-unit>
 			<trans-unit id="filter.watchedByMe">
 				<source>Watched by me</source>
@@ -472,8 +472,8 @@
 				<target>%1$s Datensätze mir zugewiesen</target>
 			</trans-unit>
 			<trans-unit id="records.presets.todo">
-				<source>%1$s records with open todos</source>
-				<target>%1$s Datensätze mit offenen ToDos</target>
+				<source>%1$s records with open to-dos</source>
+				<target>%1$s Datensätze mit offenen To-dos</target>
 			</trans-unit>
 			<trans-unit id="records.presets.openComments">
 				<source>%1$s records with open comments</source>
@@ -673,8 +673,8 @@
 				<target>Erledigte Kommentare anzeigen</target>
 			</trans-unit>
 			<trans-unit id="comment.filter.showTodoComments">
-				<source>Show only ToDo comments</source>
-				<target>Nur ToDo-Kommentare anzeigen</target>
+				<source>Show only comments with to-dos</source>
+				<target>Nur Kommentare mit To-dos anzeigen</target>
 			</trans-unit>
 			<trans-unit id="comment.record.jump">
 				<source>Open %s in the backend</source>
@@ -764,8 +764,8 @@
 				<target>Status</target>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.status.none">
-				<source>No status assigned</source>
-				<target>Kein Status zugewiesen</target>
+				<source>No status</source>
+				<target>Kein Status</target>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.assignee">
 				<source>Assignee</source>
@@ -792,8 +792,8 @@
 				<target>Meine</target>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.comments.todo">
-				<source>Open todos</source>
-				<target>Offene Todos</target>
+				<source>Open to-dos</source>
+				<target>Offene To-dos</target>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.comments.none">
 				<source>No comments</source>
