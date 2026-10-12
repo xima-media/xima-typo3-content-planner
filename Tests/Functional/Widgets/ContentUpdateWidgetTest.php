@@ -65,7 +65,7 @@ final class ContentUpdateWidgetTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function renderWidgetContentHighlightsRecordsAssignedToCurrentUserWhenFeatureEnabled(): void
+    public function renderWidgetContentTagsRecordsAssignedToCurrentUserWhenFeatureEnabled(): void
     {
         $this->enableExtensionFeature(Configuration::FEATURE_CURRENT_ASSIGNEE_HIGHLIGHT);
         $this->importCSVDataSet(__DIR__.'/Provider/Fixtures/pages.csv');
@@ -73,7 +73,8 @@ final class ContentUpdateWidgetTest extends AbstractFunctionalTestCase
 
         $content = $this->createWidget()->renderWidgetContent();
 
-        self::assertStringContainsString('content-planner-update-list__item--current', $content);
+        self::assertStringContainsString('content-planner-tag', $content);
+        self::assertStringNotContainsString('content-planner-update-list__item--current', $content);
     }
 
     private function createWidget(): ContentUpdateWidget

@@ -10,7 +10,7 @@
             <ul class="content-planner-update-list">
                 <f:for each="{records}" as="record">
                     <f:if condition="{record.historyData} && {record.relatedRecord}">
-                        <li class="content-planner-update-list__item {f:if(condition: record.assignedToCurrentUser, then: 'content-planner-update-list__item--current')}">
+                        <li class="content-planner-update-list__item">
                             <div class="d-flex align-items-center">
                                 <div class="content-planner-update-list__icon icon-emphasized">
                                     {record.changeTypeIcon -> f:format.raw()}
@@ -32,6 +32,9 @@
                                             {record.recordIcon -> f:format.raw()}
                                             {record.title}
                                         </a>
+                                        <f:if condition="{record.assignedToCurrentUser}">
+                                            <span class="content-planner-tag"><f:translate key="records.tag.assignedToYou" extensionName="XimaTypo3ContentPlanner"/></span>
+                                        </f:if>
                                     </div>
                                 </div>
                             </div>

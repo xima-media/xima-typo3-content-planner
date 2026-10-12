@@ -251,11 +251,24 @@ class FilterStatus {
             }
           }
 
-          html += '<tr ' + (item.assignedToCurrentUser ? 'class="content-planner-widget__row--current"' : '') + '>' +
-            '<td><a href="' + item.link + '">' + item.statusIcon + ' ' + item.recordIcon + ' <strong>' + FilterStatus.escapeHtml(item.title) + '</strong></a></td>' +
-            '<td title="' + FilterStatus.escapeHtml(item.site ?? '') + '">' + FilterStatus.escapeHtml(item.site ?? '') + '</td>' +
+          const tag = item.assignedToCurrentUser
+            ? '<span class="content-planner-tag">' + FilterStatus.escapeHtml(TYPO3.lang?.['records.tag.assignedToYou'] || 'Assigned to you') + '</span>'
+            : '';
+          const path = item.pagePath
+            ? '<div class="content-planner-widget__path" title="' + FilterStatus.escapeHtml(item.pagePath) + '">' + FilterStatus.escapeHtml(item.pagePath) + '</div>'
+            : '';
+          const badge = item.statusColor
+            ? '<span class="content-planner-status-badge content-planner-status content-planner-status--' + FilterStatus.escapeHtml(item.statusColor) + '">' + item.statusIcon + '<span class="content-planner-status-badge__name">' + FilterStatus.escapeHtml(item.status ?? '') + '</span></span>'
+            : '';
+          const assignee = item.assignee
+            ? '<span title="' + item.assigneeName + '">' + item.assigneeAvatar + ' ' + FilterStatus.escapeHtml(item.assigneeShortName) + '</span>'
+            : '<span class="content-planner-widget__muted">' + FilterStatus.escapeHtml(TYPO3.lang?.['header.unassigned'] || 'Unassigned') + '</span>';
+
+          html += '<tr>' +
+            '<td><div class="content-planner-widget__title-line"><a href="' + item.link + '">' + item.recordIcon + ' <strong>' + FilterStatus.escapeHtml(item.title) + '</strong></a>' + tag + '</div>' + path + '</td>' +
+            '<td>' + badge + '</td>' +
+            '<td>' + assignee + '</td>' +
             '<td><small title="' + item.updatedRaw + '">' + item.updated + '</small></td>' +
-            '<td>' + (item.assignee ? (item.assigneeAvatar + item.assigneeName) : '') + '</td>' +
             '<td>' + comments + '</td>' +
             '</tr>';
         });
@@ -263,10 +276,6 @@ class FilterStatus {
         if (table) {
           table.innerHTML = html;
         }
-
-        // Hide Site column when no items have a site value
-        const hasSite = items.some(item => item.site);
-        widget.classList.toggle('content-planner-widget--no-site', !hasSite);
 
         const moreResults = widget.querySelector('.content-planner-widget__more-results');
         if (moreResults) {
