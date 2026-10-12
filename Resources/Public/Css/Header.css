@@ -4,7 +4,7 @@
  * BEM Structure:
  * - content-planner-header (Block)
  * - content-planner-header__info, __actions, __body (Elements)
- * - content-planner-header--color-red, --color-green, etc. (Modifiers)
+ * - content-planner-header--color-red, --color-green, etc. (Modifiers, set --cp-base)
  */
 
 @import '_variables.css';
@@ -45,54 +45,25 @@
 }
 
 /* Todo segment: the badge counts what is still OPEN, so whether it is there at all - not its
-   colour - is what says "there is work left". Resolved/total stays in the tooltip. */
+   colour - is what says "there is work left". Resolved/total stays in the tooltip. Tones come
+   from the yellow status recipe (see _variables.css), text on tint stays above 6:1. */
 .content-planner-header__todo-badge .content-planner-meta__count {
-    /* CP-14 (#318): black on this yellow keeps a WCAG AA contrast ratio of ~14.2:1. */
-    color: #000;
-    background-color: var(--content-planner-color-yellow);
+    color: var(--cp-text);
+    background-color: var(--cp-tint);
+    box-shadow: inset 0 0 0 1px var(--cp-border);
 }
 
 .content-planner-header__todo-badge[data-todo-status="resolved"] {
-    color: var(--typo3-text-color-success, #4b8f29);
+    color: var(--typo3-text-color-success);
 }
 
 /* ==========================================================================
-   Header Color Modifiers
+   Header Colour (status recipe, see _variables.css)
    ========================================================================== */
 
-.content-planner-header--color-black {
-    background-color: var(--content-planner-color-black-light);
-    border-color: var(--content-planner-color-black);
-}
-
-.content-planner-header--color-red {
-    background-color: var(--content-planner-color-red-light);
-    border-color: var(--content-planner-color-red);
-}
-
-.content-planner-header--color-yellow {
-    background-color: var(--content-planner-color-yellow-light);
-    border-color: var(--content-planner-color-yellow);
-}
-
-.content-planner-header--color-green {
-    background-color: var(--content-planner-color-green-light);
-    border-color: var(--content-planner-color-green);
-}
-
-.content-planner-header--color-blue {
-    background-color: var(--content-planner-color-blue-light);
-    border-color: var(--content-planner-color-blue);
-}
-
-.content-planner-header--color-purple {
-    background-color: var(--content-planner-color-purple-light);
-    border-color: var(--content-planner-color-purple);
-}
-
-.content-planner-header--color-orange {
-    background-color: var(--content-planner-color-orange-light);
-    border-color: var(--content-planner-color-orange);
+.content-planner-header {
+    background-color: var(--cp-tint);
+    border-color: var(--cp-edge);
 }
 
 /* ==========================================================================
@@ -135,7 +106,7 @@
     /* Keeps the content element preview / docked bar's original, tighter sizing - the bump in
        the base rule above is for the roomier page-level header only. */
     --icon-size-small: 1rem;
-    font-size: 0.85em;
+    font-size: 0.6875rem;
     height: var(--typo3-btn-min-height);
     width: auto;
 }
@@ -158,11 +129,11 @@
 /* Current User Highlight */
 .content-planner-row--current,
 .content-planner-link--assignee-current {
-    background-color: var(--content-planner-color-highlight);
+    background-color: var(--content-planner-primary-tint);
 }
 
 .content-planner-link--assignee-current:hover {
-    background-color: var(--content-planner-color-highlight-hover);
+    background-color: var(--content-planner-primary-tint-strong);
 }
 
 /* ==========================================================================
@@ -209,7 +180,7 @@
    keeps the two visually apart. */
 .content-planner-meta__count {
     border-radius: 1rem;
-    font-size: 0.5625rem;
+    font-size: 0.6875rem;
     font-variant-numeric: tabular-nums;
     font-weight: 600;
     line-height: 1;
@@ -265,11 +236,11 @@
     width: max-content;
     max-width: 240px;
     padding: 6px 8px;
-    border-radius: var(--typo3-component-border-radius, 4px);
-    background: var(--typo3-component-bg, #fff);
-    border: 1px solid var(--typo3-component-border-color, #cbcbcb);
-    box-shadow: var(--typo3-component-box-shadow-flyout, 0 2px 8px rgba(0, 0, 0, 0.15));
-    color: var(--typo3-text-color-variant, #6a7085);
+    border-radius: var(--typo3-component-border-radius);
+    background: var(--typo3-component-bg);
+    border: 1px solid var(--typo3-component-border-color);
+    box-shadow: var(--typo3-component-box-shadow-flyout);
+    color: var(--typo3-text-color-variant);
     font-size: 0.6875rem;
     line-height: 1.4;
     pointer-events: none;
@@ -279,7 +250,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    color: var(--typo3-text-color-base, #14213d);
+    color: var(--typo3-text-color-base);
     font-weight: 600;
 }
 
@@ -303,26 +274,26 @@
 .content-planner-watch-toggle--inactive,
 .content-planner-watch-toggle--inactive:hover,
 .content-planner-watch-toggle--inactive:focus-visible {
-    color: var(--typo3-text-color-variant, rgba(127, 127, 127, 0.9));
+    color: var(--typo3-text-color-variant);
 }
 
 /* Watching (auto): the record picked the user up automatically. */
 .content-planner-watch-toggle--auto,
 .content-planner-watch-toggle--auto:hover,
 .content-planner-watch-toggle--auto:focus-visible {
-    color: var(--typo3-text-color-info, #158097);
+    color: var(--typo3-text-color-info);
 }
 
 /* Watching (manual): the user explicitly opted in. */
 .content-planner-watch-toggle--manual,
 .content-planner-watch-toggle--manual:hover,
 .content-planner-watch-toggle--manual:focus-visible {
-    color: var(--typo3-text-color-success, #4b8f29);
+    color: var(--typo3-text-color-success);
 }
 
 /* Muted: sticky manual_unwatch - a distinct icon (ban), not just a color change. */
 .content-planner-watch-toggle--muted,
 .content-planner-watch-toggle--muted:hover,
 .content-planner-watch-toggle--muted:focus-visible {
-    color: var(--typo3-text-color-warning, #a36e00);
+    color: var(--typo3-text-color-warning);
 }

@@ -6,7 +6,9 @@
  */
 
 :root {
-    /* Status Colors */
+    /* Status palette: the seven stored colour keys. Every visible tone is derived from these
+       (see .content-planner-status below), never used raw, because five of them fall below
+       3:1 on white. */
     --content-planner-color-black: rgb(144, 164, 174);
     --content-planner-color-red: rgb(250, 136, 147);
     --content-planner-color-yellow: rgb(255, 205, 117);
@@ -15,18 +17,16 @@
     --content-planner-color-purple: rgb(92, 107, 192);
     --content-planner-color-orange: rgb(255, 112, 67);
 
-    /* Status Colors - Light variants (20% opacity) */
-    --content-planner-color-black-light: rgb(144, 164, 174, 0.2);
-    --content-planner-color-red-light: rgb(250, 136, 147, 0.2);
-    --content-planner-color-yellow-light: rgb(255, 205, 117, 0.2);
-    --content-planner-color-green-light: rgb(106, 158, 113, 0.2);
-    --content-planner-color-blue-light: rgb(100, 187, 200, 0.2);
-    --content-planner-color-purple-light: rgb(92, 107, 192, 0.2);
-    --content-planner-color-orange-light: rgb(255, 112, 67, 0.2);
-
-    /* Highlight Color */
-    --content-planner-color-highlight: rgba(253, 212, 150, 0.2);
-    --content-planner-color-highlight-hover: rgba(253, 212, 150, 0.4);
+    /* Primary tint for "Assigned to you", the current user's rows and mentions, mixed like a
+       status colour from the core primary token. */
+    --content-planner-primary-tint: light-dark(
+        color-mix(in srgb, var(--typo3-state-primary-bg) 12%, white),
+        color-mix(in srgb, var(--typo3-state-primary-bg) 25%, var(--typo3-surface-base))
+    );
+    --content-planner-primary-tint-strong: light-dark(
+        color-mix(in srgb, var(--typo3-state-primary-bg) 22%, white),
+        color-mix(in srgb, var(--typo3-state-primary-bg) 40%, var(--typo3-surface-base))
+    );
 
     /* Secondary text, derived from whatever colour it sits on so it stays legible in both
        color schemes. Resolves against the element it is used on, not against :root - a custom
@@ -34,8 +34,77 @@
     --content-planner-color-muted: color-mix(in srgb, currentColor, transparent 35%);
 
     /* Thread line connecting a comment's replies with its "add a reply" affordance. */
-    --content-planner-color-thread-line: rgba(125, 125, 125, 0.3);
+    --content-planner-color-thread-line: color-mix(in srgb, currentColor, transparent 70%);
 
     /* Todo List (CKEditor compatibility) */
     --ck-todo-list-checkmark-size: 16px;
+}
+
+/* ==========================================================================
+   Status colour recipe (docs/design/rules.md, "Status colours")
+
+   An element opts in with one of the recipe classes and sets --cp-base through a colour
+   modifier. The derived tones are redeclared on every recipe element, so a nested status
+   resolves against its own base instead of inheriting its parent's tones.
+   ========================================================================== */
+
+.content-planner-status,
+.content-planner-header,
+.content-planner-header__todo-badge .content-planner-meta__count,
+.content-planner-badge[data-status] {
+    --cp-base: var(--content-planner-color-black);
+    --cp-tint: light-dark(
+        color-mix(in srgb, var(--cp-base) 15%, white),
+        color-mix(in srgb, var(--cp-base) 20%, var(--typo3-surface-base))
+    );
+    --cp-text: light-dark(
+        color-mix(in srgb, var(--cp-base) 45%, black),
+        color-mix(in srgb, var(--cp-base) 35%, white)
+    );
+    /* Lightness only, in OKLCH: mixing with black or white in sRGB also drains the chroma, and
+       the seven keys stop being told apart. Caps keep 3:1 on white, on the tint and on the
+       dark surface. */
+    --cp-edge: light-dark(
+        oklch(from var(--cp-base) min(l, 0.6) c h),
+        oklch(from var(--cp-base) max(l, 0.72) c h)
+    );
+    --cp-border: light-dark(color-mix(in srgb, var(--cp-base) 45%, white), transparent);
+}
+
+.content-planner-status--black,
+.content-planner-header--color-black {
+    --cp-base: var(--content-planner-color-black);
+}
+
+.content-planner-status--red,
+.content-planner-header--color-red {
+    --cp-base: var(--content-planner-color-red);
+}
+
+.content-planner-status--yellow,
+.content-planner-header--color-yellow,
+.content-planner-header__todo-badge .content-planner-meta__count,
+.content-planner-badge[data-status="pending"] {
+    --cp-base: var(--content-planner-color-yellow);
+}
+
+.content-planner-status--green,
+.content-planner-header--color-green,
+.content-planner-badge[data-status="resolved"] {
+    --cp-base: var(--content-planner-color-green);
+}
+
+.content-planner-status--blue,
+.content-planner-header--color-blue {
+    --cp-base: var(--content-planner-color-blue);
+}
+
+.content-planner-status--purple,
+.content-planner-header--color-purple {
+    --cp-base: var(--content-planner-color-purple);
+}
+
+.content-planner-status--orange,
+.content-planner-header--color-orange {
+    --cp-base: var(--content-planner-color-orange);
 }

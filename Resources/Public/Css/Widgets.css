@@ -34,7 +34,7 @@
     padding-left: var(--widget-padding, 1.25rem);
     padding-right: var(--widget-padding, 1.25rem);
     background-color: var(--typo3-component-bg);
-    border-bottom: 1px solid var(--typo3-list-item-border-color, #e0e0e0);
+    border-bottom: 1px solid var(--typo3-component-border-color);
 }
 
 .content-planner-widget__filter .form-row {
@@ -98,7 +98,7 @@
 
 /* Table Row - Current User Highlight (on the cells: core paints them opaque, hiding a row background) */
 .content-planner-widget__row--current > td {
-    background-color: var(--content-planner-color-highlight);
+    background-color: var(--content-planner-primary-tint);
 }
 
 /* ==========================================================================
@@ -233,18 +233,18 @@
 }
 
 .content-planner-kpi-tile + .content-planner-kpi-tile {
-    border-top: 1px solid var(--typo3-list-item-border-color, #e0e0e0);
+    border-top: 1px solid var(--typo3-component-border-color);
 }
 
 a.content-planner-kpi-tile:hover,
 a.content-planner-kpi-tile:focus-visible {
-    background-color: rgba(125, 125, 125, 0.12);
+    background-color: color-mix(in srgb, currentColor, transparent 88%);
     color: inherit;
     text-decoration: none;
 }
 
 a.content-planner-kpi-tile:focus-visible {
-    outline: 2px solid var(--typo3-state-primary-bg, #0b4980);
+    outline: 2px solid var(--typo3-state-primary-bg);
     outline-offset: -2px;
 }
 
@@ -256,8 +256,8 @@ a.content-planner-kpi-tile:focus-visible {
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 50%;
-    background-color: color-mix(in srgb, var(--typo3-state-primary-bg, #0b4980) 14%, transparent);
-    color: var(--typo3-state-primary-bg, #0b4980);
+    background-color: color-mix(in srgb, var(--typo3-state-primary-bg) 14%, transparent);
+    color: var(--typo3-state-primary-bg);
 }
 
 .content-planner-kpi-tile__content {
@@ -279,23 +279,24 @@ a.content-planner-kpi-tile:focus-visible {
 
 .content-planner-kpi-tile__figure {
     font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
     font-weight: 900;
     line-height: 1.2;
     flex-shrink: 0;
 }
 
 .content-planner-kpi-tile--empty .content-planner-kpi-tile__icon {
-    background-color: rgba(125, 125, 125, 0.15);
-    color: var(--typo3-text-color-variant, #6e6e6e);
+    background-color: color-mix(in srgb, currentColor, transparent 85%);
+    color: var(--typo3-text-color-variant);
 }
 
 .content-planner-kpi-tile--empty .content-planner-kpi-tile__figure {
-    color: var(--typo3-text-color-variant, #6e6e6e);
+    color: var(--typo3-text-color-variant);
 }
 
 /* More results indicator */
 .content-planner-widget__more-results {
-    color: var(--typo3-text-color-variant, #6e6e6e);
+    color: var(--typo3-text-color-variant);
     font-size: 0.85rem;
     padding: 8px 0;
     text-align: center;
@@ -310,7 +311,7 @@ a.content-planner-kpi-tile:focus-visible {
 /* Comment List (Widget) */
 .content-planner-widget > .content-planner-comment {
     padding: 1rem;
-    border-bottom: 1px solid var(--typo3-list-item-border-color, #e0e0e0);
+    border-bottom: 1px solid var(--typo3-component-border-color);
 }
 
 .content-planner-widget > .content-planner-comment:first-child {
@@ -412,15 +413,15 @@ a.content-planner-kpi-tile:focus-visible {
 }
 
 .content-planner-update-list__item {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid color-mix(in srgb, currentColor, transparent 80%);
 }
 
 .content-planner-update-list__item--current {
-    background-color: var(--content-planner-color-highlight);
+    background-color: var(--content-planner-primary-tint);
 }
 
 .content-planner-update-list__icon {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid color-mix(in srgb, currentColor, transparent 60%);
     padding: 20px;
     margin: 0 10px;
     z-index: 2;
@@ -432,29 +433,19 @@ a.content-planner-kpi-tile:focus-visible {
     padding-left: 40px;
     height: 100%;
     display: block;
-    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    border-left: 1px solid color-mix(in srgb, currentColor, transparent 80%);
 }
 
 /* ==========================================================================
    Shared Components
    ========================================================================== */
 
-/* Badge - Todo Status */
-/* CP-14 (#318): selector corrected to match the markup StatusItem::getToDoHtml()/
-   ContentStatusWidget actually render (class="content-planner-badge badge"
-   data-status="resolved|pending") - the previous "--resolved"/"--pending" BEM
-   modifier classes never matched anything, so the widget's todo badge silently
-   never got its intended status colour. Black text keeps a WCAG AA contrast
-   ratio of at least 4.5:1 on both (green ~6.7:1, yellow ~14.2:1); white text
-   on green (the previous colour here) measured only ~3.1:1. */
-.content-planner-badge[data-status="resolved"] {
-    color: #000;
-    background-color: var(--content-planner-color-green);
-}
-
-.content-planner-badge[data-status="pending"] {
-    color: #000;
-    background-color: var(--content-planner-color-yellow);
+/* Badge - Todo Status (markup: StatusItem::getToDoHtml(), ContentStatusWidget). Tones come
+   from the status recipe in _variables.css, so text on tint stays above 6:1 in both schemes. */
+.content-planner-badge[data-status] {
+    color: var(--cp-text);
+    background-color: var(--cp-tint);
+    box-shadow: inset 0 0 0 1px var(--cp-border);
 }
 
 /* Notes Widget Footer */

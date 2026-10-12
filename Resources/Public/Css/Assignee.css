@@ -78,12 +78,12 @@
     padding: 0.25em;
     list-style: none;
     overflow-y: auto;
-    border: 1px solid var(--typo3-input-border-color, #ccc);
+    border: 1px solid var(--typo3-input-border-color);
     border-radius: 4px;
 }
 
 .content-planner-assignee__list:focus-visible {
-    outline: 2px solid var(--typo3-state-primary-border, #007bff);
+    outline: 2px solid var(--typo3-state-primary-bg);
     outline-offset: 2px;
 }
 
@@ -105,11 +105,11 @@
 }
 
 .content-planner-assignee__item:hover {
-    background-color: var(--typo3-surface-container, rgba(125, 125, 125, 0.1));
+    background-color: var(--typo3-surface-container-low);
 }
 
 .content-planner-assignee__item--active {
-    background-color: var(--typo3-surface-container-high, rgba(125, 125, 125, 0.18));
+    background-color: var(--typo3-surface-container-high);
 }
 
 .content-planner-assignee__item--current {
@@ -120,7 +120,7 @@
    assignee is never marked by colour alone, per CP-14 (#318). */
 .content-planner-assignee__item--current .content-planner-assignee__avatar {
     border-radius: 50%;
-    box-shadow: 0 0 0 2px var(--typo3-state-primary-border, #007bff);
+    box-shadow: 0 0 0 2px var(--typo3-state-primary-bg);
 }
 
 .content-planner-assignee__item--disabled {
@@ -145,11 +145,11 @@
     display: inline-flex;
     align-items: center;
     margin-left: auto;
-    color: var(--typo3-state-success-border, #6a9e71);
+    color: var(--typo3-text-color-success);
 }
 
 .content-planner-assignee__empty {
-    color: var(--typo3-text-color-base, inherit);
+    color: var(--typo3-text-color-base);
     opacity: 0.75;
 }
 
@@ -166,6 +166,6 @@
 
 .content-planner-assignee__docs-link {
     margin-bottom: 0;
-    font-size: 0.85em;
+    font-size: 0.6875rem;
     opacity: 0.75;
 }

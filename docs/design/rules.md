@@ -48,8 +48,8 @@ The seven stored palette keys stay: black, red, yellow, green, blue, purple, ora
         color-mix(in srgb, var(--cp-base) 35%, white)
     );
     --cp-edge: light-dark(
-        color-mix(in srgb, var(--cp-base) 60%, black),
-        color-mix(in srgb, var(--cp-base) 75%, white)
+        oklch(from var(--cp-base) min(l, 0.6) c h),
+        oklch(from var(--cp-base) max(l, 0.72) c h)
     );
     --cp-border: color-mix(in srgb, var(--cp-base) 45%, white);
 }
@@ -59,24 +59,26 @@ The seven stored palette keys stay: black, red, yellow, green, blue, purple, ora
 | --- | --- | --- | --- |
 | `tint` | Badge and strip background | 15 % base on white | 20 % base on the surface |
 | `text` | Status name | 45 % base, rest black | 35 % base, rest white |
-| `edge` | Dot, flag icon, 3 and 4 px edges | 60 % base, rest black | 75 % base, rest white |
+| `edge` | Dot, flag icon, 3 and 4 px edges | Base with its OKLCH lightness capped at 0.60 | Base with its OKLCH lightness raised to at least 0.72 |
 | `border` | Badge outline | 45 % base, rest white | none |
 
 Reference output for the seven keys, measured on white and on `#1f1f23`:
 
 | Key | tint | text | edge | border | dark tint | dark text | dark edge |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| black | `#eef1f3` | `#414a4e` | `#566268` | `#cdd6db` | `#363a3f` | `#d8dfe3` | `#acbbc2` |
-| red | `#feedef` | `#703d42` | `#965258` | `#fdc9ce` | `#4b3439` | `#fdd5d9` | `#fba6ae` |
-| yellow | `#fff8ea` | `#735c35` | `#997b46` | `#ffe8c1` | `#4c4233` | `#ffeecf` | `#ffda98` |
-| green | `#e9f0ea` | `#304733` | `#405f44` | `#bcd3bf` | `#2e3833` | `#cbddcd` | `#8fb694` |
-| blue | `#e8f5f7` | `#2d545a` | `#3c7078` | `#b9e0e6` | `#2d3e44` | `#c9e7ec` | `#8bccd6` |
-| purple | `#e7e9f6` | `#293056` | `#374073` | `#b6bce3` | `#2b2e42` | `#c6cbe9` | `#8590d0` |
-| orange | `#ffeae3` | `#73321e` | `#994328` | `#ffbfaa` | `#4c2f29` | `#ffcdbd` | `#ff9472` |
+| black | `#eef1f3` | `#414a4e` | `#70848d` | `#cdd6db` | `#363a3f` | `#d8dfe3` | `#94a8b2` |
+| red | `#feedef` | `#703d42` | `#c55865` | `#fdc9ce` | `#4b3439` | `#fdd5d9` | `#fa8893` |
+| yellow | `#fff8ea` | `#735c35` | `#a5770f` | `#ffe8c1` | `#4c4233` | `#ffeecf` | `#ffcd75` |
+| green | `#e9f0ea` | `#304733` | `#5b8f62` | `#bcd3bf` | `#2e3833` | `#cbddcd` | `#7fb486` |
+| blue | `#e8f5f7` | `#2d545a` | `#348e9b` | `#b9e0e6` | `#2d3e44` | `#c9e7ec` | `#64bbc8` |
+| purple | `#e7e9f6` | `#293056` | `#5c6bc0` | `#b6bce3` | `#2b2e42` | `#c6cbe9` | `#8b9df7` |
+| orange | `#ffeae3` | `#73321e` | `#d74b19` | `#ffbfaa` | `#4c2f29` | `#ffcdbd` | `#ff7246` |
 
-- Text on tint reaches 6.0 to 10.5:1 in the light scheme and at least 8.3:1 in the dark scheme. Edges against white and tint reach 3.8 to 9.8:1, and 5.4 to 12.3:1 on the dark surface.
+- Text on tint reaches 6.0 to 10.5:1 in the light scheme and at least 8.3:1 in the dark scheme. Edges reach 3.8 to 4.9:1 on white and 3.3 to 4.0:1 on their tint, and 6.1 to 11.1:1 on the dark surface and 4.4 to 6.7:1 on the dark tint.
+- The edge changes only the OKLCH lightness. Mixing with black or white in sRGB, as an earlier version of this recipe did, also drained the chroma: green and blue ended up at a chroma of 0.057 and the seven keys became hard to tell apart. Capping the lightness keeps hue and chroma, so a configured colour stays recognisable.
 - The raw base colours are not safe as dot, edge or text colour: five of the seven fall below 3:1 on white (yellow reaches 1.5:1), six of the seven on their own 20 % tint.
-- Status colours differ in lightness as well as hue.
+- The status icons under `Resources/Public/Icons` and `Classes/Configuration/Colors.php` carry the same edge expression as `_variables.css`. Change them together when this recipe moves.
+- In the light scheme most edges share the capped lightness and differ by hue. Red and orange stay the closest pair of the palette, so the configured icon and the status name, not the shade, tell statuses apart.
 
 ### Other colours
 

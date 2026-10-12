@@ -67,8 +67,7 @@ class WebLayoutModifier extends AbstractModifier implements ModifierInterface
             if (!$status instanceof Status) {
                 continue;
             }
-            $statusColor = Configuration\Colors::get($status->getColor());
-            $styling[] = '.t3-page-ce[data-uid="'.$record['uid'].'"] .t3-page-ce-element:before { content: "";display:block;padding:.5em;border-left: 5px solid '.$statusColor.';background-color:'.$statusColor.'; }';
+            $styling[] = '.t3-page-ce[data-uid="'.$record['uid'].'"] .t3-page-ce-element:before { content: "";display:block;padding:.5em;border-left: 5px solid '.Configuration\Colors::getEdge($status->getColor()).';background-color:'.Configuration\Colors::getTint($status->getColor()).'; }';
         }
 
         return '<style>'.implode(' ', $styling).'</style>';

@@ -32,13 +32,13 @@
 }
 
 .content-planner-watch-tab__state p {
-    color: var(--typo3-text-color-variant, rgba(127, 127, 127, 0.9));
+    color: var(--typo3-text-color-variant);
     margin: 0;
 }
 
 .content-planner-watch-tab__explanation {
-    border-bottom: 1px solid var(--typo3-component-border-color, rgba(125, 125, 125, 0.3));
-    color: var(--typo3-text-color-variant, rgba(127, 127, 127, 0.9));
+    border-bottom: 1px solid var(--typo3-component-border-color);
+    color: var(--typo3-text-color-variant);
     margin: 0 0 1rem;
     padding-bottom: 1rem;
 }
@@ -64,6 +64,6 @@
 }
 
 .content-planner-watch-tab__empty {
-    color: var(--typo3-text-color-variant, rgba(127, 127, 127, 0.9));
+    color: var(--typo3-text-color-variant);
     margin: 0;
 }

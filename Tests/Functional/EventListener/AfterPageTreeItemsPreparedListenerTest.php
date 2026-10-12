@@ -55,6 +55,8 @@ final class AfterPageTreeItemsPreparedListenerTest extends AbstractFunctionalTes
         self::assertArrayHasKey('labels', $items[0]);
         self::assertInstanceOf(Label::class, $items[0]['labels'][0]);
         self::assertSame('Draft', $items[0]['labels'][0]->label);
+        // The raw palette colour falls below 3:1 on the tree background, the edge tone does not.
+        self::assertSame('light-dark(oklch(from #64bbc8 min(l, 0.6) c h), oklch(from #64bbc8 max(l, 0.72) c h))', $items[0]['labels'][0]->color);
     }
 
     #[Test]
