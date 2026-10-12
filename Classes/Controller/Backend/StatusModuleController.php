@@ -26,6 +26,7 @@ use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\{HtmlResponse, RedirectResponse};
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
@@ -60,6 +61,7 @@ final readonly class StatusModuleController
         private UriBuilder $uriBuilder,
         private ConnectionPool $connectionPool,
         private IconFactory $iconFactory,
+        private PageRenderer $pageRenderer,
     ) {}
 
     /**
@@ -70,6 +72,8 @@ final readonly class StatusModuleController
         if (!$this->getBackendUser()->isAdmin()) {
             return new HtmlResponse('', 403);
         }
+
+        $this->pageRenderer->addCssFile('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Status.css');
 
         $statuses = $this->findAllStatusesIncludingHidden();
         $lastIndex = count($statuses) - 1;

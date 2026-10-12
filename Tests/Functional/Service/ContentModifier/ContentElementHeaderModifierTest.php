@@ -77,13 +77,13 @@ final class ContentElementHeaderModifierTest extends AbstractFunctionalTestCase
         $response = $modifier->modify($request, $handler);
         $content = (string) $response->getBody();
 
-        self::assertStringContainsString('content-planner-header--compact', $content);
+        self::assertStringContainsString('data-content-planner-strip', $content);
         // Status 1 = "Draft" (see status.csv).
         self::assertStringContainsString('Draft', $content);
         self::assertStringContainsString('data-table="tt_content"', $content);
 
         // The injected header must sit BEFORE core's own title row, not inside the preview body.
-        $headerPosition = strpos($content, 'content-planner-header--compact');
+        $headerPosition = strpos($content, 'data-content-planner-strip');
         $coreHeaderRowPosition = strpos($content, 't3-page-ce-header t3js-page-ce-header');
         self::assertNotFalse($headerPosition);
         self::assertNotFalse($coreHeaderRowPosition);
@@ -111,7 +111,7 @@ final class ContentElementHeaderModifierTest extends AbstractFunctionalTestCase
 
         $content = (string) $modifier->modify($request, $this->buildResponseHandler($body))->getBody();
 
-        self::assertSame(2, substr_count($content, 'content-planner-header--compact'));
+        self::assertSame(2, substr_count($content, 'data-content-planner-strip'));
         self::assertSame(1, substr_count($content, 'Css/Header.css'));
         self::assertSame(1, substr_count($content, 'JavaScript/watch-toggle.js'));
     }

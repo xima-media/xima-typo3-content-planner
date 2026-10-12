@@ -307,7 +307,7 @@ class InfoGenerator
         Status $status,
         bool $compact = false,
     ): string {
-        $content = ViewUtility::render('Backend/Header/HeaderInfo', [
+        $content = ViewUtility::render($mode->template(), [
             'mode' => $mode->value,
             'compact' => HeaderMode::CONTENT_ELEMENT === $mode || $compact,
             'data' => $record,

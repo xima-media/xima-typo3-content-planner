@@ -26,4 +26,12 @@ enum HeaderMode: string
     case WEB_LIST = 'web_list';
     case FILE_LIST = 'file_list';
     case CONTENT_ELEMENT = 'content_element';
+
+    /**
+     * The status strip above a content element has its own markup, every other mode shares the banner template.
+     */
+    public function template(): string
+    {
+        return self::CONTENT_ELEMENT === $this ? 'Backend/Header/StatusStrip' : 'Backend/Header/HeaderInfo';
+    }
 }

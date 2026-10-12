@@ -24,9 +24,8 @@
                             <f:for each="{statuses}" as="status">
                                 <tr class="{f:if(condition: status.hidden, then: 'text-body-secondary')}">
                                     <td>
-                                        <a href="{status.editUrl}">
-                                            <core:icon identifier="{status.icon}-{status.color}" size="small" alternativeMarkupIdentifier="inline"/>
-                                            <strong>{status.title}</strong>
+                                        <a href="{status.editUrl}" class="text-decoration-none">
+                                            <f:render partial="StatusBadge" arguments="{title: status.title, icon: '{status.icon}-{status.color}', color: status.color}"/>
                                         </a>
                                     </td>
                                     <td>

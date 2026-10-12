@@ -1,0 +1,202 @@
+<html
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<!-- Status strip above a content element (docs/design/rules.md, "Status presentation").
+     Meta shows only what has a value, everything else sits in the overflow menu. -->
+<f:variable name="statusLabel"><f:translate key="header.status" extensionName="xima_typo3_content_planner"/></f:variable>
+<f:variable name="commentsLabel"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/></f:variable>
+<f:variable name="assignLabel"><f:translate key="strip.assign" extensionName="xima_typo3_content_planner"/></f:variable>
+<f:variable name="moreLabel"><f:translate key="header.actions.more" extensionName="xima_typo3_content_planner"/></f:variable>
+<f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
+    <f:then>
+        <f:variable name="assigneeName"><f:translate key="header.assignee" extensionName="xima_typo3_content_planner" arguments="{0: assignee.username}"/></f:variable>
+    </f:then>
+    <f:else>
+        <f:variable name="assigneeName" value="{assignLabel}"/>
+    </f:else>
+</f:if>
+<f:if condition="{comments.count} == 1">
+    <f:then>
+        <f:variable name="commentsName"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:comments.count.one" arguments="{0: comments.count}"/></f:variable>
+    </f:then>
+    <f:else>
+        <f:if condition="{comments.count}">
+            <f:then>
+                <f:variable name="commentsName"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:comments.count.other" arguments="{0: comments.count}"/></f:variable>
+            </f:then>
+            <f:else>
+                <f:variable name="commentsName" value="{commentsLabel}"/>
+            </f:else>
+        </f:if>
+    </f:else>
+</f:if>
+<f:variable name="todoName"><f:translate key="strip.todos.name" extensionName="xima_typo3_content_planner" arguments="{0: comments.todoResolved, 1: comments.todoTotal}"/></f:variable>
+
+<div
+    class="content-planner-strip content-planner-status content-planner-status--{status.color}"
+    data-content-planner-strip
+    data-table="{table}"
+    data-uid="{data.uid}"
+    aria-label="{statusLabel}: {status.title}"
+    role="status"
+    aria-live="polite"
+>
+    <be:link.editRecord
+        uid="{data.uid}"
+        table="{table}"
+        fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+        returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
+        title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
+        class="content-planner-strip__status"
+    >
+        <core:icon identifier="{status.icon}" size="small" alternativeMarkupIdentifier="inline"/>
+        <strong class="content-planner-strip__name" title="{status.title}">{status.title}</strong>
+    </be:link.editRecord>
+
+    <div class="content-planner-strip__meta">
+        <f:if condition="{comments.todoTotal}">
+            <button
+                type="button"
+                class="content-planner-strip__item content-planner-header__todo-badge"
+                data-strip-meta="todos"
+                data-content-planner-comments
+                data-force-ajax-url="true"
+                data-show-todo-comments="1"
+                data-todo-status="{f:if(condition: comments.todoOpen, then: 'pending', else: 'resolved')}"
+                aria-label="{todoName}"
+                title="{todoName}"
+                data-table="{table}"
+                data-id="{data.uid}"
+                data-new-comment-uri="{comments.newCommentUri}"
+                data-edit-uri="{comments.editUri}"
+            >
+                <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
+                <span class="badge content-planner-strip__count" data-status="{f:if(condition: comments.todoOpen, then: 'pending', else: 'resolved')}" aria-hidden="true">{comments.todoResolved}/{comments.todoTotal}</span>
+            </button>
+        </f:if>
+        <f:if condition="{comments.count}">
+            <button
+                type="button"
+                class="content-planner-strip__item"
+                data-strip-meta="comments"
+                data-content-planner-comments
+                data-force-ajax-url="true"
+                data-focus-composer="true"
+                aria-label="{commentsName}"
+                title="{commentsName}"
+                data-table="{table}"
+                data-id="{data.uid}"
+                data-new-comment-uri="{comments.newCommentUri}"
+                data-edit-uri="{comments.editUri}"
+            >
+                <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
+                <span class="content-planner-strip__count" aria-hidden="true">{comments.count}</span>
+            </button>
+        </f:if>
+        <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
+            <f:then>
+                <button
+                    type="button"
+                    class="content-planner-strip__item{f:if(condition: assignee.assignedToCurrentUser, then: ' content-planner-link--assignee-current')}"
+                    data-strip-meta="assignee"
+                    data-content-planner-assignees
+                    aria-label="{assigneeName}"
+                    title="{assigneeName}"
+                    data-id="{data.uid}"
+                    data-table="{table}"
+                    data-current-assignee="{data.tx_ximatypo3contentplanner_assignee}"
+                >
+                    <be:avatar backendUser="{data.tx_ximatypo3contentplanner_assignee}" size="18" showIcon="false"/>
+                </button>
+            </f:then>
+            <f:else>
+                <button
+                    type="button"
+                    class="content-planner-strip__item content-planner-strip__item--muted"
+                    data-strip-meta="assign"
+                    data-content-planner-assignees
+                    data-id="{data.uid}"
+                    data-table="{table}"
+                    data-current-assignee=""
+                >{assignLabel}</button>
+            </f:else>
+        </f:if>
+    </div>
+
+    <div class="content-planner-strip__overflow">
+        <button
+            type="button"
+            class="content-planner-strip__item content-planner-strip__more dropdown-toggle dropdown-toggle-no-chevron"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            aria-label="{moreLabel}"
+            title="{moreLabel}"
+        >
+            <core:icon identifier="content-planner-dots" size="small" alternativeMarkupIdentifier="inline"/>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <be:link.editRecord
+                    uid="{data.uid}"
+                    table="{table}"
+                    fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
+                    class="dropdown-item"
+                >
+                    <core:icon identifier="actions-flag-edit" size="small" alternativeMarkupIdentifier="inline"/>
+                    <f:translate key="header.editStatus" extensionName="xima_typo3_content_planner"/>
+                </be:link.editRecord>
+            </li>
+            <f:if condition="{comments.todoTotal}">
+                <li>
+                    <button
+                        type="button"
+                        class="dropdown-item"
+                        data-content-planner-comments
+                        data-force-ajax-url="true"
+                        data-show-todo-comments="1"
+                        data-table="{table}"
+                        data-id="{data.uid}"
+                        data-new-comment-uri="{comments.newCommentUri}"
+                        data-edit-uri="{comments.editUri}"
+                    >
+                        <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
+                        {todoName}
+                    </button>
+                </li>
+            </f:if>
+            <li>
+                <button
+                    type="button"
+                    class="dropdown-item"
+                    data-content-planner-comments
+                    data-force-ajax-url="true"
+                    data-focus-composer="true"
+                    data-table="{table}"
+                    data-id="{data.uid}"
+                    data-new-comment-uri="{comments.newCommentUri}"
+                    data-edit-uri="{comments.editUri}"
+                >
+                    <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
+                    {commentsName}
+                </button>
+            </li>
+            <li>
+                <button
+                    type="button"
+                    class="dropdown-item"
+                    data-content-planner-assignees
+                    data-id="{data.uid}"
+                    data-table="{table}"
+                    data-current-assignee="{data.tx_ximatypo3contentplanner_assignee}"
+                >
+                    <core:icon identifier="content-planner-user-circle" size="small" alternativeMarkupIdentifier="inline"/>
+                    {assigneeName}
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+</html>

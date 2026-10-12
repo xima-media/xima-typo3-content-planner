@@ -46,6 +46,16 @@ final class HeaderModeTest extends TestCase
     }
 
     #[Test]
+    public function onlyTheContentElementModeRendersTheStrip(): void
+    {
+        self::assertSame('Backend/Header/StatusStrip', HeaderMode::CONTENT_ELEMENT->template());
+
+        foreach ([HeaderMode::EDIT, HeaderMode::WEB_LAYOUT, HeaderMode::WEB_LIST, HeaderMode::FILE_LIST] as $mode) {
+            self::assertSame('Backend/Header/HeaderInfo', $mode->template(), $mode->value);
+        }
+    }
+
+    #[Test]
     public function tryFromReturnsNullForUnknownValue(): void
     {
         self::assertNull(HeaderMode::tryFrom('unknown'));

@@ -20,6 +20,7 @@ use TYPO3\CMS\Backend\Routing\{Route, UriBuilder};
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Controller\Backend\StatusModuleController;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -61,6 +62,19 @@ final class StatusModuleControllerTest extends AbstractFunctionalTestCase
             'Statuses must appear in sorting order',
         );
         self::assertStringContainsString('Hidden Status', $body);
+    }
+
+    #[Test]
+    public function indexActionPreviewsEachStatusAsABadgeInItsOwnColour(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status_with_hidden.csv');
+
+        $body = (string) $this->createController()->indexAction($this->createRequest('content_planner_status', []))->getBody();
+
+        self::assertStringContainsString('content-planner-status-badge content-planner-status content-planner-status--blue', $body);
+        self::assertStringContainsString('content-planner-status--green', $body);
+        self::assertSame(3, substr_count($body, 'content-planner-status-badge '));
     }
 
     #[Test]
@@ -115,6 +129,7 @@ final class StatusModuleControllerTest extends AbstractFunctionalTestCase
             $this->get(UriBuilder::class),
             $this->get(ConnectionPool::class),
             $this->get(IconFactory::class),
+            $this->get(PageRenderer::class),
         );
     }
 
