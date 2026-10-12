@@ -44,19 +44,6 @@
     gap: 1em;
 }
 
-/* Todo segment: the badge counts what is still OPEN, so whether it is there at all - not its
-   colour - is what says "there is work left". Resolved/total stays in the tooltip. Tones come
-   from the yellow status recipe (see _variables.css), text on tint stays above 6:1. */
-.content-planner-header__todo-badge .content-planner-meta__count {
-    color: var(--cp-text);
-    background-color: var(--cp-tint);
-    box-shadow: inset 0 0 0 1px var(--cp-border);
-}
-
-.content-planner-header__todo-badge[data-todo-status="resolved"] {
-    color: var(--typo3-text-color-success);
-}
-
 /* ==========================================================================
    Header Colour (status recipe, see _variables.css)
    ========================================================================== */
@@ -203,7 +190,8 @@
 }
 
 /* Keeps core's .badge class: comment-todo-toggle.js finds the count by it. */
-.content-planner-strip__count.badge {
+.content-planner-strip__count.badge,
+.content-planner-meta__pill {
     background-color: var(--cp-tint);
     border-radius: 8px;
     box-shadow: inset 0 0 0 1px var(--cp-border);
@@ -273,6 +261,18 @@
     justify-content: center;
     position: relative;
     width: 2.25rem;
+}
+
+/* A meta button that carries its text (assignee name, comment count, to-dos) instead of only an
+   icon, in the banner and the docked bar. */
+.content-planner-meta__btn--text {
+    padding: 0 0.625rem;
+    white-space: nowrap;
+    width: auto;
+}
+
+.content-planner-meta__text {
+    font-size: 0.75rem;
 }
 
 /* Deliberately smaller than a stock .badge: at the default size the pill covers most of the

@@ -93,6 +93,61 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('data-content-planner-watch-toggle', $result);
     }
 
+    #[Test]
+    public function theBannerNamesTheStatusWithoutAPrefix(): void
+    {
+        $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('<strong>In Progress</strong>', $result);
+        self::assertDoesNotMatchRegularExpression('/>\s*Status:/', $result);
+        // The accessible name of the banner keeps the context.
+        self::assertStringContainsString('aria-label="Status: In Progress"', $result);
+    }
+
+    #[Test]
+    public function theBannerOffersAssigneeCommentsAndTodosAsTextButtons(): void
+    {
+        $this->enableExtensionFeature(Configuration::FEATURE_COMMENT_TODOS);
+
+        $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1);
+
+        self::assertIsString($result);
+        // Order of information: assignee, comments, to-dos (docs/design/rules.md, "Header display modes").
+        $assignee = strpos($result, '>Administrator (admin)</span>');
+        $comments = strpos($result, '>1 comment</span>');
+        $todos = strpos($result, '>1/3</span>');
+        self::assertNotFalse($assignee);
+        self::assertNotFalse($comments);
+        self::assertNotFalse($todos);
+        self::assertLessThan($comments, $assignee);
+        self::assertLessThan($todos, $comments);
+        // Counts carry a text name, and the live to-do counter finds its pill by this hook.
+        self::assertStringContainsString('aria-label="1 of 3 to-dos done.', $result);
+        self::assertMatchesRegularExpression('/content-planner-header__todo-badge.*?<span class="badge content-planner-meta__pill" data-status="pending"/s', $result);
+    }
+
+    #[Test]
+    public function theBannerReadsUnassignedForARecordWithoutAssignee(): void
+    {
+        $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 3);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('>Unassigned</span>', $result);
+    }
+
+    #[Test]
+    public function theDockedBarUsesTheSameTextButtons(): void
+    {
+        $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1, true);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('content-planner-header--compact', $result);
+        self::assertStringContainsString('>Administrator (admin)</span>', $result);
+        self::assertStringContainsString('>1 comment</span>', $result);
+        self::assertDoesNotMatchRegularExpression('/>\s*Status:/', $result);
+    }
+
     /**
      * CP-14 (#318): the content element hint dots in the banner-mode header previously
      * carried their status only via a `data-color` attribute (colour alone) and a

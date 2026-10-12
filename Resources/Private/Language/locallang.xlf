@@ -167,7 +167,7 @@
 			<trans-unit id="strip.assign">
 				<source>Assign</source>
 			</trans-unit>
-			<trans-unit id="strip.todos.name">
+			<trans-unit id="header.todos.name">
 				<source>%s of %s to-dos done</source>
 			</trans-unit>
 			<trans-unit id="header.todoCallout.title">

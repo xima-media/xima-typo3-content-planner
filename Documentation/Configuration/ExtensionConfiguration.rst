@@ -57,8 +57,13 @@ Features
     - **Chip** (chip): compact doc header trio (status dropdown, assignee button, comment
       button) plus a status strip above each content element in the page module. The folder
       status in the file list sits in the same group. Default since 3.0.
+    - **Docked** (docked): one compact bar above the doc header's button row in the page
+      module, with the status name, assignee, comments and to-dos as text. Other modules show
+      the chip group.
     - **Banner** (banner): the pre-3.0 full-width banner above the module content, also for
       folders in the file list, and the injected content element overlay in the page module.
+      It uses the same colours as the other modes, names the status without a "Status:"
+      prefix and offers assignee, comments and to-dos as text buttons.
 
     ..  note::
         Breaking change in 3.0: the default changed from the banner to the chip. Set this to

@@ -23,7 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, FolderStatusRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\WatcherPresentationService;
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, IconUtility, ViewUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, CountLabelUtility, IconUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -307,6 +307,9 @@ class InfoGenerator
         Status $status,
         bool $compact = false,
     ): string {
+        $commentCount = $this->commentRepository->countAllByRecord((int) $record['uid'], $table);
+        $todoCounts = $this->getTodoCounts($record, $table);
+
         $content = ViewUtility::render($mode->template(), [
             'mode' => $mode->value,
             'compact' => HeaderMode::CONTENT_ELEMENT === $mode || $compact,
@@ -330,7 +333,8 @@ class InfoGenerator
             ],
             'comments' => [
                 'items' => $this->getComments($record, $table),
-                'count' => $this->commentRepository->countAllByRecord((int) $record['uid'], $table),
+                'count' => $commentCount,
+                'name' => CountLabelUtility::comments($commentCount),
                 'newCommentUri' => PermissionUtility::canCreateComment()
                     ? UrlUtility::getNewCommentUrl($table, $record['uid'])
                     : '',
@@ -338,7 +342,8 @@ class InfoGenerator
                     $table,
                     $record['uid'],
                 ),
-                ...$this->getTodoCounts($record, $table),
+                ...$todoCounts,
+                'todoName' => CountLabelUtility::todos($todoCounts['todoResolved'], $todoCounts['todoTotal']),
             ],
             'contentElements' => $this->getContentElements($record, $table),
             'userid' => self::getBackendUserId(),
@@ -377,6 +382,8 @@ class InfoGenerator
     ): string {
         $table = Configuration::TABLE_FOLDER;
         $uid = (int) $folderRecord['uid'];
+        $commentCount = $this->commentRepository->countAllByRecord($uid, $table);
+        $todoCounts = $this->getTodoCounts($folderRecord, $table);
 
         $content = ViewUtility::render('Backend/Header/HeaderInfo', [
             'mode' => HeaderMode::FILE_LIST->value,
@@ -403,12 +410,14 @@ class InfoGenerator
             ],
             'comments' => [
                 'items' => $this->getFolderComments($folderRecord),
-                'count' => $this->commentRepository->countAllByRecord($uid, $table),
+                'count' => $commentCount,
+                'name' => CountLabelUtility::comments($commentCount),
                 'newCommentUri' => PermissionUtility::canCreateComment()
                     ? UrlUtility::getNewCommentUrl($table, $uid)
                     : '',
                 'editUri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
-                ...$this->getTodoCounts($folderRecord, $table),
+                ...$todoCounts,
+                'todoName' => CountLabelUtility::todos($todoCounts['todoResolved'], $todoCounts['todoTotal']),
             ],
             'contentElements' => null,
             'userid' => self::getBackendUserId(),

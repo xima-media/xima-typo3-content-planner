@@ -112,10 +112,55 @@ behaviour, up to and including 2.x).
     banner above the module content, and the injected ``<style>`` overlay in
     the page module, are no longer rendered.
 -   In **banner** mode, both ``RecordEditModifier`` (record edit form) and
-    ``WebLayoutModifier`` (page module content elements) keep working exactly
-    as before 3.0. Set ``headerDisplayMode = banner`` in the extension
-    configuration to keep the pre-3.0 look, e.g. for migration projects that
-    rely on the added prominence of the full-width banner.
+    ``WebLayoutModifier`` (page module content elements) keep the full-width
+    banner of pre-3.0. Set ``headerDisplayMode = banner`` in the extension
+    configuration to keep that layout, e.g. for migration projects that rely
+    on the added prominence of the full-width banner. The banner itself was
+    slimmed down in 3.0, see `Design refresh of the backend UI`_ below.
 
 This is a purely visual/configuration change; no PHP API (events,
 repositories, models) is affected.
+
+Design refresh of the backend UI
+--------------------------------
+
+The backend UI follows a binding set of design rules in 3.0
+(``docs/design/rules.md``). The following changes matter if you override
+templates, listen to events or style the extension from your own assets.
+
+**Colours.** Status tones are derived from the configured colour instead of
+using fixed alpha values: ``_variables.css`` defines ``--cp-tint``,
+``--cp-text``, ``--cp-edge`` and ``--cp-border`` for every element that carries
+a ``content-planner-status`` class, and the ``--content-planner-color-*-light``
+and ``--content-planner-color-highlight*`` custom properties are gone.
+``Xima\XimaTypo3ContentPlanner\Configuration\Colors::get()`` lost its second
+parameter (``$transparency``). Use ``Colors::getTint()`` for backgrounds and
+``Colors::getEdge()`` for dots, flags and edges instead. The status icons use
+the edge tone as well.
+
+**Doc header group.** Status, assignee and comments are one button group now.
+The assignee and comments buttons are ``GenericButton`` instances (they were
+``LinkButton``) and carry ``data-*`` attributes as ordinary attributes, so
+``getDataAttributes()`` no longer returns them. If you modify the button bar
+through ``ModifyButtonBarEvent``, read the last group of the ``right`` position
+instead of expecting three separate groups.
+
+**Templates.** ``Backend/Header/HeaderInfo.html`` (``banner`` and ``docked``)
+lost its "Status:" prefix and shows assignee, comments and to-dos as text
+buttons instead of icon buttons with count pills. The status strip above a
+content element moved into its own template,
+``Backend/Header/StatusStrip.html``, and no longer uses ``HeaderInfo.html``.
+Content elements no longer offer the watch toggle in the strip, the record
+modal still does. If you override one of these templates, compare it with the
+new version.
+
+**Lists.** Rows in the record list and the file list carry a status edge on
+their first cell instead of a tinted row, and the status dropdown shows the
+status name (or "Set status"). The folder banner in the file list only appears
+in ``banner`` mode.
+
+**Labels.** Several labels changed to match the terminology of the design
+rules ("Unassigned" instead of "-- Not assigned --", "No status" instead of
+"-- stateless --", "to-dos" instead of "ToDo(s)", "Remove status" instead of
+"Reset Status"). The CLI user is shown as "System". Translations of the
+changed keys have to be adjusted if you override them.
