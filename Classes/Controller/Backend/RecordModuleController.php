@@ -77,6 +77,7 @@ final readonly class RecordModuleController
             return new HtmlResponse('', 403);
         }
 
+        $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/Module.css');
         $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/RecordModule.css');
         $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/Status.css');
 

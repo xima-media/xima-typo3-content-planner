@@ -20,8 +20,8 @@
                 <target>Status</target>
             </trans-unit>
             <trans-unit id="header.headline">
-                <source>Content Planner Status</source>
-                <target>Content Planner Status</target>
+                <source>Statuses</source>
+                <target>Status</target>
             </trans-unit>
             <trans-unit id="header.title">
                 <source>Title</source>
@@ -34,6 +34,26 @@
             <trans-unit id="header.hidden">
                 <source>Hidden</source>
                 <target>Ausgeblendet</target>
+            </trans-unit>
+            <trans-unit id="header.intro">
+                <source>The workflow steps editors can set on pages, content elements and records. The order here is the order in every status menu. New records start with the default status. Hidden statuses stay on existing records but are no longer offered.</source>
+                <target>Die Workflow-Schritte, die Redakteure auf Seiten, Inhaltselementen und Datensätzen setzen können. Die Reihenfolge hier ist die Reihenfolge in jedem Status-Menü. Der Standard-Status wird im kommentarbasierten Ein-Klick-Ablauf verwendet, wenn er konfiguriert ist und die erforderlichen Berechtigungen vorliegen. Ausgeblendete Status bleiben an bestehenden Datensätzen, werden aber nicht mehr angeboten.</target>
+            </trans-unit>
+            <trans-unit id="header.visibility">
+                <source>Visibility</source>
+                <target>Sichtbarkeit</target>
+            </trans-unit>
+            <trans-unit id="value.visible">
+                <source>Visible</source>
+                <target>Sichtbar</target>
+            </trans-unit>
+            <trans-unit id="empty.title">
+                <source>No statuses yet</source>
+                <target>Noch keine Status</target>
+            </trans-unit>
+            <trans-unit id="empty.body">
+                <source>Editors can't track progress until you add at least one.</source>
+                <target>Redakteure können den Fortschritt nicht verfolgen, bis du mindestens einen Status anlegst.</target>
             </trans-unit>
             <trans-unit id="button.new">
                 <source>New status</source>
