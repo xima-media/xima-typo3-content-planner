@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\RecordList\DatabaseRecordList;
 use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
+use TYPO3\CMS\Backend\Template\Components\Buttons\DropDownButton;
 use TYPO3\CMS\Backend\Template\Components\ComponentGroup;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Domain\RecordFactory;
@@ -67,6 +68,33 @@ final class ModifyRecordListRecordActionsListenerTest extends AbstractFunctional
         $this->subject->__invoke($event);
 
         self::assertTrue($event->hasAction('Status'));
+    }
+
+    #[Test]
+    public function namesTheStatusAsTheButtonText(): void
+    {
+        $event = $this->createEventForPage(1);
+
+        $this->subject->__invoke($event);
+
+        $action = $event->getAction('Status');
+        self::assertInstanceOf(DropDownButton::class, $action);
+        // Status 2 = "In Progress" (see status.csv).
+        self::assertSame('In Progress', $action->getLabel());
+        self::assertTrue($action->getShowLabelText());
+    }
+
+    #[Test]
+    public function asksToSetAStatusWhenThereIsNone(): void
+    {
+        $event = $this->createEventForPage(2);
+
+        $this->subject->__invoke($event);
+
+        $action = $event->getAction('Status');
+        self::assertInstanceOf(DropDownButton::class, $action);
+        self::assertSame('Set status', $action->getLabel());
+        self::assertTrue($action->getShowLabelText());
     }
 
     #[Test]

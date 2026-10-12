@@ -22,3 +22,22 @@
     padding: 0 0.5rem 0 0.375rem;
     white-space: nowrap;
 }
+
+/* Status dropdown in a list row: the name is the button text, no status reads "Set status", muted.
+   The record list's core dropdown takes no class, but only its no-status state has the grey flag. */
+.btn.content-planner-status-action--none,
+table .btn.dropdown-toggle:has(> .icon-flag-gray) {
+    color: var(--content-planner-color-muted);
+}
+
+/* The core joins its row actions into one button group, 36px high. The status toggle comes with the
+   small button height and would sit lower and shorter in it, so it takes the height of the group. */
+td.col-control .btn-group > .btn-group.dropdown {
+    align-self: stretch;
+}
+
+td.col-control .btn-group > .btn-group.dropdown > .dropdown-toggle {
+    align-items: center;
+    display: inline-flex;
+    height: 100%;
+}

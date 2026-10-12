@@ -55,10 +55,10 @@ Features
     Choose how status/assignee/comment information is displayed across the backend:
 
     - **Chip** (chip): compact doc header trio (status dropdown, assignee button, comment
-      button) plus a status accent border on content elements in the page module. Default
-      since 3.0.
-    - **Banner** (banner): the pre-3.0 full-width banner above the module content and the
-      injected content element overlay in the page module.
+      button) plus a status strip above each content element in the page module. The folder
+      status in the file list sits in the same group. Default since 3.0.
+    - **Banner** (banner): the pre-3.0 full-width banner above the module content, also for
+      folders in the file list, and the injected content element overlay in the page module.
 
     ..  note::
         Breaking change in 3.0: the default changed from the banner to the chip. Set this to

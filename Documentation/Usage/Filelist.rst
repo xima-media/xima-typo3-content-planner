@@ -30,7 +30,7 @@ Filelist support is enabled by default. You can disable it in the :ref:`extensio
 Folder Status
 =============
 
-Folders can have a status assigned. The status is displayed in the folder tree and in the filelist header when viewing the folder contents.
+Folders can have a status assigned. The status is displayed in the folder tree and, when viewing the folder contents, in the doc header next to the other module buttons. The full-width folder banner only appears in the ``banner`` :ref:`header display mode <extconf-headerDisplayMode>`.
 
 ..  figure:: /Images/filelist.gif
     :alt: Filelist screencast
@@ -38,22 +38,22 @@ Folders can have a status assigned. The status is displayed in the folder tree a
 
     Changing folder and file status in the filelist
 
-The folder status header shows:
+The folder status in the doc header shows:
 
-- Current status with color indicator
+- Current status with its name
 - Assignee selection
 - Quick actions for comments
 
 File Status
 ===========
 
-Individual files (via `sys_file_metadata`) can also have a status assigned. The status dropdown appears in the file row actions.
+Individual files (via `sys_file_metadata`) can also have a status assigned. The status dropdown appears in the file row actions and names the current status, or reads "Set status" while there is none.
 
 Supported Views
 ===============
 
 The Content Planner integration works in the following filelist views:
 
-- **List View**: Full support with status dropdowns and color indicators
-- **Tiles View**: Status color indicators on tiles
+- **List View**: Full support with status dropdowns and a status edge on the first cell of a row
+- **Tiles View**: A status edge on top of a tile
 

@@ -54,7 +54,7 @@ Record List
 
     Change page status in the record list
 
-In the record list, you can change the status of a record via the dropdown.
+In the record list, you can change the status of a record via the dropdown. It names the current status, or reads "Set status" while there is none, and the first cell of the row carries an edge in the status colour.
 
 ..  note::
     This option is only available for additional database records with status behavior.

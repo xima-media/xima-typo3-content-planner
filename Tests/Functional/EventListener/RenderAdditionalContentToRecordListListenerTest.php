@@ -46,7 +46,9 @@ final class RenderAdditionalContentToRecordListListenerTest extends AbstractFunc
 
         $this->subject->__invoke($event);
 
-        self::assertStringContainsString('background-color', $event->getAdditionalContentAbove());
+        // A status edge on the first cell, never a tint on the row (docs/design/rules.md).
+        self::assertStringContainsString('td:first-child { box-shadow: inset 4px 0 0 light-dark(oklch(from #6a9e71 min(l, 0.6) c h), oklch(from #6a9e71 max(l, 0.72) c h))', $event->getAdditionalContentAbove());
+        self::assertStringNotContainsString('background-color', $event->getAdditionalContentAbove());
         self::assertStringContainsString('data-table="pages"', $event->getAdditionalContentAbove());
     }
 
