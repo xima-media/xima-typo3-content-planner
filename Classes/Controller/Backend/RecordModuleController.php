@@ -23,9 +23,9 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\{RecordPreset, Status};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
+use Xima\XimaTypo3ContentPlanner\Service\{RecordPresetService, WatcherService};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -49,15 +49,6 @@ use function in_array;
  */
 final readonly class RecordModuleController
 {
-    /**
-     * Upper bound for the filter preset tiles' counts (CP-33 follow-up). Not a pagination page
-     * size - a large cap so each figure is exact for realistic workloads, while
-     * {@see \Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult::$hasMore} still
-     * gives an honest "at least N" signal for the rare case a preset matches more records than
-     * this covers. Same reasoning and value as {@see \Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget::ASSIGNEE_COUNT_LIMIT}.
-     */
-    private const PRESET_COUNT_LIMIT = 999;
-
     public function __construct(
         private ModuleTemplateFactory $moduleTemplateFactory,
         private UriBuilder $uriBuilder,
@@ -65,6 +56,7 @@ final readonly class RecordModuleController
         private StatusRepository $statusRepository,
         private BackendUserRepository $backendUserRepository,
         private WatcherService $watcherService,
+        private RecordPresetService $recordPresetService,
         private PageRenderer $pageRenderer,
     ) {}
 
@@ -230,11 +222,9 @@ final readonly class RecordModuleController
     }
 
     /**
-     * Quick-access filter presets shown above the list: each reuses findAllByFilter() the same
-     * way the dashboard's assignee KPI tile does
-     * ({@see \Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget::buildAssigneeInfo()}),
-     * one dimension at a time, so a preset's count can never disagree with what clicking it
-     * actually shows. A pressed preset links to the list without it, so the chip toggles.
+     * Quick-access filter presets shown above the list, counted by {@see RecordPresetService}
+     * so a figure can never disagree with what clicking it shows. A pressed preset links to the
+     * list without it, so the chip toggles.
      *
      * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
      *
@@ -244,31 +234,16 @@ final readonly class RecordModuleController
      */
     private function buildPresetTiles(array $filter, int $backendUserId): array
     {
-        return [
-            'assignee' => $this->buildPresetTile($backendUserId, null, false, 'assignee', $backendUserId, $filter, $filter['assignee'] === $backendUserId),
-            'todo' => $this->buildPresetTile(null, true, false, 'todo', 1, $filter, $filter['todo']),
-            'openComments' => $this->buildPresetTile(null, null, true, 'openComments', 1, $filter, $filter['openComments']),
-        ];
-    }
+        $tiles = [];
+        foreach (RecordPreset::cases() as $preset) {
+            $active = RecordPreset::Assignee === $preset ? $filter['assignee'] === $backendUserId : $filter[$preset->value];
+            $tiles[$preset->value] = $this->recordPresetService->count($preset, $backendUserId) + [
+                'link' => $active ? $this->buildUrl([$preset->value => null] + $filter) : $this->buildUrl([$preset->value => $preset->filterValue($backendUserId)]),
+                'active' => $active,
+            ];
+        }
 
-    /**
-     * @param array<string, mixed> $filter
-     *
-     * @return array{count: int, countLabel: string, link: string, active: bool}
-     *
-     * @throws Exception
-     */
-    private function buildPresetTile(?int $assignee, ?bool $todo, bool $openComments, string $filterKey, int $filterValue, array $filter, bool $active): array
-    {
-        $result = $this->recordRepository->findAllByFilter(null, null, $assignee, null, $todo, self::PRESET_COUNT_LIMIT, $openComments);
-        $count = count($result->items);
-
-        return [
-            'count' => $count,
-            'countLabel' => $result->hasMore ? $count.'+' : (string) $count,
-            'link' => $active ? $this->buildUrl([$filterKey => null] + $filter) : $this->buildUrl([$filterKey => $filterValue]),
-            'active' => $active,
-        ];
+        return $tiles;
     }
 
     /**

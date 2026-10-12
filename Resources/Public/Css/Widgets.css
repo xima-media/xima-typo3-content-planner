@@ -200,13 +200,9 @@
     z-index: 999;
 }
 
-/* KPI tiles (Assignee, ToDo, My work; CP-33). Follows the core NumberWithIconWidget layout
-   (icon and label left, bold figure right-aligned) so the tiles read as native dashboard
-   widgets. Tiles are stacked full-bleed rows that share the widget height equally and are
-   separated by a hairline, a linked tile highlights on hover like the comment list rows. */
-.content-planner-widget--assigned,
-.content-planner-widget--todo,
-.content-planner-widget--mywork {
+/* KPI tiles (docs/design/rules.md, "Dashboard"): three figures side by side, each linking to the
+   records module with the matching preset. A zero tile is not a link. */
+.content-planner-widget--kpi {
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -217,28 +213,28 @@
 .content-planner-kpi-tiles {
     display: flex;
     flex: 1;
-    flex-direction: column;
 }
 
 .content-planner-kpi-tile {
     display: flex;
-    flex: 1;
-    align-items: center;
-    gap: 1rem;
-    min-height: 0;
-    padding: 0.5rem var(--widget-padding, 1.25rem);
+    flex: 1 1 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+    min-width: 0;
+    padding: 0.75rem var(--widget-padding, 1.25rem);
     color: inherit;
     text-decoration: none;
     transition: background-color 0.15s ease;
 }
 
 .content-planner-kpi-tile + .content-planner-kpi-tile {
-    border-top: 1px solid var(--typo3-component-border-color);
+    border-inline-start: 1px solid var(--typo3-component-border-color);
 }
 
 a.content-planner-kpi-tile:hover,
 a.content-planner-kpi-tile:focus-visible {
-    background-color: color-mix(in srgb, currentColor, transparent 88%);
+    background-color: color-mix(in srgb, currentColor, transparent 92%);
     color: inherit;
     text-decoration: none;
 }
@@ -250,46 +246,33 @@ a.content-planner-kpi-tile:focus-visible {
 
 .content-planner-kpi-tile__icon {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 50%;
-    background-color: color-mix(in srgb, var(--typo3-state-primary-bg) 14%, transparent);
     color: var(--typo3-state-primary-bg);
 }
 
 .content-planner-kpi-tile__content {
     display: flex;
-    flex: 1;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-direction: column-reverse;
+    gap: 0.125rem;
     min-width: 0;
 }
 
 .content-planner-kpi-tile__label {
     overflow: hidden;
-    font-size: 1rem;
+    font-size: 0.85rem;
     line-height: 1.3;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.content-planner-kpi-tile__figure {
-    font-size: 1.75rem;
-    font-variant-numeric: tabular-nums;
-    font-weight: 900;
-    line-height: 1.2;
-    flex-shrink: 0;
-}
-
-.content-planner-kpi-tile--empty .content-planner-kpi-tile__icon {
-    background-color: color-mix(in srgb, currentColor, transparent 85%);
     color: var(--typo3-text-color-variant);
 }
 
+.content-planner-kpi-tile__figure {
+    font-size: 2rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.content-planner-kpi-tile--empty .content-planner-kpi-tile__icon,
 .content-planner-kpi-tile--empty .content-planner-kpi-tile__figure {
     color: var(--typo3-text-color-variant);
 }

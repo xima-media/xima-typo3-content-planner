@@ -14,10 +14,8 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Widgets;
 
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Dashboard\Widgets\WidgetConfigurationInterface;
-use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 use Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
@@ -55,111 +53,8 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
 
         self::assertStringContainsString('content-planner-widget', $content);
         self::assertStringContainsString('<table class="widget-table table">', $content);
-        self::assertStringNotContainsString('content-planner-widget--assigned', $content);
-        self::assertStringNotContainsString('content-planner-widget--todo', $content);
         self::assertStringNotContainsString('content-planner-widget--has-filter', $content);
         self::assertStringNotContainsString('content-planner-widget__filter-form', $content);
-    }
-
-    #[Test]
-    public function renderWidgetContentRendersBothTilesInMyWorkMode(): void
-    {
-        $recordRepository = $this->createMock(RecordRepository::class);
-        $recordRepository->method('countVisibleByAssignee')
-            ->with(1)
-            ->willReturn(3);
-
-        $content = $this->createWidget(['myWork' => true], $recordRepository)->renderWidgetContent();
-
-        self::assertStringContainsString('content-planner-widget--mywork', $content);
-        self::assertSame(2, substr_count($content, 'content-planner-kpi-tile__figure'));
-        self::assertStringNotContainsString('<table', $content);
-    }
-
-    #[Test]
-    public function renderWidgetContentRendersAssigneeMode(): void
-    {
-        // countVisibleByAssignee() builds raw UNION SQL invalid on the functional suite's SQLite
-        // backend (see CLAUDE.md), so the repository is mocked here - same convention as
-        // RecordModuleControllerTest.
-        $recordRepository = $this->createMock(RecordRepository::class);
-        $recordRepository->method('countVisibleByAssignee')
-            ->with(1)
-            ->willReturn(2);
-
-        $content = $this->createWidget(['currentUserAssignee' => true], $recordRepository)->renderWidgetContent();
-
-        self::assertStringContainsString('content-planner-widget--assigned', $content);
-        self::assertStringContainsString('name="currentBackendUser" value="1"', $content);
-        self::assertStringContainsString('content-planner-kpi-tile', $content);
-        self::assertStringContainsString('>2<', $content);
-        self::assertStringContainsString('content planner records assigned to you', $content);
-        // The KPI tile already links to the filtered Records module (annotation feedback
-        // follow-up) - no redundant per-record list underneath it any more.
-        self::assertStringNotContainsString('<table class="widget-table table">', $content);
-    }
-
-    #[Test]
-    public function renderWidgetContentRendersAssigneeModeWithNoAssignedRecords(): void
-    {
-        $recordRepository = $this->createMock(RecordRepository::class);
-        $recordRepository->method('countVisibleByAssignee')->willReturn(0);
-
-        $content = $this->createWidget(['currentUserAssignee' => true], $recordRepository)->renderWidgetContent();
-
-        self::assertStringContainsString('content-planner-kpi-tile--empty', $content);
-        self::assertStringContainsString('You have no content planner records assigned to you', $content);
-    }
-
-    #[Test]
-    public function renderWidgetContentRendersTodoModeWithFeatureDisabled(): void
-    {
-        $content = $this->createWidget(['todo' => true])->renderWidgetContent();
-
-        self::assertStringContainsString('content-planner-widget--todo', $content);
-        self::assertStringContainsString('content-planner-kpi-tile--empty', $content);
-        self::assertStringContainsString('There are no open comment tasks', $content);
-        self::assertStringNotContainsString('<table class="widget-table table">', $content);
-    }
-
-    #[Test]
-    public function renderWidgetContentRendersTodoModeWithFeatureEnabledAndNoTodos(): void
-    {
-        $this->enableCommentTodosFeature();
-
-        $content = $this->createWidget(['todo' => true])->renderWidgetContent();
-
-        self::assertStringContainsString('content-planner-widget--todo', $content);
-        self::assertStringContainsString('content-planner-kpi-tile--empty', $content);
-    }
-
-    #[Test]
-    public function renderWidgetContentRendersTodoModeWithPendingTodos(): void
-    {
-        $this->importCSVDataSet(__DIR__.'/../Repository/Fixtures/comments.csv');
-        $this->enableCommentTodosFeature();
-
-        $content = $this->createWidget(['todo' => true])->renderWidgetContent();
-
-        self::assertStringContainsString('content-planner-kpi-tile', $content);
-        // Global resolved/total across the whole fixture, not just record 10: comment B (uid 2)
-        // contributes 1 resolved of 3, plus the unresolved reply on record 30 (uid 8)
-        // contributes 0 of 2 - see CommentRepositoryTest::countTodoAllByRecordCountsAllRecordsWhenAllRecordsTrue.
-        self::assertStringContainsString('1/5', $content);
-    }
-
-    #[Test]
-    public function renderWidgetContentRendersTodoModeWithAllResolvedTodos(): void
-    {
-        $this->importCSVDataSet(__DIR__.'/Fixtures/comments_todo_resolved.csv');
-        $this->enableCommentTodosFeature();
-
-        $content = $this->createWidget(['todo' => true])->renderWidgetContent();
-
-        self::assertStringContainsString('content-planner-kpi-tile', $content);
-        self::assertStringContainsString('2/2', $content);
-        // Nothing is left to do, so the tile must not link to an empty todo=1 Records list.
-        self::assertStringNotContainsString('todo=1', $content);
     }
 
     #[Test]
@@ -187,21 +82,14 @@ final class ContentStatusWidgetTest extends AbstractFunctionalTestCase
     /**
      * @param array<string, mixed> $options
      */
-    private function createWidget(array $options = [], ?RecordRepository $recordRepository = null): ContentStatusWidget
+    private function createWidget(array $options = []): ContentStatusWidget
     {
         return new ContentStatusWidget(
             $this->configuration,
             $this->dataProvider,
-            $recordRepository ?? $this->get(RecordRepository::class),
-            $this->get(UriBuilder::class),
             null,
             [],
             $options,
         );
-    }
-
-    private function enableCommentTodosFeature(): void
-    {
-        $this->enableExtensionFeature(Configuration::FEATURE_COMMENT_TODOS);
     }
 }
