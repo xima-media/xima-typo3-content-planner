@@ -25,12 +25,12 @@ return [
     // menu label there (CP-32, #404 requires both v13 and v14).
     'content_planner' => [
         'labels' => 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/main.xlf',
-        'iconIdentifier' => 'dashboard-preset',
+        'iconIdentifier' => 'module-content-planner',
     ],
     'content_planner_records' => [
         'parent' => 'content_planner',
         'path' => '/module/content-planner/records',
-        'iconIdentifier' => 'dashboard-status',
+        'iconIdentifier' => 'module-content-planner-records',
         'labels' => 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/records.xlf',
         'routes' => [
             '_default' => [
@@ -45,7 +45,7 @@ return [
         // the menu entry and the route, not a guarantee callers should rely on exclusively.
         'access' => 'admin',
         'path' => '/module/content-planner/status',
-        'iconIdentifier' => 'flag-gray',
+        'iconIdentifier' => 'module-content-planner-status',
         'labels' => 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/Modules/status.xlf',
         'routes' => [
             '_default' => [

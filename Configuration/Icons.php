@@ -549,6 +549,18 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-custom.svg',
     ],
+    'module-content-planner' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/modules/module-content-planner.svg',
+    ],
+    'module-content-planner-records' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/modules/module-content-planner-records.svg',
+    ],
+    'module-content-planner-status' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/modules/module-content-planner-status.svg',
+    ],
     'dashboard-preset' => [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/widgets/dashboard-preset.svg',
