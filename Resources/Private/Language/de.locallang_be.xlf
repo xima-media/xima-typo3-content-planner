@@ -7,6 +7,22 @@
 				<source>Content Status</source>
 				<target>Inhaltsstatus</target>
 			</trans-unit>
+			<trans-unit id="status.change">
+				<source>Status: %s, change</source>
+				<target>Status: %s, ändern</target>
+			</trans-unit>
+			<trans-unit id="status.set">
+				<source>Set status</source>
+				<target>Status setzen</target>
+			</trans-unit>
+			<trans-unit id="comments.count.one">
+				<source>%s comment</source>
+				<target>%s Kommentar</target>
+			</trans-unit>
+			<trans-unit id="comments.count.other">
+				<source>%s comments</source>
+				<target>%s Kommentare</target>
+			</trans-unit>
 			<trans-unit id="reset">
 				<source>Remove status</source>
 				<target>Status entfernen</target>

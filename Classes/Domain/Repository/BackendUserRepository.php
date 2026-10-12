@@ -15,6 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Repository;
 
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
+use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 
 use function array_key_exists;
@@ -254,12 +255,29 @@ class BackendUserRepository
             return '';
         }
 
+        if ('_cli_' === $userRecord['username']) {
+            return $this->getSystemLabel();
+        }
+
         $user = $userRecord['username'];
         if ((bool) $userRecord['realName']) {
             $user = $userRecord['realName'].' ('.$user.')';
         }
 
         return (string) $user;
+    }
+
+    /**
+     * The scheduler and CLI commands act as `_cli_`, which means nothing to an editor.
+     */
+    private function getSystemLabel(): string
+    {
+        $languageService = $GLOBALS['LANG'] ?? null;
+        $label = $languageService instanceof LanguageService
+            ? $languageService->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:notification.actor.system')
+            : '';
+
+        return '' !== $label ? $label : 'System';
     }
 
     /**

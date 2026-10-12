@@ -6,6 +6,18 @@
 			<trans-unit id="status">
 				<source>Content Status</source>
 			</trans-unit>
+			<trans-unit id="status.change">
+				<source>Status: %s, change</source>
+			</trans-unit>
+			<trans-unit id="status.set">
+				<source>Set status</source>
+			</trans-unit>
+			<trans-unit id="comments.count.one">
+				<source>%s comment</source>
+			</trans-unit>
+			<trans-unit id="comments.count.other">
+				<source>%s comments</source>
+			</trans-unit>
 			<trans-unit id="reset">
 				<source>Remove status</source>
 			</trans-unit>
