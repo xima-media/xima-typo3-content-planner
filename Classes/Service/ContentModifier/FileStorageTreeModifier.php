@@ -189,7 +189,7 @@ class FileStorageTreeModifier implements ModifierInterface
 
         $item['labels'][] = [
             'label' => $status->getTitle(),
-            'color' => Colors::getEdge($status->getColor()),
+            'color' => Colors::getHex($status->getColor()),
             'priority' => 0,
         ];
 

@@ -92,7 +92,7 @@ final readonly class AfterFileStorageTreeItemsPreparedListener
         // TYPO3\CMS\Backend\Dto\Tree\Label\Label only exists in v14+
         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
             label: $status->getTitle(),
-            color: Configuration\Colors::getEdge($status->getColor()),
+            color: Configuration\Colors::getHex($status->getColor()),
             priority: Configuration::TREE_LABEL_PRIORITY_STATUS,
         );
     }

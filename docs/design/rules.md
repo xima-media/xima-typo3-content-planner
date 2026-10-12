@@ -17,7 +17,7 @@ The screens these rules produce are listed in [screens.md](screens.md).
 
 | Surface | Owner | Content Planner may |
 | --- | --- | --- |
-| Page tree | Core | Add a status label (Label API, so the status name is text) and the comment or to-do status information. Nothing else |
+| Page tree | Core | Add a status label (Label API, so the status name is text) and the comment or to-do status information. Nothing else. The label uses the palette colour, not the edge tone: a 4px bar has no text, and darkening it turns yellow into brown and teal into green |
 | Module menu, module frame, breadcrumb | Core | Nothing |
 | Doc header | Core structure | Add one button group |
 | Content element header | Core | Add the status strip as its own row above it |
