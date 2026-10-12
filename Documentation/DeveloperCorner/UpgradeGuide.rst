@@ -165,3 +165,13 @@ rules ("Unassigned" instead of "-- Not assigned --", "No status" instead of
 "-- stateless --", "to-dos" instead of "ToDo(s)", "Remove status" instead of
 "Reset Status"). The CLI user is shown as "System". Translations of the
 changed keys have to be adjusted if you override them.
+
+**Records module.** The module shows its quick filters as toggle chips, keeps the
+filters inline and has no removable filter chips and no "More filters" panel
+anymore. The row shows the status as a badge, the page path instead of the site,
+an "Assigned to you" tag instead of a tinted row and an "Activity" column. The
+labels ``filter.moreFilters``, ``records.presets.*`` and ``records.chips.*`` are
+gone. ``StatusItem::toArray()`` gained the keys ``statusColor``,
+``statusIconIdentifier``, ``commentsName``, ``todoName``, ``pagePath``,
+``commentsCount``, ``todoResolved`` and ``todoTotal``, none of the existing keys
+changed.

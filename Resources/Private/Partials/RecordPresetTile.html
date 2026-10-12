@@ -1,9 +1,11 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<a href="{preset.link}" class="content-planner-module__preset{f:if(condition: preset.active, then: ' content-planner-module__preset--active')}">
+<!-- Toggle chip (docs/design/rules.md, "Records module"): the label never changes with the state,
+     aria-pressed carries it, and a pressed chip links to the list without it. -->
+<a href="{preset.link}" role="button" aria-pressed="{f:if(condition: preset.active, then: 'true', else: 'false')}" class="content-planner-module__preset{f:if(condition: preset.active, then: ' content-planner-module__preset--active')}">
     <core:icon identifier="{icon}" size="small" alternativeMarkupIdentifier="inline"/>
-    <span class="content-planner-module__preset-figure" aria-hidden="true">{preset.countLabel}</span>
-    <span class="visually-hidden"><f:translate key="{labelKey}" extensionName="XimaTypo3ContentPlanner" arguments="{0: preset.countLabel}"/></span>
+    <span class="content-planner-module__preset-label"><f:translate key="{labelKey}" extensionName="XimaTypo3ContentPlanner"/></span>
+    <span class="content-planner-module__preset-figure">{preset.countLabel}</span>
 </a>
 </html>

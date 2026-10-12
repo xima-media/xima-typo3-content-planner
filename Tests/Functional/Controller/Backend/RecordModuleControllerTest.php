@@ -87,7 +87,7 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function indexActionRendersPresetTilesWithCountsLinksAndActiveState(): void
+    public function indexActionRendersThePresetsAsToggleChipsWithLabelCountAndPressedState(): void
     {
         $this->loginBackendUser(1);
 
@@ -108,36 +108,40 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
             },
         );
 
-        // "assignee=1" filter is currently applied, matching backend user 1's own uid - the
-        // assignee preset tile must render as active for it, the todo/openComments ones not.
+        // "assignee=1" is applied and matches backend user 1, so only that chip is pressed.
         $response = $this->createController($recordRepository)->indexAction($this->createRequest(['assignee' => '1']));
         $body = (string) $response->getBody();
 
-        self::assertStringContainsString('content-planner-module__preset', $body);
-        self::assertStringContainsString('assignee=1', $body);
-        self::assertStringContainsString('todo=1', $body);
-        self::assertStringContainsString('openComments=1', $body);
-        self::assertStringContainsString('content-planner-module__preset--active', $body);
-        self::assertMatchesRegularExpression('#preset-figure" aria-hidden="true">2<#', $body);
-        self::assertMatchesRegularExpression('#preset-figure" aria-hidden="true">1<#', $body);
+        self::assertSame(1, substr_count($body, 'aria-pressed="true"'));
+        self::assertSame(2, substr_count($body, 'aria-pressed="false"'));
+        // The label never changes with the state and the count sits next to it.
+        self::assertMatchesRegularExpression('#aria-pressed="true"[^>]*>\s*(?:<[^>]+>\s*)*Assigned to me\s*(?:<[^>]+>\s*)*2\b#', $body);
+        self::assertMatchesRegularExpression('#aria-pressed="false"[^>]*>\s*(?:<[^>]+>\s*)*Open to-dos\s*(?:<[^>]+>\s*)*1\b#', $body);
+        self::assertStringContainsString('Open comments', $body);
+        // A pressed chip switches itself off, the others switch themselves on.
+        self::assertMatchesRegularExpression('#<a href="((?:(?!assignee=)[^"])*)"[^>]*aria-pressed="true"#', $body);
+        self::assertMatchesRegularExpression('#<a href="[^"]*todo=1[^"]*"[^>]*aria-pressed="false"#', $body);
+        self::assertMatchesRegularExpression('#<a href="[^"]*openComments=1[^"]*"[^>]*aria-pressed="false"#', $body);
     }
 
     #[Test]
-    public function indexActionComputesActiveAdvancedFilterCountExcludingSearchTodoAndOpenComments(): void
+    public function indexActionRendersTheFiltersInlineWithoutAMoreFiltersToggle(): void
     {
         $this->loginBackendUser(1);
+        $this->importSharedDataSet('status.csv');
 
         $recordRepository = $this->createMock(RecordRepository::class);
         $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([], false));
 
-        // "search" lives in the primary row, "todo"/"openComments" moved to preset tiles -
-        // only "status" should count toward the collapsible advanced panel's badge.
-        $response = $this->createController($recordRepository)->indexAction(
-            $this->createRequest(['search' => 'foo', 'status' => '1', 'todo' => '1', 'openComments' => '1']),
-        );
+        $response = $this->createController($recordRepository)->indexAction($this->createRequest(['status' => '2']));
         $body = (string) $response->getBody();
 
-        self::assertStringContainsString('badge badge-primary">1<', $body);
+        self::assertStringNotContainsString('More filters', $body);
+        self::assertStringNotContainsString('recordFilterAdvanced', $body);
+        self::assertStringContainsString('All statuses', $body);
+        self::assertStringContainsString('All assignees', $body);
+        // The select keeps its value, status.csv uid 2 is "In Progress".
+        self::assertMatchesRegularExpression('#<option value="2"\s+selected="selected">In Progress#', $body);
     }
 
     #[Test]
@@ -264,7 +268,7 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
         $response = $this->createController($recordRepository)->indexAction($this->createRequest([]));
         $body = (string) $response->getBody();
 
-        self::assertStringContainsString('content-planner-module__table--with-type', $body);
+        self::assertStringContainsString('Record Type', $body);
         self::assertStringContainsString('Page', $body);
         // The Type cell links into the same list filtered by that table (CP-33 follow-up),
         // like the Status/Assignee cells.
@@ -272,7 +276,7 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function indexActionRendersActiveFilterChipsWithRemoveLinksForEachDimension(): void
+    public function indexActionHasNoRemovableFilterChipRow(): void
     {
         $this->loginBackendUser(1);
         $this->importSharedDataSet('status.csv');
@@ -280,33 +284,124 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
         $recordRepository = $this->createMock(RecordRepository::class);
         $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([], false));
 
+        // Every dimension is visible where it is set: the search field, the selects, the pressed chips.
         $response = $this->createController($recordRepository)->indexAction(
             $this->createRequest(['search' => 'foo', 'status' => '2', 'todo' => '1']),
         );
         $body = (string) $response->getBody();
 
-        self::assertStringContainsString('content-planner-module__chip', $body);
-        self::assertStringContainsString('Search: foo', $body);
-        // status.csv uid 2 is "In Progress"
-        self::assertStringContainsString('Status: In Progress', $body);
-        self::assertStringContainsString('Open to-dos', $body);
-        // each chip must remove only its own dimension, keeping the others
-        self::assertStringContainsString('search=foo&amp;todo=1', $body);
-        self::assertStringContainsString('search=foo&amp;status=2', $body);
+        self::assertStringNotContainsString('content-planner-module__chip"', $body);
+        self::assertStringNotContainsString('Search: foo', $body);
     }
 
     #[Test]
-    public function indexActionRendersNoFilterChipsWhenNothingIsFiltered(): void
+    public function indexActionRendersTheRecordRowAsBadgeTagPathAndActivity(): void
     {
         $this->loginBackendUser(1);
+        $this->importSharedDataSet('status.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_tree.csv');
+        $this->enableExtensionFeature('registerAdditionalRecordTables', ['tt_content']);
+        $this->enableExtensionFeature('currentAssigneeHighlight', '1');
 
         $recordRepository = $this->createMock(RecordRepository::class);
-        $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([], false));
+        $recordRepository->method('findAllByFilter')->willReturnCallback(
+            static function (?string $search, ?int $status, ?int $assignee, ?string $type, ?bool $todo, int $maxResults, bool $openComments = false, ?array $watchedRecords = null, int $offset = 0): PaginatedResult {
+                if (RecordRepository::DEFAULT_PAGE_SIZE === $maxResults) {
+                    return new PaginatedResult([
+                        [
+                            'uid' => 5,
+                            'pid' => 22,
+                            'tablename' => 'tt_content',
+                            'title' => 'Teaser',
+                            'tstamp' => 1700000000,
+                            'tx_ximatypo3contentplanner_status' => 2,
+                            'tx_ximatypo3contentplanner_assignee' => 1,
+                            'tx_ximatypo3contentplanner_comments' => 3,
+                        ],
+                        [
+                            'uid' => 6,
+                            'pid' => 22,
+                            'tablename' => 'tt_content',
+                            'title' => 'Footer',
+                            'tstamp' => 1700000000,
+                            'tx_ximatypo3contentplanner_status' => 3,
+                            'tx_ximatypo3contentplanner_assignee' => 0,
+                            'tx_ximatypo3contentplanner_comments' => 0,
+                        ],
+                    ], false);
+                }
+
+                return new PaginatedResult([], false);
+            },
+        );
 
         $response = $this->createController($recordRepository)->indexAction($this->createRequest([]));
         $body = (string) $response->getBody();
 
-        self::assertStringNotContainsString('content-planner-module__chip"', $body);
+        // Status as the shared badge, in its own colour, and with the name as text.
+        self::assertStringContainsString('content-planner-status-badge content-planner-status content-planner-status--yellow', $body);
+        self::assertStringContainsString('content-planner-status--green', $body);
+        // Where the record lives sits on a second line instead of a Site column.
+        self::assertStringContainsString('Parent › Child › Leaf', $body);
+        // The current user's record carries a tag, not a tinted row.
+        self::assertStringContainsString('Assigned to you', $body);
+        self::assertStringNotContainsString('table-info', $body);
+        // Counts carry their name as text, and an unassigned record says so.
+        self::assertStringContainsString('3 comments', $body);
+        self::assertStringContainsString('Unassigned', $body);
+    }
+
+    #[Test]
+    public function indexActionMarksTheSortedColumnForAssistiveTechnology(): void
+    {
+        $this->loginBackendUser(1);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([[
+            'uid' => 1,
+            'pid' => 0,
+            'tablename' => 'pages',
+            'title' => 'Home',
+            'tstamp' => 1700000000,
+            'tx_ximatypo3contentplanner_status' => 0,
+            'tx_ximatypo3contentplanner_assignee' => 0,
+            'tx_ximatypo3contentplanner_comments' => 0,
+        ]], false));
+
+        $body = (string) $this->createController($recordRepository)->indexAction($this->createRequest([]))->getBody();
+
+        // Default sort: changed, descending. The other sortable column carries none.
+        self::assertSame(1, substr_count($body, 'aria-sort='));
+        self::assertStringContainsString('aria-sort="descending"', $body);
+
+        $body = (string) $this->createController($recordRepository)->indexAction($this->createRequest(['sort' => 'title', 'dir' => 'asc']))->getBody();
+
+        self::assertStringContainsString('aria-sort="ascending"', $body);
+        self::assertStringNotContainsString('aria-sort="descending"', $body);
+    }
+
+    #[Test]
+    public function indexActionKeepsThePaginationVisibleAndDisablesWhatIsNotAvailable(): void
+    {
+        $this->loginBackendUser(1);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([[
+            'uid' => 1,
+            'pid' => 0,
+            'tablename' => 'pages',
+            'title' => 'Home',
+            'tstamp' => 1700000000,
+            'tx_ximatypo3contentplanner_status' => 0,
+            'tx_ximatypo3contentplanner_assignee' => 0,
+            'tx_ximatypo3contentplanner_comments' => 0,
+        ]], false));
+
+        $body = (string) $this->createController($recordRepository)->indexAction($this->createRequest([]))->getBody();
+
+        self::assertSame(2, substr_count($body, 'aria-disabled="true"'));
+        self::assertStringContainsString('Previous', $body);
+        self::assertStringContainsString('Next', $body);
     }
 
     #[Test]

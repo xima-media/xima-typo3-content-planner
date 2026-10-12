@@ -1,0 +1,5 @@
+"pages"
+,"uid","pid","title","doktype","slug","deleted","hidden","tstamp","perms_userid","perms_groupid","perms_user","perms_group","perms_everybody"
+,20,0,"Parent","1","/parent","0","0","1700000000","1","0","31","31","31"
+,21,20,"Child","1","/parent/child","0","0","1700000000","1","0","31","31","31"
+,22,21,"Leaf","1","/parent/child/leaf","0","0","1700000000","1","0","31","31","31"

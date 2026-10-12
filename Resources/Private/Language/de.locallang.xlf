@@ -479,53 +479,65 @@
 				<source>Watched by me</source>
 				<target>Von mir beobachtet</target>
 			</trans-unit>
-			<trans-unit id="filter.moreFilters">
-				<source>More filters</source>
-				<target>Weitere Filter</target>
+			<trans-unit id="records.header.description">
+				<source>All pages, content and records that carry a Content Planner status.</source>
+				<target>Alle Seiten, Inhalte und Datensätze mit einem Content-Planner-Status.</target>
 			</trans-unit>
-			<trans-unit id="records.presets.assignee">
-				<source>%1$s records assigned to me</source>
-				<target>%1$s Datensätze mir zugewiesen</target>
+			<trans-unit id="records.header.changed">
+				<source>Changed</source>
+				<target>Geändert</target>
 			</trans-unit>
-			<trans-unit id="records.presets.todo">
-				<source>%1$s records with open to-dos</source>
-				<target>%1$s Datensätze mit offenen To-dos</target>
+			<trans-unit id="records.header.activity">
+				<source>Activity</source>
+				<target>Aktivität</target>
 			</trans-unit>
-			<trans-unit id="records.presets.openComments">
-				<source>%1$s records with open comments</source>
-				<target>%1$s Datensätze mit offenen Kommentaren</target>
+			<trans-unit id="records.presets.groupLabel">
+				<source>Quick filters</source>
+				<target>Schnellfilter</target>
+			</trans-unit>
+			<trans-unit id="records.filter.search.placeholder">
+				<source>Search title or uid</source>
+				<target>Titel oder UID suchen</target>
+			</trans-unit>
+			<trans-unit id="filter.allStatuses">
+				<source>All statuses</source>
+				<target>Alle Status</target>
+			</trans-unit>
+			<trans-unit id="filter.allAssignees">
+				<source>All assignees</source>
+				<target>Alle Zuständigen</target>
+			</trans-unit>
+			<trans-unit id="filter.allTypes">
+				<source>All types</source>
+				<target>Alle Typen</target>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Apply</source>
+				<target>Anwenden</target>
+			</trans-unit>
+			<trans-unit id="records.tag.assignedToYou">
+				<source>Assigned to you</source>
+				<target>Dir zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="records.status.none">
+				<source>No status</source>
+				<target>Kein Status</target>
+			</trans-unit>
+			<trans-unit id="records.pagination.label">
+				<source>Pagination</source>
+				<target>Seitennavigation</target>
 			</trans-unit>
 			<trans-unit id="records.pagination.range">
 				<source>Showing %1$d–%2$d</source>
 				<target>%1$d–%2$d angezeigt</target>
 			</trans-unit>
-			<trans-unit id="records.chips.search">
-				<source>Search: %1$s</source>
-				<target>Suche: %1$s</target>
-			</trans-unit>
-			<trans-unit id="records.chips.status">
-				<source>Status: %1$s</source>
-				<target>Status: %1$s</target>
-			</trans-unit>
-			<trans-unit id="records.chips.assignee">
-				<source>Assignee: %1$s</source>
-				<target>Zuständig: %1$s</target>
-			</trans-unit>
-			<trans-unit id="records.chips.type">
-				<source>Record type: %1$s</source>
-				<target>Datensatztyp: %1$s</target>
-			</trans-unit>
-			<trans-unit id="records.chips.remove">
-				<source>Remove filter</source>
-				<target>Filter entfernen</target>
-			</trans-unit>
 			<trans-unit id="records.header.headline">
-				<source>Records (with Content Planner status)</source>
-				<target>Datensätze (mit Content Planner Status)</target>
+				<source>Records</source>
+				<target>Datensätze</target>
 			</trans-unit>
 			<trans-unit id="records.header.title">
-				<source>Title</source>
-				<target>Titel</target>
+				<source>Record</source>
+				<target>Datensatz</target>
 			</trans-unit>
 
 			<trans-unit id="comment.edited">

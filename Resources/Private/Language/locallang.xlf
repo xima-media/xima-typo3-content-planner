@@ -296,41 +296,50 @@
 			<trans-unit id="filter.watchedByMe">
 				<source>Watched by me</source>
 			</trans-unit>
-			<trans-unit id="filter.moreFilters">
-				<source>More filters</source>
+			<trans-unit id="records.header.description">
+				<source>All pages, content and records that carry a Content Planner status.</source>
 			</trans-unit>
-			<trans-unit id="records.presets.assignee">
-				<source>%1$s records assigned to me</source>
+			<trans-unit id="records.header.changed">
+				<source>Changed</source>
 			</trans-unit>
-			<trans-unit id="records.presets.todo">
-				<source>%1$s records with open to-dos</source>
+			<trans-unit id="records.header.activity">
+				<source>Activity</source>
 			</trans-unit>
-			<trans-unit id="records.presets.openComments">
-				<source>%1$s records with open comments</source>
+			<trans-unit id="records.presets.groupLabel">
+				<source>Quick filters</source>
+			</trans-unit>
+			<trans-unit id="records.filter.search.placeholder">
+				<source>Search title or uid</source>
+			</trans-unit>
+			<trans-unit id="filter.allStatuses">
+				<source>All statuses</source>
+			</trans-unit>
+			<trans-unit id="filter.allAssignees">
+				<source>All assignees</source>
+			</trans-unit>
+			<trans-unit id="filter.allTypes">
+				<source>All types</source>
+			</trans-unit>
+			<trans-unit id="filter.apply">
+				<source>Apply</source>
+			</trans-unit>
+			<trans-unit id="records.tag.assignedToYou">
+				<source>Assigned to you</source>
+			</trans-unit>
+			<trans-unit id="records.status.none">
+				<source>No status</source>
+			</trans-unit>
+			<trans-unit id="records.pagination.label">
+				<source>Pagination</source>
 			</trans-unit>
 			<trans-unit id="records.pagination.range">
 				<source>Showing %1$d–%2$d</source>
 			</trans-unit>
-			<trans-unit id="records.chips.search">
-				<source>Search: %1$s</source>
-			</trans-unit>
-			<trans-unit id="records.chips.status">
-				<source>Status: %1$s</source>
-			</trans-unit>
-			<trans-unit id="records.chips.assignee">
-				<source>Assignee: %1$s</source>
-			</trans-unit>
-			<trans-unit id="records.chips.type">
-				<source>Record type: %1$s</source>
-			</trans-unit>
-			<trans-unit id="records.chips.remove">
-				<source>Remove filter</source>
-			</trans-unit>
 			<trans-unit id="records.header.headline">
-				<source>Records (with Content Planner status)</source>
+				<source>Records</source>
 			</trans-unit>
 			<trans-unit id="records.header.title">
-				<source>Title</source>
+				<source>Record</source>
 			</trans-unit>
 
 			<trans-unit id="comment.edited">

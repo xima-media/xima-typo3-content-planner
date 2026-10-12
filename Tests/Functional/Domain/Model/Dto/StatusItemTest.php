@@ -361,6 +361,60 @@ final class StatusItemTest extends AbstractFunctionalTestCase
         self::assertMatchesRegularExpression('/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/', $result['updatedRaw']);
     }
 
+    #[Test]
+    public function getPagePathListsTheAncestorsOfAPage(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_tree.csv');
+
+        $item = StatusItem::create($this->rowOn('pages', 22, 21));
+
+        self::assertSame('Parent › Child', $item->getPagePath());
+    }
+
+    #[Test]
+    public function getPagePathOfARecordIncludesThePageItIsOn(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages_tree.csv');
+
+        $item = StatusItem::create($this->rowOn('tt_content', 5, 22));
+
+        self::assertSame('Parent › Child › Leaf', $item->getPagePath());
+    }
+
+    #[Test]
+    public function getPagePathIsEmptyForARecordOutsideTheTree(): void
+    {
+        $item = StatusItem::create($this->rowOn('sys_file_metadata', 7, 0));
+
+        self::assertSame('', $item->getPagePath());
+    }
+
+    #[Test]
+    public function toArrayCarriesWhatTheStatusBadgeAndTheActivityColumnNeed(): void
+    {
+        $array = StatusItem::create($this->pageRow())->toArray();
+
+        // Status 2 = "In Progress", heart / yellow (see status.csv).
+        self::assertSame('yellow', $array['statusColor']);
+        self::assertSame('heart-yellow', $array['statusIconIdentifier']);
+        self::assertSame('2 comments', $array['commentsName']);
+        self::assertArrayHasKey('pagePath', $array);
+    }
+
+    #[Test]
+    public function toArrayLeavesTheBadgeDataEmptyWithoutAStatus(): void
+    {
+        $row = $this->pageRow();
+        $row['tx_ximatypo3contentplanner_status'] = 0;
+        $row['tx_ximatypo3contentplanner_comments'] = 0;
+
+        $array = StatusItem::create($row)->toArray();
+
+        self::assertSame('', $array['statusColor']);
+        self::assertSame('', $array['statusIconIdentifier']);
+        self::assertSame('', $array['commentsName']);
+    }
+
     private function initBackendRequest(): void
     {
         $request = (new ServerRequest('https://example.com/typo3/', 'GET'))
@@ -394,6 +448,23 @@ final class StatusItemTest extends AbstractFunctionalTestCase
             'tstamp' => 1700000000,
             'tx_ximatypo3contentplanner_status' => 2,
             'tx_ximatypo3contentplanner_assignee' => 1,
+            'tx_ximatypo3contentplanner_comments' => 0,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function rowOn(string $table, int $uid, int $pid): array
+    {
+        return [
+            'uid' => $uid,
+            'pid' => $pid,
+            'tablename' => $table,
+            'title' => 'Record '.$uid,
+            'tstamp' => 1700000000,
+            'tx_ximatypo3contentplanner_status' => 0,
+            'tx_ximatypo3contentplanner_assignee' => 0,
             'tx_ximatypo3contentplanner_comments' => 0,
         ];
     }
