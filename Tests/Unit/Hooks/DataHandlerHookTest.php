@@ -93,7 +93,7 @@ final class DataHandlerHookTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             new StatusDefaultManager($this->createMock(ConnectionPool::class), $this->createMock(FrontendInterface::class)),
             $this->createMock(ContentChangeNotificationService::class),
-            new LiveStatusWriter(),
+            new LiveStatusWriter($this->createMock(ConnectionPool::class)),
         );
     }
 }
