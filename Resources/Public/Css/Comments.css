@@ -554,41 +554,21 @@
 .content-planner-comment-empty {
     display: flex;
     flex-direction: column;
-    height: 100%;
 }
 
+/* A fixed illustration height keeps the first comment's composer in view without scrolling. */
 .content-planner-comment-empty > .content-planner-widget__empty-icon {
+    background-position: 50% 50%;
     background-repeat: no-repeat;
+    background-size: auto 100%;
     display: block;
-    flex-grow: 1;
-    position: relative;
-    left: 0;
-    top: 0;
-    width: 99%;
-    height: 100%;
+    height: 9rem;
     opacity: 0.125;
-    background-position: 50% 55%;
-    background-size: 25%;
 }
 
 .content-planner-comment-empty__text {
     padding: 1rem;
     color: var(--content-planner-color-muted);
-}
-
-/* The illustration claims the whole modal height, which is what makes an empty list look
-   deliberate - but once the composer is expanded it would push the editor below the fold. The
-   collapsed trigger carries `hidden` exactly while the composer is open, so the empty state
-   drops to its natural size for that state and the editor follows directly under the text. */
-.content-planner-comment-list:has([data-comment-composer-collapsed][hidden]),
-.content-planner-comment-list:has([data-comment-composer-collapsed][hidden]) .content-planner-comment-empty {
-    height: auto;
-}
-
-.content-planner-comment-list:has([data-comment-composer-collapsed][hidden]) .content-planner-widget__empty-icon {
-    flex-grow: 0;
-    height: 9rem;
-    background-size: auto 100%;
 }
 
 .content-planner-comment-empty__text a {
