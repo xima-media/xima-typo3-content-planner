@@ -67,11 +67,14 @@
     align-items: center;
     display: flex;
     gap: 0.5rem;
+    position: relative;
 }
 
 .content-planner-record-modal__status .dropdown-menu {
     inset: calc(100% + 2px) 0 auto auto;
     margin: 0;
+    position: absolute;
+    z-index: 1000;
 }
 
 .content-planner-record-modal__status-text {
