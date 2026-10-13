@@ -524,6 +524,32 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function shareActionCarriesTheRequestedModalTabInTheRedirect(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $response = $this->createController()->shareAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'tab' => 'assignee']),
+        );
+
+        self::assertStringContainsString('tx_contentplanner_tab=assignee', $response->getHeaderLine('Location'));
+    }
+
+    #[Test]
+    public function shareActionIgnoresAnUnknownModalTab(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $response = $this->createController()->shareAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'tab' => 'bogus']),
+        );
+
+        self::assertStringNotContainsString('tx_contentplanner_tab', $response->getHeaderLine('Location'));
+    }
+
+    #[Test]
     public function shareActionIncludesUnresolvedCommentParamWhenCommentMatchesRecord(): void
     {
         $this->loginBackendUser(1);

@@ -22,6 +22,7 @@ use function array_key_exists;
 use function count;
 use function in_array;
 use function intval;
+use function is_array;
 
 /**
  * BackendUserRepository.
@@ -206,6 +207,30 @@ class BackendUserRepository
         }
 
         return $this->usernameCache[$uid] = $user;
+    }
+
+    /**
+     * The name as people say it: the real name, the username when there is none, and "System" for
+     * the CLI user. Raw like {@see self::getDisplayNameByUid()}, for a template to escape.
+     *
+     * @throws Exception
+     */
+    public function getShortNameByUid(int $uid): string
+    {
+        if ($uid <= 0) {
+            return '';
+        }
+
+        $user = $this->fetchUsernameAndRealName($uid);
+        if (!is_array($user)) {
+            return '';
+        }
+
+        if ('_cli_' === $user['username']) {
+            return $this->getSystemLabel();
+        }
+
+        return (string) ($user['realName'] ?: $user['username']);
     }
 
     /**

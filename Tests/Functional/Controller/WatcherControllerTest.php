@@ -195,6 +195,35 @@ final class WatcherControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function muteActionStopsWatchingAndKeepsItSticky(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->watcherRepository->upsert('pages', 1, 1, WatchMode::Auto, WatchSource::Comment);
+
+        $response = $this->createController()->muteAction($this->createRequest(['table' => 'pages', 'uid' => 1]));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(WatchMode::ManualUnwatch, $this->watcherRepository->findMode('pages', 1, 1));
+    }
+
+    #[Test]
+    public function muteActionReturnsBadRequestWhenParametersMissing(): void
+    {
+        $this->loginBackendUser(1);
+
+        self::assertSame(400, $this->createController()->muteAction($this->createRequest([]))->getStatusCode());
+    }
+
+    #[Test]
+    public function muteActionDeniesUserWithoutContentPlannerAccess(): void
+    {
+        $this->loginBackendUser(2);
+
+        self::assertSame(403, $this->createController()->muteAction($this->createRequest(['table' => 'pages', 'uid' => 1]))->getStatusCode());
+    }
+
+    #[Test]
     public function watchersActionReturnsBadRequestWhenParametersMissing(): void
     {
         $this->loginBackendUser(1);

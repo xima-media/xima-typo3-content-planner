@@ -19,6 +19,8 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\NotificationRepository;
 use Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationCenterDataProvider;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
+use function sprintf;
+
 /**
  * NotificationCenterDataProviderTest.
  *
@@ -128,6 +130,116 @@ final class NotificationCenterDataProviderTest extends AbstractFunctionalTestCas
         $items = $this->subject->getLatestForDropdown(1);
 
         self::assertNull($items[0]->getChangeSummary());
+    }
+
+    #[Test]
+    public function aMentionReadsAsActorMentionedYouOnTheRecordAndIsForYou(): void
+    {
+        $this->createNotification(recipientUid: 1, table: 'pages', recordUid: 1, reason: NotificationReason::Mentioned, eventType: NotificationEventType::Mentioned);
+
+        $item = $this->subject->getLatestForDropdown(1)[0];
+
+        self::assertSame($this->label('notification.verb.mentioned.before'), $item->getVerbBefore());
+        self::assertSame('', $item->getVerbAfter());
+        self::assertSame($this->label('notification.tag.mentioned'), $item->getTagLabel());
+        self::assertTrue($item->isTagHighlighted());
+        self::assertTrue($item->isForYou());
+        self::assertSame('comments', $item->getModalTab());
+    }
+
+    #[Test]
+    public function anAssignmentToTheViewerIsHighlightedAndForYou(): void
+    {
+        $this->createNotification(
+            recipientUid: 1,
+            table: 'pages',
+            recordUid: 1,
+            eventType: NotificationEventType::Assigned,
+            payload: ['version' => 1, 'title' => self::SECRET_TITLE, 'newAssignee' => 1],
+        );
+
+        $item = $this->subject->getLatestForDropdown(1)[0];
+
+        self::assertSame($this->label('notification.verb.assigned.before'), $item->getVerbBefore());
+        self::assertSame($this->label('notification.verb.assigned.afterYou'), $item->getVerbAfter());
+        self::assertSame($this->label('notification.tag.assigned'), $item->getTagLabel());
+        self::assertTrue($item->isTagHighlighted());
+        self::assertTrue($item->isForYou());
+        self::assertSame('assignee', $item->getModalTab());
+    }
+
+    #[Test]
+    public function aStatusChangeNamesTheNewStatusAndOnlyCarriesTheNeutralWatchingTag(): void
+    {
+        $this->createNotification(
+            recipientUid: 1,
+            table: 'pages',
+            recordUid: 1,
+            eventType: NotificationEventType::StatusChanged,
+            payload: ['version' => 1, 'title' => self::SECRET_TITLE, 'newStatus' => 'Completed'],
+        );
+
+        $item = $this->subject->getLatestForDropdown(1)[0];
+
+        self::assertSame(sprintf($this->label('notification.verb.status.after'), 'Completed'), $item->getVerbAfter());
+        self::assertSame($this->label('notification.tag.watching'), $item->getTagLabel());
+        self::assertFalse($item->isTagHighlighted());
+        self::assertFalse($item->isForYou());
+    }
+
+    #[Test]
+    public function aCommentReadsAsActorCommentedOnTheRecord(): void
+    {
+        $this->createNotification(recipientUid: 1, table: 'pages', recordUid: 1, eventType: NotificationEventType::CommentAdded);
+
+        $item = $this->subject->getLatestForDropdown(1)[0];
+
+        self::assertSame($this->label('notification.verb.comment.before'), $item->getVerbBefore());
+        self::assertSame('comments', $item->getModalTab());
+    }
+
+    #[Test]
+    public function theEntryNamesWhereTheRecordLivesAndWhenItHappened(): void
+    {
+        $this->createNotification(recipientUid: 1, table: 'pages', recordUid: 2);
+
+        $item = $this->subject->getLatestForDropdown(1)[0];
+
+        self::assertSame('Home', $item->getPagePath());
+        self::assertSame('pages', $item->getTable());
+        self::assertSame(2, $item->getRecordUid());
+        self::assertSame('today', $item->getGroup());
+    }
+
+    #[Test]
+    public function anOlderEntryBelongsToTheEarlierGroup(): void
+    {
+        $this->notificationRepository->create(new Notification(1, NotificationEventType::CommentAdded, 'pages', 1, null, NotificationReason::WatchingManually, ['version' => 1, 'title' => self::SECRET_TITLE], time() - 2 * 86400));
+
+        self::assertSame('earlier', $this->subject->getLatestForDropdown(1)[0]->getGroup());
+    }
+
+    #[Test]
+    public function theLinkOpensTheRecordWithTheModalOnTheMatchingTab(): void
+    {
+        $this->createNotification(recipientUid: 1, table: 'pages', recordUid: 1, eventType: NotificationEventType::Assigned, payload: ['version' => 1, 'title' => self::SECRET_TITLE, 'newAssignee' => 1]);
+
+        $url = (string) $this->subject->getLatestForDropdown(1)[0]->getUrl();
+
+        self::assertStringContainsString('tab=assignee', $url);
+    }
+
+    #[Test]
+    public function theActorReadsAsTheirNameWithoutTheUsernameSoTheSentenceStaysShort(): void
+    {
+        $this->notificationRepository->create(new Notification(1, NotificationEventType::CommentAdded, 'pages', 1, 2, NotificationReason::WatchingManually, ['version' => 1, 'title' => self::SECRET_TITLE], time()));
+
+        self::assertSame('Editor User', $this->subject->getLatestForDropdown(1)[0]->getActorLabel());
+    }
+
+    private function label(string $key): string
+    {
+        return $GLOBALS['LANG']->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:'.$key);
     }
 
     /**

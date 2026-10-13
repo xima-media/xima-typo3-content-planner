@@ -18,7 +18,7 @@ use JsonException;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\NotificationItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{NotificationItem, StatusItem};
 use Xima\XimaTypo3ContentPlanner\Domain\Model\{NotificationEventType, NotificationReason};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\Data\DiffUtility;
@@ -26,6 +26,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function array_filter;
 use function count;
 use function is_array;
 use function is_string;
@@ -59,6 +60,7 @@ class NotificationCenterDataProvider
         private readonly NotificationRepository $notificationRepository,
         private readonly RecordRepository $recordRepository,
         private readonly BackendUserRepository $backendUserRepository,
+        private readonly NotificationSentenceBuilder $sentenceBuilder,
     ) {}
 
     /**
@@ -94,13 +96,19 @@ class NotificationCenterDataProvider
     {
         $rows = $this->notificationRepository->findLatestByRecipient($backendUserUid, self::DROPDOWN_LIMIT);
 
-        return array_map($this->buildItem(...), $rows);
+        $items = array_map(fn (array $row): NotificationItem => $this->buildItem($row, $backendUserUid), $rows);
+
+        // Today before earlier, each in the order the repository returned them.
+        return [
+            ...array_filter($items, static fn (NotificationItem $item): bool => 'today' === $item->getGroup()),
+            ...array_filter($items, static fn (NotificationItem $item): bool => 'today' !== $item->getGroup()),
+        ];
     }
 
     /**
      * @param array<string, mixed> $row
      */
-    private function buildItem(array $row): NotificationItem
+    private function buildItem(array $row, int $backendUserUid): NotificationItem
     {
         $table = (string) $row['tablename'];
         $recordUid = (int) $row['record_uid'];
@@ -108,7 +116,8 @@ class NotificationCenterDataProvider
         $reason = NotificationReason::tryFrom((string) $row['reason']);
         $payload = $this->decodePayload($row['payload'] ?? null);
 
-        [$title, $url] = $this->resolveTitleAndUrl($table, $recordUid, $payload);
+        $sentence = $this->sentenceBuilder->describe($eventType, $payload, $backendUserUid);
+        [$title, $url, $pagePath] = $this->resolveTitleAndUrl($table, $recordUid, $payload, $sentence['modalTab']);
 
         return new NotificationItem(
             (int) $row['uid'],
@@ -121,6 +130,16 @@ class NotificationCenterDataProvider
             DiffUtility::timeAgo((int) $row['crdate']),
             null !== ($row['read_at'] ?? null),
             $this->resolveChangeSummary($eventType, $payload),
+            $table,
+            $recordUid,
+            $sentence['verbBefore'],
+            $sentence['verbAfter'],
+            $pagePath,
+            $sentence['tagLabel'],
+            $sentence['tagHighlight'],
+            $sentence['forYou'],
+            date('Y-m-d', (int) $row['crdate']) === date('Y-m-d') ? 'today' : 'earlier',
+            $sentence['modalTab'],
         );
     }
 
@@ -153,13 +172,13 @@ class NotificationCenterDataProvider
     /**
      * @param array<string, mixed> $payload
      *
-     * @return array{0: string, 1: ?string}
+     * @return array{0: string, 1: ?string, 2: string}
      */
-    private function resolveTitleAndUrl(string $table, int $recordUid, array $payload): array
+    private function resolveTitleAndUrl(string $table, int $recordUid, array $payload, string $modalTab): array
     {
         $record = $this->recordRepository->findByUid($table, $recordUid, true);
         if (!is_array($record) || !PermissionUtility::checkAccessForRecord($table, $record)) {
-            return [$this->getLanguageService()->sL(self::languageLabel('notification.record.inaccessible')), null];
+            return [$this->getLanguageService()->sL(self::languageLabel('notification.record.inaccessible')), null, ''];
         }
 
         // The payload's title snapshot (see NotificationPayloadFactory) is preferred once access
@@ -169,12 +188,12 @@ class NotificationCenterDataProvider
             : ExtensionUtility::getTitle(ExtensionUtility::getTitleField($table), $record);
 
         try {
-            $url = UrlUtility::getRecordLink($table, $recordUid, is_string($record['folder_identifier'] ?? null) ? $record['folder_identifier'] : null);
+            $url = UrlUtility::getShareUrl($table, $recordUid, null, $modalTab);
         } catch (RouteNotFoundException) {
             $url = null;
         }
 
-        return [$title, $url];
+        return [$title, $url, StatusItem::create([...$record, 'tablename' => $table])->getPagePath()];
     }
 
     /**
@@ -201,7 +220,7 @@ class NotificationCenterDataProvider
             return $this->getLanguageService()->sL(self::languageLabel('notification.actor.system'));
         }
 
-        $label = $this->backendUserRepository->getUsernameByUid((int) $actor);
+        $label = $this->backendUserRepository->getShortNameByUid((int) $actor);
 
         return '' !== $label ? $label : $this->getLanguageService()->sL(self::languageLabel('notification.actor.system'));
     }

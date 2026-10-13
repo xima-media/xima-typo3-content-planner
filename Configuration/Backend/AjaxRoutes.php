@@ -49,6 +49,10 @@ return [
         'path' => '/content-planner/watch/toggle',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\WatcherController::class.'::toggleAction',
     ],
+    'ximatypo3contentplanner_watch_mute' => [
+        'path' => '/content-planner/watch/mute',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\WatcherController::class.'::muteAction',
+    ],
     'ximatypo3contentplanner_message' => [
         'path' => '/content-planner/message',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\ProxyController::class.'::messageAction',

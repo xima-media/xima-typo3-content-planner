@@ -47,6 +47,7 @@ use function is_array;
 class RecordController extends ActionController
 {
     private const ALLOWED_USER_SETTINGS = ['repliesExpanded', 'includeChildComments'];
+    private const MODAL_TABS = ['comments', 'assignee', 'watch'];
 
     public function __construct(
         private readonly RecordRepository $recordRepository,
@@ -87,7 +88,7 @@ class RecordController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $extraParams = $this->buildShareRedirectParams($table, $uid, $commentUid);
+        $extraParams = $this->buildShareRedirectParams($table, $uid, $commentUid, (string) ($request->getQueryParams()['tab'] ?? ''));
         $folderIdentifier = $record['folder_identifier'] ?? null;
         $redirectUrl = UrlUtility::getRecordLink($table, $uid, $folderIdentifier, $extraParams);
 
@@ -286,11 +287,14 @@ class RecordController extends ActionController
     /**
      * Build redirect query parameters for the share action.
      *
-     * @return array<string, int>
+     * @return array<string, int|string>
      */
-    private function buildShareRedirectParams(string $table, int $uid, ?int $commentUid): array
+    private function buildShareRedirectParams(string $table, int $uid, ?int $commentUid, string $tab = ''): array
     {
         $params = ['tx_contentplanner_comments' => 1];
+        if (in_array($tab, self::MODAL_TABS, true)) {
+            $params['tx_contentplanner_tab'] = $tab;
+        }
 
         if (null === $commentUid) {
             return $params;

@@ -1,3 +1,11 @@
+/**
+ * Content Planner - Toolbar notification center (docs/design/rules.md, "Notifications").
+ *
+ * The bell, its position and the dropdown frame are core. This styles what fills the dropdown.
+ */
+
+@import '_variables.css';
+
 .content-planner-notification-toolbar-item .toolbar-item-icon {
     position: relative;
 }
@@ -23,10 +31,15 @@
     display: none;
 }
 
+/* Never wider than the core toolbar menu: a min-width above it makes the menu scroll sideways,
+   also while the list is empty. */
 .content-planner-notification-dropdown {
     color: var(--typo3-text-color-base);
-    max-height: 24rem;
+    max-height: 32rem;
+    max-width: 100%;
+    overflow-x: hidden;
     overflow-y: auto;
+    width: 100%;
 }
 
 .content-planner-notification-dropdown__header {
@@ -39,6 +52,7 @@
 
 .content-planner-notification-dropdown__headline {
     font-weight: 700;
+    margin: 0;
 }
 
 .content-planner-notification-dropdown__mark-all-read {
@@ -51,37 +65,116 @@
 }
 
 .content-planner-notification-dropdown__mark-all-read:focus-visible,
-.content-planner-notification-entry__mark-read:focus-visible,
-.content-planner-notification-entry__link:focus-visible {
+.content-planner-notification-entry__action:focus-visible,
+.content-planner-notification-entry__link:focus-visible,
+.content-planner-notification-filter__option:focus-visible {
     outline: 2px solid var(--typo3-state-primary-bg);
     outline-offset: 2px;
 }
 
-.content-planner-notification-dropdown__list {
+/* "All" and "For you" as one segmented control, the unread count beside it. */
+.content-planner-notification-dropdown__filter {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.content-planner-notification-filter {
+    border: 1px solid var(--typo3-component-border-color);
+    border-radius: 6px;
+    display: inline-flex;
+    overflow: hidden;
+}
+
+.content-planner-notification-filter__option {
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    padding: 0.125rem 0.625rem;
+}
+
+.content-planner-notification-filter__option[aria-pressed="true"] {
+    background-color: var(--content-planner-primary-tint-strong);
+    font-weight: 700;
+}
+
+.content-planner-notification-dropdown__unread {
+    color: var(--content-planner-color-muted);
+    font-size: 0.8125rem;
+}
+
+.content-planner-notification-group__title {
+    color: var(--content-planner-color-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin: 0;
+    padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.content-planner-notification-group__list {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.content-planner-notification-dropdown__empty {
-    color: var(--typo3-text-color-variant);
-    padding: 1.5rem 0.75rem;
+.content-planner-notification-dropdown__none {
+    color: var(--content-planner-color-muted);
+    margin: 0;
+    padding: 1rem 0.75rem;
     text-align: center;
 }
 
+.content-planner-notification-dropdown__empty {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.5rem 1rem;
+    text-align: center;
+}
+
+.content-planner-notification-dropdown__empty-icon {
+    align-items: center;
+    border: 1px solid var(--typo3-component-border-color);
+    border-radius: 50%;
+    display: flex;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+}
+
+.content-planner-notification-dropdown__empty-title {
+    font-weight: 700;
+    margin: 0.5rem 0 0;
+}
+
 .content-planner-notification-dropdown__empty-hint {
+    color: var(--content-planner-color-muted);
     font-size: 0.8125rem;
+    margin: 0;
+}
+
+.content-planner-notification-dropdown__footer {
+    border-top: 1px solid var(--typo3-component-border-color);
+    display: flex;
+    font-size: 0.8125rem;
+    gap: 0.75rem;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
 }
 
 .content-planner-notification-entry {
-    align-items: center;
-    border-bottom: 1px solid var(--typo3-component-border-color);
+    align-items: flex-start;
     display: flex;
-    gap: 0.5rem;
+    position: relative;
 }
 
-.content-planner-notification-entry--read {
-    opacity: 0.65;
+.content-planner-notification-entry[hidden],
+.content-planner-notification-group[hidden] {
+    display: none;
 }
 
 .content-planner-notification-entry__link {
@@ -93,9 +186,11 @@
     min-width: 0;
     padding: 0.5rem 0.75rem;
     text-decoration: none;
+    white-space: normal;
 }
 
-.content-planner-notification-entry__link:hover {
+.content-planner-notification-entry__link:hover,
+.content-planner-notification-entry:focus-within .content-planner-notification-entry__link {
     background-color: var(--typo3-component-hover-bg);
 }
 
@@ -104,35 +199,103 @@
     opacity: 0.7;
 }
 
-.content-planner-notification-entry__icon {
+/* Unread is a dot and bold text, never colour alone. The dot's column is kept for read
+   entries so the icons stay aligned. */
+.content-planner-notification-entry__dot {
+    background-color: transparent;
+    border-radius: 50%;
     flex: 0 0 auto;
-    padding-top: 0.125rem;
+    height: 0.5rem;
+    margin-top: 0.5rem;
+    width: 0.5rem;
+}
+
+.content-planner-notification-entry:not(.content-planner-notification-entry--read) .content-planner-notification-entry__dot {
+    background-color: var(--typo3-state-primary-bg);
+}
+
+.content-planner-notification-entry__icon {
+    align-items: center;
+    border: 1px solid var(--typo3-component-border-color);
+    border-radius: 50%;
+    display: flex;
+    flex: 0 0 auto;
+    height: 1.75rem;
+    justify-content: center;
+    width: 1.75rem;
 }
 
 .content-planner-notification-entry__body {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
+    gap: 0.125rem;
     min-width: 0;
 }
 
-.content-planner-notification-entry__title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.content-planner-notification-entry__sentence {
+    overflow-wrap: anywhere;
 }
 
-.content-planner-notification-entry__meta,
-.content-planner-notification-entry__reason {
-    color: var(--typo3-text-color-variant);
+.content-planner-notification-entry--read .content-planner-notification-entry__sentence {
+    color: var(--content-planner-color-muted);
+}
+
+.content-planner-notification-entry:not(.content-planner-notification-entry--read) .content-planner-notification-entry__sentence {
+    font-weight: 600;
+}
+
+.content-planner-notification-entry__meta {
+    color: var(--content-planner-color-muted);
     font-size: 0.75rem;
+    overflow-wrap: anywhere;
 }
 
-.content-planner-notification-entry__mark-read {
+/* Why the entry exists: highlighted for what needs action, neutral for plain watching. */
+.content-planner-notification-entry__tag {
+    align-self: flex-start;
+    border: 1px solid var(--typo3-component-border-color);
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    line-height: 1.3;
+    padding: 0 0.5rem;
+}
+
+.content-planner-notification-entry__tag--highlight {
+    background-color: var(--content-planner-primary-tint);
+    border-color: transparent;
+    font-weight: 700;
+}
+
+/* Mark as read and Mute show on hover and focus, so a calm list stays calm. */
+.content-planner-notification-entry__actions {
+    display: flex;
+    gap: 0.125rem;
+    opacity: 0;
+    padding: 0.5rem 0.5rem 0 0;
+}
+
+.content-planner-notification-entry:hover .content-planner-notification-entry__actions,
+.content-planner-notification-entry:focus-within .content-planner-notification-entry__actions {
+    opacity: 1;
+}
+
+.content-planner-notification-entry__action {
     background: none;
     border: 0;
-    color: var(--typo3-text-color-variant);
+    border-radius: 4px;
+    color: var(--content-planner-color-muted);
     cursor: pointer;
-    flex: 0 0 auto;
-    margin-right: 0.5rem;
+    padding: 0.25rem;
+}
+
+.content-planner-notification-entry__action:hover {
+    background-color: var(--typo3-component-hover-bg);
+    color: var(--typo3-text-color-base);
+}
+
+.content-planner-notification-entry__muted {
+    color: var(--content-planner-color-muted);
+    font-size: 0.75rem;
     padding: 0.25rem;
 }

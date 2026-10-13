@@ -1,5 +1,5 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
-<div class="content-planner-notification-dropdown" id="content-planner-notification-dropdown">
+<div class="content-planner-notification-dropdown" id="content-planner-notification-dropdown" data-notification-filter="all">
     <div class="content-planner-notification-dropdown__header">
         <p class="dropdown-headline content-planner-notification-dropdown__headline">
             {f:translate(key: 'notification.dropdown.headline', extensionName: 'xima_typo3_content_planner')}
@@ -13,6 +13,22 @@
             {f:translate(key: 'notification.dropdown.markAllRead', extensionName: 'xima_typo3_content_planner')}
         </button>
     </div>
+    <div class="content-planner-notification-dropdown__filter" data-notification-filter-bar hidden>
+        <div class="content-planner-notification-filter" role="group" aria-label="{f:translate(key: 'notification.filter.label', extensionName: 'xima_typo3_content_planner')}">
+            <button type="button" class="content-planner-notification-filter__option" data-notification-filter-option="all" aria-pressed="true">
+                {f:translate(key: 'notification.filter.all', extensionName: 'xima_typo3_content_planner')}
+            </button>
+            <button type="button" class="content-planner-notification-filter__option" data-notification-filter-option="for-you" aria-pressed="false"
+                    title="{f:translate(key: 'notification.filter.forYou.hint', extensionName: 'xima_typo3_content_planner')}">
+                {f:translate(key: 'notification.filter.forYou', extensionName: 'xima_typo3_content_planner')}
+            </button>
+        </div>
+        <span class="content-planner-notification-dropdown__unread" data-notification-unread-label aria-live="polite"></span>
+    </div>
     <f:render partial="Toolbar/NotificationList" arguments="{items: items}"/>
+    <div class="content-planner-notification-dropdown__footer">
+        <f:if condition="{settingsUrl}"><a href="{settingsUrl}">{f:translate(key: 'notification.dropdown.digestSettings', extensionName: 'xima_typo3_content_planner')}</a></f:if>
+        <f:if condition="{recordsUrl}"><a href="{recordsUrl}">{f:translate(key: 'notification.dropdown.openRecords', extensionName: 'xima_typo3_content_planner')}</a></f:if>
+    </div>
 </div>
 </html>

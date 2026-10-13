@@ -165,9 +165,12 @@ class UrlUtility
     /**
      * @throws RouteNotFoundException
      */
-    public static function getShareUrl(string $table, int $uid, ?int $commentUid = null): string
+    public static function getShareUrl(string $table, int $uid, ?int $commentUid = null, ?string $tab = null): string
     {
         $params = ['table' => $table, 'uid' => $uid];
+        if (null !== $tab) {
+            $params['tab'] = $tab;
+        }
         if (null !== $commentUid) {
             $params['comment'] = $commentUid;
         }

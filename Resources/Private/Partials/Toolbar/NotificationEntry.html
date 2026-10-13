@@ -1,6 +1,9 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 <li class="content-planner-notification-entry{f:if(condition: item.read, then: ' content-planner-notification-entry--read')}"
-    data-notification-uid="{item.uid}">
+    data-notification-uid="{item.uid}"
+    data-notification-for-you="{f:if(condition: item.forYou, then: '1', else: '0')}"
+    data-notification-table="{item.table}"
+    data-notification-record="{item.recordUid}">
     <f:if condition="{item.url}">
         <f:then>
             <a href="{item.url}" class="dropdown-item content-planner-notification-entry__link" role="menuitem">
@@ -13,16 +16,27 @@
             </span>
         </f:else>
     </f:if>
-    <f:if condition="{item.read}">
-        <f:else>
+    <span class="content-planner-notification-entry__actions">
+        <f:if condition="{item.read}">
+            <f:else>
+                <button type="button"
+                        class="content-planner-notification-entry__action"
+                        data-notification-mark-read="{item.uid}"
+                        aria-label="{f:translate(key: 'notification.dropdown.markRead', extensionName: 'xima_typo3_content_planner')}"
+                        title="{f:translate(key: 'notification.dropdown.markRead', extensionName: 'xima_typo3_content_planner')}">
+                    <core:icon identifier="content-planner-check" size="small" alternativeMarkupIdentifier="inline"/>
+                </button>
+            </f:else>
+        </f:if>
+        <f:if condition="{item.url}">
             <button type="button"
-                    class="content-planner-notification-entry__mark-read"
-                    data-notification-mark-read="{item.uid}"
-                    aria-label="{f:translate(key: 'notification.dropdown.markRead', extensionName: 'xima_typo3_content_planner')}"
-                    title="{f:translate(key: 'notification.dropdown.markRead', extensionName: 'xima_typo3_content_planner')}">
-                <core:icon identifier="content-planner-check" size="small" alternativeMarkupIdentifier="inline"/>
+                    class="content-planner-notification-entry__action"
+                    data-notification-mute
+                    aria-label="{f:translate(key: 'notification.dropdown.mute', extensionName: 'xima_typo3_content_planner')}"
+                    title="{f:translate(key: 'notification.dropdown.mute.hint', extensionName: 'xima_typo3_content_planner')}">
+                <core:icon identifier="content-planner-bell-off" size="small" alternativeMarkupIdentifier="inline"/>
             </button>
-        </f:else>
-    </f:if>
+        </f:if>
+    </span>
 </li>
 </html>
