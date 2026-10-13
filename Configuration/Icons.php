@@ -12,7 +12,12 @@ declare(strict_types=1);
  */
 
 use TYPO3\CMS\Core\Imaging\IconProvider\{SvgIconProvider, SvgSpriteIconProvider};
+use TYPO3\CMS\Core\Information\Typo3Version;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+
+// TYPO3 v14 draws module icons in the multi colour style (an accent colour var and a muted
+// layer), v13 as a white glyph on a coloured square.
+$moduleIcons = (new Typo3Version())->getMajorVersion() >= 14 ? 'modules' : 'modules/v13';
 
 return [
     'actions-flag-edit' => [
@@ -551,15 +556,15 @@ return [
     ],
     'module-content-planner' => [
         'provider' => SvgIconProvider::class,
-        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/modules/module-content-planner.svg',
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/'.$moduleIcons.'/module-content-planner.svg',
     ],
     'module-content-planner-records' => [
         'provider' => SvgIconProvider::class,
-        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/modules/module-content-planner-records.svg',
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/'.$moduleIcons.'/module-content-planner-records.svg',
     ],
     'module-content-planner-status' => [
         'provider' => SvgIconProvider::class,
-        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/modules/module-content-planner-status.svg',
+        'source' => 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Icons/'.$moduleIcons.'/module-content-planner-status.svg',
     ],
     'dashboard-preset' => [
         'provider' => SvgIconProvider::class,

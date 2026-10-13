@@ -1,10 +1,1 @@
-<svg width="100%" height="100%" fill="currentColor" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-    <g transform="matrix(1,0,0,1,-210,-95)">
-        <g transform="matrix(0.24,0,0,0.24,209.52,95.24)">
-            <path d="M18.667,57.333L18.667,19.833C18.667,18.711 19.115,17.644 19.917,16.858C29.576,7.39 45.257,7.39 54.917,16.858C61.356,23.17 71.81,23.17 78.25,16.858C79.448,15.683 81.234,15.342 82.78,15.992C84.327,16.642 85.333,18.156 85.333,19.833L85.333,57.333C85.333,58.453 84.883,59.525 84.083,60.309C74.424,69.777 58.743,69.777 49.083,60.309C43.045,54.391 33.478,54.021 27,59.201L27,86.5C27,88.8 25.133,90.667 22.833,90.667C20.534,90.667 18.667,88.8 18.667,86.5L18.667,57.333ZM27,21.701L27.001,49.5C36.154,45.344 47.372,46.963 54.917,54.358C60.954,60.275 70.519,60.645 77,55.465L76.999,27.666C67.846,31.823 56.628,30.204 49.083,22.809C43.045,16.891 33.478,16.521 27,21.701Z"/>
-            <g transform="matrix(4.166667,0,0,4.166667,-873,-396.833333)">
-                <path d="M215,100L219,98L226,102L229,100L229,109L226,111L220,108L215,108L215,100" style="fill-opacity:0.4;"/>
-            </g>
-        </g>
-    </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M18 54V12" stroke="currentColor" stroke-width="4"/><path d="M22 14h28l-7 10 7 10H22z" fill="var(--icon-color-accent, #ff8700)"/><path d="M22 14h28l-7 10 7 10H22z" stroke="var(--icon-color-accent, #ff8700)" stroke-width="2"/></svg>
