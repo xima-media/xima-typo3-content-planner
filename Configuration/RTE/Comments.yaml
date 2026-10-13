@@ -14,12 +14,15 @@ editor:
       - 'EXT:xima_typo3_content_planner/Resources/Public/Css/CommentEditorContent.css'
 
     # docs/design/rules.md, "Comments": bold, italic, link, to-do list. Mentions are typed with @.
+    # The bulleted and numbered lists are added to it, undo and redo stay on the keyboard.
     toolbar:
       items:
         - bold
         - italic
         - link
         - '|'
+        - bulletedList
+        - numberedList
         - todoList
 
     importModules:
