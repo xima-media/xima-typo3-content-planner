@@ -536,10 +536,6 @@
 				<source>edited</source>
 				<target>bearbeitet</target>
 			</trans-unit>
-			<trans-unit id="comment.actions.menu">
-				<source>Comment actions</source>
-				<target>Kommentaraktionen</target>
-			</trans-unit>
 			<trans-unit id="comment.actions.edit">
 				<source>Edit</source>
 				<target>Bearbeiten</target>
@@ -680,6 +676,62 @@
 				<source><![CDATA[Currently there are no comments available yet. You may want to create a <a data-new-comment-uri="%s" data-table="%s" data-id="%s">new comment</a>?]]></source>
 				<target><![CDATA[Aktuell gibt es keine Kommentare. Du möchtest vielleicht ein <a data-new-comment-uri="%s" data-table="%s" data-id="%s">neuen Kommentar</a> erstellen?]]></target>
 			</trans-unit>
+			<trans-unit id="comment.filter.show">
+				<source>Show</source>
+				<target>Anzeigen</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.show.open">
+				<source>Open</source>
+				<target>Offen</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.show.todo">
+				<source>With open to-dos</source>
+				<target>Mit offenen To-dos</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.show.all">
+				<source>All</source>
+				<target>Alle</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.sort">
+				<source>Sort</source>
+				<target>Sortierung</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.sort.newest">
+				<source>Newest first</source>
+				<target>Neueste zuerst</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.sort.oldest">
+				<source>Oldest first</source>
+				<target>Älteste zuerst</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.show">
+				<source>Show</source>
+				<target>Anzeigen</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.show.open">
+				<source>Open</source>
+				<target>Offen</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.show.todo">
+				<source>With open to-dos</source>
+				<target>Mit offenen To-dos</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.show.all">
+				<source>All</source>
+				<target>Alle</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.sort">
+				<source>Sort</source>
+				<target>Sortierung</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.sort.newest">
+				<source>Newest first</source>
+				<target>Neueste zuerst</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.sort.oldest">
+				<source>Oldest first</source>
+				<target>Älteste zuerst</target>
+			</trans-unit>
 			<trans-unit id="comment.filter.headline">
 				<source>Filter</source>
 				<target>Filter</target>
@@ -687,14 +739,6 @@
 			<trans-unit id="comment.filter.includeChildComments">
 				<source>Show comments from child records</source>
 				<target>Kommentare von untergeordneten Datensätzen anzeigen</target>
-			</trans-unit>
-			<trans-unit id="comment.filter.showResolvedComments">
-				<source>Show resolved comments</source>
-				<target>Erledigte Kommentare anzeigen</target>
-			</trans-unit>
-			<trans-unit id="comment.filter.showTodoComments">
-				<source>Show only comments with to-dos</source>
-				<target>Nur Kommentare mit To-dos anzeigen</target>
 			</trans-unit>
 			<trans-unit id="comment.record.jump">
 				<source>Open %s in the backend</source>

@@ -116,8 +116,12 @@ class RecordController extends ActionController
         $recordId = (int) ($request->getQueryParams()['uid'] ?? 0);
         $recordTable = $request->getQueryParams()['table'] ?? '';
         $sortComments = $request->getQueryParams()['sortComments'] ?? 'DESC';
-        $showResolvedComments = (bool) ($request->getQueryParams()['showResolvedComments'] ?? false);
-        $showTodoComments = (bool) ($request->getQueryParams()['showTodoComments'] ?? false);
+        // `show` is the one choice of the modal's filter column: open (default), only comments
+        // with to-dos, or all including resolved ones. The two flags it maps to stay accepted
+        // as they were, for links that carry them.
+        $show = (string) ($request->getQueryParams()['show'] ?? '');
+        $showResolvedComments = 'all' === $show || (bool) ($request->getQueryParams()['showResolvedComments'] ?? false);
+        $showTodoComments = 'todo' === $show || (bool) ($request->getQueryParams()['showTodoComments'] ?? false);
 
         if ('' === $recordTable || 0 === $recordId) {
             return new JsonResponse(['error' => 'Missing required parameters'], 400);
@@ -143,6 +147,7 @@ class RecordController extends ActionController
 
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, false, $sortComments, $showResolvedComments, $showTodoComments);
         $canCreateComment = PermissionUtility::canCreateComment();
+        $openCount = $this->commentRepository->countAllByRecord($recordId, $recordTable);
 
         // CP-29 (#328): aggregated child comments - a view-only concern, only offered for pages
         // and only when the user opted in via the persisted "includeChildComments" setting.
@@ -166,16 +171,12 @@ class RecordController extends ActionController
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [
                     'sortComments' => $sortComments,
-                    'showResolvedComments' => $showResolvedComments,
-                    'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true),
-                    'showTodoComments' => $showTodoComments,
-                    'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable, $showResolvedComments),
+                    'show' => $showTodoComments ? 'todo' : ($showResolvedComments ? 'all' : 'open'),
+                    'openCount' => $openCount,
+                    'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable),
+                    'allCount' => $openCount + $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true),
                     'includeChildComments' => $includeChildComments,
                     'isPage' => 'pages' === $recordTable,
-                    // Drives the badge on the "..." dropdown trigger, hinting that the closed
-                    // menu hides a non-default view - includeChildComments is a persisted
-                    // preference (like repliesExpanded), not a per-view filter, so it's excluded.
-                    'activeFilterCount' => (int) $showResolvedComments + (int) $showTodoComments,
                 ],
             ],
         );

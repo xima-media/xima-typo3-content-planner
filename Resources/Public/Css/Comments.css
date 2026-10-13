@@ -370,16 +370,36 @@
    Comment List
    ========================================================================== */
 
+/* Two columns (docs/design/rules.md, "Record modal"): the comments with the composer, and the
+   filter column. They stack below about 760px, the filters first. The negative margin takes
+   the pane back to the modal's edges, so the filter column reaches them. */
 .content-planner-comment-list {
-    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 15rem;
+    margin: 0 -1rem;
+    min-height: 100%;
 }
 
-.content-planner-comment-list:has(.content-planner-comment-empty) {
-    height: 100%;
+.content-planner-comments__main {
+    padding: 1rem;
 }
 
-.content-planner-comment-list .content-planner-comment-filter + .content-planner-comment {
-    margin-top: 3rem;
+.content-planner-comments__aside {
+    background-color: color-mix(in srgb, currentColor, transparent 96%);
+    border-inline-start: 1px solid var(--typo3-component-border-color);
+    padding: 1rem;
+}
+
+@media (max-width: 760px) {
+    .content-planner-comment-list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .content-planner-comments__aside {
+        border-block-end: 1px solid var(--typo3-component-border-color);
+        border-inline-start: 0;
+        order: -1;
+    }
 }
 
 /* ==========================================================================
@@ -453,32 +473,59 @@
    Comment Filter
    ========================================================================== */
 
-/* left/right sit at -1rem rather than 0 to cancel the pane's inherited 1rem .modal-body
-   padding, so the bar reaches the modal's actual edges instead of stopping at the pane's -
-   width is intentionally omitted: with both left and right set, the browser computes it. */
+/* Filter column: one choice for what to show, the include toggle, the sort order and two
+   view actions. */
 .content-planner-comment-filter {
-    background: color-mix(in srgb, currentColor, transparent 90%);
-    position: absolute;
-    top: 0;
-    right: -1rem;
-    left: -1rem;
-    padding: 0.5rem 1rem;
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    z-index: 10;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-/* margin-left: auto rather than justify-content: space-between on the parent, so .form-sort
-   stays flush right whether or not the "New comment" button (data-comment-new-trigger, only
-   rendered with create permission) precedes it as a sibling. */
-.content-planner-comment-filter .form-sort {
+.content-planner-comment-filter__group {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.content-planner-comment-filter__group > legend,
+.content-planner-comment-filter__label {
+    color: var(--content-planner-color-muted);
+    float: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.375rem;
+    padding: 0;
+    width: auto;
+}
+
+.content-planner-comment-filter__choice {
+    align-items: center;
+    cursor: pointer;
     display: flex;
     gap: 0.5rem;
-    align-items: center;
-    margin-left: auto;
+    padding-block: 0.25rem;
 }
 
+.content-planner-comment-filter__choice > span:nth-of-type(1) {
+    flex: 1 1 auto;
+}
+
+.content-planner-comment-filter__choice .content-planner-comment-filter-count {
+    background: none;
+    margin: 0;
+    padding: 0;
+}
+
+.content-planner-comment-filter__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.content-planner-comment-filter__actions .btn {
+    justify-content: flex-start;
+    text-align: start;
+}
 
 /* ==========================================================================
    Comment Empty State
