@@ -72,6 +72,7 @@ final readonly class RecordModuleController
         $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/Module.css');
         $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/RecordModule.css');
         $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/Status.css');
+        $this->pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js');
 
         $filter = $this->parseFilter($request->getQueryParams());
         $page = max(1, (int) ($request->getQueryParams()['page'] ?? 1));

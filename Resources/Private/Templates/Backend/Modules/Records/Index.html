@@ -163,18 +163,22 @@
                                     <td><span class="content-planner-module__muted" title="{item.updatedRaw}">{item.updated}</span></td>
                                     <td class="content-planner-module__activity">
                                         <f:if condition="{item.commentsName}">
-                                            <span class="content-planner-module__count" title="{item.commentsName}">
+                                            <button type="button" class="content-planner-module__count" title="{item.commentsName}"
+                                                data-content-planner-comments data-force-ajax-url="true"
+                                                data-table="{item.data.tablename}" data-id="{item.data.uid}">
                                                 <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
                                                 <span class="badge content-planner-meta__pill" data-status="none" aria-hidden="true">{item.commentsCount}</span>
                                                 <span class="visually-hidden">{item.commentsName}</span>
-                                            </span>
+                                            </button>
                                         </f:if>
                                         <f:if condition="{item.todoName}">
-                                            <span class="content-planner-module__count" title="{item.todoName}">
+                                            <button type="button" class="content-planner-module__count" title="{item.todoName}"
+                                                data-content-planner-comments data-force-ajax-url="true" data-show-todo-comments="1"
+                                                data-table="{item.data.tablename}" data-id="{item.data.uid}">
                                                 <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
                                                 <span class="badge content-planner-meta__pill" data-status="{f:if(condition: '{item.todoResolved} < {item.todoTotal}', then: 'pending', else: 'resolved')}" aria-hidden="true">{item.todoResolved}/{item.todoTotal}</span>
                                                 <span class="visually-hidden">{item.todoName}</span>
-                                            </span>
+                                            </button>
                                         </f:if>
                                     </td>
                                 </tr>
