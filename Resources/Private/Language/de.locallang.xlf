@@ -732,6 +732,14 @@
 				<source>Oldest first</source>
 				<target>Älteste zuerst</target>
 			</trans-unit>
+			<trans-unit id="comment.filter.toggle">
+				<source>Filter</source>
+				<target>Filter</target>
+			</trans-unit>
+			<trans-unit id="comment.filter.active">
+				<source>Filter active</source>
+				<target>Filter aktiv</target>
+			</trans-unit>
 			<trans-unit id="comment.filter.headline">
 				<source>Filter</source>
 				<target>Filter</target>

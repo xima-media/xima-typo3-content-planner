@@ -380,8 +380,28 @@
     min-height: 100%;
 }
 
+.content-planner-comment-list[data-filter-open="0"] {
+    grid-template-columns: minmax(0, 1fr);
+}
+
 .content-planner-comments__main {
     padding: 1rem;
+}
+
+.content-planner-comments__bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.75rem;
+}
+
+/* Says the closed column still narrows the list. */
+.content-planner-comment-filter-toggle__badge {
+    background-color: var(--content-planner-primary-tint-strong);
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.125rem 0.375rem;
 }
 
 .content-planner-comments__aside {

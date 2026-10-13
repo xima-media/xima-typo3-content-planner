@@ -4,6 +4,15 @@
 
 <div id="content-planner-comment-list" class="content-planner-comment-list" data-replies-expanded="{f:if(condition: '{repliesExpanded}', then: '1', else: '0')}">
     <div class="content-planner-comments__main">
+        <div class="content-planner-comments__bar">
+            <button type="button" class="btn btn-default btn-sm" data-comment-filter-toggle aria-expanded="false" aria-controls="content-planner-comment-filter-panel">
+                <core:icon identifier="content-planner-filter" size="small" alternativeMarkupIdentifier="inline"/>
+                <f:translate key="comment.filter.toggle" extensionName="XimaTypo3ContentPlanner"/>
+                <f:if condition="{filter.show} != 'open'">
+                    <span class="content-planner-comment-filter-toggle__badge" title="{f:translate(key: 'comment.filter.active', extensionName: 'XimaTypo3ContentPlanner')}">1</span>
+                </f:if>
+            </button>
+        </div>
         <f:if condition="{comments -> f:count()}">
             <f:then>
                 <f:for each="{comments}" as="record">
@@ -102,7 +111,7 @@
             </div>
         </f:if>
     </div>
-        <aside class="content-planner-comments__aside" aria-label="{f:translate(key: 'comment.filter.headline', extensionName: 'XimaTypo3ContentPlanner')}">
+        <aside id="content-planner-comment-filter-panel" class="content-planner-comments__aside" hidden aria-label="{f:translate(key: 'comment.filter.headline', extensionName: 'XimaTypo3ContentPlanner')}">
             <form id="content-planner-comment-filter" class="content-planner-comment-filter" data-table="{table}" data-id="{id}">
                 <fieldset class="content-planner-comment-filter__group">
                     <legend><f:translate key="comment.filter.show" extensionName="XimaTypo3ContentPlanner"/></legend>

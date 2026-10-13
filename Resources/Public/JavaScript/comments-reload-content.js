@@ -11,6 +11,13 @@ import CommentTodoToggle from "@content-planner/comment-todo-toggle.js"
 import CommentMentionCard from "@content-planner/comment-mention-card.js"
 
 class CommentsReloadContent {
+  static filterOpen = (() => {
+    try {
+      return '1' === localStorage.getItem('contentPlanner.commentFilterOpen')
+    } catch (error) {
+      return false
+    }
+  })()
 
   constructor() {
     if (!oncePerRealm('comments-reload-content')) {
@@ -32,6 +39,7 @@ class CommentsReloadContent {
     this.initRepliesToggle()
     this.initIncludeChildCommentsToggle()
     this.initNewCommentTrigger()
+    this.initFilterToggle()
 
     document.querySelector('form#content-planner-comment-filter')?.addEventListener('change', (event) => {
       event.preventDefault()
@@ -54,6 +62,36 @@ class CommentsReloadContent {
         event.preventDefault()
         this.focusNewCommentComposer()
       })
+    })
+  }
+
+  /**
+   * The filter column is closed until asked for, and stays as the user left it: the list is
+   * re-rendered on every filter change, so the state lives here and not in the markup.
+   */
+  initFilterToggle() {
+    const list = document.querySelector('#content-planner-comment-list')
+    const toggle = list?.querySelector('[data-comment-filter-toggle]')
+    const panel = list?.querySelector('#content-planner-comment-filter-panel')
+    if (!toggle || !panel) {
+      return
+    }
+
+    const apply = open => {
+      panel.hidden = !open
+      toggle.setAttribute('aria-expanded', String(open))
+      list.dataset.filterOpen = open ? '1' : '0'
+    }
+
+    apply(CommentsReloadContent.filterOpen)
+    toggle.addEventListener('click', () => {
+      CommentsReloadContent.filterOpen = !CommentsReloadContent.filterOpen
+      apply(CommentsReloadContent.filterOpen)
+      try {
+        localStorage.setItem('contentPlanner.commentFilterOpen', CommentsReloadContent.filterOpen ? '1' : '0')
+      } catch (error) {
+        // Remembering the state is a convenience, the toggle works without it.
+      }
     })
   }
 

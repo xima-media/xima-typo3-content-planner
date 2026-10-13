@@ -486,6 +486,12 @@
 			<trans-unit id="comment.filter.sort.oldest">
 				<source>Oldest first</source>
 			</trans-unit>
+			<trans-unit id="comment.filter.toggle">
+				<source>Filter</source>
+			</trans-unit>
+			<trans-unit id="comment.filter.active">
+				<source>Filter active</source>
+			</trans-unit>
 			<trans-unit id="comment.filter.headline">
 				<source>Filter</source>
 			</trans-unit>

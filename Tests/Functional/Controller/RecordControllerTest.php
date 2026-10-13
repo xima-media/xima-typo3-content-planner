@@ -174,6 +174,39 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function commentsActionRendersAToggleThatControlsTheFilterColumn(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertMatchesRegularExpression('#<button[^>]*data-comment-filter-toggle[^>]*aria-controls="content-planner-comment-filter-panel"#', $result);
+        self::assertMatchesRegularExpression('#<aside[^>]*id="content-planner-comment-filter-panel"#', $result);
+        self::assertStringNotContainsString('content-planner-comment-filter-toggle__badge', $result);
+    }
+
+    #[Test]
+    public function commentsActionMarksTheClosedFilterWhenItNarrowsTheList(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'show' => 'todo']),
+        );
+
+        self::assertStringContainsString('content-planner-comment-filter-toggle__badge', json_decode((string) $response->getBody(), true)['result']);
+    }
+
+    #[Test]
     public function commentsActionShowsOnlyCommentsWithTodosForTheTodoChoice(): void
     {
         $this->loginBackendUser(1);
