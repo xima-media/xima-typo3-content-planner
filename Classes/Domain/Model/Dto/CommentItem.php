@@ -16,7 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility, MentionUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Data\{CommentLinkUtility, ContentUtility, DiffUtility, MentionUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
@@ -140,7 +140,7 @@ final class CommentItem
      */
     public function getContent(): string
     {
-        return MentionUtility::renderContentWithMentions((string) ($this->data['content'] ?? ''));
+        return CommentLinkUtility::resolveLinks(MentionUtility::renderContentWithMentions((string) ($this->data['content'] ?? '')));
     }
 
     public function getTimeAgo(): string

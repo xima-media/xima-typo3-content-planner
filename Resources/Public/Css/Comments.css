@@ -571,6 +571,16 @@
     color: var(--content-planner-color-muted);
 }
 
+/* A link in a comment reads as a link: coloured and underlined, not told apart by colour alone. */
+.content-planner-comment__text a[href] {
+    color: var(--typo3-state-primary-bg);
+    text-decoration: underline;
+}
+
+.content-planner-comment__text a[href]:hover {
+    text-decoration: none;
+}
+
 .content-planner-comment-empty__text a {
     text-decoration: underline !important;
 }
