@@ -141,13 +141,14 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         self::assertIsString($result);
         // Order of information: assignee, comments, to-dos (docs/design/rules.md, "Header display modes").
         $assignee = strpos($result, '>Administrator (admin)</span>');
-        $comments = strpos($result, '>1 comment</span>');
+        $comments = strpos($result, '>Comments</span>');
         $todos = strpos($result, '>1/3</span>');
         self::assertNotFalse($assignee);
         self::assertNotFalse($comments);
         self::assertNotFalse($todos);
         self::assertLessThan($comments, $assignee);
         self::assertLessThan($todos, $comments);
+        self::assertStringContainsString('aria-label="1 comment.', $result);
         // Counts carry a text name, and the live to-do counter finds its pill by this hook.
         self::assertStringContainsString('aria-label="1 of 3 to-dos done.', $result);
         self::assertMatchesRegularExpression('/content-planner-header__todo-badge.*?<span class="badge content-planner-meta__pill" data-status="pending"/s', $result);
@@ -170,7 +171,8 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         self::assertIsString($result);
         self::assertStringContainsString('content-planner-header--compact', $result);
         self::assertStringContainsString('>Administrator (admin)</span>', $result);
-        self::assertStringContainsString('>1 comment</span>', $result);
+        self::assertStringContainsString('data-status="none" aria-hidden="true">1</span>', $result);
+        self::assertStringContainsString('>Comments</span>', $result);
         self::assertDoesNotMatchRegularExpression('/>\s*Status:/', $result);
     }
 
