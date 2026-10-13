@@ -72,6 +72,21 @@ final class ContentPlannerFieldsReadOnlyTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function addDataMarksTheContentPlannerFieldsReadOnlyInAWorkspaceEvenForAnAdmin(): void
+    {
+        $this->loginBackendUser(1);
+        $GLOBALS['BE_USER']->workspace = 3;
+
+        $result = $this->subject->addData($this->buildResult('pages'));
+
+        $columns = $result['processedTca']['columns'];
+        self::assertTrue($columns[Configuration::FIELD_STATUS]['config']['readOnly']);
+        self::assertTrue($columns[Configuration::FIELD_ASSIGNEE]['config']['readOnly']);
+        self::assertTrue($columns[Configuration::FIELD_COMMENTS]['config']['readOnly']);
+        self::assertArrayNotHasKey('readOnly', $columns['title']['config']);
+    }
+
+    #[Test]
     public function addDataSkipsFieldsNotPresentInProcessedTca(): void
     {
         $this->loginBackendUser(2);

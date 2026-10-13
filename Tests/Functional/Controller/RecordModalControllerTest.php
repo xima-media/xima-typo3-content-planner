@@ -89,6 +89,19 @@ final class RecordModalControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function contextActionTellsWhetherAWorkspaceIsOpen(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+
+        self::assertFalse(json_decode((string) $this->createController()->contextAction($this->createRequest(['table' => 'pages', 'uid' => 1]))->getBody(), true)['workspace']);
+
+        $GLOBALS['BE_USER']->workspace = 3;
+
+        self::assertTrue(json_decode((string) $this->createController()->contextAction($this->createRequest(['table' => 'pages', 'uid' => 1]))->getBody(), true)['workspace']);
+    }
+
+    #[Test]
     public function contextActionNamesTheStylesheetOfTheModalFrame(): void
     {
         $this->loginBackendUser(1);

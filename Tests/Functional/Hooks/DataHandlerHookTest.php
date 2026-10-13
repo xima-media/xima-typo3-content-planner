@@ -23,7 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchSource;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Event\{CommentCreatedEvent, CommentResolvedEvent};
-use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
+use Xima\XimaTypo3ContentPlanner\Hooks\{DataHandlerHook, LiveStatusWriter};
 use Xima\XimaTypo3ContentPlanner\Manager\{StatusChangeManager, StatusDefaultManager};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\ContentChangeNotificationService;
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
@@ -721,6 +721,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(EventDispatcherInterface::class),
             $this->get(StatusDefaultManager::class),
             $this->get(ContentChangeNotificationService::class),
+            $this->get(LiveStatusWriter::class),
         );
 
         $hook->processCmdmap_preProcess('delete', self::STATUS_TABLE, $uid, $unused, $dataHandler, null);
@@ -756,6 +757,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $this->get(EventDispatcherInterface::class),
             $this->get(StatusDefaultManager::class),
             $this->get(ContentChangeNotificationService::class),
+            $this->get(LiveStatusWriter::class),
         );
     }
 
@@ -769,6 +771,7 @@ final class DataHandlerHookTest extends AbstractFunctionalTestCase
             $dispatcher,
             $this->get(StatusDefaultManager::class),
             $this->get(ContentChangeNotificationService::class),
+            $this->get(LiveStatusWriter::class),
         );
     }
 }

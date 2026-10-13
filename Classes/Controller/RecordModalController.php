@@ -25,7 +25,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRep
 use Xima\XimaTypo3ContentPlanner\Service\WatcherPresentationService;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, IconUtility};
-use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\{PermissionUtility, WorkspaceUtility};
 
 use function is_array;
 
@@ -176,6 +176,8 @@ final readonly class RecordModalController
                 'icon' => IconUtility::getIconByStatus($current, true),
                 'color' => $current->getColor(),
             ],
+            // The modal says a status applies live: it always does, whatever workspace is open.
+            'workspace' => WorkspaceUtility::isActive(),
             'canChangeStatus' => PermissionUtility::canChangeStatus(),
             'canUnsetStatus' => PermissionUtility::canUnsetStatus(),
             'statuses' => $statuses,

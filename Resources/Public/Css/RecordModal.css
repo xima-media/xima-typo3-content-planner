@@ -78,6 +78,13 @@
     z-index: 1000;
 }
 
+.content-planner-record-modal__workspace-note {
+    color: var(--content-planner-color-muted);
+    flex: 1 0 100%;
+    font-size: 0.8125rem;
+    margin: 0;
+}
+
 .content-planner-record-modal__status-text {
     font-weight: 700;
 }

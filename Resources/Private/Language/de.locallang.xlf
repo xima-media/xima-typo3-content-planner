@@ -206,6 +206,10 @@
 				<source>No status</source>
 				<target>Kein Status</target>
 			</trans-unit>
+			<trans-unit id="modal.context.workspaceNote">
+				<source>Status changes apply live, not to the workspace version.</source>
+				<target>Statusänderungen gelten live, nicht für die Workspace-Version.</target>
+			</trans-unit>
 			<trans-unit id="modal.context.removeStatus">
 				<source>Remove status</source>
 				<target>Status entfernen</target>

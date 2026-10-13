@@ -672,7 +672,15 @@ mapping lives in exactly one Fluid partial, never duplicated in JavaScript.
 Workspaces
 ==========
 
-`StatusChangeEvent`/`AssigneeChangedEvent`/`CommentCreatedEvent` are all dispatched from inside
+A status is not content of a workspace version: in a workspace, every status change applies to the
+live record. `LiveStatusWriter <https://github.com/xima-media/xima-typo3-content-planner/blob/main/Classes/Hooks/LiveStatusWriter.php>`__
+takes the status field out of a workspace save before the DataHandler processes it and writes it to
+the live record afterwards, through a DataHandler that runs as the same user in the live workspace.
+The status change events and their notifications therefore fire for the live record, when the change
+is made. The Content Planner fields in the form are read-only in a workspace, the record modal and
+the header write the status.
+
+`AssigneeChangedEvent` and `CommentCreatedEvent` (and `StatusChangeEvent` for a save outside a workspace) are dispatched from inside
 `DataHandlerHook`, which runs on every save - including a save into a workspace, i.e. on
 creating/editing a versioned draft record. None of them are gated on that draft later being
 published. Notifications for planner events on versioned records therefore fire **on save, not
