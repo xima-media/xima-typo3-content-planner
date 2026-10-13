@@ -275,7 +275,7 @@ class AssigneeSelect {
       // when the modal closes, so the modal stays open and nothing reloads under it.
       if (modal?.querySelector('.content-planner-record-modal')) {
         top.document.dispatchEvent(new CustomEvent('content-planner:assignee-changed', {
-          detail: { assignee: option ? Number(option.dataset.assigneeUid) : 0 },
+          detail: {},
         }))
         return
       }

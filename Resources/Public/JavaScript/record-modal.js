@@ -53,7 +53,7 @@ class RecordModal {
       this.refreshWatchPaneIfOpen(event.detail.table, event.detail.uid)
     })
     top.document.addEventListener('content-planner:assignee-changed', event => {
-      this.refreshAssigneePane(event.detail.assignee)
+      this.refreshAssigneePane()
     })
   }
 
@@ -61,14 +61,15 @@ class RecordModal {
    * The assignment is already saved when this runs. The Assignee tab is loaded again so it names
    * the new assignee, and the page behind the modal is refreshed once, when the modal closes.
    */
-  refreshAssigneePane(assignee) {
+  refreshAssigneePane() {
     const pane = this.panes.assignee
     if (!this.modal || !pane) {
       return
     }
 
-    this.context.currentAssignee = assignee
     this.pageStale = true
+    // The value this modal was opened with is out of date, so the server reads the assignee itself.
+    delete this.context.currentAssignee
     delete pane.dataset.loaded
     pane.replaceChildren()
     this.loadPaneIfNeeded('assignee')
@@ -284,12 +285,30 @@ class RecordModal {
     this.updateTabCount('comments', counts.comments)
     this.updateTabCount('watch', counts.watchers)
 
-    if (counts.assignee) {
-      const suffix = document.createElement('span')
-      suffix.className = 'content-planner-record-modal__tab-detail'
-      suffix.textContent = counts.assignee
-      this.tabButtons.assignee.append(suffix)
+    this.setAssigneeDetail(counts.assignee)
+  }
+
+  /** The loaded Assignee tab knows who is assigned now, which the tab label and the next request must follow. */
+  syncAssigneeFromPane(pane) {
+    const current = pane.querySelector('[data-assignee-option][aria-current="true"]')
+    const uid = current ? Number(current.dataset.assigneeUid) : 0
+    this.setAssigneeDetail(uid > 0 ? current.dataset.assigneeName : '')
+  }
+
+  /** The name after the Assignee tab label, empty for a record nobody is assigned to. */
+  setAssigneeDetail(name) {
+    const button = this.tabButtons.assignee
+    let suffix = button.querySelector('.content-planner-record-modal__tab-detail')
+    if (!name) {
+      suffix?.remove()
+      return
     }
+    if (!suffix) {
+      suffix = document.createElement('span')
+      suffix.className = 'content-planner-record-modal__tab-detail'
+      button.append(suffix)
+    }
+    suffix.textContent = name
   }
 
   buildContextRow() {
@@ -606,6 +625,7 @@ class RecordModal {
   onPaneReady(tab, pane, payload) {
     if ('assignee' === tab) {
       AssigneeSelect.initEventListeners(this.modal, pane)
+      this.syncAssigneeFromPane(pane)
       return
     }
 
