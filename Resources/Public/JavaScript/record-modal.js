@@ -290,9 +290,8 @@ class RecordModal {
 
   /** The loaded Assignee tab knows who is assigned now, which the tab label and the next request must follow. */
   syncAssigneeFromPane(pane) {
-    const current = pane.querySelector('[data-assignee-option][aria-current="true"]')
-    const uid = current ? Number(current.dataset.assigneeUid) : 0
-    this.setAssigneeDetail(uid > 0 ? current.dataset.assigneeName : '')
+    const person = pane.querySelector('.content-planner-assignee__person:not(.content-planner-assignee__person--none) strong')
+    this.setAssigneeDetail(person?.textContent.trim() ?? '')
   }
 
   /** The name after the Assignee tab label, empty for a record nobody is assigned to. */
