@@ -680,6 +680,12 @@
 			</trans-unit>
 
 			<!-- mentions -->
+			<trans-unit id="mention.card.watching">
+				<source>Watching this record, gets notified.</source>
+			</trans-unit>
+			<trans-unit id="mention.card.notWatching">
+				<source>Not watching this record, only notified about mentions.</source>
+			</trans-unit>
 			<trans-unit id="mention.card.loading">
 				<source>Loading profile…</source>
 			</trans-unit>

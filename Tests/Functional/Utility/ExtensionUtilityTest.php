@@ -209,4 +209,14 @@ final class ExtensionUtilityTest extends AbstractFunctionalTestCase
         self::assertArrayHasKey(Configuration::FIELD_COMMENTS, $GLOBALS['TCA']['tt_content']['columns']);
         self::assertArrayHasKey('tx_ximatypo3contentplanner', $GLOBALS['TCA']['tt_content']['palettes']);
     }
+
+    #[Test]
+    public function addContentPlannerTabToTcaSaysWhatAChangeTriggers(): void
+    {
+        ExtensionUtility::addContentPlannerTabToTCA('tt_content');
+
+        foreach ([Configuration::FIELD_STATUS, Configuration::FIELD_ASSIGNEE] as $field) {
+            self::assertStringEndsWith(Configuration::FIELD_STATUS === $field ? 'tx_ximatypo3contentplanner_status.description' : 'tx_ximatypo3contentplanner_assignee.description', (string) ($GLOBALS['TCA']['tt_content']['columns'][$field]['description'] ?? ''));
+        }
+    }
 }

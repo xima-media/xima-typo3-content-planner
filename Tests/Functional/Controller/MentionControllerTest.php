@@ -16,7 +16,9 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Controller;
 use PHPUnit\Framework\Attributes\Test;
 use Psr\Http\Message\ServerRequestInterface;
 use Xima\XimaTypo3ContentPlanner\Controller\MentionController;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchSource;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -182,6 +184,46 @@ final class MentionControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function profileActionSaysThatAWatchingUserIsNotifiedAboutTheRecord(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+        $this->get(WatcherService::class)->watch('pages', 1, 10, WatchSource::Manual);
+
+        $response = $this->createController()->profileAction($this->createRequest(['uid' => 10, 'table' => 'pages', 'record' => 1]));
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertStringContainsString('Watching this record', $result);
+        self::assertStringNotContainsString('Not watching', $result);
+    }
+
+    #[Test]
+    public function profileActionSaysThatANonWatchingUserIsOnlyNotifiedAboutMentions(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+
+        $response = $this->createController()->profileAction($this->createRequest(['uid' => 10, 'table' => 'pages', 'record' => 1]));
+
+        self::assertStringContainsString('Not watching', json_decode((string) $response->getBody(), true)['result']);
+    }
+
+    #[Test]
+    public function profileActionLeavesTheWatchLineOutWithoutARecord(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+
+        $response = $this->createController()->profileAction($this->createRequest(['uid' => 10]));
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertStringNotContainsString('atching', $result);
+    }
+
+    #[Test]
     public function profileActionShowsTheEmailToAnAdmin(): void
     {
         $this->loginBackendUser(1);
@@ -216,6 +258,7 @@ final class MentionControllerTest extends AbstractFunctionalTestCase
         return new MentionController(
             $this->get(RecordRepository::class),
             $this->get(BackendUserRepository::class),
+            $this->get(WatcherService::class),
         );
     }
 

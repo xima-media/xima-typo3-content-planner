@@ -68,6 +68,31 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function generateSelectionKeepsTheCurrentStatusInTheListWithACheckInsteadOfItsFlag(): void
+    {
+        $result = $this->subject->generateSelection('pages', 1);
+
+        self::assertIsArray($result);
+        self::assertTrue($result['2']['current']);
+        self::assertSame('content-planner-circle-check', $result['2']['iconIdentifier']);
+        self::assertArrayNotHasKey('current', $result['1']);
+    }
+
+    #[Test]
+    public function getCurrentStatusTitleNamesTheStatusTheRecordHas(): void
+    {
+        self::assertSame('In Progress', $this->subject->getCurrentStatusTitle('pages', 1));
+        self::assertNull($this->subject->getCurrentStatusTitle('pages', 2));
+    }
+
+    #[Test]
+    public function getCurrentFolderStatusTitleNamesTheStatusTheFolderHas(): void
+    {
+        self::assertNotNull($this->subject->getCurrentFolderStatusTitle('1:/user_upload/'));
+        self::assertNull($this->subject->getCurrentFolderStatusTitle('1:/no_status/'));
+    }
+
+    #[Test]
     public function addStatusResetItemToSelectionAddsResetEntry(): void
     {
         $entries = [];
@@ -146,10 +171,11 @@ final class ContextMenuSelectionServiceTest extends AbstractFunctionalTestCase
         self::assertArrayHasKey('reset', $result);
         self::assertArrayHasKey('assignee', $result);
         self::assertArrayHasKey('comments', $result);
-        // Current status is uid 2, so it is excluded from the change options.
+        // Current status is uid 2: it stays in the list, marked as the current one.
         self::assertArrayHasKey('1', $result);
         self::assertArrayHasKey('3', $result);
-        self::assertArrayNotHasKey('2', $result);
+        self::assertTrue($result['2']['current']);
+        self::assertArrayNotHasKey('current', $result['1']);
         self::assertSame('blue', $result['1']['color']);
         self::assertSame('flag', $result['1']['icon']);
     }

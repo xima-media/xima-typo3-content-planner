@@ -62,18 +62,31 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      */
     public function addStatusItemToSelection(array $selectionEntriesToAdd, Status $status, Status|int|null $currentStatus = null, ?string $table = null, array|int|null $uid = null, array|bool|null $record = null): array
     {
-        if ($this->compareStatus($status, $currentStatus)) {
-            return $selectionEntriesToAdd;
-        }
-        $selectionEntriesToAdd[(string) $status->getUid()] = [
-            'label' => $status->getTitle(),
-            'iconIdentifier' => $status->getColoredIcon(),
-            'callbackAction' => 'change',
-            'color' => $status->getColor(),
-            'icon' => $status->getIcon(),
-        ];
+        $selectionEntriesToAdd[(string) $status->getUid()] = $this->buildStatusEntry($status, $this->compareStatus($status, $currentStatus));
 
         return $selectionEntriesToAdd;
+    }
+
+    /**
+     * The status the record has now, for the submenu's label "Status: In progress".
+     *
+     * @throws Exception
+     */
+    public function getCurrentStatusTitle(string $table, int $uid): ?string
+    {
+        $statusUid = $this->getCurrentStatus($this->getCurrentRecord($table, $uid));
+
+        return null === $statusUid ? null : $this->statusRepository->findByUid($statusUid)?->getTitle();
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getCurrentFolderStatusTitle(string $combinedIdentifier): ?string
+    {
+        $statusUid = $this->getCurrentStatus($this->folderStatusRepository->findByCombinedIdentifier($combinedIdentifier));
+
+        return null === $statusUid ? null : $this->statusRepository->findByUid($statusUid)?->getTitle();
     }
 
     /**
@@ -186,17 +199,7 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
      */
     public function addFolderStatusItemToSelection(array $selectionEntriesToAdd, Status $status, ?int $currentStatus, string $combinedIdentifier): array
     {
-        if (null !== $currentStatus && $status->getUid() === $currentStatus) {
-            return $selectionEntriesToAdd;
-        }
-
-        $selectionEntriesToAdd[(string) $status->getUid()] = [
-            'label' => $status->getTitle(),
-            'iconIdentifier' => $status->getColoredIcon(),
-            'callbackAction' => 'change',
-            'color' => $status->getColor(),
-            'icon' => $status->getIcon(),
-        ];
+        $selectionEntriesToAdd[(string) $status->getUid()] = $this->buildStatusEntry($status, null !== $currentStatus && $status->getUid() === $currentStatus);
 
         return $selectionEntriesToAdd;
     }
@@ -264,5 +267,24 @@ class ContextMenuSelectionService extends AbstractSelectionService implements Se
         ];
 
         return $selectionEntriesToAdd;
+    }
+
+    /**
+     * Every status the user may set is listed, the current one included: a menu that hides it
+     * reads as if the record had none. It shows a check instead of its flag and changes nothing
+     * when picked.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildStatusEntry(Status $status, bool $current): array
+    {
+        return [
+            'label' => $status->getTitle(),
+            'iconIdentifier' => $current ? 'content-planner-circle-check' : $status->getColoredIcon(),
+            'callbackAction' => 'change',
+            'color' => $status->getColor(),
+            'icon' => $status->getIcon(),
+            ...($current ? ['current' => true] : []),
+        ];
     }
 }

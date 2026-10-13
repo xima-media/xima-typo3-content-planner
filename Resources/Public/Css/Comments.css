@@ -823,6 +823,11 @@ button.ctp-mention:focus-visible {
     color: color-mix(in srgb, currentColor, transparent 35%);
 }
 
+.content-planner-mention-card__watch {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
 .content-planner-mention-card-popover {
     max-width: 20rem;
 }

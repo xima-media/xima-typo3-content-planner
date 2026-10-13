@@ -9,6 +9,11 @@
         <f:if condition="{email}">
             <a class="content-planner-mention-card__email" href="mailto:{email}">{email}</a>
         </f:if>
+        <f:if condition="{watchState}">
+            <span class="content-planner-mention-card__watch">
+                <f:translate key="mention.card.{watchState}" extensionName="xima_typo3_content_planner"/>
+            </span>
+        </f:if>
     </span>
 </div>
 </html>

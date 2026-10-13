@@ -60,7 +60,7 @@ class CommentMentionCard {
     // did not see it - the first card has to be opened by hand.
     Popover.show(trigger)
 
-    this.load(trigger.dataset.mentionUid)
+    this.load(trigger.dataset.mentionUid, this.recordOf(trigger))
       .then(content => Popover.setOptions(trigger, this.options(trigger, content)))
       .catch(error => {
         console.error('Failed to load mention profile card:', error)
@@ -104,15 +104,26 @@ class CommentMentionCard {
   }
 
   /**
+   * The record the comment is on, read off the comment list the mention sits in: the card says
+   * whether the person watches it. A mention outside that list (a widget) has none.
+   */
+  recordOf(trigger) {
+    const form = trigger.closest('#content-planner-comment-list')?.querySelector('form#content-planner-comment-filter')
+
+    return form ? {table: form.dataset.table, record: form.dataset.id} : {}
+  }
+
+  /**
    * @returns {Promise<string>}
    */
-  async load(uid) {
-    if (this.cache.has(uid)) {
-      return this.cache.get(uid)
+  async load(uid, record = {}) {
+    const key = `${uid}:${record.table || ''}:${record.record || ''}`
+    if (this.cache.has(key)) {
+      return this.cache.get(key)
     }
 
     const request = new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_mentions_profile)
-      .withQueryArguments({uid})
+      .withQueryArguments({uid, ...record})
       .get()
       .then(async response => (await response.resolve()).result)
 
@@ -120,8 +131,8 @@ class CommentMentionCard {
     // mentioned more than once in a thread, and hovering two of those in quick succession
     // should not fire the request twice. A failure drops out of the cache again so the next
     // hover retries instead of replaying the rejection forever.
-    this.cache.set(uid, request)
-    request.catch(() => this.cache.delete(uid))
+    this.cache.set(key, request)
+    request.catch(() => this.cache.delete(key))
 
     return request
   }

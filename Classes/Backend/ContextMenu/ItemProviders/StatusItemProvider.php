@@ -29,6 +29,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_slice;
 use function in_array;
+use function sprintf;
 
 /**
  * StatusItemProvider.
@@ -66,7 +67,7 @@ class StatusItemProvider extends AbstractProvider
      * so the JS callback receives enough data to apply a status change optimistically,
      * without an extra round trip.
      *
-     * @var array<string, array{title: string, color: string, icon: string}>
+     * @var array<string, array{title: string, color: string, icon: string, current: bool}>
      */
     private array $statusMetadataByItemKey = [];
 
@@ -138,6 +139,8 @@ class StatusItemProvider extends AbstractProvider
         foreach ($itemsToAdd as $itemKey => $itemToAdd) {
             $this->registerItem($itemKey, $itemToAdd);
         }
+
+        $this->itemsConfiguration['wrap']['label'] = $this->buildSubmenuLabel();
 
         $localItems = $this->prepareItems($this->itemsConfiguration);
 
@@ -217,6 +220,23 @@ class StatusItemProvider extends AbstractProvider
     }
 
     /**
+     * "Status: In progress": the submenu says which status the record has, so a menu that opens
+     * on a list of statuses is not read as a list to pick the first one from.
+     *
+     * @throws Exception
+     */
+    private function buildSubmenuLabel(): string
+    {
+        $title = $this->isFolder
+            ? $this->contextMenuSelectionService->getCurrentFolderStatusTitle($this->folderIdentifier)
+            : $this->contextMenuSelectionService->getCurrentStatusTitle($this->effectiveTable, $this->effectiveIdentifier);
+        $languageService = $this->getLanguageService();
+        $labelFile = 'LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:';
+
+        return sprintf($languageService->sL($labelFile.'status.current'), $title ?? $languageService->sL($labelFile.'status.none'));
+    }
+
+    /**
      * Registers a single context menu item and extracts the metadata
      * {@see getAdditionalAttributes()} needs for it.
      *
@@ -238,6 +258,7 @@ class StatusItemProvider extends AbstractProvider
                 'title' => (string) ($itemToAdd['label'] ?? ''),
                 'color' => (string) $itemToAdd['color'],
                 'icon' => (string) $itemToAdd['icon'],
+                'current' => (bool) ($itemToAdd['current'] ?? false),
             ];
         }
     }
@@ -260,6 +281,9 @@ class StatusItemProvider extends AbstractProvider
         $attributes['data-status-title'] = $metadata['title'];
         $attributes['data-status-color'] = $metadata['color'];
         $attributes['data-status-icon'] = $metadata['icon'];
+        if ($metadata['current']) {
+            $attributes['data-status-current'] = '1';
+        }
 
         return $attributes;
     }

@@ -96,6 +96,8 @@ final class StatusRegistryTest extends AbstractFunctionalTestCase
         $labelsByValue = array_column($config['items'], 'label', 'value');
         self::assertArrayHasKey(2, $labelsByValue);
         self::assertStringContainsString('Editor User', $labelsByValue[2]);
+        // Says why this person stays selected, instead of leaving an unexplained entry in the list.
+        self::assertStringContainsString('not assignable anymore', $labelsByValue[2]);
     }
 
     #[Test]
