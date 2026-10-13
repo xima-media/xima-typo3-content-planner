@@ -1,0 +1,60 @@
+<html
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    data-namespace-typo3-fluid="true"
+>
+
+<f:comment>
+    The status at the front of the banner and of the content element strip as the button that
+    changes it: the statuses the user may set, the current one marked, then removing the status
+    and the record's properties. Used with {statusOptions}, which is empty without permission.
+</f:comment>
+<div class="dropdown content-planner-status-menu">
+    <button
+        type="button"
+        class="content-planner-status-menu__toggle {toggleClass}"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        aria-label="{f:translate(key: 'status.change', extensionName: 'xima_typo3_content_planner', arguments: {0: status.title})}"
+    >
+        <f:if condition="{showIcon}">
+            <core:icon identifier="{status.icon}" size="{iconSize}" alternativeMarkupIdentifier="inline"/>
+        </f:if>
+        <strong class="{nameClass}" title="{status.title}">{status.title}</strong>
+    </button>
+    <ul class="dropdown-menu">
+        <f:for each="{statusOptions.statuses}" as="option">
+            <li>
+                <a href="{option.url}" class="dropdown-item{f:if(condition: option.current, then: ' active')}"{f:if(condition: option.current, then: ' aria-current="true"')}>
+                    <core:icon identifier="{f:if(condition: option.current, then: 'content-planner-circle-check', else: option.icon)}" size="small" alternativeMarkupIdentifier="inline"/>
+                    {option.title}
+                </a>
+            </li>
+        </f:for>
+        <f:if condition="{statusOptions.resetUrl}">
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a href="{statusOptions.resetUrl}" class="dropdown-item">
+                    <core:icon identifier="content-planner-x" size="small" alternativeMarkupIdentifier="inline"/>
+                    <f:translate key="status.remove" extensionName="xima_typo3_content_planner"/>
+                </a>
+            </li>
+        </f:if>
+        <f:if condition="{editLink}">
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <be:link.editRecord
+                    uid="{data.uid}"
+                    table="{table}"
+                    fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                    returnUrl="{returnUrl}"
+                    class="dropdown-item"
+                >
+                    <core:icon identifier="actions-flag-edit" size="small" alternativeMarkupIdentifier="inline"/>
+                    <f:translate key="header.editStatus" extensionName="xima_typo3_content_planner"/>
+                </be:link.editRecord>
+            </li>
+        </f:if>
+    </ul>
+</div>
+</html>

@@ -200,6 +200,55 @@
     padding: 0.125rem 0.375rem;
 }
 
+/* The status at the front of the banner and of the strip is the button that changes it. */
+.content-planner-status-menu {
+    flex: 1 1 auto;
+    min-width: 0;
+    position: relative;
+}
+
+.content-planner-status-menu__toggle {
+    align-items: center;
+    appearance: none;
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: 0.375rem;
+    max-width: 100%;
+    padding: 0.125rem 0.25rem;
+}
+
+.content-planner-status-menu__toggle:hover {
+    background-color: color-mix(in srgb, var(--cp-edge) 15%, transparent);
+}
+
+.content-planner-status-menu__toggle:focus-visible {
+    outline: 2px solid var(--typo3-state-primary-bg);
+    outline-offset: 2px;
+}
+
+/* Says it opens a menu, in the toggle's own colour. */
+.content-planner-status-menu__toggle::after {
+    border-color: currentColor transparent transparent;
+    border-style: solid;
+    border-width: 0.3em 0.3em 0;
+    content: "";
+    flex: 0 0 auto;
+    margin-inline-start: 0.125rem;
+}
+
+.content-planner-strip .content-planner-status-menu__toggle {
+    color: var(--cp-text);
+}
+
+.content-planner-strip .content-planner-status-menu__toggle:hover {
+    text-decoration: none;
+}
+
 @container (max-width: 300px) {
     .content-planner-strip__meta {
         display: none;

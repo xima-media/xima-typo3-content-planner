@@ -51,6 +51,21 @@ final class SelectionUriBuilderTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function buildUriForStatusChangeOfAContentElementReturnsToThePageLayoutOfItsPage(): void
+    {
+        $this->setUpBackendRequest('web_layout', ['id' => 7]);
+
+        $uri = $this->subject->buildUriForStatusChange('tt_content', 55, $this->makeStatus());
+
+        // The redirect goes back to page 7, not to a "page" with the element's uid.
+        // The redirect is nested in the URL, so it is decoded twice.
+        $decoded = urldecode(urldecode((string) $uri));
+        self::assertStringContainsString('data[tt_content][55][tx_ximatypo3contentplanner_status]=1', $decoded);
+        self::assertStringContainsString('id=7', $decoded);
+        self::assertStringNotContainsString('id=55', $decoded);
+    }
+
+    #[Test]
     public function buildUriForStatusChangeWithRecordListRouteResetsStatus(): void
     {
         $this->setUpBackendRequest('web_list', ['id' => 5]);

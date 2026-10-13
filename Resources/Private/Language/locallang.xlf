@@ -97,6 +97,12 @@
 			<trans-unit id="modal.record.title">
 				<source>Content Planner</source>
 			</trans-unit>
+			<trans-unit id="status.change">
+				<source>Status: %s, change</source>
+			</trans-unit>
+			<trans-unit id="status.remove">
+				<source>Remove status</source>
+			</trans-unit>
 			<trans-unit id="modal.tabs.label">
 				<source>Record actions</source>
 			</trans-unit>

@@ -25,17 +25,25 @@
     role="status"
     aria-live="polite"
 >
-    <be:link.editRecord
-        uid="{data.uid}"
-        table="{table}"
-        fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-        returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
-        title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
-        class="content-planner-strip__status"
-    >
-        <core:icon identifier="{status.icon}" size="small" alternativeMarkupIdentifier="inline"/>
-        <strong class="content-planner-strip__name" title="{status.title}">{status.title}</strong>
-    </be:link.editRecord>
+    <f:if condition="{statusOptions.statuses}">
+        <f:then>
+            <f:variable name="stripReturnUrl" value="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"/>
+            <f:render partial="StatusMenu" arguments="{status: status, statusOptions: statusOptions, table: table, data: data, showIcon: true, iconSize: 'small', nameClass: 'content-planner-strip__name', toggleClass: 'content-planner-strip__status', editLink: 0, returnUrl: stripReturnUrl}"/>
+        </f:then>
+        <f:else>
+        <be:link.editRecord
+            uid="{data.uid}"
+            table="{table}"
+            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
+            title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
+            class="content-planner-strip__status"
+        >
+            <core:icon identifier="{status.icon}" size="small" alternativeMarkupIdentifier="inline"/>
+            <strong class="content-planner-strip__name" title="{status.title}">{status.title}</strong>
+        </be:link.editRecord>
+        </f:else>
+    </f:if>
 
     <div class="content-planner-strip__meta">
         <f:if condition="{comments.todoTotal}">

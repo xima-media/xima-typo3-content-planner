@@ -48,6 +48,7 @@ class InfoGenerator
         private readonly FolderStatusRepository $folderStatusRepository,
         private readonly WatcherPresentationService $watcherPresentationService,
         private readonly PageRenderer $pageRenderer,
+        private readonly StatusOptionsBuilder $statusOptionsBuilder,
     ) {}
 
     public function generateStatusHeader(
@@ -321,6 +322,7 @@ class InfoGenerator
                 'color' => $status->getColor(),
                 'icon' => $status->getColoredIcon(),
             ],
+            'statusOptions' => $this->statusOptionsBuilder->build($table, (int) $record['uid'], $status->getUid()),
             'assignee' => [
                 'username' => $this->getAssigneeUsername($record),
                 'assignedToCurrentUser' => self::getAssignedToCurrentUser($record),

@@ -99,10 +99,36 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1);
 
         self::assertIsString($result);
-        self::assertStringContainsString('<strong>In Progress</strong>', $result);
+        self::assertMatchesRegularExpression('#<strong[^>]*>In Progress</strong>#', $result);
         self::assertDoesNotMatchRegularExpression('/>\s*Status:/', $result);
         // The accessible name of the banner keeps the context.
         self::assertStringContainsString('aria-label="Status: In Progress"', $result);
+    }
+
+    #[Test]
+    public function theStatusOfTheBannerIsTheButtonThatChangesIt(): void
+    {
+        $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('content-planner-status-menu__toggle', $result);
+        self::assertStringContainsString('data-bs-toggle="dropdown"', $result);
+        self::assertStringContainsString('Status: In Progress, change', $result);
+        // The current status is marked, the others and "Remove status" link to the change.
+        self::assertStringContainsString('aria-current="true"', $result);
+        self::assertStringContainsString('Remove status', $result);
+        self::assertStringContainsString('record/commit', $result);
+    }
+
+    #[Test]
+    public function theBannerKeepsALinkToTheStatusPropertiesInsteadOfAMenuWithoutPermission(): void
+    {
+        $this->setUpBackendUser(2);
+
+        $result = $this->subject->generateStatusHeader(HeaderMode::WEB_LAYOUT, null, 'pages', 1);
+
+        self::assertIsString($result);
+        self::assertStringNotContainsString('content-planner-status-menu__toggle', $result);
     }
 
     #[Test]

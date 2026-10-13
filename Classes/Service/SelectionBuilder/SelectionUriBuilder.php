@@ -110,6 +110,11 @@ class SelectionUriBuilder
             ];
         }
 
+        // A content element is edited on the page it sits on: the layout stays on that page.
+        if (RouteUtility::isPageLayoutRoute($route)) {
+            return ['id' => (int) ($request->getQueryParams()['id'] ?? 0) ?: $normalizedUid];
+        }
+
         if (RouteUtility::isRecordListRoute($route)) {
             $currentPageId = (int) ($request->getQueryParams()['id'] ?? 0);
 

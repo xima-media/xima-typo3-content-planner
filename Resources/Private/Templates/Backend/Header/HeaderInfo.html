@@ -30,27 +30,22 @@
                 </span>
             </f:then>
             <f:else>
-                <f:if condition="{mode} == 'content_element'">
+                <f:if condition="{statusOptions.statuses} && {mode} != 'edit'">
                     <f:then>
-                        <be:link.editRecord
-                            uid="{data.uid}"
-                            table="{table}"
-                            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-                            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
-                            title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
-                            class="d-flex align-items-center flex-grow-1"
-                        >
-                            <strong>{status.title}</strong>
-                        </be:link.editRecord>
+                        <f:variable name="menuReturnUrl" value="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"/>
+                        <f:if condition="{mode} != 'content_element'">
+                            <f:variable name="menuReturnUrl" value="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"/>
+                        </f:if>
+                        <f:render partial="StatusMenu" arguments="{status: status, statusOptions: statusOptions, table: table, data: data, showIcon: false, nameClass: '', toggleClass: 'content-planner-header__status-toggle', editLink: 1, returnUrl: menuReturnUrl}"/>
                     </f:then>
                     <f:else>
-                        <f:if condition="{mode} != 'edit'">
+                        <f:if condition="{mode} == 'content_element'">
                             <f:then>
                                 <be:link.editRecord
                                     uid="{data.uid}"
-                                    table="pages"
+                                    table="{table}"
                                     fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-                                    returnUrl="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"
+                                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
                                     title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
                                     class="d-flex align-items-center flex-grow-1"
                                 >
@@ -58,7 +53,23 @@
                                 </be:link.editRecord>
                             </f:then>
                             <f:else>
-                                <strong>{status.title}</strong>
+                                <f:if condition="{mode} != 'edit'">
+                                    <f:then>
+                                        <be:link.editRecord
+                                            uid="{data.uid}"
+                                            table="pages"
+                                            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                                            returnUrl="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"
+                                            title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
+                                            class="d-flex align-items-center flex-grow-1"
+                                        >
+                                            <strong>{status.title}</strong>
+                                        </be:link.editRecord>
+                                    </f:then>
+                                    <f:else>
+                                        <strong>{status.title}</strong>
+                                    </f:else>
+                                </f:if>
                             </f:else>
                         </f:if>
                     </f:else>
