@@ -169,6 +169,7 @@ class RecordController extends ActionController
                 // CP-27 (#326): comment-first flow - only relevant while the composer can
                 // actually be used and the record has no status yet.
                 'commentFirst' => $canCreateComment ? $this->commentFirstFlowManager->buildContext($record) : ['active' => false],
+                'statusChange' => $this->commentFirstFlowManager->buildChangeContext($record),
                 'childComments' => $childComments,
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [

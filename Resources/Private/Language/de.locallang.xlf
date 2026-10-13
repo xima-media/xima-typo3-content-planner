@@ -632,6 +632,14 @@
 				<source>Show older comments (%d)</source>
 				<target>Ältere Kommentare anzeigen (%d)</target>
 			</trans-unit>
+			<trans-unit id="comment.composer.status.label">
+				<source>Status</source>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="comment.composer.status.keep">
+				<source>Keep current</source>
+				<target>Beibehalten</target>
+			</trans-unit>
 			<trans-unit id="comment.composer.hint.submit">
 				<source><![CDATA[Press <kbd data-shortcut-modifier>Ctrl</kbd>+<kbd>Enter</kbd> to save]]></source>
 				<target><![CDATA[Drücken Sie <kbd data-shortcut-modifier>Strg</kbd>+<kbd>Enter</kbd> zum Speichern]]></target>

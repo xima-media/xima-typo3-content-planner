@@ -52,9 +52,27 @@ class RecordModal {
     top.document.addEventListener('content-planner:watch-toggled', event => {
       this.refreshWatchPaneIfOpen(event.detail.table, event.detail.uid)
     })
+    top.document.addEventListener('content-planner:status-changed', event => {
+      this.refreshStatus(event.detail.table, event.detail.uid)
+    })
     top.document.addEventListener('content-planner:assignee-changed', event => {
       this.refreshAssigneePane()
     })
+  }
+
+  /** A comment sent together with a new status changed it: the status control follows, the page when the modal closes. */
+  refreshStatus(table, uid) {
+    if (!this.modal || this.recordKey !== `${table}:${uid}`) {
+      return
+    }
+    this.fetchRecordInfo().then(info => {
+      if (this.recordKey !== `${table}:${uid}`) {
+        return
+      }
+      this.info = { ...this.info, status: info.status, statuses: info.statuses }
+      this.renderStatusControl()
+      this.pageStale = true
+    }).catch(error => console.error('Content Planner: failed to reload the status:', error))
   }
 
   /**

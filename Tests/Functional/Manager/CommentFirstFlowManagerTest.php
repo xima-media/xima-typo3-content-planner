@@ -94,33 +94,59 @@ final class CommentFirstFlowManagerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function resolveStatusUidForCommentFirstReturnsNullWhenRecordAlreadyHasAStatus(): void
+    public function resolveStatusUidReturnsNullWhenTheRequestedStatusIsTheCurrentOne(): void
     {
-        self::assertNull($this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 2], 1));
+        self::assertNull($this->subject->resolveStatusUid([Configuration::FIELD_STATUS => 2], 2));
     }
 
     #[Test]
-    public function resolveStatusUidForCommentFirstReturnsNullWhenNoStatusWasRequested(): void
+    public function resolveStatusUidReturnsNullWhenNoStatusWasRequested(): void
     {
         // "no statusUid submitted at all" is already resolved to null by the caller
         // (CommentEditorController) before this method is reached - only the value-level
         // guard against a non-positive uid is this method's own concern.
-        self::assertNull($this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 0], 0));
+        self::assertNull($this->subject->resolveStatusUid([Configuration::FIELD_STATUS => 0], 0));
     }
 
     #[Test]
-    public function resolveStatusUidForCommentFirstReturnsTheRequestedUidOnAStatusLessRecord(): void
+    public function resolveStatusUidReturnsTheRequestedUidOnAStatusLessRecord(): void
     {
         $this->importCSVDataSet(__DIR__.'/Fixtures/status.csv');
 
-        self::assertSame(2, $this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 0], 2));
+        self::assertSame(2, $this->subject->resolveStatusUid([Configuration::FIELD_STATUS => 0], 2));
     }
 
     #[Test]
-    public function resolveStatusUidForCommentFirstReturnsNullForANonexistentStatusUid(): void
+    public function resolveStatusUidReturnsNullForANonexistentStatusUid(): void
     {
         $this->importCSVDataSet(__DIR__.'/Fixtures/status.csv');
 
-        self::assertNull($this->subject->resolveStatusUidForCommentFirst([Configuration::FIELD_STATUS => 0], 999));
+        self::assertNull($this->subject->resolveStatusUid([Configuration::FIELD_STATUS => 0], 999));
+    }
+
+    #[Test]
+    public function resolveStatusUidReturnsTheRequestedUidOnARecordThatHasAnotherStatus(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status.csv');
+
+        self::assertSame(1, $this->subject->resolveStatusUid([Configuration::FIELD_STATUS => 2], 1));
+    }
+
+    #[Test]
+    public function buildChangeContextListsTheOtherStatusesOfARecordThatHasOne(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status.csv');
+        $this->loginBackendUser(1);
+
+        $statuses = $this->subject->buildChangeContext([Configuration::FIELD_STATUS => 2]);
+
+        self::assertNotSame([], $statuses);
+        self::assertNotContains(2, array_column($statuses, 'uid'));
+    }
+
+    #[Test]
+    public function buildChangeContextIsEmptyForARecordWithoutAStatus(): void
+    {
+        self::assertSame([], $this->subject->buildChangeContext([Configuration::FIELD_STATUS => 0]));
     }
 }

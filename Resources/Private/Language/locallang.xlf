@@ -411,6 +411,12 @@
 			<trans-unit id="comment.older.show">
 				<source>Show older comments (%d)</source>
 			</trans-unit>
+			<trans-unit id="comment.composer.status.label">
+				<source>Status</source>
+			</trans-unit>
+			<trans-unit id="comment.composer.status.keep">
+				<source>Keep current</source>
+			</trans-unit>
 			<trans-unit id="comment.composer.hint.submit">
 				<source><![CDATA[Press <kbd data-shortcut-modifier>Ctrl</kbd>+<kbd>Enter</kbd> to save]]></source>
 			</trans-unit>
