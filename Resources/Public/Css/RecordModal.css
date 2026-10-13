@@ -159,8 +159,8 @@
     font-size: 0.6875rem;
     font-variant-numeric: tabular-nums;
     font-weight: 400;
-    color: color-mix(in srgb, currentColor, transparent 30%);
-    background-color: color-mix(in srgb, currentColor, transparent 75%);
+    color: var(--typo3-text-color-base);
+    background-color: color-mix(in srgb, var(--typo3-text-color-base) 15%, transparent);
     border-radius: 999px;
 }
 
