@@ -24,6 +24,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
 use function array_key_exists;
+use function array_key_last;
 use function count;
 use function is_array;
 use function sprintf;
@@ -89,7 +90,7 @@ final class DigestMailFactory
     }
 
     /**
-     * @return array{title: string, url: string|null, reasonLabel: string, lines: list<string>, eventCount: int}
+     * @return array{title: string, url: string|null, status: string, reasonLabel: string, lines: list<string>, eventCount: int}
      */
     private function buildViewGroup(DigestRecordGroup $group, LanguageService $languageService): array
     {
@@ -113,6 +114,8 @@ final class DigestMailFactory
         return [
             'title' => '' !== $group->getTitle() ? $group->getTitle() : $languageService->sL(self::languageLabel('digest.mail.record.unresolved')),
             'url' => $this->resolveUrl($group),
+            // The status the record ends at: the last step of the chain the list below spells out.
+            'status' => [] === $group->getStatusChain() ? '' : $group->getStatusChain()[array_key_last($group->getStatusChain())],
             'reasonLabel' => $languageService->sL(self::languageLabel('notification.reason.'.$group->getReason())),
             'lines' => $lines,
             'eventCount' => $group->getEventCount(),

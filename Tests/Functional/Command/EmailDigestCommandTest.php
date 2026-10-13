@@ -100,6 +100,21 @@ final class EmailDigestCommandTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function theMailUsesTheCoreSystemEmailFrameAndShowsTheCurrentStatusAsATextBadge(): void
+    {
+        $this->createStatusChange(recipientUid: self::RECIPIENT_EDITOR, crdate: 1000, previous: null, new: 'Draft');
+        $this->createStatusChange(recipientUid: self::RECIPIENT_EDITOR, crdate: 1001, previous: 'Draft', new: 'Review');
+
+        $this->tester->execute([]);
+
+        $html = (string) $this->mailerSpy->sentMessages[0]->getHtmlBody();
+        // The template brings no <html> and <body> of its own: the core layout is the only frame.
+        self::assertSame(1, substr_count($html, '<body'));
+        self::assertStringContainsString('templateContainer', $html);
+        self::assertMatchesRegularExpression('#class="cp-status"[^>]*>\s*Review\s*<#', $html);
+    }
+
+    #[Test]
     public function contentChangeNotificationsRenderAsACollapsedEntryWithTheChangeCount(): void
     {
         // Two aggregated rows (e.g. two separate days) collapse further at digest time into one line.
