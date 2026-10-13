@@ -73,6 +73,7 @@ final readonly class RecordModuleController
         $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/RecordModule.css');
         $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/Status.css');
         $this->pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js');
+        $this->pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'assignee-selection-modal.js');
 
         $filter = $this->parseFilter($request->getQueryParams());
         $page = max(1, (int) ($request->getQueryParams()['page'] ?? 1));
@@ -139,20 +140,9 @@ final readonly class RecordModuleController
      */
     private function addFilterLinks(array $item): array
     {
-        $item['statusFilterLink'] = $this->buildConditionalFilterLink('status', (int) ($item['data'][Configuration::FIELD_STATUS] ?? 0));
         $item['typeFilterLink'] = $this->buildUrl(['type' => $item['data']['tablename']]);
-        $item['assigneeFilterLink'] = $this->buildConditionalFilterLink('assignee', (int) ($item['data'][Configuration::FIELD_ASSIGNEE] ?? 0));
 
         return $item;
-    }
-
-    /**
-     * A record with no status/assignee (uid 0) has nothing to filter by - buildUrl() would
-     * otherwise happily build a "status=0"/"assignee=0" link that just returns an empty list.
-     */
-    private function buildConditionalFilterLink(string $key, int $uid): ?string
-    {
-        return $uid > 0 ? $this->buildUrl([$key => $uid]) : null;
     }
 
     /**
