@@ -137,10 +137,14 @@ class RecordModal {
       const link = topDocument.createElement('link')
       link.rel = 'stylesheet'
       link.href = url
-      link.addEventListener('load', resolve, { once: true })
-      link.addEventListener('error', resolve, { once: true })
+      const timer = setTimeout(resolve, 3000)
+      const settle = () => {
+        clearTimeout(timer)
+        resolve()
+      }
+      link.addEventListener('load', settle, { once: true })
+      link.addEventListener('error', settle, { once: true })
       topDocument.head.append(link)
-      setTimeout(resolve, 3000)
     })))
   }
 
@@ -521,8 +525,13 @@ class RecordModal {
     pane.style.visibility = 'hidden'
     pane.appendChild(fragment)
 
-    return Promise.race([loaded, new Promise(resolve => setTimeout(resolve, 3000))])
-      .finally(() => { pane.style.visibility = '' })
+    let timer
+    const timeout = new Promise(resolve => { timer = setTimeout(resolve, 3000) })
+
+    return Promise.race([loaded, timeout]).finally(() => {
+      clearTimeout(timer)
+      pane.style.visibility = ''
+    })
   }
 
   fetchTabContent(tab) {
