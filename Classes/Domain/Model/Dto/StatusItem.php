@@ -33,6 +33,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use function array_reverse;
 use function count;
 use function implode;
+use function is_array;
 use function sprintf;
 
 /**
@@ -152,11 +153,8 @@ final class StatusItem
     public function getAssigneeShortName(): string
     {
         $user = ContentUtility::getBackendUserById($this->getAssignee());
-        if (!$user) {
-            return '';
-        }
 
-        return (string) ($user['realName'] ?: $user['username']);
+        return is_array($user) ? ContentUtility::generateShortDisplayName($user) : '';
     }
 
     public function getAssigneeAvatar(): string

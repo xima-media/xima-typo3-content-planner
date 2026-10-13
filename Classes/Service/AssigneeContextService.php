@@ -57,7 +57,7 @@ class AssigneeContextService
         return [
             'uid' => $assignee,
             'name' => ContentUtility::generateDisplayName($user),
-            'shortName' => (string) ($user['realName'] ?: $user['username']),
+            'shortName' => ContentUtility::generateShortDisplayName($user),
             'since' => $assignment['timestamp'] ?? null,
             'by' => is_array($author) ? ContentUtility::generateDisplayName($author) : '',
         ];
