@@ -23,7 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function array_filter;
-use function array_key_exists;
+use function array_intersect;
 use function array_keys;
 
 /**
@@ -57,7 +57,7 @@ final class LiveStatusWriter
     {
         // The DataHandler's own user, not the global one: the live DataHandler of apply() runs as
         // the same user in the live workspace and must not defer again.
-        $user = isset($dataHandler->BE_USER) ? $dataHandler->BE_USER : $this->getBackendUser();
+        $user = $dataHandler->BE_USER ?? $this->getBackendUser();
         if ($user->workspace <= 0) {
             return;
         }
@@ -100,17 +100,8 @@ final class LiveStatusWriter
                 continue;
             }
 
-            foreach ($this->deferrableFields() as $field) {
-                if (!array_key_exists($field, $fields)) {
-                    continue;
-                }
-
-                if ($mayEdit) {
-                    $this->pending[$table][$this->resolveLiveUid($table, (int) $id)][$field] = $fields[$field];
-                } else {
-                    $dataHandler->log($table, (int) $id, 2, 0, 1, 'User may not edit in the current workspace, the '.$field.' was not changed.');
-                }
-                unset($dataHandler->datamap[$table][$id][$field]);
+            foreach (array_intersect($this->deferrableFields(), array_keys($fields)) as $field) {
+                $this->deferField($dataHandler, $table, (int) $id, $field, $mayEdit);
             }
 
             if ([] === $dataHandler->datamap[$table][$id]) {
@@ -121,6 +112,17 @@ final class LiveStatusWriter
         if ([] === $dataHandler->datamap[$table]) {
             unset($dataHandler->datamap[$table]);
         }
+    }
+
+    private function deferField(DataHandler $dataHandler, string $table, int $id, string $field, bool $mayEdit): void
+    {
+        if ($mayEdit) {
+            $this->pending[$table][$this->resolveLiveUid($table, $id)][$field] = $dataHandler->datamap[$table][$id][$field];
+        } else {
+            $dataHandler->log($table, $id, 2, null, 1, 'User may not edit in the current workspace, the '.$field.' was not changed.');
+        }
+
+        unset($dataHandler->datamap[$table][$id][$field]);
     }
 
     /**
