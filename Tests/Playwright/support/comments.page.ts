@@ -9,8 +9,7 @@ import type { Locator, Page } from '@playwright/test';
  * Since CP-28 (#327) there is no second modal and no iframe: creating, editing and replying all
  * happen inline in this one list view through `form[data-comment-composer]`, a
  * `typo3-rte-ckeditor-ckeditor5` element submitted over AJAX rather than FormEngine's `_savedok`.
- * The header button carrying `data-focus-composer` opens the list with that composer already
- * expanded, which is the "add a comment" entry point.
+ * The composer starts collapsed: `openComposer()` expands it through its trigger.
  */
 export class CommentsModalPage {
   constructor(private readonly page: Page) {}
@@ -18,6 +17,12 @@ export class CommentsModalPage {
   /** The inline composer for a new comment, as opposed to an edit or reply composer. */
   composer(): Locator {
     return this.page.locator('form[data-comment-composer][data-mode="new"]');
+  }
+
+  /** Expands the collapsed new-comment composer. */
+  async openComposer(): Promise<void> {
+    await this.page.locator('[data-comment-composer-trigger]').first().click();
+    await this.composer().waitFor({ state: 'visible' });
   }
 
   /**
@@ -29,8 +34,8 @@ export class CommentsModalPage {
    * failure to save.
    */
   async createComment(text: string): Promise<void> {
+    await this.openComposer();
     const composer = this.composer();
-    await composer.waitFor({ state: 'visible' });
 
     const editable = composer.locator('.ck-editor__editable');
     await editable.waitFor({ state: 'visible' });

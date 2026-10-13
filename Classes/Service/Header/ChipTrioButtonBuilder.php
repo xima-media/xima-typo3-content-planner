@@ -175,7 +175,6 @@ final readonly class ChipTrioButtonBuilder
                 'data-edit-uri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $uid),
                 'data-content-planner-comments' => '1',
                 'data-force-ajax-url' => '1',
-                'data-focus-composer' => 'true',
             ]);
     }
 
