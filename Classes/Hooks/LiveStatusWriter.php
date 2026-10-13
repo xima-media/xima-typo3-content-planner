@@ -38,7 +38,8 @@ use function array_keys;
  * as the same user in the live workspace. Versions of the record that already exist get the same
  * value, because the page tree and the workspace overlay would show the old one otherwise.
  * Page permissions and the change itself (history, auto-assignment, notifications) go through
- * the usual DataHandler path.
+ * the usual DataHandler path. The live DataHandler skips the core's workspace checks, so a user
+ * who may not edit in the current workspace is refused here, with an error in the DataHandler log.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -61,9 +62,10 @@ final class LiveStatusWriter
             return;
         }
 
+        $mayEdit = $user->workspaceCheckStageForCurrent(0);
         foreach (array_keys($dataHandler->datamap) as $table) {
             if (ExtensionUtility::isRegisteredRecordTable($table)) {
-                $this->deferTable($dataHandler, $table);
+                $this->deferTable($dataHandler, $table, $mayEdit);
             }
         }
     }
@@ -91,7 +93,7 @@ final class LiveStatusWriter
         }
     }
 
-    private function deferTable(DataHandler $dataHandler, string $table): void
+    private function deferTable(DataHandler $dataHandler, string $table, bool $mayEdit): void
     {
         foreach ($dataHandler->datamap[$table] as $id => $fields) {
             if (!MathUtility::canBeInterpretedAsInteger($id)) {
@@ -103,7 +105,11 @@ final class LiveStatusWriter
                     continue;
                 }
 
-                $this->pending[$table][$this->resolveLiveUid($table, (int) $id)][$field] = $fields[$field];
+                if ($mayEdit) {
+                    $this->pending[$table][$this->resolveLiveUid($table, (int) $id)][$field] = $fields[$field];
+                } else {
+                    $dataHandler->log($table, (int) $id, 2, 0, 1, 'User may not edit in the current workspace, the '.$field.' was not changed.');
+                }
                 unset($dataHandler->datamap[$table][$id][$field]);
             }
 

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Hooks;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -108,6 +109,29 @@ final class LiveStatusWriterTest extends AbstractFunctionalTestCase
 
         self::assertSame(3, $this->readLive(10, Configuration::FIELD_STATUS));
         self::assertSame(3, $this->readLive(11, Configuration::FIELD_STATUS), 'the version of page 10 follows the live record');
+    }
+
+    #[Test]
+    public function aUserWhoMayNotEditInTheWorkspaceIsRefusedAndNothingIsWrittenLive(): void
+    {
+        // A real object: the user class cannot be mocked on TYPO3 v14, one of its methods returns an enum.
+        $user = new class extends BackendUserAuthentication {
+            public function workspaceCheckStageForCurrent($stage): bool
+            {
+                return false;
+            }
+        };
+        $user->workspace = 3;
+        $GLOBALS['BE_USER']->workspace = 3;
+        $dataHandler = $this->createDataHandler(['pages' => [10 => [Configuration::FIELD_STATUS => 3]]]);
+        $dataHandler->BE_USER = $user;
+
+        $this->subject->defer($dataHandler);
+        $this->subject->apply();
+
+        self::assertSame(2, $this->readLiveStatus(10));
+        self::assertNotSame([], $dataHandler->errorLog);
+        self::assertSame([], $dataHandler->datamap);
     }
 
     #[Test]
