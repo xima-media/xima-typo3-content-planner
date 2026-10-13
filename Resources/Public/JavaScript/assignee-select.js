@@ -270,11 +270,17 @@ class AssigneeSelect {
       AssigneeSelect.requestPending = false
       AssigneeSelect.setControlsDisabled(controls, false)
     }).then(() => {
-      if (modal) {
-        modal.hideModal()
-      }
-      Viewport.ContentContainer.refresh()
       Notification.message(unset ? 'assignee.reset' : 'assignee.changed', 'success')
+      // Inside the record modal the Assignee tab updates itself and the page behind refreshes
+      // when the modal closes, so the modal stays open and nothing reloads under it.
+      if (modal?.querySelector('.content-planner-record-modal')) {
+        top.document.dispatchEvent(new CustomEvent('content-planner:assignee-changed', {
+          detail: { assignee: option ? Number(option.dataset.assigneeUid) : 0 },
+        }))
+        return
+      }
+      modal?.hideModal()
+      Viewport.ContentContainer.refresh()
     }).catch(() => {
       Notification.message(unset ? 'assignee.reset' : 'assignee.changed', 'failure')
     })

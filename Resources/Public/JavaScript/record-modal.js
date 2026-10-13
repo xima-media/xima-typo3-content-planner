@@ -52,6 +52,26 @@ class RecordModal {
     top.document.addEventListener('content-planner:watch-toggled', event => {
       this.refreshWatchPaneIfOpen(event.detail.table, event.detail.uid)
     })
+    top.document.addEventListener('content-planner:assignee-changed', event => {
+      this.refreshAssigneePane(event.detail.assignee)
+    })
+  }
+
+  /**
+   * The assignment is already saved when this runs. The Assignee tab is loaded again so it names
+   * the new assignee, and the page behind the modal is refreshed once, when the modal closes.
+   */
+  refreshAssigneePane(assignee) {
+    const pane = this.panes.assignee
+    if (!this.modal || !pane) {
+      return
+    }
+
+    this.context.currentAssignee = assignee
+    this.pageStale = true
+    delete pane.dataset.loaded
+    pane.replaceChildren()
+    this.loadPaneIfNeeded('assignee')
   }
 
   /**
@@ -81,6 +101,7 @@ class RecordModal {
     this.info = null
     this.panes = {}
     this.tabButtons = {}
+    this.pageStale = false
   }
 
   /**
@@ -161,7 +182,13 @@ class RecordModal {
         this.modal = modal
         modal.classList.add('content-planner-modal')
         modal.addEventListener('typo3-modal-shown', () => this.activateTab(tab), { once: true })
-        modal.addEventListener('typo3-modal-hide', () => this.reset(), { once: true })
+        modal.addEventListener('typo3-modal-hide', () => {
+          const stale = this.pageStale
+          this.reset()
+          if (stale) {
+            Viewport.ContentContainer.refresh()
+          }
+        }, { once: true })
       }
     })
   }
