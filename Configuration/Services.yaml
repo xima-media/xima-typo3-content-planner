@@ -137,9 +137,6 @@ services:
   Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebListModifier:
     lazy: true
 
-  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebLayoutModifier:
-    lazy: true
-
   Xima\XimaTypo3ContentPlanner\Service\ContentModifier\RecordEditModifier:
     lazy: true
 

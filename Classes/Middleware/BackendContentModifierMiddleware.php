@@ -15,7 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Middleware;
 
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
-use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\{ContentElementHeaderModifier, DockedHeaderModifier, FileListModifier, FileStorageTreeModifier, ModifierInterface, RecordEditModifier, WebLayoutModifier, WebListModifier};
+use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\{ContentElementHeaderModifier, DockedHeaderModifier, FileListModifier, FileStorageTreeModifier, ModifierInterface, RecordEditModifier, WebListModifier};
 
 /**
  * BackendContentModifierMiddleware.
@@ -38,7 +38,6 @@ readonly class BackendContentModifierMiddleware implements MiddlewareInterface
         FileStorageTreeModifier $fileStorageTreeModifier,
         FileListModifier $fileListModifier,
         RecordEditModifier $recordEditModifier,
-        WebLayoutModifier $webLayoutModifier,
         WebListModifier $webListModifier,
         ContentElementHeaderModifier $contentElementHeaderModifier,
         DockedHeaderModifier $dockedHeaderModifier,
@@ -47,7 +46,6 @@ readonly class BackendContentModifierMiddleware implements MiddlewareInterface
             $fileStorageTreeModifier,
             $fileListModifier,
             $recordEditModifier,
-            $webLayoutModifier,
             $webListModifier,
             $contentElementHeaderModifier,
             $dockedHeaderModifier,

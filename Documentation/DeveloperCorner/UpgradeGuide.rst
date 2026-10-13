@@ -111,9 +111,10 @@ behaviour, up to and including 2.x).
     comment badge instead of a full-surface overlay. The previous full-width
     banner above the module content, and the injected ``<style>`` overlay in
     the page module, are no longer rendered.
--   In **banner** mode, both ``RecordEditModifier`` (record edit form) and
-    ``WebLayoutModifier`` (page module content elements) keep the full-width
-    banner of pre-3.0. Set ``headerDisplayMode = banner`` in the extension
+-   In **banner** mode, ``RecordEditModifier`` (record edit form) keeps the
+    full-width banner of pre-3.0. Content elements in the page module get the
+    status strip of the other modes instead of the injected ``<style>``
+    overlay, which was removed together with ``WebLayoutModifier``. Set ``headerDisplayMode = banner`` in the extension
     configuration to keep that layout, e.g. for migration projects that rely
     on the added prominence of the full-width banner. The banner itself was
     slimmed down in 3.0, see `Design refresh of the backend UI`_ below.

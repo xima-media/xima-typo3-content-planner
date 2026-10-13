@@ -61,7 +61,7 @@ Features
       module, with the status name, assignee, comments and to-dos as text. Other modules show
       the chip group.
     - **Banner** (banner): the pre-3.0 full-width banner above the module content, also for
-      folders in the file list, and the injected content element overlay in the page module.
+      folders in the file list. Content elements get the status strip, as in the other modes.
       It uses the same colours as the other modes, names the status without a "Status:"
       prefix and offers assignee, comments and to-dos as text buttons.
 

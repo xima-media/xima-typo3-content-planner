@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
 use Xima\XimaTypo3ContentPlanner\Middleware\BackendContentModifierMiddleware;
-use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\{ContentElementHeaderModifier, DockedHeaderModifier, FileListModifier, FileStorageTreeModifier, RecordEditModifier, WebLayoutModifier, WebListModifier};
+use Xima\XimaTypo3ContentPlanner\Service\ContentModifier\{ContentElementHeaderModifier, DockedHeaderModifier, FileListModifier, FileStorageTreeModifier, RecordEditModifier, WebListModifier};
 
 /**
  * BackendContentModifierMiddlewareTest.
@@ -34,17 +34,16 @@ final class BackendContentModifierMiddlewareTest extends TestCase
         $fileStorageTreeModifier = $this->createMock(FileStorageTreeModifier::class);
         $fileListModifier = $this->createMock(FileListModifier::class);
         $recordEditModifier = $this->createMock(RecordEditModifier::class);
-        $webLayoutModifier = $this->createMock(WebLayoutModifier::class);
         $webListModifier = $this->createMock(WebListModifier::class);
         $contentElementHeaderModifier = $this->createMock(ContentElementHeaderModifier::class);
         $dockedHeaderModifier = $this->createMock(DockedHeaderModifier::class);
 
-        foreach ([$fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webLayoutModifier, $webListModifier, $contentElementHeaderModifier, $dockedHeaderModifier] as $modifier) {
+        foreach ([$fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webListModifier, $contentElementHeaderModifier, $dockedHeaderModifier] as $modifier) {
             $modifier->expects(self::once())->method('isRelevant')->willReturn(false);
             $modifier->expects(self::never())->method('modify');
         }
 
-        $middleware = new BackendContentModifierMiddleware($fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webLayoutModifier, $webListModifier, $contentElementHeaderModifier, $dockedHeaderModifier);
+        $middleware = new BackendContentModifierMiddleware($fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webListModifier, $contentElementHeaderModifier, $dockedHeaderModifier);
 
         $request = $this->createMock(ServerRequestInterface::class);
         $response = $this->createMock(ResponseInterface::class);
@@ -60,7 +59,6 @@ final class BackendContentModifierMiddlewareTest extends TestCase
         $fileStorageTreeModifier = $this->createMock(FileStorageTreeModifier::class);
         $fileListModifier = $this->createMock(FileListModifier::class);
         $recordEditModifier = $this->createMock(RecordEditModifier::class);
-        $webLayoutModifier = $this->createMock(WebLayoutModifier::class);
         $webListModifier = $this->createMock(WebListModifier::class);
         $contentElementHeaderModifier = $this->createMock(ContentElementHeaderModifier::class);
         $dockedHeaderModifier = $this->createMock(DockedHeaderModifier::class);
@@ -68,7 +66,6 @@ final class BackendContentModifierMiddlewareTest extends TestCase
         $fileStorageTreeModifier->expects(self::once())->method('isRelevant')->willReturn(false);
         $fileListModifier->expects(self::once())->method('isRelevant')->willReturn(true);
         $recordEditModifier->expects(self::once())->method('isRelevant')->willReturn(false);
-        $webLayoutModifier->expects(self::once())->method('isRelevant')->willReturn(false);
         $webListModifier->expects(self::once())->method('isRelevant')->willReturn(false);
         $contentElementHeaderModifier->expects(self::once())->method('isRelevant')->willReturn(false);
         $dockedHeaderModifier->expects(self::once())->method('isRelevant')->willReturn(false);
@@ -80,7 +77,7 @@ final class BackendContentModifierMiddlewareTest extends TestCase
 
         $fileListModifier->expects(self::once())->method('modify')->with($request, $handler)->willReturn($response);
 
-        $middleware = new BackendContentModifierMiddleware($fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webLayoutModifier, $webListModifier, $contentElementHeaderModifier, $dockedHeaderModifier);
+        $middleware = new BackendContentModifierMiddleware($fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webListModifier, $contentElementHeaderModifier, $dockedHeaderModifier);
 
         self::assertSame($response, $middleware->process($request, $handler));
     }
@@ -93,12 +90,11 @@ final class BackendContentModifierMiddlewareTest extends TestCase
         $fileStorageTreeModifier = $this->createMock(FileStorageTreeModifier::class);
         $fileListModifier = $this->createMock(FileListModifier::class);
         $recordEditModifier = $this->createMock(RecordEditModifier::class);
-        $webLayoutModifier = $this->createMock(WebLayoutModifier::class);
         $webListModifier = $this->createMock(WebListModifier::class);
         $contentElementHeaderModifier = $this->createMock(ContentElementHeaderModifier::class);
         $dockedHeaderModifier = $this->createMock(DockedHeaderModifier::class);
 
-        foreach ([$fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webLayoutModifier, $webListModifier] as $modifier) {
+        foreach ([$fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webListModifier] as $modifier) {
             $modifier->expects(self::once())->method('isRelevant')->willReturn(false);
             $modifier->expects(self::never())->method('modify');
         }
@@ -132,7 +128,7 @@ final class BackendContentModifierMiddlewareTest extends TestCase
                 return $finalResponse;
             });
 
-        $middleware = new BackendContentModifierMiddleware($fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webLayoutModifier, $webListModifier, $contentElementHeaderModifier, $dockedHeaderModifier);
+        $middleware = new BackendContentModifierMiddleware($fileStorageTreeModifier, $fileListModifier, $recordEditModifier, $webListModifier, $contentElementHeaderModifier, $dockedHeaderModifier);
 
         self::assertSame($finalResponse, $middleware->process($request, $handler));
     }
