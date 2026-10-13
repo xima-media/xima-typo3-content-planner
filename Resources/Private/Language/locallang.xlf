@@ -85,6 +85,15 @@
 			<trans-unit id="status.change">
 				<source>Status: %s, change</source>
 			</trans-unit>
+			<trans-unit id="modal.context.status">
+				<source>Status</source>
+			</trans-unit>
+			<trans-unit id="modal.context.noStatus">
+				<source>No status</source>
+			</trans-unit>
+			<trans-unit id="modal.context.removeStatus">
+				<source>Remove status</source>
+			</trans-unit>
 			<trans-unit id="status.remove">
 				<source>Remove status</source>
 			</trans-unit>
@@ -98,7 +107,7 @@
 				<source>Assignee</source>
 			</trans-unit>
 			<trans-unit id="button.modal.header.watch">
-				<source>Watch</source>
+				<source>Watchers</source>
 			</trans-unit>
 			<trans-unit id="watch.tab.explanation">
 				<source>Watching a record notifies you about its status changes, assignments and comments. You're added automatically when you're assigned, comment, or change its status - or you can watch it manually at any time.</source>
@@ -116,7 +125,7 @@
 				<source>Close</source>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.edit">
-				<source>Edit</source>
+				<source>Edit record</source>
 			</trans-unit>
 			<!-- header info -->
 			<trans-unit id="header.status">
