@@ -475,13 +475,31 @@ class RecordModal {
           return
         }
         pane.dataset.loaded = 'true'
-        pane.appendChild(document.createRange().createContextualFragment(payload.result))
-        this.onPaneReady(tab, pane, payload)
+        return this.appendStyled(pane, payload.result).then(() => this.onPaneReady(tab, pane, payload))
       })
       .catch(error => {
         console.error(`Content Planner: failed to load the "${tab}" tab:`, error)
         delete pane.dataset.loaded
       })
+  }
+
+  /**
+   * The pane markup ships its own stylesheet links. Showing it before they have loaded flashes
+   * unstyled content, so the pane stays invisible until they settle (or a short timeout passes).
+   */
+  appendStyled(pane, markup) {
+    const fragment = document.createRange().createContextualFragment(markup)
+    const sheets = Array.from(fragment.querySelectorAll('link[rel="stylesheet"]'))
+    const loaded = Promise.all(sheets.map(sheet => new Promise(resolve => {
+      sheet.addEventListener('load', resolve, { once: true })
+      sheet.addEventListener('error', resolve, { once: true })
+    })))
+
+    pane.style.visibility = 'hidden'
+    pane.appendChild(fragment)
+
+    return Promise.race([loaded, new Promise(resolve => setTimeout(resolve, 3000))])
+      .finally(() => { pane.style.visibility = '' })
   }
 
   fetchTabContent(tab) {
