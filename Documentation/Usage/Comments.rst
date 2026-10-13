@@ -197,6 +197,16 @@ many are hidden and offers to show them.
 
 A long list shows the 20 newest comments first. "Show older comments" loads the rest.
 
+..  _comments-status-switch:
+
+Switching the status with a comment
+===================================
+
+On a record that already has a status, the composer shows a "Status" select next to the editor if you may change
+the status. It lists the statuses you may set, without the current one, and defaults to "Keep current". Picking one
+changes the status together with the comment. The status in the header of the modal follows at once, the page behind
+it refreshes when the modal is closed.
+
 ..  _comments-links:
 
 Links in comments
