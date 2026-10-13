@@ -59,7 +59,7 @@ class StatusWidget {
     const waitingElement = widget.querySelector('.content-planner-widget__loading');
     waitingElement?.classList.remove('content-planner-hide');
     widget.querySelector('.content-planner-widget__table-wrapper')?.classList.add('content-planner-hide');
-    new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_filterrecords)
+    new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_latestrecords)
       .get()
       .then(async (response) => {
         const resolved = await response.resolve();

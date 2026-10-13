@@ -91,21 +91,17 @@ class RecordController extends ActionController
         return new RedirectResponse($redirectUrl, 302);
     }
 
-    public function filterAction(ServerRequestInterface $request): JsonResponse
+    /**
+     * The records the status dashboard widget lists: the 20 latest, whatever their status.
+     * Searching and filtering is the records module's job.
+     */
+    public function latestAction(): JsonResponse
     {
         if (!PermissionUtility::checkContentStatusVisibility()) {
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        $params = $request->getQueryParams();
-        $search = $params['search'] ?? null;
-        $status = isset($params['status']) ? (int) $params['status'] : null;
-        $assignee = isset($params['assignee']) ? (int) $params['assignee'] : null;
-        $todo = (bool) ($params['todo'] ?? false);
-        $type = $params['type'] ?? null;
-        $openComments = (bool) ($params['openComments'] ?? false);
-
-        $filterResult = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type, $todo, 20, $openComments);
+        $filterResult = $this->recordRepository->findAllByFilter(null, null, null, null, null, 20);
         $items = [];
         foreach ($filterResult->items as $record) {
             $items[] = StatusItem::create($record)->toArray();

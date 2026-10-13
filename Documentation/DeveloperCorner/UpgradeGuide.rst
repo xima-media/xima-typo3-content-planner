@@ -107,9 +107,10 @@ with:
     foreach ($result->items as $record) { ... }
     // $result->hasMore tells you whether to show a "more results" indicator.
 
-The JSON payload of the ``ximatypo3contentplanner_filterrecords`` AJAX route
-(``RecordController::filterAction()``) changed accordingly, from a bare array
-to ``{"items": [...], "hasMore": false}``.
+The JSON payload of the records AJAX route changed accordingly, from a bare
+array to ``{"items": [...], "hasMore": false}``. That route is now
+``ximatypo3contentplanner_latestrecords`` (``RecordController::latestAction()``),
+takes no filter parameters any more and always returns the 20 latest records.
 
 Status/assignee/comment display now defaults to compact doc header chips
 --------------------------------------------------------------------------
