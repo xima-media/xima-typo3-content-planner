@@ -616,6 +616,22 @@
 				<source><![CDATA[Press <kbd>M</kbd> to add a comment]]></source>
 				<target><![CDATA[Drücken Sie <kbd>M</kbd>, um einen Kommentar zu schreiben]]></target>
 			</trans-unit>
+			<trans-unit id="comment.filter.show.resolved">
+				<source>Resolved</source>
+				<target>Gelöst</target>
+			</trans-unit>
+			<trans-unit id="comment.resolvedHidden">
+				<source>Resolved comments hidden: %d</source>
+				<target>Gelöste Kommentare ausgeblendet: %d</target>
+			</trans-unit>
+			<trans-unit id="comment.resolvedHidden.show">
+				<source>Show</source>
+				<target>Anzeigen</target>
+			</trans-unit>
+			<trans-unit id="comment.older.show">
+				<source>Show older comments (%d)</source>
+				<target>Ältere Kommentare anzeigen (%d)</target>
+			</trans-unit>
 			<trans-unit id="comment.composer.hint.submit">
 				<source><![CDATA[Press <kbd data-shortcut-modifier>Ctrl</kbd>+<kbd>Enter</kbd> to save]]></source>
 				<target><![CDATA[Drücken Sie <kbd data-shortcut-modifier>Strg</kbd>+<kbd>Enter</kbd> zum Speichern]]></target>

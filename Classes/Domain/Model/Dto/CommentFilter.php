@@ -17,7 +17,7 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
  * CommentFilter.
  *
  * What the filter column of the record modal asks for: open comments (default), only those with
- * to-dos, or all including resolved ones. The two flags the repository reads are derived from the
+ * to-dos, only resolved ones, or all. The two flags the repository reads are derived from the
  * one `show` choice, and stay accepted on their own for links that carry them.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
@@ -27,12 +27,15 @@ final readonly class CommentFilter
 {
     public const SHOW_OPEN = 'open';
     public const SHOW_TODO = 'todo';
+    public const SHOW_RESOLVED = 'resolved';
     public const SHOW_ALL = 'all';
 
     public function __construct(
         public string $show,
         public bool $showResolved,
         public bool $showTodo,
+        public bool $onlyResolved,
+        public bool $loadAll,
     ) {}
 
     /**
@@ -42,16 +45,20 @@ final readonly class CommentFilter
     {
         $show = (string) ($queryParams['show'] ?? '');
         $showTodo = self::SHOW_TODO === $show || (bool) ($queryParams['showTodoComments'] ?? false);
-        $showResolved = self::SHOW_ALL === $show || (bool) ($queryParams['showResolvedComments'] ?? false);
+        $onlyResolved = self::SHOW_RESOLVED === $show;
+        $showResolved = $onlyResolved || self::SHOW_ALL === $show || (bool) ($queryParams['showResolvedComments'] ?? false);
 
         return new self(
             match (true) {
                 $showTodo => self::SHOW_TODO,
+                $onlyResolved => self::SHOW_RESOLVED,
                 $showResolved => self::SHOW_ALL,
                 default => self::SHOW_OPEN,
             },
             $showResolved,
             $showTodo,
+            $onlyResolved,
+            (bool) ($queryParams['all'] ?? false),
         );
     }
 }

@@ -23,7 +23,7 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{CommentFilter, StatusItem};
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{CommentFilter, CommentListWindow, StatusItem};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\{ChildCommentAggregationManager, CommentFirstFlowManager};
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
@@ -150,11 +150,14 @@ class RecordController extends ActionController
         // and only when the user opted in via the persisted "includeChildComments" setting.
         $childComments = $this->childCommentAggregationManager->buildContext($recordTable, $recordId, $includeChildComments, $showResolvedComments, $sortComments, $showTodoComments);
         $comments = $this->childCommentAggregationManager->mergeIntoList($comments, $childComments, $sortComments);
+        $window = CommentListWindow::of($comments, $commentFilter, $sortComments);
+        $resolvedCount = $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true);
 
         $result = ViewUtility::render(
             'Default/Comments.html',
             [
-                'comments' => $comments,
+                'comments' => $window->comments,
+                'older' => $window,
                 'id' => $recordId,
                 'table' => $recordTable,
                 'repliesExpanded' => $repliesExpanded,
@@ -171,7 +174,9 @@ class RecordController extends ActionController
                     'show' => $commentFilter->show,
                     'openCount' => $openCount,
                     'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable),
-                    'allCount' => $openCount + $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true),
+                    'resolvedCount' => $resolvedCount,
+                    'allCount' => $openCount + $resolvedCount,
+                    'loadAll' => $commentFilter->loadAll,
                     'includeChildComments' => $includeChildComments,
                     'isPage' => 'pages' === $recordTable,
                 ],

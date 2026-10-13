@@ -826,3 +826,26 @@ button.ctp-mention:focus-visible {
 .content-planner-mention-card-popover {
     max-width: 20rem;
 }
+
+/* "Show older comments": the list stops at the newest ones until asked. */
+.content-planner-comments__older {
+    margin: 0.5rem 0;
+    text-align: center;
+}
+
+/* One quiet line instead of the resolved comments the filter leaves out. */
+.content-planner-comments__resolved-hidden {
+    align-items: center;
+    border: 1px dashed var(--typo3-component-border-color);
+    border-radius: 6px;
+    color: var(--content-planner-color-muted);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    margin: 0.75rem 0;
+    padding: 0.375rem 0.75rem;
+}
+
+.content-planner-comments__resolved-hidden > span {
+    flex: 1 1 auto;
+}

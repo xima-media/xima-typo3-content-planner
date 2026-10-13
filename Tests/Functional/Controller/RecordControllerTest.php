@@ -99,7 +99,9 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('Open comment', $payload['result']);
-        self::assertStringNotContainsString('Resolved comment', $payload['result']);
+        self::assertStringNotContainsString('>Resolved comment<', $payload['result']);
+        // The filter leaves it out but says so, with a way to show it.
+        self::assertStringContainsString('data-comment-show-resolved', $payload['result']);
     }
 
     #[Test]

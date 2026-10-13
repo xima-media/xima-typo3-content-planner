@@ -48,10 +48,25 @@ final class CommentFilterTest extends TestCase
             'nothing asks for open comments' => [[], 'open', false, false],
             'show todo' => [['show' => 'todo'], 'todo', false, true],
             'show all' => [['show' => 'all'], 'all', true, false],
+            'show resolved' => [['show' => 'resolved'], 'resolved', true, false],
             'unknown choice falls back to open' => [['show' => 'bogus'], 'open', false, false],
             'legacy resolved flag' => [['showResolvedComments' => '1'], 'all', true, false],
             'legacy todo flag' => [['showTodoComments' => '1'], 'todo', false, true],
             'both legacy flags keep the todo choice' => [['showResolvedComments' => '1', 'showTodoComments' => '1'], 'todo', true, true],
         ];
+    }
+
+    #[Test]
+    public function onlyTheResolvedChoiceNarrowsToResolvedComments(): void
+    {
+        self::assertTrue(CommentFilter::fromQueryParams(['show' => 'resolved'])->onlyResolved);
+        self::assertFalse(CommentFilter::fromQueryParams(['show' => 'all'])->onlyResolved);
+    }
+
+    #[Test]
+    public function theLoadAllFlagIsOptIn(): void
+    {
+        self::assertFalse(CommentFilter::fromQueryParams([])->loadAll);
+        self::assertTrue(CommentFilter::fromQueryParams(['all' => '1'])->loadAll);
     }
 }

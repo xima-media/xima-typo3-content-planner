@@ -50,6 +50,13 @@ class CommentsReloadContent {
       this.loadComments(url, table, uid)
     })
 
+    document.querySelectorAll('[data-comment-load-older]').forEach(button => {
+      button.addEventListener('click', () => this.loadOlder(button))
+    })
+    document.querySelectorAll('[data-comment-show-resolved]').forEach(button => {
+      button.addEventListener('click', () => this.showResolved(button))
+    })
+
     // The composer is always rendered inline at the bottom of the list (CP-28, #327) - a
     // "new comment" trigger elsewhere (header button, list/tree context menu) only needs to
     // bring it into view, not fetch or open anything.
@@ -212,6 +219,34 @@ class CommentsReloadContent {
       return null
     }
     return Object.fromEntries(new FormData(filterForm).entries())
+  }
+
+  /** Asks for the whole list, not only the newest comments. The flag rides along with the filter form until the list is rendered again. */
+  loadOlder(button) {
+    const form = document.querySelector('form#content-planner-comment-filter')
+    if (!form) {
+      return
+    }
+    if (!form.querySelector('input[name="all"]')) {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = 'all'
+      input.value = '1'
+      form.append(input)
+    }
+    button.disabled = true
+    this.loadComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, form.dataset.table, form.dataset.id)
+  }
+
+  showResolved(button) {
+    const form = document.querySelector('form#content-planner-comment-filter')
+    const all = form?.querySelector('input[name="show"][value="all"]')
+    if (!all) {
+      return
+    }
+    all.checked = true
+    button.disabled = true
+    this.loadComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, form.dataset.table, form.dataset.id)
   }
 
   loadComments(url, table, uid) {

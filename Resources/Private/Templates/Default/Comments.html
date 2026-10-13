@@ -15,9 +15,11 @@
         </div>
         <f:if condition="{comments -> f:count()}">
             <f:then>
+                <f:if condition="{older.olderCount} && {older.olderFirst}"><f:render partial="CommentsOlder" arguments="{older: older}"/></f:if>
                 <f:for each="{comments}" as="record">
                     <f:render partial="Comment" arguments="{comment: record, id: id, table: table, isReply: 0, showRecordInfo: record.foreignRecord, repliesExpanded: repliesExpanded, currentUserUid: currentUserUid}" />
                 </f:for>
+                <f:if condition="{older.olderCount} && !{older.olderFirst}"><f:render partial="CommentsOlder" arguments="{older: older}"/></f:if>
                 <f:if condition="{childComments.hasMore}">
                     <div class="content-planner-widget__more-results" role="status" aria-live="polite">
                         <f:translate key="comment.childComments.moreResults" extensionName="XimaTypo3ContentPlanner"/>
@@ -35,6 +37,16 @@
                     </div>
                 </div>
             </f:else>
+        </f:if>
+
+        <f:if condition="{filter.resolvedCount} && ({filter.show} == 'open' || {filter.show} == 'todo')">
+            <div class="content-planner-comments__resolved-hidden">
+                <core:icon identifier="content-planner-circle-check" size="small" alternativeMarkupIdentifier="inline"/>
+                <span><f:translate key="comment.resolvedHidden" extensionName="XimaTypo3ContentPlanner" arguments="{0: filter.resolvedCount}"/></span>
+                <button type="button" class="btn btn-link" data-comment-show-resolved>
+                    <f:translate key="comment.resolvedHidden.show" extensionName="XimaTypo3ContentPlanner"/>
+                </button>
+            </div>
         </f:if>
 
         <f:if condition="{commentComposerHtml}">
@@ -113,9 +125,10 @@
     </div>
         <aside id="content-planner-comment-filter-panel" class="content-planner-comments__aside" hidden aria-label="{f:translate(key: 'comment.filter.headline', extensionName: 'XimaTypo3ContentPlanner')}">
             <form id="content-planner-comment-filter" class="content-planner-comment-filter" data-table="{table}" data-id="{id}">
+                <f:if condition="{filter.loadAll}"><input type="hidden" name="all" value="1"></f:if>
                 <fieldset class="content-planner-comment-filter__group">
                     <legend><f:translate key="comment.filter.show" extensionName="XimaTypo3ContentPlanner"/></legend>
-                    <f:for each="{0: {value: 'open', label: 'comment.filter.show.open', count: filter.openCount}, 1: {value: 'todo', label: 'comment.filter.show.todo', count: filter.todoCount}, 2: {value: 'all', label: 'comment.filter.show.all', count: filter.allCount}}" as="option">
+                    <f:for each="{0: {value: 'open', label: 'comment.filter.show.open', count: filter.openCount}, 1: {value: 'todo', label: 'comment.filter.show.todo', count: filter.todoCount}, 2: {value: 'resolved', label: 'comment.filter.show.resolved', count: filter.resolvedCount}, 3: {value: 'all', label: 'comment.filter.show.all', count: filter.allCount}}" as="option">
                         <label class="content-planner-comment-filter__choice">
                             <input type="radio" name="show" value="{option.value}"{f:if(condition: '{option.value} == {filter.show}', then: ' checked')}>
                             <span><f:translate key="{option.label}" extensionName="XimaTypo3ContentPlanner"/></span>
