@@ -434,8 +434,12 @@ class RecordModal {
         if (this.recordKey === recordKey) {
           this.info = { ...this.info, status: resolved.status, statuses: resolved.statuses }
           this.renderStatusControl()
+          // Refreshing the content frame now would replace the realm this modal's handlers run
+          // in, and the open modal would stop responding. It is refreshed when the modal closes.
+          this.pageStale = true
+        } else {
+          Viewport.ContentContainer.refresh()
         }
-        Viewport.ContentContainer.refresh()
         Notification.message(0 === statusUid ? 'status.reset' : 'status.changed', 'success')
       })
       .catch(error => {
