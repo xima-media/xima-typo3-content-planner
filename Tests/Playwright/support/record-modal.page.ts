@@ -26,6 +26,14 @@ export class RecordModalPage {
     await this.pane(name).waitFor({ state: 'visible' });
   }
 
+  statusToggle(): Locator {
+    return this.modal().locator('.content-planner-record-modal__status .dropdown-toggle');
+  }
+
+  statusItems(): Locator {
+    return this.modal().locator('.content-planner-record-modal__status .dropdown-item');
+  }
+
   assigneeSearch(): Locator {
     return this.pane('assignee').locator('[data-assignee-search]');
   }

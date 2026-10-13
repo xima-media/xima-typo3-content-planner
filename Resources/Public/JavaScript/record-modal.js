@@ -398,7 +398,7 @@ class RecordModal {
     toggle.setAttribute('aria-haspopup', 'true')
     toggle.setAttribute('aria-expanded', 'false')
     if (status) {
-      toggle.insertAdjacentHTML('beforeend', status.icon)
+      toggle.insertAdjacentHTML('beforeend', this.decorativeIcon(status.icon))
     }
     toggle.append(document.createTextNode(` ${status ? status.title : noStatus}`))
     control.append(toggle)
@@ -428,7 +428,46 @@ class RecordModal {
       toggle.setAttribute('aria-expanded', String(open))
     }
 
-    toggle.addEventListener('click', () => setOpen(!menu.classList.contains('show')))
+    const items = () => Array.from(menu.querySelectorAll('.dropdown-item'))
+    const focusItem = item => item?.focus()
+    // On open, the keyboard lands on the current status, or the first one.
+    const openAndFocus = () => {
+      setOpen(true)
+      focusItem(menu.querySelector('.dropdown-item[aria-current="true"]') || items()[0])
+    }
+
+    toggle.addEventListener('click', event => {
+      if (menu.classList.contains('show')) {
+        setOpen(false)
+      } else if (0 === event.detail) {
+        // A click from the keyboard (Enter, Space), not from a pointer.
+        openAndFocus()
+      } else {
+        setOpen(true)
+      }
+    })
+    toggle.addEventListener('keydown', event => {
+      if ('ArrowDown' === event.key) {
+        event.preventDefault()
+        openAndFocus()
+      }
+    })
+    menu.addEventListener('keydown', event => {
+      const list = items()
+      const index = list.indexOf(document.activeElement)
+      const target = {
+        ArrowDown: list[(index + 1) % list.length],
+        ArrowUp: list[(index - 1 + list.length) % list.length],
+        Home: list[0],
+        End: list[list.length - 1],
+      }[event.key]
+      if (target) {
+        event.preventDefault()
+        focusItem(target)
+      } else if ('Tab' === event.key) {
+        setOpen(false)
+      }
+    })
     menu.addEventListener('click', () => setOpen(false))
     const closeOnOutsideClick = event => {
       if (!toggle.isConnected) {
@@ -442,11 +481,27 @@ class RecordModal {
     document.addEventListener('click', closeOnOutsideClick)
     toggle.closest('.content-planner-record-modal__status')?.addEventListener('keydown', event => {
       if ('Escape' === event.key && menu.classList.contains('show')) {
+        // preventDefault as well: in TYPO3 v14 the modal is a <dialog>, which closes on Escape by default.
+        event.preventDefault()
         event.stopPropagation()
         setOpen(false)
         toggle.focus()
       }
     })
+  }
+
+  /**
+   * The status icon markup carries its own `title` and a visually hidden copy of the status
+   * name, which would make the name of the control read twice ("Pending Pending"): the text
+   * next to the icon is the name.
+   */
+  decorativeIcon(markup) {
+    const template = document.createElement('template')
+    template.innerHTML = markup
+    template.content.querySelectorAll('[title]').forEach(element => element.removeAttribute('title'))
+    template.content.querySelectorAll('title, .visually-hidden').forEach(element => element.remove())
+
+    return template.innerHTML
   }
 
   buildStatusItem(uid, iconMarkup, title, current) {
@@ -457,7 +512,7 @@ class RecordModal {
     if (current) {
       button.setAttribute('aria-current', 'true')
     }
-    button.insertAdjacentHTML('beforeend', iconMarkup)
+    button.insertAdjacentHTML('beforeend', this.decorativeIcon(iconMarkup))
     button.append(document.createTextNode(` ${title}`))
     button.addEventListener('click', () => this.changeStatus(uid))
     item.append(button)
