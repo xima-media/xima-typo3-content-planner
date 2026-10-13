@@ -40,6 +40,7 @@
 .content-planner-record-modal__context {
     align-items: center;
     display: flex;
+    flex: 0 0 auto;
     flex-wrap: wrap;
     gap: 0.5rem 1rem;
     justify-content: space-between;
@@ -83,6 +84,7 @@
 
 /* Left-aligned tabs, as many as there are, each as wide as its label. */
 .content-planner-record-modal__tabs {
+    flex: 0 0 auto;
     border-bottom: 1px solid var(--typo3-component-border-color);
     border-top: 1px solid var(--typo3-component-border-color);
     display: flex;
