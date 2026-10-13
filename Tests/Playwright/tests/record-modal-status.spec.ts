@@ -19,10 +19,10 @@ test('the modal status menu is operable with the keyboard', async ({ page }) => 
   await expect(toggle).toBeVisible();
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
-  // The comments button opens the modal with the composer focused, and the editor takes the
-  // focus once it has loaded: that would take it away from the menu again if the keyboard got
-  // there first.
-  await expect(page.locator('.t3js-modal .ck-editor__editable.ck-focused')).toBeVisible();
+  // The modal moves the focus to its own default button once it has loaded, which would take it
+  // away from the menu again if the keyboard got there first.
+  await expect(page.locator('.t3js-modal [data-comment-composer-trigger]').first()).toBeVisible();
+  await expect(page.locator('.t3js-modal button[name="close"]')).toBeFocused();
 
   await toggle.focus();
   await page.keyboard.press('ArrowDown');

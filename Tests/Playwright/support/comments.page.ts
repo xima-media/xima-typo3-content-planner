@@ -19,9 +19,11 @@ export class CommentsModalPage {
     return this.page.locator('form[data-comment-composer][data-mode="new"]');
   }
 
-  /** Expands the collapsed new-comment composer. */
+  /** Expands the collapsed new-comment composer, unless it is open already. */
   async openComposer(): Promise<void> {
-    await this.page.locator('[data-comment-composer-trigger]').first().click();
+    if (!(await this.composer().isVisible())) {
+      await this.page.locator('[data-comment-composer-trigger]').first().click();
+    }
     await this.composer().waitFor({ state: 'visible' });
   }
 
