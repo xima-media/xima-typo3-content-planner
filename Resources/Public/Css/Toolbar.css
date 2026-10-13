@@ -50,8 +50,23 @@
     padding: 0.5rem 0.75rem;
 }
 
+/* The bell is shared with nothing else in the toolbar, but a reader should still see whose
+   notifications these are, not TYPO3's. */
+.content-planner-notification-dropdown__title {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.content-planner-notification-dropdown__product {
+    color: var(--content-planner-color-muted);
+    font-size: 0.6875rem;
+    line-height: 1.2;
+}
+
 .content-planner-notification-dropdown__headline {
     font-weight: 700;
+    line-height: 1.2;
     margin: 0;
 }
 

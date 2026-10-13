@@ -690,7 +690,10 @@
 			     toolbar item's own PHP-side label resolution correctly full-references instead)
 			     specifically because the dropdown chrome templates use that short Fluid form. -->
 			<trans-unit id="notification.toolbar.title">
-				<source>Notifications</source>
+				<source>Content Planner notifications</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.product">
+				<source>Content Planner</source>
 			</trans-unit>
 			<trans-unit id="notification.dropdown.headline">
 				<source>Notifications</source>
