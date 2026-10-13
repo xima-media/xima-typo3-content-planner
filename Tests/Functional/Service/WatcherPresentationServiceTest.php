@@ -165,6 +165,29 @@ final class WatcherPresentationServiceTest extends AbstractFunctionalTestCase
 
         $result = $this->subject->build('pages', 1, 1);
 
-        self::assertSame([['uid' => 10, 'name' => 'Member User (member)']], $result['watchers']);
+        self::assertSame([['uid' => 10, 'name' => 'Member User (member)', 'source' => 'manual']], $result['watchers']);
+    }
+
+    #[Test]
+    public function buildCountsTheWatchersTheViewerMayNotSeeSoTheListCanSayHowManyAreMissing(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_watcher.csv');
+        $this->watcherService->watch('pages', 1, 10, WatchSource::Manual); // member: permitted
+        $this->watcherService->watch('pages', 1, 11, WatchSource::Manual); // nogroup: not permitted
+
+        $result = $this->subject->build('pages', 1, 1);
+
+        self::assertSame(1, $result['hiddenCount']);
+    }
+
+    #[Test]
+    public function buildKeepsTheReasonEachWatcherWasAdded(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_watcher.csv');
+        $this->watcherService->watch('pages', 1, 10, WatchSource::Comment);
+
+        $result = $this->subject->build('pages', 1, 1);
+
+        self::assertSame('comment', $result['watchers'][0]['source']);
     }
 }

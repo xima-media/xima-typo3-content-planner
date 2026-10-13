@@ -238,9 +238,69 @@
 				<source>Watchers · %s</source>
 				<target>Beobachter · %s</target>
 			</trans-unit>
+			<trans-unit id="watch.tab.state.inactive.title">
+				<source>You're not watching</source>
+				<target>Sie beobachten nicht</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.inactive.reason">
+				<source>You won't get notifications for this record.</source>
+				<target>Sie erhalten keine Benachrichtigungen zu diesem Datensatz.</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.inactive.action">
+				<source>Watch</source>
+				<target>Beobachten</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.auto.title">
+				<source>Watching automatically</source>
+				<target>Automatisch beobachtet</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.auto.reason">
+				<source>Added by an assignment, comment or status change.</source>
+				<target>Durch eine Zuweisung, einen Kommentar oder eine Statusänderung hinzugefügt.</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.auto.action">
+				<source>Mute</source>
+				<target>Stummschalten</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.manual.title">
+				<source>Watching</source>
+				<target>Beobachtet</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.manual.reason">
+				<source>You added yourself.</source>
+				<target>Sie haben sich selbst hinzugefügt.</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.manual.action">
+				<source>Mute</source>
+				<target>Stummschalten</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.muted.title">
+				<source>Muted</source>
+				<target>Stummgeschaltet</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.muted.reason">
+				<source>You won't be added again automatically.</source>
+				<target>Sie werden nicht mehr automatisch hinzugefügt.</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.muted.action">
+				<source>Watch again</source>
+				<target>Wieder beobachten</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.reason.manual">
+				<source>Manual</source>
+				<target>Manuell</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.reason.automatic">
+				<source>Automatic</source>
+				<target>Automatisch</target>
+			</trans-unit>
+			<trans-unit id="watch.tab.watchers.hidden">
+				<source>%s more you can't see</source>
+				<target>%s weitere, die Sie nicht sehen können</target>
+			</trans-unit>
 			<trans-unit id="watch.tab.watchers.empty">
-				<source>Nobody is watching this record yet.</source>
-				<target>Noch niemand beobachtet diesen Datensatz.</target>
+				<source>Nobody is watching this record yet. People are added when they are assigned, comment or change its status, or when they watch it themselves.</source>
+				<target>Niemand beobachtet diesen Datensatz. Personen werden hinzugefügt, wenn sie zugewiesen werden, kommentieren oder den Status ändern, oder wenn sie ihn selbst beobachten.</target>
 			</trans-unit>
 			<trans-unit id="watch.tab.notWatchable">
 				<source>This record does not support watching.</source>

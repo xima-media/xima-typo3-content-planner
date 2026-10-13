@@ -261,6 +261,54 @@ final class WatcherControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function watchersActionNamesTheActionOnTheButtonAndDoesNotUseAPressedState(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+
+        $response = $this->createController()->watchersAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertMatchesRegularExpression('#<button[^>]*data-content-planner-watch-toggle[^>]*>\s*(?:<[^>]+>\s*)*Watch\s*</button>#', $result);
+        self::assertStringNotContainsString('aria-pressed', $result);
+        self::assertStringContainsString('You&#039;re not watching', $result);
+    }
+
+    #[Test]
+    public function watchersActionOffersToWatchAgainWhenTheViewerMutedTheRecord(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->watcherRepository->upsert('pages', 1, 1, WatchMode::ManualUnwatch, WatchSource::Manual);
+
+        $response = $this->createController()->watchersAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertStringContainsString('Muted', $result);
+        self::assertStringContainsString('Watch again', $result);
+    }
+
+    #[Test]
+    public function watchersActionShowsWhyEachWatcherIsOnTheListAndHowManyAreNotVisible(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_mention.csv');
+        $this->watcherRepository->upsert('pages', 1, 10, WatchMode::Auto, WatchSource::Comment);
+
+        $response = $this->createController()->watchersAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertStringContainsString('Automatic', $result);
+    }
+
+    #[Test]
     public function watchersActionRendersTheEmptyStateWhenNobodyIsWatching(): void
     {
         $this->loginBackendUser(1);

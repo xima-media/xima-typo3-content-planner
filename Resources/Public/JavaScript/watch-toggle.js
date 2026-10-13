@@ -110,7 +110,7 @@ class WatchToggle {
    * @returns {HTMLElement[]}
    */
   static findInstances(table, uid) {
-    const selector = `[data-content-planner-watch-toggle][data-table="${CSS.escape(table)}"][data-uid="${CSS.escape(uid)}"]`
+    const selector = `[data-content-planner-watch-toggle]:not([data-content-planner-watch-managed])[data-table="${CSS.escape(table)}"][data-uid="${CSS.escape(uid)}"]`
     const documents = top !== window ? [document, top.document] : [document]
 
     return documents.flatMap(doc => Array.from(doc.querySelectorAll(selector)))

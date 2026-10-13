@@ -14,10 +14,11 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service;
 
 use Doctrine\DBAL\Exception;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\WatchMode;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\{WatchMode, WatchSource};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 
+use function array_keys;
 use function array_map;
 use function count;
 use function implode;
@@ -51,7 +52,7 @@ class WatcherPresentationService
      * whether this array is non-empty (a non-empty array is always truthy in Fluid, even one
      * whose fields all describe "nothing to show").
      *
-     * @return array{watchable: bool, mode: string|null, watching: bool, icon: string, state: string, count: int, watcherNames: list<string>, watcherNamesLabel: string, watchers: list<array{uid: int, name: string}>}
+     * @return array{watchable: bool, mode: string|null, watching: bool, icon: string, state: string, count: int, watcherNames: list<string>, watcherNamesLabel: string, watchers: list<array{uid: int, name: string, source: string}>, hiddenCount: int}
      *
      * @throws Exception
      */
@@ -68,12 +69,14 @@ class WatcherPresentationService
                 'watcherNames' => [],
                 'watcherNamesLabel' => '',
                 'watchers' => [],
+                'hiddenCount' => 0,
             ];
         }
 
         $mode = $this->watcherService->getMode($table, $uid, $beUser);
-        $activeWatcherUids = $this->backendUserRepository->filterActiveUids($this->watcherService->getActiveWatchers($table, $uid));
-        $watchers = $this->resolveVisibleWatchers($activeWatcherUids);
+        $sourcesByUid = $this->watcherService->getActiveWatchersWithSource($table, $uid);
+        $activeWatcherUids = $this->backendUserRepository->filterActiveUids(array_keys($sourcesByUid));
+        $watchers = $this->resolveVisibleWatchers($activeWatcherUids, $sourcesByUid);
         $watcherNames = array_map(static fn (array $watcher): string => $watcher['name'], $watchers);
 
         return [
@@ -91,6 +94,9 @@ class WatcherPresentationService
             // Same visibility pool as watcherNames, but keeps the uid alongside each name so
             // the record modal's Watch tab can render an avatar per watcher, not just a label.
             'watchers' => $watchers,
+            // People the viewer may not see still count: the list says how many are missing
+            // instead of pretending the record has fewer watchers.
+            'hiddenCount' => count($activeWatcherUids) - count($watchers),
         ];
     }
 
@@ -106,13 +112,14 @@ class WatcherPresentationService
      * Builds the permitted-uid-to-display-name map once (`findAllWithPermission()` already
      * carries `username`/`realName` for every row) instead of one extra query per watcher.
      *
-     * @param array<int, int> $watcherUids
+     * @param array<int, int>         $watcherUids
+     * @param array<int, WatchSource> $sourcesByUid
      *
-     * @return list<array{uid: int, name: string}>
+     * @return list<array{uid: int, name: string, source: string}>
      *
      * @throws Exception
      */
-    private function resolveVisibleWatchers(array $watcherUids): array
+    private function resolveVisibleWatchers(array $watcherUids, array $sourcesByUid): array
     {
         if ([] === $watcherUids) {
             return [];
@@ -127,7 +134,7 @@ class WatcherPresentationService
         foreach ($watcherUids as $watcherUid) {
             $name = $namesByUid[$watcherUid] ?? '';
             if ('' !== $name) {
-                $watchers[] = ['uid' => $watcherUid, 'name' => $name];
+                $watchers[] = ['uid' => $watcherUid, 'name' => $name, 'source' => ($sourcesByUid[$watcherUid] ?? WatchSource::Manual)->value];
             }
         }
 
