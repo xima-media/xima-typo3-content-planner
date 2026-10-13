@@ -208,6 +208,9 @@
 }
 
 .content-planner-status-menu__toggle {
+    /* TYPO3 v14 places the menu (a popover) at the element named --dropdown, which core only sets
+       on .dropdown-toggle. Without it the menu lands in the top left corner of the frame. */
+    anchor-name: --dropdown;
     align-items: center;
     appearance: none;
     background: transparent;
