@@ -23,7 +23,7 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{CommentFilter, StatusItem};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\{ChildCommentAggregationManager, CommentFirstFlowManager};
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
@@ -116,12 +116,9 @@ class RecordController extends ActionController
         $recordId = (int) ($request->getQueryParams()['uid'] ?? 0);
         $recordTable = $request->getQueryParams()['table'] ?? '';
         $sortComments = $request->getQueryParams()['sortComments'] ?? 'DESC';
-        // `show` is the one choice of the modal's filter column: open (default), only comments
-        // with to-dos, or all including resolved ones. The two flags it maps to stay accepted
-        // as they were, for links that carry them.
-        $show = (string) ($request->getQueryParams()['show'] ?? '');
-        $showResolvedComments = 'all' === $show || (bool) ($request->getQueryParams()['showResolvedComments'] ?? false);
-        $showTodoComments = 'todo' === $show || (bool) ($request->getQueryParams()['showTodoComments'] ?? false);
+        $commentFilter = CommentFilter::fromQueryParams($request->getQueryParams());
+        $showResolvedComments = $commentFilter->showResolved;
+        $showTodoComments = $commentFilter->showTodo;
 
         if ('' === $recordTable || 0 === $recordId) {
             return new JsonResponse(['error' => 'Missing required parameters'], 400);
@@ -171,7 +168,7 @@ class RecordController extends ActionController
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [
                     'sortComments' => $sortComments,
-                    'show' => $showTodoComments ? 'todo' : ($showResolvedComments ? 'all' : 'open'),
+                    'show' => $commentFilter->show,
                     'openCount' => $openCount,
                     'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable),
                     'allCount' => $openCount + $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true),
