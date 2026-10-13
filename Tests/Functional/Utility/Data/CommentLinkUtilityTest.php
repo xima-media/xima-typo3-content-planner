@@ -64,6 +64,20 @@ final class CommentLinkUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function dropsTheHrefOfAProtocolRelativeLink(): void
+    {
+        $rendered = CommentLinkUtility::resolveLinks('<a href="//evil.example/x">x</a>');
+
+        self::assertStringNotContainsString('evil.example', $rendered);
+    }
+
+    #[Test]
+    public function keepsARelativeBackendLink(): void
+    {
+        self::assertStringContainsString('href="/typo3/module/web/layout"', CommentLinkUtility::resolveLinks('<a href="/typo3/module/web/layout">x</a>'));
+    }
+
+    #[Test]
     public function leavesContentWithoutLinksUntouched(): void
     {
         self::assertSame('<p>Plain</p>', CommentLinkUtility::resolveLinks('<p>Plain</p>'));

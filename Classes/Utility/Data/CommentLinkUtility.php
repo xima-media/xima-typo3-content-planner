@@ -84,7 +84,7 @@ final class CommentLinkUtility
             return self::resolveTypo3Link($href);
         }
 
-        return 1 === preg_match('#^(https?://|mailto:|tel:|/)#i', $href) ? $href : null;
+        return 1 === preg_match('#^(https?://|mailto:|tel:|/(?!/))#i', $href) ? $href : null;
     }
 
     private static function resolveTypo3Link(string $href): ?string
