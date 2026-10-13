@@ -145,7 +145,10 @@
                     data-edit-uri="{comments.editUri}"
                 >
                     <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
-                    <span class="content-planner-meta__text">{comments.name}</span>
+                    <f:if condition="{comments.count}">
+                        <span class="badge content-planner-meta__pill" data-status="none" aria-hidden="true">{comments.count}</span>
+                    </f:if>
+                    <span class="content-planner-meta__text"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/></span>
                 </button>
 
                 <f:if condition="{comments.todoTotal}">
