@@ -68,6 +68,7 @@ class WatchToggle {
         const resolved = await response.resolve()
         if (resolved.result) {
           this.replaceAndRestoreFocus(toggle, WatchToggle.findInstances(table, uid), resolved.result)
+          Notification.message('watch.toggle', 'success')
         }
         // The record modal's Watch tab, if open on this exact record, shows the watcher count
         // and list as of when its pane was loaded - both go stale the moment anyone (in either
