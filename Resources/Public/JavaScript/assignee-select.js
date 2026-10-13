@@ -10,11 +10,8 @@ const NAVIGATION_KEYS = ['ArrowDown', 'ArrowUp', 'Home', 'End', 'Enter']
 
 /**
  * Searchable, keyboard-navigable replacement for the former native <select> assignee picker
- * (CP-26, #325). Every entry is a role="option" list item (avatar + name); none of them carry
- * an action URL as an <option> value, and selecting one only marks it as the pending choice -
- * the actual assignment is only submitted once the explicit "Confirm" button is activated.
- * "Assign to me" / "Unassign" stay distinct one-click actions, independent of the list's
- * pending selection.
+ * (CP-26, #325). Every entry is a role="option" list item (avatar + name). Picking one assigns
+ * the record at once. "Assign to me" / "Unassign" are one-click buttons outside the list.
  */
 class AssigneeSelect {
   constructor() {
@@ -58,9 +55,8 @@ class AssigneeSelect {
       listbox,
       options: Array.from(listbox.querySelectorAll('[data-assignee-option]')),
       search: scope.querySelector('[data-assignee-search]'),
-      confirmButton: scope.querySelector('[data-action-assignee-confirm]'),
       emptyState: scope.querySelector('[data-assignee-empty]'),
-      state: { activeIndex: 0, pendingUid: null },
+      state: { activeIndex: 0 },
     }
 
     const currentIndex = ctx.options.findIndex(option => 'true' === option.getAttribute('aria-current'))
@@ -80,10 +76,6 @@ class AssigneeSelect {
           this.handleListboxKeydown(ctx, event)
         }
       })
-    }
-
-    if (ctx.confirmButton) {
-      ctx.confirmButton.addEventListener('click', () => this.confirmSelection(ctx))
     }
 
     scope.querySelectorAll('[data-action-assignee]').forEach(item => {
@@ -129,7 +121,7 @@ class AssigneeSelect {
 
     const root = scope?.element ?? scope ?? document
     const elements = Array.from(
-      root.querySelectorAll?.('[data-assignee-search], [data-assignee-listbox], [data-action-assignee-confirm], [data-action-assignee]') ?? [],
+      root.querySelectorAll?.('[data-assignee-search], [data-assignee-listbox], [data-action-assignee]') ?? [],
     )
 
     elements.forEach(el => {
@@ -237,25 +229,15 @@ class AssigneeSelect {
 
   // --- selection & submission -------------------------------------------------
 
+  // Picking a person assigns at once and notifies them, there is no separate "Assign" step. A
+  // wrong pick is corrected by picking again, so the entry that is already current is a no-op.
   selectOption(ctx, option) {
     if (option.hasAttribute('aria-disabled')) {
       return
     }
-    ctx.options.forEach(entry => entry.setAttribute('aria-selected', String(entry === option)))
-    ctx.state.pendingUid = option.dataset.assigneeUid
     ctx.state.activeIndex = ctx.options.indexOf(option)
-    if (ctx.confirmButton) {
-      ctx.confirmButton.disabled = 'true' === option.getAttribute('aria-current')
-    }
-    // updateActiveDescendant() is what actually applies the visible --active class (aria-
-    // selected alone is only announced to assistive tech) - keyboard navigation already
-    // called it via moveActive()/moveActiveToEdge(), a mouse click needs it too.
     this.updateActiveDescendant(ctx)
-  }
-
-  confirmSelection(ctx) {
-    const option = ctx.options.find(entry => entry.dataset.assigneeUid === ctx.state.pendingUid)
-    if (!option || !option.dataset.assigneeUrl) {
+    if ('true' === option.getAttribute('aria-current') || !option.dataset.assigneeUrl) {
       return
     }
     this.changeAssignee(option.dataset.assigneeUrl, '0' === option.dataset.assigneeUid, ctx.modal, option)

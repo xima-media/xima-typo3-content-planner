@@ -18,44 +18,77 @@
    Assignee Block
    ========================================================================== */
 
-/* Top spacing lives here, not on the shared .content-planner-record-modal__pane wrapper
-   (RecordModal.css): that wrapper has no padding on purpose, so the Comments pane's
-   absolutely-positioned filter bar (top: 0) stays flush under the tab bar - adding padding
-   there would push that bar down by the same amount. The assignee content is normal flow,
-   so it needs its own breathing room from the tab bar above it. */
+/* Two columns (docs/design/rules.md, "Record modal"): the task on the left, the current assignee
+   and what an assignment does on the right. They stack below about 760px, the context first. The
+   negative margin takes the pane back to the modal's edges, so the right column reaches them. */
 .content-planner-assignee {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    margin: 0 -1rem;
+    min-height: 100%;
 }
 
-/* In the merged record modal (record-modal.js) the Assignee pane gets the same large modal
-   as Comments - a single narrow column of search+list+actions left most of that width empty,
-   so from this breakpoint up the explanatory copy moves into a second column beside it. */
-@media (width >= 768px) {
-    .content-planner-assignee {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 2rem;
-    }
+.content-planner-assignee__main {
+    min-width: 0;
+    padding: 1rem;
+}
 
-    .content-planner-assignee__main {
-        flex: 0 1 420px;
-        min-width: 0;
+.content-planner-assignee__aside {
+    background-color: color-mix(in srgb, currentColor, transparent 96%);
+    border-inline-start: 1px solid var(--typo3-component-border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem;
+}
+
+@media (max-width: 760px) {
+    .content-planner-assignee {
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .content-planner-assignee__aside {
-        flex: 1 1 auto;
-        padding-top: 0.25rem;
+        border-block-end: 1px solid var(--typo3-component-border-color);
+        border-inline-start: 0;
+        order: -1;
     }
 }
 
+.content-planner-assignee__heading {
+    color: var(--content-planner-color-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+}
+
 .content-planner-assignee__aside p {
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
 }
 
 .content-planner-assignee__aside p:last-child {
     margin-bottom: 0;
+}
+
+.content-planner-assignee__person {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.content-planner-assignee__person--none {
+    color: var(--content-planner-color-muted);
+}
+
+.content-planner-assignee__since {
+    color: var(--content-planner-color-muted);
+    font-size: 0.8125rem;
+}
+
+/* Says why the list offers less than it could, so an inert entry is explained, not just greyed. */
+.content-planner-assignee__notice {
+    color: var(--content-planner-color-muted);
+    font-size: 0.8125rem;
+    margin: 0.5rem 0 0;
 }
 
 .content-planner-assignee--pending {
@@ -158,10 +191,6 @@
     flex-wrap: wrap;
     gap: 0.5em;
     margin-bottom: 0.5em;
-}
-
-.content-planner-assignee__confirm {
-    margin-left: auto;
 }
 
 .content-planner-assignee__docs-link {

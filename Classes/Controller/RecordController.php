@@ -26,6 +26,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{CommentFilter, CommentListWindow, StatusItem};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\{ChildCommentAggregationManager, CommentFirstFlowManager};
+use Xima\XimaTypo3ContentPlanner\Service\AssigneeContextService;
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
@@ -55,6 +56,7 @@ class RecordController extends ActionController
         private readonly CommentEditorConfigurationFactory $commentEditorConfigurationFactory,
         private readonly CommentFirstFlowManager $commentFirstFlowManager,
         private readonly ChildCommentAggregationManager $childCommentAggregationManager,
+        private readonly AssigneeContextService $assigneeContextService,
     ) {}
 
     /**
@@ -249,7 +251,9 @@ class RecordController extends ActionController
                         ? UrlUtility::assignToUser($recordTable, $record['uid'], null, true)
                         : null,
                 ],
+                'currentInfo' => $this->assigneeContextService->describe($recordTable, $recordId, $currentAssignee),
                 'canChangeAssignee' => $permissions['canChangeAssignee'],
+                'assignSelfOnly' => $permissions['canAssignSelf'] && !$permissions['canAssignOthers'],
             ],
         );
 
