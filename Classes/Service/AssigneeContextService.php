@@ -36,7 +36,7 @@ class AssigneeContextService
     ) {}
 
     /**
-     * @return array{uid: int, name: string, since: int|null, by: string}|null
+     * @return array{uid: int, name: string, shortName: string, since: int|null, by: string}|null
      *
      * @throws Exception
      */
@@ -57,6 +57,7 @@ class AssigneeContextService
         return [
             'uid' => $assignee,
             'name' => ContentUtility::generateDisplayName($user),
+            'shortName' => (string) ($user['realName'] ?: $user['username']),
             'since' => $assignment['timestamp'] ?? null,
             'by' => is_array($author) ? ContentUtility::generateDisplayName($author) : '',
         ];

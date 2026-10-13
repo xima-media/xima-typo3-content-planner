@@ -290,8 +290,9 @@ class RecordModal {
 
   /** The loaded Assignee tab knows who is assigned now, which the tab label and the next request must follow. */
   syncAssigneeFromPane(pane) {
-    const person = pane.querySelector('.content-planner-assignee__person:not(.content-planner-assignee__person--none) strong')
-    this.setAssigneeDetail(person?.textContent.trim() ?? '')
+    // The same short name the tab carried before it was loaded, not the longer card heading.
+    const person = pane.querySelector('.content-planner-assignee__person[data-assignee-short-name]')
+    this.setAssigneeDetail(person?.dataset.assigneeShortName ?? '')
   }
 
   /** The name after the Assignee tab label, empty for a record nobody is assigned to. */

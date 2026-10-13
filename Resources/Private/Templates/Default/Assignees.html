@@ -101,7 +101,7 @@
                 </h3>
                 <f:if condition="{currentInfo}">
                     <f:then>
-                        <p class="content-planner-assignee__person">
+                        <p class="content-planner-assignee__person" data-assignee-short-name="{currentInfo.shortName}">
                             <be:avatar backendUser="{currentInfo.uid}" size="32" showIcon="true"/>
                             <strong>{currentInfo.name}</strong>
                         </p>

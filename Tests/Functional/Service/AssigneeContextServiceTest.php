@@ -39,6 +39,7 @@ final class AssigneeContextServiceTest extends AbstractFunctionalTestCase
 
         self::assertSame(1, $context['uid']);
         self::assertStringContainsString('admin', $context['name']);
+        self::assertSame('Administrator', $context['shortName']);
         self::assertSame(2000, $context['since']);
         self::assertStringContainsString('editor', $context['by']);
     }
