@@ -145,7 +145,6 @@ class RecordController extends ActionController
         $includeChildComments = (bool) ($backendUser->uc['contentPlanner']['includeChildComments'] ?? false);
 
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, false, $sortComments, $showResolvedComments, $showTodoComments);
-        $canCreateComment = PermissionUtility::canCreateComment();
         $openCount = $this->commentRepository->countAllByRecord($recordId, $recordTable);
 
         // CP-29 (#328): aggregated child comments - a view-only concern, only offered for pages
@@ -164,11 +163,7 @@ class RecordController extends ActionController
                 'table' => $recordTable,
                 'repliesExpanded' => $repliesExpanded,
                 'currentUserUid' => (int) ($backendUser->user['uid'] ?? 0),
-                'newCommentUri' => $canCreateComment ? UrlUtility::getNewCommentUrl($recordTable, $recordId) : '',
-                'commentComposerHtml' => $canCreateComment ? $this->buildNewCommentComposerHtml($recordTable, $recordId, (int) $record['pid']) : '',
-                // CP-27 (#326): comment-first flow - only relevant while the composer can
-                // actually be used and the record has no status yet.
-                'commentFirst' => $canCreateComment ? $this->commentFirstFlowManager->buildContext($record) : ['active' => false],
+                ...$this->buildComposerContext($recordTable, $recordId, $record),
                 'statusChange' => $this->commentFirstFlowManager->buildChangeContext($record),
                 'childComments' => $childComments,
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
@@ -403,6 +398,29 @@ class RecordController extends ActionController
         }
 
         return $targetUserId === $currentUserId;
+    }
+
+    /**
+     * What the comment composer needs, empty while the user may not create comments.
+     *
+     * @param array<string, mixed> $record
+     *
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    private function buildComposerContext(string $table, int $id, array $record): array
+    {
+        if (!PermissionUtility::canCreateComment()) {
+            return ['newCommentUri' => '', 'commentComposerHtml' => '', 'commentFirst' => ['active' => false]];
+        }
+
+        return [
+            'newCommentUri' => UrlUtility::getNewCommentUrl($table, $id),
+            'commentComposerHtml' => $this->buildNewCommentComposerHtml($table, $id, (int) $record['pid']),
+            // CP-27 (#326): comment-first flow - only relevant while the record has no status yet.
+            'commentFirst' => $this->commentFirstFlowManager->buildContext($record),
+        ];
     }
 
     /**
