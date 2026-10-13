@@ -20,5 +20,8 @@
         <span class="content-planner-kpi-tile__label">{label}</span>
         <span class="content-planner-kpi-tile__figure">{figure}</span>
     </span>
+    <f:if condition="{link}">
+        <span class="content-planner-kpi-tile__show" aria-hidden="true"><f:translate key="comment.resolvedHidden.show" extensionName="XimaTypo3ContentPlanner"/></span>
+    </f:if>
 </f:section>
 </html>

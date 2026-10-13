@@ -106,11 +106,16 @@
 }
 
 /* Columns: Record (title, page path below), Status, Assignee, Changed, comments */
-.content-planner-widget table tr > *:nth-child(1) { width: 26%; }
-.content-planner-widget table tr > *:nth-child(2) { width: 23%; }
-.content-planner-widget table tr > *:nth-child(3) { width: 18%; }
-.content-planner-widget table tr > *:nth-child(4) { width: 17%; }
-.content-planner-widget table tr > *:nth-child(5) { width: 16%; }
+.content-planner-widget table tr > *:nth-child(1) { width: 22%; }
+.content-planner-widget table tr > *:nth-child(2) { width: 27%; }
+.content-planner-widget table tr > *:nth-child(3) { width: 17%; }
+.content-planner-widget table tr > *:nth-child(4) { width: 15%; }
+.content-planner-widget table tr > *:nth-child(5) { width: 19%; }
+
+/* The time column wraps instead of ending in an ellipsis. */
+.content-planner-widget table td:nth-child(4) {
+    white-space: normal;
+}
 
 .content-planner-widget table td {
     overflow: hidden;
@@ -146,13 +151,17 @@
     text-overflow: ellipsis;
 }
 
-/* Comments column: prevent badge wrapping, gap between badges */
+/* Activity column: the comment count and the to-do count each on their own line, so neither is
+   cut off in a narrow widget. */
 .content-planner-widget table td:nth-child(5) {
-    text-align: right;
+    overflow: visible;
 }
 
-.content-planner-widget table td:nth-child(5) > a + a {
-    margin-left: 0.5rem;
+.content-planner-widget table td:nth-child(5) > a {
+    align-items: center;
+    display: flex;
+    gap: 0.25rem;
+    white-space: nowrap;
 }
 
 /* Empty State */
@@ -203,11 +212,10 @@
 }
 
 .content-planner-kpi-tile {
+    align-items: center;
     display: flex;
     flex: 1 1 0;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.25rem;
+    gap: 0.75rem;
     min-width: 0;
     padding: 0.75rem var(--widget-padding, 1.25rem);
     color: inherit;
@@ -237,6 +245,7 @@ a.content-planner-kpi-tile:focus-visible {
 }
 
 .content-planner-kpi-tile__content {
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column-reverse;
     gap: 0.125rem;
@@ -250,6 +259,12 @@ a.content-planner-kpi-tile:focus-visible {
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--typo3-text-color-variant);
+}
+
+.content-planner-kpi-tile__show {
+    flex: 0 0 auto;
+    font-size: 0.8125rem;
+    text-decoration: underline;
 }
 
 .content-planner-kpi-tile__figure {

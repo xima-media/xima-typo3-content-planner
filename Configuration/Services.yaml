@@ -174,7 +174,7 @@ services:
         description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.kpi.description'
         iconIdentifier: 'dashboard-assignee'
         height: 'small'
-        width: 'medium'
+        width: 'large'
 
   dashboard.widget.ContentStatus-comments:
     class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentCommentWidget'
