@@ -16,8 +16,10 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Service\RichText;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
+use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Localization\{LanguageService, Locales};
 use Xima\XimaTypo3ContentPlanner\Event\ModifyCommentEditorConfigurationEvent;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
@@ -118,6 +120,26 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
     }
 
     #[Test]
+    public function buildPointsTheLinkButtonAtTheLinkBrowser(): void
+    {
+        $uriBuilder = $this->createMock(UriBuilder::class);
+        $uriBuilder->expects(self::once())->method('buildUriFromRoute')
+            ->with('rteckeditor_wizard_browse_links', self::callback(static fn (array $parameters): bool => 12 === $parameters['P']['pid'] && 'comments' === $parameters['P']['richtextConfigurationName']))
+            ->willReturn(new Uri('/typo3/rte/wizard/browselinks?P=1'));
+
+        $richtext = $this->createMock(Richtext::class);
+        $richtext->method('getConfiguration')->willReturn(['editor' => ['config' => []]]);
+        $locales = $this->createMock(Locales::class);
+        $locales->method('isValidLanguageKey')->willReturn(true);
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $result = (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher, $uriBuilder))->build(12, 'pages', 12);
+
+        self::assertSame('/typo3/rte/wizard/browselinks?P=1', $result['typo3link']['routeUrl']);
+    }
+
+    #[Test]
     public function buildHandsTheRecordContextToListenersAsWell(): void
     {
         $richtext = $this->createMock(Richtext::class);
@@ -135,7 +157,7 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
             },
         );
 
-        (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher))->build(12, 'pages', 12);
+        (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher, $this->createUriBuilder()))->build(12, 'pages', 12);
 
         self::assertSame([12, 'pages', 12], $seen);
     }
@@ -176,7 +198,7 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
             },
         );
 
-        $result = (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher))->build(12, 'tt_content', 7);
+        $result = (new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher, $this->createUriBuilder()))->build(12, 'tt_content', 7);
 
         self::assertSame(['@acme/mention-plugin.js'], $result['importModules']);
         self::assertSame(['bold'], $result['toolbar']);
@@ -202,6 +224,14 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatcher->method('dispatch')->willReturnArgument(0);
 
-        return new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher);
+        return new CommentEditorConfigurationFactory($richtext, $locales, $eventDispatcher, $this->createUriBuilder());
+    }
+
+    private function createUriBuilder(): UriBuilder
+    {
+        $uriBuilder = $this->createStub(UriBuilder::class);
+        $uriBuilder->method('buildUriFromRoute')->willReturn(new Uri('/typo3/rte/wizard/browselinks'));
+
+        return $uriBuilder;
     }
 }

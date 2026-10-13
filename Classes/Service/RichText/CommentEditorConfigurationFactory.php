@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\RichText;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Localization\{LanguageService, Locales};
@@ -55,6 +56,7 @@ final readonly class CommentEditorConfigurationFactory
         private Richtext $richtext,
         private Locales $locales,
         private EventDispatcherInterface $eventDispatcher,
+        private UriBuilder $uriBuilder,
     ) {}
 
     /**
@@ -88,6 +90,19 @@ final readonly class CommentEditorConfigurationFactory
         $ckeditorConfiguration['language'] = $this->resolveLanguageConfiguration($ckeditorConfiguration);
         $ckeditorConfiguration = $this->replaceLanguageFileReferences($ckeditorConfiguration);
         $ckeditorConfiguration = $this->replaceAbsolutePathsToRelativeResourcesPath($ckeditorConfiguration);
+
+        // Where the link button opens the link browser. FormEngine adds this for the external
+        // plugin `typo3link`; without it the button throws and nothing happens.
+        $ckeditorConfiguration['typo3link'] = ['routeUrl' => (string) $this->uriBuilder->buildUriFromRoute('rteckeditor_wizard_browse_links', [
+            'P' => [
+                'table' => self::TABLE,
+                'uid' => 0,
+                'fieldName' => self::FIELD,
+                'recordType' => '0',
+                'pid' => $pid,
+                'richtextConfigurationName' => 'comments',
+            ],
+        ])];
 
         // Read by the ContentPlannerMention plugin (Comments.yaml registers it via
         // importModules) to build its suggestion feed request. Set after the label and path
