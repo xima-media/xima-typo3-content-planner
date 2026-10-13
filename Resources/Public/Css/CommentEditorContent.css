@@ -1,0 +1,33 @@
+/**
+ * Content Planner - content styles of the comment composer (contentsCss in Configuration/RTE/Comments.yaml).
+ *
+ * Replaces EXT:rte_ckeditor's contents.css, which previews frontend content: it pins the editable
+ * area to a white page with black text. A comment is backend UI and follows the backend's tokens,
+ * so it works in both color schemes and with every theme.
+ */
+
+body {
+    background-color: var(--typo3-input-bg, var(--typo3-surface-base));
+    color: var(--typo3-text-color-base);
+    font-family: var(--typo3-font-family);
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+}
+
+body > :first-child {
+    margin-top: 0;
+}
+
+body > :last-child {
+    margin-bottom: 0;
+}
+
+a {
+    color: var(--typo3-text-color-primary, currentColor);
+    text-decoration: underline;
+}
+
+ol,
+ul {
+    padding-left: 1.5em;
+}

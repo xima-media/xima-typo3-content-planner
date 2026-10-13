@@ -100,6 +100,16 @@ final class CommentEditorConfigurationFactoryTest extends TestCase
     }
 
     #[Test]
+    public function buildDropsTheFrontendPreviewStylesheetOfTheRteSoCommentsFollowTheBackendTheme(): void
+    {
+        $configuration = $this->createFactory([
+            'contentsCss' => ['EXT:rte_ckeditor/Resources/Public/Css/contents.css', '/backend/own.css'],
+        ])->build(1, 'pages', 1);
+
+        self::assertSame(['/backend/own.css'], $configuration['contentsCss']);
+    }
+
+    #[Test]
     public function buildPassesTheRecordContextTheMentionFeedNeedsToTheEditor(): void
     {
         $configuration = $this->createFactory([])->build(1, 'tt_content', 42);

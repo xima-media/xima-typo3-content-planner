@@ -21,6 +21,8 @@ use TYPO3\CMS\Core\Utility\{GeneralUtility, PathUtility};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Event\ModifyCommentEditorConfigurationEvent;
 
+use function array_filter;
+use function array_values;
 use function is_array;
 use function is_string;
 
@@ -72,6 +74,16 @@ final readonly class CommentEditorConfigurationFactory
             ...$editorConfig,
             'customConfig' => '',
         ];
+
+        // Base.yaml's contentsCss is merged, not replaced, by the preset. Its contents.css previews
+        // frontend content on a white page with `color-scheme: only light`, which a comment in the
+        // backend must not inherit. Comments.yaml adds CommentEditorContent.css in its place.
+        if (is_array($ckeditorConfiguration['contentsCss'] ?? null)) {
+            $ckeditorConfiguration['contentsCss'] = array_values(array_filter(
+                $ckeditorConfiguration['contentsCss'],
+                static fn (mixed $file): bool => !is_string($file) || !str_ends_with($file, 'rte_ckeditor/Resources/Public/Css/contents.css'),
+            ));
+        }
 
         $ckeditorConfiguration['language'] = $this->resolveLanguageConfiguration($ckeditorConfiguration);
         $ckeditorConfiguration = $this->replaceLanguageFileReferences($ckeditorConfiguration);
