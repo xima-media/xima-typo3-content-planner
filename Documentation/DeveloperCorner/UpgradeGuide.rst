@@ -143,6 +143,13 @@ The backend UI follows a binding set of design rules in 3.0
 (``docs/design/rules.md``). The following changes matter if you override
 templates, listen to events or style the extension from your own assets.
 
+**Dashboard.** The "Key figures" widget now spans the whole width of the
+dashboard. The "Status" widget lost its search and filter: that is what the
+records module is for, and the widget links there. The option ``useFilter``,
+the partial ``WidgetFilter.html`` and the module ``@content-planner/filter-status``
+(now ``@content-planner/status-widget``, without the filter code) are gone.
+The assignee of a record that the CLI user is assigned to reads "System".
+
 **Colours.** Status tones are derived from the configured colour instead of
 using fixed alpha values: ``_variables.css`` defines ``--cp-tint``,
 ``--cp-text``, ``--cp-edge`` and ``--cp-border`` for every element that carries

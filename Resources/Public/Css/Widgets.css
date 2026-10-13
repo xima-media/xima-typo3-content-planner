@@ -3,7 +3,7 @@
  *
  * BEM Structure:
  * - content-planner-widget (Block)
- * - content-planner-widget__filter, __table, __empty, __loading (Elements)
+ * - content-planner-widget__table, __empty, __loading, __all (Elements)
  * - content-planner-widget--status, --assigned, --todo, --configurable (Modifiers)
  */
 
@@ -22,78 +22,10 @@
    Widget Elements
    ========================================================================== */
 
-/* Filter */
-.content-planner-widget__filter {
-    position: sticky;
-    z-index: 1000;
-    top: 0;
-    margin-right: calc(-1 * var(--widget-padding, 1.25rem));
-    margin-left: calc(-1 * var(--widget-padding, 1.25rem));
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    padding-left: var(--widget-padding, 1.25rem);
-    padding-right: var(--widget-padding, 1.25rem);
-    background-color: var(--typo3-component-bg);
-    border-bottom: 1px solid var(--typo3-component-border-color);
-}
-
-.content-planner-widget__filter .form-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: flex-end;
-    margin-bottom: 0;
-}
-
-.content-planner-widget__filter .form-group {
-    flex: 0 0 auto;
-}
-
-.content-planner-widget__filter .form-group .form-label {
-    display: none;
-}
-
-.content-planner-widget__filter .input-group {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: stretch;
-}
-
-.content-planner-widget__filter .input-group .btn {
-    flex-shrink: 0;
-}
-
-.content-planner-widget__filter .form-select {
-    width: auto;
-    max-width: 150px;
-}
-
-/* Filter Modal Trigger Button */
-.content-planner-widget__filter-modal-trigger {
-    position: relative;
-}
-
-.content-planner-widget__filter-badge {
-    position: absolute;
-    top: -0.5rem;
-    inset-inline-end: -0.5rem;
-    z-index: 4;
-}
-
-/* Filter Modal Form */
-.content-planner-widget__filter-modal-form .form-label {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.content-planner-widget__filter-modal-form .form-select {
-    width: 100%;
-}
-
-/* Table Wrapper */
-
-.content-planner-widget__filter + .content-planner-widget__table-wrapper {
-    padding-top: 0;
+/* "All records": the way on to the records module, which does the searching and filtering. */
+.content-planner-widget__all {
+    margin: 0.75rem 0 0;
+    text-align: end;
 }
 
 /* ==========================================================================
@@ -103,14 +35,16 @@
 .content-planner-widget table.widget-table {
     table-layout: fixed;
     width: 100%;
+    /* A widget is narrower than a module, so the cells give up some of the core's padding. */
+    --typo3-table-padding-x: 0.5rem;
 }
 
 /* Columns: Record (title, page path below), Status, Assignee, Changed, comments */
-.content-planner-widget table tr > *:nth-child(1) { width: 22%; }
-.content-planner-widget table tr > *:nth-child(2) { width: 27%; }
-.content-planner-widget table tr > *:nth-child(3) { width: 17%; }
+.content-planner-widget table tr > *:nth-child(1) { width: 29%; }
+.content-planner-widget table tr > *:nth-child(2) { width: 24%; }
+.content-planner-widget table tr > *:nth-child(3) { width: 16%; }
 .content-planner-widget table tr > *:nth-child(4) { width: 15%; }
-.content-planner-widget table tr > *:nth-child(5) { width: 19%; }
+.content-planner-widget table tr > *:nth-child(5) { width: 16%; }
 
 /* The time column wraps instead of ending in an ellipsis. */
 .content-planner-widget table td:nth-child(4) {
@@ -379,7 +313,7 @@ a.content-planner-kpi-tile:focus-visible {
 /* Assigned/Todo Widget: KPI-tile-only, no record table (annotation feedback follow-up) - see
    the `{mode} != 'todo' && {mode} != 'assignee'` guard in ContentStatusList.html. The classes
    themselves stay (asserted by ContentStatusWidgetTest and used as the JS gate in
-   filter-status.js), just with nothing left to style since there is no `table` in the DOM for
+   status-widget.js), just with nothing left to style since there is no `table` in the DOM for
    either mode any more. */
 
 /* Server-rendered Widget (TYPO3 v14+) */

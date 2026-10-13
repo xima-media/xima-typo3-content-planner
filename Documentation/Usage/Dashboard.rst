@@ -82,8 +82,10 @@ Recent Comments
     :alt: Status
 
 Status
-    Filterable list of all records with the current status, the assignee, the time of the last change and an
-    activity column. The activity column shows the number of comments and the to-do progress, each on its own line.
+    The latest records with the current status, the assignee, the time of the last change and an activity column.
+    The activity column shows the number of comments and the to-do progress, each on its own line.
+    The widget has no search or filter of its own: "Show all records" leads to the records module, which does that.
+    For a fixed view, for example a review queue, use the configurable widget.
 
 ..  image:: /Images/widgets/dashboard-custom.png
     :width: 64

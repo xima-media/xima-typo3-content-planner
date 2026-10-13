@@ -175,7 +175,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
     {
         return [
             // Binds the comment links to the record modal, also when no other Content Planner widget is on the dashboard.
-            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'filter-status.js'),
+            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'status-widget.js'),
             JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js'),
         ];
     }

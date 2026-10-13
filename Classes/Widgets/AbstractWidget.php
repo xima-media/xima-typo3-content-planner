@@ -83,7 +83,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
     public function getJavaScriptModuleInstructions(): array
     {
         return [
-            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'filter-status.js'),
+            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'status-widget.js'),
             JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js'),
         ];
     }

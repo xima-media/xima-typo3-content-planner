@@ -149,7 +149,6 @@ services:
       $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
       $options:
         refreshAvailable: true
-        useFilter: true
     tags:
       - name: dashboard.widget
         identifier: 'contentPlanner-status'
