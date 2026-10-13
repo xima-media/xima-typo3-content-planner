@@ -100,7 +100,7 @@
                                         </f:if>
                                     </a>
                                 </th>
-                                <th scope="col" class="text-end"><f:translate key="records.header.activity" extensionName="XimaTypo3ContentPlanner"/></th>
+                                <th scope="col"><f:translate key="records.header.activity" extensionName="XimaTypo3ContentPlanner"/></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,7 +154,7 @@
                                             </f:then>
                                             <f:else>
                                                 <span class="content-planner-module__muted content-planner-module__unassigned">
-                                                    <span class="content-planner-module__unassigned-mark" aria-hidden="true"></span>
+                                                    <core:icon identifier="content-planner-user-circle" size="small" alternativeMarkupIdentifier="inline"/>
                                                     <f:translate key="header.unassigned" extensionName="XimaTypo3ContentPlanner"/>
                                                 </span>
                                             </f:else>
@@ -163,10 +163,18 @@
                                     <td><span class="content-planner-module__muted" title="{item.updatedRaw}">{item.updated}</span></td>
                                     <td class="content-planner-module__activity">
                                         <f:if condition="{item.commentsName}">
-                                            <span>{item.commentsName}</span>
+                                            <span class="content-planner-module__count" title="{item.commentsName}">
+                                                <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
+                                                <span class="badge content-planner-meta__pill" data-status="none" aria-hidden="true">{item.commentsCount}</span>
+                                                <span class="visually-hidden">{item.commentsName}</span>
+                                            </span>
                                         </f:if>
                                         <f:if condition="{item.todoName}">
-                                            <span>{item.todoName}</span>
+                                            <span class="content-planner-module__count" title="{item.todoName}">
+                                                <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
+                                                <span class="badge content-planner-meta__pill" data-status="{f:if(condition: '{item.todoResolved} < {item.todoTotal}', then: 'pending', else: 'resolved')}" aria-hidden="true">{item.todoResolved}/{item.todoTotal}</span>
+                                                <span class="visually-hidden">{item.todoName}</span>
+                                            </span>
                                         </f:if>
                                     </td>
                                 </tr>
