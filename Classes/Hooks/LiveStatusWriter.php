@@ -15,25 +15,30 @@ namespace Xima\XimaTypo3ContentPlanner\Hooks;
 
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Database\{Connection, ConnectionPool};
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\{GeneralUtility, MathUtility};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function array_filter;
 use function array_key_exists;
 use function array_keys;
 
 /**
  * LiveStatusWriter.
  *
- * A status is a state of the planning, not content of a workspace version (docs/design/rules.md,
- * "Dark mode, workspaces, languages"): in a workspace, every status change applies to the live
- * record. The DataHandler would write it into a new workspace version instead, so
- * {@see self::defer()} takes the status out of the datamap before it is processed and
- * {@see self::apply()} writes it to the live record afterwards, through a DataHandler that runs
- * as the same user in the live workspace. Page permissions and the status change itself
- * (history, auto-assignment, notifications) go through the usual DataHandler path.
+ * A status and an assignee are a state of the planning, not content of a workspace version
+ * (docs/design/rules.md, "Dark mode, workspaces, languages"): in a workspace, every change of
+ * either applies to the live record, which is also the record the header, the lists and the
+ * modal read. The DataHandler would write it into a new workspace version instead, so
+ * {@see self::defer()} takes both fields out of the datamap before it is processed and
+ * {@see self::apply()} writes them to the live record afterwards, through a DataHandler that runs
+ * as the same user in the live workspace. Versions of the record that already exist get the same
+ * value, because the page tree and the workspace overlay would show the old one otherwise.
+ * Page permissions and the change itself (history, auto-assignment, notifications) go through
+ * the usual DataHandler path.
  *
  * @author Konrad Michalik <hej@konradmichalik.dev>
  * @license GPL-2.0-or-later
@@ -41,16 +46,18 @@ use function array_keys;
 final class LiveStatusWriter
 {
     /**
-     * @var array<string, array<int, mixed>>
+     * @var array<string, array<int, array<string, mixed>>>
      */
     private array $pending = [];
+
+    public function __construct(private readonly ConnectionPool $connectionPool) {}
 
     public function defer(DataHandler $dataHandler): void
     {
         // The DataHandler's own user, not the global one: the live DataHandler of apply() runs as
-        // the same user in the live workspace and must not defer its status again.
+        // the same user in the live workspace and must not defer again.
         $user = isset($dataHandler->BE_USER) ? $dataHandler->BE_USER : $this->getBackendUser();
-        if ($user->workspace <= 0 || !PermissionUtility::canChangeStatus()) {
+        if ($user->workspace <= 0) {
             return;
         }
 
@@ -67,12 +74,7 @@ final class LiveStatusWriter
             return;
         }
 
-        $datamap = [];
-        foreach ($this->pending as $table => $records) {
-            foreach ($records as $uid => $status) {
-                $datamap[$table][$uid] = [Configuration::FIELD_STATUS => $status];
-            }
-        }
+        $datamap = $this->pending;
         $this->pending = [];
 
         $liveUser = clone $this->getBackendUser();
@@ -81,17 +83,30 @@ final class LiveStatusWriter
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
         $dataHandler->start($datamap, [], $liveUser);
         $dataHandler->process_datamap();
+
+        foreach ($datamap as $table => $records) {
+            foreach ($records as $uid => $fields) {
+                $this->syncVersions($table, $uid, $fields);
+            }
+        }
     }
 
     private function deferTable(DataHandler $dataHandler, string $table): void
     {
         foreach ($dataHandler->datamap[$table] as $id => $fields) {
-            if (!MathUtility::canBeInterpretedAsInteger($id) || !array_key_exists(Configuration::FIELD_STATUS, $fields)) {
+            if (!MathUtility::canBeInterpretedAsInteger($id)) {
                 continue;
             }
 
-            $this->pending[$table][$this->resolveLiveUid($table, (int) $id)] = $fields[Configuration::FIELD_STATUS];
-            unset($dataHandler->datamap[$table][$id][Configuration::FIELD_STATUS]);
+            foreach ($this->deferrableFields() as $field) {
+                if (!array_key_exists($field, $fields)) {
+                    continue;
+                }
+
+                $this->pending[$table][$this->resolveLiveUid($table, (int) $id)][$field] = $fields[$field];
+                unset($dataHandler->datamap[$table][$id][$field]);
+            }
+
             if ([] === $dataHandler->datamap[$table][$id]) {
                 unset($dataHandler->datamap[$table][$id]);
             }
@@ -100,6 +115,43 @@ final class LiveStatusWriter
         if ([] === $dataHandler->datamap[$table]) {
             unset($dataHandler->datamap[$table]);
         }
+    }
+
+    /**
+     * Only the fields the user may change at all, so a change the DataHandler would have refused
+     * is not applied live behind its back.
+     *
+     * @return array<int, string>
+     */
+    private function deferrableFields(): array
+    {
+        return array_keys(array_filter([
+            Configuration::FIELD_STATUS => PermissionUtility::canChangeStatus(),
+            Configuration::FIELD_ASSIGNEE => PermissionUtility::canAssignSelf() || PermissionUtility::canAssignOthers(),
+        ]));
+    }
+
+    /**
+     * @param array<string, mixed> $fields
+     */
+    private function syncVersions(string $table, int $liveUid, array $fields): void
+    {
+        if (!isset($GLOBALS['TCA'][$table]['ctrl']['versioningWS'])) {
+            return;
+        }
+
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($table);
+        $queryBuilder->getRestrictions()->removeAll();
+        $query = $queryBuilder
+            ->update($table)
+            ->where(
+                $queryBuilder->expr()->eq('t3ver_oid', $queryBuilder->createNamedParameter($liveUid, Connection::PARAM_INT)),
+                $queryBuilder->expr()->gt('t3ver_wsid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
+            );
+        foreach ($fields as $field => $value) {
+            $query->set($field, $value);
+        }
+        $query->executeStatement();
     }
 
     /**

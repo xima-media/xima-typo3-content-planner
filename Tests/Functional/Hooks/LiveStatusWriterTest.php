@@ -84,6 +84,33 @@ final class LiveStatusWriterTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function applyWritesTheDeferredAssigneeToTheLiveRecordToo(): void
+    {
+        $GLOBALS['BE_USER']->workspace = 3;
+        $dataHandler = $this->createDataHandler(['pages' => [10 => ['title' => 'Same', Configuration::FIELD_ASSIGNEE => 2]]]);
+
+        $this->subject->defer($dataHandler);
+        $this->subject->apply();
+
+        self::assertArrayNotHasKey(Configuration::FIELD_ASSIGNEE, $dataHandler->datamap['pages'][10]);
+        self::assertSame(2, $this->readLive(10, Configuration::FIELD_ASSIGNEE));
+    }
+
+    #[Test]
+    public function applyGivesAnExistingWorkspaceVersionTheSameStatus(): void
+    {
+        // The workspaces extension is not part of the test setup, which is what switches versioning on.
+        $GLOBALS['TCA']['pages']['ctrl']['versioningWS'] = true;
+        $GLOBALS['BE_USER']->workspace = 3;
+        $this->subject->defer($this->createDataHandler(['pages' => [10 => [Configuration::FIELD_STATUS => 3]]]));
+
+        $this->subject->apply();
+
+        self::assertSame(3, $this->readLive(10, Configuration::FIELD_STATUS));
+        self::assertSame(3, $this->readLive(11, Configuration::FIELD_STATUS), 'the version of page 10 follows the live record');
+    }
+
+    #[Test]
     public function applyDoesNothingWhenNothingWasDeferred(): void
     {
         $this->subject->apply();
@@ -128,7 +155,12 @@ final class LiveStatusWriterTest extends AbstractFunctionalTestCase
 
     private function readLiveStatus(int $uid): int
     {
+        return $this->readLive($uid, Configuration::FIELD_STATUS);
+    }
+
+    private function readLive(int $uid, string $field): int
+    {
         return (int) $this->get(ConnectionPool::class)->getConnectionForTable('pages')
-            ->select([Configuration::FIELD_STATUS], 'pages', ['uid' => $uid])->fetchOne();
+            ->select([$field], 'pages', ['uid' => $uid])->fetchOne();
     }
 }
