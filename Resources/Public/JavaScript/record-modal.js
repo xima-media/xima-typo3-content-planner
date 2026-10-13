@@ -112,13 +112,36 @@ class RecordModal {
     // described it. A failed request still opens the modal, only without that information.
     this.fetchRecordInfo()
       .catch(() => null)
-      .then(info => {
+      .then(async info => {
+        await this.loadStylesheets(info?.stylesheets ?? [])
         if (this.recordKey !== recordKey) {
           return
         }
         this.info = info
         this.openModal(tab)
       })
+  }
+
+  /**
+   * The modal frame is built before its first tab arrives, so the frame's stylesheet is loaded
+   * up front. Otherwise the frame shows unstyled until the tab's own markup brings it along.
+   */
+  loadStylesheets(urls) {
+    // This module may run in the content iframe, while Modal.advanced() attaches to the top document.
+    const topDocument = window.top.document
+    return Promise.all(urls.map(url => new Promise(resolve => {
+      if (topDocument.head.querySelector(`link[rel="stylesheet"][href="${CSS.escape(url)}"]`)) {
+        resolve()
+        return
+      }
+      const link = topDocument.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      link.addEventListener('load', resolve, { once: true })
+      link.addEventListener('error', resolve, { once: true })
+      topDocument.head.append(link)
+      setTimeout(resolve, 3000)
+    })))
   }
 
   openModal(tab) {

@@ -89,6 +89,18 @@ final class RecordModalControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function contextActionNamesTheStylesheetOfTheModalFrame(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+
+        $payload = json_decode((string) $this->createController()->contextAction($this->createRequest(['table' => 'pages', 'uid' => 1]))->getBody(), true);
+
+        self::assertCount(1, $payload['stylesheets']);
+        self::assertMatchesRegularExpression('#/Css/RecordModal\.css(\?\d+)?$#', $payload['stylesheets'][0]);
+    }
+
+    #[Test]
     public function statusActionChangesTheStatusThroughTheDataHandler(): void
     {
         $this->loginBackendUser(1);

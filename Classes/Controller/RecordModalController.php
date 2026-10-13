@@ -24,7 +24,7 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, IconUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
@@ -60,7 +60,15 @@ final readonly class RecordModalController
 
         $record = $this->resolveRecord($table, $uid);
 
-        return $record instanceof ResponseInterface ? $record : new JsonResponse($this->buildContext($table, $uid, $record));
+        if ($record instanceof ResponseInterface) {
+            return $record;
+        }
+
+        return new JsonResponse([
+            ...$this->buildContext($table, $uid, $record),
+            // The frame is built before any tab loads, so its stylesheet has to be there first.
+            'stylesheets' => [AssetUtility::getPublicResourcePath('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/RecordModal.css')],
+        ]);
     }
 
     /**
