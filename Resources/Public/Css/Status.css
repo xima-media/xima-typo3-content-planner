@@ -1,5 +1,5 @@
 /**
- * Content Planner - Status badge (docs/design/rules.md, "Status presentation").
+ * Content Planner - Status badge and value tags (docs/design/rules.md, "Status presentation").
  * Tones come from the status recipe in _variables.css. The 18px dense variant has no user yet.
  */
 
@@ -40,4 +40,20 @@ td.col-control .btn-group > .btn-group.dropdown > .dropdown-toggle {
     align-items: center;
     display: inline-flex;
     height: 100%;
+}
+
+/* A value in a cell: "Default", "Hidden", "Assigned to you". The primary tint marks what is
+   addressed to the viewer or sets a record apart, the neutral one a plain state. */
+.content-planner-tag {
+    background-color: var(--content-planner-primary-tint);
+    border-radius: 999px;
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.0625rem 0.5rem;
+}
+
+.content-planner-tag--neutral {
+    background-color: color-mix(in srgb, currentColor 10%, transparent);
+    font-weight: 400;
 }

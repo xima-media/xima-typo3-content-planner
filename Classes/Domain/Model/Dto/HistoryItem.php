@@ -16,7 +16,9 @@ namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 use Doctrine\DBAL\Exception;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\DataHandling\History\RecordHistoryStore;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
+use Xima\XimaTypo3ContentPlanner\Domain\Repository\BackendUserRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
@@ -139,6 +141,10 @@ final class HistoryItem
 
     public function getUser(): string
     {
+        if ('_cli_' === ($this->data['username'] ?? null)) {
+            return GeneralUtility::makeInstance(BackendUserRepository::class)->getSystemLabel();
+        }
+
         $realName = $this->data['realName'] ?? '';
 
         if (is_string($realName) && '' !== $realName) {

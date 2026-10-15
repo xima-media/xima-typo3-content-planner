@@ -71,13 +71,42 @@ final class ConfigurableContentStatusListTemplateTest extends AbstractFunctional
     }
 
     #[Test]
-    public function rowsAssignedToTheCurrentUserCarryTheHighlightClassFromWidgetsCss(): void
+    public function rowsAssignedToTheCurrentUserCarryATagInsteadOfARowHighlight(): void
     {
         $content = $this->renderTemplate([
             'items' => [['assignedToCurrentUser' => true, 'data' => ['tablename' => 'pages', 'uid' => 1]]],
         ]);
 
-        self::assertStringContainsString('content-planner-widget__row--current', $content);
+        self::assertStringContainsString('content-planner-tag', $content);
+        self::assertStringNotContainsString('content-planner-widget__row--current', $content);
+    }
+
+    #[Test]
+    public function otherRowsCarryNoAssignedTag(): void
+    {
+        $content = $this->renderTemplate([
+            'items' => [['assignedToCurrentUser' => false, 'data' => ['tablename' => 'pages', 'uid' => 1]]],
+        ]);
+
+        self::assertStringNotContainsString('content-planner-tag', $content);
+    }
+
+    #[Test]
+    public function aRowShowsTheStatusAsBadgeAndThePagePathBelowTheTitle(): void
+    {
+        $content = $this->renderTemplate([
+            'items' => [[
+                'status' => 'Needs review',
+                'statusColor' => 'yellow',
+                'statusIconIdentifier' => 'flag-yellow',
+                'pagePath' => 'main › Home',
+                'data' => ['tablename' => 'pages', 'uid' => 1],
+            ]],
+        ]);
+
+        self::assertStringContainsString('content-planner-status--yellow', $content);
+        self::assertStringContainsString('Needs review', $content);
+        self::assertStringContainsString('<div class="content-planner-widget__path" title="main › Home">main › Home</div>', $content);
     }
 
     /**
@@ -90,7 +119,6 @@ final class ConfigurableContentStatusListTemplateTest extends AbstractFunctional
             'mode' => 'status',
             'todo' => false,
             'assignedToMeCount' => null,
-            'hasSite' => false,
             ...$arguments,
         ]);
     }

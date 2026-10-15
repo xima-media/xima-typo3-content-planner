@@ -12,9 +12,9 @@ declare(strict_types=1);
  */
 
 return [
-    'ximatypo3contentplanner_filterrecords' => [
-        'path' => '/content-planner/records',
-        'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::filterAction',
+    'ximatypo3contentplanner_latestrecords' => [
+        'path' => '/content-planner/latest-records',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::latestAction',
     ],
     'ximatypo3contentplanner_comments' => [
         'path' => '/content-planner/comments',

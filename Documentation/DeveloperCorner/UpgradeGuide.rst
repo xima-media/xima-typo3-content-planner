@@ -107,9 +107,10 @@ with:
     foreach ($result->items as $record) { ... }
     // $result->hasMore tells you whether to show a "more results" indicator.
 
-The JSON payload of the ``ximatypo3contentplanner_filterrecords`` AJAX route
-(``RecordController::filterAction()``) changed accordingly, from a bare array
-to ``{"items": [...], "hasMore": false}``.
+The JSON payload of the records AJAX route changed accordingly, from a bare
+array to ``{"items": [...], "hasMore": false}``. That route is now
+``ximatypo3contentplanner_latestrecords`` (``RecordController::latestAction()``),
+takes no filter parameters any more and always returns the 20 latest records.
 
 Status/assignee/comment display now defaults to compact doc header chips
 --------------------------------------------------------------------------
@@ -142,6 +143,13 @@ Design refresh of the backend UI
 The backend UI follows a binding set of design rules in 3.0
 (``docs/design/rules.md``). The following changes matter if you override
 templates, listen to events or style the extension from your own assets.
+
+**Dashboard.** The "Key figures" widget now spans the whole width of the
+dashboard. The "Status" widget lost its search and filter: that is what the
+records module is for, and the widget links there. The option ``useFilter``,
+the partial ``WidgetFilter.html`` and the module ``@content-planner/filter-status``
+(now ``@content-planner/status-widget``, without the filter code) are gone.
+The assignee of a record that the CLI user is assigned to reads "System".
 
 **Colours.** Status tones are derived from the configured colour instead of
 using fixed alpha values: ``_variables.css`` defines ``--cp-tint``,

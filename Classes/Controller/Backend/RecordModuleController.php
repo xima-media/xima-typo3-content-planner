@@ -39,7 +39,7 @@ use function in_array;
  * RecordModuleController.
  *
  * Backend module home for the filterable record list (CP-32, #404). Unlike the AJAX-driven
- * `contentPlanner-status` dashboard widget (`RecordController::filterAction()`), this renders
+ * `contentPlanner-status` dashboard widget (`RecordController::latestAction()`), this renders
  * server-side with the full filter and pagination state in the URL's query string - a plain GET
  * request produces a shareable, bookmarkable link, and there is no client-side request that can
  * fail silently (see CP-36, #408).

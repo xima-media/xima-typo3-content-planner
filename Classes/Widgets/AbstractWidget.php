@@ -74,7 +74,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
      */
     public function getCssFiles(): array
     {
-        return ['EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Widgets.css', 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css'];
+        return ['EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Status.css', 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Widgets.css', 'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css'];
     }
 
     /**
@@ -83,7 +83,7 @@ abstract class AbstractWidget implements WidgetInterface, AdditionalCssInterface
     public function getJavaScriptModuleInstructions(): array
     {
         return [
-            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'filter-status.js'),
+            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'status-widget.js'),
             JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js'),
         ];
     }

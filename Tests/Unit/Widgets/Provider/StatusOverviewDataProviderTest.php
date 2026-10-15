@@ -64,7 +64,7 @@ final class StatusOverviewDataProviderTest extends TestCase
 
         $chartData = $this->subject->getChartData();
 
-        self::assertSame(['Draft', 'Done'], $chartData['labels']);
+        self::assertSame(['Draft (5)', 'Done (2)'], $chartData['labels']);
         self::assertSame([5, 2], $chartData['datasets'][0]['data']);
         self::assertSame(['rgb(100,187,200)', 'rgb(106,158,113)'], $chartData['datasets'][0]['backgroundColor']);
         self::assertSame(0, $chartData['datasets'][0]['border']);

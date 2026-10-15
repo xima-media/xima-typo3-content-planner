@@ -2,7 +2,7 @@
     xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
     data-namespace-typo3-fluid="true">
 
-<div class="widget-content-main content-planner-widget content-planner-widget--configurable content-planner-widget--server-rendered {f:if(condition: '!{hasSite}', then: 'content-planner-widget--no-site')}">
+<div class="widget-content-main content-planner-widget content-planner-widget--configurable content-planner-widget--server-rendered">
 
     <f:if condition="{items}">
         <f:if condition="{mode} == 'todo' && {todo}">
@@ -28,35 +28,50 @@
                             <f:translate key="widgets.contentPlanner.header.title" extensionName="XimaTypo3ContentPlanner"/>
                         </th>
                         <th>
-                            <f:translate key="widgets.contentPlanner.header.site" extensionName="XimaTypo3ContentPlanner"/>
-                        </th>
-                        <th>
-                            <f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
+                            <f:translate key="header.status" extensionName="XimaTypo3ContentPlanner"/>
                         </th>
                         <th>
                             <f:translate key="widgets.contentPlanner.header.assignee" extensionName="XimaTypo3ContentPlanner"/>
+                        </th>
+                        <th>
+                            <f:translate key="widgets.contentPlanner.header.tstamp" extensionName="XimaTypo3ContentPlanner"/>
                         </th>
                         <th></th>
                     </tr>
                     </thead>
                     <tbody>
                     <f:for each="{items}" as="item">
-                        <tr class="{f:if(condition: item.assignedToCurrentUser, then: 'content-planner-widget__row--current')}">
+                        <tr>
                             <td>
-                                <a href="{item.link}">
-                                    <f:format.raw>{item.statusIcon}</f:format.raw>
-                                    <f:format.raw>{item.recordIcon}</f:format.raw>
-                                    <strong>{item.title}</strong>
-                                </a>
-                            </td>
-                            <td><f:format.raw>{item.siteIcon}</f:format.raw> {item.site}</td>
-                            <td><small title="{item.updatedRaw}">{item.updated}</small></td>
-                            <td>
-                                <f:if condition="{item.assignee}">
-                                    <f:format.raw>{item.assigneeAvatar}</f:format.raw>
-                                    {item.assigneeName}
+                                <div class="content-planner-widget__title-line">
+                                    <a href="{item.link}">
+                                        <f:format.raw>{item.recordIcon}</f:format.raw>
+                                        <strong>{item.title}</strong>
+                                    </a>
+                                    <f:if condition="{item.assignedToCurrentUser}">
+                                        <span class="content-planner-tag"><f:translate key="records.tag.assignedToYou" extensionName="XimaTypo3ContentPlanner"/></span>
+                                    </f:if>
+                                </div>
+                                <f:if condition="{item.pagePath}">
+                                    <div class="content-planner-widget__path" title="{item.pagePath}">{item.pagePath}</div>
                                 </f:if>
                             </td>
+                            <td>
+                                <f:if condition="{item.statusColor}">
+                                    <f:render partial="StatusBadge" arguments="{title: item.status, icon: item.statusIconIdentifier, color: item.statusColor}"/>
+                                </f:if>
+                            </td>
+                            <td>
+                                <f:if condition="{item.assignee}">
+                                    <f:then>
+                                        <span title="{item.assigneeName}"><f:format.raw>{item.assigneeAvatar}</f:format.raw> {item.assigneeShortName}</span>
+                                    </f:then>
+                                    <f:else>
+                                        <span class="content-planner-widget__muted"><f:translate key="header.unassigned" extensionName="XimaTypo3ContentPlanner"/></span>
+                                    </f:else>
+                                </f:if>
+                            </td>
+                            <td><small title="{item.updatedRaw}">{item.updated}</small></td>
                             <td>
                                 <f:if condition="{item.data.tx_ximatypo3contentplanner_comments} > 0">
                                     <a href="{item.link}"

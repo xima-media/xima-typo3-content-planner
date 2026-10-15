@@ -131,7 +131,6 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
 
         $result = $this->loadItems($status, $assignee, $type, $todo, $watchedByMe);
         $items = $result->items;
-        $hasSite = array_filter($items, static fn (array $item): bool => '' !== ($item['site'] ?? ''));
 
         $content = ViewUtility::render(
             'Backend/Widgets/ConfigurableContentStatusList.html',
@@ -146,7 +145,6 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
                 'assignedToMeCount' => $assignee === $this->getCurrentBackendUserId()
                     ? $this->recordRepository->countVisibleByAssignee($assignee)
                     : null,
-                'hasSite' => [] !== $hasSite,
             ],
             $context->request,
         );
@@ -164,6 +162,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
     public function getCssFiles(): array
     {
         return [
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Status.css',
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Widgets.css',
             'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css',
         ];
@@ -176,7 +175,7 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
     {
         return [
             // Binds the comment links to the record modal, also when no other Content Planner widget is on the dashboard.
-            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'filter-status.js'),
+            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'status-widget.js'),
             JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js'),
         ];
     }

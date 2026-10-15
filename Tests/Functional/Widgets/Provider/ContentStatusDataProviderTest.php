@@ -14,8 +14,6 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Widgets\Provider;
 
 use PHPUnit\Framework\Attributes\Test;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
-use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 use Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider;
 
@@ -32,37 +30,12 @@ final class ContentStatusDataProviderTest extends AbstractFunctionalTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->importSharedDataSet('status.csv');
-        $this->importCSVDataSet(__DIR__.'/../../Fixtures/be_users.csv');
-        unset($GLOBALS['TYPO3_REQUEST']);
-        $this->subject = new ContentStatusDataProvider(
-            $this->get(StatusRepository::class),
-            $this->get(BackendUserRepository::class),
-        );
+        $this->subject = new ContentStatusDataProvider();
     }
 
     #[Test]
     public function getItemsReturnsEmptyArray(): void
     {
         self::assertSame([], $this->subject->getItems());
-    }
-
-    #[Test]
-    public function getStatusReturnsAllStatusModels(): void
-    {
-        $status = $this->subject->getStatus();
-
-        self::assertCount(3, $status);
-        foreach ($status as $entry) {
-            self::assertInstanceOf(Status::class, $entry);
-        }
-    }
-
-    #[Test]
-    public function getUsersReturnsBackendUsers(): void
-    {
-        $users = $this->subject->getUsers();
-
-        self::assertNotEmpty($users);
     }
 }

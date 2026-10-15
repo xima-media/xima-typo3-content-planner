@@ -71,10 +71,6 @@
 				<source>Record</source>
 				<target>Datensatz</target>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.header.site">
-				<source>Site</source>
-				<target>Seite</target>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.header.tstamp">
 				<source>Changed</source>
 				<target>Geändert</target>
@@ -98,6 +94,10 @@
 			<trans-unit id="widgets.contentPlanner.kpi.assignee">
 				<source>Assigned to me</source>
 				<target>Mir zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="widgets.contentPlanner.allRecords">
+				<source>Show all records</source>
+				<target>Alle Datensätze anzeigen</target>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.moreResults">
 				<source>More results are available. Refine your filter to narrow the list.</source>

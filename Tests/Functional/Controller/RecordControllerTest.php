@@ -525,14 +525,14 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function filterActionReturnsMappedResultsFromRepository(): void
+    public function latestActionReturnsTheTwentyLatestMappedResults(): void
     {
         $this->loginBackendUser(1);
 
         $recordRepository = $this->createMock(RecordRepository::class);
         $recordRepository->expects(self::once())
             ->method('findAllByFilter')
-            ->with('term', 2, 1, 'pages', true, 20, true)
+            ->with(null, null, null, null, null, 20)
             ->willReturn(new PaginatedResult([
                 [
                     'uid' => 1,
@@ -546,16 +546,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
                 ],
             ], false));
 
-        $response = $this->createController($recordRepository)->filterAction(
-            $this->createRequest([
-                'search' => 'term',
-                'status' => 2,
-                'assignee' => 1,
-                'todo' => 1,
-                'type' => 'pages',
-                'openComments' => 1,
-            ]),
-        );
+        $response = $this->createController($recordRepository)->latestAction();
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
@@ -565,7 +556,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function filterActionSurfacesHasMoreFromRepository(): void
+    public function latestActionSurfacesHasMoreFromRepository(): void
     {
         $this->loginBackendUser(1);
 
@@ -585,7 +576,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
                 ],
             ], true));
 
-        $response = $this->createController($recordRepository)->filterAction($this->createRequest([]));
+        $response = $this->createController($recordRepository)->latestAction();
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
@@ -593,7 +584,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function filterActionDeniesUserWithoutContentPlannerAccess(): void
+    public function latestActionDeniesUserWithoutContentPlannerAccess(): void
     {
         // Editor (uid 2) is a non-admin without any content planner permission.
         $this->loginBackendUser(2);
@@ -601,23 +592,20 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $recordRepository = $this->createMock(RecordRepository::class);
         $recordRepository->expects(self::never())->method('findAllByFilter');
 
-        $response = $this->createController($recordRepository)->filterAction($this->createRequest([]));
+        $response = $this->createController($recordRepository)->latestAction();
 
         self::assertSame(403, $response->getStatusCode());
     }
 
     #[Test]
-    public function filterActionReturnsEmptyResultWhenNoParametersProvided(): void
+    public function latestActionReturnsAnEmptyListWhenThereAreNoRecords(): void
     {
         $this->loginBackendUser(1);
 
         $recordRepository = $this->createMock(RecordRepository::class);
-        $recordRepository->expects(self::once())
-            ->method('findAllByFilter')
-            ->with(null, null, null, null, false, 20, false)
-            ->willReturn(new PaginatedResult([], false));
+        $recordRepository->method('findAllByFilter')->willReturn(new PaginatedResult([], false));
 
-        $response = $this->createController($recordRepository)->filterAction($this->createRequest([]));
+        $response = $this->createController($recordRepository)->latestAction();
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());

@@ -154,6 +154,18 @@ final class HistoryItemTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getUserReadsSystemForTheCliUser(): void
+    {
+        $row = $this->pageHistoryRow();
+        $row['username'] = '_cli_';
+        $row['realName'] = '';
+
+        $item = HistoryItem::create($row);
+
+        self::assertSame('System', $item->getUser());
+    }
+
+    #[Test]
     public function getChangeTypeIconForStatusChangeReturnsIcon(): void
     {
         $item = HistoryItem::create($this->pageHistoryRow());

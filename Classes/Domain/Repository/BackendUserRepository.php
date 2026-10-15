@@ -229,6 +229,19 @@ class BackendUserRepository
     }
 
     /**
+     * The scheduler and CLI commands act as `_cli_`, which means nothing to an editor.
+     */
+    public function getSystemLabel(): string
+    {
+        $languageService = $GLOBALS['LANG'] ?? null;
+        $label = $languageService instanceof LanguageService
+            ? $languageService->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:notification.actor.system')
+            : '';
+
+        return '' !== $label ? $label : 'System';
+    }
+
+    /**
      * @return array<string, mixed>|false
      *
      * @throws Exception
@@ -265,19 +278,6 @@ class BackendUserRepository
         }
 
         return (string) $user;
-    }
-
-    /**
-     * The scheduler and CLI commands act as `_cli_`, which means nothing to an editor.
-     */
-    private function getSystemLabel(): string
-    {
-        $languageService = $GLOBALS['LANG'] ?? null;
-        $label = $languageService instanceof LanguageService
-            ? $languageService->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:notification.actor.system')
-            : '';
-
-        return '' !== $label ? $label : 'System';
     }
 
     /**

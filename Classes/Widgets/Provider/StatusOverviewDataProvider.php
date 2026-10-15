@@ -19,6 +19,8 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
+use function sprintf;
+
 /**
  * StatusOverviewDataProvider.
  *
@@ -78,8 +80,10 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
         }
 
         foreach ($this->statusRepository->findAll() as $status) {
-            $this->labels[] = $status->getTitle();
-            $this->data[] = $this->countPageStatus($status->getUid());
+            $count = $this->countPageStatus($status->getUid());
+            // The legend is built from the labels, so the count goes into them.
+            $this->labels[] = sprintf('%s (%d)', $status->getTitle(), $count);
+            $this->data[] = $count;
             $this->colors[] = Configuration\Colors::get($status->getColor());
         }
     }

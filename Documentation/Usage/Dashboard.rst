@@ -65,21 +65,27 @@ Recent Updates
 
 Key figures
     Three figures side by side: records assigned to you, records with open to-dos and records with open comments.
-    Each figure links to the records module with the matching filter applied. A figure of zero is not a link.
+    The counts are the ones of the quick filters in the records module, so a figure always equals the list behind it.
+    Each figure carries a "Show" link to the records module with the matching filter applied. A figure of zero has no link.
+    The widget spans the whole width of the dashboard.
 
 ..  image:: /Images/widgets/dashboard-comments.png
     :width: 64
     :alt: Recent Comments
 
 Recent Comments
-    Shows the latest comments on the content planner records.
+    Shows the latest comments on the content planner records. Links in a comment are followable, a link to a page opens
+    that page in the page module.
 
 ..  image:: /Images/widgets/dashboard-status.png
     :width: 64
     :alt: Status
 
 Status
-    Filterable list of all records with the current status.
+    The latest records with the current status, the assignee, the time of the last change and an activity column.
+    The activity column shows the number of comments and the to-do progress, each on its own line.
+    The widget has no search or filter of its own: "Show all records" leads to the records module, which does that.
+    For a fixed view, for example a review queue, use the configurable widget.
 
 ..  image:: /Images/widgets/dashboard-custom.png
     :width: 64
