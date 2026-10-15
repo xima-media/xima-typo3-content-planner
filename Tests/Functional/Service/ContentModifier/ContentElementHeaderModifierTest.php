@@ -147,7 +147,7 @@ final class ContentElementHeaderModifierTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function isRelevantReturnsFalseInBannerDisplayMode(): void
+    public function isRelevantAlsoInBannerDisplayMode(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_BANNER;
@@ -155,7 +155,7 @@ final class ContentElementHeaderModifierTest extends AbstractFunctionalTestCase
         $modifier = $this->get(ContentElementHeaderModifier::class);
         $request = $this->buildPageLayoutRequest();
 
-        self::assertFalse($modifier->isRelevant($request));
+        self::assertTrue($modifier->isRelevant($request));
 
         unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
     }

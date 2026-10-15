@@ -6,7 +6,6 @@
 <!-- Status strip above a content element (docs/design/rules.md, "Status presentation").
      Meta shows only what has a value, everything else sits in the overflow menu. -->
 <f:variable name="statusLabel"><f:translate key="header.status" extensionName="xima_typo3_content_planner"/></f:variable>
-<f:variable name="commentsLabel"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/></f:variable>
 <f:variable name="assignLabel"><f:translate key="strip.assign" extensionName="xima_typo3_content_planner"/></f:variable>
 <f:variable name="moreLabel"><f:translate key="header.actions.more" extensionName="xima_typo3_content_planner"/></f:variable>
 <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
@@ -17,23 +16,6 @@
         <f:variable name="assigneeName" value="{assignLabel}"/>
     </f:else>
 </f:if>
-<f:if condition="{comments.count} == 1">
-    <f:then>
-        <f:variable name="commentsName"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:comments.count.one" arguments="{0: comments.count}"/></f:variable>
-    </f:then>
-    <f:else>
-        <f:if condition="{comments.count}">
-            <f:then>
-                <f:variable name="commentsName"><f:translate key="LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:comments.count.other" arguments="{0: comments.count}"/></f:variable>
-            </f:then>
-            <f:else>
-                <f:variable name="commentsName" value="{commentsLabel}"/>
-            </f:else>
-        </f:if>
-    </f:else>
-</f:if>
-<f:variable name="todoName"><f:translate key="strip.todos.name" extensionName="xima_typo3_content_planner" arguments="{0: comments.todoResolved, 1: comments.todoTotal}"/></f:variable>
-
 <div
     class="content-planner-strip content-planner-status content-planner-status--{status.color}"
     data-content-planner-strip
@@ -43,17 +25,25 @@
     role="status"
     aria-live="polite"
 >
-    <be:link.editRecord
-        uid="{data.uid}"
-        table="{table}"
-        fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-        returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
-        title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
-        class="content-planner-strip__status"
-    >
-        <core:icon identifier="{status.icon}" size="small" alternativeMarkupIdentifier="inline"/>
-        <strong class="content-planner-strip__name" title="{status.title}">{status.title}</strong>
-    </be:link.editRecord>
+    <f:if condition="{statusOptions.statuses}">
+        <f:then>
+            <f:variable name="stripReturnUrl" value="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"/>
+            <f:render partial="StatusMenu" arguments="{status: status, statusOptions: statusOptions, table: table, data: data, showIcon: true, iconSize: 'small', nameClass: 'content-planner-strip__name', toggleClass: 'content-planner-strip__status', editLink: 0, returnUrl: stripReturnUrl}"/>
+        </f:then>
+        <f:else>
+        <be:link.editRecord
+            uid="{data.uid}"
+            table="{table}"
+            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
+            title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
+            class="content-planner-strip__status"
+        >
+            <core:icon identifier="{status.icon}" size="small" alternativeMarkupIdentifier="inline"/>
+            <strong class="content-planner-strip__name" title="{status.title}">{status.title}</strong>
+        </be:link.editRecord>
+        </f:else>
+    </f:if>
 
     <div class="content-planner-strip__meta">
         <f:if condition="{comments.todoTotal}">
@@ -65,8 +55,8 @@
                 data-force-ajax-url="true"
                 data-show-todo-comments="1"
                 data-todo-status="{f:if(condition: comments.todoOpen, then: 'pending', else: 'resolved')}"
-                aria-label="{todoName}"
-                title="{todoName}"
+                aria-label="{comments.todoName}"
+                title="{comments.todoName}"
                 data-table="{table}"
                 data-id="{data.uid}"
                 data-new-comment-uri="{comments.newCommentUri}"
@@ -84,15 +74,15 @@
                 data-content-planner-comments
                 data-force-ajax-url="true"
                 data-focus-composer="true"
-                aria-label="{commentsName}"
-                title="{commentsName}"
+                aria-label="{comments.name}"
+                title="{comments.name}"
                 data-table="{table}"
                 data-id="{data.uid}"
                 data-new-comment-uri="{comments.newCommentUri}"
                 data-edit-uri="{comments.editUri}"
             >
                 <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
-                <span class="content-planner-strip__count" aria-hidden="true">{comments.count}</span>
+                <span class="badge content-planner-strip__count" data-status="none" aria-hidden="true">{comments.count}</span>
             </button>
         </f:if>
         <f:if condition="{data.tx_ximatypo3contentplanner_assignee}">
@@ -163,7 +153,7 @@
                         data-edit-uri="{comments.editUri}"
                     >
                         <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
-                        {todoName}
+                        {comments.todoName}
                     </button>
                 </li>
             </f:if>
@@ -180,7 +170,7 @@
                     data-edit-uri="{comments.editUri}"
                 >
                     <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
-                    {commentsName}
+                    {comments.name}
                 </button>
             </li>
             <li>

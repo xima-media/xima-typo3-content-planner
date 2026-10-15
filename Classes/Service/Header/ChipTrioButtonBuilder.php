@@ -24,7 +24,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository};
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\ComponentFactoryUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{CountLabelUtility, IconUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
@@ -156,11 +156,7 @@ final readonly class ChipTrioButtonBuilder
         $commentsCount = PlannerUtility::hasComments($record)
             ? $this->commentRepository->countAllByRecord($uid, $table)
             : 0;
-        $name = match (true) {
-            0 === $commentsCount => $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang.xlf:button.modal.header.comments'),
-            1 === $commentsCount => sprintf($this->getLanguageService()->sL(self::LLL_BE.'comments.count.one'), $commentsCount),
-            default => sprintf($this->getLanguageService()->sL(self::LLL_BE.'comments.count.other'), $commentsCount),
-        };
+        $name = CountLabelUtility::comments($commentsCount);
 
         return GeneralUtility::makeInstance(GenericButton::class)
             ->setTag('button')

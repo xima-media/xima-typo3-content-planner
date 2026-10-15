@@ -179,7 +179,7 @@ class ExtensionUtility
     /**
      * CP-25 (#324): true for the legacy full-width banner/overlay display mode. False (the
      * default from v3.0) means the compact doc header chip trio is active instead, and
-     * RecordEditModifier/WebLayoutModifier no longer inject their banner/overlay markup.
+     * RecordEditModifier no longer injects its banner markup.
      */
     public static function isBannerDisplayModeEnabled(): bool
     {

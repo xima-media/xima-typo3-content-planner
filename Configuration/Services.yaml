@@ -40,6 +40,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Service\Header\StatusOptionsBuilder:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository:
     public: true
 
@@ -132,9 +135,6 @@ services:
     lazy: true
 
   Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebListModifier:
-    lazy: true
-
-  Xima\XimaTypo3ContentPlanner\Service\ContentModifier\WebLayoutModifier:
     lazy: true
 
   Xima\XimaTypo3ContentPlanner\Service\ContentModifier\RecordEditModifier:

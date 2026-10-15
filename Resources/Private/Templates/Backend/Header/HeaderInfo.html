@@ -23,42 +23,53 @@
         <f:if condition="{mode} == 'file_list'">
             <f:then>
                 <span class="d-flex align-items-center flex-grow-1">
-                    {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
+                    <strong>{status.title}</strong>
                     <f:if condition="{folderName}">
                         <span class="ms-2 text-muted">({folderName})</span>
                     </f:if>
                 </span>
             </f:then>
             <f:else>
-                <f:if condition="{mode} == 'content_element'">
+                <f:if condition="{statusOptions.statuses} && {mode} != 'edit'">
                     <f:then>
-                        <be:link.editRecord
-                            uid="{data.uid}"
-                            table="{table}"
-                            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-                            returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
-                            title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
-                            class="d-flex align-items-center flex-grow-1"
-                        >
-                            {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
-                        </be:link.editRecord>
+                        <f:variable name="menuReturnUrl" value="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"/>
+                        <f:if condition="{mode} != 'content_element'">
+                            <f:variable name="menuReturnUrl" value="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"/>
+                        </f:if>
+                        <f:render partial="StatusMenu" arguments="{status: status, statusOptions: statusOptions, table: table, data: data, showIcon: false, nameClass: '', toggleClass: 'content-planner-header__status-toggle', editLink: 1, returnUrl: menuReturnUrl}"/>
                     </f:then>
                     <f:else>
-                        <f:if condition="{mode} != 'edit'">
+                        <f:if condition="{mode} == 'content_element'">
                             <f:then>
                                 <be:link.editRecord
                                     uid="{data.uid}"
-                                    table="pages"
+                                    table="{table}"
                                     fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
-                                    returnUrl="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"
+                                    returnUrl="{f:be.uri(route: 'web_layout', parameters: '{\'id\': pid}')}"
                                     title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
                                     class="d-flex align-items-center flex-grow-1"
                                 >
-                                    {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
+                                    <strong>{status.title}</strong>
                                 </be:link.editRecord>
                             </f:then>
                             <f:else>
-                                {f:translate(key: 'header.status', extensionName: 'xima_typo3_content_planner')}:&nbsp;<strong>{status.title}</strong>
+                                <f:if condition="{mode} != 'edit'">
+                                    <f:then>
+                                        <be:link.editRecord
+                                            uid="{data.uid}"
+                                            table="pages"
+                                            fields="tx_ximatypo3contentplanner_status,tx_ximatypo3contentplanner_assignee,tx_ximatypo3contentplanner_comments"
+                                            returnUrl="{f:be.uri(route: mode, parameters: '{\'id\': data.uid}')}"
+                                            title="{f:translate(key: 'header.editStatus', extensionName: 'xima_typo3_content_planner')}"
+                                            class="d-flex align-items-center flex-grow-1"
+                                        >
+                                            <strong>{status.title}</strong>
+                                        </be:link.editRecord>
+                                    </f:then>
+                                    <f:else>
+                                        <strong>{status.title}</strong>
+                                    </f:else>
+                                </f:if>
                             </f:else>
                         </f:if>
                     </f:else>
@@ -90,7 +101,7 @@
             aria-label="{f:translate(key: 'header.meta.groupLabel', extensionName: 'xima_typo3_content_planner')}"
         >
             <button
-                class="btn btn-default content-planner-meta__btn content-planner-link--assignee{f:if(condition: assignee.assignedToCurrentUser, then: ' content-planner-link--assignee-current')}"
+                class="btn btn-default content-planner-meta__btn content-planner-meta__btn--text content-planner-link--assignee{f:if(condition: assignee.assignedToCurrentUser, then: ' content-planner-link--assignee-current')}"
                 data-content-planner-assignees
                 type="button"
                 data-hint-title="{assigneeTitle}"
@@ -107,25 +118,27 @@
                             size="18"
                             showIcon="false"
                         />
+                        <!-- Already HTML-encoded by BackendUserRepository::getUsernameByUid(). -->
+                        <span class="content-planner-meta__text">{assignee.username -> f:format.raw()}</span>
                     </f:then>
                     <f:else>
                         <core:icon identifier="content-planner-user-circle" size="small" alternativeMarkupIdentifier="inline"/>
+                        <span class="content-planner-meta__text"><f:translate key="header.unassigned" extensionName="xima_typo3_content_planner"/></span>
                     </f:else>
                 </f:if>
             </button>
 
             <f:if condition="{comments}">
-                <f:variable name="commentsTitle"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/><f:if condition="{comments.count}"> ({comments.count})</f:if></f:variable>
                 <f:variable name="commentsHint"><f:translate key="header.comments.hint" extensionName="xima_typo3_content_planner"/></f:variable>
                 <button
-                    class="btn btn-default content-planner-meta__btn content-planner-link--comments"
+                    class="btn btn-default content-planner-meta__btn content-planner-meta__btn--text content-planner-link--comments"
                     data-content-planner-comments
                     data-force-ajax-url="true"
                     data-focus-composer="true"
                     type="button"
-                    data-hint-title="{commentsTitle}"
+                    data-hint-title="{comments.name}"
                     data-hint-text="{commentsHint}"
-                    aria-label="{commentsTitle}. {commentsHint}"
+                    aria-label="{comments.name}. {commentsHint}"
                     data-table="{table}"
                     data-id="{data.uid}"
                     data-new-comment-uri="{comments.newCommentUri}"
@@ -133,32 +146,31 @@
                 >
                     <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
                     <f:if condition="{comments.count}">
-                        <span class="content-planner-meta__count badge badge-secondary" aria-hidden="true">{comments.count}</span>
+                        <span class="badge content-planner-meta__pill" data-status="none" aria-hidden="true">{comments.count}</span>
                     </f:if>
+                    <span class="content-planner-meta__text"><f:translate key="header.comments" extensionName="xima_typo3_content_planner"/></span>
                 </button>
 
                 <f:if condition="{comments.todoTotal}">
-                    <f:variable name="todoTitle"><f:translate key="header.todos" extensionName="xima_typo3_content_planner"/> ({comments.todoResolved}/{comments.todoTotal})</f:variable>
                     <f:variable name="todoHint"><f:translate key="header.todos.hint" extensionName="xima_typo3_content_planner"/></f:variable>
                     <button
-                        class="btn btn-default content-planner-meta__btn content-planner-header__todo-badge"
+                        class="btn btn-default content-planner-meta__btn content-planner-meta__btn--text content-planner-header__todo-badge"
                         data-content-planner-comments
                         data-force-ajax-url="true"
                         data-show-todo-comments="1"
                         data-todo-status="{f:if(condition: comments.todoOpen, then: 'pending', else: 'resolved')}"
                         type="button"
-                        data-hint-title="{todoTitle}"
+                        data-hint-title="{comments.todoName}"
                         data-hint-text="{todoHint}"
-                        aria-label="{todoTitle}. {todoHint}"
+                        aria-label="{comments.todoName}. {todoHint}"
                         data-table="{table}"
                         data-id="{data.uid}"
                         data-new-comment-uri="{comments.newCommentUri}"
                         data-edit-uri="{comments.editUri}"
                     >
                         <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
-                        <f:if condition="{comments.todoOpen}">
-                            <span class="content-planner-meta__count badge" aria-hidden="true">{comments.todoOpen}</span>
-                        </f:if>
+                        <span class="badge content-planner-meta__pill" data-status="{f:if(condition: comments.todoOpen, then: 'pending', else: 'resolved')}" aria-hidden="true">{comments.todoResolved}/{comments.todoTotal}</span>
+                        <span class="content-planner-meta__text"><f:translate key="header.todos" extensionName="xima_typo3_content_planner"/></span>
                     </button>
                 </f:if>
             </f:if>

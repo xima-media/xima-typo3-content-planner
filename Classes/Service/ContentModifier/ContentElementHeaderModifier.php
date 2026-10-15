@@ -20,7 +20,6 @@ use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\Header\{HeaderMode, InfoGenerator};
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function in_array;
@@ -30,14 +29,13 @@ use function substr;
 /**
  * ContentElementHeaderModifier.
  *
- * The "chip" headerDisplayMode counterpart to {@see WebLayoutModifier} (which only runs in
- * "banner" mode): decorates every content element in the page module with a compact version
+ * Decorates every content element in the page module with a compact version
  * of the page status header (icon, status title, assignee/comment/watch actions, "..."
  * edit-status menu) placed *above* core's own `.t3-page-ce-header` title row.
  *
  * That row is out of reach for {@see \TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent}
- * (it only controls the preview body below the title row), so - like WebLayoutModifier and
- * RecordEditModifier already do for "banner" mode - this splices real markup into the raw
+ * (it only controls the preview body below the title row), so - like RecordEditModifier
+ * does for "banner" mode - this splices real markup into the raw
  * page module HTML instead, anchored on each content element's unique
  * `id="element-tt_content-{uid}"` (stable across TYPO3 v13/v14, see
  * typo3/cms-backend Resources/Private/Partials/PageLayout/Record.html). This is a deliberate
@@ -60,7 +58,6 @@ class ContentElementHeaderModifier extends AbstractModifier implements ModifierI
     public function isRelevant(ServerRequestInterface $request): bool
     {
         return SystemEnvironmentBuilder::REQUESTTYPE_BE === $request->getAttribute('applicationType')
-            && !ExtensionUtility::isBannerDisplayModeEnabled()
             && PermissionUtility::checkContentStatusVisibility()
             && null !== $request->getAttribute('module')
             && RouteUtility::isPageLayoutRoute($request->getAttribute('module')->getIdentifier())

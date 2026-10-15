@@ -97,6 +97,12 @@
 			<trans-unit id="modal.record.title">
 				<source>Content Planner</source>
 			</trans-unit>
+			<trans-unit id="status.change">
+				<source>Status: %s, change</source>
+			</trans-unit>
+			<trans-unit id="status.remove">
+				<source>Remove status</source>
+			</trans-unit>
 			<trans-unit id="modal.tabs.label">
 				<source>Record actions</source>
 			</trans-unit>
@@ -167,7 +173,7 @@
 			<trans-unit id="strip.assign">
 				<source>Assign</source>
 			</trans-unit>
-			<trans-unit id="strip.todos.name">
+			<trans-unit id="header.todos.name">
 				<source>%s of %s to-dos done</source>
 			</trans-unit>
 			<trans-unit id="header.todoCallout.title">

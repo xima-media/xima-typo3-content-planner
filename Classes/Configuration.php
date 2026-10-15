@@ -72,8 +72,8 @@ class Configuration
      * CP-25 (#324): banner|chip|docked toggle for how status/assignee/comment information is
      * displayed across the backend. "chip" (default from v3.0, breaking) shows a compact
      * doc header trio (status dropdown, assignee button, comment button) built from
-     * ModifyButtonBarEventListener and retires the injected banner/overlay markup from
-     * RecordEditModifier and WebLayoutModifier. "banner" keeps the pre-3.0 full-width
+     * ModifyButtonBarEventListener and retires the injected banner markup from
+     * RecordEditModifier. "banner" keeps the pre-3.0 full-width
      * banner/overlay behaviour for installations that want the added prominence (e.g.
      * migration projects). "docked" replaces the doc header trio and the above-content
      * banner with a single narrow bar spliced into the doc header's button row by

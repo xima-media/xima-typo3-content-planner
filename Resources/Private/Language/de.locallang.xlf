@@ -214,6 +214,14 @@
 				<source>Content Planner</source>
 				<target>Content Planner</target>
 			</trans-unit>
+			<trans-unit id="status.change">
+				<source>Status: %s, change</source>
+				<target>Status: %s, ändern</target>
+			</trans-unit>
+			<trans-unit id="status.remove">
+				<source>Remove status</source>
+				<target>Status entfernen</target>
+			</trans-unit>
 			<trans-unit id="modal.tabs.label">
 				<source>Record actions</source>
 				<target>Datensatz-Aktionen</target>
@@ -308,7 +316,7 @@
 				<source>Assign</source>
 				<target>Zuweisen</target>
 			</trans-unit>
-			<trans-unit id="strip.todos.name">
+			<trans-unit id="header.todos.name">
 				<source>%s of %s to-dos done</source>
 				<target>%s von %s To-dos erledigt</target>
 			</trans-unit>
