@@ -304,6 +304,14 @@
 				<source>Click to assign yourself or someone else.</source>
 				<target>Klicke, um dich selbst oder jemand anderen zuzuweisen.</target>
 			</trans-unit>
+			<trans-unit id="strip.assign">
+				<source>Assign</source>
+				<target>Zuweisen</target>
+			</trans-unit>
+			<trans-unit id="strip.todos.name">
+				<source>%s of %s to-dos done</source>
+				<target>%s von %s To-dos erledigt</target>
+			</trans-unit>
 			<trans-unit id="header.todoCallout.title">
 				<source>Open to-dos on this page: %s</source>
 				<target>Offene To-dos auf dieser Seite: %s</target>

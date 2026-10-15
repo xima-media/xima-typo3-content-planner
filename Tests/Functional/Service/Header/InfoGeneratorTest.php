@@ -126,7 +126,7 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function generateStatusHeaderRendersCompactHeaderForContentElementMode(): void
+    public function generateStatusHeaderRendersTheStripForContentElementMode(): void
     {
         $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
         $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
@@ -134,18 +134,59 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         $result = $this->subject->generateStatusHeader(HeaderMode::CONTENT_ELEMENT, null, 'tt_content', 1);
 
         self::assertIsString($result);
-        self::assertStringContainsString('content-planner-header--compact', $result);
+        self::assertStringContainsString('data-content-planner-strip', $result);
+        self::assertStringContainsString('content-planner-status--blue', $result);
         self::assertStringContainsString('data-table="tt_content"', $result);
         self::assertStringContainsString('data-uid="1"', $result);
-        self::assertStringContainsString('Draft', $result);
-        // Like the page/list headers, the compact header still leads with a "Status:" label
-        // and links to editing the content element's own status field (not the page's).
-        self::assertStringContainsString('Status:', $result);
+        self::assertStringContainsString('<strong class="content-planner-strip__name" title="Draft">Draft</strong>', $result);
+        // The strip names the status itself, a visible "Status:" prefix only repeats the context.
+        // The accessible name ("Status: Draft") is a different thing and stays.
+        self::assertDoesNotMatchRegularExpression('/>\s*Status:/', $result);
+        self::assertStringContainsString('aria-label="Status: Draft"', $result);
+        // The name links to the content element's own status field, not the page's.
         self::assertStringContainsString('edit%5Btt_content%5D%5B1%5D=edit', $result);
         // One header per content element: the inline asset tags are emitted once per response
         // by ContentElementHeaderModifier through renderInlineHeaderAssets(), not per header.
         self::assertStringNotContainsString('<script type="module"', $result);
         self::assertStringNotContainsString('<link', $result);
+    }
+
+    #[Test]
+    public function theStripShowsOnlyMetaThatHasAValue(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content.csv');
+
+        $result = $this->subject->generateStatusHeader(HeaderMode::CONTENT_ELEMENT, null, 'tt_content', 1);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('data-strip-meta="assign"', $result);
+        self::assertStringNotContainsString('data-strip-meta="assignee"', $result);
+        self::assertStringNotContainsString('data-strip-meta="comments"', $result);
+        self::assertStringNotContainsString('data-strip-meta="todos"', $result);
+        // The overflow menu still offers the actions that have no meta of their own yet.
+        self::assertStringContainsString('data-content-planner-comments', $result);
+    }
+
+    #[Test]
+    public function theStripShowsAssigneeCommentsAndTodosAsMetaWithTextNames(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['registerAdditionalRecordTables'] = ['tt_content'];
+        $this->enableExtensionFeature(Configuration::FEATURE_COMMENT_TODOS);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/tt_content_with_meta.csv');
+
+        $result = $this->subject->generateStatusHeader(HeaderMode::CONTENT_ELEMENT, null, 'tt_content', 2);
+
+        self::assertIsString($result);
+        self::assertStringContainsString('data-strip-meta="assignee"', $result);
+        self::assertStringNotContainsString('data-strip-meta="assign"', $result);
+        self::assertStringContainsString('data-strip-meta="comments"', $result);
+        self::assertStringContainsString('aria-label="1 comment"', $result);
+        self::assertStringContainsString('data-strip-meta="todos"', $result);
+        self::assertStringContainsString('>0/2</span>', $result);
+        self::assertStringContainsString('aria-label="0 of 2 to-dos done"', $result);
+        // The live to-do counter (comment-todo-toggle.js) finds its badge by this hook.
+        self::assertStringContainsString('content-planner-header__todo-badge', $result);
     }
 
     #[Test]

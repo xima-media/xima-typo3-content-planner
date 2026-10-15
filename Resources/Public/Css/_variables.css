@@ -51,7 +51,8 @@
 .content-planner-status,
 .content-planner-header,
 .content-planner-header__todo-badge .content-planner-meta__count,
-.content-planner-badge[data-status] {
+.content-planner-badge[data-status],
+.content-planner-strip__count[data-status] {
     --cp-base: var(--content-planner-color-black);
     --cp-tint: light-dark(
         color-mix(in srgb, var(--cp-base) 15%, white),
@@ -84,13 +85,15 @@
 .content-planner-status--yellow,
 .content-planner-header--color-yellow,
 .content-planner-header__todo-badge .content-planner-meta__count,
-.content-planner-badge[data-status="pending"] {
+.content-planner-badge[data-status="pending"],
+.content-planner-strip__count[data-status="pending"] {
     --cp-base: var(--content-planner-color-yellow);
 }
 
 .content-planner-status--green,
 .content-planner-header--color-green,
-.content-planner-badge[data-status="resolved"] {
+.content-planner-badge[data-status="resolved"],
+.content-planner-strip__count[data-status="resolved"] {
     --cp-base: var(--content-planner-color-green);
 }
 
