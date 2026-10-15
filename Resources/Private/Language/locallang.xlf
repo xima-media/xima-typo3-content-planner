@@ -165,10 +165,10 @@
 				<source>Click to assign yourself or someone else.</source>
 			</trans-unit>
 			<trans-unit id="header.todoCallout.title">
-				<source>%s open to-dos on this page</source>
+				<source>Open to-dos on this page: %s</source>
 			</trans-unit>
 			<trans-unit id="header.todoCallout.body">
-				<source>%s of %s checklist items are done.</source>
+				<source>To-dos done: %s of %s</source>
 			</trans-unit>
 			<trans-unit id="header.todoCallout.show">
 				<source>Show to-dos</source>

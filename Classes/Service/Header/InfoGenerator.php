@@ -263,15 +263,27 @@ class InfoGenerator
      */
     public function renderOpenTodoCallout(array $record, string $table): string
     {
+        // Same gate as the chip trio (AbstractSelectionService::shouldGenerateSelection()).
+        if (!ExtensionUtility::isRegisteredRecordTable($table) || !PermissionUtility::isTableAllowedForUser($table)) {
+            return '';
+        }
+
         $todoCounts = $this->getTodoCounts($record, $table);
         if (0 === $todoCounts['todoOpen']) {
             return '';
         }
 
+        // The chip trio, which otherwise loads these, is skipped when no status is configured.
+        $this->addFrontendAssets();
+
         return ViewUtility::render('Backend/Header/TodoCallout', [
             ...$todoCounts,
             'table' => $table,
             'uid' => (int) $record['uid'],
+            'newCommentUri' => PermissionUtility::canCreateComment()
+                ? UrlUtility::getNewCommentUrl($table, $record['uid'])
+                : '',
+            'editUri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $record['uid']),
         ]);
     }
 
@@ -441,7 +453,7 @@ class InfoGenerator
 
     /**
      * The header shows `todoOpen` as its badge and keeps resolved/total for the tooltip, so all
-     * three are derived from the same pair of queries instead of being recomputed per field.
+     * three are derived from a single query instead of being recomputed per field.
      *
      * @param array<string, mixed> $record
      *
@@ -449,42 +461,20 @@ class InfoGenerator
      */
     private function getTodoCounts(array $record, string $table): array
     {
-        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+        if (
+            !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)
+            || !PlannerUtility::hasComments($record)
+        ) {
             return ['todoResolved' => 0, 'todoTotal' => 0, 'todoOpen' => 0];
         }
 
-        $resolved = $this->getCommentsTodoResolved($record, $table);
-        $total = $this->getCommentsTodoTotal($record, $table);
+        $counts = $this->commentRepository->countTodosByRecord((int) $record['uid'], $table);
 
         return [
-            'todoResolved' => $resolved,
-            'todoTotal' => $total,
-            'todoOpen' => max(0, $total - $resolved),
+            'todoResolved' => $counts['resolved'],
+            'todoTotal' => $counts['total'],
+            'todoOpen' => max(0, $counts['total'] - $counts['resolved']),
         ];
-    }
-
-    /**
-     * @param array<string, mixed> $record
-     */
-    private function getCommentsTodoResolved(array $record, string $table): int
-    {
-        if (PlannerUtility::hasComments($record)) {
-            return $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table);
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param array<string, mixed> $record
-     */
-    private function getCommentsTodoTotal(array $record, string $table): int
-    {
-        if (PlannerUtility::hasComments($record)) {
-            return $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table, 'todo_total');
-        }
-
-        return 0;
     }
 
     /**

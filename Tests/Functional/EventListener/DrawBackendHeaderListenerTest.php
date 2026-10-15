@@ -17,9 +17,11 @@ use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Controller\Event\ModifyPageLayoutContentEvent;
 use TYPO3\CMS\Backend\Routing\Route;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\EventListener\DrawBackendHeaderListener;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\AllowedValuesResolver;
 
 /**
  * DrawBackendHeaderListenerTest.
@@ -44,6 +46,7 @@ final class DrawBackendHeaderListenerTest extends AbstractFunctionalTestCase
     protected function tearDown(): void
     {
         unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
+        AllowedValuesResolver::resetCache();
         parent::tearDown();
     }
 
@@ -116,7 +119,40 @@ final class DrawBackendHeaderListenerTest extends AbstractFunctionalTestCase
 
         self::assertStringContainsString('callout callout-info', $event->getHeaderContent());
         self::assertStringContainsString('data-show-todo-comments', $event->getHeaderContent());
-        self::assertMatchesRegularExpression('/\\b2\\b/', strip_tags($event->getHeaderContent()));
+        self::assertStringContainsString('Open to-dos on this page: 2', $event->getHeaderContent());
+        // Without these the record modal opened from the callout lacks its Edit and new-comment actions.
+        self::assertMatchesRegularExpression('/data-edit-uri="[^"]+"/', $event->getHeaderContent());
+        self::assertMatchesRegularExpression('/data-new-comment-uri="[^"]+"/', $event->getHeaderContent());
+    }
+
+    #[Test]
+    public function addsNoCalloutInChipDisplayModeForTableNotAllowedForUser(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_CHIP;
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments_todo.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_users_restricted_tables.csv');
+        AllowedValuesResolver::resetCache();
+        $this->setUpBackendUser(30);
+
+        $event = $this->createEvent(1);
+
+        $this->subject->__invoke($event);
+
+        self::assertSame('', $event->getHeaderContent());
+    }
+
+    #[Test]
+    public function loadsCommentsModalModuleWithOpenTodoCallout(): void
+    {
+        // The chip trio loads this module only when a status selection exists, so the callout's
+        // button would otherwise stay unbound on installations without any status.
+        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE] = Configuration::HEADER_DISPLAY_MODE_CHIP;
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments_todo.csv');
+
+        $this->subject->__invoke($this->createEvent(1));
+
+        $javaScriptState = json_encode($this->get(PageRenderer::class)->getJavaScriptRenderer()->toArray(), \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
+        self::assertStringContainsString(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js', $javaScriptState);
     }
 
     #[Test]

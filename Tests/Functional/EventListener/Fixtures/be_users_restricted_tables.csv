@@ -1,0 +1,6 @@
+"be_groups"
+,"uid","pid","title","custom_options","tx_ximatypo3contentplanner_allowed_tables","deleted"
+,10,0,"Content only","tx_ximatypo3contentplanner:view-only","tt_content",0
+"be_users"
+,"uid","pid","username","admin","realName","usergroup","disable","deleted"
+,30,0,"content-editor",0,"Content Editor","10",0,0

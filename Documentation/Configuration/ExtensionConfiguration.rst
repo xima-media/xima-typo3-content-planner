@@ -71,7 +71,8 @@ Features
     :Default: 1
 
     Enable web list header info. Only applies to the ``banner`` display mode, the ``chip``
-    mode shows the same information in the doc header trio.
+    mode shows status, assignee and comments in the doc header trio. Open to-dos are not
+    shown in the web list in ``chip`` mode.
 
 ..  _extconf-treeStatusInformation:
 
