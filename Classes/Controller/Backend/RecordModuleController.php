@@ -34,7 +34,6 @@ use function array_key_exists;
 use function array_map;
 use function count;
 use function in_array;
-use function sprintf;
 
 /**
  * RecordModuleController.
@@ -79,6 +78,7 @@ final readonly class RecordModuleController
         }
 
         $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/RecordModule.css');
+        $this->pageRenderer->addCssFile('EXT:xima_typo3_content_planner/Resources/Public/Css/Status.css');
 
         $filter = $this->parseFilter($request->getQueryParams());
         $page = max(1, (int) ($request->getQueryParams()['page'] ?? 1));
@@ -121,8 +121,6 @@ final readonly class RecordModuleController
             'rangeEnd' => $offset + count($items),
             'filter' => $filter,
             'sortLinks' => $this->buildSortLinks($filter, $effectiveSort, $effectiveDirection),
-            'advancedFilterCount' => $this->countActiveAdvancedFilters($filter),
-            'activeFilterChips' => $this->buildActiveFilterChips($filter, $statusOptions, $userOptions),
             'presets' => $this->buildPresetTiles($filter, $backendUserId),
             'formUrl' => $this->buildUrl([]),
             'previousPageUrl' => $page > 1 ? $this->buildUrl($filter, $page - 1) : null,
@@ -171,7 +169,7 @@ final readonly class RecordModuleController
      *
      * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
      *
-     * @return array<string, array{link: string, activeDirection: ?string}>
+     * @return array<string, array{link: string, activeDirection: ?string, ariaSort: ?string}>
      */
     private function buildSortLinks(array $filter, string $effectiveSort, string $effectiveDirection): array
     {
@@ -185,6 +183,7 @@ final readonly class RecordModuleController
             $links[$field] = [
                 'link' => $this->buildUrl(['sort' => $field, 'dir' => $nextDirection] + $filter),
                 'activeDirection' => $isActive ? $effectiveDirection : null,
+                'ariaSort' => $isActive ? ('asc' === $effectiveDirection ? 'ascending' : 'descending') : null,
             ];
         }
 
@@ -230,27 +229,11 @@ final readonly class RecordModuleController
     }
 
     /**
-     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
-     */
-    private function countActiveAdvancedFilters(array $filter): int
-    {
-        // "search" lives in the always-visible primary row; "todo"/"openComments" moved to the
-        // preset tiles above the list, which carry their own active state - neither belongs in
-        // the count that badges/auto-expands the collapsible advanced panel below.
-        return count(array_filter([
-            $filter['status'],
-            $filter['assignee'],
-            $filter['type'],
-            $filter['watched'],
-        ], static fn (mixed $value): bool => null !== $value && false !== $value));
-    }
-
-    /**
-     * Quick-access filter presets shown above the list (CP-33 follow-up): each reuses
-     * findAllByFilter() the same way the dashboard's assignee KPI tile does
+     * Quick-access filter presets shown above the list: each reuses findAllByFilter() the same
+     * way the dashboard's assignee KPI tile does
      * ({@see \Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget::buildAssigneeInfo()}),
      * one dimension at a time, so a preset's count can never disagree with what clicking it
-     * actually shows.
+     * actually shows. A pressed preset links to the list without it, so the chip toggles.
      *
      * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
      *
@@ -261,133 +244,30 @@ final readonly class RecordModuleController
     private function buildPresetTiles(array $filter, int $backendUserId): array
     {
         return [
-            'assignee' => $this->buildPresetTile(null, null, $backendUserId, null, null, false, ['assignee' => $backendUserId], $filter['assignee'] === $backendUserId),
-            'todo' => $this->buildPresetTile(null, null, null, null, true, false, ['todo' => 1], $filter['todo']),
-            'openComments' => $this->buildPresetTile(null, null, null, null, null, true, ['openComments' => 1], $filter['openComments']),
+            'assignee' => $this->buildPresetTile($backendUserId, null, false, 'assignee', $backendUserId, $filter, $filter['assignee'] === $backendUserId),
+            'todo' => $this->buildPresetTile(null, true, false, 'todo', 1, $filter, $filter['todo']),
+            'openComments' => $this->buildPresetTile(null, null, true, 'openComments', 1, $filter, $filter['openComments']),
         ];
     }
 
     /**
-     * @param array<string, mixed> $urlParams
+     * @param array<string, mixed> $filter
      *
      * @return array{count: int, countLabel: string, link: string, active: bool}
      *
      * @throws Exception
      */
-    private function buildPresetTile(?string $search, ?int $status, ?int $assignee, ?string $type, ?bool $todo, bool $openComments, array $urlParams, bool $active): array
+    private function buildPresetTile(?int $assignee, ?bool $todo, bool $openComments, string $filterKey, int $filterValue, array $filter, bool $active): array
     {
-        $result = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type, $todo, self::PRESET_COUNT_LIMIT, $openComments);
+        $result = $this->recordRepository->findAllByFilter(null, null, $assignee, null, $todo, self::PRESET_COUNT_LIMIT, $openComments);
         $count = count($result->items);
 
         return [
             'count' => $count,
             'countLabel' => $result->hasMore ? $count.'+' : (string) $count,
-            'link' => $this->buildUrl($urlParams),
+            'link' => $active ? $this->buildUrl([$filterKey => null] + $filter) : $this->buildUrl([$filterKey => $filterValue]),
             'active' => $active,
         ];
-    }
-
-    /**
-     * Dismissable summary of the currently active filters (CP-33 follow-up), shown below the
-     * filter row: each chip's link is the current filter with just that one dimension cleared,
-     * built via buildUrl() like every other link this controller generates. `search`/`todo`/
-     * `openComments` are included here too, even though they already have their own visible
-     * affordance elsewhere (the search field, the preset tiles) - the chip row is meant to be a
-     * single, complete "what's currently filtering this list" summary, not just the fields the
-     * advanced panel owns.
-     *
-     * @param array{search: ?string, status: ?int, assignee: ?int, type: ?string, todo: bool, openComments: bool, watched: bool, sort: ?string, dir: ?string} $filter
-     * @param list<Status>                                                                                                                                    $statusOptions
-     * @param list<array<string, mixed>>                                                                                                                      $userOptions
-     *
-     * @return list<array{label: string, removeUrl: string}>
-     */
-    private function buildActiveFilterChips(array $filter, array $statusOptions, array $userOptions): array
-    {
-        $languageService = $this->getLanguageService();
-        $chips = [];
-
-        if (null !== $filter['search'] && '' !== $filter['search']) {
-            $chips[] = [
-                'label' => sprintf($languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:records.chips.search'), $filter['search']),
-                'removeUrl' => $this->buildUrl(['search' => null] + $filter),
-            ];
-        }
-
-        if (null !== $filter['status']) {
-            $statusTitle = $this->findStatusTitle($statusOptions, $filter['status']) ?? (string) $filter['status'];
-            $chips[] = [
-                'label' => sprintf($languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:records.chips.status'), $statusTitle),
-                'removeUrl' => $this->buildUrl(['status' => null] + $filter),
-            ];
-        }
-
-        if (null !== $filter['assignee']) {
-            $username = $this->findLabel($userOptions, 'uid', 'username', $filter['assignee']) ?? (string) $filter['assignee'];
-            $chips[] = [
-                'label' => sprintf($languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:records.chips.assignee'), $username),
-                'removeUrl' => $this->buildUrl(['assignee' => null] + $filter),
-            ];
-        }
-
-        if (null !== $filter['type']) {
-            $typeLabel = $this->getLanguageService()->sL($GLOBALS['TCA'][$filter['type']]['ctrl']['title'] ?? $filter['type']);
-            $chips[] = [
-                'label' => sprintf($languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:records.chips.type'), $typeLabel),
-                'removeUrl' => $this->buildUrl(['type' => null] + $filter),
-            ];
-        }
-
-        if ($filter['todo']) {
-            $chips[] = [
-                'label' => $languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openTodos'),
-                'removeUrl' => $this->buildUrl(['todo' => false] + $filter),
-            ];
-        }
-
-        if ($filter['openComments']) {
-            $chips[] = [
-                'label' => $languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.openComments'),
-                'removeUrl' => $this->buildUrl(['openComments' => false] + $filter),
-            ];
-        }
-
-        if ($filter['watched']) {
-            $chips[] = [
-                'label' => $languageService->sL('LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:filter.watchedByMe'),
-                'removeUrl' => $this->buildUrl(['watched' => false] + $filter),
-            ];
-        }
-
-        return $chips;
-    }
-
-    /**
-     * @param list<Status> $statusOptions
-     */
-    private function findStatusTitle(array $statusOptions, int $uid): ?string
-    {
-        foreach ($statusOptions as $status) {
-            if ($status->getUid() === $uid) {
-                return $status->getTitle();
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param list<array<string, mixed>> $options
-     */
-    private function findLabel(array $options, string $keyField, string $labelField, int $value): ?string
-    {
-        foreach ($options as $option) {
-            if ((int) $option[$keyField] === $value) {
-                return (string) $option[$labelField];
-            }
-        }
-
-        return null;
     }
 
     /**

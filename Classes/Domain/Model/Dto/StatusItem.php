@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Domain\Model\Dto;
 
 use DateTime;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Imaging\IconFactory;
@@ -26,10 +27,12 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\CommentRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\{ContentUtility, DiffUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\{ExtensionUtility, PlannerUtility};
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{CountLabelUtility, IconUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Routing\UrlUtility;
 
+use function array_reverse;
 use function count;
+use function implode;
 use function sprintf;
 
 /**
@@ -170,6 +173,28 @@ final class StatusItem
         ) : '';
     }
 
+    /**
+     * Where the record lives, for the second line under its title: the site (when there are
+     * several) and the titles of the pages above it, "main › Home". A page shows its ancestors,
+     * every other record the page it sits on.
+     */
+    public function getPagePath(): string
+    {
+        $segments = [];
+        $siteName = $this->getSiteName();
+        if (null !== $siteName) {
+            $segments[] = $siteName;
+        }
+
+        foreach (array_reverse(BackendUtility::BEgetRootLine((int) ($this->data['pid'] ?? 0), '', true)) as $page) {
+            if ((int) $page['uid'] > 0) {
+                $segments[] = (string) $page['title'];
+            }
+        }
+
+        return implode(' › ', $segments);
+    }
+
     public function getSiteIcon(): ?string
     {
         if (null === $this->resolveSite()) {
@@ -255,6 +280,8 @@ final class StatusItem
             'link' => $this->getRecordLink(),
             'title' => $this->getTitle(),
             'status' => $this->getStatus(),
+            'statusColor' => $this->status?->getColor() ?? '',
+            'statusIconIdentifier' => $this->status?->getColoredIcon() ?? '',
             'statusIcon' => $this->getStatusIcon(),
             'recordIcon' => $this->getRecordIcon(),
             'recordTypeLabel' => $this->getRecordTypeLabel(),
@@ -266,8 +293,14 @@ final class StatusItem
             'assigneeAvatar' => $this->getAssigneeAvatar(),
             'assignedToCurrentUser' => $this->getAssignedToCurrentUser(),
             'comments' => $this->getCommentsHtml(),
+            'commentsName' => PlannerUtility::hasComments($this->data) ? CountLabelUtility::comments((int) $this->data[Configuration::FIELD_COMMENTS]) : '',
+            'commentsCount' => PlannerUtility::hasComments($this->data) ? (int) $this->data[Configuration::FIELD_COMMENTS] : 0,
+            'todoResolved' => $this->getToDoResolved(),
+            'todoTotal' => $this->getToDoTotal(),
             'todo' => $this->getToDoHtml(),
+            'todoName' => $this->getToDoTotal() > 0 ? CountLabelUtility::todos($this->getToDoResolved(), $this->getToDoTotal()) : '',
             'todoShareUrl' => $this->getToDoShareUrl(),
+            'pagePath' => $this->getPagePath(),
             'site' => $this->getSiteName(),
             'siteIcon' => $this->getSiteIcon(),
         ];
