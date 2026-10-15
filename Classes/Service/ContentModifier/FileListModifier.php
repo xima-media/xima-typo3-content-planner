@@ -15,7 +15,7 @@ namespace Xima\XimaTypo3ContentPlanner\Service\ContentModifier;
 
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Core\{RequestId, SystemEnvironmentBuilder};
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Page\PageRenderer;
@@ -27,10 +27,11 @@ use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
 use Xima\XimaTypo3ContentPlanner\Service\SelectionBuilder\ListSelectionService;
 use Xima\XimaTypo3ContentPlanner\Utility\Compatibility\RouteUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\IconUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, IconUtility};
 
 use function array_key_exists;
 use function is_array;
+use function sprintf;
 
 /**
  * FileListModifier.
@@ -50,6 +51,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         private readonly IconFactory $iconFactory,
         private readonly InfoGenerator $infoGenerator,
         private readonly PageRenderer $pageRenderer,
+        private readonly RequestId $requestId,
     ) {
         parent::__construct($statusRepository, $recordRepository);
     }
@@ -72,15 +74,19 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
         }
 
         $folderIdentifier = $request->getQueryParams()['id'];
-        // Detect tile view from content (more reliable than query param, which may not be present)
-        $isTilesView = str_contains($content, 'class="resource-tiles"');
+        // Detect tile view from content (more reliable than query param, which may not be present).
+        // The container carries more classes in TYPO3 v14 ("resource-tiles my-3"), so match the class, not the attribute.
+        $isTilesView = 1 === preg_match('/class="[^"]*\bresource-tiles\b[^"]*"/', $content);
 
         $additionalCss = $this->fileListStatusService->generateStatusStyles($folderIdentifier, $isTilesView);
 
         $newContent = $content;
 
-        // Add status header for current folder
-        $newContent = $this->addFolderStatusHeader($newContent, $folderIdentifier);
+        // The doc header group carries the folder status in "chip" and "docked" mode, the banner
+        // only belongs to the legacy "banner" mode.
+        if (ExtensionUtility::isBannerDisplayModeEnabled()) {
+            $newContent = $this->addFolderStatusHeader($newContent, $folderIdentifier);
+        }
 
         // Add status dropdowns to file and folder rows (only in list view, not tiles)
         if (!$isTilesView) {
@@ -88,9 +94,7 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             $newContent = $this->addStatusDropdownsToFolders($newContent, $folderIdentifier);
         }
 
-        if ('' !== $additionalCss) {
-            $newContent = $this->injectFileListStyles($newContent, $additionalCss, $isTilesView);
-        }
+        $newContent = $this->injectFileListStyles($newContent, $this->buildInjection($additionalCss, $isTilesView), $isTilesView);
 
         // Load JavaScript module for handling status changes via AJAX
         $pageRenderer = $this->pageRenderer;
@@ -201,8 +205,8 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
      */
     private function injectDropdown(string $content, ?Status $status, array|bool $dropdownItems, string $pattern): string
     {
-        $statusLabel = $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status');
-        $title = htmlspecialchars($status instanceof Status ? $status->getTitle() : $statusLabel, \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
+        $languageService = $this->getLanguageService();
+        $label = htmlspecialchars($status instanceof Status ? $status->getTitle() : $languageService->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status.set'), \ENT_QUOTES | \ENT_HTML5, 'UTF-8');
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
 
         $iconHtml = $this->iconFactory->getIcon($icon, IconUtility::getDefaultIconSize())->render();
@@ -214,27 +218,52 @@ class FileListModifier extends AbstractModifier implements ModifierInterface
             }
         }
 
-        $dropdown = '<div class="btn-group dropdown"><button type="button" class="btn btn-default btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="'.$title.'" aria-label="'.$title.'">'
-            .$iconHtml.'</button><ul class="dropdown-menu">'.$dropdownItemsHtml.'</ul></div>';
+        // The visible text is the accessible name. Without a status the label is muted.
+        $title = $status instanceof Status
+            ? ' title="'.htmlspecialchars(sprintf($languageService->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status.change'), $status->getTitle()), \ENT_QUOTES | \ENT_HTML5, 'UTF-8').'"'
+            : '';
+        $class = $status instanceof Status ? '' : ' content-planner-status-action--none';
+
+        $dropdown = '<div class="btn-group dropdown"><button type="button" class="btn btn-default btn-sm dropdown-toggle'.$class.'" data-bs-toggle="dropdown" aria-expanded="false"'.$title.'>'
+            .$iconHtml.' '.$label.'</button><ul class="dropdown-menu">'.$dropdownItemsHtml.'</ul></div>';
 
         $result = preg_replace($pattern, '$1'.$dropdown, $content);
 
         return $result ?? $content;
     }
 
-    private function injectFileListStyles(string $content, string $css, bool $isTilesView): string
+    /**
+     * Runs after the page rendered, so Status.css (muted "Set status") travels as a link with the markup.
+     */
+    private function buildInjection(string $css, bool $isTilesView): string
     {
+        $stylesheet = $isTilesView ? '' : AssetUtility::getCssTag(
+            'EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Status.css',
+            ['nonce' => $this->requestId->nonce],
+        );
+
+        return $stylesheet.('' !== $css ? '<style>'.$css.'</style>' : '');
+    }
+
+    private function injectFileListStyles(string $content, string $injection, bool $isTilesView): string
+    {
+        if ('' === $injection) {
+            return $content;
+        }
+
         if ($isTilesView) {
             $result = preg_replace(
                 '/(<div\b[^>]*class="[^"]*resource-tiles[^"]*"[^>]*>)/is',
-                '<style>'.$css.'</style>$1',
+                $injection.'$1',
                 $content,
+                1,
             );
         } else {
             $result = preg_replace(
                 '/(<table\b[^>]*id="typo3-filelist"[^>]*>)/is',
-                '<style>'.$css.'</style>$1',
+                $injection.'$1',
                 $content,
+                1,
             );
         }
 

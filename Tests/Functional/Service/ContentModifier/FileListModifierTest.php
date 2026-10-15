@@ -122,6 +122,8 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
     #[Test]
     public function modifyInjectsFolderHeaderDropdownsAndStylesForListView(): void
     {
+        $this->enableExtensionFeature(Configuration::FEATURE_HEADER_DISPLAY_MODE, Configuration::HEADER_DISPLAY_MODE_BANNER);
+
         $response = $this->subject->modify($this->buildRequest('media_management', '1:/user_upload/'), $this->buildResponseHandler($this->buildListViewBody()));
         $body = (string) $response->getBody();
 
@@ -136,39 +138,56 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
         );
         self::assertLessThan(strpos($body, '<table id="typo3-filelist">'), strpos($body, 'In Progress'));
 
-        // File with a status ("In Progress") gets a titled dropdown.
+        // The dropdown names the status as visible text, so the name is its accessible name
+        // as well and an extra aria-label would only repeat it.
         self::assertMatchesRegularExpression(
-            '/data-filelist-meta-uid="'.$this->exampleMetaUid.'".*?<div class="btn-group dropdown">.*?title="In Progress"/s',
+            '/data-filelist-meta-uid="'.$this->exampleMetaUid.'".*?<div class="btn-group dropdown">.*?title="Status: In Progress, change".*?In Progress<\/button>/s',
             $body,
         );
-        // File without a status falls back to the generic "Status" title.
         self::assertMatchesRegularExpression(
-            '/data-filelist-meta-uid="'.$this->imageMetaUid.'".*?<div class="btn-group dropdown">.*?title="Content Status"/s',
+            '/data-filelist-identifier="1:\/user_upload\/sub\/".*?<div class="btn-group dropdown">.*?Done<\/button>/s',
             $body,
         );
-        // Subfolder with a status (status 3 = "Done") gets a titled dropdown.
+        self::assertStringNotContainsString('aria-label="In Progress"', $body);
+
+        // A file without a status reads "Set status", muted.
         self::assertMatchesRegularExpression(
-            '/data-filelist-identifier="1:\/user_upload\/sub\/".*?<div class="btn-group dropdown">.*?title="Done"/s',
+            '/data-filelist-meta-uid="'.$this->imageMetaUid.'".*?<div class="btn-group dropdown">.*?content-planner-status-action--none.*?Set status<\/button>/s',
             $body,
         );
 
-        // CP-14 (#318): the icon-only dropdown toggle also carries an explicit aria-label,
-        // not just a `title` attribute.
-        self::assertMatchesRegularExpression(
-            '/data-filelist-meta-uid="'.$this->exampleMetaUid.'".*?<div class="btn-group dropdown">.*?aria-label="In Progress"/s',
-            $body,
-        );
-
-        // CSS for the statused file and subfolder was injected as a <style> block before the table.
+        // The statused file and subfolder get an edge on their first cell, not a tint on the row.
         self::assertStringContainsString('<style>', $body);
-        self::assertStringContainsString('tr[data-filelist-meta-uid="'.$this->exampleMetaUid.'"] > td', $body);
-        self::assertStringContainsString('tr[data-filelist-identifier="1:/user_upload/sub/"] > td', $body);
+        self::assertStringContainsString('tr[data-filelist-meta-uid="'.$this->exampleMetaUid.'"] > td:first-child { box-shadow: inset 4px 0 0 ', $body);
+        self::assertStringContainsString('tr[data-filelist-identifier="1:/user_upload/sub/"] > td:first-child { box-shadow: inset 4px 0 0 ', $body);
+        self::assertStringNotContainsString('background-color', $body);
         self::assertLessThan(strpos($body, '<table id="typo3-filelist">'), strpos($body, '<style>'));
+
+        // The muted "Set status" needs Status.css, and this modifier runs after the page rendered,
+        // so the stylesheet has to travel with the markup instead of through the PageRenderer.
+        self::assertMatchesRegularExpression('/<link [^>]*nonce="[^"]+"[^>]*Css\/Status\.css[^>]*\/>/', $body);
+        self::assertLessThan(strpos($body, '<table id="typo3-filelist">'), strpos($body, 'Css/Status.css'));
+    }
+
+    #[Test]
+    public function modifyLeavesTheFolderBannerToBannerMode(): void
+    {
+        // The doc header group carries the folder status in "chip" mode (ModifyButtonBarEventListener).
+        $this->enableExtensionFeature(Configuration::FEATURE_HEADER_DISPLAY_MODE, Configuration::HEADER_DISPLAY_MODE_CHIP);
+
+        $response = $this->subject->modify($this->buildRequest('media_management', '1:/user_upload/'), $this->buildResponseHandler($this->buildListViewBody()));
+        $body = (string) $response->getBody();
+
+        self::assertStringNotContainsString('content-planner-header', $body);
+        // The rows still carry their own status.
+        self::assertStringContainsString('In Progress</button>', $body);
     }
 
     #[Test]
     public function modifyInjectsHeaderIntoInfoContainerWhenFilelistContainerIsHidden(): void
     {
+        $this->enableExtensionFeature(Configuration::FEATURE_HEADER_DISPLAY_MODE, Configuration::HEADER_DISPLAY_MODE_BANNER);
+
         $body = <<<'HTML'
             <html><body>
             <div class="t3-filelist-info-container"></div>
@@ -205,9 +224,33 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
 
         // Tiles view CSS uses .resource-tile selectors and is injected before the tiles container.
         self::assertStringContainsString('<style>', $result);
-        self::assertStringContainsString('.resource-tile[data-filelist-meta-uid="'.$this->exampleMetaUid.'"]', $result);
+        self::assertStringContainsString('.resource-tile[data-filelist-meta-uid="'.$this->exampleMetaUid.'"] { border-top: 3px solid ', $result);
+        self::assertStringNotContainsString('background-color', $result);
         self::assertLessThan(strpos($result, '<div class="resource-tiles">'), strpos($result, '<style>'));
         // No btn-group dropdown markup was injected since tiles view skips row dropdowns entirely.
+        self::assertStringNotContainsString('dropdown-menu', $result);
+    }
+
+    #[Test]
+    public function modifyRecognisesTheTilesViewWhenItsContainerCarriesMoreClasses(): void
+    {
+        // TYPO3 v14 renders `resource-tiles my-3`, so an exact class match never saw the tiles view.
+        $body = <<<HTML
+            <html><body>
+            <div class="t3-filelist-container">
+            <div class="resource-tiles-container">
+            <div class="resource-tiles my-3">
+            <div class="resource-tile" data-filelist-meta-uid="{$this->exampleMetaUid}"></div>
+            </div>
+            </div>
+            </div>
+            </body></html>
+            HTML;
+
+        $response = $this->subject->modify($this->buildRequest('media_management', '1:/user_upload/'), $this->buildResponseHandler($body));
+        $result = (string) $response->getBody();
+
+        self::assertStringContainsString('.resource-tile[data-filelist-meta-uid="'.$this->exampleMetaUid.'"] { border-top: 3px solid ', $result);
         self::assertStringNotContainsString('dropdown-menu', $result);
     }
 
@@ -237,9 +280,9 @@ final class FileListModifierTest extends AbstractFunctionalTestCase
         // (the "sub" folder itself does, but that only affects its own header/dropdown, not
         // the CSS generated for its children).
         self::assertStringNotContainsString('<style>', $result);
-        // The dropdown still gets the generic fallback title/icon. The fallback is the
-        // translated "status" label, the same one the record list actions use.
-        self::assertStringContainsString('title="Content Status"', $result);
+        // The dropdown still gets the muted fallback label.
+        self::assertStringContainsString('content-planner-status-action--none', $result);
+        self::assertStringContainsString('Set status</button>', $result);
     }
 
     private function createLocalStorage(): void

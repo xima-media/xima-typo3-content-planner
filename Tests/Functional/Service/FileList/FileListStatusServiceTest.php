@@ -62,7 +62,7 @@ final class FileListStatusServiceTest extends AbstractFunctionalTestCase
 
         $css = $this->invokeBuildFileCssRule(42, $status, false);
 
-        self::assertSame('tr[data-filelist-meta-uid="42"] > td { background-color: light-dark(color-mix(in srgb, #64bbc8 15%, white), color-mix(in srgb, #64bbc8 20%, var(--typo3-surface-base))); }', $css);
+        self::assertSame('tr[data-filelist-meta-uid="42"] > td:first-child { box-shadow: inset 4px 0 0 light-dark(oklch(from #64bbc8 min(l, 0.6) c h), oklch(from #64bbc8 max(l, 0.72) c h)); }', $css);
     }
 
     #[Test]
@@ -72,7 +72,7 @@ final class FileListStatusServiceTest extends AbstractFunctionalTestCase
 
         $css = $this->invokeBuildFileCssRule(7, $status, true);
 
-        self::assertSame('.resource-tile[data-filelist-meta-uid="7"] { background-color: light-dark(color-mix(in srgb, #6a9e71 15%, white), color-mix(in srgb, #6a9e71 20%, var(--typo3-surface-base))); }', $css);
+        self::assertSame('.resource-tile[data-filelist-meta-uid="7"] { border-top: 3px solid light-dark(oklch(from #6a9e71 min(l, 0.6) c h), oklch(from #6a9e71 max(l, 0.72) c h)); }', $css);
     }
 
     #[Test]
@@ -82,7 +82,7 @@ final class FileListStatusServiceTest extends AbstractFunctionalTestCase
 
         $css = $this->invokeBuildFolderCssRule('1:/user_upload/sub/', $status, false);
 
-        self::assertSame('tr[data-filelist-identifier="1:/user_upload/sub/"] > td { background-color: light-dark(color-mix(in srgb, #ffcd75 15%, white), color-mix(in srgb, #ffcd75 20%, var(--typo3-surface-base))); }', $css);
+        self::assertSame('tr[data-filelist-identifier="1:/user_upload/sub/"] > td:first-child { box-shadow: inset 4px 0 0 light-dark(oklch(from #ffcd75 min(l, 0.6) c h), oklch(from #ffcd75 max(l, 0.72) c h)); }', $css);
     }
 
     #[Test]
@@ -92,7 +92,7 @@ final class FileListStatusServiceTest extends AbstractFunctionalTestCase
 
         $css = $this->invokeBuildFolderCssRule('1:/user_upload/sub/', $status, true);
 
-        self::assertSame('.resource-tile[data-filelist-identifier="1:/user_upload/sub/"] { background-color: light-dark(color-mix(in srgb, #fa8893 15%, white), color-mix(in srgb, #fa8893 20%, var(--typo3-surface-base))); }', $css);
+        self::assertSame('.resource-tile[data-filelist-identifier="1:/user_upload/sub/"] { border-top: 3px solid light-dark(oklch(from #fa8893 min(l, 0.6) c h), oklch(from #fa8893 max(l, 0.72) c h)); }', $css);
     }
 
     #[Test]

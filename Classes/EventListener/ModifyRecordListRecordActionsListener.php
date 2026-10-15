@@ -18,6 +18,7 @@ use TYPO3\CMS\Backend\RecordList\Event\ModifyRecordListRecordActionsEvent;
 use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Domain\RecordInterface;
 use TYPO3\CMS\Core\Imaging\{IconFactory, IconSize};
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Persistence\Generic\Exception\NotImplementedException;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
@@ -81,19 +82,16 @@ final readonly class ModifyRecordListRecordActionsListener
         $statusId = $record[Configuration::FIELD_STATUS];
         $status = $this->statusRepository->findByUid($statusId);
 
-        $title = $status instanceof Status ? $status->getTitle() : 'Status';
+        $label = $status instanceof Status
+            ? $status->getTitle()
+            : $this->getLanguageService()->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_be.xlf:status.set');
         $icon = $status instanceof Status ? $status->getColoredIcon() : 'flag-gray';
 
-        // CP-14 (#318): this icon-only dropdown toggle only gets `setTitle()`, not an
-        // aria-label - TYPO3 core's DropDownButton/AbstractControl API (both v13 and the
-        // v14 ComponentFactory-based variant) only exposes title/classes/data-attributes,
-        // no generic HTML attribute setter. `title` still resolves as the accessible name
-        // per the HTML AccName algorithm (no aria-label/aria-labelledby present, and the
-        // icon itself is aria-hidden so it never blocks the name from reaching the button),
-        // so this is a documented, accepted limitation rather than a silent gap.
+        // The status name is the button text and so its accessible name. The grey flag marks
+        // "no status", which Status.css mutes.
         $dropDownButton = ComponentFactoryUtility::createDropDownButton()
-            ->setLabel($title)
-            ->setTitle($title)
+            ->setLabel($label)
+            ->setShowLabelText(true)
             ->setIcon($this->iconFactory->getIcon($icon, IconSize::SMALL));
 
         // Reuse the record already loaded above instead of a second lookup inside generateSelection().
@@ -117,5 +115,10 @@ final readonly class ModifyRecordListRecordActionsListener
             $primaryGroup,
             'delete',
         );
+    }
+
+    private function getLanguageService(): LanguageService
+    {
+        return $GLOBALS['LANG'];
     }
 }

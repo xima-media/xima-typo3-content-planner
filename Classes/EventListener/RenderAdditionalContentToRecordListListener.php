@@ -67,6 +67,7 @@ final readonly class RenderAdditionalContentToRecordListListener
         }
 
         $pageRenderer = $this->pageRenderer;
+        $pageRenderer->addCssFile('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Status.css');
         $pageRenderer->loadJavaScriptModule(Configuration::JAVASCRIPT_MODULE_PREFIX.'record-list-status.js');
     }
 
@@ -117,7 +118,7 @@ final readonly class RenderAdditionalContentToRecordListListener
             foreach ($tableRecords as $tableRecord) {
                 $status = $this->statusRepository->findByUid($tableRecord[Configuration::FIELD_STATUS]);
                 if ($status instanceof Status) {
-                    $css .= 'tr[data-table="'.$tableName.'"][data-uid="'.$tableRecord['uid'].'"] > td { background-color: '.Configuration\Colors::getTint($status->getColor()).'; } ';
+                    $css .= 'tr[data-table="'.$tableName.'"][data-uid="'.$tableRecord['uid'].'"] > td:first-child { box-shadow: inset 4px 0 0 '.Configuration\Colors::getEdge($status->getColor()).'; } ';
                 }
             }
         }

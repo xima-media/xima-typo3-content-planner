@@ -91,24 +91,26 @@ class FileListStatusService
 
     private function buildFileCssRule(int $metaUid, Status $status, bool $isTilesView): string
     {
-        $color = Configuration\Colors::getTint($status->getColor());
-
-        if ($isTilesView) {
-            return '.resource-tile[data-filelist-meta-uid="'.$metaUid.'"] { background-color: '.$color.'; }';
-        }
-
-        return 'tr[data-filelist-meta-uid="'.$metaUid.'"] > td { background-color: '.$color.'; }';
+        return $this->buildEdgeRule('data-filelist-meta-uid="'.$metaUid.'"', $status, $isTilesView);
     }
 
     private function buildFolderCssRule(string $combinedIdentifier, Status $status, bool $isTilesView): string
     {
-        $color = Configuration\Colors::getTint($status->getColor());
-        $escapedIdentifier = htmlspecialchars($combinedIdentifier, \ENT_QUOTES);
+        return $this->buildEdgeRule('data-filelist-identifier="'.htmlspecialchars($combinedIdentifier, \ENT_QUOTES).'"', $status, $isTilesView);
+    }
+
+    /**
+     * An edge instead of a tint (docs/design/rules.md, "Status presentation"): 4px inset on the
+     * first cell of a row, 3px on the top of a tile.
+     */
+    private function buildEdgeRule(string $attribute, Status $status, bool $isTilesView): string
+    {
+        $edge = Configuration\Colors::getEdge($status->getColor());
 
         if ($isTilesView) {
-            return '.resource-tile[data-filelist-identifier="'.$escapedIdentifier.'"] { background-color: '.$color.'; }';
+            return '.resource-tile['.$attribute.'] { border-top: 3px solid '.$edge.'; }';
         }
 
-        return 'tr[data-filelist-identifier="'.$escapedIdentifier.'"] > td { background-color: '.$color.'; }';
+        return 'tr['.$attribute.'] > td:first-child { box-shadow: inset 4px 0 0 '.$edge.'; }';
     }
 }
