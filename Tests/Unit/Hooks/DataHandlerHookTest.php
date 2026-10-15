@@ -19,7 +19,7 @@ use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
-use Xima\XimaTypo3ContentPlanner\Hooks\DataHandlerHook;
+use Xima\XimaTypo3ContentPlanner\Hooks\{DataHandlerHook, LiveStatusWriter};
 use Xima\XimaTypo3ContentPlanner\Manager\{StatusChangeManager, StatusDefaultManager};
 use Xima\XimaTypo3ContentPlanner\Service\Notification\ContentChangeNotificationService;
 
@@ -93,6 +93,7 @@ final class DataHandlerHookTest extends TestCase
             $this->createMock(EventDispatcherInterface::class),
             new StatusDefaultManager($this->createMock(ConnectionPool::class), $this->createMock(FrontendInterface::class)),
             $this->createMock(ContentChangeNotificationService::class),
+            new LiveStatusWriter($this->createMock(ConnectionPool::class)),
         );
     }
 }

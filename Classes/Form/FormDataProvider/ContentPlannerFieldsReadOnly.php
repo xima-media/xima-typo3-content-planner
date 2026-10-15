@@ -16,7 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Form\FormDataProvider;
 use TYPO3\CMS\Backend\Form\FormDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\{PermissionUtility, WorkspaceUtility};
 
 use function array_key_exists;
 use function in_array;
@@ -42,15 +42,20 @@ class ContentPlannerFieldsReadOnly implements FormDataProviderInterface
 
         $columns = $result['processedTca']['columns'];
 
-        if (array_key_exists(Configuration::FIELD_STATUS, $columns) && !PermissionUtility::canChangeStatus()) {
+        // A status applies to the live record, whatever workspace is open (LiveStatusWriter), so
+        // none of these fields is edited on a version: the form shows them, the modal and the
+        // header write them.
+        $inWorkspace = WorkspaceUtility::isActive();
+
+        if (array_key_exists(Configuration::FIELD_STATUS, $columns) && ($inWorkspace || !PermissionUtility::canChangeStatus())) {
             $columns[Configuration::FIELD_STATUS]['config']['readOnly'] = true;
         }
 
-        if (array_key_exists(Configuration::FIELD_ASSIGNEE, $columns) && !$this->canModifyAssignee()) {
+        if (array_key_exists(Configuration::FIELD_ASSIGNEE, $columns) && ($inWorkspace || !$this->canModifyAssignee())) {
             $columns[Configuration::FIELD_ASSIGNEE]['config']['readOnly'] = true;
         }
 
-        if (array_key_exists(Configuration::FIELD_COMMENTS, $columns) && !PermissionUtility::canCreateComment()) {
+        if (array_key_exists(Configuration::FIELD_COMMENTS, $columns) && ($inWorkspace || !PermissionUtility::canCreateComment())) {
             $columns[Configuration::FIELD_COMMENTS]['config']['readOnly'] = true;
         }
 

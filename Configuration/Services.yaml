@@ -48,6 +48,9 @@ services:
   Xima\XimaTypo3ContentPlanner\Service\Header\StatusOptionsBuilder:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Hooks\LiveStatusWriter:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\AssignmentHistoryRepository:
     public: true
 

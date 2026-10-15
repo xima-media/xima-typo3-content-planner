@@ -48,6 +48,7 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
         private EventDispatcherInterface $eventDispatcher,
         private StatusDefaultManager $statusDefaultManager,
         private ContentChangeNotificationService $contentChangeNotificationService,
+        private LiveStatusWriter $liveStatusWriter,
     ) {}
 
     /**
@@ -129,6 +130,8 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
      */
     public function processDatamap_beforeStart(DataHandler $dataHandler): void
     {
+        $this->liveStatusWriter->defer($dataHandler);
+
         if (Configuration::TABLE_COMMENT === array_key_first($dataHandler->datamap)) {
             $this->updateCommentTodo($dataHandler);
             $this->checkCommentResolved($dataHandler);
@@ -137,6 +140,15 @@ final readonly class DataHandlerHook // @phpstan-ignore-line complexity.classLik
             // Workaround to solve relation of comments created within the modal
             $this->fixNewCommentEntry($dataHandler);
         }
+    }
+
+    /**
+     * Hook: processDatamap_afterAllOperations. Writes the statuses {@see LiveStatusWriter} took
+     * out of a workspace save to the live records.
+     */
+    public function processDatamap_afterAllOperations(DataHandler $dataHandler): void
+    {
+        $this->liveStatusWriter->apply();
     }
 
     /**

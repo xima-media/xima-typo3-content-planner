@@ -91,6 +91,9 @@
 			<trans-unit id="modal.context.noStatus">
 				<source>No status</source>
 			</trans-unit>
+			<trans-unit id="modal.context.workspaceNote">
+				<source>Status changes apply live, not to the workspace version.</source>
+			</trans-unit>
 			<trans-unit id="modal.context.removeStatus">
 				<source>Remove status</source>
 			</trans-unit>

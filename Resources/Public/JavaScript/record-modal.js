@@ -363,6 +363,14 @@ class RecordModal {
     this.renderStatusControl()
     row.append(status)
 
+    if (this.info.workspace) {
+      const note = document.createElement('p')
+      note.className = 'content-planner-record-modal__workspace-note'
+      note.setAttribute('role', 'note')
+      note.textContent = TYPO3.lang?.['modal.context.workspaceNote'] || 'Status changes apply live, not to the workspace version.'
+      row.append(note)
+    }
+
     return row
   }
 
