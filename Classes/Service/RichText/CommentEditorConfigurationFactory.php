@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Service\RichText;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Configuration\Richtext;
 use TYPO3\CMS\Core\Localization\{LanguageService, Locales};
@@ -21,6 +23,8 @@ use TYPO3\CMS\Core\Utility\{GeneralUtility, PathUtility};
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Event\ModifyCommentEditorConfigurationEvent;
 
+use function array_filter;
+use function array_values;
 use function is_array;
 use function is_string;
 
@@ -53,6 +57,7 @@ final readonly class CommentEditorConfigurationFactory
         private Richtext $richtext,
         private Locales $locales,
         private EventDispatcherInterface $eventDispatcher,
+        private UriBuilder $uriBuilder,
     ) {}
 
     /**
@@ -73,9 +78,36 @@ final readonly class CommentEditorConfigurationFactory
             'customConfig' => '',
         ];
 
+        // Base.yaml's contentsCss is merged, not replaced, by the preset. Its contents.css previews
+        // frontend content on a white page with `color-scheme: only light`, which a comment in the
+        // backend must not inherit. Comments.yaml adds CommentEditorContent.css in its place.
+        if (is_array($ckeditorConfiguration['contentsCss'] ?? null)) {
+            $ckeditorConfiguration['contentsCss'] = array_values(array_filter(
+                $ckeditorConfiguration['contentsCss'],
+                static fn (mixed $file): bool => !is_string($file) || !str_ends_with($file, 'rte_ckeditor/Resources/Public/Css/contents.css'),
+            ));
+        }
+
         $ckeditorConfiguration['language'] = $this->resolveLanguageConfiguration($ckeditorConfiguration);
         $ckeditorConfiguration = $this->replaceLanguageFileReferences($ckeditorConfiguration);
         $ckeditorConfiguration = $this->replaceAbsolutePathsToRelativeResourcesPath($ckeditorConfiguration);
+
+        // Where the link button opens the link browser. FormEngine adds this for the external
+        // plugin `typo3link`; without it the button throws and nothing happens.
+        try {
+            $ckeditorConfiguration['typo3link'] = ['routeUrl' => (string) $this->uriBuilder->buildUriFromRoute('rteckeditor_wizard_browse_links', [
+                'P' => [
+                    'table' => self::TABLE,
+                    'uid' => 0,
+                    'fieldName' => self::FIELD,
+                    'recordType' => '0',
+                    'pid' => $pid,
+                    'richtextConfigurationName' => 'comments',
+                ],
+            ])];
+        } catch (RouteNotFoundException) {
+            // rte_ckeditor is not loaded, so there is no editor to configure either.
+        }
 
         // Read by the ContentPlannerMention plugin (Comments.yaml registers it via
         // importModules) to build its suggestion feed request. Set after the label and path

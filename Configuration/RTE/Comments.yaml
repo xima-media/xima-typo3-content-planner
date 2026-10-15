@@ -9,29 +9,21 @@ editor:
     # default of 300 dwarfs a one- or two-line comment; grows via Comments.css instead.
     height: 100
 
+    # Backend styles instead of the frontend preview of contents.css, see CommentEditorContent.css.
+    contentsCss:
+      - 'EXT:xima_typo3_content_planner/Resources/Public/Css/CommentEditorContent.css'
+
+    # docs/design/rules.md, "Comments": bold, italic, link, to-do list. Mentions are typed with @.
+    # The bulleted and numbered lists are added to it, undo and redo stay on the keyboard.
     toolbar:
       items:
-        - heading
-        - '|'
         - bold
         - italic
-        - subscript
-        - superscript
+        - link
         - '|'
         - bulletedList
         - numberedList
         - todoList
-        - alignment
-        - '|'
-        - link
-        - '|'
-        - removeFormat
-        - undo
-        - redo
-        - '|'
-        - specialCharacters
-        - horizontalLine
-        - sourceEditing
 
     importModules:
       - { module: '@ckeditor/ckeditor5-list', exports: [ 'TodoList' ] }

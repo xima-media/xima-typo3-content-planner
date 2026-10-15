@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\RequestId;
 use TYPO3\CMS\Core\Http\{JsonResponse, RedirectResponse};
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
@@ -184,6 +185,10 @@ class RecordController extends ActionController
         // modal's default entry point and would otherwise never pull it in at all.
         $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/RecordModal.css', ['nonce' => $this->requestId->nonce]);
         $result .= AssetUtility::getCssTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Comments.css', ['nonce' => $this->requestId->nonce]);
+        // No FormEngine around the composer, so nothing else brings the editor's own styles.
+        if (ExtensionManagementUtility::isLoaded('rte_ckeditor')) {
+            $result .= AssetUtility::getCssTag('EXT:rte_ckeditor/Resources/Public/Css/editor.css', ['nonce' => $this->requestId->nonce]);
+        }
         $result .= AssetUtility::getJsTag('EXT:'.Configuration::EXT_KEY.'/Resources/Public/JavaScript/comments-reload-content.js', ['nonce' => $this->requestId->nonce]);
 
         return new JsonResponse([

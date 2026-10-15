@@ -198,6 +198,18 @@
 				<source>Status: %s, change</source>
 				<target>Status: %s, ändern</target>
 			</trans-unit>
+			<trans-unit id="modal.context.status">
+				<source>Status</source>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="modal.context.noStatus">
+				<source>No status</source>
+				<target>Kein Status</target>
+			</trans-unit>
+			<trans-unit id="modal.context.removeStatus">
+				<source>Remove status</source>
+				<target>Status entfernen</target>
+			</trans-unit>
 			<trans-unit id="status.remove">
 				<source>Remove status</source>
 				<target>Status entfernen</target>
@@ -215,8 +227,8 @@
 				<target>Zuständigkeit</target>
 			</trans-unit>
 			<trans-unit id="button.modal.header.watch">
-				<source>Watch</source>
-				<target>Beobachten</target>
+				<source>Watchers</source>
+				<target>Beobachter</target>
 			</trans-unit>
 			<trans-unit id="watch.tab.explanation">
 				<source>Watching a record notifies you about its status changes, assignments and comments. You're added automatically when you're assigned, comment, or change its status - or you can watch it manually at any time.</source>
@@ -239,8 +251,8 @@
 				<target>Schließen</target>
 			</trans-unit>
 			<trans-unit id="button.modal.footer.edit">
-				<source>Edit</source>
-				<target>Bearbeiten</target>
+				<source>Edit record</source>
+				<target>Datensatz bearbeiten</target>
 			</trans-unit>
 
 			<!-- header info -->

@@ -29,6 +29,11 @@ services:
   Xima\XimaTypo3ContentPlanner\Controller\Backend\StatusModuleController:
     public: true
 
+  # Same for an AJAX controller that is a plain class: only those extending Extbase's
+  # ActionController are made public by autoconfiguration.
+  Xima\XimaTypo3ContentPlanner\Controller\RecordModalController:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\RecordRepository:
     public: true
     arguments:

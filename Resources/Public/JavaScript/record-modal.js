@@ -20,6 +20,8 @@ import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
 import Icons from "@typo3/backend/icons.js"
 import AssigneeSelect from "@content-planner/assignee-select.js"
+import Notification from "@content-planner/notification.js"
+import Viewport from "@typo3/backend/viewport.js"
 
 const TAB_NAMES = ['comments', 'assignee', 'watch']
 const TABS = {
@@ -36,7 +38,7 @@ const TABS = {
   watch: {
     icon: 'content-planner-bell',
     labelKey: 'button.modal.header.watch',
-    labelFallback: 'Watch',
+    labelFallback: 'Watchers',
   },
 }
 
@@ -76,6 +78,7 @@ class RecordModal {
     this.modal = null
     this.recordKey = null
     this.context = null
+    this.info = null
     this.panes = {}
     this.tabButtons = {}
   }
@@ -105,23 +108,86 @@ class RecordModal {
     this.recordKey = recordKey
     this.context = context
 
+    // The title and the context row name the record, so the modal opens once the server has
+    // described it. A failed request still opens the modal, only without that information.
+    this.fetchRecordInfo()
+      .catch(() => null)
+      .then(async info => {
+        await this.loadStylesheets(info?.stylesheets ?? [])
+        if (this.recordKey !== recordKey) {
+          return
+        }
+        this.info = info
+        this.openModal(tab)
+      })
+  }
+
+  /**
+   * The modal frame is built before its first tab arrives, so the frame's stylesheet is loaded
+   * up front. Otherwise the frame shows unstyled until the tab's own markup brings it along.
+   */
+  loadStylesheets(urls) {
+    // This module may run in the content iframe, while Modal.advanced() attaches to the top document.
+    const topDocument = window.top.document
+    return Promise.all(urls.map(url => new Promise(resolve => {
+      if (topDocument.head.querySelector(`link[rel="stylesheet"][href="${CSS.escape(url)}"]`)) {
+        resolve()
+        return
+      }
+      const link = topDocument.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      const timer = setTimeout(resolve, 3000)
+      const settle = () => {
+        clearTimeout(timer)
+        resolve()
+      }
+      link.addEventListener('load', settle, { once: true })
+      link.addEventListener('error', settle, { once: true })
+      topDocument.head.append(link)
+    })))
+  }
+
+  openModal(tab) {
+    const recordTitle = TYPO3.lang?.['modal.record.title'] || 'Content Planner'
+
     Modal.advanced({
-      title: TYPO3.lang?.['modal.record.title'] || 'Content Planner',
+      title: this.info ? `${recordTitle}: ${this.info.title}` : recordTitle,
       content: this.buildShell(tab),
       size: Modal.sizes.large,
       staticBackdrop: true,
       buttons: this.buildFooterButtons(),
       callback: (modal) => {
         this.modal = modal
+        modal.classList.add('content-planner-modal')
         modal.addEventListener('typo3-modal-shown', () => this.activateTab(tab), { once: true })
         modal.addEventListener('typo3-modal-hide', () => this.reset(), { once: true })
       }
     })
   }
 
+  fetchRecordInfo() {
+    const { table, uid } = this.context
+
+    return new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_modalcontext)
+      .withQueryArguments({ table, uid })
+      .get()
+      .then(async response => {
+        const resolved = await response.resolve()
+        if (!response.response.ok || resolved.error) {
+          throw new Error(resolved.error || 'Content Planner: record context request failed')
+        }
+        return resolved
+      })
+  }
+
   buildShell(activeTab) {
     const wrapper = document.createElement('div')
     wrapper.className = 'content-planner-record-modal'
+
+    if (this.info) {
+      wrapper.append(this.buildContextRow())
+    }
 
     const tablist = document.createElement('div')
     tablist.className = 'content-planner-record-modal__tabs'
@@ -174,7 +240,181 @@ class RecordModal {
       this.panes[name] = pane
     })
 
+    this.applyInitialCounts()
+
     return wrapper
+  }
+
+  /**
+   * Counts known up front, so the tabs say what is in them before any pane has been opened.
+   */
+  applyInitialCounts() {
+    const counts = this.info?.counts
+    if (!counts) {
+      return
+    }
+
+    this.updateTabCount('comments', counts.comments)
+    this.updateTabCount('watch', counts.watchers)
+
+    if (counts.assignee) {
+      const suffix = document.createElement('span')
+      suffix.className = 'content-planner-record-modal__tab-detail'
+      suffix.textContent = counts.assignee
+      this.tabButtons.assignee.append(suffix)
+    }
+  }
+
+  buildContextRow() {
+    const row = document.createElement('div')
+    row.className = 'content-planner-record-modal__context'
+
+    const record = document.createElement('div')
+    record.className = 'content-planner-record-modal__record'
+
+    const icon = document.createElement('span')
+    icon.className = 'content-planner-record-modal__record-icon'
+    icon.innerHTML = this.info.recordIcon
+    record.append(icon)
+
+    const title = document.createElement('strong')
+    title.className = 'content-planner-record-modal__record-title'
+    title.textContent = this.info.title
+    record.append(title)
+
+    const reference = document.createElement('small')
+    reference.className = 'content-planner-record-modal__record-reference'
+    reference.textContent = `${this.info.typeLabel} · ${this.info.reference}`
+    record.append(reference)
+    row.append(record)
+
+    const status = document.createElement('div')
+    status.className = 'content-planner-record-modal__status'
+    const label = document.createElement('span')
+    label.textContent = TYPO3.lang?.['modal.context.status'] || 'Status'
+    status.append(label)
+    this.statusControl = document.createElement('div')
+    this.statusControl.className = 'dropdown'
+    status.append(this.statusControl)
+    this.renderStatusControl()
+    row.append(status)
+
+    return row
+  }
+
+  /**
+   * The status menu lists only the statuses the user may set. Without that permission the
+   * current status is shown as plain text, never as a dead button.
+   */
+  renderStatusControl() {
+    const { status, statuses, canChangeStatus, canUnsetStatus } = this.info
+    const noStatus = TYPO3.lang?.['modal.context.noStatus'] || 'No status'
+    const control = this.statusControl
+    control.replaceChildren()
+
+    if (!canChangeStatus) {
+      const text = document.createElement('span')
+      text.className = 'content-planner-record-modal__status-text'
+      text.textContent = status ? status.title : noStatus
+      control.append(text)
+      return
+    }
+
+    const toggle = document.createElement('button')
+    toggle.type = 'button'
+    toggle.className = 'btn btn-default dropdown-toggle'
+    toggle.setAttribute('aria-haspopup', 'true')
+    toggle.setAttribute('aria-expanded', 'false')
+    if (status) {
+      toggle.insertAdjacentHTML('beforeend', status.icon)
+    }
+    toggle.append(document.createTextNode(` ${status ? status.title : noStatus}`))
+    control.append(toggle)
+
+    const menu = document.createElement('ul')
+    menu.className = 'dropdown-menu dropdown-menu-end'
+    statuses.forEach(entry => menu.append(this.buildStatusItem(entry.uid, entry.icon, entry.title, entry.current)))
+    if (canUnsetStatus && status) {
+      const divider = document.createElement('li')
+      divider.innerHTML = '<hr class="dropdown-divider">'
+      menu.append(divider)
+      menu.append(this.buildStatusItem(0, '', TYPO3.lang?.['modal.context.removeStatus'] || 'Remove status', false))
+    }
+    control.append(menu)
+
+    this.bindStatusMenu(toggle, menu)
+  }
+
+  /**
+   * Bootstrap's dropdown positions this menu far outside the modal (Popper measures against the
+   * dialog, which is wider than its content), so the menu is opened and positioned by hand: it
+   * hangs below the button, aligned to its right edge (RecordModal.css).
+   */
+  bindStatusMenu(toggle, menu) {
+    const setOpen = open => {
+      menu.classList.toggle('show', open)
+      toggle.setAttribute('aria-expanded', String(open))
+    }
+
+    toggle.addEventListener('click', () => setOpen(!menu.classList.contains('show')))
+    menu.addEventListener('click', () => setOpen(false))
+    const closeOnOutsideClick = event => {
+      if (!toggle.isConnected) {
+        document.removeEventListener('click', closeOnOutsideClick)
+        return
+      }
+      if (!event.target.closest('.content-planner-record-modal__status')) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('click', closeOnOutsideClick)
+    toggle.closest('.content-planner-record-modal__status')?.addEventListener('keydown', event => {
+      if ('Escape' === event.key && menu.classList.contains('show')) {
+        event.stopPropagation()
+        setOpen(false)
+        toggle.focus()
+      }
+    })
+  }
+
+  buildStatusItem(uid, iconMarkup, title, current) {
+    const item = document.createElement('li')
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = `dropdown-item${current ? ' active' : ''}`
+    if (current) {
+      button.setAttribute('aria-current', 'true')
+    }
+    button.insertAdjacentHTML('beforeend', iconMarkup)
+    button.append(document.createTextNode(` ${title}`))
+    button.addEventListener('click', () => this.changeStatus(uid))
+    item.append(button)
+
+    return item
+  }
+
+  changeStatus(statusUid) {
+    const { table, uid } = this.context
+    const recordKey = this.recordKey
+
+    new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_modalstatus)
+      .post({ table, uid, status: statusUid })
+      .then(async response => {
+        const resolved = await response.resolve()
+        if (!response.response.ok || resolved.error) {
+          throw new Error(resolved.error || 'Content Planner: status change request failed')
+        }
+        if (this.recordKey === recordKey) {
+          this.info = { ...this.info, status: resolved.status, statuses: resolved.statuses }
+          this.renderStatusControl()
+        }
+        Viewport.ContentContainer.refresh()
+        Notification.message(0 === statusUid ? 'status.reset' : 'status.changed', 'success')
+      })
+      .catch(error => {
+        console.error('Content Planner: failed to change the status:', error)
+        Notification.message(0 === statusUid ? 'status.reset' : 'status.changed', 'failure')
+      })
   }
 
   buildFooterButtons() {
@@ -182,7 +422,7 @@ class RecordModal {
 
     if (this.context.editUri) {
       buttons.push({
-        text: TYPO3.lang?.['button.modal.footer.edit'] || 'Edit',
+        text: TYPO3.lang?.['button.modal.footer.edit'] || 'Edit record',
         name: 'edit',
         icon: 'actions-flag-edit',
         btnClass: 'btn-default',
@@ -262,13 +502,36 @@ class RecordModal {
           return
         }
         pane.dataset.loaded = 'true'
-        pane.appendChild(document.createRange().createContextualFragment(payload.result))
-        this.onPaneReady(tab, pane, payload)
+        return this.appendStyled(pane, payload.result).then(() => this.onPaneReady(tab, pane, payload))
       })
       .catch(error => {
         console.error(`Content Planner: failed to load the "${tab}" tab:`, error)
         delete pane.dataset.loaded
       })
+  }
+
+  /**
+   * The pane markup ships its own stylesheet links. Showing it before they have loaded flashes
+   * unstyled content, so the pane stays invisible until they settle (or a short timeout passes).
+   */
+  appendStyled(pane, markup) {
+    const fragment = document.createRange().createContextualFragment(markup)
+    const sheets = Array.from(fragment.querySelectorAll('link[rel="stylesheet"]'))
+    const loaded = Promise.all(sheets.map(sheet => new Promise(resolve => {
+      sheet.addEventListener('load', resolve, { once: true })
+      sheet.addEventListener('error', resolve, { once: true })
+    })))
+
+    pane.style.visibility = 'hidden'
+    pane.appendChild(fragment)
+
+    let timer
+    const timeout = new Promise(resolve => { timer = setTimeout(resolve, 3000) })
+
+    return Promise.race([loaded, timeout]).finally(() => {
+      clearTimeout(timer)
+      pane.style.visibility = ''
+    })
   }
 
   fetchTabContent(tab) {

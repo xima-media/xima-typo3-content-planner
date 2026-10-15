@@ -139,10 +139,27 @@
     white-space: nowrap;
 }
 
+/* The counts open the record's comments, so they are buttons that look like the plain counts. */
 .content-planner-module__count {
     align-items: center;
+    background: none;
+    border: 0;
+    border-radius: 4px;
+    color: inherit;
+    cursor: pointer;
     display: flex;
+    font: inherit;
     gap: 0.375rem;
+    padding: 0.125rem 0.25rem;
+}
+
+.content-planner-module__count:hover {
+    background-color: var(--typo3-surface-container-low);
+}
+
+.content-planner-module__count:focus-visible {
+    outline: 2px solid var(--typo3-state-primary-bg);
+    outline-offset: 2px;
 }
 
 /* The same pill as in the doc header (Header.css), which this module does not load. */
@@ -156,11 +173,31 @@
     padding: 0.125rem 0.375rem;
 }
 
-/* Status, type and assignee link into the list filtered by that value. */
+/* Type links into the list filtered by it. Status and assignee open the record's modal, as buttons
+   that look like the plain values. */
 .content-planner-module__cell-link {
     align-items: center;
     display: inline-flex;
     gap: 0.375rem;
+}
+
+button.content-planner-module__cell-link {
+    background: none;
+    border: 0;
+    border-radius: 4px;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    padding: 0.125rem 0.25rem;
+}
+
+button.content-planner-module__cell-link:hover {
+    background-color: var(--typo3-surface-container-low);
+}
+
+button.content-planner-module__cell-link:focus-visible {
+    outline: 2px solid var(--typo3-state-primary-bg);
+    outline-offset: 2px;
 }
 
 /* Sortable headers: plain links, a chevron on the active column. */

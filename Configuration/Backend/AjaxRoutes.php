@@ -20,6 +20,15 @@ return [
         'path' => '/content-planner/comments',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::commentsAction',
     ],
+    'ximatypo3contentplanner_modalcontext' => [
+        'path' => '/content-planner/modal-context',
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordModalController::class.'::contextAction',
+    ],
+    'ximatypo3contentplanner_modalstatus' => [
+        'path' => '/content-planner/modal-status',
+        'methods' => ['POST'],
+        'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordModalController::class.'::statusAction',
+    ],
     'ximatypo3contentplanner_assignees' => [
         'path' => '/content-planner/assignees',
         'target' => Xima\XimaTypo3ContentPlanner\Controller\RecordController::class.'::assigneeSelectionAction',

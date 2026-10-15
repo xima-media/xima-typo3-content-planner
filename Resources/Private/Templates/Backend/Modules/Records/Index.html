@@ -120,16 +120,11 @@
                                     <td>
                                         <f:if condition="{item.statusColor}">
                                             <f:then>
-                                                <f:if condition="{item.statusFilterLink}">
-                                                    <f:then>
-                                                        <a href="{item.statusFilterLink}" class="content-planner-module__cell-link">
-                                                            <f:render partial="StatusBadge" arguments="{title: item.status, icon: item.statusIconIdentifier, color: item.statusColor}"/>
-                                                        </a>
-                                                    </f:then>
-                                                    <f:else>
-                                                        <f:render partial="StatusBadge" arguments="{title: item.status, icon: item.statusIconIdentifier, color: item.statusColor}"/>
-                                                    </f:else>
-                                                </f:if>
+                                                <button type="button" class="content-planner-module__cell-link"
+                                                    data-content-planner-comments data-force-ajax-url="true"
+                                                    data-table="{item.data.tablename}" data-id="{item.data.uid}">
+                                                    <f:render partial="StatusBadge" arguments="{title: item.status, icon: item.statusIconIdentifier, color: item.statusColor}"/>
+                                                </button>
                                             </f:then>
                                             <f:else>
                                                 <span class="content-planner-module__muted"><f:translate key="records.status.none" extensionName="XimaTypo3ContentPlanner"/></span>
@@ -147,34 +142,42 @@
                                     <td>
                                         <f:if condition="{item.assignee}">
                                             <f:then>
-                                                <a href="{item.assigneeFilterLink}" class="content-planner-module__cell-link" title="{item.assigneeName}">
+                                                <button type="button" class="content-planner-module__cell-link" title="{item.assigneeName}"
+                                                    data-content-planner-assignees data-force-ajax-url="true"
+                                                    data-table="{item.data.tablename}" data-id="{item.data.uid}" data-current-assignee="{item.assignee}">
                                                     <f:format.raw>{item.assigneeAvatar}</f:format.raw>
                                                     {item.assigneeShortName}
-                                                </a>
+                                                </button>
                                             </f:then>
                                             <f:else>
-                                                <span class="content-planner-module__muted content-planner-module__unassigned">
+                                                <button type="button" class="content-planner-module__cell-link content-planner-module__muted content-planner-module__unassigned"
+                                                    data-content-planner-assignees data-force-ajax-url="true"
+                                                    data-table="{item.data.tablename}" data-id="{item.data.uid}">
                                                     <core:icon identifier="content-planner-user-circle" size="small" alternativeMarkupIdentifier="inline"/>
                                                     <f:translate key="header.unassigned" extensionName="XimaTypo3ContentPlanner"/>
-                                                </span>
+                                                </button>
                                             </f:else>
                                         </f:if>
                                     </td>
                                     <td><span class="content-planner-module__muted" title="{item.updatedRaw}">{item.updated}</span></td>
                                     <td class="content-planner-module__activity">
                                         <f:if condition="{item.commentsName}">
-                                            <span class="content-planner-module__count" title="{item.commentsName}">
+                                            <button type="button" class="content-planner-module__count" title="{item.commentsName}"
+                                                data-content-planner-comments data-force-ajax-url="true"
+                                                data-table="{item.data.tablename}" data-id="{item.data.uid}">
                                                 <core:icon identifier="content-planner-message-circle" size="small" alternativeMarkupIdentifier="inline"/>
                                                 <span class="badge content-planner-meta__pill" data-status="none" aria-hidden="true">{item.commentsCount}</span>
                                                 <span class="visually-hidden">{item.commentsName}</span>
-                                            </span>
+                                            </button>
                                         </f:if>
                                         <f:if condition="{item.todoName}">
-                                            <span class="content-planner-module__count" title="{item.todoName}">
+                                            <button type="button" class="content-planner-module__count" title="{item.todoName}"
+                                                data-content-planner-comments data-force-ajax-url="true" data-show-todo-comments="1"
+                                                data-table="{item.data.tablename}" data-id="{item.data.uid}">
                                                 <core:icon identifier="content-planner-checkbox" size="small" alternativeMarkupIdentifier="inline"/>
                                                 <span class="badge content-planner-meta__pill" data-status="{f:if(condition: '{item.todoResolved} < {item.todoTotal}', then: 'pending', else: 'resolved')}" aria-hidden="true">{item.todoResolved}/{item.todoTotal}</span>
                                                 <span class="visually-hidden">{item.todoName}</span>
-                                            </span>
+                                            </button>
                                         </f:if>
                                     </td>
                                 </tr>

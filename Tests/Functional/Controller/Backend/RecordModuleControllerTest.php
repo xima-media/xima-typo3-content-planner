@@ -189,7 +189,7 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function indexActionLinksStatusAndAssigneeCellsToTheMatchingFilterButOmitsAnUnassignedLink(): void
+    public function indexActionOpensTheRecordModalFromTheStatusAndAssigneeCells(): void
     {
         $this->loginBackendUser(1);
         $this->importSharedDataSet('status.csv');
@@ -229,14 +229,11 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
         $response = $this->createController($recordRepository)->indexAction($this->createRequest([]));
         $body = (string) $response->getBody();
 
-        self::assertStringContainsString('content-planner-module__cell-link', $body);
-        self::assertStringContainsString('status=2', $body);
-        self::assertStringContainsString('assignee=1', $body);
-        // record uid 2 has neither a status nor an assignee - the Title/Site/etc. columns
-        // must not silently link to "status=0" or "assignee=0", which would just be an
-        // always-empty filter.
-        self::assertStringNotContainsString('status=0', $body);
-        self::assertStringNotContainsString('assignee=0', $body);
+        // Both records have an assignee cell that opens the modal, only the assigned one names it.
+        self::assertSame(2, substr_count($body, 'data-content-planner-assignees'));
+        self::assertSame(1, substr_count($body, 'data-current-assignee="1"'));
+        // Neither record has comments, so the only comments trigger is the status of the record that has one.
+        self::assertSame(1, substr_count($body, 'data-content-planner-comments'));
     }
 
     #[Test]
