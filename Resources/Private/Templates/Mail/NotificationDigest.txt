@@ -1,11 +1,12 @@
-{greeting -> f:format.htmlentitiesDecode()}
-
-{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:digest.mail.headline')}
+<f:layout name="SystemEmail" />
+<f:section name="Subject">{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:digest.mail.headline')}</f:section>
+<f:section name="Title">{f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:digest.mail.headline')}</f:section>
+<f:section name="Main">{greeting -> f:format.htmlentitiesDecode()}
 
 {f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:digest.mail.intro')}
 <f:for each="{groups}" as="group">
 
-* {group.title -> f:format.htmlentitiesDecode()}
+* {group.title -> f:format.htmlentitiesDecode()}<f:if condition="{group.status}"> [{group.status -> f:format.htmlentitiesDecode()}]</f:if>
 <f:if condition="{group.url}">  {group.url}
 </f:if>  {group.reasonLabel -> f:format.htmlentitiesDecode()}
 <f:for each="{group.lines}" as="line">
@@ -15,3 +16,4 @@
 
 ---
 {f:translate(key: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang_be.xlf:digest.mail.footer')}
+</f:section>
