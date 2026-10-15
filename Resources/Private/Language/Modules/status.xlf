@@ -16,7 +16,7 @@
                 <source>Status</source>
             </trans-unit>
             <trans-unit id="header.headline">
-                <source>Content Planner Status</source>
+                <source>Statuses</source>
             </trans-unit>
             <trans-unit id="header.title">
                 <source>Title</source>
@@ -26,6 +26,21 @@
             </trans-unit>
             <trans-unit id="header.hidden">
                 <source>Hidden</source>
+            </trans-unit>
+            <trans-unit id="header.intro">
+                <source>The workflow steps editors can set on pages, content elements and records. The order here is the order in every status menu. The default status is used by the comment-first one-click flow when configured and permitted. Hidden statuses stay on existing records but are no longer offered.</source>
+            </trans-unit>
+            <trans-unit id="header.visibility">
+                <source>Visibility</source>
+            </trans-unit>
+            <trans-unit id="value.visible">
+                <source>Visible</source>
+            </trans-unit>
+            <trans-unit id="empty.title">
+                <source>No statuses yet</source>
+            </trans-unit>
+            <trans-unit id="empty.body">
+                <source>Editors can't track progress until you add at least one.</source>
             </trans-unit>
             <trans-unit id="button.new">
                 <source>New status</source>

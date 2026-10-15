@@ -78,6 +78,58 @@ final class StatusModuleControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function indexActionExplainsWhatStatusesAreInAShortIntro(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status_with_hidden.csv');
+
+        $body = (string) $this->createController()->indexAction($this->createRequest('content_planner_status', []))->getBody();
+
+        self::assertStringContainsString('<h1>Statuses</h1>', $body);
+        self::assertStringContainsString('The order here is the order in every status menu', $body);
+        self::assertStringContainsString('The default status is used by the comment-first one-click flow', $body);
+    }
+
+    #[Test]
+    public function indexActionShowsDefaultAndHiddenAsValuesInsteadOfEmptyColumns(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status_with_hidden.csv');
+
+        $body = (string) $this->createController()->indexAction($this->createRequest('content_planner_status', []))->getBody();
+
+        // status_with_hidden.csv: Draft is visible, Hidden Status is hidden, Done is the default.
+        self::assertSame(1, substr_count($body, '>Default</span>'));
+        self::assertSame(1, substr_count($body, '>Hidden</span>'));
+        self::assertSame(2, substr_count($body, '>Visible</span>'));
+        self::assertStringContainsString('>Visibility</th>', $body);
+    }
+
+    #[Test]
+    public function indexActionNamesTheEditActionAsText(): void
+    {
+        $this->loginBackendUser(1);
+        $this->importCSVDataSet(__DIR__.'/Fixtures/status_with_hidden.csv');
+
+        $body = (string) $this->createController()->indexAction($this->createRequest('content_planner_status', []))->getBody();
+
+        self::assertMatchesRegularExpression('#<a href="[^"]*" class="btn btn-default btn-sm"[^>]*>\s*(?:<span[^>]*>.*?</span>\s*)?<span class="content-planner-module__action-label">Edit</span>#s', $body);
+    }
+
+    #[Test]
+    public function indexActionAnswersAnEmptyListWithACalloutAndOneAction(): void
+    {
+        $this->loginBackendUser(1);
+
+        $body = (string) $this->createController()->indexAction($this->createRequest('content_planner_status', []))->getBody();
+
+        self::assertStringContainsString('callout', $body);
+        self::assertStringContainsString('No statuses yet', $body);
+        self::assertMatchesRegularExpression('#<a href="[^"]*new[^"]*" class="btn btn-default">New status</a>#', $body);
+        self::assertStringNotContainsString('<table', $body);
+    }
+
+    #[Test]
     public function moveActionReturns403ForNonAdminUser(): void
     {
         $this->loginBackendUser(2);

@@ -1,26 +1,9 @@
 /**
- * Content Planner - Records Module (docs/design/rules.md, "Records module")
- *
- * BEM: content-planner-module (block), __presets/__preset (toggle chips), __filter/__search
- * (inline filter bar), __table/__record/__path/__tag (rows), __activity, __pagination.
+ * Content Planner - Records Module (docs/design/rules.md, "Records module"): toggle chips,
+ * the inline filter bar and what is specific to a record row. Shared chrome is in Module.css.
  */
 
 @import '_variables.css';
-
-.content-planner-module h1 {
-    font-size: 1.75rem;
-    font-weight: 400;
-    margin: 0;
-}
-
-.content-planner-module__lead {
-    color: var(--content-planner-color-muted);
-    margin: 0.25rem 0 1rem;
-}
-
-.content-planner-module__muted {
-    color: var(--content-planner-color-muted);
-}
 
 /* Toggle chips: the label never changes with the state, aria-pressed carries it. */
 .content-planner-module__presets {
@@ -128,29 +111,6 @@
     margin-left: 0.25rem;
 }
 
-/* Table */
-.content-planner-module__table-wrap {
-    background-color: var(--typo3-component-bg);
-    border: 1px solid var(--typo3-component-border-color);
-    border-radius: 6px;
-    overflow-x: auto;
-}
-
-.content-planner-module__table {
-    margin: 0;
-    width: 100%;
-}
-
-.content-planner-module__table > thead > tr > th {
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-
-.content-planner-module__table > tbody > tr > td {
-    padding-block: 0.5rem;
-    vertical-align: middle;
-}
-
 .content-planner-module__title-line {
     align-items: center;
     display: flex;
@@ -166,15 +126,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-/* "Assigned to you" is a tag in the title cell, never a tinted row. */
-.content-planner-module__tag {
-    background-color: var(--content-planner-primary-tint);
-    border-radius: 999px;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    padding: 0.0625rem 0.5rem;
 }
 
 .content-planner-module__unassigned {

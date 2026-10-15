@@ -73,6 +73,7 @@ final readonly class StatusModuleController
             return new HtmlResponse('', 403);
         }
 
+        $this->pageRenderer->addCssFile('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Module.css');
         $this->pageRenderer->addCssFile('EXT:'.Configuration::EXT_KEY.'/Resources/Public/Css/Status.css');
 
         $statuses = $this->findAllStatusesIncludingHidden();
@@ -89,6 +90,7 @@ final readonly class StatusModuleController
         $this->addNewStatusButton($moduleTemplate);
         $moduleTemplate->assignMultiple([
             'statuses' => $rows,
+            'newStatusUrl' => $this->buildEditUrl(0, 'new'),
         ]);
 
         return $moduleTemplate->renderResponse('Backend/Modules/Status/Index');
