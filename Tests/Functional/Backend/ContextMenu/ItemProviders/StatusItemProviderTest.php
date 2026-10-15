@@ -132,10 +132,11 @@ final class StatusItemProviderTest extends AbstractFunctionalTestCase
         self::assertArrayHasKey('reset', $childItems);
         self::assertArrayHasKey('assignee', $childItems);
         self::assertArrayHasKey('comments', $childItems);
-        // Status 2 (current) is excluded from the selection, 1 and 3 remain selectable.
+        // Every status is listed, the current one (2) is marked as such.
         self::assertArrayHasKey('1', $childItems);
         self::assertArrayHasKey('3', $childItems);
-        self::assertArrayNotHasKey('2', $childItems);
+        self::assertSame('1', $childItems['2']['additionalAttributes']['data-status-current']);
+        self::assertArrayNotHasKey('data-status-current', $childItems['1']['additionalAttributes']);
 
         $attributes = $childItems['1']['additionalAttributes'];
         self::assertSame('pages', $attributes['data-effective-table']);
@@ -144,6 +145,19 @@ final class StatusItemProviderTest extends AbstractFunctionalTestCase
         self::assertNotSame('', $attributes['data-edit-uri']);
 
         self::assertSame(1, $childItems['assignee']['additionalAttributes']['data-current-assignee']);
+    }
+
+    #[Test]
+    public function theSubmenuNamesTheCurrentStatusInItsLabel(): void
+    {
+        $this->loginBackendUser(1);
+
+        $withStatus = $this->createProvider('pages', '1')->addItems([]);
+        $withoutStatus = $this->createProvider('pages', '2')->addItems([]);
+
+        $label = static fn (array $items): string => $GLOBALS['LANG']->sL($items['wrap']['label']);
+        self::assertSame('Status: In Progress', $label($withStatus));
+        self::assertSame('Status: No status', $label($withoutStatus));
     }
 
     #[Test]

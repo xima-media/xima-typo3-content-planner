@@ -13,6 +13,10 @@ const FOLDER_TABLE = 'tx_ximatypo3contentplanner_folder';
 class ContextMenuActions {
 
   change(table, uid, n) {
+    // The current status is listed with a check, picking it again changes nothing.
+    if (n.statusCurrent) {
+      return;
+    }
     const effectiveTable = n.effectiveTable || table;
     const effectiveUid = n.effectiveUid || uid;
     ContextMenuActions.changeStatus(effectiveTable, effectiveUid, n.status, n.folderStatusUrl, {

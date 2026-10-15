@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Utility\Data;
 
 use Doctrine\DBAL\Exception;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, StatusRepository};
@@ -161,7 +162,10 @@ class StatusRegistry
 
         $label = $backendUserRepository->getDisplayNameByUid($current);
         if ('' !== $label) {
-            $config['items'][] = ['label' => $label, 'value' => $current];
+            $hint = $GLOBALS['LANG'] instanceof LanguageService
+                ? $GLOBALS['LANG']->sL('LLL:EXT:'.Configuration::EXT_KEY.'/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee.unavailable')
+                : '';
+            $config['items'][] = ['label' => '' !== $hint ? $label.' ('.$hint.')' : $label, 'value' => $current];
         }
     }
 }

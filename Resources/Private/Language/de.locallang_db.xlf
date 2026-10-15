@@ -11,6 +11,18 @@
 				<source>No status</source>
 				<target>Kein Status</target>
 			</trans-unit>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_status.description">
+				<source>Changing the status here notifies everyone watching this record.</source>
+				<target>Eine Änderung des Status benachrichtigt alle, die diesen Datensatz beobachten.</target>
+			</trans-unit>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_assignee.description">
+				<source>Only users with Content Planner access are offered. A former assignee stays visible until changed. A change notifies the new assignee.</source>
+				<target>Es werden nur Benutzer mit Content-Planner-Zugriff angeboten. Eine frühere Zuweisung bleibt sichtbar, bis sie geändert wird. Eine Änderung benachrichtigt die neu zugewiesene Person.</target>
+			</trans-unit>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_assignee.unavailable">
+				<source>not assignable anymore</source>
+				<target>nicht mehr zuweisbar</target>
+			</trans-unit>
 			<trans-unit id="pages.tx_ximatypo3contentplanner_comments">
 				<source>Comments</source>
 				<target>Kommentare</target>

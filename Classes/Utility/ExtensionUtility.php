@@ -38,6 +38,8 @@ class ExtensionUtility
                 Configuration::FIELD_STATUS => [
                     'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status',
+                    'description' => 'LLL:EXT:'.Configuration::EXT_KEY.
+                        '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_status.description',
                     'config' => [
                         'items' => [
                             [
@@ -62,6 +64,8 @@ class ExtensionUtility
                     'exclude' => 1,
                     'label' => 'LLL:EXT:'.Configuration::EXT_KEY.
                         '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee',
+                    'description' => 'LLL:EXT:'.Configuration::EXT_KEY.
+                        '/Resources/Private/Language/locallang_db.xlf:pages.tx_ximatypo3contentplanner_assignee.description',
                     'config' => [
                         'type' => 'select',
                         'renderType' => 'selectSingle',

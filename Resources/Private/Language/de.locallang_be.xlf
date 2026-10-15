@@ -7,6 +7,14 @@
 				<source>Content Status</source>
 				<target>Inhaltsstatus</target>
 			</trans-unit>
+			<trans-unit id="status.current">
+				<source>Status: %s</source>
+				<target>Status: %s</target>
+			</trans-unit>
+			<trans-unit id="status.none">
+				<source>No status</source>
+				<target>Kein Status</target>
+			</trans-unit>
 			<trans-unit id="status.change">
 				<source>Status: %s, change</source>
 				<target>Status: %s, ändern</target>

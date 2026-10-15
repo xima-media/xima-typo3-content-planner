@@ -903,6 +903,14 @@
 			</trans-unit>
 
 			<!-- mentions -->
+			<trans-unit id="mention.card.watching">
+				<source>Watching this record, gets notified.</source>
+				<target>Beobachtet diesen Datensatz, wird benachrichtigt.</target>
+			</trans-unit>
+			<trans-unit id="mention.card.notWatching">
+				<source>Not watching this record, only notified about mentions.</source>
+				<target>Beobachtet diesen Datensatz nicht, wird nur bei Erwähnungen benachrichtigt.</target>
+			</trans-unit>
 			<trans-unit id="mention.card.loading">
 				<source>Loading profile…</source>
 				<target>Profil wird geladen…</target>

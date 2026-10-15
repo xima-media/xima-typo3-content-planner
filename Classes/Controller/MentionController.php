@@ -19,6 +19,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository};
+use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{IconUtility, ViewUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
@@ -57,6 +58,7 @@ class MentionController extends ActionController
     public function __construct(
         private readonly RecordRepository $recordRepository,
         private readonly BackendUserRepository $backendUserRepository,
+        private readonly WatcherService $watcherService,
     ) {}
 
     /**
@@ -124,8 +126,26 @@ class MentionController extends ActionController
                 // be_users e-mail addresses are not something TYPO3 shows a non-admin anywhere
                 // else, so the card does not become the one place that leaks them.
                 'email' => $this->getBackendUser()->isAdmin() ? (string) ($user['email'] ?? '') : '',
+                'watchState' => $this->resolveWatchState($request, $uid),
             ],
         )]);
+    }
+
+    /**
+     * Whether the mentioned person watches the record the comment is on, so the card can say
+     * if they get notified about it. Empty when the card is shown without a record.
+     *
+     * @throws Exception
+     */
+    private function resolveWatchState(ServerRequestInterface $request, int $uid): string
+    {
+        $table = (string) ($request->getQueryParams()['table'] ?? '');
+        $recordUid = (int) ($request->getQueryParams()['record'] ?? 0);
+        if ('' === $table || $recordUid <= 0 || !$this->watcherService->isWatchable($table)) {
+            return '';
+        }
+
+        return $this->watcherService->isWatching($table, $recordUid, $uid) ? 'watching' : 'notWatching';
     }
 
     /**
