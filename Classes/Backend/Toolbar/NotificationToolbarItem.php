@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Backend\Toolbar;
 
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Toolbar\ToolbarItemInterface;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Page\PageRenderer;
@@ -42,6 +44,7 @@ class NotificationToolbarItem implements ToolbarItemInterface
     public function __construct(
         private readonly NotificationCenterDataProvider $dataProvider,
         private readonly PageRenderer $pageRenderer,
+        private readonly UriBuilder $uriBuilder,
     ) {}
 
     public function checkAccess(): bool
@@ -84,7 +87,11 @@ class NotificationToolbarItem implements ToolbarItemInterface
      */
     public function getDropDown(): string
     {
-        return ViewUtility::render('Toolbar/NotificationDropDown.html', ['items' => []]);
+        return ViewUtility::render('Toolbar/NotificationDropDown.html', [
+            'items' => [],
+            'settingsUrl' => $this->buildUrl('user_setup'),
+            'recordsUrl' => $this->buildUrl('content_planner_records'),
+        ]);
     }
 
     /**
@@ -106,6 +113,18 @@ class NotificationToolbarItem implements ToolbarItemInterface
     public function getIndex(): int
     {
         return 45;
+    }
+
+    /**
+     * Empty when the module is not installed, the dropdown then leaves its link out.
+     */
+    private function buildUrl(string $route): string
+    {
+        try {
+            return (string) $this->uriBuilder->buildUriFromRoute($route);
+        } catch (RouteNotFoundException) {
+            return '';
+        }
     }
 
     private function loadAssets(): void

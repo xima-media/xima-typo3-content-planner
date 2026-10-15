@@ -38,6 +38,16 @@ final readonly class NotificationItem
         private string $timeAgo,
         private bool $read,
         private ?string $changeSummary,
+        private string $table,
+        private int $recordUid,
+        private string $verbBefore,
+        private string $verbAfter,
+        private string $pagePath,
+        private string $tagLabel,
+        private bool $tagHighlighted,
+        private bool $forYou,
+        private string $group,
+        private string $modalTab,
     ) {}
 
     public function getUid(): int
@@ -97,5 +107,70 @@ final readonly class NotificationItem
     public function getChangeSummary(): ?string
     {
         return $this->changeSummary;
+    }
+
+    public function getTable(): string
+    {
+        return $this->table;
+    }
+
+    public function getRecordUid(): int
+    {
+        return $this->recordUid;
+    }
+
+    /**
+     * The words before and after the record in the entry's one sentence: "{actor} {before} {record} {after}".
+     */
+    public function getVerbBefore(): string
+    {
+        return $this->verbBefore;
+    }
+
+    public function getVerbAfter(): string
+    {
+        return $this->verbAfter;
+    }
+
+    /**
+     * Where the record lives, "main › Home". Empty for a record at the root.
+     */
+    public function getPagePath(): string
+    {
+        return $this->pagePath;
+    }
+
+    public function getTagLabel(): string
+    {
+        return $this->tagLabel;
+    }
+
+    public function isTagHighlighted(): bool
+    {
+        return $this->tagHighlighted;
+    }
+
+    /**
+     * A mention, or an assignment to the viewer: the entries that need action.
+     */
+    public function isForYou(): bool
+    {
+        return $this->forYou;
+    }
+
+    /**
+     * "today" or "earlier".
+     */
+    public function getGroup(): string
+    {
+        return $this->group;
+    }
+
+    /**
+     * The modal tab a click opens: "comments" or "assignee".
+     */
+    public function getModalTab(): string
+    {
+        return $this->modalTab;
     }
 }

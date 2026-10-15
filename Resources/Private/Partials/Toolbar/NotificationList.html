@@ -1,15 +1,30 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 <f:if condition="{items}">
     <f:then>
-        <ul class="dropdown-list content-planner-notification-dropdown__list" id="content-planner-notification-list">
-            <f:for each="{items}" as="item">
-                <f:render partial="Toolbar/NotificationEntry" arguments="{item: item}"/>
-            </f:for>
-        </ul>
+        <div class="content-planner-notification-dropdown__list" id="content-planner-notification-list">
+            <f:groupedFor each="{items}" as="groupItems" groupBy="group" groupKey="groupName">
+                <section class="content-planner-notification-group" data-notification-group="{groupName}">
+                    <h3 class="content-planner-notification-group__title">
+                        <f:translate key="notification.group.{groupName}" extensionName="xima_typo3_content_planner"/>
+                    </h3>
+                    <ul class="dropdown-list content-planner-notification-group__list">
+                        <f:for each="{groupItems}" as="item">
+                            <f:render partial="Toolbar/NotificationEntry" arguments="{item: item}"/>
+                        </f:for>
+                    </ul>
+                </section>
+            </f:groupedFor>
+            <p class="content-planner-notification-dropdown__none" data-notification-for-you-empty hidden>
+                {f:translate(key: 'notification.filter.forYou.empty', extensionName: 'xima_typo3_content_planner')}
+            </p>
+        </div>
     </f:then>
     <f:else>
         <div class="content-planner-notification-dropdown__empty" id="content-planner-notification-list">
-            <p>{f:translate(key: 'notification.dropdown.empty', extensionName: 'xima_typo3_content_planner')}</p>
+            <span class="content-planner-notification-dropdown__empty-icon" aria-hidden="true">
+                <core:icon identifier="content-planner-check" size="small" alternativeMarkupIdentifier="inline"/>
+            </span>
+            <p class="content-planner-notification-dropdown__empty-title">{f:translate(key: 'notification.dropdown.empty', extensionName: 'xima_typo3_content_planner')}</p>
             <p class="content-planner-notification-dropdown__empty-hint">
                 {f:translate(key: 'notification.dropdown.empty.hint', extensionName: 'xima_typo3_content_planner')}
             </p>

@@ -38,6 +38,7 @@ class CommentsListModal {
     const shouldOpenComments = params.get('tx_contentplanner_comments')
     const targetCommentUid = params.get('tx_contentplanner_comment')
     const commentResolved = params.get('tx_contentplanner_comment_resolved')
+    const tab = params.get('tx_contentplanner_tab')
 
     if (!shouldOpenComments) {
       return
@@ -53,6 +54,7 @@ class CommentsListModal {
     cleanUrl.searchParams.delete('tx_contentplanner_comments')
     cleanUrl.searchParams.delete('tx_contentplanner_comment')
     cleanUrl.searchParams.delete('tx_contentplanner_comment_resolved')
+    cleanUrl.searchParams.delete('tx_contentplanner_tab')
     history.replaceState(null, '', cleanUrl.toString())
 
     setTimeout(() => {
@@ -64,7 +66,10 @@ class CommentsListModal {
         trigger.getAttribute('data-new-comment-uri'),
         trigger.getAttribute('data-edit-uri'),
         targetCommentUid || null,
-        !!commentResolved
+        !!commentResolved,
+        false,
+        false,
+        tab || 'comments'
       )
     }, 300)
   }
@@ -76,8 +81,8 @@ class CommentsListModal {
    * `commentComposerHtml` is non-empty, the same permission check that used to gate this
    * parameter), and the "New" trigger itself moved into the comments pane's own toolbar.
    */
-  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false, scrollToCommentUid = null, showResolved = false, focusComposer = false, showTodo = false) {
-    RecordModal.open('comments', {
+  fetchComments(url, table, uid, newCommentUrl = false, editUrl = false, scrollToCommentUid = null, showResolved = false, focusComposer = false, showTodo = false, tab = 'comments') {
+    RecordModal.open(tab, {
       table,
       uid,
       commentsUrl: url,

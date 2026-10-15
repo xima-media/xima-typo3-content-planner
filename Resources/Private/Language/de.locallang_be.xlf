@@ -318,6 +318,78 @@
 				<source>Content edited by %d users, %d change(s)</source>
 				<target>Inhalt von %d Benutzern bearbeitet, %d Änderung(en)</target>
 			</trans-unit>
+			<trans-unit id="notification.verb.mentioned.before">
+				<source>mentioned you on</source>
+				<target>hat Sie bei</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.mentioned.after">
+				<source></source>
+				<target>erwähnt</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.comment.after">
+				<source></source>
+				<target>kommentiert</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.assigned.before">
+				<source>assigned</source>
+				<target>hat</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.assigned.afterYou">
+				<source>to you</source>
+				<target>Ihnen zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.assigned.afterOther">
+				<source>to %s</source>
+				<target>%s zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.assigned.afterNobody">
+				<source>(assignee removed)</source>
+				<target>(Zuweisung entfernt)</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.status.before">
+				<source>changed</source>
+				<target>hat</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.status.after">
+				<source>to %s</source>
+				<target>auf %s gesetzt</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.status.removed">
+				<source>(status removed)</source>
+				<target>(Status entfernt)</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.comment.before">
+				<source>commented on</source>
+				<target>hat</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.content.singular">
+				<source>%d content change on</source>
+				<target>%d Inhaltsänderung an</target>
+			</trans-unit>
+			<trans-unit id="notification.verb.content.plural">
+				<source>%d content changes on</source>
+				<target>%d Inhaltsänderungen an</target>
+			</trans-unit>
+			<trans-unit id="notification.tag.mentioned">
+				<source>Mentioned</source>
+				<target>Erwähnt</target>
+			</trans-unit>
+			<trans-unit id="notification.tag.assigned">
+				<source>Assigned to you</source>
+				<target>Ihnen zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="notification.tag.watching">
+				<source>Watching</source>
+				<target>Beobachtet</target>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.unreadCount">
+				<source>%d unread</source>
+				<target>%d ungelesen</target>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.muted">
+				<source>Muted</source>
+				<target>Stummgeschaltet</target>
+			</trans-unit>
 			<!-- email digest -->
 			<trans-unit id="digest.mail.greeting">
 				<source>Hi %s,</source>

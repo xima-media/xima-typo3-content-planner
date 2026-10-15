@@ -16,7 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Unit\Service\Notification;
 use PHPUnit\Framework\Attributes\{DataProvider, Test};
 use PHPUnit\Framework\TestCase;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, NotificationRepository, RecordRepository};
-use Xima\XimaTypo3ContentPlanner\Service\Notification\NotificationCenterDataProvider;
+use Xima\XimaTypo3ContentPlanner\Service\Notification\{NotificationCenterDataProvider, NotificationSentenceBuilder};
 
 /**
  * NotificationCenterDataProviderTest.
@@ -56,6 +56,7 @@ final class NotificationCenterDataProviderTest extends TestCase
             $notificationRepository,
             $this->createMock(RecordRepository::class),
             $this->createMock(BackendUserRepository::class),
+            $this->createMock(NotificationSentenceBuilder::class),
         );
 
         self::assertSame($expectedLabel, $subject->getUnreadBadgeLabel(5));
@@ -71,6 +72,7 @@ final class NotificationCenterDataProviderTest extends TestCase
             $notificationRepository,
             $this->createMock(RecordRepository::class),
             $this->createMock(BackendUserRepository::class),
+            $this->createMock(NotificationSentenceBuilder::class),
         );
 
         self::assertSame(42, $subject->getUnreadCount(7));
@@ -86,6 +88,7 @@ final class NotificationCenterDataProviderTest extends TestCase
             $notificationRepository,
             $this->createMock(RecordRepository::class),
             $this->createMock(BackendUserRepository::class),
+            $this->createMock(NotificationSentenceBuilder::class),
         );
 
         self::assertSame([], $subject->getLatestForDropdown(3));

@@ -240,6 +240,60 @@
 			<trans-unit id="notification.contentChanged.summary.plural">
 				<source>Content edited by %d users, %d change(s)</source>
 			</trans-unit>
+			<trans-unit id="notification.verb.mentioned.before">
+				<source>mentioned you on</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.mentioned.after">
+				<source></source>
+			</trans-unit>
+			<trans-unit id="notification.verb.comment.after">
+				<source></source>
+			</trans-unit>
+			<trans-unit id="notification.verb.assigned.before">
+				<source>assigned</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.assigned.afterYou">
+				<source>to you</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.assigned.afterOther">
+				<source>to %s</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.assigned.afterNobody">
+				<source>(assignee removed)</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.status.before">
+				<source>changed</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.status.after">
+				<source>to %s</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.status.removed">
+				<source>(status removed)</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.comment.before">
+				<source>commented on</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.content.singular">
+				<source>%d content change on</source>
+			</trans-unit>
+			<trans-unit id="notification.verb.content.plural">
+				<source>%d content changes on</source>
+			</trans-unit>
+			<trans-unit id="notification.tag.mentioned">
+				<source>Mentioned</source>
+			</trans-unit>
+			<trans-unit id="notification.tag.assigned">
+				<source>Assigned to you</source>
+			</trans-unit>
+			<trans-unit id="notification.tag.watching">
+				<source>Watching</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.unreadCount">
+				<source>%d unread</source>
+			</trans-unit>
+			<trans-unit id="notification.dropdown.muted">
+				<source>Muted</source>
+			</trans-unit>
 			<!-- email digest -->
 			<trans-unit id="digest.mail.subject">
 				<source>Content Planner: %d update(s) to review</source>

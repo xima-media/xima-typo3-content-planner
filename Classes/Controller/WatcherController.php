@@ -103,6 +103,45 @@ class WatcherController extends ActionController
     }
 
     /**
+     * Mutes a record for the requesting user: the sticky unwatch of the Watch tab, offered right
+     * next to a notification in the toolbar. Unlike {@see self::toggleAction()} it never starts
+     * watching, so a second click or a stale entry cannot turn a mute back into a watch.
+     *
+     * @throws Exception
+     */
+    public function muteAction(ServerRequestInterface $request): ResponseInterface
+    {
+        $table = (string) ($request->getQueryParams()['table'] ?? '');
+        $uid = (int) ($request->getQueryParams()['uid'] ?? 0);
+
+        if ('' === $table || 0 === $uid) {
+            return new JsonResponse(['error' => 'Missing required parameters'], 400);
+        }
+
+        $backendUserUid = $this->resolveBackendUserUid();
+        if (null === $backendUserUid) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        if (!$this->watcherService->isWatchable($table)) {
+            return new JsonResponse(['error' => 'Table does not support watching'], 400);
+        }
+
+        $record = $this->recordRepository->findByUid($table, $uid, true);
+        if (!$record) {
+            return new JsonResponse(['error' => 'Record not found'], 404);
+        }
+
+        if (!PermissionUtility::checkAccessForRecord($table, $record)) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $this->watcherService->unwatch($table, $uid, $backendUserUid);
+
+        return new JsonResponse(['muted' => true]);
+    }
+
+    /**
      * The record modal's "Watch" tab: explains the feature and lists who is currently watching.
      * The toggle button rendered inside it is the same Partials/WatchToggle.html partial the
      * header renders, wired up by watch-toggle.js's own document-level click delegation - this

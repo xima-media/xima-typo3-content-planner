@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Backend\Toolbar;
 
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Backend\Toolbar\NotificationToolbarItem;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -102,11 +103,24 @@ final class NotificationToolbarItemTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('content-planner-notification-dropdown', $dropDown);
     }
 
+    #[Test]
+    public function theDropDownOffersTheForYouFilterAndLinksToTheRecords(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+
+        $dropDown = $this->createSubject()->getDropDown();
+
+        self::assertStringContainsString('data-notification-filter-option="for-you"', $dropDown);
+        self::assertStringContainsString('content-planner/records', $dropDown);
+    }
+
     private function createSubject(): NotificationToolbarItem
     {
         return new NotificationToolbarItem(
             $this->get(NotificationCenterDataProvider::class),
             $this->get(PageRenderer::class),
+            $this->get(UriBuilder::class),
         );
     }
 }

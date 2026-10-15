@@ -78,6 +78,7 @@ class NotificationCenter {
     const markReadButton = event.target.closest('[data-notification-mark-read]');
     if (markReadButton) {
       event.preventDefault();
+      event.stopPropagation();
       const entry = markReadButton.closest('[data-notification-uid]');
       this.markAsRead(parseInt(markReadButton.dataset.notificationMarkRead, 10), entry);
 
@@ -87,7 +88,97 @@ class NotificationCenter {
     const markAllButton = event.target.closest('[data-notification-mark-all-read]');
     if (markAllButton) {
       event.preventDefault();
+      event.stopPropagation();
       this.markAllAsRead();
+
+      return;
+    }
+
+    const muteButton = event.target.closest('[data-notification-mute]');
+    if (muteButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.mute(muteButton.closest('[data-notification-uid]'));
+
+      return;
+    }
+
+    const filterOption = event.target.closest('[data-notification-filter-option]');
+    if (filterOption) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.setFilter(filterOption.dataset.notificationFilterOption);
+    }
+  }
+
+  /**
+   * The same sticky unwatch as the record modal's Watchers tab, offered where the annoyance
+   * happens. Every entry of that record shows it as muted afterwards.
+   */
+  mute(entryElement) {
+    const table = entryElement?.dataset.notificationTable;
+    const uid = entryElement?.dataset.notificationRecord;
+    if (!table || !uid) {
+      return;
+    }
+
+    new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_watch_mute)
+      .withQueryArguments({table, uid})
+      .get()
+      .then(async (result) => {
+        if (!result.response.ok) {
+          throw new Error('mute request failed');
+        }
+        const label = TYPO3.lang?.['notification.dropdown.muted'] || 'Muted';
+        this.dropdown?.querySelectorAll(`[data-notification-table="${CSS.escape(table)}"][data-notification-record="${CSS.escape(uid)}"] [data-notification-mute]`)
+          .forEach((button) => {
+            const muted = document.createElement('span');
+            muted.className = 'content-planner-notification-entry__muted';
+            muted.textContent = label;
+            button.replaceWith(muted);
+          });
+      })
+      .catch((error) => this.logIncompleteRequest('mute', error));
+  }
+
+  /**
+   * "For you" narrows the list to mentions and assignments. Done on the entries already loaded,
+   * the list is short and a round trip per switch would only make the dropdown feel slow.
+   */
+  setFilter(filter) {
+    if (!this.dropdown) {
+      return;
+    }
+    this.dropdown.dataset.notificationFilter = filter;
+    this.dropdown.querySelectorAll('[data-notification-filter-option]').forEach((option) => {
+      option.setAttribute('aria-pressed', String(option.dataset.notificationFilterOption === filter));
+    });
+    this.applyFilter();
+  }
+
+  applyFilter() {
+    const dropdown = this.dropdown;
+    if (!dropdown) {
+      return;
+    }
+
+    const forYouOnly = 'for-you' === dropdown.dataset.notificationFilter;
+    dropdown.querySelectorAll('[data-notification-uid]').forEach((entry) => {
+      entry.hidden = forYouOnly && '1' !== entry.dataset.notificationForYou;
+    });
+    dropdown.querySelectorAll('[data-notification-group]').forEach((group) => {
+      group.hidden = null === group.querySelector('[data-notification-uid]:not([hidden])');
+    });
+    const none = dropdown.querySelector('[data-notification-for-you-empty]');
+    if (none) {
+      none.hidden = !forYouOnly || null !== dropdown.querySelector('[data-notification-uid]:not([hidden])');
+    }
+  }
+
+  updateUnreadLabel(unreadCount) {
+    const label = this.dropdown?.querySelector('[data-notification-unread-label]');
+    if (label) {
+      label.textContent = unreadCount > 0 ? (TYPO3.lang?.['notification.dropdown.unreadCount'] || '%d unread').replace('%d', String(unreadCount)) : '';
     }
   }
 
@@ -96,8 +187,8 @@ class NotificationCenter {
       .get()
       .then(async (result) => {
         const data = await result.response.json();
-        this.replaceList(data.result);
         this.updateBadge(data.unreadCount, data.badgeLabel);
+        this.replaceList(data.result);
         this.listLoaded = true;
       })
       .catch((error) => this.logIncompleteRequest('notification refresh', error));
@@ -164,10 +255,18 @@ class NotificationCenter {
         .getElementById('content-planner-notification-list')
         ?.querySelector('[data-notification-uid]');
       markAllButton.hidden = !hasEntries;
+      const filterBar = this.dropdown?.querySelector('[data-notification-filter-bar]');
+      if (filterBar) {
+        filterBar.hidden = !hasEntries;
+      }
     }
+    this.applyFilter();
+    this.updateUnreadLabel(this.unreadCount ?? 0);
   }
 
   updateBadge(unreadCount, badgeLabel) {
+    this.unreadCount = unreadCount;
+    this.updateUnreadLabel(unreadCount);
     if (!this.badge) {
       return;
     }
