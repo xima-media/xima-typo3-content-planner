@@ -289,7 +289,7 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('Search: foo', $body);
         // status.csv uid 2 is "In Progress"
         self::assertStringContainsString('Status: In Progress', $body);
-        self::assertStringContainsString('Open TODOs', $body);
+        self::assertStringContainsString('Open to-dos', $body);
         // each chip must remove only its own dimension, keeping the others
         self::assertStringContainsString('search=foo&amp;todo=1', $body);
         self::assertStringContainsString('search=foo&amp;status=2', $body);

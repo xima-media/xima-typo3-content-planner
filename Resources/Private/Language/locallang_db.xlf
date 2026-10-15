@@ -6,6 +6,9 @@
 			<trans-unit id="pages.tx_ximatypo3contentplanner_status">
 				<source>Status</source>
 			</trans-unit>
+			<trans-unit id="pages.tx_ximatypo3contentplanner_status.empty">
+				<source>No status</source>
+			</trans-unit>
 			<trans-unit id="pages.tx_ximatypo3contentplanner_comments">
 				<source>Comments</source>
 			</trans-unit>
@@ -13,7 +16,7 @@
 				<source>Assignee</source>
 			</trans-unit>
 			<trans-unit id="pages.tx_ximatypo3contentplanner_assignee.empty">
-				<source>-- Not assigned --</source>
+				<source>Unassigned</source>
 			</trans-unit>
 			<trans-unit id="tx_ximatypo3contentplanner_comment.content">
 				<source>Content</source>

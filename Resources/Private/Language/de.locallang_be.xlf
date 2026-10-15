@@ -8,8 +8,8 @@
 				<target>Inhaltsstatus</target>
 			</trans-unit>
 			<trans-unit id="reset">
-				<source>Reset Status</source>
-				<target>Status zurücksetzen</target>
+				<source>Remove status</source>
+				<target>Status entfernen</target>
 			</trans-unit>
 			<trans-unit id="comment">
 				<source>Content Planner Comment</source>
@@ -20,11 +20,12 @@
 				<target>Kommentar(e)</target>
 			</trans-unit>
 			<trans-unit id="comments.todo">
-				<source>ToDo(s)</source>
+				<source>To-dos</source>
+				<target>To-dos</target>
 			</trans-unit>
 			<trans-unit id="header.unassigned">
-				<source>-- Not assigned --</source>
-				<target>-- Nicht zugewiesen --</target>
+				<source>Unassigned</source>
+				<target>Nicht zugewiesen</target>
 			</trans-unit>
 			<trans-unit id="save_and_close">
 				<source>Save and Close</source>
@@ -113,19 +114,19 @@
 				<target>Der Status des Eintrags konnte nicht geändert werden.</target>
 			</trans-unit>
 			<trans-unit id="message.status.reset.success.title">
-				<source>Status reset</source>
+				<source>Status removed</source>
 				<target>Status entfernt</target>
 			</trans-unit>
 			<trans-unit id="message.status.reset.success.message">
-				<source>The status of the record has been unset successfully.</source>
+				<source>The status of the record has been removed.</source>
 				<target>Der Status des Eintrags wurde erfolgreich entfernt.</target>
 			</trans-unit>
 			<trans-unit id="message.status.reset.failure.title">
-				<source>Status reset failed</source>
+				<source>Status could not be removed</source>
 				<target>Status konnte nicht entfernt werden</target>
 			</trans-unit>
 			<trans-unit id="message.status.reset.failure.message">
-				<source>The status of the record could not be unset.</source>
+				<source>The status of the record could not be removed.</source>
 				<target>Der Status des Eintrags konnte nicht entfernt werden.</target>
 			</trans-unit>
 			<trans-unit id="message.assignee.changed.success.title">
@@ -343,8 +344,8 @@
 				<target>Ein Datensatz, der nicht mehr verfügbar ist</target>
 			</trans-unit>
 			<trans-unit id="digest.mail.footer">
-				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Unwatch". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
-				<target>Um für einen bestimmten Datensatz keine Aktualisierungen mehr zu erhalten, öffne ihn im TYPO3-Backend und wähle "Nicht mehr beobachten". Um diese Sammel-E-Mail vollständig zu deaktivieren, deaktiviere "Content-Planner-E-Mail-Zusammenfassung erhalten" in deinen Backend-Benutzereinstellungen.</target>
+				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Mute". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
+				<target>Um für einen bestimmten Datensatz keine Aktualisierungen mehr zu erhalten, öffne ihn im TYPO3-Backend und wähle "Stummschalten". Um diese Sammel-E-Mail vollständig zu deaktivieren, deaktiviere "Content-Planner-E-Mail-Zusammenfassung erhalten" in deinen Backend-Benutzereinstellungen.</target>
 			</trans-unit>
 			<trans-unit id="mention.self">
 				<source>(you)</source>

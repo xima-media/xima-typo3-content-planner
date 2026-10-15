@@ -7,7 +7,7 @@
 				<source>Content Status</source>
 			</trans-unit>
 			<trans-unit id="reset">
-				<source>Reset Status</source>
+				<source>Remove status</source>
 			</trans-unit>
 			<trans-unit id="comment">
 				<source>Content Planner Comment</source>
@@ -16,10 +16,10 @@
 				<source>Comment(s)</source>
 			</trans-unit>
 			<trans-unit id="comments.todo">
-				<source>ToDo(s)</source>
+				<source>To-dos</source>
 			</trans-unit>
 			<trans-unit id="header.unassigned">
-				<source>-- Not assigned --</source>
+				<source>Unassigned</source>
 			</trans-unit>
 			<trans-unit id="save_and_close">
 				<source>Save and Close</source>
@@ -87,16 +87,16 @@
 				<source>The status of the record could not be changed.</source>
 			</trans-unit>
 			<trans-unit id="message.status.reset.success.title">
-				<source>Status reset</source>
+				<source>Status removed</source>
 			</trans-unit>
 			<trans-unit id="message.status.reset.success.message">
-				<source>The status of the record has been unset successfully.</source>
+				<source>The status of the record has been removed.</source>
 			</trans-unit>
 			<trans-unit id="message.status.reset.failure.title">
-				<source>Status reset failed</source>
+				<source>Status could not be removed</source>
 			</trans-unit>
 			<trans-unit id="message.status.reset.failure.message">
-				<source>The status of the record could not be unset.</source>
+				<source>The status of the record could not be removed.</source>
 			</trans-unit>
 			<trans-unit id="message.assignee.changed.success.title">
 				<source>Assignee changed</source>
@@ -260,7 +260,7 @@
 				<source>A record that is no longer available</source>
 			</trans-unit>
 			<trans-unit id="digest.mail.footer">
-				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Unwatch". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
+				<source>To stop receiving updates for a specific record, open it in the TYPO3 backend and choose "Mute". To stop this digest email entirely, disable "Receive content planner email digest" in your backend user settings.</source>
 			</trans-unit>
 			<trans-unit id="mention.self">
 				<source>(you)</source>

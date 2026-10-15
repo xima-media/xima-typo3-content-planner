@@ -25,16 +25,16 @@
 				<source>Display all records with your assignment</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.todo.title">
-				<source>ToDo</source>
+				<source>To-dos</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.todo.description">
-				<source>Display all records with open todos in the comments</source>
+				<source>Display all records with open to-dos in the comments</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.mywork.title">
 				<source>My work</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.mywork.description">
-				<source>Display your assigned records and resolved todos at a glance</source>
+				<source>Display your assigned records and resolved to-dos at a glance</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.title">
 				<source>Overview</source>
@@ -113,7 +113,7 @@
 				<source>Watching a record notifies you about its status changes, assignments and comments. You're added automatically when you're assigned, comment, or change its status - or you can watch it manually at any time.</source>
 			</trans-unit>
 			<trans-unit id="watch.tab.watchers.heading">
-				<source>Watchers (%s)</source>
+				<source>Watchers · %s</source>
 			</trans-unit>
 			<trans-unit id="watch.tab.watchers.empty">
 				<source>Nobody is watching this record yet.</source>
@@ -156,10 +156,10 @@
 				<source>Unassign</source>
 			</trans-unit>
 			<trans-unit id="header.unassigned">
-				<source>-- Not assigned --</source>
+				<source>Unassigned</source>
 			</trans-unit>
 			<trans-unit id="header.assignee.none">
-				<source>Not assigned yet</source>
+				<source>Unassigned</source>
 			</trans-unit>
 			<trans-unit id="header.assignee.none.hint">
 				<source>Click to assign yourself or someone else.</source>
@@ -279,7 +279,7 @@
 				<source>Open comments</source>
 			</trans-unit>
 			<trans-unit id="filter.openTodos">
-				<source>Open TODOs</source>
+				<source>Open to-dos</source>
 			</trans-unit>
 			<trans-unit id="filter.watchedByMe">
 				<source>Watched by me</source>
@@ -291,7 +291,7 @@
 				<source>%1$s records assigned to me</source>
 			</trans-unit>
 			<trans-unit id="records.presets.todo">
-				<source>%1$s records with open todos</source>
+				<source>%1$s records with open to-dos</source>
 			</trans-unit>
 			<trans-unit id="records.presets.openComments">
 				<source>%1$s records with open comments</source>
@@ -442,7 +442,7 @@
 				<source>Show resolved comments</source>
 			</trans-unit>
 			<trans-unit id="comment.filter.showTodoComments">
-				<source>Show only ToDo comments</source>
+				<source>Show only comments with to-dos</source>
 			</trans-unit>
 			<trans-unit id="comment.record.jump">
 				<source>Open %s in the backend</source>
@@ -505,7 +505,7 @@
 				<source>Assigned Records</source>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.mode.todo">
-				<source>Records with open TODOs</source>
+				<source>Records with open to-dos</source>
 			</trans-unit>
 			<trans-unit id="widgets.configurable.setting.status.label">
 				<source>Status Filter</source>
@@ -581,7 +581,7 @@
 				<source>Status</source>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.status.none">
-				<source>No status assigned</source>
+				<source>No status</source>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.assignee">
 				<source>Assignee</source>
@@ -602,7 +602,7 @@
 				<source>Mine</source>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.comments.todo">
-				<source>Open todos</source>
+				<source>Open to-dos</source>
 			</trans-unit>
 			<trans-unit id="pagetreeFacets.comments.none">
 				<source>No comments</source>
