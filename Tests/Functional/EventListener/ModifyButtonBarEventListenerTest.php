@@ -16,7 +16,7 @@ namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\EventListener;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Module\Module;
 use TYPO3\CMS\Backend\Template\Components\{ButtonBar, ModifyButtonBarEvent};
-use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
+use TYPO3\CMS\Backend\Template\Components\Buttons\{DropDownButton, GenericButton};
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
@@ -101,7 +101,7 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function chipModeAddsAssigneeAndCommentButtonsForPageEdit(): void
+    public function chipModeGroupsStatusAssigneeAndCommentsIntoOneButtonGroup(): void
     {
         // Default headerDisplayMode ("chip") is unset in the fixture setup.
         $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
@@ -109,17 +109,61 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
 
         $this->subject->__invoke($event);
 
-        $linkButtons = $this->getLinkButtons($event);
-        self::assertCount(2, $linkButtons);
+        $group = $this->getStatusGroup($event);
+        self::assertCount(3, $group);
+        self::assertInstanceOf(DropDownButton::class, $group[0]);
+        self::assertSame('Status: In Progress, change', $group[0]->getTitle());
 
-        $assigneeButton = $linkButtons[0];
+        [$assigneeButton, $commentsButton] = $this->getTrioButtons($event);
         self::assertStringContainsString('content-planner-link--assignee', $assigneeButton->getClasses());
-        self::assertSame('1', $assigneeButton->getDataAttributes()['id']);
-        self::assertSame('pages', $assigneeButton->getDataAttributes()['table']);
+        self::assertSame('button', $assigneeButton->getTag());
+        self::assertSame('1', $assigneeButton->getAttributes()['data-id']);
+        self::assertSame('pages', $assigneeButton->getAttributes()['data-table']);
+        self::assertSame('Administrator (admin)', $assigneeButton->getLabel());
+        self::assertSame('Assignee: Administrator (admin)', $assigneeButton->getAttributes()['aria-label']);
 
-        $commentsButton = $linkButtons[1];
         self::assertStringContainsString('content-planner-link--comments', $commentsButton->getClasses());
-        self::assertSame('pages', $commentsButton->getDataAttributes()['table']);
+        self::assertSame('pages', $commentsButton->getAttributes()['data-table']);
+    }
+
+    #[Test]
+    public function chipModeLabelsAMissingAssigneeUnassigned(): void
+    {
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [2 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        self::assertSame('Unassigned', $this->getTrioButtons($event)[0]->getLabel());
+        self::assertSame('Set status', $this->getStatusGroup($event)[0]->getTitle());
+    }
+
+    #[Test]
+    public function chipModeCommentsButtonShowsTheCountAndNamesItForAssistiveTechnology(): void
+    {
+        $this->importSharedDataSet('comments.csv');
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        $commentsButton = $this->getTrioButtons($event)[1];
+        self::assertTrue($commentsButton->getShowLabelText());
+        self::assertSame('1', $commentsButton->getLabel());
+        self::assertSame('1 comment', $commentsButton->getAttributes()['aria-label']);
+    }
+
+    #[Test]
+    public function chipModeCommentsButtonWithoutCommentsShowsOnlyTheIcon(): void
+    {
+        $this->setUpBackendRequest('record_edit', ['edit' => ['pages' => [1 => 'edit']]]);
+        $event = $this->createEvent();
+
+        $this->subject->__invoke($event);
+
+        $commentsButton = $this->getTrioButtons($event)[1];
+        self::assertFalse($commentsButton->getShowLabelText());
+        self::assertSame('Comments', $commentsButton->getAttributes()['aria-label']);
     }
 
     #[Test]
@@ -131,8 +175,8 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
 
         $this->subject->__invoke($event);
 
-        $commentsButton = $this->getLinkButtons($event)[1];
-        self::assertArrayHasKey('focus-composer', $commentsButton->getDataAttributes());
+        $commentsButton = $this->getTrioButtons($event)[1];
+        self::assertArrayHasKey('data-focus-composer', $commentsButton->getAttributes());
     }
 
     #[Test]
@@ -143,7 +187,7 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
 
         $this->subject->__invoke($event);
 
-        foreach ($this->getLinkButtons($event) as $button) {
+        foreach ($this->getTrioButtons($event) as $button) {
             self::assertSame('small', $button->getIcon()?->getSize());
         }
     }
@@ -158,7 +202,7 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
 
         $this->subject->__invoke($event);
 
-        self::assertCount(0, $this->getLinkButtons($event));
+        self::assertCount(0, $this->getTrioButtons($event));
 
         unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
     }
@@ -210,24 +254,30 @@ final class ModifyButtonBarEventListenerTest extends AbstractFunctionalTestCase
 
         $this->subject->__invoke($event);
 
-        self::assertCount(2, $this->getLinkButtons($event));
+        self::assertCount(2, $this->getTrioButtons($event));
 
         unset($GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY][Configuration::FEATURE_HEADER_DISPLAY_MODE]);
     }
 
     /**
-     * @return LinkButton[]
+     * @return list<mixed>
      */
-    private function getLinkButtons(ModifyButtonBarEvent $event): array
+    private function getStatusGroup(ModifyButtonBarEvent $event): array
     {
-        $buttons = [];
-        foreach ($event->getButtons()['right'] ?? [] as $buttonGroup) {
-            if ($buttonGroup[0] instanceof LinkButton) {
-                $buttons[] = $buttonGroup[0];
-            }
-        }
+        $groups = $event->getButtons()['right'] ?? [];
 
-        return $buttons;
+        return [] === $groups ? [] : $groups[array_key_last($groups)];
+    }
+
+    /**
+     * @return GenericButton[]
+     */
+    private function getTrioButtons(ModifyButtonBarEvent $event): array
+    {
+        return array_values(array_filter(
+            $this->getStatusGroup($event),
+            static fn (mixed $button): bool => $button instanceof GenericButton,
+        ));
     }
 
     /**

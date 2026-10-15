@@ -122,6 +122,18 @@ final class BackendUserRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getUsernameByUidNamesTheCliUserSystem(): void
+    {
+        self::assertSame('System', $this->subject->getUsernameByUid(15));
+    }
+
+    #[Test]
+    public function getDisplayNameByUidNamesTheCliUserSystem(): void
+    {
+        self::assertSame('System', $this->subject->getDisplayNameByUid(15));
+    }
+
+    #[Test]
     public function getUsernameByUidReturnsEmptyStringForUnknownUid(): void
     {
         self::assertSame('', $this->subject->getUsernameByUid(999));
