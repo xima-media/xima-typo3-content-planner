@@ -117,7 +117,7 @@ final readonly class RenderAdditionalContentToRecordListListener
             foreach ($tableRecords as $tableRecord) {
                 $status = $this->statusRepository->findByUid($tableRecord[Configuration::FIELD_STATUS]);
                 if ($status instanceof Status) {
-                    $css .= 'tr[data-table="'.$tableName.'"][data-uid="'.$tableRecord['uid'].'"] > td { background-color: '.Configuration\Colors::get($status->getColor(), true).'; } ';
+                    $css .= 'tr[data-table="'.$tableName.'"][data-uid="'.$tableRecord['uid'].'"] > td { background-color: '.Configuration\Colors::getTint($status->getColor()).'; } ';
                 }
             }
         }

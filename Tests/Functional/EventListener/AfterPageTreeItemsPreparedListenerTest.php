@@ -55,6 +55,9 @@ final class AfterPageTreeItemsPreparedListenerTest extends AbstractFunctionalTes
         self::assertArrayHasKey('labels', $items[0]);
         self::assertInstanceOf(Label::class, $items[0]['labels'][0]);
         self::assertSame('Draft', $items[0]['labels'][0]->label);
+        // The tree keeps the palette colour: the 4px label has no text, so the edge tone's darkening
+        // would turn yellow into brown and teal into green.
+        self::assertSame('#64bbc8', $items[0]['labels'][0]->color);
     }
 
     #[Test]

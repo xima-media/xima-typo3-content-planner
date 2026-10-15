@@ -80,12 +80,6 @@ final class ColorsTest extends TestCase
         self::assertSame('rgb(250,136,147)', $result);
     }
 
-    public function testGetColorWithTransparency(): void
-    {
-        $result = Colors::get('blue', true);
-        self::assertSame('rgba(100,187,200, 0.5)', $result);
-    }
-
     public function testGetColorWithAllValidColors(): void
     {
         $expectedResults = [
@@ -100,23 +94,6 @@ final class ColorsTest extends TestCase
 
         foreach ($expectedResults as $color => $expectedRgb) {
             self::assertSame($expectedRgb, Colors::get($color), "Color '{$color}' should return correct RGB value");
-        }
-    }
-
-    public function testGetColorWithAllValidColorsAndTransparency(): void
-    {
-        $expectedResults = [
-            'black' => 'rgba(144,164,174, 0.5)',
-            'red' => 'rgba(250,136,147, 0.5)',
-            'blue' => 'rgba(100,187,200, 0.5)',
-            'yellow' => 'rgba(255,205,117, 0.5)',
-            'green' => 'rgba(106,158,113, 0.5)',
-            'purple' => 'rgba(92,107,192, 0.5)',
-            'orange' => 'rgba(255,112,67, 0.5)',
-        ];
-
-        foreach ($expectedResults as $color => $expectedRgba) {
-            self::assertSame($expectedRgba, Colors::get($color, true), "Color '{$color}' with transparency should return correct RGBA value");
         }
     }
 
@@ -160,6 +137,29 @@ final class ColorsTest extends TestCase
         $this->expectExceptionCode(2653877738);
 
         Colors::getHex('invalid_color');
+    }
+
+    public function testGetEdgeOnlyLimitsTheLightnessOfTheBaseColour(): void
+    {
+        self::assertSame(
+            'light-dark(oklch(from #fa8893 min(l, 0.6) c h), oklch(from #fa8893 max(l, 0.72) c h))',
+            Colors::getEdge('red'),
+        );
+    }
+
+    public function testGetTintMixesTheDarkSchemeWithTheCoreSurface(): void
+    {
+        self::assertSame(
+            'light-dark(color-mix(in srgb, #ffcd75 15%, white), color-mix(in srgb, #ffcd75 20%, var(--typo3-surface-base)))',
+            Colors::getTint('yellow'),
+        );
+    }
+
+    public function testGetEdgeWithInvalidColorCodeThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Colors::getEdge('invalid_color');
     }
 
     public function testColorNamingConvention(): void

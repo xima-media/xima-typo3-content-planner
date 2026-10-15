@@ -89,8 +89,8 @@
        mode --typo3-input-bg sits *below* the panel it is drawn on, so the collapsed trigger
        reads as a hole punched into the panel instead of the comment preview it is meant to be.
        A grey mixed from the surrounding surface lifts it in both color schemes. */
-    background-color: rgba(125, 125, 125, 0.08);
-    border: 1px solid rgba(125, 125, 125, 0.3);
+    background-color: color-mix(in srgb, currentColor, transparent 92%);
+    border: 1px solid color-mix(in srgb, currentColor, transparent 70%);
     border-radius: 0.5rem;
     color: inherit;
     text-align: left;
@@ -100,12 +100,12 @@
 
 .content-planner-comment-composer-trigger:hover,
 .content-planner-comment-composer-trigger:focus-visible {
-    background-color: rgba(125, 125, 125, 0.14);
-    border-color: rgba(125, 125, 125, 0.5);
+    background-color: color-mix(in srgb, currentColor, transparent 86%);
+    border-color: color-mix(in srgb, currentColor, transparent 50%);
 }
 
 .content-planner-comment-composer-trigger:focus-visible {
-    outline: 2px solid var(--typo3-state-primary-border, #007bff);
+    outline: 2px solid var(--typo3-state-primary-bg);
     outline-offset: 2px;
 }
 
@@ -125,8 +125,8 @@
    stay one surface in both color schemes. */
 .content-planner-comment-composer {
     margin-top: 0;
-    background-color: var(--typo3-input-bg, #fff);
-    border: 1px solid var(--typo3-component-border-color, rgba(125, 125, 125, 0.3));
+    background-color: var(--typo3-input-bg);
+    border: 1px solid var(--typo3-component-border-color);
     border-radius: 0.5rem;
     /* The editor sits flush against the top/left/right border (no padding here); __footer
        (actions + hint) is a visually separate grey strip, so the CKEditor toolbar's own
@@ -156,9 +156,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    background-color: var(--typo3-component-bg, rgba(125, 125, 125, 0.08));
+    background-color: var(--typo3-component-bg);
     padding: 0.625rem 0.875rem;
-    border-top: 1px solid var(--typo3-component-border-color, rgba(125, 125, 125, 0.3));
+    border-top: 1px solid var(--typo3-component-border-color);
 }
 
 .content-planner-comment-composer__actions {
@@ -196,8 +196,8 @@
     font-size: 0.6875rem;
     font-family: inherit;
     color: inherit;
-    background-color: rgba(125, 125, 125, 0.2);
-    border: 1px solid rgba(125, 125, 125, 0.35);
+    background-color: color-mix(in srgb, currentColor, transparent 80%);
+    border: 1px solid color-mix(in srgb, currentColor, transparent 65%);
     border-radius: 0.25rem;
 }
 
@@ -229,7 +229,7 @@
     font-size: 0.6875rem;
     font-weight: 400;
     color: color-mix(in srgb, currentColor, transparent 30%);
-    background-color: rgba(125, 125, 125, 0.25);
+    background-color: color-mix(in srgb, currentColor, transparent 75%);
     border-radius: 999px;
 }
 
@@ -289,18 +289,23 @@
 }
 
 .content-planner-comment--highlight {
-    animation: content-planner-comment-highlight 2s ease-out;
     border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .content-planner-comment--highlight {
+        animation: content-planner-comment-highlight 2s ease-out;
+    }
 }
 
 @keyframes content-planner-comment-highlight {
     0% {
-        background-color: rgba(0, 120, 230, 0.15);
-        box-shadow: inset 0 0 0 2px rgba(0, 120, 230, 0.3);
+        background-color: var(--content-planner-primary-tint-strong);
+        box-shadow: inset 0 0 0 2px var(--typo3-state-primary-bg);
     }
     70% {
-        background-color: rgba(0, 120, 230, 0.08);
-        box-shadow: inset 0 0 0 1px rgba(0, 120, 230, 0.15);
+        background-color: var(--content-planner-primary-tint);
+        box-shadow: inset 0 0 0 1px var(--typo3-state-primary-bg);
     }
     100% {
         background-color: transparent;
@@ -328,7 +333,7 @@
     position: relative;
     display: inline-block;
     padding: 0.625rem 0.875rem;
-    background-color: rgba(125, 125, 125, 0.08);
+    background-color: color-mix(in srgb, currentColor, transparent 92%);
     border-radius: 0.75rem;
     margin: 0.375rem 0;
 }
@@ -349,7 +354,7 @@
 }
 
 .content-planner-comment__actions > button {
-    font-size: smaller;
+    font-size: 0.6875rem;
     min-height: 22px;
     padding: 0 6px;
     margin-top: -2px;
@@ -357,7 +362,7 @@
 }
 
 .content-planner-comment__actions > button:hover {
-    background-color: rgba(125, 125, 125, 0.12);
+    background-color: color-mix(in srgb, currentColor, transparent 88%);
 }
 
 
@@ -393,7 +398,7 @@
 }
 
 .content-planner-comment-replies-toggle > span {
-    font-size: 80%;
+    font-size: 0.6875rem;
 }
 
 .content-planner-comment-replies-toggle:hover {
@@ -452,7 +457,7 @@
    padding, so the bar reaches the modal's actual edges instead of stopping at the pane's -
    width is intentionally omitted: with both left and right set, the browser computes it. */
 .content-planner-comment-filter {
-    background: rgba(125, 125, 125, 0.1);
+    background: color-mix(in srgb, currentColor, transparent 90%);
     position: absolute;
     top: 0;
     right: -1rem;
@@ -611,7 +616,7 @@
                 content: '';
                 width: 100%;
                 height: 100%;
-                border: 1px solid hsl(0, 0%, 20%);
+                border: 1px solid currentColor;
                 border-radius: 2px;
                 transition: 250ms ease-in-out box-shadow;
 
@@ -642,12 +647,12 @@
                property, so the checkmark never appeared until the next full reload. */
             &:checked {
                 &::before {
-                    background: #0078e6;
-                    border-color: #0078e6;
+                    background: var(--typo3-state-primary-bg);
+                    border-color: var(--typo3-state-primary-bg);
                 }
 
                 &::after {
-                    border-color: hsl(0, 0%, 100%);
+                    border-color: var(--typo3-state-primary-color);
                 }
             }
         }
@@ -680,7 +685,7 @@
     cursor: pointer;
 
     &:focus-visible {
-        outline: 2px solid var(--typo3-state-primary-border, #007bff);
+        outline: 2px solid var(--typo3-state-primary-bg);
         outline-offset: 2px;
     }
 }
@@ -696,7 +701,7 @@
 .ctp-mention {
     padding: 0 0.1875rem;
     border-radius: 0.1875rem;
-    background-color: var(--content-planner-color-blue-light);
+    background-color: var(--content-planner-primary-tint);
     color: inherit;
     font-weight: 600;
     text-decoration: none;
@@ -716,24 +721,19 @@ button.ctp-mention {
 }
 
 button.ctp-mention:hover {
-    background-color: var(--content-planner-color-blue);
+    background-color: var(--content-planner-primary-tint-strong);
 }
 
 button.ctp-mention:focus-visible {
-    outline: 2px solid var(--typo3-state-primary-border, #007bff);
-    outline-offset: 1px;
+    outline: 2px solid var(--typo3-state-primary-bg);
+    outline-offset: 2px;
 }
 
-/* Your own mention, Jira-style: the one in a long thread you need to spot at a glance. The
-   colour is reinforcement only - MentionUtility appends a visually hidden "(you)" so the
-   distinction survives a screen reader and forced-colors mode. */
+/* Your own mention: the one in a long thread you need to spot at a glance. The stronger tint
+   is reinforcement only - MentionUtility appends a visually hidden "(you)" so the distinction
+   survives a screen reader and forced-colors mode. */
 .ctp-mention--self {
-    background-color: var(--content-planner-color-orange-light);
-    box-shadow: inset 0 0 0 1px var(--content-planner-color-orange);
-}
-
-button.ctp-mention--self:hover {
-    background-color: var(--content-planner-color-orange);
+    background-color: var(--content-planner-primary-tint-strong);
 }
 
 /* ==========================================================================

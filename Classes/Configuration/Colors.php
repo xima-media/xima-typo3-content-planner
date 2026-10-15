@@ -64,7 +64,7 @@ class Colors
         self::STATUS_COLOR_ORANGE => '#ff7043',
     ];
 
-    public static function get(string $colorCode, bool $transparency = false): string
+    public static function get(string $colorCode): string
     {
         if (!in_array($colorCode, self::STATUS_COLORS, true)) {
             throw new InvalidArgumentException('Invalid color code', 2653877737);
@@ -74,9 +74,29 @@ class Colors
             return $colorCode;
         }
 
-        $key = $transparency ? 'rgba' : 'rgb';
+        return 'rgb('.self::COLOR_CODES[$colorCode].')';
+    }
 
-        return $key.'('.self::COLOR_CODES[$colorCode].($transparency ? ', 0.5' : '').')';
+    /**
+     * Dot, flag and edge tone, the same recipe as --cp-edge in _variables.css: only the lightness
+     * is limited, so hue and chroma stay recognisable. Returned as a CSS expression so it also
+     * works where the extension's stylesheets are not loaded (page tree).
+     */
+    public static function getEdge(string $colorCode): string
+    {
+        $base = self::getHex($colorCode);
+
+        return 'light-dark(oklch(from '.$base.' min(l, 0.6) c h), oklch(from '.$base.' max(l, 0.72) c h))';
+    }
+
+    /**
+     * Background tone, the same recipe as --cp-tint in _variables.css.
+     */
+    public static function getTint(string $colorCode): string
+    {
+        $base = self::getHex($colorCode);
+
+        return 'light-dark(color-mix(in srgb, '.$base.' 15%, white), color-mix(in srgb, '.$base.' 20%, var(--typo3-surface-base)))';
     }
 
     public static function getHex(string $colorCode): string

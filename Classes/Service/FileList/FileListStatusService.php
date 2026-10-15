@@ -91,7 +91,7 @@ class FileListStatusService
 
     private function buildFileCssRule(int $metaUid, Status $status, bool $isTilesView): string
     {
-        $color = Configuration\Colors::get($status->getColor(), true);
+        $color = Configuration\Colors::getTint($status->getColor());
 
         if ($isTilesView) {
             return '.resource-tile[data-filelist-meta-uid="'.$metaUid.'"] { background-color: '.$color.'; }';
@@ -102,7 +102,7 @@ class FileListStatusService
 
     private function buildFolderCssRule(string $combinedIdentifier, Status $status, bool $isTilesView): string
     {
-        $color = Configuration\Colors::get($status->getColor(), true);
+        $color = Configuration\Colors::getTint($status->getColor());
         $escapedIdentifier = htmlspecialchars($combinedIdentifier, \ENT_QUOTES);
 
         if ($isTilesView) {

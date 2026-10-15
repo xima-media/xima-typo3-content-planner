@@ -71,7 +71,7 @@ final readonly class AfterPageTreeItemsPreparedListener
 
         $item['labels'][] = new \TYPO3\CMS\Backend\Dto\Tree\Label\Label(
             $status->getTitle(),
-            Configuration\Colors::get($status->getColor()),
+            Configuration\Colors::getHex($status->getColor()),
             Configuration::TREE_LABEL_PRIORITY_STATUS,
         );
 
