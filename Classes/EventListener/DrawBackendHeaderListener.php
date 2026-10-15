@@ -42,8 +42,7 @@ final readonly class DrawBackendHeaderListener
             return;
         }
 
-        // "docked" mode replaces this above-content bar with a compact one spliced into the
-        // doc header's button row instead - see DockedHeaderModifier.
+        // "docked" splices a compact bar into the doc header's button row (DockedHeaderModifier).
         if (ExtensionUtility::isDockedDisplayModeEnabled()) {
             return;
         }
@@ -52,6 +51,14 @@ final readonly class DrawBackendHeaderListener
         $pageInfo = $this->pageRepository->getPage($id);
 
         if ([] === $pageInfo) {
+            return;
+        }
+
+        // "chip" carries status, assignee and comments in the doc header trio, so only the open
+        // to-dos that the legacy banner used to show remain to be surfaced here.
+        if (!ExtensionUtility::isBannerDisplayModeEnabled()) {
+            $event->addHeaderContent($this->headerInfoGenerator->renderOpenTodoCallout($pageInfo, 'pages'));
+
             return;
         }
 

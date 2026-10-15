@@ -593,6 +593,20 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function filterActionDeniesUserWithoutContentPlannerAccess(): void
+    {
+        // Editor (uid 2) is a non-admin without any content planner permission.
+        $this->loginBackendUser(2);
+
+        $recordRepository = $this->createMock(RecordRepository::class);
+        $recordRepository->expects(self::never())->method('findAllByFilter');
+
+        $response = $this->createController($recordRepository)->filterAction($this->createRequest([]));
+
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
     public function filterActionReturnsEmptyResultWhenNoParametersProvided(): void
     {
         $this->loginBackendUser(1);

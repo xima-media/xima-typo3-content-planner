@@ -254,6 +254,48 @@ class InfoGenerator
     }
 
     /**
+     * Core callout above the page module columns in "chip" display mode, where the banner and
+     * its to-do badge are not rendered. Empty when the record has no open to-dos.
+     *
+     * @param array<string, mixed> $record
+     *
+     * @throws Exception
+     */
+    public function renderOpenTodoCallout(array $record, string $table): string
+    {
+        // Same gate as the chip trio (AbstractSelectionService::shouldGenerateSelection()).
+        if (!ExtensionUtility::isRegisteredRecordTable($table) || !PermissionUtility::isTableAllowedForUser($table)) {
+            return '';
+        }
+
+        $todoCounts = $this->getTodoCounts($record, $table);
+        if (0 === $todoCounts['todoOpen']) {
+            return '';
+        }
+
+        // The chip trio, which otherwise loads these, is skipped when no status is configured.
+        $this->addFrontendAssets();
+
+        return ViewUtility::render('Backend/Header/TodoCallout', [
+            ...$todoCounts,
+            'table' => $table,
+            'uid' => (int) $record['uid'],
+            'newCommentUri' => PermissionUtility::canCreateComment()
+                ? UrlUtility::getNewCommentUrl($table, $record['uid'])
+                : '',
+            'editUri' => UrlUtility::getContentStatusPropertiesEditUrl($table, $record['uid']),
+        ]);
+    }
+
+    /**
+     * Inline asset tags for headers injected by a middleware after PageRenderer::render().
+     */
+    public function renderInlineHeaderAssets(): string
+    {
+        return $this->addFrontendAssets(false);
+    }
+
+    /**
      * @param array<string, mixed> $record
      *
      * @throws RouteNotFoundException
@@ -313,7 +355,11 @@ class InfoGenerator
         // rendered from DockedHeaderModifier, a middleware exactly like ContentElementHeaderModifier,
         // not from DrawBackendHeaderListener's pre-render PSR-14 event - so it needs the inline
         // tags too, even though $mode is WEB_LAYOUT. $compact is only ever true for that call.
-        $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode && !$compact);
+        // CONTENT_ELEMENT headers repeat once per element; ContentElementHeaderModifier emits
+        // the inline tags itself, once per response, via renderInlineHeaderAssets().
+        if (HeaderMode::CONTENT_ELEMENT !== $mode) {
+            $content .= $this->addFrontendAssets(HeaderMode::WEB_LAYOUT === $mode && !$compact);
+        }
 
         return $content;
     }
@@ -407,7 +453,7 @@ class InfoGenerator
 
     /**
      * The header shows `todoOpen` as its badge and keeps resolved/total for the tooltip, so all
-     * three are derived from the same pair of queries instead of being recomputed per field.
+     * three are derived from a single query instead of being recomputed per field.
      *
      * @param array<string, mixed> $record
      *
@@ -415,42 +461,20 @@ class InfoGenerator
      */
     private function getTodoCounts(array $record, string $table): array
     {
-        if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
+        if (
+            !ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)
+            || !PlannerUtility::hasComments($record)
+        ) {
             return ['todoResolved' => 0, 'todoTotal' => 0, 'todoOpen' => 0];
         }
 
-        $resolved = $this->getCommentsTodoResolved($record, $table);
-        $total = $this->getCommentsTodoTotal($record, $table);
+        $counts = $this->commentRepository->countTodosByRecord((int) $record['uid'], $table);
 
         return [
-            'todoResolved' => $resolved,
-            'todoTotal' => $total,
-            'todoOpen' => max(0, $total - $resolved),
+            'todoResolved' => $counts['resolved'],
+            'todoTotal' => $counts['total'],
+            'todoOpen' => max(0, $counts['total'] - $counts['resolved']),
         ];
-    }
-
-    /**
-     * @param array<string, mixed> $record
-     */
-    private function getCommentsTodoResolved(array $record, string $table): int
-    {
-        if (PlannerUtility::hasComments($record)) {
-            return $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table);
-        }
-
-        return 0;
-    }
-
-    /**
-     * @param array<string, mixed> $record
-     */
-    private function getCommentsTodoTotal(array $record, string $table): int
-    {
-        if (PlannerUtility::hasComments($record)) {
-            return $this->commentRepository->countTodoAllByRecord((int) $record['uid'], $table, 'todo_total');
-        }
-
-        return 0;
     }
 
     /**

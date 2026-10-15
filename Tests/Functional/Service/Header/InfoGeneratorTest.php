@@ -142,11 +142,19 @@ final class InfoGeneratorTest extends AbstractFunctionalTestCase
         // and links to editing the content element's own status field (not the page's).
         self::assertStringContainsString('Status:', $result);
         self::assertStringContainsString('edit%5Btt_content%5D%5B1%5D=edit', $result);
-        // ContentElementHeaderModifier calls this from middleware, after $handler->handle()
-        // (and PageRenderer::render()) already ran - so assets must be self-contained inline
-        // tags, same as EDIT mode, never registered on PageRenderer (see addFrontendAssets()).
+        // One header per content element: the inline asset tags are emitted once per response
+        // by ContentElementHeaderModifier through renderInlineHeaderAssets(), not per header.
+        self::assertStringNotContainsString('<script type="module"', $result);
+        self::assertStringNotContainsString('<link', $result);
+    }
+
+    #[Test]
+    public function renderInlineHeaderAssetsReturnsSelfContainedTags(): void
+    {
+        $result = $this->subject->renderInlineHeaderAssets();
+
         self::assertStringContainsString('<script type="module"', $result);
-        self::assertStringContainsString('<link', $result);
+        self::assertStringContainsString('Css/Header.css', $result);
     }
 
     #[Test]

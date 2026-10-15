@@ -56,6 +56,19 @@ final class ContentCommentWidgetTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function renderWidgetContentRendersNoRecordDataWhenContentPlannerIsHiddenForTheUser(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Provider/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Provider/Fixtures/comments.csv');
+        $GLOBALS['BE_USER']->user['tx_ximatypo3contentplanner_hide'] = 1;
+
+        $content = $this->createWidget()->renderWidgetContent();
+
+        self::assertStringNotContainsString('Open comment', $content);
+        self::assertStringContainsString('callout', $content);
+    }
+
+    #[Test]
     public function renderWidgetContentRendersEmptyStateWhenNoComments(): void
     {
         $content = $this->createWidget()->renderWidgetContent();

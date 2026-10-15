@@ -34,11 +34,12 @@ async function openMention(page: Page): Promise<Locator> {
  * Asserts the card shows the resolved user rather than the loading placeholder, which only
  * holds once the AJAX response has replaced the popover's content.
  */
-async function expectCard(page: Page): Promise<void> {
+async function expectCard(page: Page, timeout = 5000): Promise<void> {
   const card = page.locator('.content-planner-mention-card');
-  await expect(card).toBeVisible();
+  await expect(card).toBeVisible({ timeout });
   await expect(card.locator('.content-planner-mention-card__username')).toHaveText(
     DEMO_ASSIGNEE_USERNAME,
+    { timeout },
   );
 }
 
@@ -55,7 +56,13 @@ test('focusing a mention opens the profile card', async ({ page }) => {
 
   // The reason MentionUtility renders a button rather than the href-less anchor it replaced:
   // without focus there is no keyboard route to the card at all.
-  await mention.focus();
-
-  await expectCard(page);
+  //
+  // Focusing is a single event, unlike hovering, so on a slow runner it can land before the
+  // document-level listener exists and nothing ever opens the card. Retrying the focus tests
+  // the keyboard route instead of the runner's speed.
+  await expect(async () => {
+    await mention.blur();
+    await mention.focus();
+    await expectCard(page, 1500);
+  }).toPass({ timeout: 15000 });
 });

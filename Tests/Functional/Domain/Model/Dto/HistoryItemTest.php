@@ -308,6 +308,22 @@ final class HistoryItemTest extends AbstractFunctionalTestCase
         self::assertSame('pages', $item->data['relatedRecordTablename']);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    #[Test]
+    public function getRelatedRecordHidesCommentEntriesOnPagesTheUserCannotSee(): void
+    {
+        // Page 7 sits below the visible page 1 but grants "limited" no show permission.
+        $this->importCSVDataSet(__DIR__.'/Fixtures/limited_editor.csv');
+        $this->setUpBackendUser(20);
+        $row = $this->commentHistoryRow();
+        // Insert entries store the new comment row itself as history data.
+        $row['history_data'] = json_encode(['foreign_table' => 'pages', 'foreign_uid' => 7, 'resolved_date' => 0, 'parent_uid' => 0]);
+
+        self::assertFalse(HistoryItem::create($row)->getRelatedRecord());
+    }
+
     private function initBackendRequest(): void
     {
         $request = (new ServerRequest('https://example.com/typo3/', 'GET'))
@@ -319,9 +335,6 @@ final class HistoryItemTest extends AbstractFunctionalTestCase
         $GLOBALS['TYPO3_REQUEST'] = $request;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     private function pageHistoryRow(): array
     {
         return [

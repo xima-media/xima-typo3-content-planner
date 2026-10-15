@@ -17,6 +17,7 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Dashboard\Widgets\ChartDataProviderInterface;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{RecordRepository, StatusRepository};
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 /**
  * StatusOverviewDataProvider.
@@ -68,6 +69,14 @@ class StatusOverviewDataProvider implements ChartDataProviderInterface
 
     protected function calculateStatusCounts(): void
     {
+        $this->labels = [];
+        $this->data = [];
+        $this->colors = [];
+
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return;
+        }
+
         foreach ($this->statusRepository->findAll() as $status) {
             $this->labels[] = $status->getTitle();
             $this->data[] = $this->countPageStatus($status->getUid());

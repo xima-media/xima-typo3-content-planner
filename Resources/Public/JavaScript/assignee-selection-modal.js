@@ -1,11 +1,15 @@
 /**
 * Module: @content-planner/assignee-selection-modal
 */
+import oncePerRealm from "@content-planner/once-per-realm.js"
 import RecordModal from "@content-planner/record-modal.js"
 
 class AssigneeSelectionModal {
 
   constructor() {
+    if (!oncePerRealm('assignee-selection-modal')) {
+      return
+    }
     document.querySelectorAll('[data-content-planner-assignees]').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault()

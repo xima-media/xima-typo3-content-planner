@@ -151,6 +151,17 @@ final class BackendUserRepositoryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function findAllWithPermissionExcludesTheCliSystemUser(): void
+    {
+        $usernames = array_map(
+            static fn (array $row): string => $row['username'],
+            $this->subject->findAllWithPermission(),
+        );
+
+        self::assertNotContains('_cli_', $usernames);
+    }
+
+    #[Test]
     public function filterActiveUidsExcludesDisabledAndDeletedUsers(): void
     {
         // 12 is disabled, 13 is deleted (see Fixtures/be_groups.csv) - both must drop out.

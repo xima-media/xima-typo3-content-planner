@@ -93,12 +93,17 @@ class RecordController extends ActionController
 
     public function filterAction(ServerRequestInterface $request): JsonResponse
     {
-        $search = array_key_exists('search', $request->getQueryParams()) ? $request->getQueryParams()['search'] : null;
-        $status = array_key_exists('status', $request->getQueryParams()) ? (int) $request->getQueryParams()['status'] : null;
-        $assignee = array_key_exists('assignee', $request->getQueryParams()) ? (int) $request->getQueryParams()['assignee'] : null;
-        $todo = array_key_exists('todo', $request->getQueryParams()) ? (bool) $request->getQueryParams()['todo'] : false;
-        $type = array_key_exists('type', $request->getQueryParams()) ? $request->getQueryParams()['type'] : null;
-        $openComments = array_key_exists('openComments', $request->getQueryParams()) ? (bool) $request->getQueryParams()['openComments'] : false;
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new JsonResponse(['error' => 'Access denied'], 403);
+        }
+
+        $params = $request->getQueryParams();
+        $search = $params['search'] ?? null;
+        $status = isset($params['status']) ? (int) $params['status'] : null;
+        $assignee = isset($params['assignee']) ? (int) $params['assignee'] : null;
+        $todo = (bool) ($params['todo'] ?? false);
+        $type = $params['type'] ?? null;
+        $openComments = (bool) ($params['openComments'] ?? false);
 
         $filterResult = $this->recordRepository->findAllByFilter($search, $status, $assignee, $type, $todo, 20, $openComments);
         $items = [];

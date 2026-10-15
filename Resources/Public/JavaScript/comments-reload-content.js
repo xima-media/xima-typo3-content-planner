@@ -1,6 +1,7 @@
 /**
 * Module: @content-planner/comments-reload-content
 */
+import oncePerRealm from "@content-planner/once-per-realm.js"
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import CommentsResolvedItem from "@content-planner/comments-resolved-item.js";
 import CommentsDeleteItem from "@content-planner/comments-delete-item.js"
@@ -12,6 +13,9 @@ import CommentMentionCard from "@content-planner/comment-mention-card.js"
 class CommentsReloadContent {
 
   constructor() {
+    if (!oncePerRealm('comments-reload-content')) {
+      return
+    }
     document.dispatchEvent(new CustomEvent('typo3:contentplanner:reinitializelistener', {bubbles: true, composed: true}))
     window.addEventListener('typo3:contentplanner:reloadcomments', ({detail: {url, table, id, highlightParentUid}}) => {
       this.pendingHighlightParentUid = highlightParentUid || null

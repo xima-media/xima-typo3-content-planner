@@ -87,6 +87,18 @@ final class StatusRegistryTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function getAssignableUsersKeepsTheCurrentAssigneeSelectableWhenNotInThePermittedList(): void
+    {
+        // Editor (uid 2) has no Content Planner permission, like the CLI user a scheduler run assigns.
+        $config = ['items' => [], 'row' => ['tx_ximatypo3contentplanner_assignee' => ['2']]];
+        $this->subject->getAssignableUsers($config);
+
+        $labelsByValue = array_column($config['items'], 'label', 'value');
+        self::assertArrayHasKey(2, $labelsByValue);
+        self::assertStringContainsString('Editor User', $labelsByValue[2]);
+    }
+
+    #[Test]
     public function getRecordTablesForTcaAddsRegisteredTables(): void
     {
         $config = ['items' => []];

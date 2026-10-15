@@ -1,11 +1,15 @@
 /**
 * Module: @content-planner/comments-list-modal
 */
+import oncePerRealm from "@content-planner/once-per-realm.js"
 import RecordModal from "@content-planner/record-modal.js"
 
 class CommentsListModal {
 
   constructor() {
+    if (!oncePerRealm('comments-list-modal')) {
+      return
+    }
     document.querySelectorAll('[data-content-planner-comments]').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault()

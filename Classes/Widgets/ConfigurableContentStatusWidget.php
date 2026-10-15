@@ -25,7 +25,8 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{PaginatedResult, StatusItem};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository, StatusRepository};
 use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
 use Xima\XimaTypo3ContentPlanner\Utility\ExtensionUtility;
-use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{IconUtility, ViewUtility};
+use Xima\XimaTypo3ContentPlanner\Utility\Rendering\ViewUtility;
+use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
 use function count;
 use function sprintf;
@@ -114,6 +115,13 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
 
         $customTitle = $this->getSetting($context, 'title', '');
         $mode = $this->getSetting($context, 'mode', 'status');
+
+        if (!PermissionUtility::checkContentStatusVisibility()) {
+            return new WidgetResult(
+                content: ViewUtility::render('Backend/Widgets/NotAvailable', [], $context->request),
+                label: '' !== $customTitle ? $customTitle : null,
+            );
+        }
         $statusFilter = $this->getSetting($context, 'status', '');
         $assignee = $this->resolveAssigneeFilter($context);
         $status = '' !== $statusFilter ? (int) $statusFilter : null;
@@ -135,7 +143,9 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
                 'hasMore' => $result->hasMore,
                 'todo' => $todo ? $this->buildTodoInfo() : false,
                 'mode' => $mode,
-                'hasAssigneeFilter' => null !== $assignee,
+                'assignedToMeCount' => $assignee === $this->getCurrentBackendUserId()
+                    ? $this->recordRepository->countVisibleByAssignee($assignee)
+                    : null,
                 'hasSite' => [] !== $hasSite,
             ],
             $context->request,
@@ -165,6 +175,8 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
     public function getJavaScriptModuleInstructions(): array
     {
         return [
+            // Binds the comment links to the record modal, also when no other Content Planner widget is on the dashboard.
+            JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'filter-status.js'),
             JavaScriptModuleInstruction::create(Configuration::JAVASCRIPT_MODULE_PREFIX.'comments-list-modal.js'),
         ];
     }
@@ -307,27 +319,26 @@ class ConfigurableContentStatusWidget implements WidgetRendererInterface, Additi
         };
     }
 
-    private function buildTodoInfo(): string|bool
+    /**
+     * @return array{resolved: int, total: int}|false
+     */
+    private function buildTodoInfo(): array|false
     {
         if (!ExtensionUtility::isFeatureEnabled(Configuration::FEATURE_COMMENT_TODOS)) {
             return false;
         }
 
         $commentRepository = GeneralUtility::makeInstance(CommentRepository::class);
-        $todoResolved = $commentRepository->countTodoAllByRecord(allRecords: true);
         $todoTotal = $commentRepository->countTodoAllByRecord(todoField: 'todo_total', allRecords: true);
 
         if ($todoTotal <= 0) {
-            return '';
+            return false;
         }
 
-        return sprintf(
-            '%s <span class="xima-typo3-content-planner--comment-todo badge" data-status="%s">%d/%d</span>',
-            IconUtility::getIconByIdentifier('content-planner-checkbox'),
-            $todoResolved === $todoTotal ? 'resolved' : 'pending',
-            $todoResolved,
-            $todoTotal,
-        );
+        return [
+            'resolved' => $commentRepository->countTodoAllByRecord(allRecords: true),
+            'total' => $todoTotal,
+        ];
     }
 
     private function getWidgetLabel(string $customTitle, string $mode, string $statusFilter, ?int $assignee): string

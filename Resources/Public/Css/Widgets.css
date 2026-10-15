@@ -96,8 +96,8 @@
     padding-top: 0;
 }
 
-/* Table Row - Current User Highlight */
-.content-planner-widget__row--current {
+/* Table Row - Current User Highlight (on the cells: core paints them opaque, hiding a row background) */
+.content-planner-widget__row--current > td {
     background-color: var(--content-planner-color-highlight);
 }
 

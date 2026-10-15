@@ -25,7 +25,6 @@
 .content-planner-notification-dropdown {
     color: var(--typo3-text-color-base, inherit);
     max-height: 24rem;
-    min-width: 22rem;
     overflow-y: auto;
 }
 

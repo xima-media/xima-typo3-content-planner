@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, StatusRepository};
 
+use function in_array;
 use function is_array;
 
 /**
@@ -97,6 +98,8 @@ class StatusRegistry
                     'value' => $user['uid'],
                 ];
             }
+
+            $this->addCurrentAssigneeOutsideTheList($config, $backendUserRepository);
         } catch (\Exception) {
             // In case of error, keep the default items
         }
@@ -138,5 +141,27 @@ class StatusRegistry
         }
 
         return array_unique($tables);
+    }
+
+    /**
+     * A record can stay assigned to someone who is no longer offered (e.g. the CLI user or a
+     * user who lost the permission); without an item for that value the form shows "Missing label".
+     *
+     * @param array<string, mixed> $config
+     *
+     * @throws Exception
+     */
+    private function addCurrentAssigneeOutsideTheList(array &$config, BackendUserRepository $backendUserRepository): void
+    {
+        $current = $config['row'][Configuration::FIELD_ASSIGNEE] ?? 0;
+        $current = (int) (is_array($current) ? reset($current) : $current);
+        if ($current <= 0 || in_array($current, array_map(intval(...), array_column($config['items'], 'value')), true)) {
+            return;
+        }
+
+        $label = $backendUserRepository->getDisplayNameByUid($current);
+        if ('' !== $label) {
+            $config['items'][] = ['label' => $label, 'value' => $current];
+        }
     }
 }
