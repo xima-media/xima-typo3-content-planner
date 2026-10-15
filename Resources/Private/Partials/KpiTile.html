@@ -3,12 +3,12 @@
 
 <f:if condition="{link}">
     <f:then>
-        <a href="{link}" class="content-planner-kpi-tile" title="{summary}">
+        <a href="{link}" class="content-planner-kpi-tile">
             <f:render section="Body" arguments="{_all}"/>
         </a>
     </f:then>
     <f:else>
-        <div class="content-planner-kpi-tile content-planner-kpi-tile--empty" title="{summary}">
+        <div class="content-planner-kpi-tile content-planner-kpi-tile--empty">
             <f:render section="Body" arguments="{_all}"/>
         </div>
     </f:else>

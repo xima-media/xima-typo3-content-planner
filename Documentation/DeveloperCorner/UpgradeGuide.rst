@@ -16,6 +16,20 @@ extension's public PHP API (events, repositories, models).
 3.0.0
 =====
 
+Dashboard widgets merged into "Key figures"
+-------------------------------------------
+
+The widgets ``contentPlanner-current`` (Current Assignee), ``contentPlanner-todo`` (ToDo) and
+``contentPlanner-mywork`` (My work) are removed. The new widget ``contentPlanner-kpi`` shows
+the three figures assigned to me, open to-dos and open comments side by side, each linking
+to the records module with the matching filter. The dashboard preset uses it instead of
+``contentPlanner-current``.
+
+Dashboards that contain a removed widget lose it and have to add ``contentPlanner-kpi``
+manually. ``ContentStatusWidget`` no longer accepts the options ``currentUserAssignee``,
+``todo`` and ``myWork`` and no longer takes ``RecordRepository`` and ``UriBuilder`` as
+constructor arguments.
+
 ``Status`` is now a readonly DTO
 ---------------------------------
 

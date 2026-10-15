@@ -36,7 +36,7 @@ This TYPO3 extension adds content planning capabilities to the TYPO3 backend: as
 * [Threaded replies](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html#threaded-replies) and [shareable links](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Comments.html#share-link)
 
 **[Dashboard](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Dashboard.html)** — Ready-to-use dashboard preset with dedicated widgets
-* Overview, status, updates, assignee, todo, comments widgets
+* Overview, status, updates, key figures, comments widgets
 * [Configurable widget](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Dashboard.html#configurable-widget) with custom filters (TYPO3 v14+)
 
 **[Notifications](https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/DeveloperCorner/Notifications.html)** — Stay informed about records you watch

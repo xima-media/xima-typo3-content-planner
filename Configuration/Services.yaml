@@ -160,56 +160,21 @@ services:
         height: 'large'
         width: 'medium'
 
-  dashboard.widget.ContentStatus-current:
-    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
+  dashboard.widget.ContentStatus-kpi:
+    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentKpiWidget'
     arguments:
-      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
+      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\RecordPresetDataProvider'
       $options:
         refreshAvailable: true
-        currentUserAssignee: true
     tags:
       - name: dashboard.widget
-        identifier: 'contentPlanner-current'
+        identifier: 'contentPlanner-kpi'
         groupNames: 'contentPlanner'
-        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.title'
-        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.current.description'
+        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.kpi.title'
+        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.kpi.description'
         iconIdentifier: 'dashboard-assignee'
         height: 'small'
-        width: 'small'
-
-  dashboard.widget.ContentStatus-mywork:
-    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
-    arguments:
-      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
-      $options:
-        refreshAvailable: true
-        myWork: true
-    tags:
-      - name: dashboard.widget
-        identifier: 'contentPlanner-mywork'
-        groupNames: 'contentPlanner'
-        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.mywork.title'
-        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.mywork.description'
-        iconIdentifier: 'dashboard-assignee'
-        height: 'small'
-        width: 'small'
-
-  dashboard.widget.ContentStatus-todo:
-    class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentStatusWidget'
-    arguments:
-      $dataProvider: '@Xima\XimaTypo3ContentPlanner\Widgets\Provider\ContentStatusDataProvider'
-      $options:
-        refreshAvailable: true
-        todo: true
-    tags:
-      - name: dashboard.widget
-        identifier: 'contentPlanner-todo'
-        groupNames: 'contentPlanner'
-        title: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.title'
-        description: 'LLL:EXT:xima_typo3_content_planner/Resources/Private/Language/locallang.xlf:widgets.contentPlanner.todo.description'
-        iconIdentifier: 'dashboard-todo'
-        height: 'small'
-        width: 'small'
+        width: 'medium'
 
   dashboard.widget.ContentStatus-comments:
     class: 'Xima\XimaTypo3ContentPlanner\Widgets\ContentCommentWidget'

@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Page\PageRenderer;
 use Xima\XimaTypo3ContentPlanner\Controller\Backend\RecordModuleController;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
+use Xima\XimaTypo3ContentPlanner\Service\{RecordPresetService, WatcherService};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -512,13 +512,16 @@ final class RecordModuleControllerTest extends AbstractFunctionalTestCase
 
     private function createController(?RecordRepository $recordRepository = null, ?WatcherService $watcherService = null): RecordModuleController
     {
+        $recordRepository ??= $this->get(RecordRepository::class);
+
         return new RecordModuleController(
             $this->get(ModuleTemplateFactory::class),
             $this->get(UriBuilder::class),
-            $recordRepository ?? $this->get(RecordRepository::class),
+            $recordRepository,
             $this->get(StatusRepository::class),
             $this->get(BackendUserRepository::class),
             $watcherService ?? $this->get(WatcherService::class),
+            new RecordPresetService($recordRepository),
             $this->get(PageRenderer::class),
         );
     }

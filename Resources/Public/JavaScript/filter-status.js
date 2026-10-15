@@ -21,10 +21,8 @@ class FilterStatus {
           return;
         }
 
-        // Todo/Assignee widgets are KPI tiles with a server-computed count and no per-record
-        // list of their own (CP-33 follow-up annotation feedback) - the template already marks
-        // them with these classes, so there is nothing left to fetch or populate here.
-        if (widget.classList.contains('content-planner-widget--assigned') || widget.classList.contains('content-planner-widget--todo') || widget.classList.contains('content-planner-widget--mywork')) {
+        // The KPI widget has no per-record list, its figures are computed server-side.
+        if (widget.classList.contains('content-planner-widget--kpi')) {
           return;
         }
 

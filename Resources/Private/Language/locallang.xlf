@@ -21,20 +21,14 @@
 			<trans-unit id="widgets.contentPlanner.current.title">
 				<source>Current Assignee</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.current.description">
-				<source>Display all records with your assignment</source>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.todo.title">
 				<source>To-dos</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.todo.description">
-				<source>Display all records with open to-dos in the comments</source>
+			<trans-unit id="widgets.contentPlanner.kpi.title">
+				<source>Key figures</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.mywork.title">
-				<source>My work</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.mywork.description">
-				<source>Display your assigned records and resolved to-dos at a glance</source>
+			<trans-unit id="widgets.contentPlanner.kpi.description">
+				<source>Display your assigned records, open to-dos and open comments at a glance</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.overview.title">
 				<source>Overview</source>
@@ -75,20 +69,11 @@
 			<trans-unit id="widgets.contentPlanner.status.assignee">
 				<source>There are currently %1$d content planner records assigned to you.</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.status.assignee.empty">
-				<source>You have no content planner records assigned to you.</source>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.status.todo">
 				<source>%1$d of %2$d comment tasks are resolved across all content planner records.</source>
 			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.status.todo.empty">
-				<source>There are no open comment tasks in the comments of any content planner record.</source>
-			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.kpi.assignee">
 				<source>Assigned to me</source>
-			</trans-unit>
-			<trans-unit id="widgets.contentPlanner.kpi.todo">
-				<source>Tasks resolved</source>
 			</trans-unit>
 			<trans-unit id="widgets.contentPlanner.moreResults">
 				<source>More results are available. Refine your filter to narrow the list.</source>

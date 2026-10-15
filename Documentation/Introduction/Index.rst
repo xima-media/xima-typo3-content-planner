@@ -43,7 +43,7 @@ Features
 
 :ref:`Dashboard <dashboard>`
     Ready-to-use dashboard preset with dedicated :ref:`widgets <dashboard-widgets>`.
-    Overview, status, updates, assignee, todo, comments widgets.
+    Overview, status, updates, key figures, comments widgets.
     :ref:`Configurable widget <dashboard-configurable-widget>` with custom filters (TYPO3 v14+).
 
 Extensibility

@@ -61,17 +61,11 @@ Recent Updates
 
 ..  image:: /Images/widgets/dashboard-assignee.png
     :width: 64
-    :alt: Current Assignee
+    :alt: Key figures
 
-Current Assignee
-    Short list with all records assigned to the current user.
-
-..  image:: /Images/widgets/dashboard-todo.png
-    :width: 64
-    :alt: ToDo
-
-ToDo
-    Display all records with open todos in the comments.
+Key figures
+    Three figures side by side: records assigned to you, records with open to-dos and records with open comments.
+    Each figure links to the records module with the matching filter applied. A figure of zero is not a link.
 
 ..  image:: /Images/widgets/dashboard-comments.png
     :width: 64
