@@ -68,6 +68,7 @@ class WatchToggle {
         const resolved = await response.resolve()
         if (resolved.result) {
           this.replaceAndRestoreFocus(toggle, WatchToggle.findInstances(table, uid), resolved.result)
+          Notification.message('watch.toggle', 'success')
         }
         // The record modal's Watch tab, if open on this exact record, shows the watcher count
         // and list as of when its pane was loaded - both go stale the moment anyone (in either
@@ -110,7 +111,7 @@ class WatchToggle {
    * @returns {HTMLElement[]}
    */
   static findInstances(table, uid) {
-    const selector = `[data-content-planner-watch-toggle][data-table="${CSS.escape(table)}"][data-uid="${CSS.escape(uid)}"]`
+    const selector = `[data-content-planner-watch-toggle]:not([data-content-planner-watch-managed])[data-table="${CSS.escape(table)}"][data-uid="${CSS.escape(uid)}"]`
     const documents = top !== window ? [document, top.document] : [document]
 
     return documents.flatMap(doc => Array.from(doc.querySelectorAll(selector)))

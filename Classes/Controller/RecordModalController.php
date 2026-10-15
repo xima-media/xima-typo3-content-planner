@@ -22,12 +22,11 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
+use Xima\XimaTypo3ContentPlanner\Service\WatcherPresentationService;
 use Xima\XimaTypo3ContentPlanner\Utility\Data\ContentUtility;
 use Xima\XimaTypo3ContentPlanner\Utility\Rendering\{AssetUtility, IconUtility};
 use Xima\XimaTypo3ContentPlanner\Utility\Security\PermissionUtility;
 
-use function count;
 use function is_array;
 
 /**
@@ -47,7 +46,7 @@ final readonly class RecordModalController
         private RecordRepository $recordRepository,
         private StatusRepository $statusRepository,
         private CommentRepository $commentRepository,
-        private WatcherService $watcherService,
+        private WatcherPresentationService $watcherPresentationService,
     ) {}
 
     /**
@@ -183,7 +182,8 @@ final readonly class RecordModalController
             'counts' => [
                 'comments' => $this->commentRepository->countAllByRecord($uid, $table),
                 'assignee' => $this->getAssigneeName((int) ($record[Configuration::FIELD_ASSIGNEE] ?? 0)),
-                'watchers' => $this->watcherService->isWatchable($table) ? count($this->watcherService->getActiveWatchers($table, $uid)) : 0,
+                // The same count the Watchers tab shows, so the two never disagree.
+                'watchers' => $this->watcherPresentationService->build($table, $uid, (int) PermissionUtility::getCurrentUserId())['count'],
             ],
         ];
     }

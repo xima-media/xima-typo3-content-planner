@@ -115,8 +115,53 @@
 			<trans-unit id="watch.tab.watchers.heading">
 				<source>Watchers · %s</source>
 			</trans-unit>
+			<trans-unit id="watch.tab.state.inactive.title">
+				<source>You're not watching</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.inactive.reason">
+				<source>You won't get notifications for this record.</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.inactive.action">
+				<source>Watch</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.auto.title">
+				<source>Watching automatically</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.auto.reason">
+				<source>Added by an assignment, comment or status change.</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.auto.action">
+				<source>Mute</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.manual.title">
+				<source>Watching</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.manual.reason">
+				<source>You added yourself.</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.manual.action">
+				<source>Mute</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.muted.title">
+				<source>Muted</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.muted.reason">
+				<source>You won't be added again automatically.</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.state.muted.action">
+				<source>Watch again</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.reason.manual">
+				<source>Manual</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.reason.automatic">
+				<source>Automatic</source>
+			</trans-unit>
+			<trans-unit id="watch.tab.watchers.hidden">
+				<source>%s more you can't see</source>
+			</trans-unit>
 			<trans-unit id="watch.tab.watchers.empty">
-				<source>Nobody is watching this record yet.</source>
+				<source>Nobody is watching this record yet. People are added when they are assigned, comment or change its status, or when they watch it themselves.</source>
 			</trans-unit>
 			<trans-unit id="watch.tab.notWatchable">
 				<source>This record does not support watching.</source>

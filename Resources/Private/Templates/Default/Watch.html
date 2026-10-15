@@ -1,25 +1,42 @@
 <html
     xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
     data-namespace-typo3-fluid="true"
 >
 
 <f:if condition="{watch.watchable}">
     <f:then>
         <div class="content-planner-watch-tab">
-            <div class="content-planner-watch-tab__toggle">
-                <f:render partial="WatchToggle" arguments="{table: table, uid: uid, watch: watch}"/>
-                <div class="content-planner-watch-tab__state">
-                    <strong>{f:translate(key: 'header.watch.tooltip.{watch.state}', extensionName: 'xima_typo3_content_planner')}</strong>
-                    <p>{f:translate(key: 'header.watch.hint.{watch.state}', extensionName: 'xima_typo3_content_planner')}</p>
-                </div>
+            <div class="content-planner-watch-tab__main">
+                <section class="content-planner-watch-tab__card content-planner-watch-tab__card--{watch.state}" aria-labelledby="watch-state-title">
+                    <h3 id="watch-state-title" class="content-planner-watch-tab__state-title">
+                        <core:icon identifier="{watch.icon}" size="small" alternativeMarkupIdentifier="inline"/>
+                        <f:translate key="watch.tab.state.{watch.state}.title" extensionName="xima_typo3_content_planner"/>
+                    </h3>
+                    <p class="content-planner-watch-tab__reason">
+                        <f:translate key="watch.tab.state.{watch.state}.reason" extensionName="xima_typo3_content_planner"/>
+                    </p>
+                    <f:comment>
+                        The button names the action, never the state, so it has no pressed state.
+                        data-content-planner-watch-managed keeps watch-toggle.js from swapping it for the
+                        header's icon button: this pane reloads itself after every toggle.
+                    </f:comment>
+                    <button type="button" class="btn btn-default"
+                        data-content-planner-watch-toggle
+                        data-content-planner-watch-managed
+                        data-table="{table}"
+                        data-uid="{uid}">
+                        <f:translate key="watch.tab.state.{watch.state}.action" extensionName="xima_typo3_content_planner"/>
+                    </button>
+                </section>
+
+                <p class="content-planner-watch-tab__explanation">
+                    {f:translate(key: 'watch.tab.explanation', extensionName: 'xima_typo3_content_planner')}
+                </p>
             </div>
 
-            <p class="content-planner-watch-tab__explanation">
-                {f:translate(key: 'watch.tab.explanation', extensionName: 'xima_typo3_content_planner')}
-            </p>
-
-            <div class="content-planner-watch-tab__watchers">
+            <div class="content-planner-watch-tab__aside">
                 <h3 class="content-planner-watch-tab__watchers-heading">
                     {f:translate(key: 'watch.tab.watchers.heading', extensionName: 'xima_typo3_content_planner', arguments: '{0: watch.count}')}
                 </h3>
@@ -29,10 +46,21 @@
                             <f:for each="{watch.watchers}" as="watcher">
                                 <li class="content-planner-watch-tab__watcher">
                                     <be:avatar backendUser="{watcher.uid}" size="20" showIcon="true"/>
-                                    <span>{watcher.name}</span>
+                                    <span class="content-planner-watch-tab__watcher-name">{watcher.name}</span>
+                                    <span class="content-planner-watch-tab__watcher-reason">
+                                        <f:if condition="{watcher.source} == 'manual'">
+                                            <f:then><f:translate key="watch.tab.reason.manual" extensionName="xima_typo3_content_planner"/></f:then>
+                                            <f:else><f:translate key="watch.tab.reason.automatic" extensionName="xima_typo3_content_planner"/></f:else>
+                                        </f:if>
+                                    </span>
                                 </li>
                             </f:for>
                         </ul>
+                        <f:if condition="{watch.hiddenCount} > 0">
+                            <p class="content-planner-watch-tab__hidden">
+                                <f:translate key="watch.tab.watchers.hidden" extensionName="xima_typo3_content_planner" arguments="{0: watch.hiddenCount}"/>
+                            </p>
+                        </f:if>
                     </f:then>
                     <f:else>
                         <p class="content-planner-watch-tab__empty">
@@ -44,7 +72,7 @@
         </div>
     </f:then>
     <f:else>
-        <div class="content-planner-watch-tab">
+        <div class="content-planner-watch-tab content-planner-watch-tab--single">
             <p class="content-planner-watch-tab__empty">
                 {f:translate(key: 'watch.tab.notWatchable', extensionName: 'xima_typo3_content_planner')}
             </p>

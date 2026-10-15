@@ -18,7 +18,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use Xima\XimaTypo3ContentPlanner\Controller\RecordModalController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository, StatusRepository};
-use Xima\XimaTypo3ContentPlanner\Service\WatcherService;
+use Xima\XimaTypo3ContentPlanner\Service\WatcherPresentationService;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
 /**
@@ -162,7 +162,7 @@ final class RecordModalControllerTest extends AbstractFunctionalTestCase
             $this->get(RecordRepository::class),
             $this->get(StatusRepository::class),
             $this->get(CommentRepository::class),
-            $this->get(WatcherService::class),
+            $this->get(WatcherPresentationService::class),
         );
     }
 
