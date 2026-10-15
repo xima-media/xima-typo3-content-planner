@@ -63,11 +63,30 @@ class ContentUtility
             return '';
         }
 
+        if (self::isSystemUser($user)) {
+            return self::getSystemLabel();
+        }
+
         if (isset($user['realName']) && '' !== $user['realName']) {
             return $user['realName'].' ('.$user['username'].')';
         }
 
         return $user['username'];
+    }
+
+    /**
+     * The real name, falling back to the username: what fits next to an avatar. The CLI user,
+     * which means nothing to an editor, reads "System".
+     *
+     * @param array<string, mixed> $user
+     */
+    public static function generateShortDisplayName(array $user): string
+    {
+        if (self::isSystemUser($user)) {
+            return self::getSystemLabel();
+        }
+
+        return (string) (($user['realName'] ?? '') ?: ($user['username'] ?? ''));
     }
 
     /**
@@ -128,5 +147,18 @@ class ContentUtility
         }
 
         return BackendUtility::getRecord($table, $uid);
+    }
+
+    /**
+     * @param array<string, mixed> $user
+     */
+    private static function isSystemUser(array $user): bool
+    {
+        return '_cli_' === ($user['username'] ?? null);
+    }
+
+    private static function getSystemLabel(): string
+    {
+        return GeneralUtility::makeInstance(BackendUserRepository::class)->getSystemLabel();
     }
 }

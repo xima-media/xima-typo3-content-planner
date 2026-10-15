@@ -399,6 +399,9 @@ class CommentComposer {
       rollback: snapshot => this.rollback(snapshot),
     }).then(() => {
       Notification.message('edit' === mode ? 'comment.edit' : 'comment.create', 'success')
+      if (statusUid) {
+        top.document.dispatchEvent(new CustomEvent('content-planner:status-changed', { detail: { table, uid: id } }))
+      }
     }).catch(() => {
       Notification.message('edit' === mode ? 'comment.edit' : 'comment.create', 'failure')
     })

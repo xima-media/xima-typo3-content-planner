@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use Xima\XimaTypo3ContentPlanner\Controller\RecordController;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\{ChildCommentAggregationManager, CommentFirstFlowManager};
+use Xima\XimaTypo3ContentPlanner\Service\AssigneeContextService;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -204,6 +205,69 @@ final class RecordControllerAssigneeTest extends AbstractFunctionalTestCase
         }
     }
 
+    #[Test]
+    public function assigneeSelectionActionAssignsOnPickingSoThereIsNoConfirmButton(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'currentAssignee' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertStringNotContainsString('data-action-assignee-confirm', $result);
+        self::assertStringContainsString('data-action-assignee', $result);
+    }
+
+    #[Test]
+    public function assigneeSelectionActionNamesTheCurrentAssigneeWithWhenAndByWhom(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/../Domain/Repository/Fixtures/sys_history_assignments.csv');
+
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'currentAssignee' => 1]),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertMatchesRegularExpression('#content-planner-assignee__current[^>]*>.*Administrator \(admin\)#s', $result);
+        self::assertStringContainsString('Editor User (editor)', $result);
+    }
+
+    #[Test]
+    public function assigneeSelectionActionExplainsWhyAnAssignSelfOnlyUserSeesNoOtherAssignees(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Fixtures/be_groups_assign_self.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $backendUser = $this->setUpBackendUser(5);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
+        $this->setUpBackendRequest();
+
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 2, 'currentAssignee' => 5]),
+        );
+
+        self::assertStringContainsString('content-planner-assignee__notice', json_decode((string) $response->getBody(), true)['result']);
+    }
+
+    #[Test]
+    public function assigneeSelectionActionShowsNoNoticeToAUserWhoMayAssignAnyone(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+
+        $response = $this->createController()->assigneeSelectionAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'currentAssignee' => 1]),
+        );
+
+        self::assertStringNotContainsString('content-planner-assignee__notice', json_decode((string) $response->getBody(), true)['result']);
+    }
+
     private function createController(): RecordController
     {
         return new RecordController(
@@ -214,6 +278,7 @@ final class RecordControllerAssigneeTest extends AbstractFunctionalTestCase
             $this->get(CommentEditorConfigurationFactory::class),
             $this->get(CommentFirstFlowManager::class),
             $this->get(ChildCommentAggregationManager::class),
+            $this->get(AssigneeContextService::class),
         );
     }
 

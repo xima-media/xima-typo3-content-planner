@@ -632,6 +632,14 @@
 				<source>Show older comments (%d)</source>
 				<target>Ältere Kommentare anzeigen (%d)</target>
 			</trans-unit>
+			<trans-unit id="comment.composer.status.label">
+				<source>Status</source>
+				<target>Status</target>
+			</trans-unit>
+			<trans-unit id="comment.composer.status.keep">
+				<source>Keep current</source>
+				<target>Beibehalten</target>
+			</trans-unit>
 			<trans-unit id="comment.composer.hint.submit">
 				<source><![CDATA[Press <kbd data-shortcut-modifier>Ctrl</kbd>+<kbd>Enter</kbd> to save]]></source>
 				<target><![CDATA[Drücken Sie <kbd data-shortcut-modifier>Strg</kbd>+<kbd>Enter</kbd> zum Speichern]]></target>
@@ -777,9 +785,37 @@
 				<source>Select an assignee</source>
 				<target>Zuständigen auswählen</target>
 			</trans-unit>
-			<trans-unit id="assignee.info">
-				<source>For every content planner record, a dedicated assignee can be set. The assignee is the backend user responsible for the current record.</source>
-				<target>Für jeden Content Planner-Datensatz kann ein eigener zuständige Nutzer festgelegt werden. Der Zuständige ist der Backend-Benutzer, der für den aktuellen Datensatz verantwortlich ist.</target>
+			<trans-unit id="assignee.list.emptyHint">
+				<source>Only users with Content Planner access are listed.</source>
+				<target>Es werden nur Benutzer mit Content-Planner-Zugriff aufgeführt.</target>
+			</trans-unit>
+			<trans-unit id="assignee.notice.selfOnly">
+				<source>You can assign yourself only.</source>
+				<target>Sie können nur sich selbst zuweisen.</target>
+			</trans-unit>
+			<trans-unit id="assignee.notice.readOnly">
+				<source>You can view the assignee but not change it.</source>
+				<target>Sie können die Zuweisung einsehen, aber nicht ändern.</target>
+			</trans-unit>
+			<trans-unit id="assignee.current.title">
+				<source>Current assignee</source>
+				<target>Aktuell zugewiesen</target>
+			</trans-unit>
+			<trans-unit id="assignee.current.since">
+				<source>Since %s</source>
+				<target>Seit %s</target>
+			</trans-unit>
+			<trans-unit id="assignee.current.sinceBy">
+				<source>Since %s, by %s</source>
+				<target>Seit %s, durch %s</target>
+			</trans-unit>
+			<trans-unit id="assignee.card.title">
+				<source>What an assignment does</source>
+				<target>Was eine Zuweisung bewirkt</target>
+			</trans-unit>
+			<trans-unit id="assignee.card.text">
+				<source>Picking a person assigns the record to them right away and notifies them. There is no undo: to correct a wrong pick, pick again.</source>
+				<target>Wer ausgewählt wird, bekommt den Datensatz sofort zugewiesen und wird benachrichtigt. Es gibt kein Rückgängig: eine falsche Wahl korrigieren Sie, indem Sie erneut wählen.</target>
 			</trans-unit>
 			<trans-unit id="assignee.search.label">
 				<source>Search assignees</source>
@@ -800,10 +836,6 @@
 			<trans-unit id="assignee.list.current">
 				<source>Currently assigned</source>
 				<target>Aktuell zugewiesen</target>
-			</trans-unit>
-			<trans-unit id="assignee.confirm">
-				<source>Assign</source>
-				<target>Zuweisen</target>
 			</trans-unit>
 			<trans-unit id="assignee.documentation">
 				<source><![CDATA[You can find more information about the assignee feature, including permissions and keyboard shortcuts, in the <a href="https://docs.typo3.org/p/xima/xima-typo3-content-planner/main/en-us/Usage/Assignee.html" target="_blank">official documentation</a> of the extension.]]></source>

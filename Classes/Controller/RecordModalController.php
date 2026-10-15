@@ -195,7 +195,7 @@ final readonly class RecordModalController
             return '';
         }
 
-        return (string) ($user['realName'] ?: $user['username']);
+        return ContentUtility::generateShortDisplayName($user);
     }
 
     private function getLanguageService(): LanguageService

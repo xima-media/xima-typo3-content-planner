@@ -52,6 +52,45 @@ class RecordModal {
     top.document.addEventListener('content-planner:watch-toggled', event => {
       this.refreshWatchPaneIfOpen(event.detail.table, event.detail.uid)
     })
+    top.document.addEventListener('content-planner:status-changed', event => {
+      this.refreshStatus(event.detail.table, event.detail.uid)
+    })
+    top.document.addEventListener('content-planner:assignee-changed', event => {
+      this.refreshAssigneePane()
+    })
+  }
+
+  /** A comment sent together with a new status changed it: the status control follows, the page when the modal closes. */
+  refreshStatus(table, uid) {
+    if (!this.modal || this.recordKey !== `${table}:${uid}`) {
+      return
+    }
+    this.fetchRecordInfo().then(info => {
+      if (this.recordKey !== `${table}:${uid}`) {
+        return
+      }
+      this.info = { ...this.info, status: info.status, statuses: info.statuses }
+      this.renderStatusControl()
+      this.pageStale = true
+    }).catch(error => console.error('Content Planner: failed to reload the status:', error))
+  }
+
+  /**
+   * The assignment is already saved when this runs. The Assignee tab is loaded again so it names
+   * the new assignee, and the page behind the modal is refreshed once, when the modal closes.
+   */
+  refreshAssigneePane() {
+    const pane = this.panes.assignee
+    if (!this.modal || !pane) {
+      return
+    }
+
+    this.pageStale = true
+    // The value this modal was opened with is out of date, so the server reads the assignee itself.
+    delete this.context.currentAssignee
+    delete pane.dataset.loaded
+    pane.replaceChildren()
+    this.loadPaneIfNeeded('assignee')
   }
 
   /**
@@ -81,6 +120,7 @@ class RecordModal {
     this.info = null
     this.panes = {}
     this.tabButtons = {}
+    this.pageStale = false
   }
 
   /**
@@ -161,7 +201,13 @@ class RecordModal {
         this.modal = modal
         modal.classList.add('content-planner-modal')
         modal.addEventListener('typo3-modal-shown', () => this.activateTab(tab), { once: true })
-        modal.addEventListener('typo3-modal-hide', () => this.reset(), { once: true })
+        modal.addEventListener('typo3-modal-hide', () => {
+          const stale = this.pageStale
+          this.reset()
+          if (stale) {
+            Viewport.ContentContainer.refresh()
+          }
+        }, { once: true })
       }
     })
   }
@@ -257,12 +303,30 @@ class RecordModal {
     this.updateTabCount('comments', counts.comments)
     this.updateTabCount('watch', counts.watchers)
 
-    if (counts.assignee) {
-      const suffix = document.createElement('span')
-      suffix.className = 'content-planner-record-modal__tab-detail'
-      suffix.textContent = counts.assignee
-      this.tabButtons.assignee.append(suffix)
+    this.setAssigneeDetail(counts.assignee)
+  }
+
+  /** The loaded Assignee tab knows who is assigned now, which the tab label and the next request must follow. */
+  syncAssigneeFromPane(pane) {
+    // The same short name the tab carried before it was loaded, not the longer card heading.
+    const person = pane.querySelector('.content-planner-assignee__person[data-assignee-short-name]')
+    this.setAssigneeDetail(person?.dataset.assigneeShortName ?? '')
+  }
+
+  /** The name after the Assignee tab label, empty for a record nobody is assigned to. */
+  setAssigneeDetail(name) {
+    const button = this.tabButtons.assignee
+    let suffix = button.querySelector('.content-planner-record-modal__tab-detail')
+    if (!name) {
+      suffix?.remove()
+      return
     }
+    if (!suffix) {
+      suffix = document.createElement('span')
+      suffix.className = 'content-planner-record-modal__tab-detail'
+      button.append(suffix)
+    }
+    suffix.textContent = name
   }
 
   buildContextRow() {
@@ -407,8 +471,12 @@ class RecordModal {
         if (this.recordKey === recordKey) {
           this.info = { ...this.info, status: resolved.status, statuses: resolved.statuses }
           this.renderStatusControl()
+          // Refreshing the content frame now would replace the realm this modal's handlers run
+          // in, and the open modal would stop responding. It is refreshed when the modal closes.
+          this.pageStale = true
+        } else {
+          Viewport.ContentContainer.refresh()
         }
-        Viewport.ContentContainer.refresh()
         Notification.message(0 === statusUid ? 'status.reset' : 'status.changed', 'success')
       })
       .catch(error => {
@@ -575,6 +643,7 @@ class RecordModal {
   onPaneReady(tab, pane, payload) {
     if ('assignee' === tab) {
       AssigneeSelect.initEventListeners(this.modal, pane)
+      this.syncAssigneeFromPane(pane)
       return
     }
 

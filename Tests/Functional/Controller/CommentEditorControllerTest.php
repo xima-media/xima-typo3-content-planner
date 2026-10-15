@@ -213,17 +213,35 @@ final class CommentEditorControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function commentSaveActionIgnoresAStatusUidWhenTheRecordAlreadyHasAStatus(): void
+    public function commentSaveActionSwitchesTheStatusOfARecordThatAlreadyHasOne(): void
     {
         $this->loginBackendUser(1);
         $this->setUpBackendRequest();
         $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
         $this->importSharedDataSet('status.csv');
 
-        // Page 1 already has status 2 (see pages.csv) - a comment-first statusUid must be
-        // ignored rather than overwriting it.
+        // Page 1 has status 2 (see pages.csv); the composer's status select switches it along with the comment.
         $response = $this->createController()->commentSaveAction(
-            $this->createPostRequest(['table' => 'pages', 'uid' => 1, 'content' => 'Just a comment', 'statusUid' => 1]),
+            $this->createPostRequest(['table' => 'pages', 'uid' => 1, 'content' => 'Switching', 'statusUid' => 1]),
+        );
+
+        self::assertSame(200, $response->getStatusCode());
+
+        $page = $this->get(RecordRepository::class)->findByUid('pages', 1, ignoreVisibilityRestriction: true);
+        self::assertIsArray($page);
+        self::assertSame(1, (int) $page[Configuration::FIELD_STATUS]);
+    }
+
+    #[Test]
+    public function commentSaveActionLeavesTheStatusAloneWhenTheCurrentOneIsSubmitted(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importSharedDataSet('status.csv');
+
+        $response = $this->createController()->commentSaveAction(
+            $this->createPostRequest(['table' => 'pages', 'uid' => 1, 'content' => 'Just a comment', 'statusUid' => 2]),
         );
 
         self::assertSame(200, $response->getStatusCode());

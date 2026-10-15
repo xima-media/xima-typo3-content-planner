@@ -23,6 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Controller\RecordController;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\PaginatedResult;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\{ChildCommentAggregationManager, CommentFirstFlowManager};
+use Xima\XimaTypo3ContentPlanner\Service\AssigneeContextService;
 use Xima\XimaTypo3ContentPlanner\Service\RichText\CommentEditorConfigurationFactory;
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -280,7 +281,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function commentsActionOmitsCommentFirstMarkupWhenRecordAlreadyHasAStatus(): void
+    public function commentsActionOffersAStatusSwitchInsteadOfCommentFirstWhenRecordAlreadyHasAStatus(): void
     {
         $this->loginBackendUser(1);
         $this->setUpBackendRequest();
@@ -293,8 +294,11 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
 
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
-        self::assertStringNotContainsString('data-comment-status-picker', $payload['result']);
+        // No comment-first picker (that one is required and for status-less records) ...
+        self::assertStringNotContainsString('content-planner-comment-status-picker', $payload['result']);
         self::assertStringContainsString('data-status-uid=""', $payload['result']);
+        // ... but the optional switch to another status.
+        self::assertStringContainsString('content-planner-comment-status-change', $payload['result']);
     }
 
     // ==================== commentsAction: aggregated child comments (CP-29, #328) ====================
@@ -735,6 +739,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
             $this->get(CommentEditorConfigurationFactory::class),
             $this->get(CommentFirstFlowManager::class),
             $this->get(ChildCommentAggregationManager::class),
+            $this->get(AssigneeContextService::class),
         );
     }
 

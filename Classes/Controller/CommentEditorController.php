@@ -431,11 +431,11 @@ class CommentEditorController extends ActionController
     }
 
     /**
-     * CP-27 (#326): resolves the statusUid the composer submitted alongside a new comment on
-     * a status-less record. A statusUid the current user is not allowed to set is a request
-     * the UI would never send on its own, so it is rejected outright rather than silently
-     * dropped; a record that already has a status (e.g. a race with another edit) just
-     * ignores it and falls back to a plain comment save.
+     * Resolves the statusUid the composer submitted alongside a new comment: the comment-first
+     * status of a status-less record (CP-27, #326) or a switch on a record that has one. A
+     * statusUid the current user is not allowed to set is a request the UI would never send on
+     * its own, so it is rejected outright rather than silently dropped; one that equals the
+     * current status (e.g. a race with another edit) is ignored and the comment saved as is.
      *
      * @param array<string, mixed> $body
      * @param array<string, mixed> $record
@@ -453,7 +453,7 @@ class CommentEditorController extends ActionController
             return new JsonResponse(['error' => 'Access denied'], 403);
         }
 
-        return $this->commentFirstFlowManager->resolveStatusUidForCommentFirst($record, $requestedStatusUid);
+        return $this->commentFirstFlowManager->resolveStatusUid($record, $requestedStatusUid);
     }
 
     /**

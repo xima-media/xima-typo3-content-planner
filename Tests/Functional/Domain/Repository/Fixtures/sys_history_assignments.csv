@@ -1,0 +1,6 @@
+"sys_history"
+,"uid","tstamp","actiontype","usertype","userid","recuid","tablename","history_data","workspace","correlation_id"
+,1,1000,2,"BE",1,1,"pages","{""oldRecord"":{""tx_ximatypo3contentplanner_assignee"":""0""},""newRecord"":{""tx_ximatypo3contentplanner_assignee"":""2""}}",0,""
+,2,2000,2,"BE",2,1,"pages","{""oldRecord"":{""tx_ximatypo3contentplanner_assignee"":""2""},""newRecord"":{""tx_ximatypo3contentplanner_assignee"":""1""}}",0,""
+,3,3000,2,"BE",2,1,"pages","{""oldRecord"":{""tx_ximatypo3contentplanner_status"":""0""},""newRecord"":{""tx_ximatypo3contentplanner_status"":""1""}}",0,""
+,4,4000,2,"BE",1,2,"pages","{""oldRecord"":{""tx_ximatypo3contentplanner_assignee"":""0""},""newRecord"":{""tx_ximatypo3contentplanner_assignee"":""1""}}",0,""

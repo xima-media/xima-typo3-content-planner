@@ -91,6 +91,20 @@
                                     </select>
                                 </div>
                             </f:if>
+                            <f:if condition="{statusChange}">
+                                <div class="content-planner-comment-composer__status-picker">
+                                    <label for="content-planner-comment-status-change">
+                                        <f:translate key="comment.composer.status.label" extensionName="XimaTypo3ContentPlanner"/>
+                                    </label>
+                                    <select id="content-planner-comment-status-change" name="statusUid"
+                                            class="form-select form-select-sm" data-comment-status-picker>
+                                        <option value="" selected><f:translate key="comment.composer.status.keep" extensionName="XimaTypo3ContentPlanner"/></option>
+                                        <f:for each="{statusChange}" as="statusOption">
+                                            <option value="{statusOption.uid}">{statusOption.title}</option>
+                                        </f:for>
+                                    </select>
+                                </div>
+                            </f:if>
                             <div class="content-planner-comment-composer__editor">
                                 <f:format.raw>{commentComposerHtml}</f:format.raw>
                             </div>

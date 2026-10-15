@@ -48,6 +48,12 @@ services:
   Xima\XimaTypo3ContentPlanner\Service\Header\StatusOptionsBuilder:
     public: true
 
+  Xima\XimaTypo3ContentPlanner\Domain\Repository\AssignmentHistoryRepository:
+    public: true
+
+  Xima\XimaTypo3ContentPlanner\Service\AssigneeContextService:
+    public: true
+
   Xima\XimaTypo3ContentPlanner\Domain\Repository\SysFileMetadataRepository:
     public: true
 

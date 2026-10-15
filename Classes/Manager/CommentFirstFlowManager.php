@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Xima\XimaTypo3ContentPlanner\Manager;
 
 use Doctrine\DBAL\Exception;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Model\Status;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\StatusRepository;
 use Xima\XimaTypo3ContentPlanner\Utility\PlannerUtility;
@@ -78,17 +79,45 @@ final readonly class CommentFirstFlowManager
     }
 
     /**
-     * Validates a statusUid submitted alongside a new comment on a status-less record. Only
-     * ever returns a uid the user is actually allowed to set; the caller (CommentEditorController)
-     * still owns rejecting the request outright when the client sent one it should not have, and
-     * resolving "no statusUid submitted at all" to null before calling this - the only thing
-     * left to decide here is whether the record is still eligible for the comment-first flow.
+     * What the composer of a record that already has a status offers: the statuses the user may
+     * switch to together with a comment, without the current one. Empty when there is nothing to
+     * offer.
+     *
+     * @param array<string, mixed> $record
+     *
+     * @return array<int, array<string, mixed>>
+     *
+     * @throws Exception
+     */
+    public function buildChangeContext(array $record): array
+    {
+        if (!PlannerUtility::hasStatus($record) || !PermissionUtility::canChangeStatus()) {
+            return [];
+        }
+
+        $currentUid = (int) $record[Configuration::FIELD_STATUS];
+
+        return array_values(array_map(
+            $this->toItemArray(...),
+            array_filter(
+                $this->statusRepository->findAll(),
+                static fn (Status $status): bool => $status->getUid() !== $currentUid && PermissionUtility::canChangeStatus($status->getUid()),
+            ),
+        ));
+    }
+
+    /**
+     * Validates a statusUid submitted alongside a new comment: the comment-first status of a
+     * status-less record, or a switch on a record that has one. Only ever returns a uid that
+     * exists and differs from the current status; the caller (CommentEditorController) still owns
+     * rejecting a uid the user may not set, and resolving "no statusUid submitted at all" to null
+     * before calling this.
      *
      * @param array<string, mixed> $record
      */
-    public function resolveStatusUidForCommentFirst(array $record, int $requestedStatusUid): ?int
+    public function resolveStatusUid(array $record, int $requestedStatusUid): ?int
     {
-        if ($requestedStatusUid <= 0 || PlannerUtility::hasStatus($record)) {
+        if ($requestedStatusUid <= 0 || $requestedStatusUid === (int) ($record[Configuration::FIELD_STATUS] ?? 0)) {
             return null;
         }
 
