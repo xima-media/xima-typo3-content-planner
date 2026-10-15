@@ -78,6 +78,11 @@
     z-index: 1000;
 }
 
+/* The menu is opened by hand, and TYPO3 v14's dropdown styles do not show it for the `show` class alone. */
+.content-planner-record-modal__status .dropdown-menu.show {
+    display: block;
+}
+
 .content-planner-record-modal__workspace-note {
     color: var(--content-planner-color-muted);
     flex: 1 0 100%;
@@ -154,8 +159,8 @@
     font-size: 0.6875rem;
     font-variant-numeric: tabular-nums;
     font-weight: 400;
-    color: color-mix(in srgb, currentColor, transparent 30%);
-    background-color: color-mix(in srgb, currentColor, transparent 75%);
+    color: var(--typo3-text-color-base);
+    background-color: color-mix(in srgb, var(--typo3-text-color-base) 15%, transparent);
     border-radius: 999px;
 }
 

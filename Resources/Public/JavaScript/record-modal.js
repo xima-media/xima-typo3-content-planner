@@ -20,7 +20,7 @@ import AjaxRequest from "@typo3/core/ajax/ajax-request.js"
 import Modal from "@typo3/backend/modal.js"
 import Icons from "@typo3/backend/icons.js"
 import AssigneeSelect from "@content-planner/assignee-select.js"
-import Notification from "@content-planner/notification.js"
+import RecordModalStatus from "@content-planner/record-modal-status.js"
 import Viewport from "@typo3/backend/viewport.js"
 
 const TAB_NAMES = ['comments', 'assignee', 'watch']
@@ -44,6 +44,7 @@ const TABS = {
 
 class RecordModal {
   constructor() {
+    this.status = new RecordModalStatus(this)
     this.reset()
 
     // top.document alone, matching watch-toggle.js's own single dispatch target - see
@@ -53,26 +54,11 @@ class RecordModal {
       this.refreshWatchPaneIfOpen(event.detail.table, event.detail.uid)
     })
     top.document.addEventListener('content-planner:status-changed', event => {
-      this.refreshStatus(event.detail.table, event.detail.uid)
+      this.status.refresh(event.detail.table, event.detail.uid)
     })
     top.document.addEventListener('content-planner:assignee-changed', event => {
       this.refreshAssigneePane()
     })
-  }
-
-  /** A comment sent together with a new status changed it: the status control follows, the page when the modal closes. */
-  refreshStatus(table, uid) {
-    if (!this.modal || this.recordKey !== `${table}:${uid}`) {
-      return
-    }
-    this.fetchRecordInfo().then(info => {
-      if (this.recordKey !== `${table}:${uid}`) {
-        return
-      }
-      this.info = { ...this.info, status: info.status, statuses: info.statuses }
-      this.renderStatusControl()
-      this.pageStale = true
-    }).catch(error => console.error('Content Planner: failed to reload the status:', error))
   }
 
   /**
@@ -360,7 +346,7 @@ class RecordModal {
     this.statusControl = document.createElement('div')
     this.statusControl.className = 'dropdown'
     status.append(this.statusControl)
-    this.renderStatusControl()
+    this.status.render()
     row.append(status)
 
     if (this.info.workspace) {
@@ -372,125 +358,6 @@ class RecordModal {
     }
 
     return row
-  }
-
-  /**
-   * The status menu lists only the statuses the user may set. Without that permission the
-   * current status is shown as plain text, never as a dead button.
-   */
-  renderStatusControl() {
-    const { status, statuses, canChangeStatus, canUnsetStatus } = this.info
-    const noStatus = TYPO3.lang?.['modal.context.noStatus'] || 'No status'
-    const control = this.statusControl
-    control.replaceChildren()
-
-    if (!canChangeStatus) {
-      const text = document.createElement('span')
-      text.className = 'content-planner-record-modal__status-text'
-      text.textContent = status ? status.title : noStatus
-      control.append(text)
-      return
-    }
-
-    const toggle = document.createElement('button')
-    toggle.type = 'button'
-    toggle.className = 'btn btn-default dropdown-toggle'
-    toggle.setAttribute('aria-haspopup', 'true')
-    toggle.setAttribute('aria-expanded', 'false')
-    if (status) {
-      toggle.insertAdjacentHTML('beforeend', status.icon)
-    }
-    toggle.append(document.createTextNode(` ${status ? status.title : noStatus}`))
-    control.append(toggle)
-
-    const menu = document.createElement('ul')
-    menu.className = 'dropdown-menu dropdown-menu-end'
-    statuses.forEach(entry => menu.append(this.buildStatusItem(entry.uid, entry.icon, entry.title, entry.current)))
-    if (canUnsetStatus && status) {
-      const divider = document.createElement('li')
-      divider.innerHTML = '<hr class="dropdown-divider">'
-      menu.append(divider)
-      menu.append(this.buildStatusItem(0, '', TYPO3.lang?.['modal.context.removeStatus'] || 'Remove status', false))
-    }
-    control.append(menu)
-
-    this.bindStatusMenu(toggle, menu)
-  }
-
-  /**
-   * Bootstrap's dropdown positions this menu far outside the modal (Popper measures against the
-   * dialog, which is wider than its content), so the menu is opened and positioned by hand: it
-   * hangs below the button, aligned to its right edge (RecordModal.css).
-   */
-  bindStatusMenu(toggle, menu) {
-    const setOpen = open => {
-      menu.classList.toggle('show', open)
-      toggle.setAttribute('aria-expanded', String(open))
-    }
-
-    toggle.addEventListener('click', () => setOpen(!menu.classList.contains('show')))
-    menu.addEventListener('click', () => setOpen(false))
-    const closeOnOutsideClick = event => {
-      if (!toggle.isConnected) {
-        document.removeEventListener('click', closeOnOutsideClick)
-        return
-      }
-      if (!event.target.closest('.content-planner-record-modal__status')) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('click', closeOnOutsideClick)
-    toggle.closest('.content-planner-record-modal__status')?.addEventListener('keydown', event => {
-      if ('Escape' === event.key && menu.classList.contains('show')) {
-        event.stopPropagation()
-        setOpen(false)
-        toggle.focus()
-      }
-    })
-  }
-
-  buildStatusItem(uid, iconMarkup, title, current) {
-    const item = document.createElement('li')
-    const button = document.createElement('button')
-    button.type = 'button'
-    button.className = `dropdown-item${current ? ' active' : ''}`
-    if (current) {
-      button.setAttribute('aria-current', 'true')
-    }
-    button.insertAdjacentHTML('beforeend', iconMarkup)
-    button.append(document.createTextNode(` ${title}`))
-    button.addEventListener('click', () => this.changeStatus(uid))
-    item.append(button)
-
-    return item
-  }
-
-  changeStatus(statusUid) {
-    const { table, uid } = this.context
-    const recordKey = this.recordKey
-
-    new AjaxRequest(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_modalstatus)
-      .post({ table, uid, status: statusUid })
-      .then(async response => {
-        const resolved = await response.resolve()
-        if (!response.response.ok || resolved.error) {
-          throw new Error(resolved.error || 'Content Planner: status change request failed')
-        }
-        if (this.recordKey === recordKey) {
-          this.info = { ...this.info, status: resolved.status, statuses: resolved.statuses }
-          this.renderStatusControl()
-          // Refreshing the content frame now would replace the realm this modal's handlers run
-          // in, and the open modal would stop responding. It is refreshed when the modal closes.
-          this.pageStale = true
-        } else {
-          Viewport.ContentContainer.refresh()
-        }
-        Notification.message(0 === statusUid ? 'status.reset' : 'status.changed', 'success')
-      })
-      .catch(error => {
-        console.error('Content Planner: failed to change the status:', error)
-        Notification.message(0 === statusUid ? 'status.reset' : 'status.changed', 'failure')
-      })
   }
 
   buildFooterButtons() {
