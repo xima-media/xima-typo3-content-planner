@@ -137,6 +137,15 @@ behaviour, up to and including 2.x).
 This is a purely visual/configuration change; no PHP API (events,
 repositories, models) is affected.
 
+JavaScript module specifiers renamed
+------------------------------------
+
+The import map prefix of the extension's JavaScript modules changed from
+``@xima/ximatypo3contentplanner/`` to ``@content-planner/``. Own code that imports one of
+the modules, for example ``@xima/ximatypo3contentplanner/comments-list-modal.js``, has to
+use the new prefix. ``Xima\XimaTypo3ContentPlanner\Configuration::JAVASCRIPT_MODULE_PREFIX``
+holds the current value. The namespace, the extension key and the table names did not change.
+
 Design refresh of the backend UI
 --------------------------------
 
