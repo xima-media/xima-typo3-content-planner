@@ -99,7 +99,9 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $payload = json_decode((string) $response->getBody(), true);
         self::assertSame(200, $response->getStatusCode());
         self::assertStringContainsString('Open comment', $payload['result']);
-        self::assertStringNotContainsString('Resolved comment', $payload['result']);
+        self::assertStringNotContainsString('>Resolved comment<', $payload['result']);
+        // The filter leaves it out but says so, with a way to show it.
+        self::assertStringContainsString('data-comment-show-resolved', $payload['result']);
     }
 
     #[Test]
@@ -156,7 +158,7 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
-    public function commentsActionRendersNoActiveFilterBadgeByDefault(): void
+    public function commentsActionOffersTheShowFilterAsRadiosWithOpenSelectedByDefault(): void
     {
         $this->loginBackendUser(1);
         $this->setUpBackendRequest();
@@ -167,12 +169,14 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
             $this->createRequest(['table' => 'pages', 'uid' => 1]),
         );
 
-        $payload = json_decode((string) $response->getBody(), true);
-        self::assertStringNotContainsString('content-planner-comment-actions-badge', $payload['result']);
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertMatchesRegularExpression('#name="show" value="open"[^>]*checked#', $result);
+        self::assertDoesNotMatchRegularExpression('#name="show" value="todo"[^>]*checked#', $result);
+        self::assertDoesNotMatchRegularExpression('#name="show" value="all"[^>]*checked#', $result);
     }
 
     #[Test]
-    public function commentsActionRendersActiveFilterBadgeWhenShowResolvedCommentsIsActive(): void
+    public function commentsActionRendersAToggleThatControlsTheFilterColumn(): void
     {
         $this->loginBackendUser(1);
         $this->setUpBackendRequest();
@@ -180,15 +184,17 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
 
         $response = $this->createController()->commentsAction(
-            $this->createRequest(['table' => 'pages', 'uid' => 1, 'showResolvedComments' => 1]),
+            $this->createRequest(['table' => 'pages', 'uid' => 1]),
         );
 
-        $payload = json_decode((string) $response->getBody(), true);
-        self::assertStringContainsString('content-planner-comment-actions-badge">1<', $payload['result']);
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertMatchesRegularExpression('#<button[^>]*data-comment-filter-toggle[^>]*aria-controls="content-planner-comment-filter-panel"#', $result);
+        self::assertMatchesRegularExpression('#<aside[^>]*id="content-planner-comment-filter-panel"#', $result);
+        self::assertStringNotContainsString('content-planner-comment-filter-toggle__badge', $result);
     }
 
     #[Test]
-    public function commentsActionRendersActiveFilterBadgeCountingBothFiltersWhenBothAreActive(): void
+    public function commentsActionMarksTheClosedFilterWhenItNarrowsTheList(): void
     {
         $this->loginBackendUser(1);
         $this->setUpBackendRequest();
@@ -196,14 +202,47 @@ final class RecordControllerTest extends AbstractFunctionalTestCase
         $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
 
         $response = $this->createController()->commentsAction(
-            $this->createRequest(['table' => 'pages', 'uid' => 1, 'showResolvedComments' => 1, 'showTodoComments' => 1]),
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'show' => 'todo']),
         );
 
-        $payload = json_decode((string) $response->getBody(), true);
-        self::assertStringContainsString('content-planner-comment-actions-badge">2<', $payload['result']);
+        self::assertStringContainsString('content-planner-comment-filter-toggle__badge', json_decode((string) $response->getBody(), true)['result']);
     }
 
-    // ==================== commentsAction: comment-first flow (CP-27, #326) ====================
+    #[Test]
+    public function commentsActionShowsOnlyCommentsWithTodosForTheTodoChoice(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'show' => 'todo']),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertStringContainsString('Todo comment', $result);
+        self::assertStringNotContainsString('Open comment', $result);
+        self::assertMatchesRegularExpression('#name="show" value="todo"[^>]*checked#', $result);
+    }
+
+    #[Test]
+    public function commentsActionAlsoShowsResolvedCommentsForTheAllChoice(): void
+    {
+        $this->loginBackendUser(1);
+        $this->setUpBackendRequest();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+
+        $response = $this->createController()->commentsAction(
+            $this->createRequest(['table' => 'pages', 'uid' => 1, 'show' => 'all']),
+        );
+
+        $result = json_decode((string) $response->getBody(), true)['result'];
+        self::assertStringContainsString('Resolved comment', $result);
+        self::assertStringContainsString('Open comment', $result);
+        self::assertMatchesRegularExpression('#name="show" value="all"[^>]*checked#', $result);
+    }
 
     #[Test]
     public function commentsActionRendersOneClickButtonWhenADefaultStatusExists(): void

@@ -191,6 +191,20 @@ A comment can be marked as completed via the context menu.
 
     Resolved comments can can be displayed again using the filter
 
+The comments tab lists open comments by default. The filter column offers four choices: **Open**, **With open to-dos**,
+**Resolved** and **All**, each with its count. While resolved comments are left out, one line below the list says how
+many are hidden and offers to show them.
+
+A long list shows the 20 newest comments first. "Show older comments" loads the rest.
+
+..  _comments-links:
+
+Links in comments
+=================
+
+The link button of the editor opens the link browser, so a comment can link to a page, a file or an external address.
+A link to a page opens that page in the page module, external links open in a new tab.
+
 ..  _comments-replies:
 
 Threaded Replies

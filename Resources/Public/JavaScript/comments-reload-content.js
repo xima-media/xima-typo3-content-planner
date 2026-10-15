@@ -11,6 +11,13 @@ import CommentTodoToggle from "@content-planner/comment-todo-toggle.js"
 import CommentMentionCard from "@content-planner/comment-mention-card.js"
 
 class CommentsReloadContent {
+  static filterOpen = (() => {
+    try {
+      return '1' === localStorage.getItem('contentPlanner.commentFilterOpen')
+    } catch (error) {
+      return false
+    }
+  })()
 
   constructor() {
     if (!oncePerRealm('comments-reload-content')) {
@@ -32,6 +39,7 @@ class CommentsReloadContent {
     this.initRepliesToggle()
     this.initIncludeChildCommentsToggle()
     this.initNewCommentTrigger()
+    this.initFilterToggle()
 
     document.querySelector('form#content-planner-comment-filter')?.addEventListener('change', (event) => {
       event.preventDefault()
@@ -40,6 +48,13 @@ class CommentsReloadContent {
       const uid = event.target.closest('form').getAttribute('data-id')
 
       this.loadComments(url, table, uid)
+    })
+
+    document.querySelectorAll('[data-comment-load-older]').forEach(button => {
+      button.addEventListener('click', () => this.loadOlder(button))
+    })
+    document.querySelectorAll('[data-comment-show-resolved]').forEach(button => {
+      button.addEventListener('click', () => this.showResolved(button))
     })
 
     // The composer is always rendered inline at the bottom of the list (CP-28, #327) - a
@@ -54,6 +69,36 @@ class CommentsReloadContent {
         event.preventDefault()
         this.focusNewCommentComposer()
       })
+    })
+  }
+
+  /**
+   * The filter column is closed until asked for, and stays as the user left it: the list is
+   * re-rendered on every filter change, so the state lives here and not in the markup.
+   */
+  initFilterToggle() {
+    const list = document.querySelector('#content-planner-comment-list')
+    const toggle = list?.querySelector('[data-comment-filter-toggle]')
+    const panel = list?.querySelector('#content-planner-comment-filter-panel')
+    if (!toggle || !panel) {
+      return
+    }
+
+    const apply = open => {
+      panel.hidden = !open
+      toggle.setAttribute('aria-expanded', String(open))
+      list.dataset.filterOpen = open ? '1' : '0'
+    }
+
+    apply(CommentsReloadContent.filterOpen)
+    toggle.addEventListener('click', () => {
+      CommentsReloadContent.filterOpen = !CommentsReloadContent.filterOpen
+      apply(CommentsReloadContent.filterOpen)
+      try {
+        localStorage.setItem('contentPlanner.commentFilterOpen', CommentsReloadContent.filterOpen ? '1' : '0')
+      } catch (error) {
+        // Remembering the state is a convenience, the toggle works without it.
+      }
     })
   }
 
@@ -174,6 +219,34 @@ class CommentsReloadContent {
       return null
     }
     return Object.fromEntries(new FormData(filterForm).entries())
+  }
+
+  /** Asks for the whole list, not only the newest comments. The flag rides along with the filter form until the list is rendered again. */
+  loadOlder(button) {
+    const form = document.querySelector('form#content-planner-comment-filter')
+    if (!form) {
+      return
+    }
+    if (!form.querySelector('input[name="all"]')) {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = 'all'
+      input.value = '1'
+      form.append(input)
+    }
+    button.disabled = true
+    this.loadComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, form.dataset.table, form.dataset.id)
+  }
+
+  showResolved(button) {
+    const form = document.querySelector('form#content-planner-comment-filter')
+    const all = form?.querySelector('input[name="show"][value="all"]')
+    if (!all) {
+      return
+    }
+    all.checked = true
+    button.disabled = true
+    this.loadComments(TYPO3.settings.ajaxUrls.ximatypo3contentplanner_comments, form.dataset.table, form.dataset.id)
   }
 
   loadComments(url, table, uid) {

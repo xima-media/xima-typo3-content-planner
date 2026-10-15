@@ -23,7 +23,7 @@ use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use Xima\XimaTypo3ContentPlanner\Configuration;
-use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\StatusItem;
+use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\{CommentFilter, CommentListWindow, StatusItem};
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{BackendUserRepository, CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Manager\{ChildCommentAggregationManager, CommentFirstFlowManager};
 use Xima\XimaTypo3ContentPlanner\Service\Header\InfoGenerator;
@@ -116,8 +116,9 @@ class RecordController extends ActionController
         $recordId = (int) ($request->getQueryParams()['uid'] ?? 0);
         $recordTable = $request->getQueryParams()['table'] ?? '';
         $sortComments = $request->getQueryParams()['sortComments'] ?? 'DESC';
-        $showResolvedComments = (bool) ($request->getQueryParams()['showResolvedComments'] ?? false);
-        $showTodoComments = (bool) ($request->getQueryParams()['showTodoComments'] ?? false);
+        $commentFilter = CommentFilter::fromQueryParams($request->getQueryParams());
+        $showResolvedComments = $commentFilter->showResolved;
+        $showTodoComments = $commentFilter->showTodo;
 
         if ('' === $recordTable || 0 === $recordId) {
             return new JsonResponse(['error' => 'Missing required parameters'], 400);
@@ -143,16 +144,20 @@ class RecordController extends ActionController
 
         $comments = $this->commentRepository->findAllByRecord($recordId, $recordTable, false, $sortComments, $showResolvedComments, $showTodoComments);
         $canCreateComment = PermissionUtility::canCreateComment();
+        $openCount = $this->commentRepository->countAllByRecord($recordId, $recordTable);
 
         // CP-29 (#328): aggregated child comments - a view-only concern, only offered for pages
         // and only when the user opted in via the persisted "includeChildComments" setting.
         $childComments = $this->childCommentAggregationManager->buildContext($recordTable, $recordId, $includeChildComments, $showResolvedComments, $sortComments, $showTodoComments);
         $comments = $this->childCommentAggregationManager->mergeIntoList($comments, $childComments, $sortComments);
+        $window = CommentListWindow::of($comments, $commentFilter, $sortComments);
+        $resolvedCount = $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true);
 
         $result = ViewUtility::render(
             'Default/Comments.html',
             [
-                'comments' => $comments,
+                'comments' => $window->comments,
+                'older' => $window,
                 'id' => $recordId,
                 'table' => $recordTable,
                 'repliesExpanded' => $repliesExpanded,
@@ -166,16 +171,14 @@ class RecordController extends ActionController
                 'shareUrl' => UrlUtility::getShareUrl($recordTable, $recordId),
                 'filter' => [
                     'sortComments' => $sortComments,
-                    'showResolvedComments' => $showResolvedComments,
-                    'resolvedCount' => $this->commentRepository->countAllByRecord($recordId, $recordTable, false, true),
-                    'showTodoComments' => $showTodoComments,
-                    'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable, $showResolvedComments),
+                    'show' => $commentFilter->show,
+                    'openCount' => $openCount,
+                    'todoCount' => $this->commentRepository->countCommentsWithTodosByRecord($recordId, $recordTable),
+                    'resolvedCount' => $resolvedCount,
+                    'allCount' => $openCount + $resolvedCount,
+                    'loadAll' => $commentFilter->loadAll,
                     'includeChildComments' => $includeChildComments,
                     'isPage' => 'pages' === $recordTable,
-                    // Drives the badge on the "..." dropdown trigger, hinting that the closed
-                    // menu hides a non-default view - includeChildComments is a persisted
-                    // preference (like repliesExpanded), not a per-view filter, so it's excluded.
-                    'activeFilterCount' => (int) $showResolvedComments + (int) $showTodoComments,
                 ],
             ],
         );
