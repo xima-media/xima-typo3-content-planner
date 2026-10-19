@@ -23,6 +23,7 @@ use Xima\XimaTypo3ContentPlanner\Domain\Model\Dto\CommentItem;
 use function array_map;
 use function count;
 use function in_array;
+use function sprintf;
 
 /**
  * CommentRepository.
@@ -53,33 +54,29 @@ class CommentRepository
 
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable(self::TABLE);
 
-        $replyTable = self::TABLE.'_replies';
+        $activityTable = self::TABLE.'_activity';
+        // A correlated subquery instead of JOIN + GROUP BY: MariaDB rejects "SELECT comment.* ... GROUP BY uid"
+        // under ONLY_FULL_GROUP_BY. The root row is part of the set, so its own crdate is the floor.
+        $lastActivity = sprintf(
+            '(SELECT MAX(%1$s) FROM %2$s %3$s WHERE %4$s = %5$s OR (%6$s = %5$s AND %7$s = 0)) AS last_activity',
+            $queryBuilder->quoteIdentifier($activityTable.'.crdate'),
+            $queryBuilder->quoteIdentifier(self::TABLE),
+            $queryBuilder->quoteIdentifier($activityTable),
+            $queryBuilder->quoteIdentifier($activityTable.'.uid'),
+            $queryBuilder->quoteIdentifier(self::TABLE.'.uid'),
+            $queryBuilder->quoteIdentifier($activityTable.'.parent_uid'),
+            $queryBuilder->quoteIdentifier($activityTable.'.deleted'),
+        );
         $query = $queryBuilder
             ->select(self::TABLE.'.*')
             ->from(self::TABLE)
-            ->leftJoin(
-                self::TABLE,
-                self::TABLE,
-                $replyTable,
-                $queryBuilder->expr()->and(
-                    $queryBuilder->expr()->eq($replyTable.'.parent_uid', $queryBuilder->quoteIdentifier(self::TABLE.'.uid')),
-                    $queryBuilder->expr()->eq($replyTable.'.deleted', 0),
-                ),
-            )
-            ->addSelectLiteral(
-                'CASE WHEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
-                .' >= COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
-                .' THEN '.$queryBuilder->quoteIdentifier(self::TABLE.'.crdate')
-                .' ELSE COALESCE(MAX('.$queryBuilder->quoteIdentifier($replyTable.'.crdate').'), 0)'
-                .' END AS last_activity',
-            )
+            ->addSelectLiteral($lastActivity)
             ->where(
                 $queryBuilder->expr()->eq(self::TABLE.'.foreign_uid', $queryBuilder->createNamedParameter($id, Connection::PARAM_INT)),
                 $queryBuilder->expr()->eq(self::TABLE.'.foreign_table', $queryBuilder->createNamedParameter($table, Connection::PARAM_STR)),
                 $queryBuilder->expr()->eq(self::TABLE.'.deleted', 0),
                 $queryBuilder->expr()->eq(self::TABLE.'.parent_uid', $queryBuilder->createNamedParameter(0, Connection::PARAM_INT)),
             )
-            ->groupBy(self::TABLE.'.uid')
             ->orderBy('last_activity', $sortDirection);
 
         if (!$showResolved) {
