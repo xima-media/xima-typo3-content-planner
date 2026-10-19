@@ -321,7 +321,7 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
     public function findAllByFilterUnionsAllRegisteredTables(): void
     {
         $this->skipOnSqlite();
-        $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS'][Configuration::EXT_KEY]['enableFilelistSupport'] = 1;
+        $this->enableExtensionFeature('enableFilelistSupport');
         $this->importCSVDataSet(__DIR__.'/Fixtures/sys_file_metadata.csv');
         $this->importCSVDataSet(__DIR__.'/Fixtures/folders.csv');
 
@@ -350,7 +350,6 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
         return array_values(array_map(static fn (array $row): int => (int) $row['uid'], $result));
     }
 
-    // findAllByFilter() wraps each UNION member in parentheses, which SQLite rejects.
     // CI runs this suite against MySQL and MariaDB as well.
     private function skipOnSqlite(): void
     {
