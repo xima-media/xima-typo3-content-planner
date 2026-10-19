@@ -1,0 +1,4 @@
+# TYPO3 v14. Needs a root vendor/ installed with typo3/cms-core ^14.3.
+includes:
+	- phpstan.base.neon
+	- phpstan-baseline-v14.neon

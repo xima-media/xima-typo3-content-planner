@@ -71,6 +71,7 @@
 		"sca": [
 			"@sca:php"
 		],
-		"sca:php": "phpstan analyse --memory-limit=2G"
+		"sca:php": "phpstan analyse --memory-limit=2G",
+		"sca:php:v14": "@sca:php -c phpstan-v14.neon"
 	}
 }

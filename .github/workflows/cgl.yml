@@ -1,9 +1,12 @@
 name: CGL
 on:
   push:
-    branches:
-      - '**'
+    branches: [main, 'renovate/**']
+  pull_request: ~
 
 jobs:
   cgl:
-    uses: konradmichalik/reusable-github-actions/.github/workflows/cgl-test.yml@c460c0166a646cb65fd059c8d2f7d895ff3c787b # 0.1.0
+    uses: konradmichalik/reusable-github-actions/.github/workflows/cgl-test.yml@a8d99ad1b62b39346634f8d3bfd99795cc5ab03d # feat/typo3-dbms-and-sca-versions
+    with:
+      sca-typo3-version: '14.3'
+      sca-typo3-script: 'sca:php:v14'
