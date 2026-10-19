@@ -6,7 +6,7 @@ on:
 
 jobs:
   cgl:
-    uses: konradmichalik/reusable-github-actions/.github/workflows/cgl-test.yml@a8d99ad1b62b39346634f8d3bfd99795cc5ab03d # feat/typo3-dbms-and-sca-versions
+    uses: konradmichalik/reusable-github-actions/.github/workflows/cgl-test.yml@5eedac064fa3e42f2beadd759ec2d0a837b6a22a # feat/typo3-dbms-and-sca-versions
     with:
       sca-typo3-version: '14.3'
       sca-typo3-script: 'sca:php:v14'
