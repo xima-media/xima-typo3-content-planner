@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3ContentPlanner\Tests\Functional\Repository;
 
+use Doctrine\DBAL\Platforms\SQLitePlatform;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use Xima\XimaTypo3ContentPlanner\Configuration;
 use Xima\XimaTypo3ContentPlanner\Domain\Repository\{CommentRepository, RecordRepository};
 use Xima\XimaTypo3ContentPlanner\Tests\Functional\AbstractFunctionalTestCase;
 
@@ -250,9 +252,110 @@ final class RecordRepositoryTest extends AbstractFunctionalTestCase
         self::assertNull($record['tx_ximatypo3contentplanner_assignee']);
     }
 
-    // NOTE: findAllByFilter() builds raw "(SELECT ...) UNION (SELECT ...)" SQL which is invalid
-    // under SQLite (the functional test driver). It is therefore not covered here, together with
-    // the private helpers it exclusively calls (applyFilterConditions, buildSearchCondition,
-    // getTitleFieldForSearch, buildUnionQueriesForTables, buildWhereClauseForTable,
-    // filterResultsByPermission, getSqlByTable, getSqlForFileMetadata, getSqlForFolders).
+    #[Test]
+    public function findAllByFilterReturnsLiveRecordsWithStatusNewestFirst(): void
+    {
+        $this->skipOnSqlite();
+
+        // Page 4 has no status, page 5 is deleted, page 7 is a workspace draft.
+        self::assertSame([6, 3, 2, 1], $this->findUidsByFilter(type: 'pages'));
+    }
+
+    #[Test]
+    public function findAllByFilterFiltersByStatusAndAssignee(): void
+    {
+        $this->skipOnSqlite();
+
+        self::assertSame([6, 1], $this->findUidsByFilter(status: 2, type: 'pages'));
+        self::assertSame([2], $this->findUidsByFilter(assignee: 2, type: 'pages'));
+    }
+
+    #[Test]
+    public function findAllByFilterSearchesTitleAndUid(): void
+    {
+        $this->skipOnSqlite();
+
+        self::assertSame([3], $this->findUidsByFilter(search: 'Draft', type: 'pages'));
+        self::assertSame([1], $this->findUidsByFilter(search: '1', type: 'pages'));
+    }
+
+    #[Test]
+    public function findAllByFilterLimitsResults(): void
+    {
+        $this->skipOnSqlite();
+
+        self::assertSame([6, 3], $this->findUidsByFilter(type: 'pages', maxResults: 2));
+    }
+
+    #[Test]
+    public function findAllByFilterReturnsOnlyRecordsWithOpenTodos(): void
+    {
+        $this->skipOnSqlite();
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments.csv');
+        // Comment B on page 10 has one of three todos resolved. Page 1 only carries a resolved
+        // comment whose todos are all done, so neither filter may return it.
+        $this->get(ConnectionPool::class)->getConnectionForTable(Configuration::TABLE_COMMENT)->insert(Configuration::TABLE_COMMENT, [
+            'uid' => 20,
+            'foreign_uid' => 1,
+            'foreign_table' => 'pages',
+            'content' => 'Done',
+            'todo_total' => 2,
+            'todo_resolved' => 2,
+            'resolved_date' => 5000,
+        ]);
+        $this->get(ConnectionPool::class)->getConnectionForTable('pages')->insert('pages', [
+            'uid' => 10,
+            'pid' => 1,
+            'title' => 'Commented page',
+            'tx_ximatypo3contentplanner_status' => 1,
+            'perms_user' => 31,
+            'perms_group' => 31,
+            'perms_everybody' => 31,
+        ]);
+
+        self::assertSame([10], $this->findUidsByFilter(type: 'pages', todo: true));
+        self::assertSame([10], $this->findUidsByFilter(type: 'pages', openComments: true));
+    }
+
+    #[Test]
+    public function findAllByFilterUnionsAllRegisteredTables(): void
+    {
+        $this->skipOnSqlite();
+        $this->enableExtensionFeature('enableFilelistSupport');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/sys_file_metadata.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/folders.csv');
+
+        $titles = array_column($this->subject->findAllByFilter(maxResults: 50), 'title', 'tablename');
+
+        self::assertSame('example.pdf', $titles['sys_file_metadata'] ?? null);
+        self::assertArrayHasKey(Configuration::TABLE_FOLDER, $titles);
+        self::assertArrayHasKey('pages', $titles);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function findUidsByFilter(
+        ?string $search = null,
+        ?int $status = null,
+        ?int $assignee = null,
+        ?string $type = null,
+        ?bool $todo = null,
+        int $maxResults = 20,
+        bool $openComments = false,
+    ): array {
+        $result = $this->subject->findAllByFilter($search, $status, $assignee, $type, $todo, $maxResults, $openComments);
+        self::assertIsArray($result);
+
+        return array_values(array_map(static fn (array $row): int => (int) $row['uid'], $result));
+    }
+
+    // CI runs this suite against MySQL and MariaDB as well.
+    private function skipOnSqlite(): void
+    {
+        $platform = $this->get(ConnectionPool::class)->getConnectionForTable('pages')->getDatabasePlatform();
+        if ($platform instanceof SQLitePlatform) {
+            self::markTestSkipped('findAllByFilter() builds UNION SQL that SQLite does not parse.');
+        }
+    }
 }

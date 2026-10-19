@@ -1,0 +1,42 @@
+includes:
+	- %rootDir%/../../konradmichalik/phpstan-typo3-preset/phpstan.neon.dist
+	- %rootDir%/../../phpstan/phpstan-phpunit/extension.neon
+	- %rootDir%/../../phpstan/phpstan-phpunit/rules.neon
+
+parameters:
+	level: 6
+
+	scanDirectories:
+		- ../../vendor
+		- ../../vendor/phpunit/phpunit/src
+	paths:
+		- ../../Classes
+		- ../../Configuration
+		- ../../Resources
+		- ../../Tests/Unit
+		- ../../Tests/Functional
+
+	excludePaths:
+		- ../../.Build (?)
+		# konradmichalik/typo3-pagetree-facets is suggest-only - never installed for PHPStan
+		- ../../Classes/Integration/PagetreeFacets/ContentPlannerFacet.php
+		- ../../Classes/Integration/PagetreeFacets/RegisterContentPlannerFacetListener.php
+
+	ignoreErrors:
+		# getCssFiles()/getJavaScriptModuleInstructions() are genuinely overridden by
+		# ConfigurableContentStatusWidget; final would break that override.
+		-
+			identifier: ergebnis.finalInAbstractClass
+			path: ../../Classes/Widgets/AbstractWidget.php
+		# Abstract test cases are extended by design.
+		-
+			identifier: ergebnis.finalInAbstractClass
+			path: ../../Tests/*
+
+	type_coverage:
+		constant: 0 # TODO: Set to 100, when PHP 8.3 is minimum requirement
+
+	typo3:
+		requestGetAttributeMapping:
+			routing: 'TYPO3\CMS\Backend\Routing\RouteResult'
+			route: 'TYPO3\CMS\Backend\Routing\Route'

@@ -1,0 +1,667 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cognitive complexity for "Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\)" is 11, keep it under 10$#'
+			identifier: complexity.functionLike
+			count: 1
+			path: ../../Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
+
+		-
+			message: '#^PHPDoc type array\<string, mixed\> of property Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:\$itemsConfiguration is not the same as PHPDoc type array of overridden property TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\AbstractProvider\:\:\$itemsConfiguration\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: ../../Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
+
+		-
+			message: '#^Parameter \#1 \$items \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\) should be contravariant with parameter \$items \(array\) of method TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\AbstractProvider\:\:addItems\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: ../../Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
+
+		-
+			message: '#^Parameter \#1 \$items \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Backend\\ContextMenu\\ItemProviders\\StatusItemProvider\:\:addItems\(\) should be contravariant with parameter \$items \(array\) of method TYPO3\\CMS\\Backend\\ContextMenu\\ItemProviders\\ProviderInterface\:\:addItems\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: ../../Classes/Backend/ContextMenu/ItemProviders/StatusItemProvider.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''TYPO3\\\\CMS\\\\Core\\\\Utility\\\\ExtensionManagementUtility'' and ''addUserSetting'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: ../../Classes/Configuration.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: ../../Classes/Domain/Model/Dto/StatusItem.php
+
+		-
+			message: '#^Return type \(array\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\) of method Xima\\XimaTypo3ContentPlanner\\Domain\\Repository\\StatusRepository\:\:findAll\(\) should be compatible with return type \(TYPO3\\CMS\\Extbase\\Persistence\\QueryResultInterface\<int, Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\) of method TYPO3\\CMS\\Extbase\\Persistence\\Repository\<Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status\>\:\:findAll\(\)$#'
+			identifier: method.childReturnType
+			count: 1
+			path: ../../Classes/Domain/Repository/StatusRepository.php
+
+		-
+			message: '#^Call to an undefined method TYPO3\\CMS\\Backend\\RecordList\\Event\\ModifyRecordListRecordActionsEvent\:\:getTable\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: ../../Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: '#^Instanceof between TYPO3\\CMS\\Core\\Domain\\RecordInterface and TYPO3\\CMS\\Core\\Domain\\RecordInterface will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 2
+			path: ../../Classes/EventListener/ModifyRecordListRecordActionsListener.php
+
+		-
+			message: '#^Parameter \#1 \$result \(array\<string, mixed\>\) of method Xima\\XimaTypo3ContentPlanner\\Form\\FormDataProvider\\ContentPlannerFieldsReadOnly\:\:addData\(\) should be contravariant with parameter \$result \(array\) of method TYPO3\\CMS\\Backend\\Form\\FormDataProviderInterface\:\:addData\(\)$#'
+			identifier: method.childParameterType
+			count: 1
+			path: ../../Classes/Form/FormDataProvider/ContentPlannerFieldsReadOnly.php
+
+		-
+			message: '#^Casting to int something that''s already int\.$#'
+			identifier: cast.useless
+			count: 2
+			path: ../../Classes/Hooks/DataHandlerHook.php
+
+		-
+			message: '#^Parameters should have "string\|string\|int\|null\|TYPO3\\CMS\\Core\\DataHandling\\DataHandler\|null" types as the only types passed to this method$#'
+			identifier: typePerfect.narrowPublicClassMethodParamType
+			count: 1
+			path: ../../Classes/Hooks/DataHandlerHook.php
+
+		-
+			message: '''
+				#^Call to deprecated method getPublicResourceWebPath\(\) of class TYPO3\\CMS\\Core\\Utility\\PathUtility\:
+				use system resource API instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: ../../Classes/Utility/Rendering/AssetUtility.php
+
+		-
+			message: '#^Class Xima\\XimaTypo3ContentPlanner\\Integration\\PagetreeFacets\\ContentPlannerFacet not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: ../../Configuration/Services.php
+
+		-
+			message: '#^Class Xima\\XimaTypo3ContentPlanner\\Integration\\PagetreeFacets\\RegisterContentPlannerFacetListener not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: ../../Configuration/Services.php
+
+		-
+			message: '#^Method Psr\\Http\\Server\\RequestHandlerInterface@anonymous/Tests/Functional/AbstractFunctionalTestCase\.php\:86\:\:__construct\(\) has parameter \$headers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../Functional/AbstractFunctionalTestCase.php
+
+		-
+			message: '#^Casting to int something that''s already int\.$#'
+			identifier: cast.useless
+			count: 1
+			path: ../Functional/Controller/CommentTodoControllerTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''TYPO3\\\\CMS\\\\Backend\\\\Tree\\\\Repository\\\\PageTreeRepository'' and TYPO3\\CMS\\Backend\\Tree\\Repository\\PageTreeRepository will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Controller/TreeControllerTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Xima\\\\XimaTypo3ContentPlanner\\\\Domain\\\\Model\\\\Dto\\\\CommentItem'' and Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Dto\\CommentItem will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Domain/Model/Dto/CommentItemTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsBool\(\) with bool will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 3
+			path: ../Functional/Domain/Model/Dto/CommentItemTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Xima\\\\XimaTypo3ContentPlanner\\\\Domain\\\\Model\\\\Dto\\\\HistoryItem'' and Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Dto\\HistoryItem will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Domain/Model/Dto/HistoryItemTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsBool\(\) with bool will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Domain/Model/Dto/HistoryItemTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Xima\\\\XimaTypo3ContentPlanner\\\\Domain\\\\Model\\\\Dto\\\\StatusItem'' and Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Dto\\StatusItem will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Domain/Model/Dto/StatusItemTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsBool\(\) with bool will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Domain/Model/Dto/StatusItemTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsInt\(\) with int will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Functional/Domain/Model/Dto/StatusItemTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsString\(\) with string will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 3
+			path: ../Functional/Domain/Model/Dto/StatusItemTest.php
+
+		-
+			message: '#^Mixed property fetch in a "\$items\[0\]\[''labels''\]\[0\]\-\>\.\.\." can skip important errors\. Make sure the type is known$#'
+			identifier: typePerfect.noMixedPropertyFetcher
+			count: 1
+			path: ../Functional/EventListener/AfterPageTreeItemsPreparedListenerTest.php
+
+		-
+			message: '#^Class TYPO3\\CMS\\Backend\\Template\\Components\\ModifyButtonBarEvent constructor invoked with 2 parameters, 3 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: ../Functional/EventListener/ModifyButtonBarEventListenerTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Xima\\\\XimaTypo3ContentPlanner\\\\Domain\\\\Model\\\\Status'' and Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Repository/StatusRepositoryTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsBool\(\) with bool will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Service/Header/InfoGeneratorTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''1'' and array\<string, mixed\> will always evaluate to false\.$#'
+			identifier: staticMethod.impossibleType
+			count: 2
+			path: ../Functional/Service/SelectionBuilder/ContextMenuSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''1'' and non\-empty\-array\<string, mixed\> will always evaluate to false\.$#'
+			identifier: staticMethod.impossibleType
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/ContextMenuSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''2'' and \*NEVER\* will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/ContextMenuSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''3'' and \*NEVER\* will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Functional/Service/SelectionBuilder/ContextMenuSelectionServiceTest.php
+
+		-
+			message: '#^Offset ''1'' does not exist on non\-empty\-array\<string, mixed\>\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/ContextMenuSelectionServiceTest.php
+
+		-
+			message: '#^Mixed variable in a `\$entries\[''commentsTodo''\]\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
+			identifier: typePerfect.noMixedMethodCaller
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/DropDownSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''1'' and array\<string, mixed\> will always evaluate to false\.$#'
+			identifier: staticMethod.impossibleType
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/ListSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''1'' and non\-empty\-array\<string, mixed\> will always evaluate to false\.$#'
+			identifier: staticMethod.impossibleType
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/ListSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''2'' and \*NEVER\* will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/ListSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''3'' and \*NEVER\* will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Functional/Service/SelectionBuilder/ListSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''assignee'' and \*NEVER\* will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/ListSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''comments'' and \*NEVER\* will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Service/SelectionBuilder/ListSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''reset'' and \*NEVER\* will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Functional/Service/SelectionBuilder/ListSelectionServiceTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Psr\\\\Http\\\\Message\\\\UriInterface'' and Psr\\Http\\Message\\UriInterface will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Functional/Service/SelectionBuilder/SelectionUriBuilderTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\Buttons\\\\DropDownButton'' and TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDownButton will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Utility/Compatibility/ComponentFactoryUtilityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\Buttons\\\\DropDown\\\\DropDownDivider'' and TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownDivider will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Utility/Compatibility/ComponentFactoryUtilityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\Buttons\\\\DropDown\\\\DropDownHeader'' and TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownHeader will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Utility/Compatibility/ComponentFactoryUtilityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''TYPO3\\\\CMS\\\\Backend\\\\Template\\\\Components\\\\Buttons\\\\DropDown\\\\DropDownItem'' and TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\DropDown\\DropDownItem will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Utility/Compatibility/ComponentFactoryUtilityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsBool\(\) with bool will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Utility/Compatibility/ComponentFactoryUtilityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertContainsOnlyString\(\) with array\<string\> will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Utility/ExtensionUtilityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsBool\(\) with bool will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Functional/Utility/ExtensionUtilityTest.php
+
+		-
+			message: '#^You should use assertCount\(\$expectedCount, \$variable\) instead of assertSame\(\$expectedCount, count\(\$variable\)\)\.$#'
+			identifier: phpunit.assertCount
+			count: 1
+			path: ../Functional/Utility/PlannerUtilityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertIsString\(\) with string will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Utility/Rendering/ViewUtilityTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Xima\\\\XimaTypo3ContentPlanner\\\\Domain\\\\Model\\\\Dto\\\\CommentItem'' and Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Dto\\CommentItem will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Widgets/Provider/ContentCommentDataProviderTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Xima\\\\XimaTypo3ContentPlanner\\\\Domain\\\\Model\\\\Status'' and Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Status will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Widgets/Provider/ContentStatusDataProviderTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Xima\\\\XimaTypo3ContentPlanner\\\\Domain\\\\Model\\\\Dto\\\\HistoryItem'' and Xima\\XimaTypo3ContentPlanner\\Domain\\Model\\Dto\\HistoryItem will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Functional/Widgets/Provider/ContentUpdateDataProviderTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''black'' and ''black'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/ColorsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''blue'' and ''blue'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/ColorsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''green'' and ''green'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/ColorsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''orange'' and ''orange'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/ColorsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''purple'' and ''purple'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/ColorsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''red'' and ''red'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/ColorsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''yellow'' and ''yellow'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/ColorsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with array\{''black'', ''blue'', ''green'', ''yellow'', ''red'', ''purple'', ''orange''\} and array\{''black'', ''blue'', ''green'', ''yellow'', ''red'', ''purple'', ''orange''\} will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Unit/Configuration/ColorsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNotEmpty\(\) with ''certificate''\|''exclamation''\|''flag''\|''heart''\|''info''\|''rocket''\|''star''\|''tag''\|''thumbtack'' and ''Icon should not be…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''certificate'' and ''certificate'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''exclamation'' and ''exclamation'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''flag'' and ''flag'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''heart'' and ''heart'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''info'' and ''info'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''rocket'' and ''rocket'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''star'' and ''star'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''tag'' and ''tag'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''thumbtack'' and ''thumbtack'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with array\{''flag'', ''heart'', ''tag'', ''star'', ''info'', ''certificate'', ''exclamation'', ''rocket'', \.\.\.\} and array\{''flag'', ''heart'', ''tag'', ''star'', ''info'', ''certificate'', ''exclamation'', ''rocket'', \.\.\.\} will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 2
+			path: ../Unit/Configuration/IconsTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNotEmpty\(\) with ''autoAssignment''\|''clearCommentsOnStat…''\|''commentTodos''\|''currentAssigneeHigh…''\|''enablePagetreeFacet…''\|''recordEditHeaderInfo''\|''recordListStatusInfo''\|''resetContentElement…''\|''treeStatusInformati…''\|''webListHeaderInfo'' and ''Feature constant…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''XimaTypo3ContentPla…'' and ''XimaTypo3ContentPla…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''autoAssignment'' and ''autoAssignment'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''clearCommentsOnStat…'' and ''clearCommentsOnStat…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''commentTodos'' and ''commentTodos'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''currentAssigneeHigh…'' and ''currentAssigneeHigh…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''enablePagetreeFacet…'' and ''enablePagetreeFacet…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''recordEditHeaderInfo'' and ''recordEditHeaderInfo'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''recordListStatusInfo'' and ''recordListStatusInfo'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''resetContentElement…'' and ''resetContentElement…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''treeStatusInformati…'' and ''treeStatusInformati…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''webListHeaderInfo'' and ''webListHeaderInfo'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''xima_typo3_content…'' and ''xima_typo3_content…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''ximatypo3contentpla…'' and ''ximatypo3contentpla…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/ConfigurationTest.php
+
+		-
+			message: '''
+				#^Call to deprecated method isType\(\) of class PHPUnit\\Framework\\Assert\:
+				https\://github\.com/sebastianbergmann/phpunit/issues/6052$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: ../Unit/Domain/Repository/RecordRepositoryTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''xima_typo3_content…'' and ''xima_typo3_content…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Event/PrepareStatusSelectionEventTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''xima_typo3_content…'' and ''xima_typo3_content…'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Event/StatusChangeEventTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with array\{1\: ''Draft'', 2\: ''Published''\} and array\<string, mixed\> will always evaluate to false\.$#'
+			identifier: staticMethod.impossibleType
+			count: 1
+			path: ../Unit/Manager/StatusSelectionManagerTest.php
+
+		-
+			message: '#^Parameter \#1 \$selection of method Xima\\XimaTypo3ContentPlanner\\Event\\PrepareStatusSelectionEvent\:\:setSelection\(\) expects array\<string, mixed\>, array\<int, string\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: ../Unit/Manager/StatusSelectionManagerTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertCount\(\) with 4 and array\{Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:EDIT, Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:WEB_LAYOUT, Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:WEB_LIST, Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:FILE_LIST\} will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with null will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''edit'' and ''edit'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''file_list'' and ''file_list'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''web_layout'' and ''web_layout'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with ''web_list'' and ''web_list'' will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:EDIT and Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:EDIT will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:FILE_LIST and Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:FILE_LIST will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:WEB_LAYOUT and Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:WEB_LAYOUT will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Call to static method PHPUnit\\Framework\\Assert\:\:assertSame\(\) with Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:WEB_LIST and Xima\\XimaTypo3ContentPlanner\\Service\\Header\\HeaderMode\:\:WEB_LIST will always evaluate to true\.$#'
+			identifier: staticMethod.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Service/Header/HeaderModeTest.php
+
+		-
+			message: '#^Dynamic call to static method PHPUnit\\Framework\\TestCase\:\:createStub\(\)\.$#'
+			identifier: staticMethod.dynamicCall
+			count: 1
+			path: ../Unit/Utility/Data/DiffUtilityTest.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''Xima\\\\XimaTypo3ContentPlanner\\\\Utility\\\\ExtensionUtility'' and ''isPagetreeFacetsInt…'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: ../Unit/Utility/ExtensionUtilityTest.php
+
+		-
+			message: '#^Method PHPUnit\\Framework\\MockObject\\Builder\\InvocationMocker\:\:willReturnOnConsecutiveCalls\(\) invoked with unpacked array with possibly string key, but it''s not allowed because of @no\-named\-arguments\.$#'
+			identifier: argument.named
+			count: 1
+			path: ../Unit/Utility/Security/PermissionUtilityTest.php
+
+		-
+			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Tests\\Unit\\Utility\\Security\\PermissionUtilityTest\:\:createMockBackendUser\(\) has parameter \$permissions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../Unit/Utility/Security/PermissionUtilityTest.php
+
+		-
+			message: '#^Method Xima\\XimaTypo3ContentPlanner\\Tests\\Unit\\Utility\\Security\\PermissionUtilityTest\:\:createMockBackendUser\(\) has parameter \$user with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: ../Unit/Utility/Security/PermissionUtilityTest.php
+
+		-
+			message: '#^Out of 1465 possible return types, only 1464 \- 99\.9 %% actually have it\. Add more return types to get over 100 %%$#'
+			identifier: typeCoverage.returnTypeCoverage
+			count: 1
+			path: ../Unit/Utility/Security/PermissionUtilityTest.php

@@ -1,13 +1,19 @@
 name: Tests
 on:
   push:
-    branches:
-      - '**'
+    branches: [main, 'renovate/**']
+  pull_request: ~
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   tests:
-    uses: konradmichalik/reusable-github-actions/.github/workflows/tests-typo3.yml@c460c0166a646cb65fd059c8d2f7d895ff3c787b # 0.1.0
+    uses: konradmichalik/reusable-github-actions/.github/workflows/tests-typo3.yml@4243a59d724ff48526f9a6e4e8e7a1c23200e8cd # main, untagged (0.2.0 pending)
     with:
-      php-versions: '["8.2", "8.3", "8.4", "8.5"]'
+      php-versions: '["8.2", "8.5"]'
       typo3-versions: '["13.4", "14.3"]'
       dependencies: '["highest", "lowest"]'
+      databases: '["mysql:8.4", "mariadb:11.4"]'
+      databases-php-version: '8.5'

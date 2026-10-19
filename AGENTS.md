@@ -26,7 +26,7 @@ Guidance for coding agents working in this repository.
 - `Documentation/`: TYPO3 documentation source
 - `.ddev/`: DDEV setup with TYPO3 13 and 14 instances
 
-Some files are TYPO3 v14 only (for example `AfterFileStorageTreeItemsPreparedListener.php`) and are excluded from PHPStan for v13 compatibility.
+Some files are TYPO3 v14 only (for example `AfterFileStorageTreeItemsPreparedListener.php`). The v13 PHPStan config excludes them, the v14 config analyses them.
 
 ## Development commands
 
@@ -51,8 +51,10 @@ ddev composer test:coverage    # both suites, merged with phpcov into .Build/cov
 ```
 
 - Functional tests extend `Tests\Functional\AbstractFunctionalTestCase` (loads the extension, provides `loginBackendUser()` and `setUpBackendRequest()`). CSV fixtures live in `Fixtures/` subfolders.
-- `RecordRepository::findAllByFilter()` builds raw UNION SQL that is invalid on SQLite, so it and its callers (for example `StatusOverviewDataProvider`) are not covered by the functional suite.
-- CI (`.github/workflows/tests.yml`, reusable workflow) runs PHP 8.2 to 8.5 against TYPO3 13.4 and 14.3 with highest and lowest dependencies.
+- `RecordRepository::findAllByFilter()` builds raw UNION SQL that is invalid on SQLite. Its tests skip on SQLite and run in CI against MySQL and MariaDB. Locally against the DDEV MariaDB: `ddev exec env typo3DatabaseDriver=mysqli typo3DatabaseHost=db typo3DatabaseUsername=root typo3DatabasePassword=root typo3DatabaseName=ft vendor/bin/phpunit -c phpunit.functional.xml`
+- The testing framework sets `ONLY_FULL_GROUP_BY` on MySQL and MariaDB, so `SELECT table.* ... GROUP BY uid` passes on SQLite but fails on MariaDB.
+- CI (`.github/workflows/tests.yml`, reusable workflow) runs unit and functional tests on SQLite with PHP 8.2 and 8.5, TYPO3 13.4 and 14.3, highest and lowest dependencies, plus the functional suite on MySQL 8.4 and MariaDB 11.4 with PHP 8.5 and highest dependencies.
+- CI runs on pushes to `main` and `renovate/**` and on pull requests, so a feature branch is checked once it has a pull request.
 
 ## Code style and static analysis
 
@@ -61,17 +63,19 @@ Tools live in `Tests/CGL/` and run through `ddev cgl`:
 ```bash
 ddev cgl lint                  # composer, editorconfig, language, php, typoscript
 ddev cgl fix                   # composer, editorconfig, php
-ddev cgl sca                   # PHPStan level 6
+ddev cgl sca                   # PHPStan level 6 against TYPO3 v13
 ddev cgl migration             # Rector
 ddev cgl analyze               # composer-dependency-analyser
 ```
 
-- Individual targets: `lint:composer`, `lint:editorconfig`, `lint:language`, `lint:php`, `lint:typoscript`, `fix:composer`, `fix:editorconfig`, `fix:php`, `sca:php`, `migration:rector`, `analyze:dependencies`
-- Config files: `Tests/CGL/phpstan.neon`, `Tests/CGL/rector.php`, `Tests/CGL/.php-cs-fixer.php`
+- Individual targets: `lint:composer`, `lint:editorconfig`, `lint:language`, `lint:php`, `lint:typoscript`, `fix:composer`, `fix:editorconfig`, `fix:php`, `sca:php`, `sca:php:v14`, `migration:rector`, `analyze:dependencies`
+- PHPStan analyses `Classes/`, `Configuration/`, `Resources/` and `Tests/` against whatever TYPO3 the root `vendor/` holds. `phpstan.neon` with `phpstan-baseline.neon` is for v13 (the locked version), `phpstan-v14.neon` with `phpstan-baseline-v14.neon` for v14, both share `phpstan.base.neon`. Unmatched baseline entries fail the run, so a baseline only holds errors of its own TYPO3 version
+- `sca:php:v14` needs a root `vendor/` installed with `composer update --with=typo3/cms-core:^14.3`. The local root `vendor/` is v13, so regenerate the v14 baseline in a copy of the repository or let CI report it
+- Config files: `Tests/CGL/phpstan.neon`, `Tests/CGL/phpstan-v14.neon`, `Tests/CGL/rector.php`, `Tests/CGL/.php-cs-fixer.php`
 - Strict types are required (`declare(strict_types=1);`)
 - Use PSR-7 request and response objects, no superglobals and no `header()`
 - No `var_dump()` or `debug()`
-- CI runs the CGL workflow (`.github/workflows/cgl.yml`) on every push
+- The CGL workflow (`.github/workflows/cgl.yml`) also runs PHPStan against TYPO3 v14 (`sca:php:v14`)
 
 ## Extension points
 
