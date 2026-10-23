@@ -105,6 +105,14 @@ final class CommentItem
         return UrlUtility::getRecordLink($this->data['foreign_table'], (int) $this->data['foreign_uid']);
     }
 
+    public function getPlainText(): string
+    {
+        $html = preg_replace('#</(?:p|div|li|tr|td|th|h[1-6])>|<br\s*/?>#i', '$0 ', (string) $this->data['content']) ?? '';
+        $text = html_entity_decode(strip_tags($html), \ENT_QUOTES | \ENT_HTML5);
+
+        return trim((string) preg_replace('/\s+/u', ' ', $text));
+    }
+
     public function getAuthorName(): string
     {
         return ContentUtility::getBackendUsernameById((int) $this->data['author']);

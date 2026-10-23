@@ -85,7 +85,7 @@ final class ContentCommentWidgetTest extends AbstractFunctionalTestCase
 
         $content = $this->createWidget()->renderWidgetContent();
 
-        self::assertStringContainsString('Nested link', $content);
+        self::assertStringContainsString('Intro text Nested link', $content);
         self::assertStringNotContainsString('<table', $content);
         self::assertStringNotContainsString('example.com', $content);
         self::assertStringNotContainsString('<script', $content);
