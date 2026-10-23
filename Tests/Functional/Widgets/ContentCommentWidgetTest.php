@@ -77,6 +77,25 @@ final class ContentCommentWidgetTest extends AbstractFunctionalTestCase
         self::assertStringContainsString('Reply', $content);
     }
 
+    #[Test]
+    public function renderWidgetContentRendersCommentTextAsPlainTeaser(): void
+    {
+        $this->importCSVDataSet(__DIR__.'/Provider/Fixtures/pages.csv');
+        $this->importCSVDataSet(__DIR__.'/Fixtures/comments_html.csv');
+
+        $content = $this->createWidget()->renderWidgetContent();
+
+        self::assertStringContainsString('Nested link', $content);
+        self::assertStringNotContainsString('<table', $content);
+        self::assertStringNotContainsString('example.com', $content);
+        self::assertStringNotContainsString('<script', $content);
+        self::assertStringNotContainsString('&amp;nbsp;', $content);
+        self::assertStringContainsString('&lt;b&gt;escaped&lt;/b&gt;', $content);
+        self::assertStringNotContainsString('<b>', $content);
+        self::assertStringNotContainsString(str_repeat('a', 160), $content);
+        self::assertStringContainsString('…', $content);
+    }
+
     private function createWidget(): ContentCommentWidget
     {
         return new ContentCommentWidget(

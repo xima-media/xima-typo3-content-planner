@@ -1,0 +1,5 @@
+"tx_ximatypo3contentplanner_comment"
+,"uid","pid","foreign_uid","foreign_table","content","author","edited","resolved_user","resolved_date","todo_resolved","todo_total","parent_uid","crdate","deleted"
+,1,0,1,"pages","<p>Intro&nbsp;text</p><table><tbody><tr><td><a href=""https://example.com"">Nested link</a></td></tr></tbody></table><script>alert(1)</script>",1,0,0,0,0,0,0,1000,0
+,2,0,1,"pages","&lt;b&gt;escaped&lt;/b&gt;",1,0,0,0,0,0,0,2000,0
+,3,0,1,"pages","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",1,0,0,0,0,0,0,3000,0
