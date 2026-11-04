@@ -345,6 +345,56 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     }
 
     #[Test]
+    public function updateStatusForRecordWorksForHiddenRecord(): void
+    {
+        $this->hidePage(1);
+
+        PlannerUtility::updateStatusForRecord('pages', 1, 3);
+
+        $record = $this->get(RecordRepository::class)->findByUid('pages', 1, true);
+        self::assertSame(3, (int) $record[Configuration::FIELD_STATUS]);
+    }
+
+    #[Test]
+    public function getStatusOfRecordWorksForHiddenRecord(): void
+    {
+        $this->hidePage(1);
+
+        $status = PlannerUtility::getStatusOfRecord('pages', 1);
+
+        self::assertInstanceOf(Status::class, $status);
+        self::assertSame(2, $status->getUid());
+    }
+
+    #[Test]
+    public function getCommentsOfRecordWorksForHiddenRecord(): void
+    {
+        $this->hidePage(1);
+
+        self::assertCount(1, PlannerUtility::getCommentsOfRecord('pages', 1));
+    }
+
+    #[Test]
+    public function addCommentsToRecordWorksForHiddenRecord(): void
+    {
+        $this->hidePage(1);
+
+        PlannerUtility::addCommentsToRecord('pages', 1, 'Comment on a hidden page', 'admin');
+
+        self::assertSame(2, $this->get(CommentRepository::class)->countAllByRecord(1, 'pages'));
+    }
+
+    #[Test]
+    public function clearCommentsOfRecordWorksForHiddenRecord(): void
+    {
+        $this->hidePage(1);
+
+        PlannerUtility::clearCommentsOfRecord('pages', 1);
+
+        self::assertSame(0, $this->get(CommentRepository::class)->countAllByRecord(1, 'pages'));
+    }
+
+    #[Test]
     public function generateTodoForCommentBuildsHtmlListAndEscapes(): void
     {
         $html = PlannerUtility::generateTodoForComment(['Plain todo', '<script>x</script>']);
@@ -383,5 +433,10 @@ final class PlannerUtilityTest extends AbstractFunctionalTestCase
     public function getListOfStatusMatchesFixtureCount(): void
     {
         self::assertSame(3, count(PlannerUtility::getListOfStatus()));
+    }
+
+    private function hidePage(int $uid): void
+    {
+        $this->getConnectionPool()->getConnectionForTable('pages')->update('pages', ['hidden' => 1], ['uid' => $uid]);
     }
 }
