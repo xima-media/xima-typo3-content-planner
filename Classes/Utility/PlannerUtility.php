@@ -237,7 +237,7 @@ class PlannerUtility
             throw new InvalidArgumentException('Table "'.$table.'" is not a valid content planner record table.', 9518991865);
         }
 
-        $record = GeneralUtility::makeInstance(RecordRepository::class)->findByUid($table, $uid);
+        $record = GeneralUtility::makeInstance(RecordRepository::class)->findByUid($table, $uid, true);
         if (!$record) {
             throw new InvalidArgumentException('Record "'.$uid.'" in table "'.$table.'" not found.', 4064696674);
         }
