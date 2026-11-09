@@ -37,12 +37,6 @@ parameters:
 			path: ../../Classes/Domain/Repository/StatusRepository.php
 
 		-
-			message: '#^Cognitive complexity for "Xima\\XimaTypo3ContentPlanner\\EventListener\\ModifyRecordListRecordActionsListener\:\:__invoke\(\)" is 12, keep it under 10$#'
-			identifier: complexity.functionLike
-			count: 1
-			path: ../../Classes/EventListener/ModifyRecordListRecordActionsListener.php
-
-		-
 			message: '#^Instanceof between array and TYPO3\\CMS\\Core\\Domain\\RecordInterface will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 2
