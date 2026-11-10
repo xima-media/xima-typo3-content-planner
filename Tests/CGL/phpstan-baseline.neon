@@ -85,12 +85,6 @@ parameters:
 			path: ../../Classes/Utility/Rendering/AssetUtility.php
 
 		-
-			message: '#^Parameters should have "null\|null\|int\|null" types as the only types passed to this method$#'
-			identifier: typePerfect.narrowPublicClassMethodParamType
-			count: 1
-			path: ../../Classes/Widgets/Provider/ContentUpdateDataProvider.php
-
-		-
 			message: '#^Class Xima\\XimaTypo3ContentPlanner\\Integration\\PagetreeFacets\\ContentPlannerFacet not found\.$#'
 			identifier: class.notFound
 			count: 2
