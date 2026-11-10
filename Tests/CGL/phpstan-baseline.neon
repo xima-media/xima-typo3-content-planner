@@ -37,12 +37,6 @@ parameters:
 			path: ../../Classes/Domain/Repository/StatusRepository.php
 
 		-
-			message: '#^Cognitive complexity for "Xima\\XimaTypo3ContentPlanner\\EventListener\\ModifyRecordListRecordActionsListener\:\:__invoke\(\)" is 12, keep it under 10$#'
-			identifier: complexity.functionLike
-			count: 1
-			path: ../../Classes/EventListener/ModifyRecordListRecordActionsListener.php
-
-		-
 			message: '#^Instanceof between array and TYPO3\\CMS\\Core\\Domain\\RecordInterface will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 2
@@ -89,12 +83,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: ../../Classes/Utility/Rendering/AssetUtility.php
-
-		-
-			message: '#^Parameters should have "null\|null\|int\|null" types as the only types passed to this method$#'
-			identifier: typePerfect.narrowPublicClassMethodParamType
-			count: 1
-			path: ../../Classes/Widgets/Provider/ContentUpdateDataProvider.php
 
 		-
 			message: '#^Class Xima\\XimaTypo3ContentPlanner\\Integration\\PagetreeFacets\\ContentPlannerFacet not found\.$#'
