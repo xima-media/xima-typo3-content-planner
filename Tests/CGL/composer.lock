@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4ff7e792e1707d03b23a8187edc63b2e",
+    "content-hash": "2f439e8904a89d0a9b3bf0c4f1b2a3c5",
     "packages": [],
     "packages-dev": [
         {
@@ -2090,16 +2090,16 @@
         },
         {
             "name": "move-elevator/composer-translation-validator",
-            "version": "1.6.0",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/move-elevator/composer-translation-validator.git",
-                "reference": "80f99eae7c1f63367d85174cb78c24671d342c61"
+                "reference": "7d72f067c90b37ba5ebbcec1839f54c266671318"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/move-elevator/composer-translation-validator/zipball/80f99eae7c1f63367d85174cb78c24671d342c61",
-                "reference": "80f99eae7c1f63367d85174cb78c24671d342c61",
+                "url": "https://api.github.com/repos/move-elevator/composer-translation-validator/zipball/7d72f067c90b37ba5ebbcec1839f54c266671318",
+                "reference": "7d72f067c90b37ba5ebbcec1839f54c266671318",
                 "shasum": ""
             },
             "require": {
@@ -2110,7 +2110,7 @@
                 "ext-simplexml": "*",
                 "justinrainbow/json-schema": "^5.3 || ^6.4",
                 "nikic/php-parser": "^5.0",
-                "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+                "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0 || ~8.6.0",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "symfony/config": "^6.0 || ^7.0 || ^8.0",
                 "symfony/console": "^6.0 || ^7.0 || ^8.0",
@@ -2122,8 +2122,8 @@
                 "armin/editorconfig-cli": "^1.0 || ^2.0",
                 "composer/composer": "^2.0",
                 "ergebnis/composer-normalize": "^2.44",
-                "konradmichalik/php-cs-fixer-preset": "^0.2.0",
-                "konradmichalik/php-doc-block-header-fixer": "^0.3.0",
+                "konradmichalik/php-cs-fixer-preset": "^0.4.0",
+                "konradmichalik/php-doc-block-header-fixer": "^0.5.0",
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpstan/phpstan-symfony": "^2.0",
@@ -2159,9 +2159,10 @@
             "description": "A Composer plugin that validates translations files in your project regarding mismatches between language source and target files.",
             "support": {
                 "issues": "https://github.com/move-elevator/composer-translation-validator/issues",
-                "source": "https://github.com/move-elevator/composer-translation-validator/tree/1.6.0"
+                "source": "https://github.com/move-elevator/composer-translation-validator/tree/1.8.0"
             },
-            "time": "2026-07-28T11:44:29+00:00"
+            "time": "2026-11-26T09:45:06+00:00",
+            "published-time": "2026-11-26T09:56:16+00:00"
         },
         {
             "name": "nette/utils",
@@ -2796,7 +2797,8 @@
             "support": {
                 "source": "https://github.com/php-fig/log/tree/3.0.2"
             },
-            "time": "2024-09-11T13:17:53+00:00"
+            "time": "2024-09-11T13:17:53+00:00",
+            "published-time": "2024-09-11T13:21:14+00:00"
         },
         {
             "name": "react/cache",
@@ -4004,7 +4006,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-12T18:45:38+00:00"
+            "time": "2026-10-12T18:45:38+00:00",
+            "published-time": "2026-10-14T06:45:30+00:00"
         },
         {
             "name": "symfony/dependency-injection",
@@ -4791,7 +4794,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-25T15:46:47+00:00"
+            "time": "2026-09-25T15:46:47+00:00",
+            "published-time": "2026-09-30T10:23:37+00:00"
         },
         {
             "name": "symfony/polyfill-intl-idn",
@@ -4963,7 +4967,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-23T22:02:09+00:00"
+            "time": "2026-09-23T22:02:09+00:00",
+            "published-time": "2026-09-30T10:23:47+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -5606,7 +5611,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-03T15:15:30+00:00"
+            "time": "2026-10-03T15:15:30+00:00",
+            "published-time": "2026-10-14T06:45:56+00:00"
         },
         {
             "name": "symfony/translation",
@@ -5706,7 +5712,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-21T17:40:08+00:00"
+            "time": "2026-08-21T17:40:08+00:00",
+            "published-time": "2026-08-22T13:43:09+00:00"
         },
         {
             "name": "symfony/translation-contracts",
@@ -5788,7 +5795,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-05T06:23:12+00:00"
+            "time": "2026-06-05T06:23:12+00:00",
+            "published-time": "2026-06-27T21:46:40+00:00"
         },
         {
             "name": "symfony/var-exporter",
@@ -5874,16 +5882,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v7.4.21",
+            "version": "v7.4.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "044907929c7999814378be22da34722c7a86bad4"
+                "reference": "539dd469c25466d7225d6cadac1795201c9cf454"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/044907929c7999814378be22da34722c7a86bad4",
-                "reference": "044907929c7999814378be22da34722c7a86bad4",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/539dd469c25466d7225d6cadac1795201c9cf454",
+                "reference": "539dd469c25466d7225d6cadac1795201c9cf454",
                 "shasum": ""
             },
             "require": {
@@ -5926,7 +5934,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v7.4.21"
+                "source": "https://github.com/symfony/yaml/tree/v7.4.25"
             },
             "funding": [
                 {
@@ -5946,7 +5954,8 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-12T12:34:30+00:00"
+            "time": "2026-11-27T13:07:44+00:00",
+            "published-time": "2026-11-27T14:41:42+00:00"
         },
         {
             "name": "tomasvotruba/cognitive-complexity",
